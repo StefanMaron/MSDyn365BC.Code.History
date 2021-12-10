@@ -262,6 +262,7 @@ table 7354 Bin
     trigger OnInsert()
     begin
         TestField("Location Code");
+        TestField(Code);
         GetLocation("Location Code");
         if Location."Directed Put-away and Pick" then begin
             TestField("Zone Code");

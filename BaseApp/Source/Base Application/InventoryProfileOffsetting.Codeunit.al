@@ -203,7 +203,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
-        OnBeforeTransSalesLineToProfile(InventoryProfile, Item);
+        OnBeforeTransSalesLineToProfile(InventoryProfile, Item, SalesLine);
         if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::Order) then
             repeat
                 if SalesLine."Shipment Date" <> 0D then begin
@@ -212,7 +212,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     if not IsHandled then begin
                         InventoryProfile.Init();
                         InventoryProfile."Line No." := NextLineNo;
+                        OnTransSalesLineToProfileOnBeforeTransferFromSalesLineOrder(Item, SalesLine);
                         InventoryProfile.TransferFromSalesLine(SalesLine, TempItemTrkgEntry);
+                        OnTransSalesLineToProfileOnAfterTransferFromSalesLineOrder(Item, SalesLine, InventoryProfile);
                         if InventoryProfile.IsSupply then
                             InventoryProfile.ChangeSign;
                         InventoryProfile."MPS Order" := true;
@@ -229,7 +231,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     if not IsHandled then begin
                         InventoryProfile.Init();
                         InventoryProfile."Line No." := NextLineNo;
+                        OnTransSalesLineToProfileOnBeforeTransferFromSalesLineReturnOrder(Item, SalesLine);
                         InventoryProfile.TransferFromSalesLine(SalesLine, TempItemTrkgEntry);
+                        OnTransSalesLineToProfileOnAfterTransferFromSalesLineReturnOrder(Item, SalesLine, InventoryProfile);
                         if InventoryProfile.IsSupply then
                             InventoryProfile.ChangeSign;
                         InventoryProfile.Insert();
@@ -378,7 +382,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTransShptTransLineToProfile(InventoryProfile, Item, LineNo, IsHandled);
+        OnBeforeTransShptTransLineToProfile(InventoryProfile, Item, LineNo, IsHandled, TransLine);
         if IsHandled then
             exit;
 
@@ -389,13 +393,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     InventoryProfile.Init();
                     InventoryProfile."Line No." := NextLineNo;
                     InventoryProfile."Item No." := Item."No.";
+                    OnTransShptTransLineToProfileOnBeforeTransferFromOutboundTransfer(Item, Transline);
                     InventoryProfile.TransferFromOutboundTransfer(TransLine, TempItemTrkgEntry);
+                    OnTransShptTransLineToProfileOnAfterTransferFromOutboundTransfer(Item, Transline, InventoryProfile);
                     if InventoryProfile.IsSupply then
                         InventoryProfile.ChangeSign;
                     if FilterIsSetOnLocation then
                         InventoryProfile."Transfer Location Not Planned" := TransferLocationIsFilteredOut(Item, TransLine);
                     SyncTransferDemandWithReqLine(InventoryProfile, TransLine."Transfer-to Code");
                     InventoryProfile.Insert();
+                    OnTransShptTransLineToProfileOnAfterInventoryProfileInsert(Item, Transline, InventoryProfile);
                 end;
             until TransLine.Next() = 0;
     end;
@@ -407,11 +414,14 @@ codeunit 99000854 "Inventory Profile Offsetting"
             repeat
                 InventoryProfile.Init();
                 InventoryProfile."Line No." := NextLineNo;
+                OnTransItemLedgEntryToProfileOnBeforeTransferFromItemLedgerEntry(Item, ItemLedgEntry);
                 InventoryProfile.TransferFromItemLedgerEntry(ItemLedgEntry, TempItemTrkgEntry);
+                OnTransItemLedgEntryToProfileOnAfterTransferFromItemLedgerEntry(Item, ItemLedgEntry, InventoryProfile);
                 InventoryProfile."Due Date" := 0D;
                 if not InventoryProfile.IsSupply then
                     InventoryProfile.ChangeSign;
                 InventoryProfile.Insert();
+                OnTransItemLedgEntryToProfileOnAfterInsertInventoryProfile(Item, ItemLedgEntry, InventoryProfile);
             until ItemLedgEntry.Next() = 0;
     end;
 
@@ -1346,7 +1356,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if TempSKU.Find('-') then
             repeat
                 IsReorderPointPlanning := IsSKUSetUpForReorderPointPlanning(TempSKU);
-                OnPlanItemAfterCalcIsReorderPointPlanning(TempSKU, IsReorderPointPlanning, ReqLine, PlanningTransparency, PlanningResilicency, CurrTemplateName, CurrWorksheetName);
+                OnPlanItemAfterCalcIsReorderPointPlanning(TempSKU, IsReorderPointPlanning, ReqLine, PlanningTransparency, PlanningResilicency, CurrTemplateName, CurrWorksheetName, PlanningStartDate);
 
                 BucketSize := TempSKU."Time Bucket";
                 // Minimum bucket size is 1 day:
@@ -1716,6 +1726,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         OriginalSupplyDate: Date;
         NewSupplyDate: Date;
         CanBeRescheduled: Boolean;
+        DemandDueDate: Date;
     begin
         if FromLotAccumulationPeriodStartDate(LotAccumulationPeriodStartDate, DemandInvtProfile."Due Date") then begin
             NewSupplyDate := LotAccumulationPeriodStartDate;
@@ -1725,18 +1736,22 @@ codeunit 99000854 "Inventory Profile Offsetting"
             LotAccumulationPeriodStartDate := 0D;
         end;
 
+        DemandDueDate := DemandInvtProfile."Due Date";
+        if TempSKU."Replenishment System" = TempSKU."Replenishment System"::Purchase then
+            DemandDueDate := GetPrevAvailDateFromCompanyCalendar(DemandInvtProfile."Due Date");
+
         OriginalSupplyDate := SupplyInvtProfile."Due Date";
         WeAreSureThatDatesMatch := false;
 
-        if DemandInvtProfile."Due Date" < SupplyInvtProfile."Due Date" then begin
-            CanBeRescheduled := CheckScheduleIn(SupplyInvtProfile, DemandInvtProfile."Due Date", NewSupplyDate, true);
+        if DemandDueDate < SupplyInvtProfile."Due Date" then begin
+            CanBeRescheduled := CheckScheduleIn(SupplyInvtProfile, DemandDueDate, NewSupplyDate, true);
             if CanBeRescheduled then
                 WeAreSureThatDatesMatch := true
             else
                 NextState := NextState::CreateSupply;
         end else
-            if DemandInvtProfile."Due Date" > SupplyInvtProfile."Due Date" then begin
-                CanBeRescheduled := CheckScheduleOut(SupplyInvtProfile, DemandInvtProfile."Due Date", NewSupplyDate, true);
+            if DemandDueDate > SupplyInvtProfile."Due Date" then begin
+                CanBeRescheduled := CheckScheduleOut(SupplyInvtProfile, DemandDueDate, NewSupplyDate, true);
                 if CanBeRescheduled then
                     WeAreSureThatDatesMatch := not ScheduleAllOutChangesSequence(SupplyInvtProfile, NewSupplyDate)
                 else
@@ -1752,7 +1767,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
               TempReminderInvtProfile, NewSupplyDate, LastProjectedInventory, LatestBucketStartDate, ROPHasBeenCrossed);
             if ROPHasBeenCrossed then begin
                 CreateSupplyForward(SupplyInvtProfile, DemandInvtProfile, TempReminderInvtProfile,
-                  LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver, DemandInvtProfile."Due Date");
+                  LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver, DemandDueDate);
                 if NewSupplyHasTakenOver then begin
                     WeAreSureThatDatesMatch := false;
                     NextState := NextState::MatchDates;
@@ -2373,7 +2388,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         NextEntryNo: Integer;
         ShouldInsert: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertTempTracking(FromTrkgReservEntry, ToTrkgReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if FromTrkgReservEntry."Quantity (Base)" = 0 then
             exit;
         NextEntryNo := TempTrkgReservEntry."Entry No." + 1;
@@ -3684,9 +3705,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         OnAfterAllowLotAccumulation(SupplyInvtProfile, DemandDueDate, TempSKU, AccumulationOK);
     end;
 
-    local procedure ShallSupplyBeClosed(SupplyInventoryProfile: Record "Inventory Profile"; DemandDueDate: Date; IsReorderPointPlanning: Boolean): Boolean
-    var
-        CloseSupply: Boolean;
+    local procedure ShallSupplyBeClosed(SupplyInventoryProfile: Record "Inventory Profile"; DemandDueDate: Date; IsReorderPointPlanning: Boolean) CloseSupply: Boolean
     begin
         if SupplyInventoryProfile."Is Exception Order" then begin
             if TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Lot-for-Lot" then
@@ -3698,7 +3717,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         end else
             CloseSupply := IsReorderPointPlanning;
 
-        exit(CloseSupply);
+        OnAfterShallSupplyBeClosed(TempSKU, SupplyInventoryProfile, DemandDueDate, IsReorderPointPlanning, CloseSupply);
     end;
 
     local procedure NextLineNo(): Integer
@@ -4844,6 +4863,17 @@ codeunit 99000854 "Inventory Profile Offsetting"
         InventoryProfile.Insert();
     end;
 
+    local procedure GetPrevAvailDateFromCompanyCalendar(InitialDate: Date): Date
+    var
+        CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+    begin
+        if InitialDate = 0D then
+            exit(InitialDate);
+
+        CustomCalendarChange[1].SetSource(CustomCalendarChange[1]."Source Type"::Company, '', '', '');
+        exit(CalendarManagement.CalcDateBOC2('<0D>', InitialDate, CustomCalendarChange, false));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAdjustPlanLine(var RequisitionLine: Record "Requisition Line"; var SupplyInventoryProfile: Record "Inventory Profile")
     begin
@@ -4905,6 +4935,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterShallSupplyBeClosed(StockkeepingUnit: Record "Stockkeeping Unit"; SupplyInventoryProfile: Record "Inventory Profile"; DemandDueDate: Date; IsReorderPointPlanning: Boolean; var CloseSupply: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateAppliedItemEntry(var ReservationEntry: Record "Reservation Entry"; var TempItemTrackingEntry: Record "Reservation Entry")
     begin
     end;
@@ -4936,6 +4971,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateUOMFromInventoryProfile(var RequisitionLine: Record "Requisition Line"; InventoryProfile: Record "Inventory Profile"; StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTempTracking(var FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5060,12 +5100,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransShptTransLineToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; LineNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeTransShptTransLineToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; LineNo: Integer; var IsHandled: Boolean; var TransferLine: Record "Transfer Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransSalesLineToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
+    local procedure OnBeforeTransSalesLineToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -5235,7 +5275,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPlanItemAfterCalcIsReorderPointPlanning(var TempSKU: Record "Stockkeeping Unit"; var IsReorderPointPlanning: Boolean; var RequisitionLine: Record "Requisition Line"; var PlanningTransparency: Codeunit "Planning Transparency"; PlanningResilicency: Boolean; var CurrTemplateName: Code[10]; var CurrWorksheetName: Code[10])
+    local procedure OnPlanItemAfterCalcIsReorderPointPlanning(var TempSKU: Record "Stockkeeping Unit"; var IsReorderPointPlanning: Boolean; var RequisitionLine: Record "Requisition Line"; var PlanningTransparency: Codeunit "Planning Transparency"; PlanningResilicency: Boolean; var CurrTemplateName: Code[10]; var CurrWorksheetName: Code[10]; var PlanningStartDate: Date)
     begin
     end;
 
@@ -5436,6 +5476,56 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMaintainPlanningLine(ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransItemLedgEntryToProfileOnBeforeTransferFromItemLedgerEntry(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransItemLedgEntryToProfileOnAfterTransferFromItemLedgerEntry(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransItemLedgEntryToProfileOnAfterInsertInventoryProfile(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransShptTransLineToProfileOnBeforeTransferFromOutboundTransfer(var Item: Record Item; var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransShptTransLineToProfileOnAfterTransferFromOutboundTransfer(var Item: Record Item; var TransferLine: Record "Transfer Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransShptTransLineToProfileOnAfterInventoryProfileInsert(var Item: Record Item; var TransferLine: Record "Transfer Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransSalesLineToProfileOnBeforeTransferFromSalesLineOrder(var Item: Record Item; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransSalesLineToProfileOnAfterTransferFromSalesLineOrder(var Item: Record Item; var SalesLine: Record "Sales Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransSalesLineToProfileOnBeforeTransferFromSalesLineReturnOrder(var Item: Record Item; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransSalesLineToProfileOnAfterTransferFromSalesLineReturnOrder(var Item: Record Item; var SalesLine: Record "Sales Line"; var InventoryProfile: Record "Inventory Profile")
     begin
     end;
 }

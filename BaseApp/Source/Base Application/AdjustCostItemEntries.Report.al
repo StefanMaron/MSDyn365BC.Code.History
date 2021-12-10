@@ -105,6 +105,7 @@ report 795 "Adjust Cost - Item Entries"
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
         Item: Record Item;
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+        UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
         OnBeforePreReport(ItemNoFilter, ItemCategoryFilter, PostToGL, Item);
 
@@ -131,6 +132,8 @@ report 795 "Adjust Cost - Item Entries"
         InvtAdjmtHandler.SetFilterItem(Item);
         InvtAdjmtHandler.MakeInventoryAdjustment(false, PostToGL);
 
+        if PostToGL then
+            UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
 
         OnAfterPreReport();

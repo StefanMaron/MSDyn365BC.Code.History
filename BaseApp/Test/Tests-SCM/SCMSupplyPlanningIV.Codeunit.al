@@ -3118,6 +3118,55 @@ codeunit 137077 "SCM Supply Planning -IV"
         Assert.RecordIsEmpty(RequisitionLine);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProductionOrderValueEntryRelatedGLProdOrderNo()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        PurchaseLine: Record "Purchase Line";
+        RoutingHeader: Record "Routing Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        GLEntry: Record "G/L Entry";
+        ValueEntry: Record "Value Entry";
+        GLItemLedgerRelation: Record "G/L - Item Ledger Relation";
+    begin
+        // [SCENARIO 415833] G/L entries related to Value Entry should contain 'Prod. Order No.' 
+        // [GIVEN] Create Item. Create Routing and update on Item.
+        Initialize;
+        LibraryInventory.SetAutomaticCostPosting(true);
+        CreateItem(Item);
+        CreateRoutingSetup(WorkCenter, RoutingHeader);
+        UpdateItemRoutingNo(Item, RoutingHeader."No.");
+
+        // [GIVEN]  Create and refresh Released Production Order. 'Order No.' = 'RPON'
+        CreateAndRefreshReleasedProductionOrderWithLocationAndBin(ProductionOrder, Item."No.", '', '');  // Without Location and Bin.
+
+        // [GIVEN] Calculate Subcontracts from Subcontracting worksheet and Carry Out Action Message.
+        CalculateSubcontractOrder(WorkCenter);
+        CarryOutActionMessageSubcontractWksh(Item."No.");
+
+        // [WHEN] After carry out, Post Purchase Order as Receive and invoice.
+        SelectPurchaseOrderLine(PurchaseLine, Item."No.");
+        PostPurchaseDocument(PurchaseLine, true);
+        PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseLine."Buy-from Vendor No.");
+        PurchInvHeader.FindFirst();
+
+        // [THEN] G/L Entry related to Value Entry have 'Prod. Order No.' = 'RPON'
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", ProductionOrder."No.");
+        ValueEntry.FindSet();
+        repeat
+            GLItemLedgerRelation.SetRange("Value Entry No.", ValueEntry."Entry No.");
+            If GLItemLedgerRelation.FindSet() then
+                repeat
+                    GLEntry.Get(GLItemLedgerRelation."G/L Entry No.");
+                    GLEntry.TestField("Prod. Order No.", ProductionOrder."No.");
+                until GLItemLedgerRelation.Next() = 0;
+        until ValueEntry.Next() = 0;
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -3142,6 +3191,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         CreateLocationSetup;
         ItemJournalSetup;
         LibrarySetupStorage.SaveManufacturingSetup;
+        LibrarySetupStorage.Save(Database::"Inventory Setup");
 
         isInitialized := true;
         Commit();

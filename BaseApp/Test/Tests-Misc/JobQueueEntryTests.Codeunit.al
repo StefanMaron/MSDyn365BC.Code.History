@@ -568,7 +568,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry.Modify(true);
 
         // [GIVEN] This user has logged in 10 days ago
-        UserLoginTestLibrary.UpdateUserLogin(UserSecurityId(), 0D, CurrentDateTime - (10 * 24 * 60 * 60 * 1000), 0DT);
+        UserLoginTestLibrary.UpdateUserLogin(UserSecurityId(), 0D, CreateDateTime(CalcDate('<-10D>'), 0T), 0DT);
 
         // [WHEN] Call the method to set job queue on hold if last login was 11 days ago
         JobQueueManagement.SetStatusToOnHoldIfInstanceInactiveFor(PeriodType::Day, 11,
@@ -576,15 +576,15 @@ codeunit 139018 "Job Queue Entry Tests"
 
         // [THEN] Job queue entry status is unchanged
         JobQueueEntry.Get(JobQueueEntry.ID);
-        Assert.AreEqual(JobQueueEntry.Status::Ready, JobQueueEntry.Status, 'Last user login was recent enough.');
+        Assert.AreEqual(JobQueueEntry.Status::Ready, JobQueueEntry.Status, 'Job Queue entry status should have been "Ready" since the user logged in recently.');
 
         // [WHEN] Call the method to set job queue on hold if last login was 9 days ago
         JobQueueManagement.SetStatusToOnHoldIfInstanceInactiveFor(PeriodType::Day, 9,
           JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run");
 
-        // [THEN] Job queue entry status is unchanged
+        // [THEN] Job queue entry status is set to "On Hold"
         JobQueueEntry.Get(JobQueueEntry.ID);
-        Assert.AreEqual(JobQueueEntry.Status::"On Hold", JobQueueEntry.Status, 'Last user login was too long ago.');
+        Assert.AreEqual(JobQueueEntry.Status::"On Hold", JobQueueEntry.Status, 'Job Queue entry status should have been "On Hold" since the user did not login recently.');
     end;
 
     [Test]

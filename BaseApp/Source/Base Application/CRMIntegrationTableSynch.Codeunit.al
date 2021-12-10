@@ -10,6 +10,7 @@ codeunit 5340 "CRM Integration Table Synch."
         LatestModifiedOn: array[2] of DateTime;
         isHandled: Boolean;
         PrevStatus: Option;
+        MappingName: Code[20];
     begin
         OnBeforeRun(Rec, IsHandled);
         If IsHandled then
@@ -26,8 +27,13 @@ codeunit 5340 "CRM Integration Table Synch."
                 LatestModifiedOn[DateType::Local] := PerformScheduledSynchToIntegrationTable(Rec);
             if Direction in [Direction::FromIntegrationTable, Direction::Bidirectional] then
                 LatestModifiedOn[DateType::Integration] := PerformScheduledSynchFromIntegrationTable(Rec);
-            UpdateTableMappingModifiedOn(Rec, LatestModifiedOn);
-            SetOriginalCRMJobQueueEntryStatus(Rec, OriginalJobQueueEntry, PrevStatus);
+            MappingName := Name;
+            if not Find() then
+                Session.LogMessage('0000GAP', StrSubstNo(UnableToFindMappingErr, MappingName), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
+            else begin
+                UpdateTableMappingModifiedOn(Rec, LatestModifiedOn);
+                SetOriginalCRMJobQueueEntryStatus(Rec, OriginalJobQueueEntry, PrevStatus);
+            end;
         end;
 
         CloseConnection(ConnectionName);
@@ -51,6 +57,7 @@ codeunit 5340 "CRM Integration Table Synch."
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         ClearCacheTxt: Label 'Clear cache.', Locked = true;
         CopyRecordRefFailedTxt: Label 'Copy record reference failed. Dataverse ID: %1', Locked = true, Comment = '%1 - Dataverse record id';
+        UnableToFindMappingErr: Label 'Unable to find Integration Table Mapping %1', Locked = true, Comment = '%1 - Mapping name';
         FieldKeyTxt: Label '%1-%2', Locked = true;
 
     internal procedure InitConnection() ConnectionName: Text

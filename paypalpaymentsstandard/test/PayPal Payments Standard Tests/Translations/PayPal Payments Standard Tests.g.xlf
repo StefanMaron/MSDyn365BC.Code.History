@@ -4,7 +4,7 @@
     <body>
       <group id="body">
         <trans-unit id="Codeunit 3241884692 - NamedType 594054157" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This extension uses the Paypal service, a third-party provider.</source>
+          <source>This extension uses a third-party payment service from PayPal.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType ExchangeWithExternalServicesMsg</note>
         </trans-unit>

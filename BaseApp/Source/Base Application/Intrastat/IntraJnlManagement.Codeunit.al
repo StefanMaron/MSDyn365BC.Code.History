@@ -345,6 +345,22 @@ codeunit 350 IntraJnlManagement
         Error(AdvChecklistErr);
     end;
 
+    procedure RoundTotalWeight(TotalWeight: Decimal): Decimal
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeRoundTotalWeight(IsHandled, TotalWeight);
+        if IsHandled then
+            exit(TotalWeight);
+
+        exit(Round(TotalWeight, 1, '>'));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundTotalWeight(var IsHandled: Boolean; var TotalWeight: Decimal)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10]; var IsHandled: Boolean)
     begin

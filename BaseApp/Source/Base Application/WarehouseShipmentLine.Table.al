@@ -809,7 +809,7 @@ table 7321 "Warehouse Shipment Line"
         HideValidationDialog := NewHideValidationDialog;
     end;
 
-    local procedure GetWhseShptHeader(WhseShptNo: Code[20])
+    protected procedure GetWhseShptHeader(WhseShptNo: Code[20])
     begin
         if WhseShptHeader."No." <> WhseShptNo then
             WhseShptHeader.Get(WhseShptNo);

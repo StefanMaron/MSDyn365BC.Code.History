@@ -561,7 +561,7 @@ codeunit 7153 "Item Analysis Management"
     end;
 #endif
 
-    procedure FindRecord(ItemAnalysisView: Record "Item Analysis View"; DimType: Enum "Item Analysis Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Enum "Analysis Period Type"; var DateFilter: Text[30]; var PeriodInitialized: Boolean; InternalDateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Boolean
+    procedure FindRecord(var ItemAnalysisView: Record "Item Analysis View"; DimType: Enum "Item Analysis Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Enum "Analysis Period Type"; var DateFilter: Text[30]; var PeriodInitialized: Boolean; InternalDateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Boolean
     var
         Item: Record Item;
         Location: Record Location;
@@ -654,7 +654,7 @@ codeunit 7153 "Item Analysis Management"
     end;
 #endif
 
-    procedure NextRecord(ItemAnalysisView: Record "Item Analysis View"; DimType: Enum "Item Analysis Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Enum "Analysis Period Type"; DateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Integer
+    procedure NextRecord(var ItemAnalysisView: Record "Item Analysis View"; DimType: Enum "Item Analysis Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Enum "Analysis Period Type"; DateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Integer
     var
         Item: Record Item;
         Location: Record Location;

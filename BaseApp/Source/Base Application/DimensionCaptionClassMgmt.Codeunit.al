@@ -17,7 +17,7 @@ codeunit 343 "Dimension CaptionClass Mgmt"
             Caption := DimCaptionClassTranslate(Language, CaptionExpr, Resolved);
     end;
 
-    local procedure DimCaptionClassTranslate(Language: Integer; CaptionExpr: Text; var Resolved: Boolean): Text
+    local procedure DimCaptionClassTranslate(Language: Integer; CaptionExpr: Text; var Resolved: Boolean) Result: Text
     var
         Dim: Record Dimension;
         DimCaptionType: Text[80];
@@ -25,6 +25,7 @@ codeunit 343 "Dimension CaptionClass Mgmt"
         DimOptionalParam1: Text[80];
         DimOptionalParam2: Text[80];
         CommaPosition: Integer;
+        IsHandled: Boolean;
     begin
         // DIMCAPTIONTYPE
         // <DataType>   := [SubString]
@@ -228,6 +229,12 @@ codeunit 343 "Dimension CaptionClass Mgmt"
                             exit(DimOptionalParam1 + Dim.GetMLFilterCaption(Language) + DimOptionalParam2);
                         exit(DimOptionalParam1);
                     end;
+                else begin
+                        IsHandled := false;
+                        OnTranslateDimCaptionClassOnDimCaptionTypeCaseElse(DimCaptionType, DimCaptionRef, Language, DimOptionalParam1, DimOptionalParam2, Result, IsHandled);
+                        if IsHandled then
+                            exit(Result);
+                    end;
             end;
         end;
         Resolved := false;
@@ -263,6 +270,11 @@ codeunit 343 "Dimension CaptionClass Mgmt"
         if not GLSetupRead then
             GLSetupRead := GLSetup.Get();
         exit(GLSetupRead);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTranslateDimCaptionClassOnDimCaptionTypeCaseElse(DimCaptionType: Text[80]; DimCaptionRef: Text[80]; Language: Integer; DimOptionalParam1: Text[80]; DimOptionalParam2: Text[80]; var Result: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

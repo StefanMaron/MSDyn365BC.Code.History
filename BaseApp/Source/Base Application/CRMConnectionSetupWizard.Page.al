@@ -202,7 +202,7 @@ page 1817 "CRM Connection Setup Wizard"
                 }
                 group(Control20)
                 {
-                    InstructionalText = 'To enable the connection, choose Finish. You will be asked to specify an administrative user account in Dynamics 365 Sales.';
+                    InstructionalText = 'To enable the connection, choose Finish. You may be asked to specify an administrative user account in Dynamics 365 Sales.';
                     ShowCaption = false;
                 }
             }

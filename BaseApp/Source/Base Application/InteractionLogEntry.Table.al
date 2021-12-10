@@ -800,6 +800,7 @@ table 5065 "Interaction Log Entry"
         if TempSegLine."Opportunity No." <> '' then
             TempSegLine.SetRange("Opportunity No.", TempSegLine."Opportunity No.");
 
+        OnResumeInteractionOnBeforeStartWizard(Rec, TempSegLine);
         TempSegLine.StartWizard;
     end;
 
@@ -859,6 +860,11 @@ table 5065 "Interaction Log Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenAttachmentOnBeforeShowAttachment(var InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line"; var Attachment: Record Attachment)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResumeInteractionOnBeforeStartWizard(InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line")
     begin
     end;
 }

@@ -19,6 +19,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetNewSalesQuoteEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewSalesCrMemoEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewSalesShipmentLineUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSetCoupledFlagsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCleanupDataExchUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDefaultDimensionAPIUpgradeTag());
         PerCompanyUpgradeTags.Add(GetBalAccountNoOnJournalAPIUpgradeTag());
@@ -102,6 +103,8 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetAzureADSetupFixTag());
         PerCompanyUpgradeTags.Add(GetDocumentDefaultLineTypeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetEnableOnlineMapUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetDataExchOCRVendorNoTag());
+        PerCompanyUpgradeTags.Add(GetConfigFieldMapUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -128,6 +131,11 @@ codeunit 9998 "Upgrade Tag Definitions"
 #endif
         PerDatabaseUpgradeTags.Add(GetUpgradePowerBIOptinImageUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetUserGroupsSetAppIdUpgradeTag());
+    end;
+
+    internal procedure GetConfigFieldMapUpgradeTag(): Code[250]
+    begin
+        exit('MS-417047-ConfigFieldMap-20211112')
     end;
 
     [Obsolete('Function will be removed', '18.0')]
@@ -866,6 +874,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetEnableOnlineMapUpgradeTag(): Code[250];
     begin
         exit('MS-413441-EnableOnlineMap-20211005');
+    end;
+
+    procedure GetDataExchOCRVendorNoTag(): Code[250]
+    begin
+        exit('MS-415627-DataExchOCRVendorNo-20211111');
     end;
 }
 

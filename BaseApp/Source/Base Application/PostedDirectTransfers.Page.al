@@ -1,10 +1,13 @@
 page 6783 "Posted Direct Transfers"
 {
+    AdditionalSearchTerms = 'direct transfer';
+    ApplicationArea = Basic, Suite;
     Caption = 'Posted Direct Transfers';
     CardPageID = "Posted Direct Transfer";
     Editable = false;
     PageType = List;
     SourceTable = "Direct Trans. Header";
+    UsageCategory = History;
 
     layout
     {

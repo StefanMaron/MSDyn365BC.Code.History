@@ -222,6 +222,13 @@ page 189 "Incoming Document"
             group(FinancialInformation)
             {
                 Caption = 'Financial Information';
+                field("Vendor No."; "Vendor No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the number of the vendor on the incoming document. The field may be filled automatically.';
+                }
                 field("Vendor Name"; "Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;

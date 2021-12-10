@@ -2363,7 +2363,7 @@
         </trans-unit>
         <trans-unit id="Page 1278155290 - Control 412705190 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Balance Due</source>
-          <target state="translated">Openstaand bedrag</target>
+          <target state="translated">Vervallen saldo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control balanceDue - Property Caption</note>
         </trans-unit>

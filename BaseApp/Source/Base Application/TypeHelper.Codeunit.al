@@ -431,6 +431,13 @@ codeunit 10 "Type Helper"
         exit(FormatDateTime(GetCurrUTCDateTime, 'R', ''));
     end;
 
+    procedure GetCurrUTCDateTimeISO8601(): Text
+    var
+        DotNetDateTime: DotNet DateTime;
+    begin
+        exit(DotNetDateTime.UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'));
+    end;
+
     procedure AddHoursToDateTime(SourceDateTime: DateTime; NoOfHours: Integer): DateTime
     var
         MillisecondsToAdd: BigInteger;
@@ -528,7 +535,7 @@ codeunit 10 "Type Helper"
 
     procedure ReadAsTextWithSeparator(InStream: InStream; LineSeparator: Text) Content: Text
     var
-        Tb : TextBuilder;
+        Tb: TextBuilder;
         ContentLine: Text;
     begin
         InStream.ReadText(ContentLine);

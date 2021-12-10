@@ -52,7 +52,6 @@ page 41 "Sales Quote"
                     ApplicationArea = All;
                     Caption = 'Customer Name';
                     Importance = Promoted;
-                    NotBlank = true;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
@@ -61,10 +60,11 @@ page 41 "Sales Quote"
                         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update();
 
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
+
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -144,6 +144,15 @@ page 41 "Sales Quote"
                         Caption = 'Contact No.';
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact person that the sales document will be sent to.';
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        begin
+                            if not SelltoContactLookup() then
+                                exit(false);
+                            Text := Rec."Sell-to Contact No.";
+                            CurrPage.Update();
+                            exit(true);
+                        end;
 
                         trigger OnValidate()
                         begin
@@ -704,141 +713,144 @@ page 41 "Sales Quote"
                     {
                         ShowCaption = false;
                         Visible = NOT (BillToOptions = BillToOptions::"Default (Customer)");
-                    }
-                    field("Bill-to Name"; "Bill-to Name")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Name';
-                        Editable = BillToOptions = BillToOptions::"Another Customer";
-                        Enabled = EnableBillToCustomerNo;
-                        Importance = Promoted;
-                        ToolTip = 'Specifies the customer to whom you will send the sales invoice, when different from the customer that you are selling to.';
 
-                        trigger OnValidate()
-                        var
-                            ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-                        begin
-                            if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
-                                if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
-                                    SetRange("Bill-to Customer No.");
-
-                            CurrPage.SaveRecord;
-                            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
-                            CurrPage.Update(false);
-                        end;
-                    }
-                    field("Bill-to Address"; "Bill-to Address")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Address';
-                        Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the address of the customer that you will send the invoice to.';
-                    }
-                    field("Bill-to Address 2"; "Bill-to Address 2")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Address 2';
-                        Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies additional address information.';
-                    }
-                    field("Bill-to City"; "Bill-to City")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'City';
-                        Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the city of the customer on the sales document.';
-                    }
-                    group(Control109)
-                    {
-                        ShowCaption = false;
-                        Visible = IsBillToCountyVisible;
-                        field("Bill-to County"; "Bill-to County")
+                        field("Bill-to Name"; "Bill-to Name")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            Caption = 'Name';
+                            Editable = BillToOptions = BillToOptions::"Another Customer";
+                            Enabled = EnableBillToCustomerNo;
+                            Importance = Promoted;
+                            ToolTip = 'Specifies the customer to whom you will send the sales invoice, when different from the customer that you are selling to.';
+
+                            trigger OnValidate()
+                            var
+                                ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+                            begin
+                                if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
+                                    if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                                        SetRange("Bill-to Customer No.");
+
+                                CurrPage.SaveRecord;
+                                if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                                    SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
+
+                                CurrPage.Update(false);
+                            end;
+                        }
+                        field("Bill-to Address"; "Bill-to Address")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Address';
                             Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
                             Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
                             Importance = Additional;
                             QuickEntry = false;
-                            ToolTip = 'Specifies the county of the address.';
+                            ToolTip = 'Specifies the address of the customer that you will send the invoice to.';
                         }
-                    }
-                    field("Bill-to Post Code"; "Bill-to Post Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Post Code';
-                        Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Importance = Additional;
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the postal code.';
-                    }
-                    field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Country/Region';
-                        QuickEntry = false;
-                        ToolTip = 'Specifies the customer''s country/region.';
+                        field("Bill-to Address 2"; "Bill-to Address 2")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Address 2';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies additional address information.';
+                        }
+                        field("Bill-to City"; "Bill-to City")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'City';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the city of the customer on the sales document.';
+                        }
+                        group(Control109)
+                        {
+                            ShowCaption = false;
+                            Visible = IsBillToCountyVisible;
+                            field("Bill-to County"; "Bill-to County")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'County';
+                                Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                                Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                                Importance = Additional;
+                                QuickEntry = false;
+                                ToolTip = 'Specifies the county of the address.';
+                            }
+                        }
+                        field("Bill-to Post Code"; "Bill-to Post Code")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Post Code';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the postal code.';
+                        }
+                        field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Country/Region';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the customer''s country/region.';
 
-                        trigger OnValidate()
-                        begin
-                            IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
-                        end;
-                    }
-                    field("Bill-to Contact No."; "Bill-to Contact No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Contact No.';
-                        Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Importance = Additional;
-                        ToolTip = 'Specifies the number of the contact the invoice will be sent to.';
-                    }
-                    field("Bill-to Contact"; "Bill-to Contact")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Contact';
-                        Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
-                        ToolTip = 'Specifies the name of the person you should contact at the customer who you are sending the invoice to.';
-                    }
-                    field(BillToContactPhoneNo; BillToContact."Phone No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Phone No.';
-                        Editable = false;
-                        Importance = Additional;
-                        ExtendedDatatype = PhoneNo;
-                        ToolTip = 'Specifies the telephone number of the person you should contact at the customer you are sending the invoice to.';
-                    }
-                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Mobile Phone No.';
-                        Editable = false;
-                        Importance = Additional;
-                        ExtendedDatatype = PhoneNo;
-                        ToolTip = 'Specifies the mobile telephone number of the person you should contact at the customer you are sending the invoice to.';
-                    }
-                    field(BillToContactEmail; BillToContact."E-Mail")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Email';
-                        Editable = false;
-                        Importance = Additional;
-                        ExtendedDatatype = EMail;
-                        ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the invoice to.';
+                            trigger OnValidate()
+                            begin
+                                IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+                            end;
+                        }
+                        field("Bill-to Contact No."; "Bill-to Contact No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Contact No.';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Importance = Additional;
+                            ToolTip = 'Specifies the number of the contact the invoice will be sent to.';
+                        }
+                        field("Bill-to Contact"; "Bill-to Contact")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Contact';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            ToolTip = 'Specifies the name of the person you should contact at the customer who you are sending the invoice to.';
+                        }
+                        field(BillToContactPhoneNo; BillToContact."Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the telephone number of the person you should contact at the customer you are sending the invoice to.';
+                        }
+                        field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Mobile Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the mobile telephone number of the person you should contact at the customer you are sending the invoice to.';
+                        }
+                        field(BillToContactEmail; BillToContact."E-Mail")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Email';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = EMail;
+                            ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the invoice to.';
+                        }
                     }
                 }
             }
@@ -868,7 +880,7 @@ page 41 "Sales Quote"
                 field("Area"; Area)
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                    ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
                 field("Language Code"; "Language Code")
                 {

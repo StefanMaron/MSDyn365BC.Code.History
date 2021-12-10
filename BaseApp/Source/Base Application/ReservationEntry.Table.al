@@ -1016,6 +1016,7 @@ table 337 "Reservation Entry"
                 NewReservEntry.SetSource(SourceType, SourceSubtype, SourceID, SourceRefNo, SourceBatchName, SourceProdOrderLine);
 
                 NewReservEntry.UpdateActionMessageEntries(OldReservEntry);
+                OnTransferReservationsOnAfterNewReservEntryUpdateActionMessageEntries(OldReservEntry, NewReservEntry);
             until OldReservEntry.Next() = 0;
         end else
             for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
@@ -1393,6 +1394,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReservationsOnAfterSecondOldReservEntryLoop(var OldReservEntry: Record "Reservation Entry"; var NewReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservationsOnAfterNewReservEntryUpdateActionMessageEntries(var OldReservEntry: Record "Reservation Entry"; var NewReservEntry: Record "Reservation Entry")
     begin
     end;
 }

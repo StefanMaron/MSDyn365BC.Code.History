@@ -1636,6 +1636,53 @@ codeunit 137266 "SCM Package Tracking Transfer"
         TransferHeader.TestField("In-Transit Code", '');
     end;
 
+    [Test]
+    procedure NewPackageNoInItemTrackingLinesForItemReclass()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        PackageNo: Code[50];
+    begin
+        // [FEATURE] [Item Tracking] [Package Tracking] [Item Reclassification] [Warehouse]
+        // [SCENARIO 414234] "Get Bin Content" function in Item Reclassification Journal fills in "New Package No.".
+        Initialize();
+        PackageNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with mandatory bin.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+
+        // [GIVEN] Package-tracked item; "Package Warehouse Tracking" is enabled.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false, true);
+        ItemTrackingCode.Validate("Package Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+
+        // [GIVEN] Post 1 pc to inventory, assign Package No. = "X".
+        SelectItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin.Code, 1);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', '', PackageNo, ItemJournalLine.Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Run "Get Bin Content" for item reclassification.
+        SelectItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Transfer);
+        GetBinContentFromItemJournalLine(ItemJournalBatch, Location.Code, Bin.Code, Item."No.");
+
+        // [THEN] "Package No." = "New Package No." = "X" in item tracking for the reclassification journal line.
+        Clear(ReservationEntry);
+        ReservationEntry.SetRange("Source Type", Database::"Item Journal Line");
+        ReservationEntry.SetRange("Item No.", Item."No.");
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Package No.", PackageNo);
+        ReservationEntry.TestField("New Package No.", PackageNo);
+    end;
+
     local procedure CheckQuantityLocation(var Item: Record Item; LocationCode: Code[10]; Qty: Decimal): Boolean
     begin
         Item.SetRange("Location Filter", LocationCode);
@@ -1822,6 +1869,30 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ReservationEntry.Validate("New Package No.", NewPackageNo);
         ReservationEntry.Validate("Item Tracking", "Item Tracking Entry Type"::"Package No.");
         ReservationEntry.Modify();
+    end;
+
+    local procedure GetBinContentFromItemJournalLine(ItemJournalBatch: Record "Item Journal Batch"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
+    var
+        BinContent: Record "Bin Content";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.Validate("Posting Date", WorkDate);
+        BinContent.SetRange("Location Code", LocationCode);
+        BinContent.SetRange("Bin Code", BinCode);
+        BinContent.SetRange("Item No.", ItemNo);
+        LibraryWarehouse.WhseGetBinContentFromItemJournalLine(BinContent, ItemJournalLine);
+    end;
+
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplateType, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     local procedure GetNoSeries(Descr: Text[50]; StartNo: Code[20])

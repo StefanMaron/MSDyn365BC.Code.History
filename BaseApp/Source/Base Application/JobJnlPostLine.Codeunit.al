@@ -50,6 +50,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     var
         JobLedgEntry: Record "Job Ledger Entry";
         JobLedgEntryNo: Integer;
+        ShouldPostUsage: Boolean;
     begin
         OnBeforeCode(JobJnlLine);
 
@@ -87,8 +88,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                 end;
             end;
 
-            Job.Get("Job No.");
-            CheckJob(JobJnlLine, Job);
+            GetAndCheckJob();
 
             JobJnlLine2 := JobJnlLine;
 
@@ -104,7 +104,9 @@ codeunit 1012 "Job Jnl.-Post Line"
             then
                 UpdateJobJnlLineSourceCurrencyAmounts(JobJnlLine2);
 
-            if JobJnlLine2."Entry Type" = JobJnlLine2."Entry Type"::Usage then begin
+            ShouldPostUsage := JobJnlLine2."Entry Type" = JobJnlLine2."Entry Type"::Usage;
+            OnCodeOnAfterCalcShouldPostUsage(JobJnlLine2, ShouldPostUsage);
+            if ShouldPostUsage then begin
                 case Type of
                     Type::Resource:
                         JobLedgEntryNo := PostResource(JobJnlLine2);
@@ -120,6 +122,19 @@ codeunit 1012 "Job Jnl.-Post Line"
         OnAfterRunCode(JobJnlLine2, JobLedgEntryNo, JobReg, NextEntryNo);
 
         exit(JobLedgEntryNo);
+    end;
+
+    local procedure GetAndCheckJob()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetAndCheckJob(JobJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        Job.Get(JobJnlLine."Job No.");
+        CheckJob(JobJnlLine, Job);
     end;
 
     local procedure CheckJob(var JobJnlLine: Record "Job Journal Line"; Job: Record Job)
@@ -238,7 +253,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                     end;
             end;
 
-        OnCreateJobLedgerEntryOnAfterAssignLedgerEntryTypeAndNo(JobLedgEntry, JobJnlLine2);
+        OnCreateJobLedgerEntryOnAfterAssignLedgerEntryTypeAndNo(JobLedgEntry, JobJnlLine2, GLEntryNo);
 
         if JobLedgEntry."Entry Type" = JobLedgEntry."Entry Type"::Sale then
             JobLedgEntry.CopyTrackingFromJobJnlLine(JobJnlLine2);
@@ -388,6 +403,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                 until ValueEntry.Next() = 0;
             end;
         end;
+        OnAfterPostItem(JobJnlLine2);
     end;
 
     local procedure ModifyValueEntry(var ValueEntry: Record "Value Entry")
@@ -633,12 +649,22 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostItem(var JobJournalLine2: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRunCode(var JobJournalLine: Record "Job Journal Line"; var JobLedgEntryNo: Integer; var JobRegister: Record "Job Register"; var NextEntryNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckJob(var JobJournalLine: Record "Job Journal Line"; Job: Record Job; var IsHandled: Boolean; var JobRegister: Record "Job Register"; var NextEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAndCheckJob(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -678,7 +704,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeModifyValueEntry(var ValueEntry: Record "Value Entry"; JobJournalLine: Record "Job Journal Line"; IsHandled: Boolean)
+    local procedure OnBeforeModifyValueEntry(var ValueEntry: Record "Value Entry"; JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -713,12 +739,17 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCalcShouldPostUsage(var JobJournalLine2: Record "Job Journal Line"; var ShouldPostUsage: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateJobLedgEntryOnBeforeAssignQtyCostPrice(var JobLedgEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateJobLedgerEntryOnAfterAssignLedgerEntryTypeAndNo(var JobLedgEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line")
+    local procedure OnCreateJobLedgerEntryOnAfterAssignLedgerEntryTypeAndNo(var JobLedgEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line"; GLEntryNo: Integer)
     begin
     end;
 

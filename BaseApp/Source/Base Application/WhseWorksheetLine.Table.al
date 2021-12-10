@@ -820,7 +820,7 @@ table 7326 "Whse. Worksheet Line"
             end else
                 ItemDescription := Item.Description;
 
-        OnAfterGetItem(Rec, Item);
+        OnAfterGetItem(Rec, Item, ItemDescription);
     end;
 
     local procedure GetItemUnitOfMeasure()
@@ -1590,7 +1590,7 @@ table 7326 "Whse. Worksheet Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetItem(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var Item: Record Item)
+    local procedure OnAfterGetItem(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var Item: Record Item; var ItemDescription: Text[100])
     begin
     end;
 

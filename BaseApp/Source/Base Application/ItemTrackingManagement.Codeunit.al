@@ -421,7 +421,7 @@
                             if EntriesExist then
                                 TempHandlingSpecification."Expiration Date" := ExpDate;
                         end;
-                        OnBeforeTempHandlingSpecificationInsert(TempHandlingSpecification, ReservEntry);
+                        OnBeforeTempHandlingSpecificationInsert(TempHandlingSpecification, ReservEntry, ItemTrackingCode, EntriesExist);
                         TempHandlingSpecification.Insert();
                     end;
                 end;
@@ -1156,6 +1156,14 @@
             until ReservEntry.Next() = 0;
     end;
 
+    local procedure RemoveUntrackedSurplus(var ReservationEntry: Record "Reservation Entry")
+    begin
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item Tracking", ReservationEntry."Item Tracking"::None);
+        ReservationEntry.SetRange("Untracked Surplus", true);
+        ReservationEntry.DeleteAll(true);
+    end;
+
     procedure SetDeleteReservationEntries(DeleteEntries: Boolean)
     begin
         DeleteReservationEntries := DeleteEntries;
@@ -1829,8 +1837,11 @@
                     TempTrkgSpec3.ModifyAll("Location Code", ReservEntry2."Location Code");
                     ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Transfer);
                 end else
-                    if FromReservEntry."Source Type" <> ReservEntry2."Source Type" then // If different it is drop shipment
+                    if FromReservEntry."Source Type" <> ReservEntry2."Source Type" then begin // If different it is drop shipment
+                        RemoveUntrackedSurplus(FromReservEntry);
+                        RemoveUntrackedSurplus(ReservEntry2);
                         ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Drop Shipment");
+                    end;
                 ItemTrackingLines.RegisterItemTrackingLines(TempSourceSpec, AvailabilityDate, TempTrkgSpec3);
             end;
         end;
@@ -2986,7 +2997,13 @@
         ErrorFound: Boolean;
         EndLoop: Boolean;
         ErrMsgTxt: Text[160];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemTrkgInfBeforePost(TempGlobalWhseItemTrkgLine, IsHandled);
+        if IsHandled then
+            exit;
+
         // Check for different expiration dates within one Lot no.
         if TempGlobalWhseItemTrkgLine.Find('-') then begin
             TempLotNoInfo.DeleteAll();
@@ -3162,6 +3179,7 @@
             exit;
 
         with ReservEntry do begin
+            OnInsertReservEntryForSalesLineOnBeforeInitReservEntry(ItemLedgEntryBuf, SalesLine);
             InitReservEntry(ReservEntry, ItemLedgEntryBuf, QtyBase, SalesLine."Shipment Date", EntriesExist);
             SetSource(
               DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", '', 0);
@@ -3576,6 +3594,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemTrkgInfBeforePost(var TempGlobalWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateWhseItemTrkgForReceipt(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseWkshLine: Record "Whse. Worksheet Line"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -3656,7 +3679,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTempHandlingSpecificationInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservationEntry: Record "Reservation Entry")
+    local procedure OnBeforeTempHandlingSpecificationInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservationEntry: Record "Reservation Entry"; var ItemTrackingCode: Record "Item Tracking Code"; var EntriesExist: Boolean)
     begin
     end;
 
@@ -3948,6 +3971,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyTempReservEntrySetIfTransfer(var TempReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReservEntryForSalesLineOnBeforeInitReservEntry(var ItemLedgEntryBuf: Record "Item Ledger Entry"; SalesLine: Record "Sales Line")
     begin
     end;
 

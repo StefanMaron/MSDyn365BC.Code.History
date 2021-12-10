@@ -264,6 +264,7 @@ table 99000849 "Action Message Entry"
         SetRange("Source ID", SourceID);
         if SourceRefNo >= 0 then
             SetRange("Source Ref. No.", SourceRefNo);
+        OnAfterSetSourceFilter(Rec, SourceType, SourceSubtype, SourceID, SourceRefNo, SourceKey);
     end;
 
     procedure SetSourceFilter(SourceBatchName: Code[10]; SourceProdOrderLine: Integer)
@@ -300,6 +301,11 @@ table 99000849 "Action Message Entry"
         SetRange("Source Batch Name");
         SetRange("Source Prod. Order Line");
         SetRange("Source Ref. No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFilter(var ActionMessageEntry: Record "Action Message Entry"; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceKey: Boolean)
+    begin
     end;
 }
 

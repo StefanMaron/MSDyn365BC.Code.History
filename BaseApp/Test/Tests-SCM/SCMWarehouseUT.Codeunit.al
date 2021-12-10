@@ -6,6 +6,7 @@ codeunit 137831 "SCM - Warehouse UT"
     trigger OnRun()
     begin
         // [FEATURE] [Warehouse] [SCM]
+        IsInitialized := false;
     end;
 
     var
@@ -13,10 +14,13 @@ codeunit 137831 "SCM - Warehouse UT"
         LibraryUtility: Codeunit "Library - Utility";
         NothingToHandleErr: Label 'Nothing to handle.';
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         TransferRouteErr: Label 'You must specify a Transfer Route';
         LibraryRandom: Codeunit "Library - Random";
         CannotDeleteLocSKUExistErr: Label 'You cannot delete %1 because one or more stockkeeping units exist at this location.', Comment = '%1: Field(Code)';
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -1421,6 +1425,95 @@ codeunit 137831 "SCM - Warehouse UT"
         Assert.AreEqual(ExpectedLocationFilter, FilterValue, 'Expected filter string to contain range and selection');
 
         BinContents.Close();
+    end;
+
+    [Test]
+    procedure CannotCreateBinWithBlankCode()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+    begin
+        // [FEATURE] [Bin]
+        // [SCENARIO 414436] Cannot create bin code with blank code.
+        Initialize();
+
+        MockLocation(Location);
+        Bin.Init();
+        Bin."Location Code" := Location.Code;
+        Bin.Code := '';
+        asserterror Bin.Insert(true);
+        Assert.ExpectedErrorCode('TestField');
+    end;
+
+    [Test]
+    procedure CannotPostPurchaseOrderWithBlankBinWhenBinMandatory()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Bin] [Purchase Order]
+        // [SCENARIO 414436] Cannot post purchase order with blank bin code on location with mandatory bin.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+
+        Bin.Init();
+        Bin."Location Code" := Location.Code;
+        Bin.Code := '';
+        Bin.Insert();
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LibraryInventory.CreateItemNo(),
+          LibraryRandom.RandInt(10), Location.Code, WorkDate());
+
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        Assert.ExpectedErrorCode('TestField');
+    end;
+
+    [Test]
+    procedure CannotPostSalesOrderWithBlankBinWhenBinMandatory()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Bin] [Sales Order]
+        // [SCENARIO 414436] Cannot post sales order with blank bin code on location with mandatory bin.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+
+        Bin.Init();
+        Bin."Location Code" := Location.Code;
+        Bin.Code := '';
+        Bin.Insert();
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', LibraryInventory.CreateItemNo(),
+          LibraryRandom.RandInt(10), Location.Code, WorkDate());
+
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        Assert.ExpectedErrorCode('TestField');
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        if IsInitialized then
+            exit;
+
+        LibraryERMCountryData.CreateVATData();
+
+        IsInitialized := true;
+        Commit();
     end;
 
     local procedure CreateItemWithSNWhseTracking(): Code[20]

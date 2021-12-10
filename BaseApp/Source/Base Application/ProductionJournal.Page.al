@@ -596,13 +596,13 @@ page 5510 "Production Journal"
 
                     trigger OnAction()
                     begin
-                        DeleteRecTemp;
+                        DeleteTempRec();
 
-                        PostingItemJnlFromProduction(false);
+                        Rec.PostingItemJnlFromProduction(false);
 
-                        InsertTempRec;
+                        InsertTempRec();
 
-                        SetFilterGroup;
+                        SetFilterGroup();
                         CurrPage.Update(false);
                     end;
                 }
@@ -619,13 +619,13 @@ page 5510 "Production Journal"
 
                     trigger OnAction()
                     begin
-                        DeleteRecTemp;
+                        DeleteTempRec();
 
-                        PostingItemJnlFromProduction(true);
+                        Rec.PostingItemJnlFromProduction(true);
 
-                        InsertTempRec;
+                        InsertTempRec();
 
-                        SetFilterGroup;
+                        SetFilterGroup();
                         CurrPage.Update(false);
                     end;
                 }
@@ -734,7 +734,7 @@ page 5510 "Production Journal"
         ProdOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderComp: Record "Prod. Order Component";
-        TempItemJrnlLine: Record "Item Journal Line" temporary;
+        TempItemJnlLine: Record "Item Journal Line" temporary;
         CostCalcMgt: Codeunit "Cost Calculation Management";
         ReportPrint: Codeunit "Test Report-Print";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -884,7 +884,7 @@ page 5510 "Production Journal"
 
         ProdOrderComp.CalcFields("Act. Consumption (Qty)"); // Base Unit
         ActualConsumpQty :=
-          ProdOrderComp."Act. Consumption (Qty)" / "Qty. per Unit of Measure";
+          ProdOrderComp."Act. Consumption (Qty)" / Rec."Qty. per Unit of Measure";
         if Item."Rounding Precision" > 0 then
             ActualConsumpQty := UOMMgt.RoundToItemRndPrecision(ActualConsumpQty, Item."Rounding Precision")
         else
@@ -895,8 +895,8 @@ page 5510 "Production Journal"
     var
         OperationExist: Boolean;
     begin
-        if ("Entry Type" = "Entry Type"::Output) and
-           ("Operation No." <> '')
+        if (Rec."Entry Type" = "Item Ledger Entry Type"::Output) and
+           (Rec."Operation No." <> '')
         then
             OperationExist := true
         else
@@ -910,73 +910,73 @@ page 5510 "Production Journal"
         RunTimeEditable := OperationExist;
         WorkShiftCodeEditable := OperationExist;
 
-        FinishedEditable := "Entry Type" = "Entry Type"::Output;
-        ScrapCodeEditable := "Entry Type" = "Entry Type"::Output;
-        ScrapQuantityEditable := "Entry Type" = "Entry Type"::Output;
-        OutputQuantityEditable := "Entry Type" = "Entry Type"::Output;
+        FinishedEditable := Rec."Entry Type" = "Item Ledger Entry Type"::Output;
+        ScrapCodeEditable := Rec."Entry Type" = "Item Ledger Entry Type"::Output;
+        ScrapQuantityEditable := Rec."Entry Type" = "Item Ledger Entry Type"::Output;
+        OutputQuantityEditable := Rec."Entry Type" = "Item Ledger Entry Type"::Output;
 
-        QuantityEditable := "Entry Type" = "Entry Type"::Consumption;
-        AppliesFromEntryEditable := "Entry Type" = "Entry Type"::Consumption;
+        QuantityEditable := Rec."Entry Type" = "Item Ledger Entry Type"::Consumption;
+        AppliesFromEntryEditable := Rec."Entry Type" = "Item Ledger Entry Type"::Consumption;
     end;
 
-    local procedure DeleteRecTemp()
+    protected procedure DeleteTempRec()
     begin
-        TempItemJrnlLine.DeleteAll();
+        TempItemJnlLine.DeleteAll();
 
-        if Find('-') then
+        if Rec.Find('-') then
             repeat
-                case "Entry Type" of
-                    "Entry Type"::Consumption:
-                        if "Quantity (Base)" = 0 then begin
-                            TempItemJrnlLine := Rec;
-                            TempItemJrnlLine.Insert();
+                case Rec."Entry Type" of
+                    "Item Ledger Entry Type"::Consumption:
+                        if Rec."Quantity (Base)" = 0 then begin
+                            TempItemJnlLine := Rec;
+                            TempItemJnlLine.Insert();
 
-                            Delete;
+                            Rec.Delete();
                         end;
-                    "Entry Type"::Output:
-                        if TimeIsEmpty and
-                           ("Output Quantity (Base)" = 0) and ("Scrap Quantity (Base)" = 0)
+                    "Item Ledger Entry Type"::Output:
+                        if Rec.TimeIsEmpty() and
+                           (Rec."Output Quantity (Base)" = 0) and (Rec."Scrap Quantity (Base)" = 0)
                         then begin
-                            TempItemJrnlLine := Rec;
-                            TempItemJrnlLine.Insert();
+                            TempItemJnlLine := Rec;
+                            TempItemJnlLine.Insert();
 
-                            Delete;
+                            Rec.Delete();
                         end;
                 end;
-            until Next() = 0;
+            until Rec.Next() = 0;
     end;
 
-    local procedure InsertTempRec()
+    protected procedure InsertTempRec()
     begin
-        if TempItemJrnlLine.Find('-') then
+        if TempItemJnlLine.Find('-') then
             repeat
-                Rec := TempItemJrnlLine;
-                "Changed by User" := false;
-                Insert;
-            until TempItemJrnlLine.Next() = 0;
-        TempItemJrnlLine.DeleteAll();
+                Rec := TempItemJnlLine;
+                Rec."Changed by User" := false;
+                Rec.Insert();
+            until TempItemJnlLine.Next() = 0;
+        TempItemJnlLine.DeleteAll();
     end;
 
     procedure SetFilterGroup()
     begin
-        FilterGroup(2);
-        SetRange("Journal Template Name", ToTemplateName);
-        SetRange("Journal Batch Name", ToBatchName);
-        SetRange("Order Type", "Order Type"::Production);
-        SetRange("Order No.", ProdOrder."No.");
+        Rec.FilterGroup(2);
+        Rec.SetRange("Journal Template Name", ToTemplateName);
+        Rec.SetRange("Journal Batch Name", ToBatchName);
+        Rec.SetRange("Order Type", "Order Type"::Production);
+        Rec.SetRange("Order No.", ProdOrder."No.");
         if ProdOrderLineNo <> 0 then
-            SetRange("Order Line No.", ProdOrderLineNo);
-        SetFlushingFilter;
+            Rec.SetRange("Order Line No.", ProdOrderLineNo);
+        SetFlushingFilter();
         OnAfterSetFilterGroup(Rec, ProdOrder, ProdOrderLineNo);
-        FilterGroup(0);
+        Rec.FilterGroup(0);
     end;
 
     procedure SetFlushingFilter()
     begin
         if FlushingFilter <> FlushingFilter::"All Methods" then
-            SetRange("Flushing Method", FlushingFilter)
+            Rec.SetRange("Flushing Method", FlushingFilter)
         else
-            SetRange("Flushing Method");
+            Rec.SetRange("Flushing Method");
     end;
 
     local procedure GetCaption(): Text[250]
@@ -1000,7 +1000,7 @@ page 5510 "Production Journal"
             PostingDate := xPostingDate;
 
         if PostingDate <> xPostingDate then begin
-            ModifyAll("Posting Date", PostingDate);
+            Rec.ModifyAll("Posting Date", PostingDate);
             xPostingDate := PostingDate;
             CurrPage.Update(false);
         end;
@@ -1014,8 +1014,8 @@ page 5510 "Production Journal"
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Level;
-        if "Entry Type" = "Entry Type"::Output then
+        DescriptionIndent := Rec.Level;
+        if Rec."Entry Type" = "Item Ledger Entry Type"::Output then
             DescriptionEmphasize := 'Strong'
         else
             DescriptionEmphasize := '';
@@ -1023,69 +1023,69 @@ page 5510 "Production Journal"
 
     local procedure QuantityOnFormat()
     begin
-        if "Entry Type" = "Entry Type"::Output then
+        if Rec."Entry Type" = "Item Ledger Entry Type"::Output then
             QuantityHideValue := true;
     end;
 
     local procedure SetupTimeOnFormat()
     begin
-        if ("Entry Type" = "Entry Type"::Consumption) or
-           ("Operation No." = '')
+        if (Rec."Entry Type" = "Item Ledger Entry Type"::Consumption) or
+           (Rec."Operation No." = '')
         then
             SetupTimeHideValue := true;
     end;
 
     local procedure RunTimeOnFormat()
     begin
-        if ("Entry Type" = "Entry Type"::Consumption) or
-           ("Operation No." = '')
+        if (Rec."Entry Type" = "Item Ledger Entry Type"::Consumption) or
+           (Rec."Operation No." = '')
         then
             RunTimeHideValue := true;
     end;
 
     local procedure OutputQuantityOnFormat()
     begin
-        if "Entry Type" = "Entry Type"::Consumption then
+        if Rec."Entry Type" = "Item Ledger Entry Type"::Consumption then
             OutputQuantityHideValue := true;
     end;
 
     local procedure ScrapQuantityOnFormat()
     begin
-        if "Entry Type" = "Entry Type"::Consumption then
+        if Rec."Entry Type" = "Item Ledger Entry Type"::Consumption then
             ScrapQuantityHideValue := true;
     end;
 
     local procedure ActualConsumpQtyOnFormat()
     begin
-        if "Entry Type" = "Entry Type"::Output then
+        if Rec."Entry Type" = "Item Ledger Entry Type"::Output then
             ActualConsumpQtyHideValue := true;
     end;
 
     local procedure ActualSetupTimeOnFormat()
     begin
-        if ("Entry Type" = "Entry Type"::Consumption) or
-           ("Operation No." = '')
+        if (Rec."Entry Type" = "Item Ledger Entry Type"::Consumption) or
+           (Rec."Operation No." = '')
         then
             ActualSetupTimeHideValue := true;
     end;
 
     local procedure ActualRunTimeOnFormat()
     begin
-        if ("Entry Type" = "Entry Type"::Consumption) or
-           ("Operation No." = '')
+        if (Rec."Entry Type" = "Item Ledger Entry Type"::Consumption) or
+           (Rec."Operation No." = '')
         then
             ActualRunTimeHideValue := true;
     end;
 
     local procedure ActualOutputQtyOnFormat()
     begin
-        if "Entry Type" = "Entry Type"::Consumption then
+        if Rec."Entry Type" = "Item Ledger Entry Type"::Consumption then
             ActualOutputQtyHideValue := true;
     end;
 
     local procedure ActualScrapQtyOnFormat()
     begin
-        if "Entry Type" = "Entry Type"::Consumption then
+        if Rec."Entry Type" = "Item Ledger Entry Type"::Consumption then
             ActualScrapQtyHideValue := true;
     end;
 

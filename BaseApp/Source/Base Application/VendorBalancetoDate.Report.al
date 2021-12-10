@@ -243,7 +243,8 @@ report 321 "Vendor - Balance to Date"
                 ShouldSkipVendor: Boolean;
             begin
                 MaxDate := GetRangeMax("Date Filter");
-                MinDate := GetRangeMin("Date Filter");
+                if MinDate = 0D then
+                    MinDate := GetRangeMin("Date Filter");
                 SetRange("Date Filter", 0D, MaxDate);
                 CalcFields("Net Change (LCY)", "Net Change");
 

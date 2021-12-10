@@ -601,6 +601,12 @@ report 5805 "Item Register - Value"
 
                 trigger OnAfterGetRecord()
                 begin
+                    Clear(ItemEntryTypeTotalCost);
+                    Clear(ItemEntryTypeTotalCostExp);
+                    Clear(ItemEntryTypeTotalAmount);
+                    Clear(EntryTypeTotalCost);
+                    Clear(EntryTypeTotalCostExp);
+
                     if Item.Get("Item No.") then
                         ItemDescription := Item.Description;
 
@@ -625,13 +631,7 @@ report 5805 "Item Register - Value"
                 begin
                     SetRange("Entry No.", "Item Register"."From Value Entry No.", "Item Register"."To Value Entry No.");
 
-                    Clear(ItemEntryTypeTotalCost);
-                    Clear(ItemEntryTypeTotalCostExp);
-                    Clear(ItemEntryTypeTotalAmount);
-                    Clear(EntryTypeTotalCost);
-                    Clear(EntryTypeTotalCostExp);
-
-                    Clear(ShowItemLineSummary[i]);
+                    Clear(ShowItemLineSummary);
                 end;
             }
 

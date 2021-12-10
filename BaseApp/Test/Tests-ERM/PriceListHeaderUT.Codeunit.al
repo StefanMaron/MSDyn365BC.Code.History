@@ -38,6 +38,8 @@ codeunit 134118 "Price List Header UT"
         ProductNoMustBeFilledErr: Label 'Product No. must have a value';
         SourceNoMustBeFilledErr: Label 'Assign-to must have a value';
         SourceNoMustBeBlankErr: Label 'Assign-to must be equal to ''''';
+        MissingPriceListCodeErr: Label '%1 must have a value', Comment = '%1 - field caption.';
+        CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - table caption';
         IsInitialized: Boolean;
 
     [Test]
@@ -154,6 +156,20 @@ codeunit 134118 "Price List Header UT"
         // [THEN] Line, where "Price List Code" is 'Y', is not deleted
         PriceListLine.SetRange("Price List Code", PriceListHeader[2].Code);
         Assert.RecordIsNotEmpty(PriceListLine);
+    end;
+
+    [Test]
+    procedure T007_CannotRenamePriceListHeader()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        Initialize();
+        PriceListHeader.Code := LibraryUtility.GenerateGUID();
+        PriceListHeader."Source Group" := PriceListHeader."Source Group"::Customer;
+        PriceListHeader.Insert();
+
+        asserterror PriceListHeader.Rename(LibraryUtility.GenerateGUID());
+        Assert.ExpectedError(StrSubstNo(CannotRenameErr, PriceListHeader.TableCaption()));
     end;
 
     [Test]
@@ -1674,6 +1690,260 @@ codeunit 134118 "Price List Header UT"
         Assert.RecordCount(NewPriceListLine, 3);
         NewPriceListLine.SetRange("Price List Code", NewPriceListHeader.Code);
         Assert.RecordCount(NewPriceListLine, 2);
+    end;
+
+    [Test]
+    procedure T130_GetDefaultPriceListCodeSales()
+    var
+        PriceListLine: Record "Price List Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Initialize();
+        // [GIVEN] "Default Price List Code" is blank in Sales Setup
+        LibraryPriceCalculation.ClearDefaultPriceList("Price Type"::Sale, "Price Source Group"::Customer);
+        // [WHEN] GetDefaultPriceListCode for Sale
+        asserterror PriceListManagement.GetDefaultPriceListCode("Price Type"::Sale, "Price Source Group"::Customer, true);
+        // [THEN] Error message: 'Default Price List Code must have a value'
+        Assert.ExpectedError(StrSubstNo(MissingPriceListCodeErr, SalesReceivablesSetup.FieldCaption("Default Price List Code")));
+
+        // [GIVEN] "Default Price List Code" is 'S0001' in Sales Setup
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Default Price List Code" := LibraryUtility.GenerateGUID();
+        SalesReceivablesSetup.Modify();
+
+        // [WHEN] GetDefaultPriceListCode for Sale
+        // [THEN] returned 'S0001'
+        Assert.AreEqual(
+            SalesReceivablesSetup."Default Price List Code",
+            PriceListManagement.GetDefaultPriceListCode("Price Type"::Sale, "Price Source Group"::Customer, true),
+            'Sales default Price List Code');
+    end;
+
+    [Test]
+    procedure T131_GetDefaultPriceListCodePurchase()
+    var
+        PriceListLine: Record "Price List Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Initialize();
+        // [GIVEN] "Default Price List Code" is blank in Purchase Setup
+        LibraryPriceCalculation.ClearDefaultPriceList("Price Type"::Sale, "Price Source Group"::Customer);
+        // [WHEN] GetDefaultPriceListCode for Purchase
+        asserterror PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Vendor, true);
+        // [THEN] Error message: 'Default Price List Code must have a value'
+        Assert.ExpectedError(StrSubstNo(MissingPriceListCodeErr, PurchasesPayablesSetup.FieldCaption("Default Price List Code")));
+
+        // [GIVEN] "Default Price List Code" is 'P0001' in Purchase Setup
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Default Price List Code" := LibraryUtility.GenerateGUID();
+        PurchasesPayablesSetup.Modify();
+
+        // [WHEN] GetDefaultPriceListCode for Purchase
+        // [THEN] returned 'P0001'
+        Assert.AreEqual(
+            PurchasesPayablesSetup."Default Price List Code",
+            PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Vendor, true),
+            'Sales default Price List Code');
+    end;
+
+    [Test]
+    procedure T132_GetDefaultPriceListCodeJobSales()
+    var
+        PriceListLine: Record "Price List Line";
+        JobsSetup: Record "Jobs Setup";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Initialize();
+        // [GIVEN] "Default Price List Code" is blank in Jobs Setup
+        LibraryPriceCalculation.ClearDefaultPriceList("Price Type"::Sale, "Price Source Group"::Job);
+        // [WHEN] GetDefaultPriceListCode for Job Sale
+        asserterror PriceListManagement.GetDefaultPriceListCode("Price Type"::Sale, "Price Source Group"::Job, true);
+        // [THEN] Error message: 'Default Sales Price List Code must have a value'
+        Assert.ExpectedError(StrSubstNo(MissingPriceListCodeErr, JobsSetup.FieldCaption("Default Sales Price List Code")));
+
+        // [GIVEN] "Default Sales Price List Code" is 'S0001' in Jobs Setup
+        JobsSetup.Get();
+        JobsSetup."Default Sales Price List Code" := LibraryUtility.GenerateGUID();
+        JobsSetup.Modify();
+
+        // [WHEN] GetDefaultPriceListCode for Job Sale
+        // [THEN] returned 'S0001'
+        Assert.AreEqual(
+            JobsSetup."Default Sales Price List Code",
+            PriceListManagement.GetDefaultPriceListCode("Price Type"::Sale, "Price Source Group"::Job, true),
+            'Sales default Price List Code');
+    end;
+
+    [Test]
+    procedure T133_GetDefaultPriceListCodeJobPurchase()
+    var
+        PriceListLine: Record "Price List Line";
+        JobsSetup: Record "Jobs Setup";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Initialize();
+        // [GIVEN] "Default Price List Code" is blank in Purchase Setup
+        LibraryPriceCalculation.ClearDefaultPriceList("Price Type"::Sale, "Price Source Group"::Job);
+        // [WHEN] GetDefaultPriceListCode for Job Purchase
+        asserterror PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Job, true);
+        // [THEN] Error message: 'Default Purch Price List Code must have a value'
+        Assert.ExpectedError(StrSubstNo(MissingPriceListCodeErr, JobsSetup.FieldCaption("Default Purch Price List Code")));
+
+        // [GIVEN] "Default Purch Price List Code" is 'P0001' in Jobs Setup
+        JobsSetup.Get();
+        JobsSetup."Default Purch Price List Code" := LibraryUtility.GenerateGUID();
+        JobsSetup.Modify();
+
+        // [WHEN] GetDefaultPriceListCode for Job Purchase
+        // [THEN] returned 'P0001'
+        Assert.AreEqual(
+            JobsSetup."Default Purch Price List Code",
+            PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Job, true),
+            'Sales default Price List Code');
+    end;
+
+    [Test]
+    procedure T135_NewLineWithNumberOver1bnGoesToNewDefaultPriceListSales()
+    var
+        PriceListLine: Record "Price List Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        PriceListManagement: Codeunit "Price List Management";
+        DefaultPriceListCode: array[2] of Code[20];
+    begin
+        Initialize();
+        // [GIVEN] "Default Price List Code" is Sales Setup is 'S0001'
+        DefaultPriceListCode[1] :=
+            LibraryPriceCalculation.SetDefaultPriceList("Price Type"::Sale, "Price Source Group"::Customer);
+        // [GIVEN] Price List 'S0001' has the line, where "Line No." is 1000000000
+        PriceListLine.Init();
+        PriceListLine.Validate("Price List Code", DefaultPriceListCode[1]);
+        PriceListLine."Line No." := 1000000000;
+        PriceListLine.Insert();
+
+        // [GIVEN] new Price List line, where "Price Source Type" 'All Customers'
+        PriceListLine.Init();
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Customers");
+
+        // [WHEN] InitLineNo() for new Price List Line
+        CopyFromToPriceListLine.SetGenerateHeader(true);
+        CopyFromToPriceListLine.InitLineNo(PriceListLine);
+
+        // [THEN] Price List Line is the first line of the new default price list 'S0002'
+        DefaultPriceListCode[2] :=
+            PriceListManagement.GetDefaultPriceListCode("Price Type"::Sale, "Price Source Group"::Customer, true);
+        Assert.AreNotEqual(DefaultPriceListCode[1], DefaultPriceListCode[2], 'Default price list code is not changed');
+        PriceListLine.TestField("Price List Code", DefaultPriceListCode[2]);
+        PriceListLine.TestField("Line No.", 10000);
+    end;
+
+    [Test]
+    procedure T136_NewLineWithNumberOver1bnGoesToNewDefaultPriceListPurch()
+    var
+        PriceListLine: Record "Price List Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        PriceListManagement: Codeunit "Price List Management";
+        DefaultPriceListCode: array[2] of Code[20];
+    begin
+        Initialize();
+        // [GIVEN] "Default Price List Code" is Purch Setup is 'P0001'
+        DefaultPriceListCode[1] :=
+            LibraryPriceCalculation.SetDefaultPriceList("Price Type"::Purchase, "Price Source Group"::Vendor);
+        // [GIVEN] Price List 'P0001' has the line, where "Line No." is 1000000000
+        PriceListLine.Init();
+        PriceListLine.Validate("Price List Code", DefaultPriceListCode[1]);
+        PriceListLine."Line No." := 1000000000;
+        PriceListLine.Insert();
+
+        // [GIVEN] new Price List line, where "Price Source Type" 'All Vendors'
+        PriceListLine.Init();
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Vendors");
+
+        // [WHEN] InitLineNo() for new Price List Line
+        CopyFromToPriceListLine.SetGenerateHeader(true);
+        CopyFromToPriceListLine.InitLineNo(PriceListLine);
+
+        // [THEN] Price List Line is the first line of the new default price list 'P0002'
+        DefaultPriceListCode[2] :=
+            PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Vendor, true);
+        Assert.AreNotEqual(DefaultPriceListCode[1], DefaultPriceListCode[2], 'Default price list code is not changed');
+        PriceListLine.TestField("Price List Code", DefaultPriceListCode[2]);
+        PriceListLine.TestField("Line No.", 10000);
+    end;
+
+    [Test]
+    procedure T137_NewLineWithNumberOver1bnGoesToNewDefaultPriceListJobSales()
+    var
+        PriceListLine: Record "Price List Line";
+        JobsSetup: Record "Jobs Setup";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        PriceListManagement: Codeunit "Price List Management";
+        DefaultPriceListCode: array[2] of Code[20];
+    begin
+        Initialize();
+        // [GIVEN] "Default Sales Price List Code" is Jobs Setup is 'S0001'
+        DefaultPriceListCode[1] :=
+            LibraryPriceCalculation.SetDefaultPriceList("Price Type"::Sale, "Price Source Group"::Job);
+        // [GIVEN] Price List 'S0001' has the line, where "Line No." is 1000000000
+        PriceListLine.Init();
+        PriceListLine.Validate("Price List Code", DefaultPriceListCode[1]);
+        PriceListLine."Line No." := 1000000000;
+        PriceListLine.Insert();
+
+        // [GIVEN] new Price List line, where "Price Source Type" 'All Jobs', "Price Type" 'Sale'
+        PriceListLine.Init();
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Jobs");
+        PriceListLine.Validate("Price Type", "Price Type"::Sale);
+
+        // [WHEN] InitLineNo() for new Price List Line
+        CopyFromToPriceListLine.SetGenerateHeader(true);
+        CopyFromToPriceListLine.InitLineNo(PriceListLine);
+
+        // [THEN] Price List Line is the first line of the new default price list 'S0002'
+        DefaultPriceListCode[2] :=
+            PriceListManagement.GetDefaultPriceListCode("Price Type"::Sale, "Price Source Group"::Job, true);
+        Assert.AreNotEqual(DefaultPriceListCode[1], DefaultPriceListCode[2], 'Default price list code is not changed');
+        PriceListLine.TestField("Price List Code", DefaultPriceListCode[2]);
+        PriceListLine.TestField("Line No.", 10000);
+    end;
+
+    [Test]
+    procedure T138_NewLineWithNumberOver1bnGoesToNewDefaultPriceListJobPurch()
+    var
+        PriceListLine: Record "Price List Line";
+        JobsSetup: Record "Jobs Setup";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        PriceListManagement: Codeunit "Price List Management";
+        DefaultPriceListCode: array[2] of Code[20];
+    begin
+        Initialize();
+        // [GIVEN] "Default Purch Price List Code" is Jobs Setup is 'P0001'
+        DefaultPriceListCode[1] :=
+            LibraryPriceCalculation.SetDefaultPriceList("Price Type"::Purchase, "Price Source Group"::Job);
+        // [GIVEN] Price List 'P0001' has the line, where "Line No." is 1000000000
+        PriceListLine.Init();
+        PriceListLine.Validate("Price List Code", DefaultPriceListCode[1]);
+        PriceListLine."Line No." := 1000000000;
+        PriceListLine.Insert();
+
+        // [GIVEN] new Price List line, where "Price Source Type" 'All Jobs', "Price Type" 'Purchase'
+        PriceListLine.Init();
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Jobs");
+        PriceListLine.Validate("Price Type", "Price Type"::Purchase);
+
+        // [WHEN] InitLineNo() for new Price List Line
+        CopyFromToPriceListLine.SetGenerateHeader(true);
+        CopyFromToPriceListLine.InitLineNo(PriceListLine);
+
+        // [THEN] Price List Line is the first line of the new default price list 'P0002'
+        DefaultPriceListCode[2] :=
+            PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Job, true);
+        Assert.AreNotEqual(DefaultPriceListCode[1], DefaultPriceListCode[2], 'Default price list code is not changed');
+        PriceListLine.TestField("Price List Code", DefaultPriceListCode[2]);
+        PriceListLine.TestField("Line No.", 10000);
     end;
 
     local procedure Initialize()

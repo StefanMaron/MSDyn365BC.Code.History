@@ -24,6 +24,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         RefDocType: Option Quote,"Order",Invoice,"Credit Memo";
         RefMode: Option Manual,Automatic,"Always Ask";
         FieldNotVisibleErr: Label 'Field must be visible.';
+        StdCodeDeleteConfirmLbl: Label 'If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -950,6 +951,107 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Assert.RecordCount(SalesLine, 2);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesCodeWithStdCustomerSalesCodeDeleteConfirmYes()
+    var
+        Customer: Record Customer;
+        StdSalesCode: Record "Standard Sales Code";
+        StdCustomerSalesCode: Record "Standard Customer Sales Code";
+        StdSalesCodeCode: Code[10];
+    begin
+        // [SCENARIO 412530] When user deletes Standard Sales Code with Standard Customer Sales Code linked - confirmation appears, if yes - deletes linked entries
+        Initialize();
+
+        // [GIVEN] Standard Sales Code with linked Standard Customer Sales Code
+        StdSalesCodeCode := CreateStandardSalesCodeWithItemLine();
+        StdSalesCode.Get(StdSalesCodeCode);
+
+        Customer.Get(
+            GetNewCustNoWithStandardSalesCodeForCode(RefDocType::Order, RefMode::Automatic, StdSalesCodeCode));
+        LibraryVariableStorage.DequeueText(); // flush variable storage
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Standard Sales Code is deleted
+        // [THEN] Confirmation message appears 
+        // [WHEN] User agrees with confirmation
+        StdSalesCode.Delete(True);
+
+        // [THEN] Standard Sales Code and Standard Customer Sales Code linked are deleted
+        StdSalesCode.Reset();
+        StdSalesCode.SetRange("Code", StdSalesCodeCode);
+        Assert.RecordIsEmpty(StdSalesCode);
+        Assert.ExpectedConfirm(
+            StrSubstNo(StdCodeDeleteConfirmLbl, StdSalesCodeCode, StdCustomerSalesCode.TableCaption),
+            LibraryVariableStorage.DequeueText());
+        StdCustomerSalesCode.SetRange("Code", StdSalesCodeCode);
+        Assert.RecordIsEmpty(StdCustomerSalesCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesCodeWithStdCustomerSalesCodeDeleteConfirmNo()
+    var
+        Customer: Record Customer;
+        StdSalesCode: Record "Standard Sales Code";
+        StdCustomerSalesCode: Record "Standard Customer Sales Code";
+        StdSalesCodeCode: Code[10];
+    begin
+        // [SCENARIO 412530] When user deletes Standard Sales Code with Standard Customer Sales Code linked - confirmation appears, if no - no records deleted
+        Initialize();
+
+        // [GIVEN] Standard Sales Code with linked Standard Customer Sales Code
+        StdSalesCodeCode := CreateStandardSalesCodeWithItemLine();
+        StdSalesCode.Get(StdSalesCodeCode);
+        Customer.Get(
+            GetNewCustNoWithStandardSalesCodeForCode(RefDocType::Order, RefMode::Automatic, StdSalesCodeCode));
+
+        Commit;
+        LibraryVariableStorage.DequeueText(); // flush variable storage
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Standard Sales Code is deleted
+        // [THEN] Confirmation message appears 
+        // [WHEN] User disagree with confirmation
+        AssertError StdSalesCode.Delete(true);
+        Assert.ExpectedError('');
+
+        // [THEN] Standard Sales Code and Standard Customer Sales Code linked are not deleted
+        StdSalesCode.Reset();
+        StdSalesCode.SetRange("Code", StdSalesCodeCode);
+        Assert.RecordIsNotEmpty(StdSalesCode);
+
+        StdCustomerSalesCode.SetRange("Code", StdSalesCodeCode);
+        Assert.RecordIsNotEmpty(StdCustomerSalesCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StdSalesCodeNoStdCustomerSalesCodeDeleteWithoutConfirm()
+    var
+        StdSalesCode: Record "Standard Sales Code";
+        StdSalesCodeCode: Code[10];
+    begin
+        // [SCENARIO 412530] When user deletes Standard Sales Code without Standard Customer Sales Code linked - no confirmation appears, record deleted.
+        Initialize();
+
+        // [GIVEN] Standard Sales Code with no linked Standard Customer Sales Code
+        StdSalesCodeCode := CreateStandardSalesCodeWithItemLine();
+        StdSalesCode.Get(StdSalesCodeCode);
+
+        // [WHEN] Standard Sales Code is deleted
+        // [THEN] Confirmation message does not appear
+        StdSalesCode.Delete(True);
+
+        // [THEN] Standard Sales Code is deleted
+        StdSalesCode.Reset();
+        StdSalesCode.SetRange("Code", StdSalesCodeCode);
+        Assert.RecordIsEmpty(StdSalesCode);
+    end;
+
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1289,6 +1391,14 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         CustomerLookupPage.Filter.SetFilter("No.", LibraryVariableStorage.PeekText(2));
         CustomerLookupPage.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
+        LibraryVariableStorage.Enqueue(Question);
     end;
 }
 

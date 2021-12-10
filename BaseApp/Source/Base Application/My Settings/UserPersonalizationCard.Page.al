@@ -12,7 +12,7 @@ page 9172 "User Personalization Card"
     AboutText = 'Here, you manage an individual user''s settings. If a setting is left blank, a default value is provided when the user signs in.';
     ObsoleteState = Pending;
     ObsoleteReason = 'Use page "User Settings" instead';
-    ObsoleteTag = '19.0'; 
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -298,7 +298,6 @@ page 9172 "User Personalization Card"
 
     trigger OnOpenPage()
     begin
-        MySettings.CheckPermissions(Rec);
         MySettings.HideExternalUsers(Rec);
     end;
 

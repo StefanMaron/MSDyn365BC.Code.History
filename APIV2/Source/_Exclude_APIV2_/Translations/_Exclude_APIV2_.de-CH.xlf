@@ -8423,7 +8423,7 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Quotes</source>
-          <target state="translated">Verkaufsoffertee</target>
+          <target state="translated">Verkaufsofferten</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Property EntitySetCaption</note>
         </trans-unit>

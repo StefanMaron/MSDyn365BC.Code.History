@@ -113,6 +113,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             PhysInvtCount := false;
 
             // Post lines
+            OnCodeOnBeforePostLines(ItemJnlLine, NoOfRecords);
             LineCount := 0;
             OldEntryType := "Entry Type";
             PostLines(ItemJnlLine, PhysInvtCountMgt);
@@ -737,6 +738,8 @@ codeunit 23 "Item Jnl.-Post Batch"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+
+        OnAfterGetLocation(Location, ItemJnlLine);
     end;
 
     procedure GetWhseRegNo(): Integer
@@ -914,6 +917,11 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLocation(var Location: Record Location; var ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterItemJnlPostSumLine(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -1010,6 +1018,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDeleteLines(var ItemJournalLine: Record "Item Journal Line"; ItemRegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostLines(var ItemJournalLine: Record "Item Journal Line"; var NoOfRecords: Integer)
     begin
     end;
 

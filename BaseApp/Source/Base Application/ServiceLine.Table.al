@@ -329,8 +329,7 @@ table 5902 "Service Line"
 
             trigger OnValidate()
             begin
-                if "Qty. to Invoice" < 0 then
-                    FieldError("Qty. to Invoice", Text029);
+                CheckQtyToInvoicePositive();
 
                 if "Qty. to Invoice" > 0 then begin
                     "Qty. to Consume" := 0;
@@ -374,8 +373,7 @@ table 5902 "Service Line"
 
             trigger OnValidate()
             begin
-                if "Qty. to Ship" < 0 then
-                    FieldError("Qty. to Ship", Text029);
+                CheckQtyToShipPositive();
 
                 if (CurrFieldNo <> 0) and
                    (Type = Type::Item) and
@@ -2050,8 +2048,7 @@ table 5902 "Service Line"
                 if CurrFieldNo = FieldNo("Qty. to Consume") then
                     CheckWarehouse;
 
-                if "Qty. to Consume" < 0 then
-                    FieldError("Qty. to Consume", Text029);
+                CheckQtyToConsumePositive();
 
                 if "Qty. to Consume" = MaxQtyToConsume then
                     InitQtyToConsume
@@ -3015,6 +3012,45 @@ table 5902 "Service Line"
             "VAT Calculation Type"::"Full VAT":
                 TestField(Type, Type::Cost);
         end;
+    end;
+
+    local procedure CheckQtyToInvoicePositive()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQtyToInvoicePositive(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Qty. to Invoice" < 0 then
+            FieldError("Qty. to Invoice", Text029);
+    end;
+
+    local procedure CheckQtyToShipPositive()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQtyToShipPositive(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Qty. to Ship" < 0 then
+            FieldError("Qty. to Ship", Text029);
+    end;
+
+    local procedure CheckQtyToConsumePositive()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQtyToConsumePositive(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Qty. to Consume" < 0 then
+            FieldError("Qty. to Consume", Text029);
     end;
 
     local procedure TestQuantityPositive()
@@ -5746,6 +5782,21 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckVATCalculationType(var ServiceLine: Record "Service Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyToInvoicePositive(var ServiceLine: Record "Service Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyToShipPositive(var ServiceLine: Record "Service Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyToConsumePositive(var ServiceLine: Record "Service Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,6 +1,8 @@
 codeunit 5701 "Item Subst."
 {
 
+    Permissions = TableData "Item Substitution" = rimd;
+
     trigger OnRun()
     begin
     end;

@@ -1836,6 +1836,7 @@ table 5080 "To-do"
         TempSegLine."Opportunity No." := Task."Opportunity No.";
         TempSegLine.Validate(Date, WorkDate);
 
+        OnLogTaskInteractionOnBeforeTempSegLineInsert(TempSegLine, Task);
         TempSegLine.Insert();
         SegManagement.LogInteraction(TempSegLine, TempAttachment, TempInterLogEntryCommentLine, Deliver, false);
     end;
@@ -3048,6 +3049,11 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteAttendeeTask(var Task: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogTaskInteractionOnBeforeTempSegLineInsert(var SegmentLine: Record "Segment Line"; Task: Record "To-do")
     begin
     end;
 }

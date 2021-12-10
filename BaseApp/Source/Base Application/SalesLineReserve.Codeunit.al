@@ -466,6 +466,7 @@ codeunit 99000832 "Sales Line-Reserve"
         if not IsHandled then begin
             ItemTrackingLines.SetSourceSpec(TrackingSpecification, SalesLine."Shipment Date");
             ItemTrackingLines.SetSecondSourceQuantity(SecondSourceQuantityArray);
+            OnCallItemTrackingSecondSourceOnBeforeItemTrackingLinesRun(SalesLine, ItemTrackingLines);
             ItemTrackingLines.RunModal();
         end;
     end;
@@ -1135,6 +1136,11 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var SalesLine: Record "Sales Line"; var ItemTrackingLines: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingSecondSourceOnBeforeItemTrackingLinesRun(var SalesLine: Record "Sales Line"; var ItemTrackingLines: Page "Item Tracking Lines")
     begin
     end;
 

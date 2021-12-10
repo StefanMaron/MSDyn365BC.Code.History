@@ -1404,13 +1404,21 @@ table 130 "Incoming Document"
     end;
 
     procedure SaveErrorMessages(var TempErrorMessageRef: Record "Error Message" temporary)
+    var
+        EntryNo: Integer;
     begin
         if not TempErrorMessageRef.FindSet then
             exit;
 
+        Clear(TempErrorMessage);
+        if TempErrorMessage.FindLast() then;
+        EntryNo := TempErrorMessage.ID + 1;
+
         repeat
-            TempErrorMessage := TempErrorMessageRef;
+            TempErrorMessage.TransferFields(TempErrorMessageRef);
+            TempErrorMessage.ID := EntryNo;
             TempErrorMessage.Insert();
+            EntryNo += 1;
         until TempErrorMessageRef.Next() = 0;
     end;
 
@@ -1476,9 +1484,10 @@ table 130 "Incoming Document"
         case FieldNumber of
             FieldNo("Vendor Name"):
                 exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name")));
-            // TODO: This line needs updating. With introduction of SystemId in version 14 the Id is not matching the System Id.
             FieldNo("Vendor Id"):
-                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo(Id)));
+                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo(SystemId)));
+            FieldNo("Vendor No."):
+                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo("No.")));
             FieldNo("Vendor VAT Registration No."):
                 exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo("VAT Registration No.")));
             FieldNo("Vendor IBAN"):
@@ -1924,7 +1933,7 @@ table 130 "Incoming Document"
         if not Evaluate(PostingDate, PostingDateText) then
             exit(false);
 
-        IncomingDocument.SetFilter("Document No.", DocumentNo);
+        IncomingDocument.SetRange("Document No.", DocumentNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
 
         exit(IncomingDocument.FindFirst);

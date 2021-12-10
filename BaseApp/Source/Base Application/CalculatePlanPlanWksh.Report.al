@@ -62,6 +62,8 @@ report 99001017 "Calculate Plan - Plan. Wksh."
             end;
 
             trigger OnPreDataItem()
+            var
+                ShouldSetAtStartPosition: Boolean;
             begin
                 OnBeforeItemOnPreDataItem(Item);
 
@@ -77,7 +79,9 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                 ReqLine.SetRange("Journal Batch Name", CurrWorksheetName);
                 PlanningErrorLog.SetRange("Worksheet Template Name", CurrTemplateName);
                 PlanningErrorLog.SetRange("Journal Batch Name", CurrWorksheetName);
-                if PlanningErrorLog.FindFirst and ReqLine.FindFirst then
+                ShouldSetAtStartPosition := PlanningErrorLog.FindFirst and ReqLine.FindFirst;
+                OnOnPreDataItemOnAfterCalcShouldSetAtStartPosition(Item, PlanningErrorLog, ReqLine, SetAtStartPosition, ShouldSetAtStartPosition);
+                if ShouldSetAtStartPosition then
                     SetAtStartPosition := not Confirm(Text009);
 
                 ClearPlanningErrorLog();
@@ -185,7 +189,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         begin
             InitializeFromMfgSetup();
 
-            OnAfterOnOpenPage;
+            OnAfterOnOpenPage(FromDate, ToDate);
         end;
     }
 
@@ -327,7 +331,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnOpenPage()
+    local procedure OnAfterOnOpenPage(var FromDate: Date; var ToDate: Date)
     begin
     end;
 
@@ -368,6 +372,11 @@ report 99001017 "Calculate Plan - Plan. Wksh."
 
     [IntegrationEvent(false, false)]
     local procedure OnItemOnAfterGetRecordOnBeforePlanningErrorLogSetError(var Item: Record Item; var PlanningErrorLog: Record "Planning Error Log")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnPreDataItemOnAfterCalcShouldSetAtStartPosition(Item: Record Item; PlanningErrorLog: Record "Planning Error Log"; RequisitionLine: Record "Requisition Line"; var SetAtStartPosition: Boolean; var ShouldSetAtStartPosition: Boolean)
     begin
     end;
 }

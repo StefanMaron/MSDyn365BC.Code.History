@@ -373,6 +373,62 @@ codeunit 134204 "Document Approval - Requests"
         Assert.IsTrue(ApprovalEntry.Modify, 'Record is not modifying');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteWorkflowEventQueueOnApproveEntryDeletion()
+    var
+        ApprovalEntry: array[2] of Record "Approval Entry";
+        WorkflowEventQueue: array[2] of Record "Workflow Event Queue";
+    begin
+        // [FEATURE] [UT] [Workflow Event Queue]
+        // [SCENARIO 414141] The related "Workflow Event Queue" should be deleted on deletion of "Approval Entry".
+        Initialize();
+
+        // [GIVEN] Two "Approval Entry" records 'AE1' and 'AE2', each has a related "Workflow Event Queue" record 'WEQ1' and 'WEQ2'
+        CreateApprovalEntry(ApprovalEntry[1], '');
+        WorkflowEventQueue[1]."Record ID" := ApprovalEntry[1].RecordId;
+        WorkflowEventQueue[1].Insert(true);
+
+        CreateApprovalEntry(ApprovalEntry[2], '');
+        WorkflowEventQueue[2]."Record ID" := ApprovalEntry[2].RecordId;
+        WorkflowEventQueue[2].Insert(true);
+
+        // [WHEN] Delete 'AE1'
+        ApprovalEntry[1].Delete(true);
+
+        // [THEN] 'WEQ1' is deleted, 'WEQ2' exists
+        Assert.IsFalse(WorkflowEventQueue[1].Find(), 'WorkflowEventQueue should be deleted.');
+        Assert.IsTrue(WorkflowEventQueue[2].Find(), 'WorkflowEventQueue should not be deleted.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteWorkflowEventQueueOnApproveEntryApproval()
+    var
+        ApprovalEntry: array[2] of Record "Approval Entry";
+        WorkflowEventQueue: array[2] of Record "Workflow Event Queue";
+    begin
+        // [FEATURE] [UT] [Workflow Event Queue]
+        // [SCENARIO 414141] The related "Workflow Event Queue" should be deleted on approval of "Approval Entry".
+        Initialize();
+
+        // [GIVEN] Two "Approval Entry" records 'AE1' and 'AE2', each has a related "Workflow Event Queue" record 'WEQ1' and 'WEQ2'
+        CreateApprovalEntry(ApprovalEntry[1], '');
+        WorkflowEventQueue[1]."Record ID" := ApprovalEntry[1].RecordId;
+        WorkflowEventQueue[1].Insert(true);
+
+        CreateApprovalEntry(ApprovalEntry[2], '');
+        WorkflowEventQueue[2]."Record ID" := ApprovalEntry[2].RecordId;
+        WorkflowEventQueue[2].Insert(true);
+
+        // [WHEN] Change Status of 'AE1' to 'Approved'
+        ApprovalEntry[1].Validate(Status, ApprovalEntry[1].Status::Approved);
+
+        // [THEN] 'WEQ1' is deleted, 'WEQ2' exists
+        Assert.IsFalse(WorkflowEventQueue[1].Find(), 'WorkflowEventQueue should be deleted.');
+        Assert.IsTrue(WorkflowEventQueue[2].Find(), 'WorkflowEventQueue should not be deleted.');
+    end;
+
     local procedure Initialize()
     var
         ApprovalEntry: Record "Approval Entry";

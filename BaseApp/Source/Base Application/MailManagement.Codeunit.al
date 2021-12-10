@@ -158,7 +158,8 @@ codeunit 9520 "Mail Management"
         Seperators := '; ,';
         SendToList := TempEmailItem."Send to".Split(Seperators.Split());
 
-        IF TempEmailItem."Message Type" = TempEmailItem."Message Type"::"From Email Body Template" THEN
+        if (TempEmailItem."Message Type" = TempEmailItem."Message Type"::"From Email Body Template")
+            or (not TempEmailItem.Body.HasValue() and (TempEmailItem."Body File Path" <> '') and Exists(TempEmailItem."Body File Path")) then
             HtmlFormated := true;
 
         if SMTPMail.CreateMessage(TempEmailItem."From Name", TempEmailItem."From Address", SendToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), HtmlFormated) then begin

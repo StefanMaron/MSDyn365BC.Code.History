@@ -52,6 +52,8 @@ codeunit 9510 "Document Service Management"
         StartingLinkGenerationTelemetryMsg: Label 'Starting OneDrive link generation.', Locked = true;
         ConfigurationForTestConnectionTelemetryMsg: Label 'Configuration for test connection retrieved, with authentication: %1.', Locked = true;
 
+        SettingResourceLocationTelemetryTxt: Label 'Setting resource location (old location length: %1, new location length: %2).', Locked = true;
+        LocationTooLongTelemetryMsg: Label 'Maximum location length is %1, but the new location has length %2.', Locked = true;
 
     [Scope('OnPrem')]
     procedure TestConnection()
@@ -315,7 +317,12 @@ codeunit 9510 "Document Service Management"
 
         NewLocation := DocumentService.GetLocation();
 
+        Session.LogMessage('0000GB1', StrSubstNo(SettingResourceLocationTelemetryTxt, StrLen(DocumentServiceRec.Location), StrLen(NewLocation)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentServiceCategoryLbl);
+
         if NewLocation <> '' then begin
+            if StrLen(NewLocation) > MaxStrLen(DocumentServiceRec.Location) then
+                Session.LogMessage('0000GB2', StrSubstNo(LocationTooLongTelemetryMsg, MaxStrLen(DocumentServiceRec.Location), StrLen(NewLocation)), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentServiceCategoryLbl);
+
             DocumentServiceRec.Location := CopyStr(NewLocation, 1, MaxStrLen(DocumentServiceRec.Location));
             exit(true);
         end;

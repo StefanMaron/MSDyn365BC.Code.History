@@ -572,6 +572,7 @@ codeunit 5763 "Whse.-Post Shipment"
                     OnPostSourceDocument(WhseShptHeader, WhseShptLine, CounterSourceDocOK);
             end;
         end;
+        OnAfterPostSourceDocument(WhseShptLine, Print);
     end;
 
     local procedure TryPostSourceSalesDocument(var SalesPost: Codeunit "Sales-Post")
@@ -652,6 +653,8 @@ codeunit 5763 "Whse.-Post Shipment"
     procedure SetPrint(Print2: Boolean)
     begin
         Print := Print2;
+
+        OnAfterSetPrint(Print);
     end;
 
     local procedure ClearRecordsToPrint()
@@ -911,6 +914,7 @@ codeunit 5763 "Whse.-Post Shipment"
             CheckWhseJnlLine(TempWhseJnlLine);
             OnBeforeRegisterWhseJnlLines(TempWhseJnlLine, PostedWhseShptLine);
             ItemTrackingMgt.SplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2, TempTrackingSpecification, false);
+            OnPostWhseJnlLineOnAfterSplitWhseJnlLine(TempWhseJnlLine, PostedWhseShptLine, TempTrackingSpecification, TempWhseJnlLine2);
             if TempWhseJnlLine2.Find('-') then
                 repeat
                     WhseJnlRegisterLine.Run(TempWhseJnlLine2);
@@ -1394,6 +1398,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostSourceDocument(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Print: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
@@ -1789,6 +1798,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPrint(var Print: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetSourceFilterForWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line");
     begin
     end;
@@ -1900,6 +1914,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostSourceTransferDocument(var CounterSourceDocOK: Integer; var TransferPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostWhseJnlLineOnAfterSplitWhseJnlLine(var TempWhseJnlLine: Record "Warehouse Journal Line"; var PostedWhseShptLine: Record "Posted Whse. Shipment Line"; var TempTrackingSpecification: Record "Tracking Specification"; var TempWhseJnlLine2: Record "Warehouse Journal Line")
     begin
     end;
 }

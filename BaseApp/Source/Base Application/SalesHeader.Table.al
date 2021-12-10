@@ -2201,31 +2201,8 @@ table 36 "Sales Header"
             TableRelation = Contact;
 
             trigger OnLookup()
-            var
-                Cont: Record Contact;
-                ContBusinessRelation: Record "Contact Business Relation";
-                IsHandled: Boolean;
             begin
-                IsHandled := false;
-                OnBeforeLookupSellToContactNo(Rec, xRec, IsHandled);
-                if IsHandled then
-                    exit;
-
-                if "Sell-to Customer No." <> '' then
-                    if Cont.Get("Sell-to Contact No.") then
-                        Cont.SetRange("Company No.", Cont."Company No.")
-                    else
-                        if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Sell-to Customer No.") then
-                            Cont.SetRange("Company No.", ContBusinessRelation."Contact No.")
-                        else
-                            Cont.SetRange("No.", '');
-
-                if "Sell-to Contact No." <> '' then
-                    if Cont.Get("Sell-to Contact No.") then;
-                if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
-                    xRec := Rec;
-                    Validate("Sell-to Contact No.", Cont."No.");
-                end;
+                SelltoContactLookup();
             end;
 
             trigger OnValidate()
@@ -3008,7 +2985,6 @@ table 36 "Sales Header"
         Text048: Label 'Sales quote %1 has already been assigned to opportunity %2. Would you like to reassign this quote?';
         Text049: Label 'The %1 field cannot be blank because this quote is linked to an opportunity.';
         InsertMode: Boolean;
-        HideCreditCheckDialogue: Boolean;
         Text051: Label 'The sales %1 %2 already exists.';
         Text053: Label 'You must cancel the approval process if you wish to change the %1.';
         Text056: Label 'Deleting this document will cause a gap in the number series for prepayment invoices. An empty prepayment invoice %1 will be created to fill this gap in the number series.\\Do you want to continue?';
@@ -3017,7 +2993,6 @@ table 36 "Sales Header"
         Text062: Label 'You cannot change %1 because the corresponding %2 %3 has been assigned to this %4.';
         Text063: Label 'Reservations exist for this order. These reservations will be canceled if a date conflict is caused by this change.\\Do you want to continue?';
         Text064: Label 'You may have changed a dimension.\\Do you want to update the lines?';
-        UpdateDocumentDate: Boolean;
         Text066: Label 'You cannot change %1 to %2 because an open inventory pick on the %3.';
         Text070: Label 'You cannot change %1  to %2 because an open warehouse shipment exists for the %3.';
         BilltoCustomerNoChanged: Boolean;
@@ -3048,11 +3023,17 @@ table 36 "Sales Header"
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
         FullSalesTypesTxt: Label 'Sales Quote,Sales Order,Sales Invoice,Sales Credit Memo,Sales Blanket Order,Sales Return Order';
         RecreateSalesLinesCancelErr: Label 'You must delete the existing sales lines before you can change %1.', Comment = '%1 - Field Name, Sample: You must delete the existing sales lines before you can change Currency Code.';
+        SalesLinesCategoryLbl: Label 'Sales Lines', Locked = true;
+        SalesHeaderIsTemporaryLbl: Label 'Sales Header must be not temporary.', Locked = true;
+        SalesHeaderDoesNotExistLbl: Label 'Sales Header must exist.', Locked = true;
+        SalesHeaderCannotModifyLbl: Label 'Cannot modify Sales Header.', Locked = true;
         CalledFromWhseDoc: Boolean;
 
     protected var
+        HideCreditCheckDialogue: Boolean;
         HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
+        UpdateDocumentDate: Boolean;
 
     procedure InitInsert()
     var
@@ -3311,13 +3292,18 @@ table 36 "Sales Header"
         end;
     end;
 
-    procedure ConfirmDeletion(): Boolean
+    procedure ConfirmDeletion() Result: Boolean
     var
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
         PostSalesDelete: Codeunit "PostSales-Delete";
+        IsHandled: Boolean;
     begin
-        OnBeforeConfirmDeletion(Rec);
+        IsHandled := false;
+        OnBeforeConfirmDeletion(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Deleted Document");
         SourceCode.Get(SourceCodeSetup."Deleted Document");
@@ -3688,6 +3674,16 @@ table 36 "Sales Header"
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
+        if Rec.IsTemporary() then begin
+            Session.LogMessage('0000G92', SalesHeaderIsTemporaryLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
+
+        if IsNullGuid(Rec.SystemId) then begin
+            Session.LogMessage('0000G93', SalesHeaderDoesNotExistLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
+
         IsHandled := false;
         OnBeforeUpdateSalesLineAmounts(Rec, xRec, CurrFieldNo, IsHandled);
         if IsHandled then
@@ -3701,7 +3697,10 @@ table 36 "Sales Header"
         SalesLine.LockTable();
         LockTable();
         if SalesLine.FindSet then begin
-            Modify;
+            if not Rec.Modify() then begin
+                Session.LogMessage('0000G94', SalesHeaderCannotModifyLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+                exit;
+            end;
             OnUpdateSalesLineAmountsOnAfterSalesHeaderModify(Rec, SalesLine);
             repeat
                 if (SalesLine."Quantity Invoiced" <> SalesLine.Quantity) or
@@ -3724,6 +3723,16 @@ table 36 "Sales Header"
         IsHandled: Boolean;
         ShouldConfirmReservationDateConflict: Boolean;
     begin
+        if Rec.IsTemporary() then begin
+            Session.LogMessage('0000G95', SalesHeaderIsTemporaryLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
+
+        if IsNullGuid(Rec.SystemId) then begin
+            Session.LogMessage('0000G96', SalesHeaderDoesNotExistLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
+
         IsHandled := false;
         OnBeforeUpdateSalesLinesByFieldNo(Rec, ChangedFieldNo, AskQuestion, IsHandled, xRec);
         if IsHandled then
@@ -3756,7 +3765,10 @@ table 36 "Sales Header"
         end;
 
         SalesLine.LockTable();
-        Modify;
+        if not Rec.Modify() then begin
+            Session.LogMessage('0000G97', SalesHeaderCannotModifyLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
 
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
@@ -6179,18 +6191,17 @@ table 36 "Sales Header"
         exit(IsBillToAddressEqualToSellToAddress(Rec, Rec));
     end;
 
-    local procedure IsBillToAddressEqualToSellToAddress(SalesHeaderWithSellTo: Record "Sales Header"; SalesHeaderWithBillTo: Record "Sales Header"): Boolean
+    local procedure IsBillToAddressEqualToSellToAddress(SalesHeaderWithSellTo: Record "Sales Header"; SalesHeaderWithBillTo: Record "Sales Header") Result: Boolean
     begin
-        if (SalesHeaderWithSellTo."Sell-to Address" = SalesHeaderWithBillTo."Bill-to Address") and
+        Result := (SalesHeaderWithSellTo."Sell-to Address" = SalesHeaderWithBillTo."Bill-to Address") and
            (SalesHeaderWithSellTo."Sell-to Address 2" = SalesHeaderWithBillTo."Bill-to Address 2") and
            (SalesHeaderWithSellTo."Sell-to City" = SalesHeaderWithBillTo."Bill-to City") and
            (SalesHeaderWithSellTo."Sell-to County" = SalesHeaderWithBillTo."Bill-to County") and
            (SalesHeaderWithSellTo."Sell-to Post Code" = SalesHeaderWithBillTo."Bill-to Post Code") and
            (SalesHeaderWithSellTo."Sell-to Country/Region Code" = SalesHeaderWithBillTo."Bill-to Country/Region Code") and
            (SalesHeaderWithSellTo."Sell-to Contact No." = SalesHeaderWithBillTo."Bill-to Contact No.") and
-           (SalesHeaderWithSellTo."Sell-to Contact" = SalesHeaderWithBillTo."Bill-to Contact")
-        then
-            exit(true);
+           (SalesHeaderWithSellTo."Sell-to Contact" = SalesHeaderWithBillTo."Bill-to Contact");
+        OnAfterIsBillToAddressEqualToSellToAddress(SalesHeaderWithSellTo, SalesHeaderWithBillTo, Result);
     end;
 
     procedure CopySellToAddressToShipToAddress()
@@ -7039,6 +7050,37 @@ table 36 "Sales Header"
         OnAfterInitPostingNoSeries(Rec, xRec);
     end;
 
+    procedure SelltoContactLookup(): Boolean
+    var
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeLookupSellToContactNo(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Sell-to Customer No." <> '' then
+            if Contact.Get("Sell-to Contact No.") then
+                Contact.SetRange("Company No.", Contact."Company No.")
+            else
+                if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "Sell-to Customer No.") then
+                    Contact.SetRange("Company No.", ContactBusinessRelation."Contact No.")
+                else
+                    Contact.SetRange("No.", '');
+
+        if "Sell-to Contact No." <> '' then
+            if Contact.Get("Sell-to Contact No.") then;
+        if Page.RunModal(0, Contact) = Action::LookupOK then begin
+            xRec := Rec;
+            CurrFieldNo := FieldNo("Sell-to Contact No.");
+            Validate("Sell-to Contact No.", Contact."No.");
+            exit(true);
+        end;
+        exit(false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var SalesHeader: Record "Sales Header")
     begin
@@ -7046,6 +7088,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitNoSeries(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsBillToAddressEqualToSellToAddress(SellToSalesHeader: Record "Sales Header"; BillToSalesHeader: Record "Sales Header"; var Result: Boolean)
     begin
     end;
 
@@ -7378,7 +7425,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmDeletion(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeConfirmDeletion(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -154,7 +154,7 @@ page 492 "Item Availability by Location"
                 trigger OnAction()
                 begin
                     FindPeriod('<=');
-                    UpdateSubForm;
+                    UpdateSubForm();
                 end;
             }
             action(NextPeriod)
@@ -170,7 +170,7 @@ page 492 "Item Availability by Location"
                 trigger OnAction()
                 begin
                     FindPeriod('>=');
-                    UpdateSubForm;
+                    UpdateSubForm();
                 end;
             }
         }
@@ -180,7 +180,7 @@ page 492 "Item Availability by Location"
     begin
         SetRange("Drop Shipment Filter", false);
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     trigger OnClosePage()
@@ -226,7 +226,7 @@ page 492 "Item Availability by Location"
         DateFilter := GetFilter("Date Filter");
     end;
 
-    local procedure UpdateSubForm()
+    protected procedure UpdateSubForm()
     begin
         CurrPage.ItemAvailLocLines.PAGE.SetLines(Rec, AmountType);
     end;
@@ -239,49 +239,49 @@ page 492 "Item Availability by Location"
     local procedure PeriodItemPeriodLengthOnPush()
     begin
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure YearItemPeriodLengthOnPush()
     begin
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure QuarterItemPeriodLengthOnPush()
     begin
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure MonthItemPeriodLengthOnPush()
     begin
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure WeekItemPeriodLengthOnPush()
     begin
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure DayItemPeriodLengthOnPush()
     begin
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure NetChangeAmountTypeOnPush()
     begin
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure BalanceatDateAmountTypeOnPush()
     begin
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure DayItemPeriodLengthOnValidate()

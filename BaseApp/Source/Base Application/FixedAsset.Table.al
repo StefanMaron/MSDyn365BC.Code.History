@@ -169,7 +169,7 @@ table 5600 "Fixed Asset"
         }
         field(19; Insured; Boolean)
         {
-            CalcFormula = Exist ("Ins. Coverage Ledger Entry" WHERE("FA No." = FIELD("No."),
+            CalcFormula = Exist("Ins. Coverage Ledger Entry" WHERE("FA No." = FIELD("No."),
                                                                     "Disposed FA" = CONST(false)));
             Caption = 'Insured';
             Editable = false;
@@ -177,7 +177,7 @@ table 5600 "Fixed Asset"
         }
         field(20; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("Fixed Asset"),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST("Fixed Asset"),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -241,7 +241,7 @@ table 5600 "Fixed Asset"
         }
         field(30; Acquired; Boolean)
         {
-            CalcFormula = Exist ("FA Depreciation Book" WHERE("FA No." = FIELD("No."),
+            CalcFormula = Exist("FA Depreciation Book" WHERE("FA No." = FIELD("No."),
                                                               "Acquisition Date" = FILTER(<> 0D)));
             Caption = 'Acquired';
             FieldClass = FlowField;
@@ -399,8 +399,15 @@ table 5600 "Fixed Asset"
         AcquireActionTxt: Label 'Acquire';
         FoundFALedgerEntriesErr: Label 'You cannot change the FA posting group because posted FA ledger entries use the existing posting group.';
 
-    procedure AssistEdit(OldFA: Record "Fixed Asset"): Boolean
+    procedure AssistEdit(OldFA: Record "Fixed Asset") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(FASetup, FA, Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with FA do begin
             FA := Rec;
             FASetup.Get();
@@ -486,6 +493,11 @@ table 5600 "Fixed Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var FASetup: Record "FA Setup"; var FixedAsset: Record "Fixed Asset"; var Rec: Record "Fixed Asset"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

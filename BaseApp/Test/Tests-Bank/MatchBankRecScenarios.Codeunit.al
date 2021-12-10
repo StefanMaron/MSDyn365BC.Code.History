@@ -592,6 +592,59 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         Assert.AreEqual(StatementDescription, LibraryVariableStorage.DequeueText(), 'Invalid Description');
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToGenJnlReqPageHandler,GenJnlPageHandlerUpdateAccountNo')]
+    [Scope('OnPrem')]
+    procedure TransferToGenJnlLineTwoBankAccounts()
+    var
+        BankAccount: Record "Bank Account";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+    begin
+        // [SCENARIO 416085] Posting gen. journal line created from reconsiliation applies bank entry only for bank account from reconciliation 
+        Initialize();
+
+        // [GIVEN] Create bank reconciliation with bank satetement line for bank "B1"
+        CreateBankReconciliation(BankAccReconciliation, BankAccReconciliationPage,
+            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(GenJnlLine.Description), 0));
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
+        GenJournalBatch."Bal. Account No." := BankAccReconciliation."Bank Account No.";
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
+        GenJournalBatch.Modify();
+
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+        // [GIVEN] Create bank "B2"
+        LibraryVariableStorage.Enqueue(GenJnlLine."Account Type"::"Bank Account".AsInteger());
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+
+        // [GIVEN] Run action Transfer to Gen Jnl. and set for created gen. journal line "Account Type" = "Bank", "Account No" = "B2"
+        Commit();
+        LibraryLowerPermissions.SetBanking;
+        BankAccReconciliationPage."Transfer to General Journal".Invoke;
+
+        // [WHEN] Post gen journal line
+        GenJnlLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJnlLine.FindFirst();
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [THEN] Bank ledger entry for bank "B2" is not applied to bank reconsiliation
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccountLedgerEntry.FindFirst();
+        BankAccountLedgerEntry.TestField("Statement Status", BankAccountLedgerEntry."Statement Status"::Open);
+        BankAccountLedgerEntry.TestField("Statement No.", '');
+        BankAccountLedgerEntry.TestField("Statement Line No.", 0);
+    end;
+
     local procedure GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAcc(AmountToApply: Decimal)
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -1088,6 +1141,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         GeneralJournal."Account No.".SetValue(AccountNo);
         LibraryVariableStorage.Enqueue(GeneralJournal.Description.Value());
     end;
+
 
     [MessageHandler]
     [Scope('OnPrem')]

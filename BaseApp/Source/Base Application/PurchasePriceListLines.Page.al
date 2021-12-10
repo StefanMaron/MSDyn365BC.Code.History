@@ -232,6 +232,7 @@ page 7011 "Purchase Price List Lines"
         end;
         UpdateSourceType();
         Rec."Amount Type" := ViewAmountType;
+        Rec."Price Type" := PriceListHeader."Price Type";
     end;
 
     var

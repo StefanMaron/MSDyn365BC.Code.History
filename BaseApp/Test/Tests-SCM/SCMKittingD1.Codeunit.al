@@ -180,13 +180,6 @@ codeunit 137090 "SCM Kitting - D1"
         StdCostPriceRollup(true, 1, 1, 1, 0);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure OneItemOneResNegQtyPer()
-    begin
-        StdCostPriceRollup(true, 1, 1, 1, -1);
-    end;
-
     [Normal]
     local procedure DiffCostingMethodsComp(CostingMethod: Enum "Costing Method"; CostAdjNeeded: Boolean; IndirectCost: Decimal; Overhead: Decimal)
     var

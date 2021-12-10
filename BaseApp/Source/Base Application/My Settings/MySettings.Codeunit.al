@@ -77,7 +77,7 @@ codeunit 9275 "My Settings"
         AzureADGraphUser: Codeunit "Azure AD Graph User";
     begin
         if (UserPersonalization.Count() > 1) or (UserPersonalization."User SID" <> UserSecurityId()) then
-            if not (AzureADUserManagement.IsUserTenantAdmin() or AzureADGraphUser.IsUserDelegatedAdmin()) then
+            if not (AzureADUserManagement.IsUserTenantAdmin() or AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk()) then
                 Error(NotEnoughPermissionsErr);
     end;
 
@@ -228,6 +228,6 @@ codeunit 9275 "My Settings"
         TeamMemberTxt: Label 'TEAM MEMBER', Comment = 'Please translate all caps';
         ExperienceMsg: Label 'You are changing to a Role Center that has more functionality. To display the full functionality for this role, your Experience setting will be set to Essential.';
 #if not CLEAN19
-        NotEnoughPermissionsErr: Label 'You cannot access settings for other users.';
+        NotEnoughPermissionsErr: Label 'You cannot open this page. Only administrators can access settings for other users.';
 #endif
 }

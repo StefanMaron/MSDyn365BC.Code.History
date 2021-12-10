@@ -4889,8 +4889,21 @@
         </trans-unit>
         <trans-unit id="Codeunit 3635256207 - NamedType 94485731" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Provider %1: 2D Barcode symbol encoder %2 is not implemented by this provider!</source>
+          <target state="translated">Leverandør %1: Koder for 2D-strekkodesymbol %2 er ikke implementert av denne leverandøren.</target>
           <note from="Developer" annotates="general" priority="2">%1 Provider Caption, %2 = Symbology Caption</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit IDAutomation 2D Provider - NamedType CannotFindBarcodeEncoderErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3256925099 - NamedType 1514701291" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Alpha parameter must be between 0 and 255.</source>
+          <target state="translated">Alfaparameteren må være mellom 0 og 255.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType AlphaErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3256925099 - NamedType 3585687077" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Blue parameter must be between 0 and 255.</source>
+          <target state="translated">Den blå parameteren må være mellom 0 og 255.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType BlueErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3256925099 - NamedType 1468028954" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Image is not in valid format</source>
@@ -4904,17 +4917,35 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType FormatTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3256925099 - NamedType 713431146" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Green parameter must be between 0 and 255.</source>
+          <target state="translated">Den grønne parameteren må være mellom 0 og 255.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType GreenErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3256925099 - NamedType 2075980966" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Parameter Height must be greater than 0</source>
           <target state="translated">Parameterhøyden må være større enn 0</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType HeightErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3256925099 - NamedType 880312928" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Input image to large. Max allowed size is 5 MB</source>
-          <target state="translated">Inndatabildet er for stort. Maks tillatt størrelse er 5 MB</target>
+        <trans-unit id="Codeunit 3256925099 - NamedType 4063326973" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The image could not be loaded.</source>
+          <target state="translated">Kan ikke laste inn bildet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType ImageToLargeErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType ImageNotInitializedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3256925099 - NamedType 933146621" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The image is too large. Images can be up to 5 MB.</source>
+          <target state="translated">Bildet er for stort. Bilder kan være opptil 5 MB.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType ImageTooLargeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3256925099 - NamedType 146440322" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Red parameter must be between 0 and 255.</source>
+          <target state="translated">Den røde parameteren må være mellom 0 og 255.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType RedErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3256925099 - NamedType 2855561205" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Format is currently not supported</source>
@@ -4929,15 +4960,15 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType WidthErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3256925099 - NamedType 4271181391" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Parameter X must be between 0 and image width</source>
-          <target state="translated">Parameteren X må være mellom 0 og bildebredden</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>The X parameter must be between 0 and the image width, which is %1.</source>
+          <target state="translated">X-parameteren må være mellom 0 og bildets bredde, som er %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = image width (number)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType XErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3256925099 - NamedType 52526176" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Parameter Y must be between 0 and image height</source>
-          <target state="translated">Parameteren Y må være mellom 0 og bildehøyden</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>The Y parameter must be between 0 and the image height, which is %1.</source>
+          <target state="translated">X-parameteren må være mellom 0 og bildets høyde, som er %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = image width (number)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Image Impl. - NamedType YErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3291568232 - NamedType 611240008" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
@@ -4963,6 +4994,12 @@
           <target state="translated">URL-adressen for godkjenningsforespørsel %1 er hentet.</target>
           <note from="Developer" annotates="general" priority="2">%1=Authentication request URL</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType AuthRequestUrlTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 2258512449" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your browser may be blocking pop-ups needed by %1.\\Change your browser settings to allow pop-ups or allow pop-ups from the %1 site, then try again.</source>
+          <target state="translated">Det kan være at nettleseren din blokkerer popup-vinduer som kreves av %1.\\Endre nettleserinnstillingene for å tillate popup-vinduer eller tillate popup-vinduer fra nettstedet %1, og prøv deretter på nytt.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Short product name (e.g. Business Central)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType PopupBlockedErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4038952900 - NamedType 728330450" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The bookmark is invalid.</source>
@@ -5481,8 +5518,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Settings Impl. - NamedType MyLastLoginLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3102643942 - NamedType 2430332730" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You cannot access settings for other users.</source>
-          <target state="translated">Du har ikke tilgang til innstillinger for andre brukere.</target>
+          <source>You cannot open this page. Only administrators can access settings for other users.</source>
+          <target state="translated">Du kan ikke åpne denne siden. Bare administratorer har tilgang til innstillinger for andre brukere.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Settings Impl. - NamedType NotEnoughPermissionsErr</note>
         </trans-unit>
@@ -7796,7 +7833,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control Logo - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3756518970 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Spectifies the type of the account you want to create.</source>
+          <source>Specifies the type of the account you want to create.</source>
           <target state="translated">Angir kontotypen du vil opprette.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control Name - Property ToolTip</note>
@@ -14479,6 +14516,7 @@
         </trans-unit>
         <trans-unit id="Enum 3599687820 - EnumValue 3740728832 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>IDAutomation 2D Barcode Provider</source>
+          <target state="translated">IDAutomation 2D-strekkodeleverandør</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Barcode Font Provider 2D - EnumValue IDAutomation2D - Property Caption</note>
         </trans-unit>

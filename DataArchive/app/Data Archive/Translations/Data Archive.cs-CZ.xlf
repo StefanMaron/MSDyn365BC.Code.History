@@ -305,6 +305,7 @@
         </trans-unit>
         <trans-unit id="Page 2772216772 - Action 1064721090 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens the Data Archive - New Archive page that allows you to do a recording of all subsequent deletions in this session.</source>
+          <target state="translated">Otevře stránku Archiv dat – nový archiv, která umožňuje záznam všech následných odstranění v této relaci.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Action NewArchive - Property ToolTip</note>
         </trans-unit>

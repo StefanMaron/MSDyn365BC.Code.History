@@ -549,7 +549,7 @@ codeunit 5702 "Dist. Integration"
         PurchLine."Special Order Sales Line No." := SalesLine."Line No.";
         OnBeforeInsertPurchLine(PurchLine, SalesLine);
         PurchLine.Insert();
-        OnAfterInsertPurchLine(PurchLine, SalesLine);
+        OnAfterInsertPurchLine(PurchLine, SalesLine, NextLineNo);
 
         NextLineNo := NextLineNo + 10000;
 
@@ -603,7 +603,7 @@ codeunit 5702 "Dist. Integration"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertPurchLine(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
+    local procedure OnAfterInsertPurchLine(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line"; var NextLineNo: Integer)
     begin
     end;
 

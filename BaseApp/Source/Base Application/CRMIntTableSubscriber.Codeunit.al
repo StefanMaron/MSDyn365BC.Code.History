@@ -211,6 +211,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         IntegrationTableMapping: Record "Integration Table Mapping";
         Item: Record Item;
         Resource: Record Resource;
+        PriceListLine: Record "Price List Line";
         CRMProduct: Record "CRM Product";
         OptionValue: Integer;
         TableValue: Text;
@@ -252,7 +253,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
         if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then begin
             if ((SourceFieldRef.Record().Number() = Database::Item) and (SourceFieldRef.Number() = Item.FieldNo("Base Unit of Measure"))) or
-            ((SourceFieldRef.Record().Number() = Database::Resource) and (SourceFieldRef.Number() = Resource.FieldNo("Base Unit of Measure"))) then begin
+            ((SourceFieldRef.Record().Number() = Database::Resource) and (SourceFieldRef.Number() = Resource.FieldNo("Base Unit of Measure"))) or
+            ((SourceFieldRef.Record().Number() = Database::"Price List Line") and (SourceFieldRef.Number() = PriceListLine.FieldNo("Unit of Measure Code"))) then begin
                 CRMSynchHelper.ConvertBaseUnitOfMeasureToUomId(SourceFieldRef, DestinationFieldRef, NewValue);
                 IsValueFound := true;
                 NeedsConversion := false;
@@ -1091,9 +1093,12 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         DestinationRecordRef.SetTable(CRMProductpricelevel);
         SourceRecordRef.SetTable(PriceListLine);
         FindCRMUoMIdForSalesPrice(PriceListLine."Asset Type", PriceListLine."Asset No.", PriceListLine."Unit of Measure Code", CRMUom);
+        if CRMProductpricelevel.UoMScheduleId <> CRMUom.UoMScheduleId then begin
+            CRMProductpricelevel.UoMScheduleId := CRMUom.UoMScheduleId;
+            UoMHasBeenChanged := true;
+        end;
         if CRMProductpricelevel.UoMId <> CRMUom.UoMId then begin
             CRMProductpricelevel.UoMId := CRMUom.UoMId;
-            CRMProductpricelevel.UoMScheduleId := CRMUom.UoMScheduleId;
             UoMHasBeenChanged := true;
         end;
         DestinationRecordRef.GetTable(CRMProductpricelevel);
@@ -1760,28 +1765,31 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         end;
     end;
 
-    local procedure FindCRMUoMIdForSalesPrice(AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; UoMCode: Code[10]; var CRMUom: Record "CRM Uom")
+    local procedure FindCRMUoMIdForSalesPrice(AssetType: Enum "Price Asset Type"; AssetNo: Code[20];
+                                                             UoMCode: Code[10]; var CRMUom: Record "CRM Uom")
     var
         Item: Record Item;
         Resource: Record Resource;
         UnitGroup: Record "Unit Group";
         CRMUomschedule: Record "CRM Uomschedule";
     begin
-        if UoMCode = '' then
-            case AssetType of
-                AssetType::Item:
-                    begin
-                        Item.Get(AssetNo);
+        case AssetType of
+            AssetType::Item:
+                begin
+                    Item.Get(AssetNo);
+                    if UoMCode = '' then
                         UoMCode := Item."Base Unit of Measure";
-                    end;
-                AssetType::Resource:
-                    begin
-                        Resource.Get(AssetNo);
+                end;
+            AssetType::Resource:
+                begin
+                    Resource.Get(AssetNo);
+                    if UoMCode = '' then
                         UoMCode := Resource."Base Unit of Measure";
-                    end;
-                else
+                end;
+            else
+                if UoMCode = '' then
                     exit;
-            end;
+        end;
 
         if not CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
             CRMSynchHelper.GetValidCRMUnitOfMeasureRecords(CRMUom, CRMUomschedule, UoMCode)

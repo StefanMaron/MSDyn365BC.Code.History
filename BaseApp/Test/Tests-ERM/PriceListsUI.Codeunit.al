@@ -635,6 +635,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
         PriceListLine.TestField(Status, "Price Status"::Draft);
 
         // [WHEN] Run "Verify Lines" action
@@ -891,6 +892,7 @@ codeunit 134117 "Price Lists UI"
     [Test]
     procedure T026_SalesPriceListPageAllowDiscountsOn()
     var
+        PriceListLine: Record "Price List Line";
         SalesPriceList: TestPage "Sales Price List";
     begin
         Initialize(true);
@@ -906,6 +908,9 @@ codeunit 134117 "Price Lists UI"
         // [THEN] AllowLineDisc and AllowInvoiceDisc are on in the line
         SalesPriceList.Lines."Allow Line Disc.".AssertEquals(true);
         SalesPriceList.Lines."Allow Invoice Disc.".AssertEquals(true);
+        PriceListLine.SetRange("Price List Code", SalesPriceList.Code.Value());
+        PriceListLine.FindLast();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
     end;
 
     [Test]
@@ -926,6 +931,28 @@ codeunit 134117 "Price Lists UI"
         // [THEN] AllowLineDisc and AllowInvoiceDisc are off in the line
         SalesPriceList.Lines."Allow Line Disc.".AssertEquals(false);
         SalesPriceList.Lines."Allow Invoice Disc.".AssertEquals(false);
+    end;
+
+    [Test]
+    procedure T028_SalesPriceListPageNewLineWithDefaultAssetType()
+    var
+        PriceListLine: Record "Price List Line";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Sales]
+        Initialize(true);
+        // [GIVEN] New sales price list
+        SalesPriceList.OpenNew();
+
+        // [WHEN] Add a new line and put Item No.
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset No.".SetValue(LibraryInventory.CreateItemNo());
+
+        // [THEN] "Asset Type" is Item, "Price Type" is 'Sale'
+        SalesPriceList.Lines."Asset Type".AssertEquals("Price Asset Type"::Item);
+        PriceListLine.SetRange("Price List Code", SalesPriceList.Code.Value());
+        PriceListLine.FindLast();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
     end;
 
     [Test]
@@ -1036,6 +1063,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
         PriceListLine.TestField("Currency Code", Currency.Code);
     end;
 
@@ -1126,6 +1154,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
         PriceListLine.Testfield("Source No.", Customer[1]."No.");
         PriceListLine.TestField("Currency Code", Currency[1].Code);
         Assert.IsFalse(PriceListLine.Next() = 0, 'not found 2nd line');
@@ -1614,6 +1643,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Purchase);
         PriceListLine.TestField(Status, "Price Status"::Draft);
 
         // [WHEN] Run "Verify Lines" action
@@ -1667,6 +1697,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Purchase);
         PriceListLine.TestField(Status, "Price Status"::Draft);
 
         // [WHEN] Close the price list page
@@ -1840,6 +1871,7 @@ codeunit 134117 "Price Lists UI"
     procedure T076_PurchPriceListPageAllowDiscountsOn()
     var
         PurchPriceList: TestPage "Purchase Price List";
+        PriceListLine: Record "Price List Line";
     begin
         Initialize(true);
         // [GIVEN] New Purch price list, where AllowLineDisc and AllowInvoiceDisc are on
@@ -1854,6 +1886,9 @@ codeunit 134117 "Price Lists UI"
         // [THEN] AllowLineDisc and AllowInvoiceDisc are on in the line
         PurchPriceList.Lines."Allow Line Disc.".AssertEquals(true);
         PurchPriceList.Lines."Allow Invoice Disc.".AssertEquals(true);
+        PriceListLine.SetRange("Price List Code", PurchPriceList.Code.Value());
+        PriceListLine.FindLast();
+        PriceListLine.TestField("Price Type", "Price Type"::Purchase);
     end;
 
     [Test]
@@ -1874,6 +1909,28 @@ codeunit 134117 "Price Lists UI"
         // [THEN] AllowLineDisc and AllowInvoiceDisc are off in the line
         PurchPriceList.Lines."Allow Line Disc.".AssertEquals(false);
         PurchPriceList.Lines."Allow Invoice Disc.".AssertEquals(false);
+    end;
+
+    [Test]
+    procedure T078_PurchPriceListPageNewLineWIthDefaultAssetType()
+    var
+        PriceListLine: Record "Price List Line";
+        PurchPriceList: TestPage "Purchase Price List";
+    begin
+        // [FEATURE] [Purchase]
+        Initialize(true);
+        // [GIVEN] New Purch price list
+        PurchPriceList.OpenNew();
+
+        // [WHEN] Add a new line, and "Asset No." as Item No.
+        PurchPriceList.Lines.New();
+        PurchPriceList.Lines."Asset No.".SetValue(LibraryInventory.CreateItemNo());
+
+        // [THEN] "Asset Type" is Item, "Price Type" is 'Purchase'
+        PurchPriceList.Lines."Asset Type".AssertEquals("Price Asset Type"::Item);
+        PriceListLine.SetRange("Price List Code", PurchPriceList.Code.Value());
+        PriceListLine.FindLast();
+        PriceListLine.TestField("Price Type", "Price Type"::Purchase);
     end;
 
     [Test]
@@ -3409,7 +3466,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.ModifyAll(Status, PriceListLine.Status::Draft);
         PriceListLine.DeleteAll(true);
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -3689,7 +3746,7 @@ codeunit 134117 "Price Lists UI"
     [Scope('OnPrem')]
     procedure ClearVariableStorage()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [Scope('OnPrem')]

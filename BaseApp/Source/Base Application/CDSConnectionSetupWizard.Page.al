@@ -238,7 +238,7 @@ page 7201 "CDS Connection Setup Wizard"
 
                 group(Control16)
                 {
-                    InstructionalText = 'To install and configure integration components, choose Next. This might take a few moments.';
+                    InstructionalText = 'To install and configure integration components, choose Next. This might take a few minutes.';
                     ShowCaption = false;
                 }
 

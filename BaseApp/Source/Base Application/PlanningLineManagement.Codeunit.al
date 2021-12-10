@@ -95,6 +95,8 @@ codeunit 99000809 "Planning Line Management"
     var
         BOMHeader: Record "Production BOM Header";
         CompSKU: Record "Stockkeeping Unit";
+        ProductionBOMVersion: Record "Production BOM Version";
+        VersionCode: Code[20];
         ReqQty: Decimal;
         IsHandled: Boolean;
         UpdateCondition: Boolean;
@@ -126,6 +128,16 @@ codeunit 99000809 "Planning Line Management"
         end;
 
         BOMHeader.Get(ProdBOMNo);
+
+        if Level > 1 then
+            VersionCode := VersionMgt.GetBOMVersion(ProdBOMNo, ReqLine."Starting Date", true)
+        else
+            VersionCode := ReqLine."Production BOM Version Code";
+        if VersionCode <> '' then begin
+            ProductionBOMVersion.Get(ProdBOMNo, VersionCode);
+            ProductionBOMVersion.TestField(Status, ProductionBOMVersion.Status::Certified);
+        end else
+            BOMHeader.TestField(Status, BOMHeader.Status::Certified);
 
         ProdBOMLine[Level].SetRange("Production BOM No.", ProdBOMNo);
         if Level > 1 then

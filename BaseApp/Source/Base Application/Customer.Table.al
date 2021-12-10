@@ -28,11 +28,7 @@
 
             trigger OnValidate()
             begin
-                if "No." <> xRec."No." then begin
-                    SalesSetup.Get();
-                    NoSeriesMgt.TestManual(SalesSetup."Customer Nos.");
-                    "No. Series" := '';
-                end;
+                TestNoSeries();
                 if "Invoice Disc. Code" = '' then
                     "Invoice Disc. Code" := "No.";
             end;
@@ -2665,6 +2661,22 @@
         PriceSource.Validate("Source No.", "No.");
     end;
 
+    local procedure TestNoSeries()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestNoSeries(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "No." <> xRec."No." then begin
+            SalesSetup.Get();
+            NoSeriesMgt.TestManual(SalesSetup."Customer Nos.");
+            "No. Series" := '';
+        end;
+    end;
+
     procedure OpenCustomerLedgerEntries(FilterOnDueEntries: Boolean)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -3323,6 +3335,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultSalesperson(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestNoSeries(var Customer: Record Customer; xCustomer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

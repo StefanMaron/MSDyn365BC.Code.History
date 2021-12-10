@@ -119,6 +119,11 @@ table 1173 "Document Attachment"
         {
             Caption = 'Line No.';
         }
+        field(15; "VAT Report Config. Code"; Enum "VAT Report Configuration")
+        {
+            Caption = 'VAT Report Config. Code';
+            TableRelation = "VAT Reports Configuration"."VAT Report Type";
+        }
     }
 
     keys

@@ -33,7 +33,7 @@ page 7503 "Item Attribute"
                     field(Blocked; Blocked)
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example an item that is placed in quarantine.';
+                        ToolTip = 'Specifies that the attribute cannot be assigned to an item. Items to which the attribute is already assigned are not affected.';
                     }
                 }
                 group(Control11)

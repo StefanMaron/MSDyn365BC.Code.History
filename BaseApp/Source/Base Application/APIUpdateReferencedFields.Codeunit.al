@@ -32,6 +32,8 @@ codeunit 5152 "API - Update Referenced Fields"
     begin
         if Rec.IsTemporary() then
             exit;
+        if GetExecutionContext() = ExecutionContext::Upgrade then
+            exit;
         Rec.UpdateReferencedIds();
     end;
 

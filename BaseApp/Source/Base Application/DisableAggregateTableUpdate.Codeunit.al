@@ -13,13 +13,13 @@ codeunit 5532 "Disable Aggregate Table Update"
         if UpdatesDisabled then
             exit;
 
-        if AggregateTableIDDisabled <> AggregateTableID then
-            exit;
-
         if DisableAllRecords then begin
             UpdatesDisabled := true;
             exit;
         end;
+
+        if AggregateTableIDDisabled <> AggregateTableID then
+            exit;
 
         if TableSystemId = TableSystemIDDisabled then
             UpdatesDisabled := true;

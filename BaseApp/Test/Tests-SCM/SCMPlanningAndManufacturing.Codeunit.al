@@ -39,6 +39,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ConfirmDeleteItemTracking: Label 'Item tracking is defined for item';
         DueDateErr: Label 'Requisition Line Due Date for proposed Production Order can''t be later than demand Sales Order.';
         StatusMustBeCertifiedErr: Label 'Routing Header No. %1 is not certified.', Comment = '%1 - Routing No.';
+        ProdBOMMustBeCertifiedErr: Label 'Status must be equal to ''Certified''';
         ErrorsWhenPlanningMsg: Label 'Not all items were planned.';
         OnlyOneRecordErr: Label 'Only one record is expected.';
 
@@ -1609,6 +1610,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Item[1].SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
         LibraryVariableStorage.Enqueue(ErrorsWhenPlanningMsg); // Enqueue for MessageHandler
         LibraryVariableStorage.Enqueue(Item[1]."No."); // Enqueue for PlanningErrorLogModalPageHandler
+        LibraryVariableStorage.Enqueue(StatusMustBeCertifiedErr);
         LibraryVariableStorage.Enqueue(RoutingHeader."No."); // Enqueue for PlanningErrorLogModalPageHandler
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate, WorkDate);
 
@@ -1990,6 +1992,50 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RequisitionLine.TestField("Planning Level", 1);
     end;
 
+    [Test]
+    [HandlerFunctions('PlanningErrorLogModalPageHandler,MessageHandler')]
+    procedure CheckNestedBOMIsCertifiedOnAddingPlanningComponent()
+    var
+        Item: Record Item;
+        NestedProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Planning Component] [Production BOM]
+        // [SCENARIO 412566] Check that nested production BOM is certified when adding a planning component.
+        Initialize();
+
+        // [GIVEN] Manufacturing item "I" set up for planning.
+        CreateFixedReorderQtyItemWithRoutingNo(Item, '');
+
+        // [GIVEN] Production BOM "A" in "Under Development" status with some component item.
+        // [GIVEN] Production BOM "B" in "Certified" status with the production BOM "A" as component.
+        CreateCertifiedProductionBOM(NestedProductionBOMHeader, LibraryInventory.CreateItemNo, Item."Base Unit of Measure", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(NestedProductionBOMHeader, NestedProductionBOMHeader.Status::"Under Development");
+        CreateProductionBOMWithProdBOMAsComponent(ProductionBOMHeader, NestedProductionBOMHeader."No.", Item."Base Unit of Measure", 1);
+
+        // [GIVEN] Set Production BOM No. = "B" on item "I".
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Modify(true);
+
+        // [WHEN] Calculate regenerative plan for "I".
+        Item.SetRecFilter();
+        LibraryVariableStorage.Enqueue(ErrorsWhenPlanningMsg);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryVariableStorage.Enqueue(ProdBOMMustBeCertifiedErr);
+        LibraryVariableStorage.Enqueue(NestedProductionBOMHeader."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+
+        // [THEN] A planning line is not created.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+        Assert.RecordIsEmpty(RequisitionLine);
+
+        // [THEN] "Status must be equal to 'Certified'" message in the planning error log.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2359,6 +2405,17 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
         LibraryManufacturing.CreateProductionBOMLine(
           ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, QuantityPer);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure CreateProductionBOMWithProdBOMAsComponent(var ProductionBOMHeader: Record "Production BOM Header"; NestedProductionBOMNo: Code[20]; UnitOfMeasureCode: Code[10]; QuantityPer: Decimal)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::"Production BOM", NestedProductionBOMNo, QuantityPer);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
         ProductionBOMHeader.Modify(true);
     end;
@@ -3096,10 +3153,14 @@ codeunit 137080 "SCM Planning And Manufacturing"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PlanningErrorLogModalPageHandler(var PlanningErrorLog: TestPage "Planning Error Log")
+    var
+        ExpectedError: Text;
     begin
         PlanningErrorLog.First;
         PlanningErrorLog."Item No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PlanningErrorLog."Error Description".AssertEquals(StrSubstNo(StatusMustBeCertifiedErr, LibraryVariableStorage.DequeueText));
+        ExpectedError := LibraryVariableStorage.DequeueText();
+        Assert.ExpectedMessage(
+          StrSubstNo(ExpectedError, LibraryVariableStorage.DequeueText()), PlanningErrorLog."Error Description".Value);
         Assert.IsFalse(PlanningErrorLog.Next, OnlyOneRecordErr);
         PlanningErrorLog.OK.Invoke;
     end;

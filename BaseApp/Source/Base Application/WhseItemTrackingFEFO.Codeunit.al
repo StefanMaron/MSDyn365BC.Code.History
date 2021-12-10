@@ -160,7 +160,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                             if not EntriesExist then
                                 ExpirationDate := 0D;
 
-                            OnSummarizeAdjustmentBinFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, WhseEntry);
+                            OnSummarizeAdjustmentBinFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, WhseEntry, ItemTrackingSetup, Location);
                             InsertEntrySummaryFEFO(ItemTrackingSetup, ExpirationDate);
                         end;
             until WhseEntry.Next() = 0;
@@ -363,7 +363,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSummarizeAdjustmentBinFEFOOnBeforeInsertEntrySummaryFEFO(var TempGlobalEntrySummary: Record "Entry Summary" temporary; WarehouseEntry: Record "Warehouse Entry")
+    local procedure OnSummarizeAdjustmentBinFEFOOnBeforeInsertEntrySummaryFEFO(var TempGlobalEntrySummary: Record "Entry Summary" temporary; WarehouseEntry: Record "Warehouse Entry"; var ItemTrackingSetup: Record "Item Tracking Setup"; Location: Record Location)
     begin
     end;
 

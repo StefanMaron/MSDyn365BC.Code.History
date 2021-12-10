@@ -33,6 +33,7 @@ page 1174 "Document Attachment Factbox"
                         SalesInvoiceHeader: Record "Sales Invoice Header";
                         PurchInvHeader: Record "Purch. Inv. Header";
                         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+                        VATReportHeader: Record "VAT Report Header";
                         DocumentAttachmentDetails: Page "Document Attachment Details";
                         RecRef: RecordRef;
                     begin
@@ -116,6 +117,12 @@ page 1174 "Document Attachment Factbox"
                                     RecRef.Open(DATABASE::"Purch. Cr. Memo Hdr.");
                                     if PurchCrMemoHdr.Get("No.") then
                                         RecRef.GetTable(PurchCrMemoHdr);
+                                end;
+                            DATABASE::"VAT Report Header":
+                                begin
+                                    RecRef.Open(DATABASE::"VAT Report Header");
+                                    if VATReportHeader.Get("VAT Report Config. Code", "No.") then
+                                        RecRef.GetTable(VATReportHeader);
                                 end;
                             else
                                 OnBeforeDrillDown(Rec, RecRef);

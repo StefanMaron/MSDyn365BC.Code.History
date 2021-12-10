@@ -1031,15 +1031,6 @@
       <Cmt Name="Dev"><![CDATA[%1 Provider Caption, %2 = Symbology Caption]D;]A;(LookupHint=Codeunit IDAutomation 2D Test - NamedType CannotFindBarcodeEncoderErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1008664390 - NamedType 1874893006" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAOSURBVChTYxgFJAMGBgABNgABY8OiGAAAAABJRU5ErkJggg==]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Image Tests - NamedType ImageAsBase64Txt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1008664390 - NamedType 2781414266" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CjwvZz4KPC9zdmc+Cg==]]></Val>
@@ -1047,6 +1038,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Image Tests - NamedType ImageInvalidTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1008664390 - NamedType 4063326973" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The image could not be loaded]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Image Tests - NamedType ImageNotInitializedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2606943756 - NamedType 3083749102" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1380,15 +1380,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Settings Tests - NamedType CompanyDisplayNameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3906106667 - NamedType 2430332730" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot access settings for other users.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Settings Tests - NamedType NotEnoughPermissionsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1141830473 - NamedType 267657989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -2,6 +2,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -27,6 +28,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         GenJnlDocumentType: Enum "Gen. Journal Document Type";
         GenJnlAccountType: Enum "Gen. Journal Account Type";
         isInitialized: Boolean;
+        MakeInconsistent: Boolean;
         ReversalError: Label 'You cannot reverse %1 No. %2 because the entry is closed.', Comment = '%1: Table Caption;%2: Field Value';
         VATBaseError: Label '%1 amount must be %2 in %3.';
         ReverseDateCompressErr: Label 'The transaction cannot be reversed, because the %1 has been compressed.', Comment = '%1 - Table Name';
@@ -225,6 +227,59 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure RunCalcPostVATSttlmtWithPostSetOnSalesDocReverseChargeVATInconsitencies()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        ERMReverseAndVATSettlement: Codeunit "ERM Reverse And VAT Settlement";
+        GLEntriesPreview: TestPage "G/L Entries Preview";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        TotalBalance: Decimal;
+        Amount: Decimal;
+        SettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Sales]
+        // [SCENARIO ] Run Calc. and Post VAT Settlement report with Post option set on three posted Sales Invoices with different VAT Posting Setup of "Reverse Charge VAT" calculation type with added inconsistency.
+        Initialize();
+
+        BindSubscription(ERMReverseAndVATSettlement);
+        ERMReverseAndVATSettlement.SetMakeInconsistent();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Reverse Charge VAT".
+        CreateThreeVATPostingSetup(VATPostingSetup, VATCalculationType::"Reverse Charge VAT");
+
+        // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created.
+        PostedDocNo[1] := CreateAndPostPurchaseInvoice(VATPostingSetup[1]);
+        PostedDocNo[2] := CreateAndPostPurchaseInvoice(VATPostingSetup[2]);
+        PostedDocNo[3] := CreateAndPostPurchaseInvoice(VATPostingSetup[3]);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        GLEntriesPreview.Trap();
+        RunCalcAndPostVATSettlementReportWithoutRequestPage(VATSettlementDocNo, VATPostingSetup, true);
+
+        // [THEN] Check Document No. in G/L Entries Preview
+        TotalBalance := 0;
+        GLEntriesPreview.First();
+        repeat
+            Assert.AreEqual(VATSettlementDocNo, Format(GLEntriesPreview."Document No."), 'Wrong Document No. in G/L Entries Preview');
+            Evaluate(Amount, GLEntriesPreview.Amount.Value);
+            TotalBalance := TotalBalance + Amount;
+        until not GLEntriesPreview.Next();
+        GLEntriesPreview.Close();
+        Assert.AreNotEqual(0, TotalBalance, 'Total balance should not be 0');
+
+        asserterror Commit();
+        Assert.IsTrue(
+            StrPos(
+                GetLastErrorText(),
+                'The transaction cannot be completed because it will cause inconsistencies') > 0, 'Missing inconsistency error');
+
+        LibraryVariableStorage.Clear();
     end;
 
     [Test]
@@ -795,6 +850,18 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         CalcandPostVATSettlement.Run();
     end;
 
+    local procedure RunCalcAndPostVATSettlementReportWithoutRequestPage(DocumentNo: Code[20]; VATPostingSetup: array[3] of Record "VAT Posting Setup"; PostSettlement: Boolean)
+    var
+        FilterVATPostingSetup: Record "VAT Posting Setup";
+        CalcandPostVATSettlement: Report "Calc. and Post VAT Settlement";
+    begin
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), DocumentNo, LibraryERM.CreateGLAccountNo, true, PostSettlement);
+        FilterVATPostingSetup.SetFilter("VAT Bus. Posting Group", '%1|%2|%3', VATPostingSetup[1]."VAT Bus. Posting Group", VATPostingSetup[2]."VAT Bus. Posting Group", VATPostingSetup[3]."VAT Bus. Posting Group");
+        CalcandPostVATSettlement.SetTableView(FilterVATPostingSetup);
+        CalcandPostVATSettlement.UseRequestPage(false);
+        CalcandPostVATSettlement.Run();
+    end;
+
     local procedure FilterVATEntryByDocumentNoPostingGroups(var VATEntry: Record "VAT Entry"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type")
     begin
         VATEntry.SetRange("VAT Bus. Posting Group", VATBusPostingGroupCode);
@@ -933,6 +1000,19 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         FileName := LibraryReportDataset.GetFileName();
         LibraryVariableStorage.Enqueue(FileName);
         CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), FileName);
+    end;
+
+    procedure SetMakeInconsistent()
+    begin
+        MakeInconsistent := true;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Calc. and Post VAT Settlement", 'OnBeforePostGenJnlLineReverseChargeVAT', '', false, false)]
+    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; var VATAmount: Decimal; var VATAmountAddCurr: Decimal)
+    begin
+        if MakeInconsistent then
+            if GenJnlLine.Amount > 0 then
+                GenJnlLine.Amount := Round(GenJnlLine.Amount * 1.1);
     end;
 }
 

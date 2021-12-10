@@ -2794,6 +2794,115 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLotPageHandler,SynchronizeItemTrackingConfirmHandler,MessageHandler')]
+    procedure ClearSurplusForDropShipmentSalesAfterSynchronizeItemTrackingFromPurchase()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Order Tracking]
+        // [SCENARIO 414437] Order tracking surplus entry for drop shipment sales is deleted when you synchronize item tracking from purchase side.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked item with order tracking.
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for drop shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader, SalesLine, '', Item."No.", Qty);
+
+        // [GIVEN] Create purchase order using "Get Sales Orders" in requisition worksheet.
+        GetSalesOrderOnRequisitionWkshtAndCarryOutActionMsg(SalesLine, RequisitionLine, false);
+
+        // [GIVEN] Ensure that order tracking entries are created.
+        FindPurchaseLine(PurchaseLine, Item."No.");
+        VerifyTrackingOnDropShipment(SalesLine, PurchaseLine, '');
+
+        // [WHEN] Assign lot no. "L" on the purchase line and synchronize the item tracking with the sales line.
+        LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [THEN] Item tracking is synchronized.
+        // [THEN] Only reservation entries with lot no. "L" exist for both purchase and sales.
+        VerifyTrackingOnDropShipment(SalesLine, PurchaseLine, LotNo);
+
+        // [THEN] Purchase order can be posted together with the sales order.
+        // [THEN] None of reservation entries and action message entries exist for the item.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        VerifyReservEntriesNotExist(Item."No.");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLotPageHandler,ConfirmHandler,MessageHandler')]
+    procedure ClearSurplusForDropShipmentSalesAfterSynchronizeItemTrackingFromSales()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Order Tracking]
+        // [SCENARIO 414437] Order tracking surplus entry for drop shipment sales is deleted when you synchronize item tracking from sales side.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked item with order tracking.
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for drop shipment.
+        CreateSalesOrderWithDropShipment(SalesHeader, SalesLine, '', Item."No.", Qty);
+
+        // [GIVEN] Create purchase order using "Get Sales Orders" in requisition worksheet.
+        GetSalesOrderOnRequisitionWkshtAndCarryOutActionMsg(SalesLine, RequisitionLine, false);
+
+        // [GIVEN] Ensure that order tracking entries are created.
+        FindPurchaseLine(PurchaseLine, Item."No.");
+        VerifyTrackingOnDropShipment(SalesLine, PurchaseLine, '');
+
+        // [WHEN] Assign lot no. "L" on the sales line and synchronize the item tracking with the purchase line.
+        SalesLine.Find();
+        LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        SalesLine.OpenItemTrackingLines();
+
+        // [THEN] Item tracking is synchronized.
+        // [THEN] Only reservation entries with lot no. "L" exist for both purchase and sales.
+        VerifyTrackingOnDropShipment(SalesLine, PurchaseLine, LotNo);
+
+        // [THEN] Purchase order can be posted together with the sales order.
+        // [THEN] None of reservation entries and action message entries exist for the item.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        VerifyReservEntriesNotExist(Item."No.");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4173,6 +4282,23 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         end;
     end;
 
+    local procedure VerifyTrackingOnDropShipment(SalesLine: Record "Sales Line"; PurchaseLine: Record "Purchase Line"; LotNo: Code[20])
+    var
+        ReservationEntry: Record "Reservation Entry";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
+    begin
+        SalesLineReserve.FindReservEntry(SalesLine, ReservationEntry);
+        ReservationEntry.TestField("Lot No.", LotNo);
+        ReservationEntry.SetFilter("Lot No.", '<>%1', LotNo);
+        Assert.RecordIsEmpty(ReservationEntry);
+
+        PurchLineReserve.FindReservEntry(PurchaseLine, ReservationEntry);
+        ReservationEntry.TestField("Lot No.", LotNo);
+        ReservationEntry.SetFilter("Lot No.", '<>%1', LotNo);
+        Assert.RecordIsEmpty(ReservationEntry);
+    end;
+
     local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4211,6 +4337,17 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             SetRange("Bin Code", BinCode);
             Assert.RecordIsNotEmpty(DummyRegisteredInvtMovementLine);
         end;
+    end;
+
+    local procedure VerifyReservEntriesNotExist(ItemNo: Code[20])
+    var
+        ReservationEntry: Record "Reservation Entry";
+        ActionMessageEntry: Record "Action Message Entry";
+    begin
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        Assert.RecordIsEmpty(ReservationEntry);
+        ActionMessageEntry.SetRange("Item No.", ItemNo);
+        Assert.RecordIsEmpty(ActionMessageEntry);
     end;
 
     local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)

@@ -2149,6 +2149,138 @@ codeunit 137068 "SCM Inventory Orders-II"
         RequisitionLine.TestField(Quantity, SalesLine.Quantity);
     end;
 
+    [Test]
+    procedure DistributionOfItemChargeToSeveralLotsForPurchaseLineInFCY()
+    var
+        Item: Record Item;
+        Currency: Record Currency;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineItemCharge: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ReservationEntry: Record "Reservation Entry";
+        ValueEntry: Record "Value Entry";
+        ExchRate: Decimal;
+        ItemChargeAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Item Charge] [Item Tracking] [Currency]
+        // [SCENARIO 410063] Item charge amount in FCY is correctly distributed to several lots for purchase order line.
+        Initialize();
+        ExchRate := LibraryRandom.RandDecInDecimalRange(0.01, 100, 2);
+        ItemChargeAmount := LibraryRandom.RandDecInRange(50, 100, 2);
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Currency "FCY", exchange rate 1 "LCY" = 4 "FCY".
+        // [GIVEN] Vendor with the currency code "FCY".
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate));
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Purchase order with two lines -
+        // [GIVEN] Line 1: the lot-tracked item, quantity = 2 pcs, assign two lot nos., each for 1 pc.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLineItem, PurchaseHeader, PurchaseLineItem.Type::Item, Item."No.", 2);
+        PurchaseLineItem.Validate("Direct Unit Cost", 2 * LibraryRandom.RandDec(100, 2));
+        PurchaseLineItem.Modify(true);
+        LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLineItem, '', LibraryUtility.GenerateGUID(), 1);
+        LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLineItem, '', LibraryUtility.GenerateGUID(), 1);
+
+        // [GIVEN] Line 2: item charge, amount = 20 "FCY", assign item charge to the item line.
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineItemCharge, PurchaseHeader, PurchaseLineItemCharge.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        PurchaseLineItemCharge.Validate("Direct Unit Cost", ItemChargeAmount);
+        PurchaseLineItemCharge.Modify(true);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLineItemCharge,
+          PurchaseLineItem."Document Type", PurchaseLineItem."Document No.", PurchaseLineItem."Line No.", PurchaseLineItem."No.");
+
+        // [WHEN] Post the purchase order as received and invoiced.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Two value entries for item charge have been posted. Posted cost amount = 20 / 4 = 5 "LCY".
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
+        ValueEntry.SetRange("Item Charge No.", PurchaseLineItemCharge."No.");
+        Assert.RecordCount(ValueEntry, 2);
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField(
+          "Cost Amount (Actual)", Round(ItemChargeAmount / ExchRate, LibraryERM.GetCurrencyAmountRoundingPrecision(Currency.Code)));
+    end;
+
+    [Test]
+    procedure DistributionOfItemChargeToSeveralLotsForSalesLineInFCY()
+    var
+        Item: Record Item;
+        Currency: Record Currency;
+        Customer: Record Customer;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineItemCharge: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        ReservationEntry: Record "Reservation Entry";
+        ValueEntry: Record "Value Entry";
+        LotNos: array[2] of Code[20];
+        ExchRate: Decimal;
+        ItemChargeAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Item Charge] [Item Tracking] [Currency]
+        // [SCENARIO 410063] Item charge amount in FCY is correctly distributed to several lots for sales order line.
+        Initialize();
+        ExchRate := LibraryRandom.RandDecInDecimalRange(0.01, 100, 2);
+        ItemChargeAmount := LibraryRandom.RandDecInRange(50, 100, 2);
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Currency "FCY", exchange rate 1 "LCY" = 4 "FCY".
+        // [GIVEN] Customer with the currency code "FCY".
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate));
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Post 2 pcs to inventory, assign two lot nos., each for 1 pc.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 2);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNos[1], 1);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNos[2], 1);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order with two lines -
+        // [GIVEN] Line 1: the lot-tracked item, quantity = 2 pcs, select the two lots.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLineItem, SalesHeader, SalesLineItem.Type::Item, Item."No.", 2);
+        SalesLineItem.Validate("Unit Price", 2 * LibraryRandom.RandDec(100, 2));
+        SalesLineItem.Modify(true);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLineItem, '', LotNos[1], 1);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLineItem, '', LotNos[2], 1);
+
+        // [GIVEN] Line 2: item charge, amount = 20 "FCY", assign item charge to the item line.
+        LibrarySales.CreateSalesLine(
+          SalesLineItemCharge, SalesHeader, SalesLineItemCharge.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        SalesLineItemCharge.Validate("Unit Price", ItemChargeAmount);
+        SalesLineItemCharge.Modify(true);
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLineItemCharge,
+          SalesLineItem."Document Type", SalesLineItem."Document No.", SalesLineItem."Line No.", SalesLineItem."No.");
+
+        // [WHEN] Post the sales order as shipped and invoiced.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Two value entries for item charge have been posted. Posted sales amount = 20 / 4 = 5 "LCY".
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
+        ValueEntry.SetRange("Item Charge No.", SalesLineItemCharge."No.");
+        Assert.RecordCount(ValueEntry, 2);
+        ValueEntry.CalcSums("Sales Amount (Actual)");
+        ValueEntry.TestField(
+          "Sales Amount (Actual)", Round(ItemChargeAmount / ExchRate, LibraryERM.GetCurrencyAmountRoundingPrecision(Currency.Code)));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

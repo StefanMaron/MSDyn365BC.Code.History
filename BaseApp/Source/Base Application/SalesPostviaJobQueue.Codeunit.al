@@ -106,6 +106,7 @@ codeunit 88 "Sales Post via Job Queue"
             FillJobEntryFromSalesSetup(JobQueueEntry, SalesHeader."Print Posted Documents");
             FillJobEntrySalesDescription(JobQueueEntry, SalesHeader);
             "User Session ID" := SessionId;
+            OnEnqueueJobEntryOnBeforeEnqueue(SalesHeader, JobQueueEntry);
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
             exit(ID)
         end;
@@ -200,6 +201,11 @@ codeunit 88 "Sales Post via Job Queue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEnqueueJobEntryOnBeforeEnqueue(SalesHeader: Record "Sales Header"; var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 

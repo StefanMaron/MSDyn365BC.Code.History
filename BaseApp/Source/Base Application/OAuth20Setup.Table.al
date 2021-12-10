@@ -121,6 +121,17 @@ table 1140 "OAuth 2.0 Setup"
             Caption = 'Access Token Due DateTime';
             Editable = false;
         }
+        field(21; "Feature GUID"; Guid)
+        {
+            Caption = 'Feature GUID';
+            Editable = false;
+        }
+        field(22; "User ID"; Code[50])
+        {
+            Caption = 'User ID';
+            DataClassification = EndUserIdentifiableInformation;
+            TableRelation = User."User Name";
+        }
     }
 
     keys
@@ -247,6 +258,26 @@ table 1140 "OAuth 2.0 Setup"
         OnBeforeInvokeRequest(Rec, RequestJSON, ResponseJSON, HttpError, Result, Processed, RetryOnCredentialsFailure);
         if not Processed then
             Result := OAuth20Mgt.InvokeRequestBasic(Rec, RequestJSON, ResponseJSON, HttpError, RetryOnCredentialsFailure);
+    end;
+
+    procedure FindSetOAuth20SetupByFeature(FeatureGUID: Guid): Boolean
+    begin
+        SetRange("Feature GUID", FeatureGUID);
+        exit(FindSet());
+    end;
+
+    procedure FindFirstOAuth20SetupByFeatureAndCurrUser(FeatureGUID: Guid): Boolean
+    begin
+        SetRange("Feature GUID", FeatureGUID);
+        SetRange("User ID", CopyStr(UserId(), 1, MaxStrLen("User Id")));
+        exit(FindFirst());
+    end;
+
+    procedure FindFirstOAuth20SetupByFeatureAndUser(FeatureGUID: Guid; OAuthUserID: Code[50]): Boolean
+    begin
+        SetRange("Feature GUID", FeatureGUID);
+        SetRange("User ID", OAuthUserID);
+        exit(FindFirst());
     end;
 
     [IntegrationEvent(false, false)]

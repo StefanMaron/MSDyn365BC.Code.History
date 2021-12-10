@@ -31,7 +31,7 @@ page 742 "VAT Report Statement Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the VAT amount in the amount is calculated from.';
-                    Visible = false;
+                    Visible = ShowBase;
                 }
                 field(Amount; Amount)
                 {
@@ -45,6 +45,17 @@ page 742 "VAT Report Statement Subform"
     actions
     {
     }
+
+    var
+        ShowBase: Boolean;
+
+    trigger OnOpenPage()
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        VATReportSetup.Get();
+        ShowBase := VATReportSetup."Report VAT Base";
+    end;
 
     procedure SelectFirst()
     begin

@@ -1823,6 +1823,32 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLine.TestField("Planning Due Date", WorkDate());
     end;
 
+    [Test]
+    procedure NoCostingQuantityInformationOnJobPlanningLineOfTypeText()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO] It should not be possible to enter costing/quantity information on job planning lines of type text.
+        JobPlanningLine.Init();
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Text);
+
+        asserterror JobPlanningLine.Validate(Quantity, 1);
+        asserterror JobPlanningLine.Validate("Quantity (Base)", 1);
+
+        asserterror JobPlanningLine.Validate("Qty. to Transfer to Invoice", 1);
+        asserterror JobPlanningLine.Validate("Qty. to Transfer to Journal", 1);
+
+        asserterror JobPlanningLine.Validate("Unit Cost", 1);
+        asserterror JobPlanningLine.Validate("Unit Cost (LCY)", 1);
+        asserterror JobPlanningLine.Validate("Direct Unit Cost (LCY)", 1);
+
+        asserterror JobPlanningLine.Validate("Unit Price", 1);
+        asserterror JobPlanningLine.Validate("Unit Price (LCY)", 1);
+
+        asserterror JobPlanningLine.Validate("Line Amount", 1);
+        asserterror JobPlanningLine.Validate("Line Amount (LCY)", 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
