@@ -253,13 +253,25 @@ table 7003 "Price Asset"
     // Could be a method in the Price Asset interface
     local procedure VerifyConsistentAssetType()
     begin
+        if IsVerifyConsistentAssetTypeHandled() then
+            exit;
         if "Price Type" = "Price Type"::Purchase then
             if "Asset Type" = "Asset Type"::"Item Discount Group" then
                 FieldError("Asset Type");
     end;
 
+    local procedure IsVerifyConsistentAssetTypeHandled() IsHandled: Boolean;
+    begin
+        OnBeforeVerifyConsistentAssetType(Rec, IsHandled);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateUnitOfMeasureCode(var PriceAsset: Record "Price Asset"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyConsistentAssetType(var PriceAsset: Record "Price Asset"; var IsHandled: Boolean)
     begin
     end;
 }

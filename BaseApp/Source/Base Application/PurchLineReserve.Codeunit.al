@@ -1,4 +1,4 @@
-codeunit 99000834 "Purch. Line-Reserve"
+﻿codeunit 99000834 "Purch. Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -417,7 +417,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, PurchLine."Expected Receipt Date");
         ItemTrackingLines.SetInbound(PurchLine.IsInbound);
         OnCallItemTrackingOnBeforeItemTrackingFormRunModal(PurchLine, ItemTrackingLines);
-        ItemTrackingLines.RunModal();
+        RunItemTrackingLinesPage(ItemTrackingLines);
     end;
 
     procedure CallItemTracking(var PurchLine: Record "Purchase Line"; SecondSourceQuantityArray: array[3] of Decimal)
@@ -429,6 +429,18 @@ codeunit 99000834 "Purch. Line-Reserve"
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, PurchLine."Expected Receipt Date");
         ItemTrackingLines.SetSecondSourceQuantity(SecondSourceQuantityArray);
         OnCallItemTrackingOnBeforeItemTrackingFormRunModal(PurchLine, ItemTrackingLines);
+        RunItemTrackingLinesPage(ItemTrackingLines);
+    end;
+
+    local procedure RunItemTrackingLinesPage(var ItemTrackingLines: Page "Item Tracking Lines")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunItemTrackingLinesPage(ItemTrackingLines, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemTrackingLines.RunModal();
     end;
 
@@ -725,6 +737,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         if PurchLine.FindSet then
             repeat
                 PurchLine.CalcFields("Reserved Qty. (Base)");
+                OnUpdateStatisticsOnBeforeCheckSpecialOrder(PurchLine);
                 if not PurchLine."Special Order" then begin
                     TempEntrySummary."Total Reserved Quantity" += PurchLine."Reserved Qty. (Base)";
                     TotalQuantity += PurchLine."Outstanding Qty. (Base)";
@@ -774,6 +787,11 @@ codeunit 99000834 "Purch. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunItemTrackingLinesPage(var ItemTrackingLines: Page "Item Tracking Lines"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTransferPurchLineToPurchLineOnAfterOldReservEntrySetFilters(var OldPurchLine: record "Purchase Line"; var NewPurchLine: Record "Purchase Line")
     begin
     end;
@@ -790,6 +808,11 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnRetrieveInvoiceSpecification2OnBeforeInsert(var TempInvoicingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateStatisticsOnBeforeCheckSpecialOrder(var PurchLine: Record "Purchase Line")
     begin
     end;
 }

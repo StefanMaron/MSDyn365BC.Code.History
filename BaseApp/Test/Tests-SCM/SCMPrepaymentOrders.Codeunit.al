@@ -624,8 +624,8 @@ codeunit 137160 "SCM Prepayment Orders"
         GLAccount: Record "G/L Account";
     begin
         GLAccount.Get(AccountNo);
-        GLAccount.Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
-        GLAccount.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        GLAccount."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
+        GLAccount."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
         GLAccount.Modify(true);
     end;
 

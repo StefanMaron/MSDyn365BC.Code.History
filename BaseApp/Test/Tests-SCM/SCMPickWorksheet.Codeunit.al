@@ -947,6 +947,26 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseWorksheetLine.TestField("Qty. Outstanding", Qty[1] + Qty[2]);
     end;
 
+    [Test]
+    procedure AvailableQtyToPickDoesNotModifyDescription()
+    var
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Description: Text[100];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 420219] CalcAvailableQtyBase function in pick worksheet does not change description.
+        Initialize();
+        Description := LibraryUtility.GenerateGUID();
+
+        WhseWorksheetLine.Init();
+        WhseWorksheetLine."Item No." := LibraryInventory.CreateItemNo();
+        WhseWorksheetLine.Description := Description;
+        WhseWorksheetLine.Insert();
+
+        WhseWorksheetLine.CalcAvailableQtyBase();
+        WhseWorksheetLine.TestField(Description, Description);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

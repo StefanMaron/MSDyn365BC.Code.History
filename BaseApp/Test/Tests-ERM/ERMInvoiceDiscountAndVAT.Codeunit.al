@@ -42,6 +42,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         CalcTotalPurchAmountOnlyDiscountAllowedErr: Label 'Total Amount of Purchase lines with allowed discount is incorrect.';
         CalcTotalSalesAmountOnlyDiscountAllowedErr: Label 'Total Amount of Sales lines with allowed discount is incorrect.';
         GetInvoiceDiscountPctErr: Label 'Discount % is incorrect';
+        MissingDiscountAccountMsg: Label 'G/L accounts for discounts are missing on one or more lines on the General Posting Setup page.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1395,6 +1396,110 @@ codeunit 134027 "ERM Invoice Discount And VAT"
           GetInvoiceDiscountPctErr);
     end;
 
+    [Test]
+    [HandlerFunctions('VerifyNoNotificationsAreSend')]
+    [Scope('OnPrem')]
+    procedure NoMissedGLAccountNotificationSales()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [Sales] [Discount] [UT]
+        // [SCENARIO 421486] "G/L accounts for discounts are missing" notification is not shown for sales document if there is at least one general posting setup with empty G/L account 
+        Initialize();
+
+        // [GIVEN] Enable Invoice Discount for sales
+        LibrarySales.SetCalcInvDiscount(true);
+        // [GIVEN] New general posting setup "BUS" "PROD" with empty G/L accounts
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Sales order "SO" for customer "C" with some invoice discount and Gen. Bus. Posting Group = "BUS"
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandInt(20));
+        LibrarySales.CreateSalesHeader(
+           SalesHeader, SalesHeader."Document Type"::Order,
+           CreateCustomerWithInvoiceDiscountGenPostGroup(VATPostingSetup."VAT Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group"));
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(true, VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Open sales order page for "SO"
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] No notification "G/L accounts for discounts are missing" (checked in VerifyNoNotificationsAreSend)
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyNoNotificationsAreSend')]
+    [Scope('OnPrem')]
+    procedure NoMissedGLAccountNotificationPurchase()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [Purchase] [Discount] [UT]
+        // [SCENARIO 421486] "G/L accounts for discounts are missing" notification is not shown for purchase document if there is at least one general posting setup with empty G/L account 
+        Initialize();
+
+        // [GIVEN] Enable Invoice Discount for Purchase
+        LibraryPurchase.SetCalcInvDiscount(true);
+        // [GIVEN] New general posting setup "BUS" "PROD" with empty G/L accounts
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Purchase order "PO" for vendor "V" with some invoice discount and Gen. Bus. Posting Group = "BUS"
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandInt(20));
+        LibraryPurchase.CreatePurchHeader(
+           PurchaseHeader, PurchaseHeader."Document Type"::Order,
+           CreateVendorWithInvoiceDiscountGenPostGroup(VATPostingSetup."VAT Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(true, VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Open purchase order page for "PO"
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [THEN] No notification "G/L accounts for discounts are missing" (checked in VerifyNoNotificationsAreSend)
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceOrderStatisticsHandler,VerifyNoNotificationsAreSend')]
+    [Scope('OnPrem')]
+    procedure NoMissedGLAccountNotificationService()
+    var
+        ServHeader: Record "Service Header";
+        ServLine: Record "Service Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceOrder: TestPage "Service Order";
+    begin
+        // [FEATURE] [Service] [Discount] [UT]
+        // [SCENARIO 421486] "G/L accounts for discounts are missing" notification is not shown for service document if there is at least one general posting setup with empty G/L account 
+        Initialize();
+
+        // [GIVEN] New general posting setup "BUS" "PROD" with empty G/L accounts
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Service order "SO" for customer "C" with some invoice discount and Gen. Bus. Posting Group = "BUS"
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandInt(20));
+        LibraryService.CreateServiceHeader(
+          ServHeader, ServHeader."Document Type"::Order,
+          CreateCustomerWithInvoiceDiscountGenPostGroup(VATPostingSetup."VAT Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group"));
+        LibraryService.CreateServiceLine(
+          ServLine, ServHeader, ServLine.Type::Item, CreateItem(true, VATPostingSetup."VAT Prod. Posting Group"));
+
+        // [WHEN] Open service order page for "SO" and run statistics to cause discount calculation
+        ServiceOrder.OpenEdit();
+        ServiceOrder.Filter.SetFilter("No.", ServHeader."No.");
+        ServiceOrder.Statistics.Invoke();
+
+        // [THEN] No notification "G/L accounts for discounts are missing" (checked in VerifyNoNotificationsAreSend)
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1523,6 +1628,16 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Decimals := LibraryRandom.RandIntInRange(1, 4);
         Currency.Validate("Amount Rounding Precision", 1 / Power(10, Decimals));
         Currency.Modify(true);
+    end;
+
+    local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
     end;
 
     local procedure GetItemCost(Remainder: Decimal; LineDiscountPercent: Integer; InvDiscountAmount: Decimal; Decimals: Integer) ItemCost: Decimal
@@ -1895,6 +2010,24 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         VendorInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
         VendorInvoiceDisc.Modify(true);
         with Vendor do begin
+            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+            Validate("Invoice Disc. Code", VendorInvoiceDisc.Code);
+            Modify(true);
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateVendorWithInvoiceDiscountGenPostGroup(VATBusPostingGroup: Code[20]; GenBusPostingGroup: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreateInvDiscForVendor(VendorInvoiceDisc, Vendor."No.", Vendor."Currency Code", 0); // Minimum Amount set 0 to ensure Invoice Discount is always enabled
+        VendorInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
+        VendorInvoiceDisc.Modify(true);
+        with Vendor do begin
+            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
             Validate("VAT Bus. Posting Group", VATBusPostingGroup);
             Validate("Invoice Disc. Code", VendorInvoiceDisc.Code);
             Modify(true);
@@ -2319,6 +2452,24 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
         CustInvoiceDisc.Modify(true);
         with Customer do begin
+            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+            Validate("Invoice Disc. Code", CustInvoiceDisc.Code);
+            Modify(true);
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateCustomerWithInvoiceDiscountGenPostGroup(VATBusPostingGroup: Code[20]; GenBusPostingGroup: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", Customer."Currency Code", 0); // Minimum Amount set 0 to ensure Invoice Discount is always enabled
+        CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
+        CustInvoiceDisc.Modify(true);
+        with Customer do begin
+            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
             Validate("VAT Bus. Posting Group", VATBusPostingGroup);
             Validate("Invoice Disc. Code", CustInvoiceDisc.Code);
             Modify(true);
@@ -2912,6 +3063,20 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, ExpectedAmount);
+    end;
+
+    [SendNotificationHandler(true)]
+    [Scope('OnPrem')]
+    procedure VerifyNoNotificationsAreSend(var TheNotification: Notification): Boolean
+    begin
+        if TheNotification.Message = MissingDiscountAccountMsg then
+            Assert.Fail('No notification should be thrown.');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceOrderStatisticsHandler(var ServiceOrderStatistics: TestPage "Service Order Statistics")
+    begin
     end;
 }
 

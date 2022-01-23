@@ -3,7 +3,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-permissionsetextension 630 "Data Archive - Write" extends "D365 BASIC"
+/// <summary>
+/// System entity of record with email address.
+/// </summary>
+enum 8945 "Email Address Entity"
 {
-    IncludedPermissionSets = "Data Archive - Write";
+    Access = Public;
+    Extensible = true;
+
+    value(0; User)
+    {
+        Caption = 'User';
+    }
 }

@@ -38,8 +38,8 @@ codeunit 9510 "Document Service Management"
         UnknownLocationErr: Label 'An unexpected error occured while trying to configure the Document Service. Try again later.';
         DocumentSharingNoNameErr: Label 'The document to be shared has not specified a name.';
         DocumentSharingNoExtErr: Label 'The document to be shared has not specified a file extension.';
-        SharePointFileExistsInstructionsTxt: Label 'The specified file name "%1" already exists.\ Do you want to overwrite the file?', Comment = '%1=a file name, for example "CustomerCard.xlsx"';
-        SharePointFileExistsOptionsTxt: Label 'Keep both,Overwrite', Comment = 'A comma separated list with two options.';
+        SharePointFileExistsInstructionsTxt: Label 'A file named "%1" already exists in your %2 folder in OneDrive for Business.\\ Would you like to add this new file as the latest version of the existing file, or rename it and keep them both?', Comment = '%1 = a file name, for example "CustomerCard.xlsx"; %2 = the product name, for example "Business Central"';
+        SharePointFileExistsOptionsTxt: Label 'Replace,Keep both', Comment = 'A comma separated list with two options.';
         DocumentServiceCategoryLbl: Label 'AL DocumentService', Locked = true;
         DocumentSharingStartLbl: Label 'Handling document sharing event.', Locked = true;
         DocumentServiceDefaultingLbl: Label 'Configuring defaults for document service', Locked = true;
@@ -47,11 +47,23 @@ codeunit 9510 "Document Service Management"
         CouldNotFindLocationInResponseErr: Label 'Graph request could not find the webUrl property for the default location.', Locked = true;
         LocationResponseInvalidErr: Label 'Graph request did not return a JSON document.', Locked = true;
         LocationFoundTxt: Label 'A default location was found of length %1', Locked = true;
+        NoDocumentServiceFoundErr: Label 'There''s no connection set up for OneDrive, so %1 can''t copy your files.\\ To set up a connection, open the page %2.', Comment = '%1= the product name for Business Central; %2= the page caption for Document Service Setup.';
         CheckingDriveProgressTxt: Label 'Checking that you have a valid drive.';
+        CheckingBcDocumentFolderProgressTxt: Label 'Checking that the default folder exists.';
+        SharepointUnexpectedStatusCodeErr: Label 'OneDrive returned an unexpected error code: %1.', Comment = '%1 = An error code from OneDrive, for example 503';
+        SharepointInvalidJsonErr: Label 'OneDrive returned an invalid response. Details: %1.', Comment = '%1 = The response details from OneDrive (e.g. "Your Drive is not available")';
+        MissingOneDriveLicenseSaasErr: Label 'You don''t have a license for OneDrive.';
+        MissingOneDriveLicenseOnPremErr: Label 'You don''t have a license for OneDrive, or your Azure app registration for %1 on-premises doesn''t have the necessary permissions.', Comment = '%1 = the product name for Business Central';
         GraphApiUrlOnPremTxt: Label 'https://graph.microsoft.com', Locked = true;
         StartingLinkGenerationTelemetryMsg: Label 'Starting OneDrive link generation.', Locked = true;
+        UsingDefaultDocumentServiceTelemetryMsg: Label 'Using default Document Service setup.', Locked = true;
+        UsingCustomDocumentServiceTelemetryMsg: Label 'Using a Document Service retrieved from the database.', Locked = true;
+        EmptyTokenTelemetryMsg: Label 'Empty access token from Azure AD Mgt.', Locked = true;
+        SharepointStatusCodeTelemetryMsg: Label 'Sharepoint returned an error code: %1.', Locked = true;
+        NoCompanyFolderTelemetryMsg: Label 'No company specific folder found, falling back to base Document Service folder.', Locked = true;
+        NoCompanyOrBcFolderTelemetryMsg: Label 'No Document Service folder found, falling back to OneDrive root.', Locked = true;
         ConfigurationForTestConnectionTelemetryMsg: Label 'Configuration for test connection retrieved, with authentication: %1.', Locked = true;
-
+        TrySaveStreamFromRecTelemetryMsg: Label 'TrySaveStreamFromRec started with conflict behavior: %1.', Locked = true;
         SettingResourceLocationTelemetryTxt: Label 'Setting resource location (old location length: %1, new location length: %2).', Locked = true;
         LocationTooLongTelemetryMsg: Label 'Maximum location length is %1, but the new location has length %2.', Locked = true;
 
@@ -365,14 +377,38 @@ codeunit 9510 "Document Service Management"
 
     procedure GetMyBusinessCentralFilesLink(): Text
     var
-        TempDocumentServiceRec: Record "Document Service" temporary;
+        DocumentServiceFolder: Text;
+        DriveRootFolderJson: JsonObject;
+        DriveBcFolderJson: JsonObject;
+        DriveFolderUrl: Text;
+        WebUrl: Text;
         ProgressDialog: Dialog;
     begin
         Session.LogMessage('0000FMJ', StartingLinkGenerationTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
 
-        ProgressDialog.Open(CheckingDriveProgressTxt);
-        InitTempDocumentServiceRecord(TempDocumentServiceRec);
-        exit(TempDocumentServiceRec.Location);
+        ProgressDialog.Open('#1##############################');
+
+        ProgressDialog.Update(1, CheckingDriveProgressTxt);
+        GetDriveFolderInfo(GetGraphDriveRootUrl(), DriveRootFolderJson);
+
+        ProgressDialog.Update(1, CheckingBcDocumentFolderProgressTxt);
+        // Try to open the company specific folder. If it does not exist, open the document service folder. Otherwise, show a dialog and fall back.
+        DocumentServiceFolder := GetDocumentServiceFolder() + '/' + GetSafeCompanyName();
+        DriveFolderUrl := MakeChildrenPathUrl(GetGraphDriveRootUrl(), DocumentServiceFolder);
+        if GetDriveFolderInfo(DriveFolderUrl, DriveBcFolderJson) then
+            if ExtractWebUrlFromJson(DriveBcFolderJson, WebUrl) then
+                exit(WebUrl);
+
+        Session.LogMessage('0000FN5', NoCompanyFolderTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+        DocumentServiceFolder := GetDocumentServiceFolder();
+        DriveFolderUrl := MakeChildrenPathUrl(GetGraphDriveRootUrl(), DocumentServiceFolder);
+        if GetDriveFolderInfo(DriveFolderUrl, DriveBcFolderJson) then
+            if ExtractWebUrlFromJson(DriveBcFolderJson, WebUrl) then
+                exit(WebUrl);
+
+        Session.LogMessage('0000FN6', NoCompanyOrBcFolderTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+        if ExtractWebUrlFromJson(DriveRootFolderJson, WebUrl) then
+            exit(WebUrl);
     end;
 
     [TryFunction]
@@ -389,6 +425,83 @@ codeunit 9510 "Document Service Management"
         Error('');
     end;
 
+    [TryFunction]
+    [NonDebuggable]
+    local procedure GetDriveFolderInfo(FolderUrl: Text; var FolderJson: JsonObject)
+    var
+        HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        AzureADMgt: Codeunit "Azure AD Mgt.";
+        Token: Text;
+        ResponseBody: Text;
+        ErrorMessage: Text;
+        ErrorDetails: Text;
+        HttpStatusCode: DotNet HttpStatusCode;
+        ResponseHeaders: DotNet NameValueCollection;
+    begin
+        Token := AzureADMgt.GetAccessToken(GetGraphDomain(), AzureADMgt.GetO365ResourceName(), false);
+        if Token = '' then begin
+            Session.LogMessage('0000FMK', EmptyTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+            LicenseError();
+        end;
+
+        HttpWebRequestMgt.Initialize(FolderUrl);
+        HttpWebRequestMgt.DisableUI();
+        HttpWebRequestMgt.SetMethod('GET');
+        HttpWebRequestMgt.SetReturnType('application/json');
+        HttpWebRequestMgt.AddHeader('Authorization', 'Bearer ' + Token);
+
+        if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
+            Session.LogMessage('0000FML', StrSubstNo(SharepointStatusCodeTelemetryMsg, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+
+            if HttpStatusCode in [401, 403, 404] then
+                LicenseError()
+            else
+                Error(SharepointUnexpectedStatusCodeErr, HttpStatusCode);
+        end;
+
+        if not FolderJson.ReadFrom(ResponseBody) then
+            Error(SharepointInvalidJsonErr, ResponseBody);
+    end;
+
+    local procedure LicenseError()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if EnvironmentInformation.IsSaaSInfrastructure() then
+            Error(MissingOneDriveLicenseSaasErr)
+        else
+            Error(MissingOneDriveLicenseOnPremErr, ProductName.Short());
+    end;
+
+    local procedure GetDocumentServiceFolder(): Text
+    var
+        DocumentServiceRec: Record "Document Service";
+        EnvironmentInformation: Codeunit "Environment Information";
+        DummyDocumentServiceConfig: Page "Document Service Config";
+    begin
+        if IsConfigured() then begin
+            DocumentServiceRec.FindFirst();
+            Session.LogMessage('0000FMM', UsingCustomDocumentServiceTelemetryMsg, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+            exit(DocumentServiceRec.Folder);
+        end;
+
+        if EnvironmentInformation.IsSaaSInfrastructure() then begin
+            Session.LogMessage('0000FMN', UsingDefaultDocumentServiceTelemetryMsg, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+            exit(GetDefaultFolderName());
+        end;
+
+        Error(NoDocumentServiceFoundErr, ProductName.Short(), DummyDocumentServiceConfig.Caption());
+    end;
+
+    local procedure GetGraphDriveRootUrl(): Text
+    var
+        Domain: Text;
+    begin
+        Domain := GetGraphDomain();
+
+        Domain := DelChr(Domain, '>', '/');
+        exit(Domain + '/v1.0/me/drive/root')
+    end;
 
     local procedure GetGraphSiteRootUrl(): Text
     var
@@ -398,6 +511,29 @@ codeunit 9510 "Document Service Management"
 
         Domain := DelChr(Domain, '>', '/');
         exit(Domain + '/v1.0/sites/root')
+    end;
+
+    local procedure MakeChildrenPathUrl(RootDriveUrl: Text; FolderString: Text): Text
+    var
+        Uri: Codeunit Uri;
+        Folders: List of [Text];
+        Folder: Text;
+    begin
+        // From: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/?view=odsp-graph-online#path-based-addressing-within-a-drive
+        // A driveItem can be addressed by either a unique identifier or where that item exists in the drive's hierarchy (i.e. user path).
+        // Within an API request, a colon can be used to shift between API path space and user path space.
+        // Ensure user data within the URL follows the addressing and path encoding requirements.
+        // Examples:
+        // /drive/root:/path/to/file                          -> Access a driveItem by path under the root.
+
+        Folders := FolderString.Split('/');
+        RootDriveUrl := DelChr(RootDriveUrl, '>', '/') + ':';
+
+        foreach Folder in Folders do
+            if Folder <> '' then
+                RootDriveUrl := RootDriveUrl + '/' + Uri.EscapeDataString(Folder);
+
+        exit(RootDriveUrl);
     end;
 
     local procedure GetGraphDomain(): Text
@@ -444,6 +580,7 @@ codeunit 9510 "Document Service Management"
         DotNetConflictBehavior: DotNet ConflictBehavior;
         DotNetUploadedDocument: DotNet UploadedDocument;
     begin
+        Session.LogMessage('0000FTC', StrSubstNo(TrySaveStreamFromRecTelemetryMsg, Format(ConflictBehavior)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
         Clear(DocumentUri);
 
         // Saves a stream to the Document Service using the configured location specified in Dynamics NAV.
@@ -864,20 +1001,23 @@ codeunit 9510 "Document Service Management"
         DocumentSharing.CalcFields(DocumentSharing.Data);
         DocumentSharing.Data.CreateInStream(InStr);
 
-        if not TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri)
-            or (DocumentUri = '')
-        then
-            case StrMenu(SharePointFileExistsOptionsTxt, 0, StrSubstNo(SharePointFileExistsInstructionsTxt, DocumentSharing.Name)) of
-                0: // Cancel
-                    begin
-                        Handled := false;
-                        exit;
-                    end;
-                1: // Keep both
-                    TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Rename, TempDocumentServiceRec, DocumentUri);
-                2: // Overwrite
-                    TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Replace, TempDocumentServiceRec, DocumentUri);
-            end;
+        if not GuiAllowed() then
+            TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri)
+        else
+            if not TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri)
+                or (DocumentUri = '')
+            then
+                case StrMenu(SharePointFileExistsOptionsTxt, 0, StrSubstNo(SharePointFileExistsInstructionsTxt, DocumentSharing.Name, ProductName.Short())) of
+                    0: // Cancel
+                        begin
+                            Handled := false;
+                            exit;
+                        end;
+                    1: // Replace
+                        TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Replace, TempDocumentServiceRec, DocumentUri);
+                    2: // Keep both
+                        TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Rename, TempDocumentServiceRec, DocumentUri);
+                end;
         EnsureDocumentServiceCache(TempDocumentServiceRec, true);
 
         DocumentSharing.DocumentUri := CopyStr(DocumentUri, 1, MaxStrLen(DocumentSharing.DocumentUri));

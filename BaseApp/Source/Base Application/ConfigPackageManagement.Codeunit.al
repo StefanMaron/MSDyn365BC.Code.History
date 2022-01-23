@@ -700,9 +700,9 @@
             // Vendor : Contact OnValidate
             DATABASE::Vendor:
                 exit(FieldID = 8);
-            // Item : Base Unit of Measure OnValidate
+            // Item : Base Unit of Measure, Production BOM No. OnValidate
             DATABASE::Item:
-                exit(FieldID = 8);
+                exit(FieldID in [8, 99000751]);
             // "No." to pass not manual No. Series
             DATABASE::"Sales Header", DATABASE::"Purchase Header":
                 exit(FieldID = 3);

@@ -65,7 +65,10 @@ codeunit 49 GlobalTriggerManagement
         if IsHandled then
             exit;
 
-        ChangeLogMgt.LogInsertion(RecRef);
+        // Do not write to Change Log during upgrade
+        if GetExecutionContext() <> ExecutionContext::Upgrade then
+            ChangeLogMgt.LogInsertion(RecRef);
+
         IntegrationManagement.OnDatabaseInsert(RecRef);
         CRMIntegrationManagement.OnDatabaseInsert(RecRef);
         APIWebhookNotificationMgt.OnDatabaseInsert(RecRef);
@@ -86,7 +89,10 @@ codeunit 49 GlobalTriggerManagement
         if IsHandled then
             exit;
 
-        ChangeLogMgt.LogModification(RecRef);
+        // Do not write to Change Log during upgrade
+        if GetExecutionContext() <> ExecutionContext::Upgrade then
+            ChangeLogMgt.LogModification(RecRef);
+
         IntegrationManagement.OnDatabaseModify(RecRef);
         CRMIntegrationManagement.OnDatabaseModify(RecRef);
         APIWebhookNotificationMgt.OnDatabaseModify(RecRef);
@@ -106,7 +112,10 @@ codeunit 49 GlobalTriggerManagement
         if IsHandled then
             exit;
 
-        ChangeLogMgt.LogDeletion(RecRef);
+        // Do not write to Change Log during upgrade
+        if GetExecutionContext() <> ExecutionContext::Upgrade then
+            ChangeLogMgt.LogDeletion(RecRef);
+
         IntegrationManagement.OnDatabaseDelete(RecRef);
         APIWebhookNotificationMgt.OnDatabaseDelete(RecRef);
         OnAfterOnDatabaseDelete(RecRef);
@@ -126,7 +135,10 @@ codeunit 49 GlobalTriggerManagement
         if IsHandled then
             exit;
 
-        ChangeLogMgt.LogRename(RecRef, xRecRef);
+        // Do not write to Change Log during upgrade
+        if GetExecutionContext() <> ExecutionContext::Upgrade then
+            ChangeLogMgt.LogRename(RecRef, xRecRef);
+
         IntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
         CRMIntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
         APIWebhookNotificationMgt.OnDatabaseRename(RecRef, xRecRef);

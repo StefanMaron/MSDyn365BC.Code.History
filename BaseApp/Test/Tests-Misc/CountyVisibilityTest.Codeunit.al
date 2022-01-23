@@ -1388,6 +1388,120 @@ codeunit 134449 "County Visibility Test"
         ServiceHeader.TestField(County, '');
     end;
 
+    [Test]
+    procedure CompanyInfoCountyVisibility()
+    var
+        CompanyInformation: TestPage "Company Information";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413649] The fields "County" must be visible only if country uses county
+        Initialize();
+
+        CompanyInformation.OpenEdit();
+        CompanyInformation."Country/Region Code".Value := CountryWithoutCounty.Code;
+        Assert.IsFalse(CompanyInformation.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
+        CompanyInformation."Country/Region Code".Value := CountryWithCounty.Code;
+        Assert.IsTrue(CompanyInformation.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
+        CompanyInformation.Close();
+    end;
+
+    [Test]
+    procedure CustomerTemplateCountyVisibility()
+    var
+        CustomerTemplCard: TestPage "Customer Templ. Card";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413649] The fields "County" must be visible only if country uses county
+        Initialize();
+
+        CustomerTemplCard.OpenNew();
+        CustomerTemplCard."Country/Region Code".Value := CountryWithoutCounty.Code;
+        Assert.IsFalse(CustomerTemplCard.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
+        CustomerTemplCard."Country/Region Code".Value := CountryWithCounty.Code;
+        Assert.IsTrue(CustomerTemplCard.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
+        CustomerTemplCard.Close();
+    end;
+
+    [Test]
+    procedure EmployeeTemplateCountyVisibility()
+    var
+        EmployeeTemplCard: TestPage "Employee Templ. Card";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413649] The fields "County" must be visible only if country uses county
+        Initialize();
+
+        EmployeeTemplCard.OpenNew();
+        EmployeeTemplCard."Country/Region Code".Value := CountryWithoutCounty.Code;
+        Assert.IsFalse(EmployeeTemplCard.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
+        EmployeeTemplCard."Country/Region Code".Value := CountryWithCounty.Code;
+        Assert.IsTrue(EmployeeTemplCard.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
+        EmployeeTemplCard.Close();
+    end;
+
+    [Test]
+    procedure VendorTemplateCountyVisibility()
+    var
+        VendorTemplCard: TestPage "Vendor Templ. Card";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413649] The fields "County" must be visible only if country uses county
+        Initialize();
+
+        VendorTemplCard.OpenNew();
+        VendorTemplCard."Country/Region Code".Value := CountryWithoutCounty.Code;
+        Assert.IsFalse(VendorTemplCard.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
+        VendorTemplCard."Country/Region Code".Value := CountryWithCounty.Code;
+        Assert.IsTrue(VendorTemplCard.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
+        VendorTemplCard.Close();
+    end;
+
+    [Test]
+    procedure OrderAddressCountyVisibility()
+    var
+        OrderAddress: TestPage "Order Address";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413649] The fields "County" must be visible only if country uses county
+        Initialize();
+
+        OrderAddress.OpenNew();
+        OrderAddress."Country/Region Code".Value := CountryWithoutCounty.Code;
+        Assert.IsFalse(OrderAddress.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
+        OrderAddress."Country/Region Code".Value := CountryWithCounty.Code;
+        Assert.IsTrue(OrderAddress.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
+        OrderAddress.Close();
+    end;
+
+    [Test]
+    procedure ServiceItemCountyVisibility()
+    var
+        CustomerWithCounty: Record Customer;
+        CustomerWithoutCounty: Record Customer;
+        ServiceItemCard: TestPage "Service Item Card";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413649] The fields "County" must be visible only if country uses county
+        Initialize();
+
+        // [GIVEN] Customer "C1" having country without county code
+        LibrarySales.CreateCustomer(CustomerWithoutCounty);
+        CustomerWithoutCounty.Validate("Country/Region Code", CountryWithoutCounty.Code);
+        CustomerWithoutCounty.Modify();
+
+        // [GIVEN] Customer "C2" having country with county code
+        LibrarySales.CreateCustomer(CustomerWithCounty);
+        CustomerWithCounty.Validate("Country/Region Code", CountryWithCounty.Code);
+        CustomerWithCounty.Modify();
+
+        ServiceItemCard.OpenNew();
+        ServiceItemCard."Customer No.".Value := CustomerWithoutCounty."No.";
+        Assert.IsFalse(ServiceItemCard.County.Visible, StrSubstNo(CountyNotVisibleTxt, 'County'));
+        ServiceItemCard."Customer No.".Value := CustomerWithCounty."No.";
+        Assert.IsTrue(ServiceItemCard.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
+        ServiceItemCard.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"County Visibility Test");

@@ -149,7 +149,13 @@ report 299 "Delete Invoiced Sales Orders"
     local procedure UpdateAssociatedPurchOrder()
     var
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAssociatedPurchOrder(SalesOrderLine, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLine do begin
             if SalesOrderLine."Special Order" then
                 if Get(
@@ -211,6 +217,11 @@ report 299 "Delete Invoiced Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderOnAfterGetRecord(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAssociatedPurchOrder(var SalesOrderLine: Record "Sales Line"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

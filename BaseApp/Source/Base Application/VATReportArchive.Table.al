@@ -99,9 +99,12 @@ table 747 "VAT Report Archive"
     procedure DownloadSubmissionMessage(VATReportTypeValue: Option; VATReportNoValue: Code[20])
     var
         VATReportArchive: Record "VAT Report Archive";
+        DocumentAttachment: Record "Document Attachment";
         TempBlob: Codeunit "Temp Blob";
         ZipFileName: Text[250];
     begin
+        if DocumentAttachment.DownloadZipFileWithVATReturnSubmissionAttachments(VATReportTypeValue, VATReportNoValue) then
+            exit;
         if not VATReportArchive.Get(VATReportTypeValue, VATReportNoValue) then
             Error(NoSubmissionMessageAvailableErr);
 
@@ -118,9 +121,12 @@ table 747 "VAT Report Archive"
     procedure DownloadResponseMessage(VATReportTypeValue: Option; VATReportNoValue: Code[20])
     var
         VATReportArchive: Record "VAT Report Archive";
+        DocumentAttachment: Record "Document Attachment";
         TempBlob: Codeunit "Temp Blob";
         ZipFileName: Text[250];
     begin
+        if DocumentAttachment.DownloadZipFileWithVATReturnResponseAttachments(VATReportTypeValue, VATReportNoValue) then
+            exit;
         if not VATReportArchive.Get(VATReportTypeValue, VATReportNoValue) then
             Error(NoResponseMessageAvailableErr);
 

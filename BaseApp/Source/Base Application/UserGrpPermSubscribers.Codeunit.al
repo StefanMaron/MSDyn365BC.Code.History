@@ -1,7 +1,7 @@
 codeunit 9004 "User Grp. Perm. Subscribers"
 {
     var
-        NullAppIDErr: Label 'Records in the User Group Permission Set table must have a non-empty App ID.';
+        InvalidPermissionSetErr: Label 'User Group Permission Set table can only reference permission sets present in the system.';
 
     [EventSubscriber(ObjectType::Table, Database::"User Group", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure DeleteUserGroupPermissionSetsOnDeleteUserGroup(var Rec: Record "User Group"; RunTrigger: Boolean)
@@ -20,19 +20,11 @@ codeunit 9004 "User Grp. Perm. Subscribers"
     local procedure AddUserGroupAccessControlOnInsertUserGroupPermissionSet(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
     var
         UserGroupAccessControl: Record "User Group Access Control";
-        AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
         if Rec.IsTemporary() then
             exit;
 
-        if IsNullGuid(Rec."App ID") then
-            if not (Rec."Role ID" in ['SUPER', 'SECURITY']) then begin
-                AggregatePermissionSet.SetRange("Role ID", Rec."Role ID");
-                if AggregatePermissionSet.FindFirst() then
-                    Rec."App ID" := AggregatePermissionSet."App ID"
-                else
-                    Error(NullAppIDErr);
-            end;
+        Rec."App ID" := GetAppId(Rec);
 
         UserGroupAccessControl.AddUserGroupPermissionSet(Rec."User Group Code", Rec."Role ID", Rec."App ID", Rec.Scope);
     end;
@@ -56,6 +48,22 @@ codeunit 9004 "User Grp. Perm. Subscribers"
         if Rec.IsTemporary() then
             exit;
 
+        Rec."App ID" := GetAppId(Rec);
+
+        UserGroupAccessControl.RemoveUserGroupPermissionSet(xRec."User Group Code", xRec."Role ID", xRec."App ID", xRec.Scope);
+        UserGroupAccessControl.AddUserGroupPermissionSet(Rec."User Group Code", Rec."Role ID", Rec."App ID", Rec.Scope);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"User Group Permission Set", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure ReAddUserGroupAccessControlOnModifyUserGroupPermissionSet(var Rec: Record "User Group Permission Set"; var xRec: Record "User Group Permission Set"; RunTrigger: Boolean)
+    var
+        UserGroupAccessControl: Record "User Group Access Control";
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        Rec."App ID" := GetAppId(Rec);
+
         UserGroupAccessControl.RemoveUserGroupPermissionSet(xRec."User Group Code", xRec."Role ID", xRec."App ID", xRec.Scope);
         UserGroupAccessControl.AddUserGroupPermissionSet(Rec."User Group Code", Rec."Role ID", Rec."App ID", Rec.Scope);
     end;
@@ -75,6 +83,33 @@ codeunit 9004 "User Grp. Perm. Subscribers"
         repeat
             UserGroupPermissionSet.Rename(UserGroupPermissionSet."User Group Code", Rec."Role ID", UserGroupPermissionSet.Scope, UserGroupPermissionSet."App ID");
         until UserGroupPermissionSet.Next() = 0;
+    end;
+
+    local procedure GetAppId(var UserGroupPermissionSet: Record "User Group Permission Set"): Guid
+    var
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        NullGuid: Guid;
+        Handled: Boolean;
+    begin
+        OnBeforeGetAppId(Handled); // for testing
+        if Handled then
+            exit;
+
+        // If the permission set is a system permission set, it should never have a null guid.
+        // As such, ignore any null guid permission set unless SUPER or SECURITY
+        if (UserGroupPermissionSet.Scope = UserGroupPermissionSet.Scope::System) and not (UserGroupPermissionSet."Role ID" in ['SUPER', 'SECURITY']) then
+            AggregatePermissionSet.SetFilter("App ID", '<>%1', NullGuid);
+        AggregatePermissionSet.SetRange("Role ID", UserGroupPermissionSet."Role ID");
+
+        if AggregatePermissionSet.FindFirst() then
+            exit(AggregatePermissionSet."App ID")
+        else
+            Error(InvalidPermissionSetErr);
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnBeforeGetAppId(var Handled: Boolean)
+    begin
     end;
 }
 

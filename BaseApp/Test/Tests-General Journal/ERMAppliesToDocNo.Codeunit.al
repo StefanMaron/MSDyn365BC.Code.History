@@ -17,6 +17,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -321,6 +322,98 @@ codeunit 134930 "ERM Applies-To Doc. No."
 
         // [THEN] Bal. Account Type = "Bank Account" in Payment Line
         GenJournalLine.TestField("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountNoChangedFromBlankToCustomerWhenValidateApplToDocNo()
+    var
+        SalesHeader: Record "Sales Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 421430] "Account No." is changed from blank to Customer No. when validate "Applies-To Doc. No." = Posted invoice "No." in General Journal Line.
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for customer "C"
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        // [GIVEN] Gen. Journal Line with non zero amount
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Customer, '', LibraryRandom.RandDec(100, 2));
+
+        // [WHEN] Validate "Applies-To Doc. No." = "I".
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedDocNo);
+
+        // [THEN] "Account No." = "C"
+        GenJournalLine.TestField("Account No.", SalesHeader."Bill-to Customer No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountNoChangedFromBlankToVendorWhenValidateApplToDocNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 421430] "Account No." is changed from blank to Vendor No. when validate "Applies-To Doc. No." = Posted invoice "No." in General Journal Line.
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for vendor "V"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Gen. Journal Line with non zero amount
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Vendor, '', LibraryRandom.RandDec(100, 2));
+
+        // [WHEN] Validate "Applies-To Doc. No." = "I".
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedDocNo);
+
+        // [THEN] "Account No." = "V"
+        GenJournalLine.TestField("Account No.", PurchaseHeader."Buy-from Vendor No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountNoChangedFromBlankToEmployeeWhenValidateApplToDocNo()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PostedDocNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 421430] "Account No." is changed from blank to Employee No. when validate "Applies-To Doc. No." = Posted invoice "No." in General Journal Line.
+        Initialize();
+
+        // [GIVEN] Posted employee ledger entry for employee "E" and Document No. = "I"
+        EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount();
+        PostedDocNo := CreateAndPostGenJournalLine("Gen. Journal Document Type"::" ", GenJournalLine."Account Type"::Employee, EmployeeNo, 1);
+        // [GIVEN] Gen. Journal Line with non zero amount
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Employee, '', LibraryRandom.RandDec(100, 2));
+
+        // [WHEN] Validate "Applies-To Doc. No." = "I".
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedDocNo);
+
+        // [THEN] "Account No." = "V"
+        GenJournalLine.TestField("Account No.", EmployeeNo);
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        if IsInitialized then
+            exit;
+
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        IsInitialized := true;
+        Commit();
     end;
 
     local procedure PrepareGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; PostedDocType: Enum "Gen. Journal Document Type"; var PostedDocNo: Code[20]; Sign: Integer)

@@ -146,7 +146,7 @@ codeunit 5056 "CustCont-Update"
                 with Cont do begin
                     Init;
                     "No." := '';
-                    OnInsertNewContactPersonOnBeforeValidateType(Cont, Cust);
+                    OnInsertNewContactPersonOnBeforeValidateType(Cont, Cust, ContComp);
                     Validate(Type, Type::Person);
                     Insert(true);
                     "Company No." := ContComp."No.";
@@ -219,7 +219,7 @@ codeunit 5056 "CustCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertNewContactPersonOnBeforeValidateType(var Contact: Record Contact; Customer: Record Customer)
+    local procedure OnInsertNewContactPersonOnBeforeValidateType(var Contact: Record Contact; Customer: Record Customer; ContComp: Record Contact)
     begin
     end;
 

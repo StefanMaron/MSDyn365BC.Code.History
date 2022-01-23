@@ -403,15 +403,30 @@ page 7016 "Sales Price List"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         PriceListManagement: Codeunit "Price List Management";
+        DefaultSourceGroup: Enum "Price Source Group";
     begin
         CopyLinesEnabled := PriceListManagement.VerifySourceGroupInLines();
-        UpdateSourceType();
-        PriceUXManagement.GetFirstSourceFromFilter(Rec, OriginalPriceSource, DefaultSourceType);
-        SetSourceNoEnabled();
+        DefaultSourceGroup := GetSourceGroupFilter();
+        UpdateSourceType(DefaultSourceGroup);
+        PriceUXManagement.GetFirstSourceFromFilter(
+            Rec, OriginalPriceSource, GetDefaultSourceType(DefaultSourceGroup));
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         if CRMIntegrationEnabled then
             if IntegrationTableMapping.Get('PLHEADER-PRICE') then
                 StatusActiveFilterApplied := true;
+    end;
+
+    local procedure GetSourceGroupFilter() SourceGroup: Enum "Price Source Group";
+    var
+        SourceGroupFilter: Text;
+    begin
+        Rec.FilterGroup(2);
+        SourceGroupFilter := Rec.GetFilter("Source Group");
+        Rec.FilterGroup(0);
+        if SourceGroupFilter = '' then
+            exit(SourceGroup::Customer);
+        if not Evaluate(SourceGroup, SourceGroupFilter) then
+            exit(SourceGroup::Customer);
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -423,7 +438,8 @@ page 7016 "Sales Price List"
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
         PriceListIsEditable := Rec.IsEditable();
-        UpdateSourceType();
+        UpdateSourceType(Rec."Source Group");
+        SetSourceNoEnabled();
         ViewAmountType := Rec."Amount Type";
         ViewGroupIsVisible := true;
         if Rec.HasDraftLines() then
@@ -437,10 +453,9 @@ page 7016 "Sales Price List"
         DefaultAmountType: Enum "Price Amount Type";
     begin
         Rec.CopyFrom(OriginalPriceSource);
-        UpdateSourceType();
+        UpdateSourceType(Rec."Source Group");
         if PriceUXManagement.IsAmountTypeFiltered(Rec, DefaultAmountType) then
             Rec."Amount Type" := DefaultAmountType;
-        SetSourceNoEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean;
@@ -462,21 +477,29 @@ page 7016 "Sales Price List"
                 Rec.UpdateAmountType();
     end;
 
-    local procedure UpdateSourceType()
+    local procedure UpdateSourceType(SourceGroup: Enum "Price Source Group")
     begin
-        case Rec."Source Group" of
-            Rec."Source Group"::Customer:
+        case SourceGroup of
+            SourceGroup::Customer:
                 begin
                     IsJobGroup := false;
                     SourceType := "Sales Price Source Type".FromInteger(Rec."Source Type".AsInteger());
-                    DefaultSourceType := Rec."Source Type"::"All Customers";
                 end;
-            Rec."Source Group"::Job:
+            SourceGroup::Job:
                 begin
                     IsJobGroup := true;
                     JobSourceType := "Job Price Source Type".FromInteger(Rec."Source Type".AsInteger());
-                    DefaultSourceType := Rec."Source Type"::"All Jobs";
                 end;
+        end;
+    end;
+
+    local procedure GetDefaultSourceType(SourceGroup: Enum "Price Source Group") DefaultSourceType: Enum "Price Source Type";
+    begin
+        case SourceGroup of
+            SourceGroup::Customer:
+                DefaultSourceType := Rec."Source Type"::"All Customers";
+            SourceGroup::Job:
+                DefaultSourceType := Rec."Source Type"::"All Jobs";
         end;
     end;
 
@@ -489,7 +512,6 @@ page 7016 "Sales Price List"
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         StatusActiveFilterApplied: Boolean;
-        DefaultSourceType: Enum "Price Source Type";
         JobSourceType: Enum "Job Price Source Type";
         SourceType: Enum "Sales Price Source Type";
         ViewAmountType: Enum "Price Amount Type";

@@ -63,6 +63,26 @@ page 5736 "Item References"
 
     actions
     {
+        area(Processing)
+        {
+#if not CLEAN19
+            action(CopyItemCrossReferences)
+            {
+                ApplicationArea = Suite, ItemReferences;
+                Caption = 'Copy Item Cross References';
+                Image = CopySerialNo;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                RunObject = Report "Copy Item Cross References";
+                ToolTip = 'Copy Item Cross Reference table records that do not exist in Item Reference table.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '19.0';
+                ObsoleteReason = 'Will be removed along with Item Cross Reference table.';
+            }
+#endif
+        }
     }
 }
 

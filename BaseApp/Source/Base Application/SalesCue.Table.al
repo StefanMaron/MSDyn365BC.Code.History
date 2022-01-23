@@ -176,14 +176,14 @@ table 9053 "Sales Cue"
         SalesLine: Record "Sales Line";
     begin
         MaxDelay := 0;
+        SalesLine.SetCurrentKey("Document Type", "Document No.", "Shipment Date");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Shipment Date", '<%1&<>%2', WorkDate, 0D);
-        if SalesLine.FindSet then
-            repeat
-                if WorkDate - SalesLine."Shipment Date" > MaxDelay then
-                    MaxDelay := WorkDate - SalesLine."Shipment Date";
-            until SalesLine.Next() = 0;
+        SalesLine.SetLoadFields("Document Type", "Document No.", "Shipment Date");
+        if SalesLine.FindFirst() then
+            if WorkDate - SalesLine."Shipment Date" > MaxDelay then
+                MaxDelay := WorkDate - SalesLine."Shipment Date";
     end;
 
     procedure CountOrders(FieldNumber: Integer): Integer

@@ -129,8 +129,11 @@ codeunit 740 "VAT Report Mediator"
     procedure ShowSubmissionMessage(VATReportHeader: Record "VAT Report Header") ShowSubmissionMessage: Boolean
     var
         VATReportsConfiguration: Record "VAT Reports Configuration";
+        DocumentAttachment: Record "Document Attachment";
     begin
         with VATReportHeader do begin
+            if DocumentAttachment.VATReturnSubmissionAttachmentsExist(VATReportHeader) then
+                exit(true);
             GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
             if VATReportsConfiguration."Submission Codeunit ID" = 0 then
                 ShowSubmissionMessage := Status = Status::Released

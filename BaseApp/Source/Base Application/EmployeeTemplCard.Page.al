@@ -50,6 +50,7 @@ page 1388 "Employee Templ. Card"
                     group(Control31)
                     {
                         ShowCaption = false;
+                        Visible = IsCountyVisible;
                         field(County; County)
                         {
                             ApplicationArea = BasicHR;
@@ -65,6 +66,11 @@ page 1388 "Employee Templ. Card"
                     {
                         ApplicationArea = BasicHR;
                         ToolTip = 'Specifies the country/region of the address.';
+
+                        trigger OnValidate()
+                        begin
+                            IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                        end;
                     }
                 }
             }
@@ -137,4 +143,13 @@ page 1388 "Employee Templ. Card"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+    end;
+
+    var
+        FormatAddress: Codeunit "Format Address";
+        IsCountyVisible: Boolean;
 }

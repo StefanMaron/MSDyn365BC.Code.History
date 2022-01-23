@@ -838,6 +838,37 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationSetup[5].TestField(Code, PriceCalculationSetup[4].Code);
     end;
 
+    [Test]
+    procedure T026_FindSetupForRequisitionLineDefaultMethodBlankVendor()
+    var
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        LineWithPrice: Interface "Line With Price";
+        Method: Enum "Price Calculation Method";
+        VendorNo: Code[20];
+        ItemNo: code[20];
+    begin
+        // [FEATURE] [Requisition Line] [UT]
+        Initialize();
+        // [GIVEN] 2 setup lines for "Lowest Price" method: 'A','B' for 'Purchase' for 'All' asset types, 'A' - default
+        // [GIVEN] 2 setup lines for "Test" method: 'C','D' for 'Purchase' for 'All' asset types, 'C' - default
+        AddFourSetupLines(PriceCalculationSetup[5].Type::Purchase, PriceCalculationSetup);
+        // [GIVEN] Purchase Setup, where "Default Price Calc. Method" is 'Test Price'
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Price Calculation Method" := PurchasesPayablesSetup."Price Calculation Method"::"Test Price";
+        PurchasesPayablesSetup.Modify();
+        VendorNo := '';
+        // [GIVEN] Requisition Line, where Vendor <blank> sells Item 'X' 
+        RequisitionLineAsLineWithPrice(ItemNo, VendorNo, LineWithPrice);
+
+        // [WHEN] FindSetup() for the Document Line
+        Assert.IsTrue(PriceCalculationMgt.FindSetup(LineWithPrice, PriceCalculationSetup[5]), 'Setup is not found');
+
+        // [THEN] Setup 'C' is returned
+        PriceCalculationSetup[5].TestField(Code, PriceCalculationSetup[3].Code);
+    end;
 
     [Test]
     procedure T030_SetAssetSourceForSetupSalesLine()
@@ -2435,8 +2466,6 @@ codeunit 134158 "Test Price Calc. Setup"
         RequisitionLinePrice: Codeunit "Requisition Line - Price";
         PriceType: Enum "Price Type";
     begin
-        if VendorNo = '' then
-            VendorNo := LibraryPurchase.CreateVendorNo();
         if ItemNo = '' then
             ItemNo := LibraryInventory.CreateItemNo();
 

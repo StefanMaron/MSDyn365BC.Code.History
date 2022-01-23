@@ -152,7 +152,9 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
         SourceType: Enum "Price Source Type";
     begin
         PriceSourceList.Init();
-        PriceSourceList.Add(SourceType::Vendor, RequisitionLine."Vendor No.");
+        PriceSourceList.Add(SourceType::"All Vendors");
+        if RequisitionLine."Vendor No." <> '' then
+            PriceSourceList.Add(SourceType::Vendor, RequisitionLine."Vendor No.");
 
         OnAfterAddSources(RequisitionLine, CurrPriceType, PriceSourceList);
     end;

@@ -42,13 +42,14 @@ codeunit 3846 "Scheduled Tasks"
                 CancelTask := true;
 
             if CancelTask then begin
-                JobQueue.CheckRequiredPermissions();
-                JobQueue.ChangeCompany(ScheduledTasks.Company);
-                JobQueue.SetRange("System Task ID", ScheduledTasks.ID);
-                if JobQueue.FindFirst() then
-                    JobQueue.SetStatus(JobQueue.Status::"On Hold") // Setting status on hold will cancel the task
-                else
-                    TaskScheduler.CancelTask(ScheduledTasks.ID);
+                if JobQueue.TryCheckRequiredPermissions() then begin
+                    JobQueue.ChangeCompany(ScheduledTasks.Company);
+                    JobQueue.SetRange("System Task ID", ScheduledTasks.ID);
+                    if JobQueue.FindFirst() then
+                        JobQueue.SetStatus(JobQueue.Status::"On Hold"); // Setting status on hold will cancel the task
+                end;
+
+                TaskScheduler.CancelTask(ScheduledTasks.ID); // Force cancel irregardless of Job Queue, JQ will not cancel if it's already on onhold.
             end;
         until ScheduledTasks.Next() = 0;
     end;

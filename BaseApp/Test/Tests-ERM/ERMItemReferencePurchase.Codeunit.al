@@ -19,6 +19,8 @@ codeunit 134464 "ERM Item Reference Purchase"
         ItemReferenceMgt: Codeunit "Item Reference Management";
         ItemRefNotExistsErr: Label 'There are no items with reference %1.';
         DialogCodeErr: Label 'Dialog';
+        ConfirmCopyTxt: Label 'There are %1 filtered records in Item Cross Reference table. Do you want to copy them?', Comment = '%1 - a number';
+        FinalMessageTxt: Label '%1 of %2 records were copied.', Comment = '%1 and %2 - numbers';
         isInitialized: Boolean;
 
     [Test]
@@ -1386,6 +1388,90 @@ codeunit 134464 "ERM Item Reference Purchase"
         Assert.RecordCount(ItemReference, 1);
     end;
 
+#if not CLEAN19
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmYesHandler,MessageHandler,CopyItemCrossRefReportHandler')]
+    [Obsolete('Will be removed along with Item Cross Reference table.', '19.0')]
+    procedure CopyItemCrossReference()
+    var
+        ItemCrossReference: array[3] of Record "Item Cross Reference";
+        ItemReference: Record "Item Reference";
+        ItemReferences: TestPage "Item References";
+        ItemNo: array[3] of Code[20];
+    begin
+        // [FEATURE] [Copy Item Reference]
+        // [SCENARIO 419103] Copy item cross references
+        Initialize();
+        // [GIVEN] 3 Items'I1', 'I2', 'I3'
+        ItemNo[1] := LibraryInventory.CreateItemNo();
+        ItemNo[2] := LibraryInventory.CreateItemNo();
+        ItemNo[3] := LibraryInventory.CreateItemNo();
+        // [GIVEN] Item Cross Reference contains 2 records for items 'I1' and 'I2'
+        ItemCrossReference[1].DeleteAll();
+        ItemCrossReference[1]."Item No." := ItemNo[1];
+        ItemCrossReference[1].Insert();
+        ItemCrossReference[2]."Item No." := ItemNo[2];
+        ItemCrossReference[2].Insert();
+        ItemCrossReference[3]."Item No." := ItemNo[3];
+        ItemCrossReference[3].Insert();
+        // [GIVEN] Item Reference contains 2 records for items 'I1' and 'I3'
+        ItemReference.DeleteAll();
+        ItemReference."Item No." := ItemNo[1];
+        ItemReference.Insert();
+        ItemReference."Item No." := ItemNo[3];
+        ItemReference.Insert();
+
+        // [WHEN] Run "Copy Item Cross References" action on "Item References" page with filter 'Item No.' = 'I1..I2'
+        ItemReferences.OpenView();
+        Assert.IsTrue(ItemReferences.CopyItemCrossReferences.Enabled(), 'CopyItemCrossReferences.Enabled');
+        LibraryVariableStorage.Enqueue(StrSubstNo('%1..%2', ItemNo[1], ItemNo[2])); // filter for CopyItemCrossRefReportHandler
+        Commit();
+        Report.Run(Report::"Copy Item Cross References");
+
+        // [THEN] Confirmation 'There are 2 filtered records ...'
+        Assert.AreEqual(StrSubstNo(ConfirmCopyTxt, 2), LibraryVariableStorage.DequeueText(), 'confirmation message');
+        // [THEN] Message '1 of 2 records were copied'
+        Assert.AreEqual(StrSubstNo(FinalMessageTxt, 1, 2), LibraryVariableStorage.DequeueText(), 'final message');
+        LibraryVariableStorage.AssertEmpty();
+        // [THEN] Item Reference contains 3 records for items 'I1', 'I2', 'I3'
+        Assert.RecordCount(ItemReference, 3);
+        // [THEN] SystemId of record for 'I2' equals to one in Item Cross Reference
+        ItemReference.SetRange("Item No.", ItemNo[2]);
+        ItemReference.FindFirst();
+        Assert.AreEqual(ItemReference.SystemId, ItemCrossReference[2].SystemId, 'SystemID for I2 should match');
+        // [THEN] SystemId of record for 'I1' does not equal to one in Item Cross Reference
+        ItemReference.SetRange("Item No.", ItemNo[1]);
+        ItemReference.FindFirst();
+        Assert.AreNotEqual(ItemReference.SystemId, ItemCrossReference[1].SystemId, 'SystemID for I1 should not match');
+        // [THEN] Item Cross Reference still contains 3 records for items 'I1', 'I2', 'I3'
+        Assert.RecordCount(ItemCrossReference[1], 3);
+    end;
+
+    [ConfirmHandler]
+    [Obsolete('Will be removed along with Item Cross Reference table.', '19.0')]
+    procedure ConfirmYesHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Obsolete('Will be removed along with Item Cross Reference table.', '19.0')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [RequestPageHandler]
+    [Obsolete('Will be removed along with Item Cross Reference table.', '19.0')]
+    procedure CopyItemCrossRefReportHandler(var CopyItemCrossReferences: TestRequestPage "Copy Item Cross References")
+    begin
+        CopyItemCrossReferences.ItemCrossReference.SetFilter("Item No.", LibraryVariableStorage.DequeueText());
+        CopyItemCrossReferences.OK().Invoke();
+    end;
+#endif
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Reference Purchase");
@@ -1463,5 +1549,6 @@ codeunit 134464 "ERM Item Reference Purchase"
     begin
         ItemReferenceList.Cancel.Invoke;
     end;
+
 }
 

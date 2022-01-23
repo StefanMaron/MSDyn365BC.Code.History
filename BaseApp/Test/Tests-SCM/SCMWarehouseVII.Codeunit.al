@@ -1843,6 +1843,51 @@ codeunit 137159 "SCM Warehouse VII"
     end;
 
     [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler')]
+    procedure ReducingQuantityInTrackingLinesDoesNotClearLedgerEntryRelations4Purch()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemNo: Code[20];
+        LotNo: Code[20];
+        ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,SetQuantity;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Purchase] [Return Order]
+        // [SCENARIO 420366] Reducing Quantity (Base) in Item Tracking Lines does not clear "Appl.-to Item Entry" if Qty. to Invoice is sufficient.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(50, 100);
+
+        // [GIVEN] Create lot-tracked item.
+        // [GIVEN] Post some inventory, note the item ledger entry "X".
+        ItemNo := CreateItemOnInventoryWithTracking(LotNo, Qty);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+
+        // [GIVEN] Purchase return order for quantity = "Q".
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', ItemNo, Qty, LocationOrange.Code, WorkDate());
+
+        // [GIVEN] Open item tracking lines, select lot no., set quantity = "Q" and "Appl.-to Item Entry" = "X"
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Entry No.");
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [WHEN] Reopen item tracking lines and set "Quantity (Base)" to "q", "q" <= "Q".
+
+        // [THEN] "Appl.-to Item Entry" remains "X".
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SetQuantity);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(20, 50));
+        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Entry No.");
+        PurchaseLine.OpenItemTrackingLines();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure BlankCodeInReturnReasonTable()
     var

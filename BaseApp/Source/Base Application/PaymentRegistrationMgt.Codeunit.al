@@ -361,7 +361,7 @@ codeunit 980 "Payment Registration Mgt."
 
             if PreviewMode or Confirmed then begin
                 Modify;
-                SetRange("Amount Received", "Amount Received");
+                SetRange("Ledger Entry No.", "Ledger Entry No.");
                 Post(TempPaymentRegistrationBuffer, true);
                 SourcePaymentRegistrationBuffer.PopulateTable;
             end else
@@ -467,7 +467,11 @@ codeunit 980 "Payment Registration Mgt."
         CustLedgerEntry.Get(TempPaymentRegistrationBuffer."Ledger Entry No.");
         CustLedgerEntry."Applies-to ID" :=
           NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", TempPaymentRegistrationBuffer."Date Received", false);
-        CustLedgerEntry."Amount to Apply" := TempPaymentRegistrationBuffer."Amount Received";
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        If (TempPaymentRegistrationBuffer."Amount Received" > CustLedgerEntry."Remaining Amount") then
+            CustLedgerEntry."Amount to Apply" := CustLedgerEntry."Remaining Amount"
+        else
+            CustLedgerEntry."Amount to Apply" := TempPaymentRegistrationBuffer."Amount Received";
         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
     end;
 
@@ -498,6 +502,10 @@ codeunit 980 "Payment Registration Mgt."
             until PaymentRegistrationBuffer.Next() = 0;
 
         PaymentRegistrationBuffer."Amount Received" := AmountReceived;
+        if AmountReceived > 0 then
+            PaymentRegistrationBuffer."Document Type" := PaymentRegistrationBuffer."Document Type"::Invoice
+        else
+            PaymentRegistrationBuffer."Document Type" := PaymentRegistrationBuffer."Document Type"::"Credit Memo";
     end;
 
     local procedure CheckDistinctSourceNo(var PaymentRegistrationBuffer: Record "Payment Registration Buffer")

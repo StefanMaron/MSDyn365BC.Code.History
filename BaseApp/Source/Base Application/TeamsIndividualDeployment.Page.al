@@ -1,6 +1,6 @@
 page 1834 "Teams Individual Deployment"
 {
-    Caption = 'Get the Business Central app for Teams';
+    Caption = 'Get the Business Central App for Teams';
     PageType = NavigatePage;
     ApplicationArea = Basic, Suite;
     UsageCategory = Tasks;

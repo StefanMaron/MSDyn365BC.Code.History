@@ -68,9 +68,9 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -343,7 +343,6 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
 
     trigger OnOpenPage()
     begin
-        SetItemReferenceVisibility();
     end;
 
     var
@@ -355,8 +354,6 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
         [InDataSet]
         DocumentNoHideValue: Boolean;
         ShowRec: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
     begin
@@ -425,13 +422,6 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

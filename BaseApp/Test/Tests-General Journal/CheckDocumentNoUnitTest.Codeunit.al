@@ -470,6 +470,64 @@ codeunit 134073 "Check Document No. Unit Test"
         Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhenManualNosEnabledAndPostingDateOrderReversedInGenJournalLines()
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [No. Series]
+        // [SCENARIO 416887] Stan can't post gen journal lines with reversed order of posting dates when "Document No." does not fit respective "No. Series Line"'s range.
+
+        // [GIVEN] "No. Series" "X" with the lines.
+        // [GIVEN] "No. Series Line"[1]: "Starting Date" = 01/01/2021, "Starting No." = A00000, "Ending No." = A01000
+        // [GIVEN] "No. Series Line"[2]: "Starting Date" = 01/01/2022, "Starting No." = A01001, "Ending No." = A02000
+        LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'A0001', 'A1000');
+        NoSeriesLine."Starting Date" := WorkDate();
+        NoSeriesLine.Modify();
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'A1001', 'A2000');
+        NoSeriesLine."Starting Date" := WorkDate() + 1;
+        NoSeriesLine.Modify();
+
+        // [GIVEN] General journal batch with "No. Series" = "X"
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalBatch.Validate("No. Series", NoSeries.Code);
+        GenJournalBatch.Modify(true);
+
+        // [GIVEN] Two general journal lines
+        // [GIVEN] [1]: "Posting Date" = 01/01/2022, "Document No." = A01001
+        // [GIVEN] [2]: "Posting Date" = 01/01/2021, "Document No." = A01002 // out of range
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+          LibraryRandom.RandIntInRange(100, 200));
+        GenJournalLine.Validate("Posting Date", WorkDate() + 1);
+        GenJournalLine.Validate("Document No.", 'A1001');
+        GenJournalLine.Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+          LibraryRandom.RandIntInRange(100, 200));
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Validate("Document No.", 'A1002');
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Post general journal batch
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Error has been thrown with the message "You have one or more documents that must be posted before you post document no. A01002 according to your company's No. Series setup."
+        Assert.ExpectedError(StrSubstNo(DocumentNoErr, 'A1002'));
+    end;
+
     local procedure CreateGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch")
     var
         BankAcc: Record "Bank Account";
@@ -591,14 +649,14 @@ codeunit 134073 "Check Document No. Unit Test"
     procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
     begin
         NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        NoSeriesList.OK.Invoke;
+        NoSeriesList.OK.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure NoSeriesListSelectNothingModalPageHandler(var NoSeriesList: TestPage "No. Series List")
     begin
-        NoSeriesList.Cancel.Invoke;
+        NoSeriesList.Cancel.Invoke();
     end;
 }
 

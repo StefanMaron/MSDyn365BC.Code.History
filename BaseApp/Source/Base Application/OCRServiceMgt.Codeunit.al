@@ -1025,6 +1025,7 @@ codeunit 1294 "OCR Service Mgt."
             if (not VendorFound) and ("Vendor No." <> '') then
                 VendorFound := Vendor.Get("Vendor No.");
             if (not VendorFound) and ("Vendor VAT Registration No." <> '') then begin
+                Vendor.SetCurrentKey(Blocked);
                 Vendor.SetRange("VAT Registration No.", "Vendor VAT Registration No.");
                 VendorFound := Vendor.FindFirst();
             end;

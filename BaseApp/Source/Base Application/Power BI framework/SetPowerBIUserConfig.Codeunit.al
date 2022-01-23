@@ -61,12 +61,18 @@ codeunit 6305 "Set Power BI User Config"
             PowerBIUserConfiguration."User Security ID" := UserSecurityId();
             PowerBIUserConfiguration."Profile ID" := PowerBIServiceMgt.GetEnglishContext();
             PowerBIUserConfiguration."Report Visibility" := true;
+            OnCreateOrReadUserConfigEntryOnBeforePowerBIUserConfigurationInsert(PowerBIUserConfiguration);
             PowerBIUserConfiguration.Insert(true);
         end;
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetUserConfig(var PowerBIUserConfiguration: Record "Power BI User Configuration"; PageID: Text; var PowerBIVisible: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOrReadUserConfigEntryOnBeforePowerBIUserConfigurationInsert(var PowerBIUserConfiguration: Record "Power BI User Configuration")
     begin
     end;
 }

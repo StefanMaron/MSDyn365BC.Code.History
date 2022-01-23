@@ -32,8 +32,9 @@ page 9802 "Permission Sets"
                     var
                         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
                     begin
-                        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
-                        RenameTenantPermissionSet;
+                        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
+                        PermissionPagesMgt.VerifyPermissionSetRoleID(Rec."Role ID");
+                        RenameTenantPermissionSet();
                     end;
                 }
                 field(Name; Name)
@@ -370,16 +371,17 @@ page 9802 "Permission Sets"
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
         ZeroGUID: Guid;
     begin
-        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
+        PermissionPagesMgt.VerifyPermissionSetRoleID(Rec."Role ID");
 
         TenantPermissionSet.Init();
         TenantPermissionSet."App ID" := ZeroGUID;
-        TenantPermissionSet."Role ID" := "Role ID";
-        TenantPermissionSet.Name := Name;
+        TenantPermissionSet."Role ID" := Rec."Role ID";
+        TenantPermissionSet.Name := Rec.Name;
         TenantPermissionSet.Insert();
 
-        Insert;
-        Get(Type::"User-Defined", "Role ID");
+        Insert();
+        Rec.Get(Type::"User-Defined", "Role ID");
         exit(false);
     end;
 
@@ -388,15 +390,16 @@ page 9802 "Permission Sets"
         TenantPermissionSet: Record "Tenant Permission Set";
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
-        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
 
         if Type = Type::"User-Defined" then begin
+            PermissionPagesMgt.VerifyPermissionSetRoleID(Rec."Role ID");
             TenantPermissionSet.Get(xRec."App ID", xRec."Role ID");
-            if xRec."Role ID" <> "Role ID" then begin
-                TenantPermissionSet.Rename(xRec."App ID", "Role ID");
-                TenantPermissionSet.Get(xRec."App ID", "Role ID");
+            if xRec."Role ID" <> Rec."Role ID" then begin
+                TenantPermissionSet.Rename(xRec."App ID", Rec."Role ID");
+                TenantPermissionSet.Get(xRec."App ID", Rec."Role ID");
             end;
-            TenantPermissionSet.Name := Name;
+            TenantPermissionSet.Name := Rec.Name;
             TenantPermissionSet.Modify();
             CurrPage.Update(false);
             exit(true);

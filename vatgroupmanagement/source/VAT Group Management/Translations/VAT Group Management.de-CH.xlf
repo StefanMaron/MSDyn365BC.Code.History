@@ -293,7 +293,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 4281638274 - NamedType 3214936391" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must run the Suggest Lines action before you include returns for the VAT group.</source>
-          <target state="translated">Sie müssen die Aktion „Zeilen vorschlagen“ ausführen, bevor Sie Rückgaben für die MWST-Gruppe einschließen.</target>
+          <target state="translated">Sie müssen die Aktion „Zeilen vorschlagen“ ausführen, bevor Sie Rückgaben für die MWST-Gruppe einschliessen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Retrieve From Sub. - NamedType SuggestLinesBeforeErr</note>
         </trans-unit>

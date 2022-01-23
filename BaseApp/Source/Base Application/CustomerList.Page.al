@@ -478,9 +478,9 @@ page 22 "Customer List"
 #endif
                 action("Item References")
                 {
+                    AccessByPermission = TableData "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item Refe&rences';
-                    Visible = ItemReferenceVisible;
                     Image = Change;
                     Promoted = true;
                     PromotedCategory = Category7;
@@ -1718,7 +1718,6 @@ page 22 "Customer List"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         EmailFeature: Codeunit "Email Feature";
     begin
@@ -1731,7 +1730,6 @@ page 22 "Customer List"
 
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         SetRange("Date Filter", 0D, WorkDate());
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
@@ -1747,8 +1745,6 @@ page 22 "Customer List"
         CanCancelApprovalForRecord: Boolean;
         EnabledApprovalWorkflowsExist: Boolean;
         PowerBIVisible: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         EventFilter: Text;

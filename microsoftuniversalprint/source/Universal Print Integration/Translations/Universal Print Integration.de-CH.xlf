@@ -99,12 +99,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Print Share Name - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2007124620 - NamedType 238027365" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The print job %1 has been sent for processing in Universal Print.</source>
-          <target state="translated">Der Druckauftrag %1 wurde zur Verarbeitung in Universal Print gesendet.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = a print job ID.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType JobSentTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2007124620 - NamedType 446071167" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You don't have access to the printer %1.</source>
           <target state="translated">Sie haben keinen Zugriff auf den Drucker %1.</target>
@@ -113,7 +107,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2007124620 - NamedType 633893206" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot send the print job because the size is too large. The size limit for print job is 10 MB.</source>
-          <target state="translated">Der Druckauftrag kann nicht gesendet werden, da er zu groß ist. Die Größenbeschränkung für Druckaufträge beträgt 10 MB.</target>
+          <target state="translated">Der Druckauftrag kann nicht gesendet werden, da er zu gross ist. Die Grössenbeschränkung für Druckaufträge beträgt 10 MB.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType PrintJobTooLargeErr</note>
         </trans-unit>
@@ -167,7 +161,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 4208063072 - NamedType 4159406584" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value in the Paper Height field must be greater than 0.</source>
-          <target state="translated">Der Wert im Feld „Papierhöhe“ muss größer als 0 sein.</target>
+          <target state="translated">Der Wert im Feld „Papierhöhe“ muss grösser als 0 sein.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType HeightInputErr</note>
         </trans-unit>
@@ -185,7 +179,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 4208063072 - NamedType 1051200959" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value in the Paper Width field must be greater than 0.</source>
-          <target state="translated">Der Wert im Feld „Papierbreite“ muss größer als 0 sein.</target>
+          <target state="translated">Der Wert im Feld „Papierbreite“ muss grösser als 0 sein.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType WidthInputErr</note>
         </trans-unit>
@@ -245,7 +239,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - NamedType 3362432993" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Wizard step out of range.</source>
-          <target state="translated">Assistent außerhalb des gültigen Bereichs.</target>
+          <target state="translated">Assistent ausserhalb des gültigen Bereichs.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType StepOutOfRangeErr</note>
         </trans-unit>
@@ -325,7 +319,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 3693437365 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose Finish to close this setup.</source>
-          <target state="translated">Wählen Sie „Fertigstellen“ aus, um diese Einrichtung zu schließen.</target>
+          <target state="translated">Wählen Sie „Fertigstellen“ aus, um diese Einrichtung zu schliessen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.3 - Property InstructionalText</note>
         </trans-unit>
@@ -353,7 +347,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 866627587 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose Finish to close this setup.</source>
-          <target state="translated">Wählen Sie „Fertigstellen“ aus, um diese Einrichtung zu schließen.</target>
+          <target state="translated">Wählen Sie „Fertigstellen“ aus, um diese Einrichtung zu schliessen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.2 - Property InstructionalText</note>
         </trans-unit>
@@ -469,7 +463,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Action 3259912055 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Finish</source>
-          <target state="translated">Abschließen</target>
+          <target state="translated">Abschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Action ActionFinish - Property Caption</note>
         </trans-unit>

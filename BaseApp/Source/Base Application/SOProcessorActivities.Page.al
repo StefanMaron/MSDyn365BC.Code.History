@@ -48,7 +48,7 @@ page 9060 "SO Processor Activities"
             cuegroup("Sales Orders Released Not Shipped")
             {
                 Caption = 'Sales Orders Released Not Shipped';
-                field(ReadyToShip; "Ready to Ship")
+                field(ReadyToShip; ReadyToShip)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ready To Ship';
@@ -60,7 +60,7 @@ page 9060 "SO Processor Activities"
                         ShowOrders(FieldNo("Ready to Ship"));
                     end;
                 }
-                field(PartiallyShipped; "Partially Shipped")
+                field(PartiallyShipped; PartiallyShipped)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Partially Shipped';
@@ -72,7 +72,7 @@ page 9060 "SO Processor Activities"
                         ShowOrders(FieldNo("Partially Shipped"));
                     end;
                 }
-                field(DelayedOrders; Delayed)
+                field(DelayedOrders; DelayedOrders)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Delayed';
@@ -84,9 +84,10 @@ page 9060 "SO Processor Activities"
                         ShowOrders(FieldNo(Delayed));
                     end;
                 }
-                field("Average Days Delayed"; "Average Days Delayed")
+                field("Average Days Delayed"; AverageDaysDelayed)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Average Days Delayed';
                     DecimalPlaces = 0 : 1;
                     Image = Calendar;
                     ToolTip = 'Specifies the number of days that your order deliveries are delayed on average.';
@@ -228,17 +229,20 @@ page 9060 "SO Processor Activities"
     trigger OnAfterGetCurrRecord()
     var
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
+        TaskParameters: Dictionary of [Text, Text];
     begin
-        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial;
+        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial();
+
+        TaskParameters.Add('View', Rec.GetView());
+        CurrPage.EnqueueBackgroundTask(CalcTaskId, Codeunit::"SO Activities Calculate", TaskParameters, 120000, PageBackgroundTaskErrorLevel::Warning);
     end;
 
     trigger OnAfterGetRecord()
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        CalculateCueFieldValues;
         ShowDocumentsPendingDodExchService := false;
-        if DocExchServiceSetup.Get then
+        if DocExchServiceSetup.Get() then
             ShowDocumentsPendingDodExchService := DocExchServiceSetup.Enabled;
     end;
 
@@ -267,30 +271,37 @@ page 9060 "SO Processor Activities"
         end;
     end;
 
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    var
+        SOActivitiesCalculate: Codeunit "SO Activities Calculate";
+    begin
+        if TaskId <> CalcTaskId then
+            exit;
+
+        SOActivitiesCalculate.EvaluateResults(Results, Rec);
+
+        ReadyToShip := Rec."Ready to Ship";
+        AverageDaysDelayed := Rec."Average Days Delayed";
+        DelayedOrders := Rec.Delayed;
+        PartiallyShipped := Rec."Partially Shipped";
+
+        CurrPage.Update();
+    end;
+
     var
         CuesAndKpis: Codeunit "Cues And KPIs";
         UserTaskManagement: Codeunit "User Task Management";
         [RunOnClient]
         [WithEvents]
         PageNotifier: DotNet PageNotifier;
+        AverageDaysDelayed: Decimal;
+        ReadyToShip: Integer;
+        PartiallyShipped: Integer;
+        DelayedOrders: Integer;
+        CalcTaskId: Integer;
         ShowDocumentsPendingDodExchService: Boolean;
         IsAddInReady: Boolean;
         IsPageReady: Boolean;
-
-    local procedure CalculateCueFieldValues()
-    begin
-        if FieldActive("Average Days Delayed") then
-            "Average Days Delayed" := CalculateAverageDaysDelayed;
-
-        if FieldActive("Ready to Ship") then
-            "Ready to Ship" := CountOrders(FieldNo("Ready to Ship"));
-
-        if FieldActive("Partially Shipped") then
-            "Partially Shipped" := CountOrders(FieldNo("Partially Shipped"));
-
-        if FieldActive(Delayed) then
-            Delayed := CountOrders(FieldNo(Delayed));
-    end;
 
     trigger PageNotifier::PageReady()
     begin

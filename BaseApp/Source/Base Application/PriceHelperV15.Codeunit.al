@@ -18,7 +18,10 @@ codeunit 7019 "Price Helper - V15"
         TargetJobItemPrice: Record "Job Item Price";
         TargetJobResourcePrice: Record "Job Resource Price";
         TargetJobGLAccountPrice: Record "Job G/L Account Price";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            exit;
         SourceJobItemPrice.SetRange("Job No.", SourceJob."No.");
         if SourceJobItemPrice.FindSet() then
             repeat

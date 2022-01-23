@@ -356,7 +356,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, TempPhysInvtItemSelection, IsHandled, PrintDocPerItem);
+        OnBeforePrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, TempPhysInvtItemSelection, IsHandled, PrintDocPerItem, ItemJnlLine);
         if IsHandled then
             exit;
 
@@ -656,7 +656,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintPhysInvtList(var ItemJournalBatch: Record "Item Journal Batch"; PrintQtyCalculated: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean; var PrintDocPerItem: Boolean)
+    local procedure OnBeforePrintPhysInvtList(var ItemJournalBatch: Record "Item Journal Batch"; PrintQtyCalculated: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean; var PrintDocPerItem: Boolean; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 

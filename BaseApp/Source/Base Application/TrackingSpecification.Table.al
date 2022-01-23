@@ -1,4 +1,4 @@
-table 336 "Tracking Specification"
+﻿table 336 "Tracking Specification"
 {
     Caption = 'Tracking Specification';
 
@@ -937,7 +937,7 @@ table 336 "Tracking Specification"
 
         if IsReclass() then begin
             "New Expiration Date" := "Expiration Date";
-            ItemTrackingSetup.CopyTrackingFromTrackingSpec(Rec);
+            ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(Rec);
             "Warranty Date" := ItemTrackingMgt.ExistingWarrantyDate("Item No.", "Variant Code", ItemTrackingSetup, EntriesExist);
         end;
 
@@ -1151,6 +1151,14 @@ table 336 "Tracking Specification"
         "New Lot No." := TrackingSpecification."Lot No.";
 
         OnAfterCopyNewTrackingFromTrackingSpec(Rec, TrackingSpecification);
+    end;
+
+    procedure CopyNewTrackingFromNewTrackingSpec(TrackingSpecification: Record "Tracking Specification")
+    begin
+        "New Serial No." := TrackingSpecification."New Serial No.";
+        "New Lot No." := TrackingSpecification."New Lot No.";
+
+        OnAfterCopyNewTrackingFromNewTrackingSpec(Rec, TrackingSpecification);
     end;
 
     procedure CopyTrackingFromEntrySummary(EntrySummary: Record "Entry Summary")
@@ -1435,14 +1443,18 @@ table 336 "Tracking Specification"
     local procedure QuantityToInvoiceIsSufficient(): Boolean
     var
         SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
     begin
-        if "Source Type" = DATABASE::"Sales Line" then begin
-            SalesLine.SetRange("Document Type", "Source Subtype");
-            SalesLine.SetRange("Document No.", "Source ID");
-            SalesLine.SetRange("Line No.", "Source Ref. No.");
-            if SalesLine.FindFirst() then
-                exit("Quantity (Base)" < SalesLine."Qty. to Invoice (Base)");
+        case "Source Type" of
+            DATABASE::"Sales Line":
+                if SalesLine.Get("Source Subtype", "Source ID", "Source Ref. No.") then
+                    exit("Quantity (Base)" <= SalesLine."Qty. to Invoice (Base)");
+            DATABASE::"Purchase Line":
+                if PurchaseLine.Get("Source Subtype", "Source ID", "Source Ref. No.") then
+                    exit("Quantity (Base)" <= PurchaseLine."Qty. to Invoice (Base)");
         end;
+
+        exit(false);
     end;
 
     local procedure ClearApplyToEntryIfQuantityToInvoiceIsNotSufficient()
@@ -1633,6 +1645,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyNewTrackingFromTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyNewTrackingFromNewTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

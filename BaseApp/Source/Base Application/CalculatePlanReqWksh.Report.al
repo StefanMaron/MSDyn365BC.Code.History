@@ -46,7 +46,7 @@
                 if SkipPlanning then
                     CurrReport.Skip();
 
-                InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType);
+                InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType, PriceCalculationMethod);
                 InvtProfileOffsetting.CalculatePlanFromWorksheet(
                   Item,
                   MfgSetup,
@@ -144,6 +144,18 @@
                         Caption = 'Respect Planning Parameters for Supply Triggered by Safety Stock';
                         ToolTip = 'Specifies that planning lines triggered by safety stock will respect the following planning parameters: Reorder Point, Reorder Quantity, Reorder Point, and Maximum Inventory in addition to all order modifiers. If you do not select this check box, planning lines triggered by safety stock will only cover the exact demand quantity.';
                     }
+                    field(PriceCalcMethod; PriceCalculationMethod)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Price Calculation Method';
+                        ToolTip = 'Specifies the price calculation method.';
+                        Visible = ExtendedPriceEnabled;
+
+                        trigger OnValidate()
+                        begin
+                            ValidatePriceCalcMethod();
+                        end;
+                    }
                 }
             }
         }
@@ -153,8 +165,12 @@
         }
 
         trigger OnOpenPage()
+        var
+            PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         begin
             InitializeFromMfgSetup();
+            ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+            ValidatePriceCalcMethod();
             OnAfterOnOpenPage(FromDate, ToDate);
         end;
     }
@@ -213,6 +229,7 @@
         PlanningAssignment: Record "Planning Assignment";
         MfgSetup: Record "Manufacturing Setup";
         InvtProfileOffsetting: Codeunit "Inventory Profile Offsetting";
+        PriceCalculationMethod: Enum "Price Calculation Method";
         Window: Dialog;
         CurrWorksheetType: Option Requisition,Planning;
         PeriodLength: Integer;
@@ -226,6 +243,7 @@
         UseForecast: Code[10];
         ExcludeForecastBefore: Date;
         RespectPlanningParm: Boolean;
+        ExtendedPriceEnabled: Boolean;
 
     procedure SetTemplAndWorksheet(TemplateName: Code[10]; WorksheetName: Code[10])
     begin
@@ -250,6 +268,14 @@
 
         MfgSetup.Get();
         UseForecast := MfgSetup."Current Production Forecast";
+    end;
+
+    local procedure ValidatePriceCalcMethod()
+    var
+        Vendor: Record Vendor;
+    begin
+        if PriceCalculationMethod = PriceCalculationMethod::" " then
+            PriceCalculationMethod := Vendor.GetPriceCalculationMethod();
     end;
 
     local procedure SkipPlanningForItemOnReqWksh(Item: Record Item): Boolean

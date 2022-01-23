@@ -39,7 +39,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMUnitGroupNotFoundErr: Label 'CRM Unit Group %1 does not exist.', Comment = '%1 - unit group name';
         CRMUnitNotFoundErr: Label 'CRM Unit %1 with Unit Group Id %2 does not exist.', Comment = '%1 - unit name, %2 - unit group id';
         SynchingSalesSpecificEntityTxt: Label 'Synching a %1 specific entity.', Locked = true;
-        FailedToGetPostedSalesInvoiceTxt: Label 'Failed to get posted sales invoice %1 from SQL database. Flushing the cache and retrying.', Locked = true;
+        FailedToGetPostedSalesInvoiceTxt: Label 'Failed to get posted sales invoice %1 from SQL database.', Locked = true;
+        FailedToGetPostedSalesInvoiceLinesTxt: Label 'Failed to get lines for posted sales invoice %1 from SQL database.', Locked = true;
+        SalesInvoiceNotCommittedErr: Label 'Posted sales invoice %1 is not committed in the SQL database yet. It will be synchronized by the next scheduled synchronization run.', Comment = '%1 - invoice number';
+        SalesInvoiceLinesNotCommittedErr: Label 'The lines of posted sales invoice %1 are not committed in the SQL database yet. The invoice will be synchronized by the next scheduled synchronization run.', Comment = '%1 - invoice number';
 
     procedure ClearCache()
     begin
@@ -770,13 +773,38 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SourceRecordRef.SetTable(SalesInvoiceHeader);
+
+        // lock the posted sales invoice and lines tables in order not to read uncommitted records from SQL Server
+        // it is OK to lock these tables, because we are going to release the locks in this method either with an error or a commit
+        SalesInvoiceHeader.LockTable();
+        if not SalesInvoiceHeader.Get(SalesInvoiceHeader."No.") then begin
+            Session.LogMessage('0000GF4', StrSubstNo(FailedToGetPostedSalesInvoiceTxt, Format(SalesInvoiceHeader.SystemId)), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Error(SalesInvoiceNotCommittedErr, SalesInvoiceHeader."No.");
+        end;
+
+        SalesInvoiceLine.LockTable();
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        if SalesInvoiceLine.FindSet() then
-            repeat
-                // this call will throw an error if the Sales Invoice Line has an uncoupled product, thus rolling back the creation of the Dynamics 365 Sales invoice
-                if SalesInvoiceLine."No." <> '' then
-                    FindCRMProductId(SalesInvoiceLine);
-            until SalesInvoiceLine.Next() = 0;
+        if SalesInvoiceLine.IsEmpty() then begin
+            Session.LogMessage('0000GF5', StrSubstNo(FailedToGetPostedSalesInvoiceLinesTxt, Format(SalesInvoiceHeader.SystemId)), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Error(SalesInvoiceLinesNotCommittedErr, SalesInvoiceHeader."No.");
+        end;
+
+        // this commit will release the lock on posted sales invoice tables, right after the IsEmpty.
+        // it is justifiable to do this commit, because before raising OnBeforeInsert event,
+        // codeunit "Integration Rec. Synch. Invoke" doesn't make a single attempt to write to the database. it just reads before this event.
+        // It hasn't yet called Dynamics 365 Sales to insert the entity or attempted to couple it in Business Central.
+        // on top of that, OnAfterInsert event starts with a commit, so subscribers to OnBeforeInsert should never attempt to write into the Business Central database
+        Commit();
+
+        // the lines have been committed to SQL database, it is OK to read them.
+        // no if - let it throw an error if FindSet fails. in this case invoice will be synchronized with next scheduled job
+        SalesInvoiceLine.FindSet();
+        repeat
+            // this call will throw an error if the Sales Invoice Line has an uncoupled product, thus avoiding the creation of the Dynamics 365 Sales invoice
+            // at this point we haven't even called Dynamics 365 Sales to insert the invoice and we haven't even attempted to couple the invoice
+            if SalesInvoiceLine."No." <> '' then
+                FindCRMProductId(SalesInvoiceLine);
+        until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure UpdateCRMInvoiceAfterInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
@@ -809,6 +837,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             DocumentTotals.CalculatePostedSalesInvoiceTotals(SalesInvoiceHeader, TaxAmount, SalesInvoiceLine);
             CRMInvoice.TotalAmount := SalesInvoiceHeader."Amount Including VAT";
             CRMInvoice.TotalTax := TaxAmount;
+            CRMInvoice.TotalAmountLessFreight := CRMInvoice.TotalAmount - CRMInvoice.TotalTax;
             CRMInvoice.TotalDiscountAmount := SalesInvoiceHeader."Invoice Discount Amount";
         end else begin
             CRMInvoice.FreightAmount := 0;

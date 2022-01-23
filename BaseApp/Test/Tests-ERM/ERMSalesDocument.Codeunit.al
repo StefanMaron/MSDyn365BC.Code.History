@@ -1796,6 +1796,49 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure CopySalesInvoiceWithDifferentVATBusGroupInclHeader()
+    var
+        SalesHeaderSrc: Record "Sales Header";
+        SalesHeaderDst: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        VATBusPostGroup: Code[20];
+    begin
+        // [SCENARIO 421483] It is allowed to Copy document with multiple VAT Bus. Posting Group in the source lines if header included.
+        // [FEATURE] [Copy Document]
+        Initialize();
+
+        // [GIVEN] Source Sales Invoice with "VAT Bus. Posting Group" = "X" in line
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderSrc, SalesHeaderSrc."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(20));
+        SalesHeaderSrc.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeaderSrc.Modify(true);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeaderSrc, SalesLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale), LibraryRandom.RandDec(10, 2));
+        VATBusPostGroup := SalesLine."VAT Bus. Posting Group";
+
+        // [GIVEN] Destination Sales Invoice with "VAT Bus. Posting Group" = "Y"
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderDst, SalesHeaderDst."Document Type"::Invoice, SalesHeaderSrc."Sell-to Customer No.");
+
+        // [WHEN] Run "Copy Sales Document" report from Invoice to Invoice with Include Header = TRUE and Recalculate Lines = FALSE
+        LibrarySales.CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::Invoice, SalesHeaderSrc."No.", true, false);
+
+        // [THEN] Line is copied
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", SalesHeaderDst."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeaderDst."No.");
+        Assert.RecordCount(SalesLine, 1);
+        SalesLine.FindFirst();
+        SalesLine.TestField("VAT Bus. Posting Group", VATBusPostGroup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure SalesOrderCreationWithCustomerLocation()
     var
         SalesHeader: Record "Sales Header";

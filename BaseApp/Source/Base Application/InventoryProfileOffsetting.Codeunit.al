@@ -32,6 +32,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         PlanningLineStage: Option " ","Line Created","Routing Created",Exploded,Obsolete;
         SurplusType: Option "None",Forecast,BlanketOrder,SafetyStock,ReorderPoint,MaxInventory,FixedOrderQty,MaxOrder,MinOrder,OrderMultiple,DampenerQty,PlanningFlexibility,Undefined,EmergencyOrder;
         CurrWorksheetType: Option Requisition,Planning;
+        PriceCalculationMethod: Enum "Price Calculation Method";
         DampenerQty: Decimal;
         FutureSupplyWithinLeadtime: Decimal;
         LineNo: Integer;
@@ -2521,6 +2522,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     "Location Code" := SupplyInvtProfile."Location Code";
                     "Bin Code" := SupplyInvtProfile."Bin Code";
                     "Planning Line Origin" := "Planning Line Origin"::Planning;
+                    SetPriceCalculationMethod(ReqLine);
                     OnMaintainPlanningLineOnAfterPopulateReqLineFields(ReqLine, SupplyInvtProfile, DemandInvtProfile, NewPhase, Direction, TempSKU);
                     if SupplyInvtProfile."Action Message" = SupplyInvtProfile."Action Message"::New then begin
                         "Order Date" := SupplyInvtProfile."Due Date";
@@ -4375,6 +4377,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
             until TempPlanningCompList.Next() = 0;
     end;
 
+    procedure SetParm(Forecast: Code[10]; ExclBefore: Date; WorksheetType: Option Requisition,Planning; PriceCalcMethod: Enum "Price Calculation Method")
+    begin
+        SetParm(Forecast, ExclBefore, WorksheetType);
+        PriceCalculationMethod := PriceCalcMethod;
+    end;
+
     procedure SetParm(Forecast: Code[10]; ExclBefore: Date; WorksheetType: Option Requisition,Planning)
     begin
         CurrForecast := Forecast;
@@ -4872,6 +4880,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         CustomCalendarChange[1].SetSource(CustomCalendarChange[1]."Source Type"::Company, '', '', '');
         exit(CalendarManagement.CalcDateBOC2('<0D>', InitialDate, CustomCalendarChange, false));
+    end;
+
+    local procedure SetPriceCalculationMethod(var RequisitionLine: Record "Requisition Line")
+    var
+        Vendor: Record Vendor;
+    begin
+        if PriceCalculationMethod = PriceCalculationMethod::" " then
+            RequisitionLine."Price Calculation Method" := Vendor.GetPriceCalculationMethod()
+        else
+            RequisitionLine."Price Calculation Method" := PriceCalculationMethod;
     end;
 
     [IntegrationEvent(false, false)]

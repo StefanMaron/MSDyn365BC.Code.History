@@ -708,7 +708,6 @@ codeunit 99000813 "Carry Out Action"
     [Scope('OnPrem')]
     procedure InsertAsmHeader(ReqLine: Record "Requisition Line"; var AsmHeader: Record "Assembly Header")
     var
-        BOMComp: Record "BOM Component";
         Item: Record Item;
     begin
         Item.Get(ReqLine."No.");
@@ -750,12 +749,7 @@ codeunit 99000813 "Carry Out Action"
 
         TransferAsmPlanningComp(ReqLine, AsmHeader);
 
-        BOMComp.SetRange("Parent Item No.", ReqLine."No.");
-        BOMComp.SetRange(Type, BOMComp.Type::Resource);
-        if BOMComp.Find('-') then
-            repeat
-                AsmHeader.AddBOMLine(BOMComp);
-            until BOMComp.Next() = 0;
+        AddResourceComponents(ReqLine, AsmHeader);
 
         OnAfterInsertAsmHeader(ReqLine, AsmHeader);
 
@@ -766,6 +760,24 @@ codeunit 99000813 "Carry Out Action"
         TempDocumentEntry."Document No." := AsmHeader."No.";
         TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
         TempDocumentEntry.Insert();
+    end;
+
+    local procedure AddResourceComponents(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header")
+    var
+        BOMComponent: Record "BOM Component";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAddResourceComponents(RequisitionLine, AssemblyHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        BOMComponent.SetRange("Parent Item No.", RequisitionLine."No.");
+        BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
+        if BOMComponent.Find('-') then
+            repeat
+                AssemblyHeader.AddBOMLine(BOMComponent);
+            until BOMComponent.Next() = 0;
     end;
 
     procedure TransferAsmPlanningComp(ReqLine: Record "Requisition Line"; AsmHeader: Record "Assembly Header")
@@ -1574,6 +1586,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProdOrderChgAndReshedule(var RequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddResourceComponents(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 

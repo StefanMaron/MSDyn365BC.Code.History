@@ -1,10 +1,10 @@
+#pragma warning disable AS0039
 table 405 "Change Log Entry"
 {
     Caption = 'Change Log Entry';
     DrillDownPageID = "Change Log Entries";
     LookupPageID = "Change Log Entries";
     ReplicateData = true;
-    ColumnStoreIndex = "Field Log Entry Feature";
 
     fields
     {
@@ -163,6 +163,9 @@ table 405 "Change Log Entry"
         key(Key4; "Notification Message Id")
         {
         }
+        key(key5; "Field Log Entry Feature")
+        {
+        }
     }
 
     fieldgroups
@@ -309,4 +312,4 @@ table 405 "Change Log Entry"
     begin
     end;
 }
-
+#pragma warning restore AS0039

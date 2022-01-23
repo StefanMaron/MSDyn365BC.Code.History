@@ -99,7 +99,7 @@ codeunit 64 "Sales-Get Shipment"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertInvoiceLineFromShipmentLine(SalesShptHeader, SalesShptLine2, SalesHeader, PrepmtAmtToDeductRounding, TransferLine, IsHandled);
+        OnBeforeInsertInvoiceLineFromShipmentLine(SalesShptHeader, SalesShptLine2, SalesHeader, PrepmtAmtToDeductRounding, TransferLine, IsHandled, SalesShptLine, SalesLine);
         if IsHandled then
             exit;
 
@@ -319,7 +319,7 @@ codeunit 64 "Sales-Get Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertInvoiceLineFromShipmentLine(SalesShptHeader: Record "Sales Shipment Header"; var SalesShptLine2: Record "Sales Shipment Line"; var SalesHeader: Record "Sales Header"; var PrepmtAmtToDeductRounding: Decimal; TransferLine: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeInsertInvoiceLineFromShipmentLine(SalesShptHeader: Record "Sales Shipment Header"; var SalesShptLine2: Record "Sales Shipment Line"; var SalesHeader: Record "Sales Header"; var PrepmtAmtToDeductRounding: Decimal; TransferLine: Boolean; var IsHandled: Boolean; var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 

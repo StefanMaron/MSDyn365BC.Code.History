@@ -85,6 +85,7 @@
                         Get("Document Type", "No.");
                         if "Customer No." = '' then begin
                             Init;
+                            OnValidateCustomerNoAfterInit(Rec, xRec);
                             GetServiceMgtSetup();
                             "No. Series" := xRec."No. Series";
                             InitRecord;
@@ -2520,7 +2521,14 @@
     end;
 
     trigger OnModify()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnModify(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         UpdateServiceOrderChangeLog(xRec);
     end;
 
@@ -4554,6 +4562,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenOrderStatistics(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
@@ -4738,6 +4751,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnShowDocDimOnBeforeUpdateAllLineDim(var Rec: Record "Service Header"; OldDimSetID: Integer; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCustomerNoAfterInit(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
     begin
     end;
 }

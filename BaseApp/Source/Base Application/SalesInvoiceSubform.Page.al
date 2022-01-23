@@ -93,9 +93,9 @@ page 47 "Sales Invoice Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -1171,7 +1171,9 @@ page 47 "Sales Invoice Subform"
         SetOpenPage();
 
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -1210,10 +1212,13 @@ page 47 "Sales Invoice Subform"
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif        
         LocationCodeVisible: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         VATAmount: Decimal;
@@ -1440,12 +1445,12 @@ page 47 "Sales Invoice Subform"
         OnAfterSetDimensionsVisibility();
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     local procedure SetDefaultType()
     var

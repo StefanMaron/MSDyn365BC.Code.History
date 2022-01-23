@@ -739,11 +739,14 @@ codeunit 99000832 "Sales Line-Reserve"
                 HasError := true;
             end;
 
-        if NewSalesLine."Location Code" <> OldSalesLine."Location Code" then begin
-            if ThrowError then
-                NewSalesLine.FieldError("Location Code", ValueChangedErr);
-            HasError := true;
-        end;
+        IsHandled := false;
+        OnTestSalesLineModificationOnBeforeTestLocationCode(NewSalesLine, OldSalesLine, IsHandled);
+        if not IsHandled then
+            if NewSalesLine."Location Code" <> OldSalesLine."Location Code" then begin
+                if ThrowError then
+                    NewSalesLine.FieldError("Location Code", ValueChangedErr);
+                HasError := true;
+            end;
 
         IsHandled := false;
         OnTestSalesLineModificationOnBeforeTestBinCode(NewSalesLine, OldSalesLine, IsHandled);
@@ -1086,6 +1089,11 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTestSalesLineModificationOnBeforeTestVariantCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestSalesLineModificationOnBeforeTestLocationCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

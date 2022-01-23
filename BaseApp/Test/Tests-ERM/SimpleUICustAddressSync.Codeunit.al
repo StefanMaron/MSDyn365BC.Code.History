@@ -905,6 +905,41 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure UpdateBilltoSelltoAddressAfterRevalidateCustomerNo()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [SCENARIO 418996] Bill-to/Sell-to address details must be updated after revalidate "Customer No." by modified customer.
+        Initialize();
+
+        // [GIVEN] Customer with address details
+        LibrarySales.CreateCustomerWithAddress(Customer);
+
+        // [GIVEN] Create Sales Header with Customer
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+
+        // [GIVEN] Update Customer address details
+        Customer.Address := LibraryUtility.GenerateGUID();
+        Customer."Address 2" := LibraryUtility.GenerateGUID();
+        Customer.Modify();
+
+        // [WHEN] Open sales document and set the same "Sell-to Customer No." again
+        SalesQuote.OpenEdit();
+        SalesQuote.GoToRecord(SalesHeader);
+        SalesQuote."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Bill-to/Ship-to address details updated
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        SalesHeader.TestField("Bill-to Address", Customer.Address);
+        SalesHeader.TestField("Bill-to Address 2", Customer."Address 2");
+        SalesHeader.TestField("Sell-to Address", Customer.Address);
+        SalesHeader.TestField("Sell-to Address 2", Customer."Address 2");
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";

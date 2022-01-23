@@ -118,7 +118,13 @@ codeunit 8612 "Config. Template Management"
     local procedure ModifyRecordWithField(var RecRef: RecordRef; FieldRef: FieldRef; Value: Text[2048]; LanguageID: Integer)
     var
         ConfigValidateMgt: Codeunit "Config. Validate Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeModifyRecordWithField(RecRef, FieldRef, Value, LanguageID, IsHandled);
+        if IsHandled then
+            exit;
+
         ConfigValidateMgt.ValidateFieldValue(RecRef, FieldRef, Value, false, LanguageID);
         RecRef.Modify(true);
     end;
@@ -566,6 +572,11 @@ codeunit 8612 "Config. Template Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTemplate(var ConfigTemplateLine: Record "Config. Template Line"; var ConfigTemplateHeader: Record "Config. Template Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyRecordWithField(var RecRef: RecordRef; FieldRef: FieldRef; Value: Text[2048]; LanguageID: Integer; var IsHandled: Boolean)
     begin
     end;
 

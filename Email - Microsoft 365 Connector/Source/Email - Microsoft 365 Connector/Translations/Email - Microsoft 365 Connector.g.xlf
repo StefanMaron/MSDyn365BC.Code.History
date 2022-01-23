@@ -133,6 +133,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">EnumExtension Microsoft 365 Connector - EnumValue Microsoft 365 - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 2604401247 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Microsoft 365 Connector - Objects</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email Conn. - Objects - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

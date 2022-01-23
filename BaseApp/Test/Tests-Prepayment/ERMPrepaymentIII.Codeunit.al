@@ -2104,7 +2104,7 @@ codeunit 134102 "ERM Prepayment III"
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
         OldPurchPrepaymentsAccount := GeneralPostingSetup."Purch. Prepayments Account";
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", PurchPrepaymentsAccount);
+        GeneralPostingSetup."Purch. Prepayments Account" := PurchPrepaymentsAccount;
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -2114,7 +2114,7 @@ codeunit 134102 "ERM Prepayment III"
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
         OldSalesPrepaymentsAccount := GeneralPostingSetup."Sales Prepayments Account";
-        GeneralPostingSetup.Validate("Sales Prepayments Account", SalesPrepaymentsAccount);
+        GeneralPostingSetup."Sales Prepayments Account" := SalesPrepaymentsAccount;
         GeneralPostingSetup.Modify(true);
     end;
 

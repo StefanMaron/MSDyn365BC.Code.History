@@ -83,17 +83,10 @@ codeunit 5836 "Cost Calculation Management"
             SetRange("Routing Reference No.", "Routing Reference No.");
             SetRange("Routing No.", "Routing No.");
             ShareOfTotalCapCost := 0;
-            if Status = Status::Finished then begin
-                Qty := "Finished Quantity";
-                CalcSums("Finished Quantity");
-                if "Finished Quantity" <> 0 then
-                    ShareOfTotalCapCost := Qty / "Finished Quantity";
-            end else begin
-                Qty := Quantity;
-                CalcSums(Quantity);
-                if Quantity <> 0 then
-                    ShareOfTotalCapCost := Qty / Quantity;
-            end;
+            Qty := Quantity;
+            CalcSums(Quantity);
+            if Quantity <> 0 then
+                ShareOfTotalCapCost := Qty / Quantity;
         end;
 
         OnAfterCalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
@@ -461,11 +454,15 @@ codeunit 5836 "Cost Calculation Management"
         end;
     end;
 
-    procedure CalcActNeededQtyBase(ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; OutputQtyBase: Decimal): Decimal
+    procedure CalcActNeededQtyBase(ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; OutputQtyBase: Decimal) Result: Decimal
     var
         CompQtyBasePerMfgQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeCalcActNeededQtyBase(OutputQtyBase, ProdOrderComp);
+        IsHandled := false;
+        OnBeforeCalcActNeededQtyBase(OutputQtyBase, ProdOrderComp, ProdOrderLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         CompQtyBasePerMfgQtyBase := ProdOrderComp."Quantity (Base)" / ProdOrderLine."Qty. per Unit of Measure";
         exit(CalcQtyAdjdForBOMScrap(OutputQtyBase * CompQtyBasePerMfgQtyBase, ProdOrderComp."Scrap %"));
@@ -1259,7 +1256,7 @@ codeunit 5836 "Cost Calculation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcActNeededQtyBase(var OutputQtyBase: Decimal; ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnBeforeCalcActNeededQtyBase(var OutputQtyBase: Decimal; ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

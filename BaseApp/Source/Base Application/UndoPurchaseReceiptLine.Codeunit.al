@@ -271,6 +271,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
               TempWhseJnlLine."Reference Document"::"Posted Rcpt.",
               TempWhseJnlLine,
               NextLineNo);
+            OnPostItemJnlLineOnAfterInsertTempWhseJnlLine(PurchRcptLine, ItemJnlLine, TempWhseJnlLine, NextLineNo);
 
             if "Item Rcpt. Entry No." <> 0 then begin
                 if "Job No." <> '' then
@@ -598,6 +599,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnAfterCollectItemLedgEntries(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchRcptLine: Record "Purch. Rcpt. Line"; SourceCodeSetup: Record "Source Code Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterInsertTempWhseJnlLine(PurchRcptLine: Record "Purch. Rcpt. Line"; var ItemJnlLine: Record "Item Journal Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer)
     begin
     end;
 

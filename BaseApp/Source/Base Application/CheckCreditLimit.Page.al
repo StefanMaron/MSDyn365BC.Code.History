@@ -298,7 +298,7 @@ page 343 "Check Credit Limit"
         ServLine.Reset();
         ServLine.SetRange("Document Type", ServHeader."Document Type");
         ServLine.SetRange("Document No.", ServHeader."No.");
-        if ServLine.FindSet then
+        if ServLine.FindSet() then
             repeat
                 if ServHeader."Currency Code" = '' then
                     NewOrderAmountLCY := NewOrderAmountLCY + ServLine."Amount Including VAT"
@@ -428,7 +428,9 @@ page 343 "Check Credit Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowWarning(Rec, NewOrderAmountLCY, OldOrderAmountLCY, OrderAmountTotalLCY, ShippedRetRcdNotIndLCY, CustCreditAmountLCY, DeltaAmount, CheckOverDueBalance, Heading, Result, IsHandled, NotificationId, NewCustNo, NewOrderAmountLCY2, OldOrderAmountLCY2);
+        OnBeforeShowWarning(
+            Rec, NewOrderAmountLCY, OldOrderAmountLCY, OrderAmountTotalLCY, ShippedRetRcdNotIndLCY, CustCreditAmountLCY, DeltaAmount,
+            CheckOverDueBalance, Heading, Result, IsHandled, NotificationId, NewCustNo, NewOrderAmountLCY2, OldOrderAmountLCY2, OrderAmountThisOrderLCY);
         if IsHandled then
             exit(Result);
 
@@ -651,7 +653,7 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowWarning(var Customer: Record Customer; var NewOrderAmountLCY: Decimal; OldOrderAmountLCY: Decimal; OrderAmountTotalLCY: Decimal; ShippedRetRcdNotIndLCY: Decimal; CustCreditAmountLCY: Decimal; DeltaAmount: Decimal; CheckOverDueBalance: Boolean; var Heading: Text[250]; var Result: Boolean; var IsHandled: Boolean; var NotificationId: Guid; var NewCustNo: Code[20]; NewOrderAmountLCY2: Decimal; OldOrderAmountLCY2: Decimal);
+    local procedure OnBeforeShowWarning(var Customer: Record Customer; var NewOrderAmountLCY: Decimal; OldOrderAmountLCY: Decimal; OrderAmountTotalLCY: Decimal; ShippedRetRcdNotIndLCY: Decimal; CustCreditAmountLCY: Decimal; DeltaAmount: Decimal; CheckOverDueBalance: Boolean; var Heading: Text[250]; var Result: Boolean; var IsHandled: Boolean; var NotificationId: Guid; var NewCustNo: Code[20]; NewOrderAmountLCY2: Decimal; OldOrderAmountLCY2: Decimal; OrderAmountThisOrderLCY: Decimal);
     begin
     end;
 

@@ -96,9 +96,9 @@ page 54 "Purchase Order Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -174,6 +174,7 @@ page 54 "Purchase Order Subform"
                         if "No." = xRec."No." then
                             exit;
 
+                        ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                         DeltaUpdateTotals();
                     end;
@@ -1378,7 +1379,6 @@ page 54 "Purchase Order Subform"
 
         SetDimensionsVisibility();
         SetOverReceiptControlsVisibility();
-        SetItemReferenceVisibility();
     end;
 
     var
@@ -1401,8 +1401,6 @@ page 54 "Purchase Order Subform"
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
         SuppressTotals: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
         ExcelFileNameTxt: Label 'Purchase Order %1 - Lines', Comment = '%1 = document number, ex. 10000';
 
     protected var
@@ -1421,6 +1419,7 @@ page 54 "Purchase Order Subform"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         OverReceiptAllowed: Boolean;
 
@@ -1663,13 +1662,6 @@ page 54 "Purchase Order Subform"
         Clear(DimMgt);
 
         OnAfterSetDimensionsVisibility();
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     local procedure SetDefaultType()

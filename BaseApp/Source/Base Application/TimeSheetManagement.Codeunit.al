@@ -172,6 +172,7 @@ codeunit 950 "Time Sheet Management"
     begin
         TotalQuantity := 0;
         TimeSheetHeader.SetRange("Date Filter", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
+        OnCalcStatusFactBoxDataOnAfterTimeSheetHeaderSetFilters(TimeSheetHeader);
         OpenQty := TimeSheetHeader.CalcQtyWithStatus(Status::Open);
 
         SubmittedQty := TimeSheetHeader.CalcQtyWithStatus(Status::Submitted);
@@ -203,8 +204,10 @@ codeunit 950 "Time Sheet Management"
                     i += 1;
                     DateDescription[i] := FormatDate(Calendar."Period Start", 0);
                     TimeSheetHeader.SetRange("Date Filter", Calendar."Period Start");
+                    OnCalcActSchedFactBoxDataOnAfterTimeSheetHeaderSetFilters(TimeSheetHeader, Calendar);
                     TimeSheetHeader.CalcFields(Quantity);
                     Resource.SetRange("Date Filter", Calendar."Period Start");
+                    OnCalcActSchedFactBoxDataOnBeforeResouceCalcFields(Resource, Calendar);
                     Resource.CalcFields(Capacity);
                     DateQuantity[i] := FormatActualSched(TimeSheetHeader.Quantity, Resource.Capacity);
                     TotalPresenceQty += TimeSheetHeader.Quantity;
@@ -1029,6 +1032,21 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcStatusFactBoxDataOnAfterTimeSheetHeaderSetFilters(var TimeSheetHeader: Record "Time Sheet Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcActSchedFactBoxDataOnAfterTimeSheetHeaderSetFilters(var TimeSheetHeader: Record "Time Sheet Header"; Calendar: Record Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcActSchedFactBoxDataOnBeforeResouceCalcFields(var Resource: Record Resource; Calendar: Record Date)
     begin
     end;
 

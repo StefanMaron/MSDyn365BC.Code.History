@@ -99,6 +99,9 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         BankAccRecMatchBuffer.Reset();
         BankAccRecMatchBuffer.SetRange("Statement No.", BankAccReconLine."Statement No.");
         BankAccRecMatchBuffer.SetRange("Bank Account No.", BankAccReconLine."Bank Account No.");
+        BankAccRecMatchBuffer.SetCurrentKey("Match ID");
+        BankAccRecMatchBuffer.Ascending(true);
+
         if BankAccRecMatchBuffer.FindLast() then
             exit(BankAccRecMatchBuffer."Match ID" + 1)
         else

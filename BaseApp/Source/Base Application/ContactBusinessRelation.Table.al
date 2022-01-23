@@ -131,6 +131,8 @@ table 5054 "Contact Business Relation"
     var
         Text000: Label '%1 %2 already has a %3 with %4 %5.';
         Text001: Label '%1 %2 is used when a %3 is linked with a %4.';
+        FailedCBRTxt: Label 'Failed to find contact business relation for contact number %1.', Comment = '%1 = Contact number', Locked = true;
+        TelemetryCategoryTxt: Label 'ContactBusinessRelation', Locked = true;
         Cont: Record Contact;
 
     local procedure GetContactBusinessRelation(ContactBusinessRelation: Record "Contact Business Relation"): Boolean
@@ -390,6 +392,47 @@ table 5054 "Contact Business Relation"
                             Contact.Modify();
                     until Contact.Next() = 0;
             end;
+    end;
+
+    internal procedure GetBusinessRelatedSystemIds(TableId: Integer; SystemId: Guid; var RelatedSystemIds: Dictionary of [Integer, List of [Guid]])
+    var
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        IContactBusinessRelationLink: Interface "Contact Business Relation Link";
+        SystemIds: List of [Guid];
+        RelatedTableId: Integer;
+        RelatedSystemId: Guid;
+    begin
+        if TableId <> Database::Contact then
+            exit;
+
+        if Contact.GetBySystemId(SystemId) then begin
+            if Contact."Contact Business Relation" = Contact."Contact Business Relation"::None then
+                exit;
+
+            ContactBusinessRelation.SetRange("Contact No.", Contact."Company No.");
+            if not ContactBusinessRelation.FindSet() then begin
+                Session.LogMessage('0000GCZ', StrSubstNo(FailedCBRTxt, Contact."Company No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', TelemetryCategoryTxt);
+                exit;
+            end;
+
+            repeat
+                if ContactBusinessRelation."Link to Table" <> ContactBusinessRelation."Link to Table"::" " then begin
+                    IContactBusinessRelationLink := ContactBusinessRelation."Link to Table";
+                    IContactBusinessRelationLink.GetTableAndSystemId(ContactBusinessRelation."No.", RelatedTableId, RelatedSystemId);
+
+                    Clear(SystemIds);
+                    if RelatedSystemIds.ContainsKey(RelatedTableId) then begin
+                        SystemIds := RelatedSystemIds.Get(RelatedTableId);
+                        if not SystemIds.Contains(RelatedSystemId) then
+                            SystemIds.Add(RelatedSystemId);
+                    end else
+                        SystemIds.Add(RelatedSystemId);
+                    RelatedSystemIds.Set(RelatedTableId, SystemIds);
+                end;
+            until ContactBusinessRelation.Next() <= 0;
+
+        end
     end;
 
     [IntegrationEvent(false, false)]

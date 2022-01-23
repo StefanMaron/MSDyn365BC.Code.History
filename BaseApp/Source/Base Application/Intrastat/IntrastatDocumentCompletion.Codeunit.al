@@ -35,10 +35,12 @@ codeunit 351 "Intrastat Document Completion"
            (Rec."Document Type" = Rec."Document Type"::Order)
         then
             Rec."Transaction Type" := IntrastatSetup."Default Trans. - Purchase";
+
+        OnAfterDefaultSalesDocuments(Rec, IntrastatSetup);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeInsertEvent', '', false, false)]
-    local procedure DefaultPurchaseDcouments(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
+    local procedure DefaultPurchaseDocuments(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary() then
             exit;
@@ -64,6 +66,8 @@ codeunit 351 "Intrastat Document Completion"
            (Rec."Document Type" = Rec."Document Type"::Order)
         then
             Rec."Transaction Type" := IntrastatSetup."Default Trans. - Purchase";
+
+        OnAfterDefaultPurchaseDocuments(Rec, IntrastatSetup);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeInsertEvent', '', false, false)]
@@ -91,6 +95,23 @@ codeunit 351 "Intrastat Document Completion"
            (Rec."Document Type" = Rec."Document Type"::Order)
         then
             Rec."Transaction Type" := IntrastatSetup."Default Trans. - Purchase";
+
+        OnAfterDefaultServiceDocuments(Rec, IntrastatSetup);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDefaultPurchaseDocuments(var PurchaseHeader: Record "Purchase Header"; IntrastatSetup: Record "Intrastat Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDefaultSalesDocuments(var SalesHeader: Record "Sales Header"; IntrastatSetup: Record "Intrastat Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDefaultServiceDocuments(var ServiceHeader: Record "Service Header"; IntrastatSetup: Record "Intrastat Setup")
+    begin
     end;
 }
 

@@ -19,6 +19,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -1777,6 +1778,46 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError.SetRange("Table ID", TableID);
         Assert.RecordIsEmpty(ConfigPackageError);
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePackageNoModifyItemOnValidatePackage();
+    var
+        ConfigPackage: Record "Config. Package";
+        Contact: Record Contact;
+        ConfigPackageTable: Record "Config. Package Table";
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        ContactNo: Code[20];
+    BEGIN
+        // [SCENARIO 419198] Validate Package for Item Table does not update Item record fields
+        Initialize;
+
+        // [GIVEN] Item "X" with "VAT Prod. Posting Group" = VPPG
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, Item."No.", 1);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        Item."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        Item.Modify(false);
+
+        // [GIVEN] Rapid Start Package with Item Table
+        // [GIVEN] Package Data has Customer "No." = "X", "Production BOM No." = "X"
+        LibraryRapidStart.CreatePackage(ConfigPackage);
+        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, Database::Item);
+
+        LibraryRapidStart.CreatePackageData(
+            ConfigPackage.Code, Database::Item, 1, Item.FIELDNO("No."), Item."No.");
+        LibraryRapidStart.CreatePackageData(
+            ConfigPackage.Code, Database::Item, 1, Item.FIELDNO("Production BOM No."), ProductionBOMHeader."No.");
+
+        // [WHEN] Run Validate Package
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        // [THEN] Item "X" field "VAT Prod. Posting Group" = VPPG
+        Item.Get(Item."No.");
+        Item.TESTFIELD("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+    END;
 
     local procedure Initialize()
     var

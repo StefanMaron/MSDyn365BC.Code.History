@@ -53,7 +53,13 @@ codeunit 112 "Empl. Entry-SetAppl.ID"
                 if EmplLedgEntryToUpdate."Entry No." = ApplyingEmplLedgEntry."Entry No." then
                     EmplLedgEntryToUpdate."Applying Entry" := ApplyingEmplLedgEntry."Applying Entry";
                 EmplLedgEntryToUpdate.Modify();
+                OnSetApplIdOnAfterEmplLedgEntryToUpdateModify(EmplLedgEntryToUpdate, TempEmplLedgEntry, ApplyingEmplLedgEntry, AppliesToID);
             until TempEmplLedgEntry.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetApplIdOnAfterEmplLedgEntryToUpdateModify(var EmplLedgerEntry: Record "Employee Ledger Entry"; var TempEmplLedgEntry: Record "Employee Ledger Entry" temporary; ApplyingEmplLedgEntry: Record "Employee Ledger Entry"; AppliesToID: Code[50])
+    begin
     end;
 }
 

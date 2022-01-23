@@ -83,6 +83,7 @@ codeunit 1336 "Item Templ. Mgt."
                 Error(VATPostingSetupErr, SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)", ItemTempl."VAT Prod. Posting Group");
             Item.Validate("Price Includes VAT", ItemTempl."Price Includes VAT");
         end;
+        Item.Validate("Item Category Code", ItemTempl."Item Category Code");
         OnApplyTemplateOnBeforeItemModify(Item, ItemTempl);
         Item.Modify(true);
     end;
@@ -245,33 +246,15 @@ codeunit 1336 "Item Templ. Mgt."
     end;
 
     local procedure InsertTemplateFromItem(var ItemTempl: Record "Item Templ."; Item: Record Item)
+    var
+        SavedItemTempl: Record "Item Templ.";
     begin
         ItemTempl.Init();
         ItemTempl.Code := GetItemTemplCode();
-
-        ItemTempl.Type := Item.Type;
-        ItemTempl."Inventory Posting Group" := Item."Inventory Posting Group";
-        ItemTempl."Item Disc. Group" := Item."Item Disc. Group";
-        ItemTempl."Allow Invoice Disc." := Item."Allow Invoice Disc.";
-        ItemTempl."Price/Profit Calculation" := Item."Price/Profit Calculation";
-        ItemTempl."Profit %" := Item."Profit %";
-        ItemTempl."Costing Method" := Item."Costing Method";
-        ItemTempl."Indirect Cost %" := Item."Indirect Cost %";
-        ItemTempl."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
-        ItemTempl."Automatic Ext. Texts" := Item."Automatic Ext. Texts";
-        ItemTempl."Tax Group Code" := Item."Tax Group Code";
-        ItemTempl."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
-        ItemTempl."Item Category Code" := Item."Item Category Code";
-        ItemTempl."Service Item Group" := Item."Service Item Group";
-        ItemTempl."Warehouse Class Code" := Item."Warehouse Class Code";
-        ItemTempl."Item Tracking Code" := Item."Item Tracking Code";
-        ItemTempl."Serial Nos." := Item."Serial Nos.";
-        ItemTempl."Lot Nos." := Item."Lot Nos.";
-        ItemTempl.Blocked := Item.Blocked;
-        ItemTempl."Sales Blocked" := Item."Sales Blocked";
-        ItemTempl."Purchasing Blocked" := Item."Purchasing Blocked";
-        ItemTempl."Base Unit of Measure" := Item."Base Unit of Measure";
-        ItemTempl."Price Includes VAT" := Item."Price Includes VAT";
+        SavedItemTempl := ItemTempl;
+        ItemTempl.TransferFields(Item);
+        ItemTempl.Code := SavedItemTempl.Code;
+        ItemTempl.Description := SavedItemTempl.Description;
         OnInsertTemplateFromItemOnBeforeItemTemplInsert(ItemTempl, Item);
         ItemTempl.Insert();
     end;
@@ -356,6 +339,7 @@ codeunit 1336 "Item Templ. Mgt."
         FieldExclusionList.Add(ItemTempl.FieldNo("Base Unit of Measure"));
         FieldExclusionList.Add(ItemTempl.FieldNo("No. Series"));
         FieldExclusionList.Add(ItemTempl.FieldNo("VAT Bus. Posting Gr. (Price)"));
+        FieldExclusionList.Add(ItemTempl.FieldNo("Item Category Code"));
 
         OnAfterFillFieldExclusionList(FieldExclusionList);
     end;

@@ -691,9 +691,9 @@ page 89 "Job List"
                 var
                     Job: Record Job;
                 begin
-                    Job.SetCurrentKey("No.");
-                    Job.SetFilter("No.", "No.");
-                    REPORT.Run(REPORT::"Job Quote", true, false, Job);
+                    Job := Rec;
+                    CurrPage.SetSelectionFilter(Job);
+                    Job.PrintRecords(true);
                 end;
             }
             action("Send Job Quote")

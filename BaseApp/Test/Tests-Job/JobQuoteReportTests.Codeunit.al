@@ -125,6 +125,31 @@ codeunit 136314 "Job Quote Report Tests"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,JobAnalysisRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintCustomPreviewJobQuoteFromJobList()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobList: TestPage "Job List";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 416894] The Job List use Report selection for runs report "Preview Job Queue"
+        Initialize();
+        SetReportLayoutForCustomWord;
+        CreateJobQueueReportSelection();
+        SetupForJobQuote(JobPlanningLine);
+
+        JobList.Trap();
+        Page.Run(Page::"Job List", Job);
+
+        JobList."Report Job Quote".Invoke();
+
+        // Cleanup
+        RemoveReportLayout();
+        TearDown();
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,PostandSendPageHandlerYes,SendEmailModalPageHandler')]
     [Scope('OnPrem')]
     procedure SendJobQuoteFromJobCardSMTPSetup() // To be removed together with deprecated SMTP objects
@@ -189,6 +214,22 @@ codeunit 136314 "Job Quote Report Tests"
         LibraryReportValidation.SetFileName(CreateGuid);
         JobQuote.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
+    end;
+
+    local procedure CreateJobQueueReportSelection()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+    begin
+        ReportSelections.DeleteAll();
+        CustomReportSelection.DeleteAll();
+
+        ReportSelections.Init();
+        ReportSelections.Usage := ReportSelections.Usage::JQ;
+        ReportSelections."Report ID" := REPORT::"Job Analysis";
+        ReportSelections.Insert();
+
+        CustomReportSelection.Init();
     end;
 
     local procedure VerifyJobQuoteReport(JobPlanningLine: Record "Job Planning Line"; Column: Text[250]; Column2: Text[250]; Column3: Text[250]; Column4: Text[250])
@@ -368,6 +409,13 @@ codeunit 136314 "Job Quote Report Tests"
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
         ActiveDirectoryMockEvents.Enable;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobAnalysisRequestPageHandler(var RequestPage: TestRequestPage "Job Analysis")
+    begin
+        RequestPage.Cancel().Invoke();
     end;
 }
 

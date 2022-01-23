@@ -146,7 +146,7 @@ codeunit 5407 "Prod. Order Status Management"
                 ToProdOrder."Due Date" := 0D;
             end;
 
-            OnTransProdOrderOnBeforeToProdOrderInsert(ToProdOrder, FromProdOrder);
+            OnTransProdOrderOnBeforeToProdOrderInsert(ToProdOrder, FromProdOrder, NewPostingDate);
             ToProdOrder.Insert(true);
             ToProdOrder."Starting Time" := "Starting Time";
             ToProdOrder."Starting Date" := "Starting Date";
@@ -272,7 +272,7 @@ codeunit 5407 "Prod. Order Status Management"
                         ProdOrderCapNeed.CalcSums("Needed Time (ms)");
                         ToProdOrderRtngLine."Expected Capacity Need" := ProdOrderCapNeed."Needed Time (ms)";
                     end;
-                    OnCopyFromProdOrderRoutingLine(ToProdOrderRtngLine, FromProdOrderRtngLine);
+                    OnCopyFromProdOrderRoutingLine(ToProdOrderRtngLine, FromProdOrderRtngLine, NewPostingDate);
                     ToProdOrderRtngLine.Insert();
                     OnAfterToProdOrderRtngLineInsert(ToProdOrderRtngLine, FromProdOrderRtngLine);
                 until Next() = 0;
@@ -576,7 +576,7 @@ codeunit 5407 "Prod. Order Status Management"
                     else
                         QtyToPost := GetNeededQty(0, false);
 
-                    OnAfterCalculateQtyToPost(ProdOrderComp, QtyToPost);
+                    OnAfterCalculateQtyToPost(ProdOrderComp, QtyToPost, ProdOrder, NewStatus);
                     RoundQtyToPost(ProdOrderComp, Item, QtyToPost);
 
                     if QtyToPost <> 0 then begin
@@ -655,6 +655,7 @@ codeunit 5407 "Prod. Order Status Management"
                   ItemJnlLine, ProdOrderRtngLine, OutputQtyBase,
                   GetOutputQtyForProdOrderRoutingLine(ProdOrderLine, ProdOrderRtngLine, IsLastOperation, OutputQty),
                   PutawayQtyBaseToCalc);
+                ItemJnlLine."Concurrent Capacity" := ProdOrderRtngLine."Concurrent Capacities";
                 ItemJnlLine."Source Code" := SourceCodeSetup.Flushing;
                 if not (ItemJnlLine.TimeIsEmpty and (ItemJnlLine."Output Quantity" = 0)) then begin
                     DimMgt.UpdateGlobalDimFromDimSetID(
@@ -1094,7 +1095,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalculateQtyToPost(ProdOrderComponent: Record "Prod. Order Component"; var QtyToPost: Decimal)
+    local procedure OnAfterCalculateQtyToPost(ProdOrderComponent: Record "Prod. Order Component"; var QtyToPost: Decimal; ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status")
     begin
     end;
 
@@ -1189,7 +1190,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyFromProdOrderRoutingLine(var ToProdOrderRoutingLine: Record "Prod. Order Routing Line"; FromProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    local procedure OnCopyFromProdOrderRoutingLine(var ToProdOrderRoutingLine: Record "Prod. Order Routing Line"; FromProdOrderRoutingLine: Record "Prod. Order Routing Line"; NewPostingDate: Date)
     begin
     end;
 
@@ -1274,7 +1275,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransProdOrderOnBeforeToProdOrderInsert(var ToProdOrder: Record "Production Order"; FromProdOrder: Record "Production Order")
+    local procedure OnTransProdOrderOnBeforeToProdOrderInsert(var ToProdOrder: Record "Production Order"; FromProdOrder: Record "Production Order"; NewPostingDate: Date)
     begin
     end;
 

@@ -28,6 +28,7 @@ page 5080 "Job Responsibilities"
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Job Responsibility Contacts";
                     ToolTip = 'Specifies the number of contacts that have been assigned the job responsibility.';
+                    Visible = HideNumberOfContacts;
                 }
             }
         }
@@ -66,5 +67,19 @@ page 5080 "Job Responsibilities"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        HideNumberOfContacts := false;
+    end;
+
+    internal procedure HideNumberOfContactsField()
+    begin
+        HideNumberOfContacts := true;
+    end;
+
+    var
+        [InDataSet]
+        HideNumberOfContacts: Boolean;
 }
 

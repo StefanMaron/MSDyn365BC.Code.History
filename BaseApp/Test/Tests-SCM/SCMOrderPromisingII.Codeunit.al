@@ -23,6 +23,7 @@ codeunit 137157 "SCM Order Promising II"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryJob: Codeunit "Library - Job";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -1324,6 +1325,161 @@ codeunit 137157 "SCM Order Promising II"
         Assert.RecordCount(OrderPromisingLine, 2);
     end;
 
+    [Test]
+    [HandlerFunctions('OrderPromisingLinesCTPModalPageHandler')]
+    procedure CancelingReservationForSalesLineOnClosingCTPWithoutAccepting()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Sales] [Capable to Promise] [Reservation] [Item Tracking]
+        // [SCENARIO 417611] Cancel reservation for sales line with an item set up for Reserve = "Never" when closing Capable to Promise page without accepting dates.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Lot-tracked item set up for Reserve = "Never".
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Never);
+        Item.Modify(true);
+
+        // [GIVEN] Post 20 pcs of the item to inventory, assign lot no. "L".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for 40 pcs, select 20 pcs with lot "L" in item tracking.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 2 * Qty, '', WorkDate());
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNo, Qty);
+
+        // [WHEN] Open Order Promising page, calculate "Capable to Promise" and close the page without accepting dates.
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoKey(SalesHeader."Document Type", SalesHeader."No.");
+        SalesOrder.OrderPromising.Invoke();
+
+        // [THEN] The sales line has Reserve = "Never" and Reserved Quantity = 0.
+        SalesLine.Find();
+        SalesLine.CalcFields("Reserved Quantity");
+        SalesLine.TestField("Reserved Quantity", 0);
+        SalesLine.TestField(Reserve, SalesLine.Reserve::Never);
+
+        // [THEN] The item tracking for the sales line is in place.
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Quantity (Base)", -Qty);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,ServiceLinesModalPageHandler,OrderPromisingLinesCTPModalPageHandler')]
+    procedure CancelingReservationForServiceLineOnClosingCTPWithoutAccepting()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceOrder: TestPage "Service Order";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Service] [Capable to Promise] [Reservation] [Item Tracking]
+        // [SCENARIO 417611] Cancel reservation for service line with an item set up for Reserve = "Never" when closing Capable to Promise page without accepting dates.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Lot-tracked item set up for Reserve = "Never".
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Never);
+        Item.Modify(true);
+
+        // [GIVEN] Post 20 pcs of the item to inventory, assign lot no. "L".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Service order for 40 pcs, select 20 pcs of lot "L" in item tracking.
+        CreateServiceOrder(ServiceHeader, ServiceLine, WorkDate(), Item."No.", '', 2 * Qty);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        ServiceLine.OpenItemTrackingLines();
+
+        // [GIVEN] Open Order Promising page for the service line, calculate "Capable to Promise" and close the page without accepting dates.
+        ServiceOrder.OpenEdit();
+        ServiceOrder.GotoKey(ServiceHeader."Document Type", ServiceHeader."No.");
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+
+        // [THEN] The service line has Reserve = "Never" and Reserved Quantity = 0.
+        ServiceLine.Find();
+        ServiceLine.CalcFields("Reserved Quantity");
+        ServiceLine.TestField("Reserved Quantity", 0);
+        ServiceLine.TestField(Reserve, ServiceLine.Reserve::Never);
+
+        // [THEN] The item tracking for the service line is in place.
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", true);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Quantity (Base)", -Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('OrderPromisingLinesCTPModalPageHandler')]
+    procedure CancelingReservationForJobPlanningLineOnClosingCTPWithoutAccepting()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobCard: TestPage "Job Card";
+        JobPlanningLines: TestPage "Job Planning Lines";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Job] [Capable to Promise] [Reservation] [Item Tracking]
+        // [SCENARIO 417611] Cancel reservation for job planning line with an item set up for Reserve = "Never" when closing Capable to Promise page without accepting dates.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Item set up for Reserve = "Never".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Never);
+        Item.Modify(true);
+
+        // [GIVEN] Post 20 pcs of the item to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Job, job task, and job planning line for 40 pcs.
+        CreateJobWithJobPlanningLine(Job, JobPlanningLine, WorkDate(), Item."No.", '', 2 * Qty);
+
+        JobPlanningLines.Trap();
+        JobCard.OpenEdit();
+        JobCard.FILTER.SetFilter("No.", Job."No.");
+        JobCard.JobPlanningLines.Invoke();
+
+        // [GIVEN] Open Order Promising page for the job planning line, calculate "Capable to Promise" and close the page without accepting dates.
+        JobPlanningLines.OrderPromising.Invoke();
+
+        // [THEN] The job planning line has Reserve = "Never" and Reserved Quantity = 0.
+        JobPlanningLine.Find();
+        JobPlanningLine.CalcFields("Reserved Quantity");
+        JobPlanningLine.TestField("Reserved Quantity", 0);
+        JobPlanningLine.TestField(Reserve, JobPlanningLine.Reserve::Never);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1953,6 +2109,27 @@ codeunit 137157 "SCM Order Promising II"
             OrderPromisingLines.AcceptButton.Invoke
         else
             OrderPromisingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure OrderPromisingLinesCTPModalPageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
+    begin
+        OrderPromisingLines.CapableToPromise.Invoke();
+        OrderPromisingLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ServiceLinesModalPageHandler(var ServiceLines: TestPage "Service Lines")
+    begin
+        ServiceLines."Order &Promising".Invoke();
     end;
 
     [ModalPageHandler]

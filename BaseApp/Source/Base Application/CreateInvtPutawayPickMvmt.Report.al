@@ -315,7 +315,13 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
         SalesHeader: Record "Sales Header";
         TransferHeader: Record "Transfer Header";
         GetSrcDocOutbound: Codeunit "Get Source Doc. Outbound";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWhseRequest(WhseRequest, ShowError, SkipRecord, IsHandled);
+        if IsHandled then
+            exit(SkipRecord);
+
         if WhseRequest."Document Status" <> WhseRequest."Document Status"::Released then
             SkipRecord := true
         else
@@ -378,6 +384,11 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitWhseActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseRequest: Record "Warehouse Request")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseRequest(var WarehouseRequest: Record "Warehouse Request"; ShowError: Boolean; var SkipRecord: Boolean; var IsHandled: Boolean)
     begin
     end;
 

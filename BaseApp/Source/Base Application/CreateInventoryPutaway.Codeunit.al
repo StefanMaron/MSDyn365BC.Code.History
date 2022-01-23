@@ -203,7 +203,7 @@ codeunit 7321 "Create Inventory Put-away"
             repeat
                 IsHandled := false;
                 OnBeforeCreatePutAwayLinesFromPurchaseLoop(WhseActivHeader, PurchHeader, IsHandled, PurchLine);
-                if not IsHandled then
+                if not IsHandled and IsInventoriableItem() then
                     if not NewWhseActivLine.ActivityExists(DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, 0) then begin
                         if "Document Type" = "Document Type"::Order then
                             RemQtyToPutAway := "Qty. to Receive"
@@ -287,11 +287,7 @@ codeunit 7321 "Create Inventory Put-away"
             else
                 SetFilter("Return Qty. to Ship", '<%1', 0);
             OnBeforeFindPurchLine(PurchLine, WhseActivHeader);
-
-            if not Find('-') then
-                exit(false);
-
-            exit(IsInventoriableItem());
+            exit(FindFirst());
         end;
     end;
 
@@ -314,7 +310,7 @@ codeunit 7321 "Create Inventory Put-away"
             repeat
                 IsHandled := false;
                 OnBeforeCreatePutAwayLinesFromSalesLoop(WhseActivHeader, SalesHeader, IsHandled, SalesLine);
-                if not IsHandled then
+                if not IsHandled and IsInventoriableItem() then
                     if not NewWhseActivLine.ActivityExists(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, 0) then begin
                         if "Document Type" = "Document Type"::Order then
                             RemQtyToPutAway := -"Qty. to Ship"
@@ -395,11 +391,7 @@ codeunit 7321 "Create Inventory Put-away"
             else
                 SetFilter("Return Qty. to Receive", '>%1', 0);
             OnBeforeFindSalesLine(SalesLine, WhseActivHeader);
-
-            if not Find('-') then
-                exit(false);
-
-            exit(IsInventoriableItem());
+            exit(FindFirst());
         end;
     end;
 

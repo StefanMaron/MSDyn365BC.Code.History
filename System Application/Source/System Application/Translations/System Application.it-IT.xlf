@@ -339,6 +339,42 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Barcode Encode Settings - Field Use mod 10 - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 418391747 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Barcode Encode Settings 2D</source>
+          <target state="translated">Impostazioni di codifica del codice a barre 2D</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Barcode Encode Settings 2D - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 418391747 - Field 1574134058 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code Page</source>
+          <target state="translated">Tabella codici</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Barcode Encode Settings 2D - Field Code Page - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 418391747 - Field 3661383196 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error Correction Level</source>
+          <target state="translated">Livello di correzione degli errori</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Barcode Encode Settings 2D - Field Error Correction Level - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 418391747 - Field 3661383196 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>High,Medium,Low,Quartile</source>
+          <target state="translated">Alto,Medio,Basso,Quartile</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Barcode Encode Settings 2D - Field Error Correction Level - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 418391747 - Field 1530333657 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Module Size</source>
+          <target state="translated">Dimensioni modulo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Barcode Encode Settings 2D - Field Module Size - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 418391747 - Field 1271216640 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Quite Zone Width</source>
+          <target state="translated">Larghezza del margine</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Barcode Encode Settings 2D - Field Quite Zone Width - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 1584771742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Business Setup Icon</source>
           <target state="translated">Icona setup aziendale</target>
@@ -993,6 +1029,48 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Account Scenario - Field Scenario - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4217154468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address Lookup</source>
+          <target state="translated">Ricerca indirizzo e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Address Lookup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4217154468 - Field 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company</source>
+          <target state="translated">Società</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Address Lookup - Field Company - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4217154468 - Field 3964121897 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>E-Mail Address</source>
+          <target state="translated">Indirizzo e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Address Lookup - Field E-Mail Address - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4217154468 - Field 2991225797 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entity type</source>
+          <target state="translated">Tipo di entità</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Address Lookup - Field Entity type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4217154468 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Nome</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Address Lookup - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4217154468 - Field 2847409975 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source System Id</source>
+          <target state="translated">ID sistema di origine</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Address Lookup - Field Source System Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4217154468 - Field 1972828756 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Table Number</source>
+          <target state="translated">Numero tabella di origine</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Address Lookup - Field Source Table Number - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 1993094577 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Connector</source>
           <target state="translated">Connettore e-mail</target>
@@ -1310,6 +1388,12 @@
           <target state="translated">ID messaggio e-mail</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Related Record - Field Email Message Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 712487250 - Field 2545815918 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Relation Origin</source>
+          <target state="translated">Origine relazione</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Related Record - Field Relation Origin - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 712487250 - Field 526938458 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Relation Type</source>
@@ -4209,6 +4293,18 @@
           <note from="Developer" annotates="general" priority="2">%1 is the short product name (e.g. Business Central)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Sharing Impl. - NamedType UploadingBlobTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 529912643 - NamedType 94485731" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Provider %1: 2D Barcode symbol encoder %2 is not implemented by this provider!</source>
+          <target state="translated">Provider %1: il codificatore simbolo codice a barre 2D %2 non è implementato da questo provider.</target>
+          <note from="Developer" annotates="general" priority="2">%1 Provider Caption, %2 = Symbology Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dynamics 2D Provider - NamedType CannotFindBarcodeEncoderErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3458482185 - Method 3241350467 - NamedType 736015922" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>QR Code could not be created.</source>
+          <target state="translated">Impossibile creare il codice a matrice.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dynamics 2D QR-Code Encoder - Method EncodeImage - NamedType CannotCreateQrCodeErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2873841822 - NamedType 2456773564" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Export</source>
           <target state="translated">Esporta</target>
@@ -4262,6 +4358,18 @@
           <target state="translated">Impossibile analizzare il parametro PastDate.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Activities - NamedType ParsePastDateErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4285341516 - NamedType 3734943416" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email address %1 already added</source>
+          <target state="translated">L'indirizzo e-mail %1 è già stato aggiunto</target>
+          <note from="Developer" annotates="general" priority="2">%1 email address</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Address Lookup Impl - NamedType EmailAddressDuplicateMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4285341516 - NamedType 397957478" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 has no email address stored</source>
+          <target state="translated">%1 non ha alcun indirizzo e-mail archiviato</target>
+          <note from="Developer" annotates="general" priority="2">%1 suggested address</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Address Lookup Impl - NamedType NoEmailAddressMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 2346962245 - NamedType 3308730253" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email message has been deleted by another user.</source>
@@ -4347,11 +4455,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType EmailMessageSentErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3795645336 - NamedType 3880130517" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 3795645336 - NamedType 2139460900" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You do not have the permissions required to send emails. Ask your administrator to grant you the Read, Insert, Modify and Delete permissions for the Sent Email and Email Outbox tables.</source>
           <target state="translated">Non si dispone delle autorizzazioni necessarie per inviare messaggi e-mail. Richiedere all'amministratore le autorizzazioni di lettura, inserimento, modifica ed eliminazione per le tabelle dei messaggi e-mail inviati e della posta in uscita.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InsufficientPermisionsErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InsufficientPermissionsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3795645336 - NamedType 895649859" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The provided email account does not exist.</source>
@@ -5396,12 +5504,6 @@
           <target state="translated">%1:%2</target>
           <note from="Developer" annotates="general" priority="2">%1 = Key; %2 = Value</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stor. Serv. Auth. Shared Key - Method GetCanonicalizedResource - NamedType KeyValuePairLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1603529812 - Method 1775191576 - NamedType 1444867455" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SharedKey %1:%2</source>
-          <target state="translated">SharedKey %1 :%2</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Account Name; %2 = Calculated Signature</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stor. Serv. Auth. Shared Key - Method GetSharedKeySignature - NamedType SignaturePlaceHolderLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 1603529812 - Method 1775191576 - NamedType 4083372884" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Secret (Access Key) must be provided</source>
@@ -8340,6 +8442,66 @@
           <target state="translated">Messaggi e-mail inviati negli ultimi 30 giorni</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Activities - Control Sent Emails - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Full Address Lists</source>
+          <target state="translated">Nuovo,Processo,Report,Liste di indirizzi completi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Property PromotedActionCategories</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Suggested Email Addresses</source>
+          <target state="translated">Indirizzi e-mail suggeriti</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - NamedType 3719062343" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No address suggestions were found. Click the menu action "Full Address Lists" to search for more email addresses.</source>
+          <target state="translated">Non sono stati trovati suggerimenti di indirizzi. Fare clic sull'azione di menu "Liste di indirizzi completi" per cercare altri indirizzi e-mail.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - NamedType UserHelpNotificationTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Control 1619637574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select type of entity to show</source>
+          <target state="translated">Selezionare il tipo di entità da visualizzare</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Control Type of entity - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Control 1619637574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select entity</source>
+          <target state="translated">Seleziona entità</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Control Type of entity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company.</source>
+          <target state="translated">Società.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Control Company - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Control 90141998 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>E-Mail Address.</source>
+          <target state="translated">Indirizzo e-mail.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Control Email Address - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name.</source>
+          <target state="translated">Nome.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Action 2183420390 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add addresses from Users.</source>
+          <target state="translated">Aggiungere indirizzi da Utenti.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Action Users - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Action 2183420390 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Users</source>
+          <target state="translated">Utenti</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Action Users - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 761349018 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Attachments</source>
@@ -14520,6 +14682,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Barcode Font Provider 2D - EnumValue IDAutomation2D - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Enum 3491348560 - EnumValue 3308141876 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dynamics QR Code Provider</source>
+          <target state="translated">Provider codice a matrice di Dynamics</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Barcode Image Provider 2D - EnumValue Dynamics2D - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Enum 3362773080 - EnumValue 670344902 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Anyone with roles</source>
           <target state="translated">Chiunque con ruoli</target>
@@ -14615,6 +14783,24 @@
           <target state="translated">Sfavorevole</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Cues And KPIs Style - EnumValue Unfavorable - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 473279323 - EnumValue 1814464443 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User</source>
+          <target state="translated">Utente</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Email Address Entity - EnumValue User - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1707166242 - EnumValue 27127529 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Compose Context</source>
+          <target state="translated">Contesto di composizione e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Email Relation Origin - EnumValue Compose Context - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1707166242 - EnumValue 4217154468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address Lookup</source>
+          <target state="translated">Ricerca indirizzo e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Email Relation Origin - EnumValue Email Address Lookup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 4060300230 - EnumValue 2229726827 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Primary Source</source>

@@ -641,11 +641,12 @@ page 29 "Vendor Ledger Entries"
                     VendorLedgerEntry: Record "Vendor Ledger Entry";
                     GenJournalBatch: Record "Gen. Journal Batch";
                     GenJnlManagement: Codeunit GenJnlManagement;
+                    CreatePayment: Page "Create Payment";
                 begin
                     CurrPage.SetSelectionFilter(VendorLedgerEntry);
                     if CreatePayment.RunModal = ACTION::OK then begin
                         CreatePayment.MakeGenJnlLines(VendorLedgerEntry);
-                        GetBatchRecord(GenJournalBatch);
+                        GetBatchRecord(GenJournalBatch, CreatePayment);
                         GenJnlManagement.TemplateSelectionFromBatch(GenJournalBatch);
                         Clear(CreatePayment);
                     end else
@@ -690,7 +691,6 @@ page 29 "Vendor Ledger Entries"
     var
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
-        CreatePayment: Page "Create Payment";
         StyleTxt: Text;
         HasIncomingDocument: Boolean;
         HasDocumentAttachment: Boolean;
@@ -728,7 +728,7 @@ page 29 "Vendor Ledger Entries"
         VendNameVisible := PurchSetup."Copy Vendor Name to Entries";
     end;
 
-    local procedure GetBatchRecord(var GenJournalBatch: Record "Gen. Journal Batch")
+    local procedure GetBatchRecord(var GenJournalBatch: Record "Gen. Journal Batch"; CreatePayment: Page "Create Payment")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         JournalTemplateName: Code[10];

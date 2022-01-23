@@ -113,9 +113,9 @@ codeunit 5817 "Undo Posting Management"
             TestWarehouseReceiptLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
         if not (UndoType in [DATABASE::"Sales Shipment Line", DATABASE::"Return Shipment Line", DATABASE::"Service Shipment Line"]) then
             TestWarehouseShipmentLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
-        TestPostedWhseShipmentLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
-        TestPostedInvtPutAwayLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
-        TestPostedInvtPickLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
+        TestPostedWhseShipmentLine(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
+        TestPostedInvtPutAwayLine(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
+        TestPostedInvtPickLine(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
 
         TestItemChargeAssignmentPurch(UndoType, UndoLineNo, SourceID, SourceRefNo);
         TestItemChargeAssignmentSales(UndoType, UndoLineNo, SourceID, SourceRefNo);
@@ -330,14 +330,14 @@ codeunit 5817 "Undo Posting Management"
         end;
     end;
 
-    local procedure TestPostedWhseShipmentLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
+    local procedure TestPostedWhseShipmentLine(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
     var
         PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
         WhseManagement: Codeunit "Whse. Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTestPostedWhseShipmentLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo, IsHandled);
+        OnBeforeTestPostedWhseShipmentLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo, IsHandled, UndoType, UndoID);
         if IsHandled then
             exit;
 
@@ -366,13 +366,13 @@ codeunit 5817 "Undo Posting Management"
         end;
     end;
 
-    local procedure TestPostedInvtPutAwayLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
+    local procedure TestPostedInvtPutAwayLine(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
     var
         PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTestPostedInvtPutAwayLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo, IsHandled);
+        OnBeforeTestPostedInvtPutAwayLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo, IsHandled, UndoType, UndoID);
         if IsHandled then
             exit;
 
@@ -383,13 +383,13 @@ codeunit 5817 "Undo Posting Management"
         end;
     end;
 
-    local procedure TestPostedInvtPickLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
+    local procedure TestPostedInvtPickLine(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
     var
         PostedInvtPickLine: Record "Posted Invt. Pick Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTestPostedInvtPickLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo, IsHandled);
+        OnBeforeTestPostedInvtPickLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo, IsHandled, UndoType, UndoID);
         if IsHandled then
             exit;
 
@@ -1212,17 +1212,17 @@ codeunit 5817 "Undo Posting Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestPostedInvtPickLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeTestPostedInvtPickLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; var IsHandled: Boolean; UndoType: Integer; UndoID: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestPostedInvtPutAwayLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeTestPostedInvtPutAwayLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; var IsHandled: Boolean; UndoType: Integer; UndoID: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestPostedWhseShipmentLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeTestPostedWhseShipmentLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; var IsHandled: Boolean; UndoType: Integer; UndoID: Code[20])
     begin
     end;
 

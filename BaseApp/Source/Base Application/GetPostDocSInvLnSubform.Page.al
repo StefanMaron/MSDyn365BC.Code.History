@@ -68,9 +68,9 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -368,7 +368,6 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
 
     trigger OnOpenPage()
     begin
-        SetItemReferenceVisibility();
     end;
 
     var
@@ -386,8 +385,6 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
         ShowRec: Boolean;
         [InDataSet]
         DocumentNoHideValue: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
     var
@@ -504,13 +501,6 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

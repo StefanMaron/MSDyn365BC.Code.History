@@ -1618,6 +1618,8 @@ codeunit 134118 "Price List Header UT"
         NewJobNo: Code[20];
     begin
         Initialize();
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
         // [GIVEN] Job 'J' with Job Task 'JT'
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);

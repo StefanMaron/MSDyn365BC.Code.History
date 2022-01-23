@@ -139,7 +139,8 @@ codeunit 431 "IC Outbox Export"
 
                     if IsWebClient() then begin
                         OutFileName := StrSubstNo('%1_%2.xml', ICPartner.Code, ICOutboxTrans."Transaction No.");
-                        Download(FileName, '', '', '', OutFileName)
+                        if not AddBatchProcessingArtifact(FileName, CopyStr(OutFileName, 1, 1024)) then
+                            Download(FileName, '', '', '', OutFileName)
                     end else
                         FileName := FileMgt.DownloadTempFile(FileName);
 
@@ -195,6 +196,7 @@ codeunit 431 "IC Outbox Export"
                                 Text002, CompanyInfo.Name, CompanyInfo.FieldCaption("IC Partner Code"), CompanyInfo."IC Partner Code"),
                               FileName, false);
                     end;
+                    OnSendToExternalPartnerOnAfterDocWasSent(ICPartner, FileName);
                     ICOutboxTrans.Find('-');
                     repeat
                         ICInboxOutboxMgt.MoveOutboxTransToHandledOutbox(ICOutboxTrans);
@@ -204,6 +206,71 @@ codeunit 431 "IC Outbox Export"
         ICOutboxTrans.SetRange("IC Partner Code");
         if ICPartnerFilter <> '' then
             ICOutboxTrans.SetFilter("IC Partner Code", ICPartnerFilter);
+    end;
+
+    local procedure AddBatchProcessingArtifact(FilePath: Text; ArtifactName: Text[1024]): Boolean
+    var
+        BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
+        FileManagement: Codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
+        BatchProcessingArtifactType: Enum "Batch Processing Artifact Type";
+    begin
+        if not BatchProcessingMgt.IsActive() then
+            exit(false);
+
+        FileManagement.BLOBImportFromServerFile(TempBlob, FilePath);
+
+        BatchProcessingMgt.AddArtifact(BatchProcessingArtifactType::"IC Output File", ArtifactName, TempBlob);
+
+        exit(true);
+    end;
+
+    procedure DownloadBatchFiles(DownloadFileName: Text)
+    var
+        TempBatchProcessingArtifact: Record "Batch Processing Artifact" temporary;
+        BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
+        DataCompression: Codeunit "Data Compression";
+        FileManagement: Codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
+        InStreamVar: InStream;
+        OutStreamVar: OutStream;
+        BatchProcessingArtifactType: Enum "Batch Processing Artifact Type";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDownloadBatchFiles(IsHandled);
+        if IsHandled then
+            exit;
+
+        if not BatchProcessingMgt.IsActive() then
+            exit;
+
+        if not BatchProcessingMgt.GetArtifacts(BatchProcessingArtifactType::"IC Output File", TempBatchProcessingArtifact) then
+            exit;
+
+        DataCompression.CreateZipArchive();
+
+        TempBatchProcessingArtifact.FindSet();
+        repeat
+            Clear(InStreamVar);
+            Clear(TempBlob);
+            TempBlob.FromRecord(TempBatchProcessingArtifact, TempBatchProcessingArtifact.FieldNo("Artifact Value"));
+            TempBlob.CreateInStream(InStreamVar);
+            DataCompression.AddEntry(InStreamVar, TempBatchProcessingArtifact."Artifact Name");
+        until TempBatchProcessingArtifact.Next() = 0;
+
+
+        Clear(InStreamVar);
+        Clear(TempBlob);
+
+        TempBlob.CreateOutStream(OutStreamVar);
+
+        DataCompression.SaveZipArchive(OutStreamVar);
+        DataCompression.CloseZipArchive();
+
+        TempBlob.CreateInStream(InStreamVar);
+
+        FileManagement.DownloadFromStreamHandler(InStreamVar, '', '', '', DownloadFileName);
     end;
 
     procedure SendToInternalPartner(var ICOutboxTrans: Record "IC Outbox Transaction")
@@ -356,7 +423,17 @@ codeunit 431 "IC Outbox Export"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadBatchFiles(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeConfirmGetResponseOrDefault(var IsHandled: Boolean; var ICOutboxTransaction: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToExternalPartnerOnAfterDocWasSent(ICPartner: Record "IC Partner"; FileName: Text)
     begin
     end;
 

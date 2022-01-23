@@ -206,6 +206,7 @@ table 981 "Payment Registration Buffer"
                         "Payment Method Code" := GetO365DefalutPaymentMethodCode;
                     "Bal. Account Type" := "Payment Balance Account Type".FromInteger(PaymentRegistrationSetup."Bal. Account Type");
                     "Bal. Account No." := PaymentRegistrationSetup."Bal. Account No.";
+                    "External Document No." := CustLedgerEntry."External Document No.";
                     OnPopulateTableOnBeforeInsert(Rec, CustLedgerEntry);
                     Insert();
                 end;

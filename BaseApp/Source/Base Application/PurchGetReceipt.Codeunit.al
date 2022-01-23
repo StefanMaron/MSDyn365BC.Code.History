@@ -6,7 +6,7 @@ codeunit 74 "Purch.-Get Receipt"
     begin
         PurchHeader.Get("Document Type", "Document No.");
         PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Invoice);
-        PurchHeader.TestField(Status, PurchHeader.Status::Open);
+        PurchHeader.TestStatusOpen();
 
         PurchRcptLine.SetCurrentKey("Pay-to Vendor No.");
         PurchRcptLine.SetRange("Pay-to Vendor No.", PurchHeader."Pay-to Vendor No.");

@@ -103,6 +103,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">EnumExtension Current User Connector - EnumValue Current User - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 3536309230 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Current User Connector - Objects</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet EmailCurUser-Objects - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

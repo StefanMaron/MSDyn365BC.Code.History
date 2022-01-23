@@ -32,6 +32,8 @@ codeunit 136145 "Service Contracts II"
         SignContractConfirmQst: Label 'Do you want to sign service contract';
         NewLinesAddedConfirmQst: Label 'New lines have been added to this contract.\Would you like to continue?';
         CurrentSaveValuesId: Integer;
+        ConfirmLaterPostingDateQst: Label 'The posting date is later than the work date.\\Confirm that this is the correct date.';
+        ConfirmLaterInvoiceToDateQst: Label 'The Invoice-to Date is later than the work date.\\Confirm that this is the correct date.';
         NextPlannedServiceDateConfirmQst: Label 'The Next Planned Service Date field is empty on one or more service contract lines, and service orders cannot be created automatically. Do you want to continue?';
 
     [Test]
@@ -1524,6 +1526,36 @@ codeunit 136145 "Service Contracts II"
           "Amount per Period", Round(ServiceContractHeader."Annual Amount" / 2, LibraryERM.GetAmountRoundingPrecision));
     end;
 
+    [Test]
+    [HandlerFunctions('Scenario421481ConfirmHandler,CreateContractInvoicesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunCreateContractInvoicesForSignedContractWithNoInvoiceCreatedBefore()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceDocumentRegister: Record "Service Document Register";
+    begin
+        // [SCENARIO 421481] Create Service Contract Invoice run without error after contract signed without creating invoice
+        Initialize();
+
+        // [GIVEN] Prepaid Service Contract with Contract Line 
+        CreateServiceContractWithLine(
+            ServiceContractHeader, ServiceContractLine, CalcDate('<CM>', WorkDate()), 0D, ServiceContractHeader."Invoice Period"::Month, true);
+        // [GIVEN] Sign contract without creating invoice
+        SignContract(ServiceContractHeader);
+
+        // [WHEN] Run Create Service Contract Invoice
+        LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Date");
+        LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
+        RunCreateContractInvoices();
+
+        // [THEN] Contract invoice created without error
+        ServiceDocumentRegister.SetRange("Source Document No.", ServiceContractHeader."Contract No.");
+        ServiceDocumentRegister.SetRange("Source Document Type", "Service Source Document Type"::Contract);
+        ServiceDocumentRegister.SetRange("Destination Document Type", "Service Destination Document Type"::Invoice);
+        Assert.RecordIsNotEmpty(ServiceDocumentRegister);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2519,6 +2551,20 @@ codeunit 136145 "Service Contracts II"
     procedure SignContractYesConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := StrPos(Question, SignContractConfirmQst) <> 0;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure Scenario421481ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        // Yes to confirm sign contract
+        // No to create invoice while signing
+        // Yes to confirm later Posting Date
+        // Yes to confirm later Inoice-to Date
+        Reply :=
+            (StrPos(Question, SignContractConfirmQst) <> 0) or
+            (StrPos(Question, ConfirmLaterPostingDateQst) <> 0) or
+            (StrPos(Question, ConfirmLaterInvoiceToDateQst) <> 0);
     end;
 
     local procedure DeleteObjectOptionsIfNeeded()

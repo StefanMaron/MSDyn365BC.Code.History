@@ -1379,10 +1379,170 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    procedure T072_JobPlanningLineForGLAccountPicksCostByMinQty()
+    var
+        GLAccountNo: Code[20];
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        PriceListLine: array[2] of Record "Price List Line";
+        PriceListHeader: Record "Price List Header";
+    begin
+        Initialize();
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, "Price Calculation Method"::"Lowest Price", "Price Type"::Purchase,
+            "Price Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
+
+        // [GIVEN] GLAccount 'A'
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        // [GIVEN] Price list for 'J' where are 2 lines for account 'A':
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Job, Job."No.");
+        // [GIVEN] 1st line, where "Minimum Quantity" is 0, "Direct Unit Cost" is 1000
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", GLAccountNo);
+        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] 2nd line, where "Minimum Quantity" is 2, "Direct Unit Cost" is 999
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", GLAccountNo);
+        PriceListLine[2]."Minimum Quantity" := 2;
+        PriceListLine[2]."Direct Unit Cost" := PriceListLine[1]."Direct Unit Cost" - 1;
+        PriceListLine[2].Status := PriceListLine[2].Status::Active;
+        PriceListLine[2].Modify();
+        // [GIVEN] Job Planning Line, where Job 'J'
+        JobPlanningLine.Validate("Job No.", Job."No.");
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::"G/L Account");
+
+        // [WHEN] Enter G/L Account 'A' in the Job Planning Line
+        JobPlanningLine.Validate("No.", GLAccountNo);
+        // [THEN] "Unit Cost" is 1000, "Unit Price" is 0
+        JobPlanningLine.TestField("Unit Cost", PriceListLine[1]."Direct Unit Cost");
+        JobPlanningLine.TestField("Unit Price", 0);
+
+        // [WHEN] Change Quantity to 2
+        JobPlanningLine.Validate(Quantity, 2);
+        // [THEN] "Unit Cost" is 999, "Unit Price" is 0
+        JobPlanningLine.TestField("Unit Cost", PriceListLine[2]."Direct Unit Cost");
+        JobPlanningLine.TestField("Unit Price", 0);
+    end;
+
+    [Test]
+    procedure T073_JobPlanningLineForItemPicksCostByMinQty()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        PriceListLine: array[2] of Record "Price List Line";
+        PriceListHeader: Record "Price List Header";
+    begin
+        Initialize();
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, "Price Calculation Method"::"Lowest Price", "Price Type"::Purchase,
+            "Price Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
+
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        // [GIVEN] Price list for 'J' where are 2 lines for Item 'I':
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Job, Job."No.");
+        // [GIVEN] 1st line, where "Minimum Quantity" is 0, "Direct Unit Cost" is 1000
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] 2nd line, where "Minimum Quantity" is 2, "Direct Unit Cost" is 999
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[2]."Minimum Quantity" := 2;
+        PriceListLine[2]."Direct Unit Cost" := PriceListLine[1]."Direct Unit Cost" - 1;
+        PriceListLine[2].Status := PriceListLine[2].Status::Active;
+        PriceListLine[2].Modify();
+        // [GIVEN] Job Planning Line, where Job 'J'
+        JobPlanningLine.Validate("Job No.", Job."No.");
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+
+        // [WHEN] Enter Item 'I' in the Job Planning Line
+        JobPlanningLine.Validate("No.", Item."No.");
+        // [THEN] "Direct Unit Cost (LCY)" is 1000, "Unit Cost" is 0, "Unit Price" is 0
+        JobPlanningLine.TestField("Direct Unit Cost (LCY)", PriceListLine[1]."Direct Unit Cost");
+        JobPlanningLine.TestField("Unit Cost", 0);
+        JobPlanningLine.TestField("Unit Price", 0);
+
+        // [WHEN] Change Quantity to 2
+        JobPlanningLine.Validate(Quantity, 2);
+        // [THEN] "Direct Unit Cost (LCY)" is 999, "Unit Cost" is 0, "Unit Price" is 0
+        JobPlanningLine.TestField("Direct Unit Cost (LCY)", PriceListLine[2]."Direct Unit Cost");
+        JobPlanningLine.TestField("Unit Cost", 0);
+        JobPlanningLine.TestField("Unit Price", 0);
+    end;
+
+    [Test]
+    procedure T074_JobPlanningLineForResourcePicksCostByMinQty()
+    var
+        Resource: Record Resource;
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        PriceListLine: array[2] of Record "Price List Line";
+        PriceListHeader: Record "Price List Header";
+    begin
+        Initialize();
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, "Price Calculation Method"::"Lowest Price", "Price Type"::Purchase,
+            "Price Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
+
+        // [GIVEN] Resource 'R'
+        LibraryResource.CreateResource(Resource, '');
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        // [GIVEN] Price list for 'J' where are 2 lines for Resource 'R':
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Job, Job."No.");
+        // [GIVEN] 1st line, where "Minimum Quantity" is 0, "Direct Unit Cost" is 1000, "Unit Cost" is 1010
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine[1]."Unit Cost" := PriceListLine[1]."Direct Unit Cost" + 10;
+        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] 2nd line, where "Minimum Quantity" is 2, "Direct Unit Cost" is 999, "Unit Cost" is 1019
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine[2]."Minimum Quantity" := 2;
+        PriceListLine[2]."Direct Unit Cost" := PriceListLine[1]."Direct Unit Cost" - 1;
+        PriceListLine[2]."Unit Cost" := PriceListLine[2]."Direct Unit Cost" + 20;
+        PriceListLine[2].Status := PriceListLine[2].Status::Active;
+        PriceListLine[2].Modify();
+        // [GIVEN] Job Planning Line, where Job 'J'
+        JobPlanningLine.Validate("Job No.", Job."No.");
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Resource);
+
+        // [WHEN] Enter Resource 'R' in the Job Planning Line
+        JobPlanningLine.Validate("No.", Resource."No.");
+        // [THEN] "Direct Unit Cost (LCY)" is 1000, "Unit Cost (LCY)" is 1010, "Unit Cost" is 1010
+        JobPlanningLine.TestField("Direct Unit Cost (LCY)", PriceListLine[1]."Direct Unit Cost");
+        JobPlanningLine.TestField("Unit Cost (LCY)", PriceListLine[1]."Unit Cost");
+        JobPlanningLine.TestField("Unit Cost", PriceListLine[1]."Unit Cost");
+
+        // [WHEN] Change Quantity to 2
+        JobPlanningLine.Validate(Quantity, 2);
+        // [THEN] "Direct Unit Cost (LCY)" is 999, "Unit Cost (LCY)" is 1019, "Unit Cost" is 1019
+        JobPlanningLine.TestField("Direct Unit Cost (LCY)", PriceListLine[2]."Direct Unit Cost");
+        JobPlanningLine.TestField("Unit Cost (LCY)", PriceListLine[2]."Unit Cost");
+        JobPlanningLine.TestField("Unit Cost", PriceListLine[2]."Unit Cost");
+    end;
+
+    [Test]
     procedure T080_ConvertVATNormalExclVATToNormalInclVAT()
     var
         Customer: Record Customer;
         Item: Record Item;
+        PriceCalculationSetup: Record "Price Calculation Setup";
         PriceListLine: Record "Price List Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1394,6 +1554,10 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] New pricing enabled
         LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, "Price Calculation Method"::"Lowest Price", "Price Type"::Sale,
+            "Price Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
 
         // [GIVEN] Customer 'C' and Item 'I' with VAT posting setup, where "VAT Calculation Type"::"Normal VAT"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");

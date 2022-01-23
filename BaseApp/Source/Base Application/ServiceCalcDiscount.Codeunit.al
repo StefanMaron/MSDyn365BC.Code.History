@@ -138,7 +138,7 @@ codeunit 5950 "Service-Calc. Discount"
                       ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, InvDiscBase);
 
                 DiscountNotificationMgt.NotifyAboutMissingSetup(
-                  SalesSetup.RecordId, ServHeader."Gen. Bus. Posting Group",
+                  SalesSetup.RecordId, ServHeader."Gen. Bus. Posting Group", ServiceLine2."Gen. Prod. Posting Group",
                   SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
 
                 ServHeader."Invoice Discount Calculation" := ServHeader."Invoice Discount Calculation"::"%";

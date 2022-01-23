@@ -9,26 +9,30 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMSalesOrderId: Guid;
-        CRMDocumentHasBeenPostedMsg: Label '%1 ''%2'' has been posted.', Comment = '%1=Document Type;%2=Document Id';
+        DeletedCoupledOrderNo: Code[20];
+        DeletedCoupledOrderYourReference: Text[35];
+        CRMOrderHasBeenPostedMsg: Label '%1 ''%2'' has been posted in %3.', Comment = '%1=Document Type;%2=Document Id;%3=The name of our product';
+        CRMInvoiceHasBeenPostedMsg: Label 'Invoice ''%1'' for order ''%2'' has been posted in %3.', Comment = '%1=Invoice number;%2=Order number;%3=The name of our product';
 
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeDeleteEvent', '', false, false)]
-    local procedure SetCRMSalesOrderIdOnSalesHeaderDeletion(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeDeleteAfterPosting', '', false, false)]
+    local procedure SetSalesOrderIdsOnSalesHeaderDeletion(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SkipDelete: Boolean; CommitIsSuppressed: Boolean; EverythingInvoiced: Boolean; var TempSalesLineGlobal: Record "Sales Line" temporary)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        if Rec.IsTemporary() then
+        DeletedCoupledOrderNo := '';
+        DeletedCoupledOrderYourReference := '';
+        Clear(CRMSalesOrderId);
+
+        if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Order) then
             exit;
 
-        if (Rec."Document Type" <> Rec."Document Type"::Order) or
-           (Rec.Status = Rec.Status::Open) or
-           RunTrigger // RunTrigger is expected to be FALSE on removal of Sales Order Header on posting
-        then
-            exit;
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
             exit;
 
-        if not CRMIntegrationRecord.FindIDFromRecordID(Rec.RecordId, CRMSalesOrderId) then
-            Clear(CRMSalesOrderId);
+        if CRMIntegrationRecord.FindIDFromRecordID(SalesHeader.RecordId, CRMSalesOrderId) then begin
+            DeletedCoupledOrderNo := SalesHeader."No.";
+            DeletedCoupledOrderYourReference := SalesHeader."Your Reference";
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
@@ -39,23 +43,44 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
 
         Codeunit.Run(Codeunit::"CRM Integration Management");
 
-        AddPostedSalesDocumentToCRMAccountWall(SalesHeader);
+        AddPostedSalesDocumentToCRMAccountWall(SalesHeader, SalesInvHdrNo);
 
         if not IsNullGuid(CRMSalesOrderId) then // Should be set by SetOrderOnSalesHeaderDeletion
             SetCRMSalesOrderStateAsInvoiced;
     end;
 
-    local procedure AddPostedSalesDocumentToCRMAccountWall(SalesHeader: Record "Sales Header")
+    local procedure AddPostedSalesDocumentToCRMAccountWall(var SalesHeader: Record "Sales Header"; SalesInvHdrNo: Code[20])
     var
         Customer: Record Customer;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesOrderHeader: Record "Sales Header";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
     begin
+        if not (SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice]) then
+            exit;
+
         if not CRMSetupDefaults.GetAddPostedSalesDocumentToCRMAccountWallConfig then
             exit;
-        if SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice] then begin
-            Customer.Get(SalesHeader."Sell-to Customer No.");
-            AddPostToCRMEntityWall(
-              Customer.RecordId, StrSubstNo(CRMDocumentHasBeenPostedMsg, SalesHeader."Document Type", SalesHeader."No."));
+
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Order:
+                if (SalesHeader."No." = DeletedCoupledOrderNo) then
+                    AddPostToCRMEntityWall(Customer.RecordId, StrSubstNo(CRMOrderHasBeenPostedMsg, SalesHeader."Document Type", DeletedCoupledOrderYourReference, ProductName.Short()))
+                else
+                    if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, SalesHeader."No.") then
+                        if CRMIntegrationRecord.FindByRecordID(SalesOrderHeader.RecordId) then
+                            AddPostToCRMEntityWall(Customer.RecordId, StrSubstNo(CRMOrderHasBeenPostedMsg, SalesHeader."Document Type", SalesOrderHeader."Your Reference", ProductName.Short()));
+            SalesHeader."Document Type"::Invoice:
+                if SalesInvoiceHeader.Get(SalesInvHdrNo) then
+                    if (SalesInvoiceHeader."Your Reference" <> '') and (SalesInvoiceHeader."Your Reference" = DeletedCoupledOrderYourReference) then
+                        AddPostToCRMEntityWall(Customer.RecordId, StrSubstNo(CRMInvoiceHasBeenPostedMsg, SalesInvoiceHeader."No.", SalesInvoiceHeader."Your Reference", ProductName.Short()))
+                    else
+                        if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, SalesInvoiceHeader."Order No.") then
+                            if CRMIntegrationRecord.FindByRecordID(SalesOrderHeader.RecordId) then
+                                AddPostToCRMEntityWall(Customer.RecordId, StrSubstNo(CRMInvoiceHasBeenPostedMsg, SalesInvoiceHeader."No.", SalesOrderHeader."Your Reference", ProductName.Short()));
         end;
     end;
 

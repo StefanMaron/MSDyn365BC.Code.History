@@ -1,4 +1,4 @@
-﻿table 7001 "Price List Line"
+table 7001 "Price List Line"
 {
     fields
     {
@@ -758,6 +758,11 @@
         Clear(PriceListHeader);
     end;
 
+    internal procedure SetHeader(var NewPriceListHeader: Record "Price List Header")
+    begin
+        PriceListHeader := NewPriceListHeader;
+    end;
+
     local procedure GetValueFromHeader(FieldId: Integer)
     begin
         if not GetHeader() then
@@ -842,7 +847,14 @@
     end;
 
     procedure Verify()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerify(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         VerifySource();
         TestField("Asset Type");
 
@@ -915,6 +927,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterVerify(var PriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerify(var PriceListLine: Record "Price List Line"; var IsHandled: Boolean)
     begin
     end;
 }

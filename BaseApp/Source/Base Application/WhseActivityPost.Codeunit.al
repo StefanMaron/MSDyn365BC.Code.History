@@ -250,13 +250,17 @@ codeunit 7324 "Whse.-Activity-Post"
                         OnInitSourceDocumentOnAfterSetPurchaseLineFilters(PurchLine, PurchHeader, WhseActivHeader);
                         if PurchLine.Find('-') then
                             repeat
-                                if "Source Document" = "Source Document"::"Purchase Order" then
-                                    PurchLine.Validate("Qty. to Receive", 0)
-                                else
-                                    PurchLine.Validate("Return Qty. to Ship", 0);
-                                PurchLine.Validate("Qty. to Invoice", 0);
-                                ModifyPurchaseLine(PurchLine);
-                                OnAfterPurchLineModify(PurchLine);
+                                IsHandled := false;
+                                OnInitSourceDocumentOnBeforePurchLineLoopIteration(PurchHeader, PurchLine, WhseActivHeader, IsHandled);
+                                if not IsHandled then begin
+                                    if "Source Document" = "Source Document"::"Purchase Order" then
+                                        PurchLine.Validate("Qty. to Receive", 0)
+                                    else
+                                        PurchLine.Validate("Return Qty. to Ship", 0);
+                                    PurchLine.Validate("Qty. to Invoice", 0);
+                                    ModifyPurchaseLine(PurchLine);
+                                    OnAfterPurchLineModify(PurchLine);
+                                end;
                             until PurchLine.Next() = 0;
 
                         ReleasePurchDocument(ModifyHeader);
@@ -319,6 +323,8 @@ codeunit 7324 "Whse.-Activity-Post"
                                 ModifyTransferLine(TransLine);
                                 OnAfterTransLineModify(TransLine);
                             until TransLine.Next() = 0;
+
+                        OnInitSourceDocumentOnAfterTransferLineLoopIteration(TransLine, TransHeader, WhseActivHeader);
 
                         if (TransHeader."Posting Date" <> "Posting Date") and ("Posting Date" <> 0D) then begin
                             TransHeader.CalledFromWarehouse(true);
@@ -595,6 +601,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             PostedSourceType := DATABASE::"Transfer Shipment Header";
                             PostedSourceNo := TransHeader."Last Shipment No.";
                         end;
+                        OnPostSourceDocumentOnBeforeUpdateUnhandledTransLine(TransHeader, WhseActivHeader, PostingReference, HideDialog);
                         UpdateUnhandledTransLine(TransHeader."No.");
                         PostedSourceSubType := 0;
                     end;
@@ -1030,6 +1037,7 @@ codeunit 7324 "Whse.-Activity-Post"
     procedure SetInvoiceSourceDoc(Invoice: Boolean)
     begin
         InvoiceSourceDoc := Invoice;
+        OnAfterSetInvoiceSourceDoc(InvoiceSourceDoc);
     end;
 
     procedure PrintDocument(SetPrint: Boolean)
@@ -1043,7 +1051,7 @@ codeunit 7324 "Whse.-Activity-Post"
         Result: Boolean;
         IsHandled: Boolean;
     begin
-        OnBeforeCheckItemTracking(WhseActivLine2, Result, IsHandled);
+        OnBeforeCheckItemTracking(WhseActivLine2, Result, IsHandled, WhseActivHeader);
         if IsHandled then
             exit(Result);
 
@@ -1105,6 +1113,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesLineModify(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetInvoiceSourceDoc(var InvoiceSourceDocument: Boolean)
     begin
     end;
 
@@ -1174,7 +1187,7 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckItemTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean; WhseActivHeader: Record "Warehouse Activity Header")
     begin
     end;
 
@@ -1294,6 +1307,11 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentOnBeforePurchLineLoopIteration(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; WhseActivHeader: Record "Warehouse Activity Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
@@ -1314,6 +1332,11 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentOnAfterTransferLineLoopIteration(var TransLine: Record "Transfer Line"; TransHeader: Record "Transfer Header"; WhseActivHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostOutputLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
@@ -1325,6 +1348,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforeSalesPostRun(WarehouseActivityHeader: Record "Warehouse Activity Header"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforeUpdateUnhandledTransLine(var TransHeader: Record "Transfer Header"; WhseActivHeader: Record "Warehouse Activity Header"; PostingReference: Integer; HideDialog: Boolean)
     begin
     end;
 

@@ -1254,12 +1254,20 @@ codeunit 139183 "CRM Integration Mapping"
         FilteredSalesInvoiceHeader: Record "Sales Invoice Header";
         IntegrationSynchJob: Record "Integration Synch. Job";
         IntegrationTableMapping: Record "Integration Table Mapping";
+        Item: Record Item;
+        CRMProduct: Record "CRM Product";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        UnitOfMeasure: Record "Unit of Measure";
+        CRMUom: Record "CRM Uom";
+        CRMUomschedule: Record "CRM Uomschedule";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
+        LibraryInventory: Codeunit "Library - Inventory";
         CRMId: Guid;
         ExpectedShippingMethodCode: Option;
         ExpectedPaymentTermsCode: Option;
         JobQueueEntryID: Guid;
+        NullGuid: Guid;
     begin
         // [FEATURE] [Sales] [Invoice] [Option Mapping]
         // [SCENARIO] Mapped option fields "Payment Terms", "Shipping Agent" should be copied to CRM Invoice.
@@ -1284,7 +1292,22 @@ codeunit 139183 "CRM Integration Mapping"
           DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), ExpectedPaymentTermsCode);
         SalesInvoiceHeader."Payment Terms Code" :=
           CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesInvoiceHeader."Payment Terms Code"));
+        LibraryCRMIntegration.CreateCoupledUnitOfMeasureAndUomSchedule(UnitOfMeasure, CRMUom, CRMUomschedule);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+        Item.Modify();
+        LibraryCRMIntegration.CreateCRMProduct(CRMProduct, CRMTransactioncurrency, CRMUom);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(Item.RecordId, CRMID);
+        CRMIntegrationRecord.SetLastSynchModifiedOns(CRMID, Database::Item, CurrentDateTime() + 1000, CurrentDateTime(), NullGuid, 0);
+        Item.Find();
         SalesInvoiceHeader.Insert();
+        SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
+        SalesInvoiceLine."Line No." := 10000;
+        SalesInvoiceLine.Type := SalesInvoiceLine.Type::Item;
+        SalesInvoiceLine."No." := Item."No.";
+        SalesInvoiceLine.Quantity := 1;
+        SalesInvoiceLine."Unit Price" := 1;
+        SalesInvoiceLine.Insert();
 
         // [WHEN] Create the new coupled CRM Invoice
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;

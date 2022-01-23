@@ -16,6 +16,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         AmountError: Label 'Additional Fee must be %1.';
@@ -56,7 +57,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         Initialize;
         CurrencyCode := CreateCurrency;
         CreateReminderTerms(ReminderLevel, CurrencyCode);
-        CreateAndPostSalesInvoice(SalesHeader, ReminderLevel."Reminder Terms Code", CurrencyCode);
+        CreateAndPostSalesInvoice(SalesHeader, CreateCustomer(ReminderLevel."Reminder Terms Code", CurrencyCode));
         Amount := LibraryERM.ConvertCurrency(ReminderLevel."Additional Fee (LCY)", '', CurrencyCode, WorkDate);
 
         // Exercise: Create and Suggest Reminder Lines.
@@ -147,7 +148,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
           ReminderText.Position::Ending, 'Reminder Text');
 
         // Setup: Create and Post Sales Invoice.
-        CreateAndPostSalesInvoice(SalesHeader, ReminderTermsCode, '');
+        CreateAndPostSalesInvoice(SalesHeader, CreateCustomer(ReminderTermsCode, ''));
 
         // Setup: Re-Set the Rounding Precision.
         LibraryERM.SetInvRoundingPrecisionLCY(LibraryRandom.RandDec(1, 1));
@@ -159,6 +160,70 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
 
         // Verify: Verify Reminder Lines after Suggesting.
         VerifyReminderRoundingLine(ReminderNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IssuedReminderAdditionalFeeLineDimensionCombine();
+    var
+        ReminderLevel: Record "Reminder Level";
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GLAccount: Record "G/L Account";
+        DefaultDimension: ARRAY[2] OF Record "Default Dimension";
+        ReminderHeader: Record "Reminder Header";
+        ReminderTerms: Record "Reminder Terms";
+        GLEntry: Record "G/L Entry";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        IssuedReminderNo: Code[20];
+    begin
+        // [SCENARIO 416996] Issued Reminder Line with Additional Fee should combine dimensions from Header and G/L Account
+        Initialize;
+
+        // [GIVEN] Customer "C" with Reminder Terms and Post Additional Fee = True.
+        CreateReminderTerms(ReminderLevel, '');
+        ReminderTerms.GET(ReminderLevel."Reminder Terms Code");
+        ReminderTerms."Post Additional Fee" := TRUE;
+        ReminderTerms.MODIFY(TRUE);
+        Customer.GET(CreateCustomer(ReminderLevel."Reminder Terms Code", ''));
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+
+        // [GIVEN] Customer "C" has Default Dimension "DM1"
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+          DefaultDimension[1], DATABASE::Customer, Customer."No.",
+          DefaultDimension[1]."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] Customer Posting Group with G/L Account "GL" with Default Dimension "DM2" and "Value Posting" = "Code Mandatory"
+        GLAccount.GET(CustomerPostingGroup."Additional Fee Account");
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+          DefaultDimension[2], DATABASE::"G/L Account", GLAccount."No.",
+          DefaultDimension[2]."Value Posting"::"Code Mandatory");
+        Customer."Customer Posting Group" := CustomerPostingGroup.Code;
+        Customer.MODIFY(TRUE);
+
+        // [GIVEN] Posted Sales Invoice for Customer "C" and Suggested Reminder with Additional Fee line
+        CreateAndPostSalesInvoice(SalesHeader, Customer."No.");
+        ReminderHeader.GET(
+          CreateAndSuggestReminder(
+            SalesHeader."Sell-to Customer No.",
+            CALCDATE('<1D>', CALCDATE(ReminderLevel."Grace Period", SalesHeader."Due Date"))));
+
+        // [WHEN] Reminder is issued
+        IssuedReminderNo := IssueReminderAndGetIssuedNo(ReminderHeader."No.");
+
+        // [THEN] No errors appear
+        // [THEN] G/L Entry for "GL" created
+        GLEntry.SETRANGE("Document Type", GLEntry."Document Type"::Reminder);
+        GLEntry.SETRANGE("Document No.", IssuedReminderNo);
+        GLEntry.SETRANGE("G/L Account No.", GLAccount."No.");
+        GLEntry.FINDFIRST;
+
+        // [THEN] G/L Entry contains both Dimensions "DM1" and "DM2"
+        DimensionSetEntry.GET(GLEntry."Dimension Set ID", DefaultDimension[1]."Dimension Code");
+        DimensionSetEntry.GET(GLEntry."Dimension Set ID", DefaultDimension[2]."Dimension Code");
+        DeleteDefaultDimension(DefaultDimension[1]);
+        DeleteDefaultDimension(DefaultDimension[2]);
     end;
 
     [Scope('OnPrem')]
@@ -205,7 +270,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; ReminderTermsCode: Code[10]; CurrencyCode: Code[10])
+    local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -213,7 +278,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         // Take Random Quantity for Sales Invoice.
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
           Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2));
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(ReminderTermsCode, CurrencyCode));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -395,6 +460,12 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         IssuedReminderNo := IssueReminderAndGetIssuedNo(ReminderHeader."No.");
         IssuedReminderHeader.Get(IssuedReminderNo);
         IssuedReminderHeader.CalcFields("Interest Amount");
+    end;
+
+    local procedure DeleteDefaultDimension(DefaultDimension: Record "Default Dimension");
+    begin
+        DefaultDimension.Get(DefaultDimension."Table ID", DefaultDimension."No.", DefaultDimension."Dimension Code");
+        DefaultDimension.Delete(TRUE);
     end;
 
     local procedure FindReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; Type: Enum "Reminder Source Type")

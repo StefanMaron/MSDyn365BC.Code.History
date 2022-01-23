@@ -4,8 +4,12 @@ codeunit 7006 "Price Helper - V16"
 
     local procedure CopyJobPrices(SourceJob: Record Job; TargetJob: Record Job)
     var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         SourceType: Enum "Price Source Type";
     begin
+        if not PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            exit;
+
         CopyPriceListHeaders(SourceType::Job, SourceJob."No.", TargetJob."No.");
         CopyPriceListHeaders(SourceType::"Job Task", SourceJob."No.", TargetJob."No.");
 
@@ -20,6 +24,7 @@ codeunit 7006 "Price Helper - V16"
         FilterParentSource: Boolean;
     begin
         FilterParentSource := IsParentSourceAllowed(SourceType);
+        PriceListHeader.SetRange("Allow Updating Defaults", false);
         PriceListHeader.SetRange("Source Type", SourceType);
         if FilterParentSource then
             PriceListHeader.SetRange("Parent Source No.", OldSourceNo)
@@ -41,12 +46,15 @@ codeunit 7006 "Price Helper - V16"
 
     local procedure CopyPriceListLines(OldCode: Code[20]; NewCode: Code[20]; SourceType: Enum "Price Source Type"; OldSourceNo: Code[20]; NewSourceNo: Code[20])
     var
+        PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         NewPriceListLine: Record "Price List Line";
         FilterParentSource: Boolean;
     begin
+        PriceListHeader."Allow Updating Defaults" := true;
         FilterParentSource := IsParentSourceAllowed(SourceType);
-        PriceListLine.SetRange("Price List Code", OldCode);
+        if OldCode <> '' then
+            PriceListLine.SetRange("Price List Code", OldCode);
         PriceListLine.SetRange("Source Type", SourceType);
         if FilterParentSource then
             PriceListLine.SetRange("Parent Source No.", OldSourceNo)
@@ -54,14 +62,20 @@ codeunit 7006 "Price Helper - V16"
             PriceListLine.SetRange("Source No.", OldSourceNo);
         if PriceListLine.FindSet() then
             repeat
-                NewPriceListLine := PriceListLine;
-                NewPriceListLine."Price List Code" := NewCode;
-                NewPriceListLine.SetNextLineNo();
-                if FilterParentSource then
-                    NewPriceListLine."Parent Source No." := NewSourceNo
-                else
-                    NewPriceListLine."Source No." := NewSourceNo;
-                NewPriceListLine.Insert(true);
+                if PriceListHeader.Code <> PriceListLine."Price List Code" then
+                    if not PriceListHeader.Get(PriceListLine."Price List Code") then
+                        PriceListHeader."Allow Updating Defaults" := true;
+                if not ((OldCode = '') xor PriceListHeader."Allow Updating Defaults") then begin
+                    NewPriceListLine := PriceListLine;
+                    if OldCode <> '' then
+                        NewPriceListLine."Price List Code" := NewCode;
+                    NewPriceListLine.SetNextLineNo();
+                    if FilterParentSource then
+                        NewPriceListLine."Parent Source No." := NewSourceNo
+                    else
+                        NewPriceListLine."Source No." := NewSourceNo;
+                    NewPriceListLine.Insert(true);
+                end;
             until PriceListLine.Next() = 0;
     end;
 

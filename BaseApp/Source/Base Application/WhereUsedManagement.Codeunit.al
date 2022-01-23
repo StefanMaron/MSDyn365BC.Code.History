@@ -67,6 +67,7 @@ codeunit 99000770 "Where-Used Management"
         if Type = Type::"Production BOM" then begin
             ItemAssembly.SetCurrentKey("Production BOM No.");
             ItemAssembly.SetRange("Production BOM No.", No);
+            OnBuildWhereUsedListOnAfterItemAssemblySetFilters(ItemAssembly, No);
             if ItemAssembly.FindSet then
                 repeat
                     WhereUsedList."Entry No." := NextWhereUsedEntryNo;
@@ -120,6 +121,8 @@ codeunit 99000770 "Where-Used Management"
                           CostCalcMgt.CalcCompItemQtyBase(ProdBOMComponent, CalcDate, Quantity, '', false));
                 end;
             until ProdBOMComponent.Next() = 0;
+
+        OnAfterBuildWhereUsedList(Type, No, CalcDate);
     end;
 
     local procedure IsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line") Result: Boolean
@@ -154,6 +157,11 @@ codeunit 99000770 "Where-Used Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterBuildWhereUsedList(Type: Option " ",Item,"Production BOM"; No: Code[20]; CalcDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeIsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -165,6 +173,11 @@ codeunit 99000770 "Where-Used Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBuildWhereUsedListOnLoopProdBomComponent(var ProductionBOMLine: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBuildWhereUsedListOnAfterItemAssemblySetFilters(var Item: Record Item; var No: Code[20])
     begin
     end;
 }

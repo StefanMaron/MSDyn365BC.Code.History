@@ -65,9 +65,9 @@ page 510 "Blanket Purchase Order Subform"
 #endif
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -113,6 +113,7 @@ page 510 "Blanket Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
                 }
@@ -843,7 +844,9 @@ page 510 "Blanket Purchase Order Subform"
     begin
         OnBeforeOnOpenPage();
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -1023,12 +1026,12 @@ page 510 "Blanket Purchase Order Subform"
         Clear(DimMgt);
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     local procedure SetDefaultType()
     var

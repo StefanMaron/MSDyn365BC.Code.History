@@ -95,7 +95,7 @@
         </trans-unit>
         <trans-unit id="Page 1261045762 - NamedType 926033131" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Column number for %1 cannot be greater than column count.</source>
-          <target state="translated">Die Spaltennummer für %1 darf nicht größer sein als die Spaltenanzahl.</target>
+          <target state="translated">Die Spaltennummer für %1 darf nicht grösser sein als die Spaltenanzahl.</target>
           <note from="Developer" annotates="general" priority="2">%1 = Name of the column</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType CannotBeGreaterThanColumCountErr</note>
         </trans-unit>
@@ -454,7 +454,7 @@
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 521147009 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the format used for dates in the bank statement file. Note that the Microsoft standard date and time format requires capitalization for the month, for example, dd/MM/yyyy or d-M-y.</source>
-          <target state="translated">Gibt das Format an, das für Datumsangaben in der Bankauszugsdatei verwendet wird. Beachten Sie, dass das Microsoft-Standarddatums- und -zeitformat eine Großschreibung für den Monat erfordert, z. B. tt-MM-jjjj oder t-M-j.</target>
+          <target state="translated">Gibt das Format an, das für Datumsangaben in der Bankauszugsdatei verwendet wird. Beachten Sie, dass das Microsoft-Standarddatums- und -zeitformat eine Grossschreibung für den Monat erfordert, z. B. tt-MM-jjjj oder t-M-j.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DateFormat - Property ToolTip</note>
         </trans-unit>

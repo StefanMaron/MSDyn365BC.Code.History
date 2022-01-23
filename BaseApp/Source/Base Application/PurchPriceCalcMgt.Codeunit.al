@@ -323,7 +323,10 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                     end;
                 until Next() = 0;
         end;
-        OnAfterCalcBestDirectUnitCostFound(PurchPrice, BestPurchPriceFound);
+        IsHandled := false;
+        OnAfterCalcBestDirectUnitCostFound(PurchPrice, BestPurchPriceFound, IsHandled);
+        if IsHandled then
+            exit;
 
         // No price found in agreement
         if not BestPurchPriceFound then begin
@@ -522,8 +525,15 @@ codeunit 7010 "Purch. Price Calc. Mgt."
             UnitPrice := Round(UnitPrice, GLSetup."Unit-Amount Rounding Precision");
     end;
 
-    local procedure CalcLineAmount(PurchPrice: Record "Purchase Price"): Decimal
+    local procedure CalcLineAmount(PurchPrice: Record "Purchase Price") Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcLineAmount(PurchPrice, LineDiscPerCent, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with PurchPrice do
             exit("Direct Unit Cost" * (1 - LineDiscPerCent / 100));
     end;
@@ -892,7 +902,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcBestDirectUnitCostFound(var PurchPrice: Record "Purchase Price"; var BestPurchPriceFound: Boolean)
+    local procedure OnAfterCalcBestDirectUnitCostFound(var PurchPrice: Record "Purchase Price"; var BestPurchPriceFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -983,6 +993,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcBestLineDisc(var PurchLineDisc: Record "Purchase Line Discount"; Item: Record Item; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcLineAmount(var PurchasePrice: Record "Purchase Price"; LineDiscPerCent: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

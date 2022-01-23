@@ -56,7 +56,9 @@ report 5753 "Get Source Documents"
                                           "Sales Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated, IsHandled);
                                         if not IsHandled then begin
                                             if not OneHeaderCreated and not WhseHeaderCreated then begin
-                                                CreateShptHeader;
+                                                CreateShptHeader();
+                                                WhseShptHeader."Shipment Date" := "Sales Header"."Shipment Date";
+                                                WhseShptHeader.Modify();
                                                 OnSalesLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Sales Header", "Sales Line", "Warehouse Request");
                                             end;
                                             if not CreateActivityFromSalesLine2ShptLine(WhseShptHeader, "Sales Line") then
@@ -74,7 +76,7 @@ report 5753 "Get Source Documents"
                             CheckFillQtyToHandle;
                         end;
 
-                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated);
+                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
                     end;
 
                     trigger OnPreDataItem()
@@ -193,7 +195,7 @@ report 5753 "Get Source Documents"
                             CheckFillQtyToHandle;
                         end;
 
-                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated);
+                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
                     end;
 
                     trigger OnPreDataItem()
@@ -298,7 +300,7 @@ report 5753 "Get Source Documents"
                             CheckFillQtyToHandle;
                         end;
 
-                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated);
+                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
                     end;
 
                     trigger OnPreDataItem()
@@ -664,6 +666,7 @@ report 5753 "Get Source Documents"
 
     local procedure UpdateReceiptHeaderStatus()
     begin
+        OnBeforeUpdateReceiptHeaderStatus(WhseReceiptHeader);
         with WhseReceiptHeader do begin
             if "No." = '' then
                 exit;
@@ -840,7 +843,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterProcessDocumentLine(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; var LineCreated: Boolean)
+    local procedure OnAfterProcessDocumentLine(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; var LineCreated: Boolean; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 
@@ -1081,6 +1084,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPostDataItemTransferLine(var WhseReceiptHeader: Record "Warehouse Receipt Header"; RequestType: Option Receive,Ship; OneHeaderCreated: Boolean; WhseHeaderCreated: Boolean; LineCreated: Boolean; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateReceiptHeaderStatus(var WhseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 

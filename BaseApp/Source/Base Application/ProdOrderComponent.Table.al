@@ -255,7 +255,7 @@ table 5407 "Prod. Order Component"
                 OnValidateExpectedQuantityOnAfterCalcActConsumptionQty(Rec, xRec);
                 "Remaining Quantity" := "Expected Quantity" - "Act. Consumption (Qty)" / "Qty. per Unit of Measure";
                 "Remaining Quantity" := UOMMgt.RoundQty("Remaining Quantity", "Qty. Rounding Precision");
-                
+
                 if ("Remaining Quantity" * "Expected Quantity") <= 0 then
                     "Remaining Quantity" := 0;
                 "Remaining Qty. (Base)" := CalcBaseQty("Remaining Quantity", FieldCaption("Remaining Quantity"), FieldCaption("Remaining Qty. (Base)"));
@@ -501,21 +501,7 @@ table 5407 "Prod. Order Component"
 
             trigger OnValidate()
             begin
-                case "Calculation Formula" of
-                    "Calculation Formula"::" ":
-                        Quantity := "Quantity per";
-                    "Calculation Formula"::Length:
-                        Quantity := Round(Length * "Quantity per", UOMMgt.QtyRndPrecision);
-                    "Calculation Formula"::"Length * Width":
-                        Quantity := Round(Length * Width * "Quantity per", UOMMgt.QtyRndPrecision);
-                    "Calculation Formula"::"Length * Width * Depth":
-                        Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
-                    "Calculation Formula"::Weight:
-                        Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
-                    else
-                        OnValidateCalculationFormulaEnumExtension(Rec);
-                end;
-
+                CalculateQuantity(Quantity);
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
@@ -1069,14 +1055,14 @@ table 5407 "Prod. Order Component"
                 if CapLedgEntry.Find('-') then
                     repeat
                         IsHandled := false;
-                        OnGetNeededQtyOnBeforeAddOutputQtyBase(CapLedgEntry, OutputQtyBase, IsHandled);
+                        OnGetNeededQtyOnBeforeAddOutputQtyBase(CapLedgEntry, OutputQtyBase, IsHandled, Rec);
                         if not IsHandled then
                             OutputQtyBase := OutputQtyBase + CapLedgEntry."Output Quantity" + CapLedgEntry."Scrap Quantity";
                     until CapLedgEntry.Next() = 0;
             end;
 
             CompQtyBase := CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, Rec, OutputQtyBase);
-            OnGetNeededQtyAfterCalcCompQtyBase(Rec, CompQtyBase);
+            OnGetNeededQtyAfterCalcCompQtyBase(Rec, CompQtyBase, OutputQtyBase);
 
             if IncludePreviousPosting then begin
                 if Status in [Status::Released, Status::Finished] then
@@ -1490,6 +1476,7 @@ table 5407 "Prod. Order Component"
 
     local procedure UpdateExpectedQuantity()
     var
+        CalculatedQuantity: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1497,7 +1484,8 @@ table 5407 "Prod. Order Component"
         if IsHandled then
             exit;
 
-        Validate("Expected Quantity", Quantity * ProdOrderNeeds());
+        CalculateQuantity(CalculatedQuantity);
+        Validate("Expected Quantity", CalculatedQuantity * ProdOrderNeeds());
     end;
 
     procedure CheckBin()
@@ -1762,6 +1750,30 @@ table 5407 "Prod. Order Component"
             "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
+    local procedure CalculateQuantity(var CalculatedQuantity: Decimal)
+    var
+        OldQuantity: Decimal;
+    begin
+        case "Calculation Formula" of
+            "Calculation Formula"::" ":
+                CalculatedQuantity := "Quantity per";
+            "Calculation Formula"::Length:
+                CalculatedQuantity := Round(Length * "Quantity per", UOMMgt.QtyRndPrecision);
+            "Calculation Formula"::"Length * Width":
+                CalculatedQuantity := Round(Length * Width * "Quantity per", UOMMgt.QtyRndPrecision);
+            "Calculation Formula"::"Length * Width * Depth":
+                CalculatedQuantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
+            "Calculation Formula"::Weight:
+                CalculatedQuantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+            else begin
+                    OldQuantity := Quantity;
+                    OnValidateCalculationFormulaEnumExtension(Rec);
+                    CalculatedQuantity := Quantity;
+                    Quantity := OldQuantity;
+                end;
+        end;
+    end;
+    
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutoReserve(var Item: Record Item; var ProdOrderComp: Record "Prod. Order Component")
     begin
@@ -1893,7 +1905,7 @@ table 5407 "Prod. Order Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetNeededQtyAfterCalcCompQtyBase(var ProdOrderComp: Record "Prod. Order Component"; var CompQtyBase: Decimal)
+    local procedure OnGetNeededQtyAfterCalcCompQtyBase(var ProdOrderComp: Record "Prod. Order Component"; var CompQtyBase: Decimal; OutputQtyBase: Decimal)
     begin
     end;
 
@@ -1913,7 +1925,7 @@ table 5407 "Prod. Order Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetNeededQtyOnBeforeAddOutputQtyBase(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; var OutputQtyBase: Decimal; var IsHandled: Boolean)
+    local procedure OnGetNeededQtyOnBeforeAddOutputQtyBase(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; var OutputQtyBase: Decimal; var IsHandled: Boolean; var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 

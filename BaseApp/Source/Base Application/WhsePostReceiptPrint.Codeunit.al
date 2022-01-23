@@ -40,10 +40,17 @@ codeunit 5762 "Whse.-Post Receipt + Print"
             Message(Text001, PrintedDocuments);
         end;
         Clear(WhsePostReceipt);
+
+        OnAfterCode(WhseReceiptLine);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrintReport(var WhseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var WhseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 

@@ -275,7 +275,7 @@ codeunit 137800 "SCM Work Center Test"
         MachineCenterNoFilter :=
           StrSubstNo('%1|%2|%3|%4', MachineCenterNo[1], MachineCenterNo[2], MachineCenterNo[3], MachineCenterNo[4]);
         VerifyProdOrderCapNeedRoundingAndDateConsistency(MachineCenterNoFilter);
-        VerifyProdOrderCapNeedZeroAllocatedTime(MachineCenterNoFilter);
+        VerifyProdOrderCapNeedZeroAllocatedTimeNotExist(MachineCenterNoFilter);
     end;
 
     [Test]
@@ -822,20 +822,14 @@ codeunit 137800 "SCM Work Center Test"
         end;
     end;
 
-    local procedure VerifyProdOrderCapNeedZeroAllocatedTime(MachineCenterNoFilter: Text)
+    local procedure VerifyProdOrderCapNeedZeroAllocatedTimeNotExist(MachineCenterNoFilter: Text)
     var
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
     begin
-        with ProdOrderCapacityNeed do begin
-            SetRange(Type, Type::"Machine Center");
-            SetRange("Allocated Time", 0);
-            SetFilter("No.", MachineCenterNoFilter);
-            FindSet();
-            repeat
-                Assert.AreEqual(DT2Date("Ending Date-Time"), DT2Date("Starting Date-Time"), ProdOrderCapNeedDateInconsitencyErr);
-                Assert.AreEqual("Ending Time", "Starting Time", ProdOrderCapNeedDateInconsitencyErr);
-            until Next = 0;
-        end;
+        ProdOrderCapacityNeed.SetRange(Type, ProdOrderCapacityNeed.Type::"Machine Center");
+        ProdOrderCapacityNeed.SetRange("Allocated Time", 0);
+        ProdOrderCapacityNeed.SetFilter("No.", MachineCenterNoFilter);
+        Assert.RecordIsEmpty(ProdOrderCapacityNeed);
     end;
 }
 

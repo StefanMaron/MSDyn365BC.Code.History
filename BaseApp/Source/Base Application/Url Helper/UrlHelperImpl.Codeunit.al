@@ -25,8 +25,10 @@ codeunit 3704 "Url Helper Impl."
     begin
         Url := LowerCase(GetUrl(CLIENTTYPE::Web));
         exit(
-          (StrPos(Url, 'financials.dynamics.com') <> 0) or (StrPos(Url, 'invoicing.office.net') <> 0) or
-          (StrPos(Url, 'businesscentral.dynamics.com') <> 0));
+          (StrPos(Url, 'financials.dynamics.com') <> 0) or
+          (StrPos(Url, 'invoicing.office.net') <> 0) or
+          (StrPos(Url, 'businesscentral.dynamics.com') <> 0) or 
+          IsPartnerPROD());
     end;
 
     [Scope('OnPrem')]

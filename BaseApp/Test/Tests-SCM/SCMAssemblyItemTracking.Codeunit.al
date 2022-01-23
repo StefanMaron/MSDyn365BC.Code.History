@@ -30,6 +30,9 @@ codeunit 137926 "SCM Assembly Item Tracking"
         MessageWhsePickCreatedMsg: Label 'has been created';
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         WorkDate2: Date;
         Initialized: Boolean;
 
@@ -39,6 +42,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Assembly Item Tracking");
+        LibraryVariableStorage.Clear();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Item Tracking");
@@ -319,6 +323,84 @@ codeunit 137926 "SCM Assembly Item Tracking"
         Initialize;
         WhseScenario(1, false, false, true, 2); // LN
         WhseScenario(1, false, true, false, 2); // SN
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler')]
+    procedure QuantityOnAsmCompItemTrackingAfterPartialPosting()
+    var
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNo: Code[20];
+        QtyPer: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Partial Posting]
+        // [SCENARIO 414700] Quantity on item tracking for assembly component must not exceed quantity on assembly line.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        QtyPer := LibraryRandom.RandIntInRange(2, 5);
+        Qty := LibraryRandom.RandIntInRange(5, 10);
+
+        // [GIVEN] Lot-tracked assembly component "C".
+        // [GIVEN] Assembly item "A", create assembly BOM, quantity per = 3.
+        LibraryItemTracking.CreateLotItem(CompItem);
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Modify(true);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", QtyPer, CompItem."Base Unit of Measure");
+
+        // [GIVEN] Post component "C" to inventory, note the item ledger entry no. = "X".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, CompItem."No.", '', '', LibraryRandom.RandIntInRange(50, 100));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine.Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.FindLast();
+
+        // [GIVEN] Assembly order for 5 pcs of item "A", set "Quantity to Assemble" = 2.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, LibraryRandom.RandDate(30), AsmItem."No.", '', Qty, '');
+        AssemblyHeader.Validate("Quantity to Assemble", Qty / 2);
+        AssemblyHeader.Modify(true);
+
+        // [GIVEN] Select lot no. for the assembly line, "Qty. to Handle" = 6 (2 * 3).
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindFirst();
+        LibraryItemTracking.CreateAssemblyLineItemTracking(ReservationEntry, AssemblyLine, '', LotNo, Qty * QtyPer);
+        ReservationEntry.Validate("Qty. to Handle (Base)", Qty / 2 * QtyPer);
+        ReservationEntry.Modify(true);
+
+        // [GIVEN] Partially post the assembly order.
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [GIVEN] Open item tracking lines for the assembly line, check that "Quantity (Base)" = 15 (5 * 3).
+        // [GIVEN] Select "Applies-to Entry No." = "X", close the page.
+        AssemblyLine.Find();
+        LibraryVariableStorage.Enqueue(Qty * QtyPer);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Entry No.");
+        AssemblyLine.OpenItemTrackingLines();
+
+        // [WHEN] Reopen the item tracking lines again.
+        LibraryVariableStorage.Enqueue(Qty * QtyPer);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Entry No.");
+        AssemblyLine.OpenItemTrackingLines();
+
+        // [THEN] Ensure "Quantity (Base)" in item tracking = 15. Verification is done in handler.
+
+        // [THEN] The assembly order can be successfully posted.
+        AssemblyHeader.Find();
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure WhseScenario(WhseType: Option WMS,BW; UsePickWorksheet: Boolean; SN: Boolean; LN: Boolean; AssignITOn: Option AsmLine,Pick,InvtMovement,PickWorksheet)
@@ -815,6 +897,14 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ReservEntry.SetRange("Source Subtype", SourceSubType);
         Assert.AreEqual(1, ReservEntry.Count, WrongNoOfT337RecordsErr);
         Assert.AreEqual(true, ReservEntry.FindFirst, 'T337 records are different from what expected :(');
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Quantity (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines."Appl.-to Item Entry".SetValue(LibraryVariableStorage.DequeueInteger());
+        ItemTrackingLines.OK().Invoke();
     end;
 }
 

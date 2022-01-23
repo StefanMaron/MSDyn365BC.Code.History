@@ -473,6 +473,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">EnumExtension SMTP Connector - EnumValue SMTP - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 352980177 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email - SMTP Connector - Edit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email SMTP - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1344122031 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email - SMTP Connector - Objects</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email SMTP - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3915651955 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email - SMTP Connector - Read</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email SMTP - Read - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

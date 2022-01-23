@@ -18,6 +18,7 @@ codeunit 134626 "Person and Company Contacts"
         RelatedRecordIsCreatedMsg: Label 'The %1 record has been created.', Comment = 'The Customer record has been created.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         BusinessRelationsNotZeroErr: Label 'No. of Business Relations must be equal to ''0''  in Contact: No.=%1. Current value is ''1''.';
         LibraryRapidStart: Codeunit "Library - Rapid Start";
@@ -675,6 +676,7 @@ codeunit 134626 "Person and Company Contacts"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Person and Company Contacts");
         LibraryVariableStorage.Clear();
         LibraryGraphSync.DisableGraphSync();
         LibraryTemplates.EnableTemplatesFeature();

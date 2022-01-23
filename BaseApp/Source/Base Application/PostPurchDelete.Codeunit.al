@@ -29,7 +29,7 @@ codeunit 364 "PostPurch-Delete"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeDeleteHeader(PurchHeader, IsHandled);
+        OnBeforeDeleteHeader(PurchHeader, IsHandled, PurchRcptHeader, PurchInvHeader, PurchCrMemoHdr, ReturnShptHeader, PurchInvHeaderPrepmt, PurchCrMemoHdrPrepmt);
         if IsHandled then
             exit;
 
@@ -314,7 +314,7 @@ codeunit 364 "PostPurch-Delete"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteHeader(var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeDeleteHeader(var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ReturnShipmentHeader: Record "Return Shipment Header"; var PurchInvHeaderPrepmt: Record "Purch. Inv. Header"; var PurchCrMemoHdrPrepmt: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
 

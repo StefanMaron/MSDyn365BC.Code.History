@@ -513,6 +513,35 @@ codeunit 134207 "WF Supported Combinations Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestValidSalesOrderExceededCreditLimitEventResponseCombinations()
+    var
+        WFEventResponseCombination: Record "WF Event/Response Combination";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+    begin
+        // [SCENARIO 414690] CustomerCreditLimit(Not)Exceeded events should allow combinations with certain responces.
+        Initialize();
+        WorkflowEventHandling.CreateEventsLibrary;
+        WorkflowResponseHandling.CreateResponsesLibrary;
+        // [THEN] SetStatusToPendingApproval is allowed
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.SetStatusToPendingApprovalCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.SetStatusToPendingApprovalCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
+        // [THEN] CreateApprovalRequestsCode is allowed
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
+        // [THEN] SendApprovalRequestForApprovalCode is allowed
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestValidOCREventResponseCombinations()
     var
         WFEventResponseCombination: Record "WF Event/Response Combination";

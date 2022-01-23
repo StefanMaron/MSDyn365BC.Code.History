@@ -582,25 +582,31 @@ codeunit 5720 "Item Reference Management"
         OnAfterValidatePurchaseReferenceNo(PurchaseLine, ItemReference, ReturnedItemReference);
     end;
 
+#if not CLEAN19
+    [Obsolete('Not used anymore, item reference is always enabled', '19.0')]
     procedure IsEnabled() FeatureEnabled: Boolean
-    var
-        InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get();
-        FeatureEnabled := InventorySetup."Use Item References";
-
+        FeatureEnabled := true;
+        
         OnAfterIsEnabled(FeatureEnabled);
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Not used anymore, item reference is always enabled', '19.0')]
     procedure GetFeatureKey(): Text[50]
     begin
         exit(ItemReferenceFeatureIdTok);
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Not used anymore, item reference is always enabled', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var FeatureEnabled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesItemReferenceFound(var SalesLine: Record "Sales Line"; ItemReference: Record "Item Reference")

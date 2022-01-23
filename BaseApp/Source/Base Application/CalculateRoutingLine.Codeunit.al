@@ -1268,6 +1268,7 @@ codeunit 99000774 "Calculate Routing Line"
         xConCurrCap: Decimal;
         EndTime: Time;
         StartTime: Time;
+        ShouldProcessLastProdOrderCapNeed: Boolean;
     begin
         if (RemainNeedQty = 0) and WaitTimeOnly then
             exit;
@@ -1314,7 +1315,11 @@ codeunit 99000774 "Calculate Routing Line"
                     CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code") *
                     100 / CalendarEntry.Efficiency / ConCurrCap, 1, '>');
 
-                if AvailCap > 0 then begin
+                ShouldProcessLastProdOrderCapNeed := AvailCap > 0;
+                OnFinitelyLoadCapBackOnAfterCalcShouldProcessLastProdOrderCapNeed(
+                    ProdOrderRoutingLine, AvailCap, CalendarEntry, ProdEndingTime, ProdEndingDate, TimeType, FirstInBatch, FirstEntry,
+                    UpdateDates, RemainNeedQty, ProdOrderCapNeed, ProdOrder, NextCapNeedLineNo, Workcenter, LotSize, ShouldProcessLastProdOrderCapNeed);
+                if ShouldProcessLastProdOrderCapNeed then begin
                     ProdEndingDateTime := CreateDateTime(CalendarEntry.Date, EndTime);
                     LastProdOrderCapNeed.SetFilter(
                       "Ending Date-Time", '>= %1 & < %2', CalendarEntry."Starting Date-Time", ProdEndingDateTimeAddOneDay);
@@ -2157,6 +2162,11 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingLineFixedOnBeforeCalcRoutingLineForward(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalcStartDate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinitelyLoadCapBackOnAfterCalcShouldProcessLastProdOrderCapNeed(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; AvailCap: Decimal; CalendarEntry: Record "Calendar Entry"; ProdEndingTime: Time; ProdEndingDate: Date; TimeType: Enum "Routing Time Type"; var FirstInBatch: Boolean; var FirstEntry: Boolean; var UpdateDates: Boolean; var RemainNeedQty: Decimal; var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; ProdOrder: Record "Production Order"; var NextCapNeedLineNo: Integer; Workcenter: Record "Work Center"; LotSize: Decimal; var ShouldProcessLastProdOrderCapNeed: Boolean)
     begin
     end;
 }

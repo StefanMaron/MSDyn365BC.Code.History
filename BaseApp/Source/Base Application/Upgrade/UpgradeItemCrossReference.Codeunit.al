@@ -34,7 +34,9 @@ Codeunit 104021 "Upgrade Item Cross Reference"
 
     procedure UpdateData();
     var
+#if not CLEAN19
         InventorySetup: Record "Inventory Setup";
+#endif        
         ItemCrossReference: Record "Item Cross Reference";
         ItemReference: Record "Item Reference";
         ItemJournalLine: Record "Item Journal Line";
@@ -58,9 +60,11 @@ Codeunit 104021 "Upgrade Item Cross Reference"
             exit;
         end;
 
+#if not CLEAN19
         InventorySetup.Get();
         InventorySetup."Use Item References" := true;
         InventorySetup.Modify();
+#endif
 
         ItemCrossReference.FindSet();
         repeat

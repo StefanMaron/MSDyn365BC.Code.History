@@ -4079,7 +4079,7 @@
         </trans-unit>
         <trans-unit id="Page 3402555058 - Control 2586696214 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Calculated Current Value (LCY)</source>
-          <target state="translated">Beregnet nåverdi (NOK)</target>
+          <target state="translated">Beregnet nåverdi (LV)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - Control calculatedCurrentValue - Property Caption</note>
         </trans-unit>
@@ -4145,7 +4145,7 @@
         </trans-unit>
         <trans-unit id="Page 3402555058 - Control 1299435283 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Estimated Value (LCY)</source>
-          <target state="translated">Anslått verdi (NOK)</target>
+          <target state="translated">Anslått verdi (LV)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - Control estimatedValue - Property Caption</note>
         </trans-unit>

@@ -20,7 +20,7 @@ codeunit 7207 "CDS Set Coupled Flags"
 
         if CRMIntegrationRecord.FindSet() then
             repeat
-                if CRMIntegrationManagement.SetCoupledFlag(CRMIntegrationRecord, true) then
+                if CRMIntegrationManagement.SetCoupledFlag(CRMIntegrationRecord, true, false) then
                     CommitCounter += 1;
 
                 if CommitCounter = 1000 then begin

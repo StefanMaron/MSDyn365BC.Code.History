@@ -3255,6 +3255,59 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('CreateWhsePutAwayPickHandler,SimpleMessageHandler')]
+    procedure PurchaseOrderWithNonInventoryItemsForLocationRequiringPutAway()
+    var
+        Location: Record Location;
+        ItemInventory: Record Item;
+        ItemNonInventory: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Customer: Record Customer;
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [SCENARIO]
+        Initialize();
+
+        // [GIVEN] Location with put-away required.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        // [GIVEN] Inventory- and non-inventory item.
+        LibraryInventory.CreateItem(ItemInventory);
+        CreateAndPostItemJournalLine(
+            ItemInventory."No.", ItemJournalLine."Entry Type"::"Positive Adjmt.", 1, Location.Code, false
+        );
+        LibraryInventory.CreateNonInventoryTypeItem(ItemNonInventory);
+
+        // [GIVEN] A released purchase order with inventory- and non-inventory item.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemInventory."No.", 1);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNonInventory."No.", 1);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Creating pick.
+        Commit();
+        PurchaseHeader.CreateInvtPutAwayPick();
+
+        // [THEN] A warehouse pick for the inventory item has been created.
+        WarehouseActivityLine.SetRange("Item No.", ItemInventory."No.");
+        WarehouseActivityLine.FindFirst();
+
+        // [THEN] No warehouse pick for the non-inventory item has been created.
+        WarehouseActivityLine.SetRange("Item No.", ItemNonInventory."No.");
+        Assert.IsTrue(WarehouseActivityLine.IsEmpty(), 'Expected no warehouse activity line for non-inventory item');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5423,6 +5476,14 @@ codeunit 137152 "SCM Warehouse - Receiving"
     local procedure OnIsOverReceiptAllowedHandler(var OverReceiptAllowed: Boolean)
     begin
         OverReceiptAllowed := false;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateWhsePutAwayPickHandler(var CreateWhsePutAwayPick: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateWhsePutAwayPick.CreateInventorytPutAway.SetValue(true);
+        CreateWhsePutAwayPick.OK.Invoke;
     end;
 }
 

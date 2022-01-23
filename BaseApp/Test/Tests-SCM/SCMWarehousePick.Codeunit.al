@@ -1467,6 +1467,53 @@ codeunit 137055 "SCM Warehouse Pick"
         Assert.IsTrue(NumberSequence.Exists(WarehouseSetup."Last Whse. Posting Ref. Seq."), 'Numbersequence must exist.');
     end;
 
+    [Test]
+    [HandlerFunctions('CreateWhsePutAwayPickHandler,MessageHandler')]
+    procedure SalesOrderWithNonInventoryItemsAndShippingAdviceCompleteForLocationRequiringPick()
+    var
+        Location: Record Location;
+        ItemInventory: Record Item;
+        ItemNonInventory: Record Item;
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [SCENARIO]
+        Initialize();
+
+        // [GIVEN] Location with pick required.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        // [GIVEN] Inventory- and non-inventory item.
+        LibraryInventory.CreateItem(ItemInventory);
+        UpdateItemInventory(ItemInventory."No.", Location.Code, '', 1);
+        LibraryInventory.CreateNonInventoryTypeItem(ItemNonInventory);
+
+        // [GIVEN] A released sales order with inventory- and non-inventory item.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        CreateSalesLine(SalesHeader, ItemNonInventory."No.", Location.Code, 1);
+        CreateSalesLine(SalesHeader, ItemInventory."No.", Location.Code, 1);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] A customer with shipping advice set to complete.
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("Shipping Advice", Customer."Shipping Advice"::Complete);
+        Customer.Modify(true);
+
+        // [WHEN] Creating pick.
+        Commit();
+        SalesHeader.CreateInvtPutAwayPick();
+
+        // [THEN] A warehouse pick for the inventory item has been created.
+        WarehouseActivityLine.SetRange("Item No.", ItemInventory."No.");
+        WarehouseActivityLine.FindFirst();
+
+        // [THEN] No warehouse pick for the non-inventory item has been created.
+        WarehouseActivityLine.SetRange("Item No.", ItemNonInventory."No.");
+        Assert.IsTrue(WarehouseActivityLine.IsEmpty(), 'Expected no warehouse activity line for non-inventory item');
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";

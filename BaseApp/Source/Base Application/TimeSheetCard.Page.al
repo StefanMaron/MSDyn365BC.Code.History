@@ -222,6 +222,13 @@ page 973 "Time Sheet Card"
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        CheckSetDefaultOwnerFilter();
+
+        OnAfterOnOpenPage(Rec);
+    end;
+
     trigger OnAfterGetCurrRecord()
     begin
         CurrPage.TimeSheetLines.Page.SetColumns("No.");
@@ -242,6 +249,19 @@ page 973 "Time Sheet Card"
     begin
         ManagerTimeSheet := true;
         CurrPage.TimeSheetLines.Page.SetManagerTimeSheetMode();
+    end;
+
+    local procedure CheckSetDefaultOwnerFilter()
+    var
+        UserSetup: Record "User Setup";
+    begin
+        if UserSetup.Get(UserId) then;
+        if not UserSetup."Time Sheet Admin." then begin
+            FilterGroup(2);
+            if (GetFilter("Owner User ID") = '') and (GetFilter("Approver User ID") = '') then
+                TimeSheetMgt.FilterTimeSheets(Rec, FieldNo("Owner User ID"));
+            FilterGroup(0);
+        end;
     end;
 
     local procedure UpdateControls()
@@ -363,6 +383,11 @@ page 973 "Time Sheet Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcess(var TimeSheetHeader: Record "Time Sheet Header"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var TimeSheetHeader: Record "Time Sheet Header")
     begin
     end;
 

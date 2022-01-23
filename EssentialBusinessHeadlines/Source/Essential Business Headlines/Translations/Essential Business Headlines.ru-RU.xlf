@@ -65,7 +65,7 @@
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 592951229 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount (LCY)</source>
-          <target state="translated">Сумма (руб.)</target>
+          <target state="translated">Сумма (МВ)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Amount (LCY</note>
         </trans-unit>

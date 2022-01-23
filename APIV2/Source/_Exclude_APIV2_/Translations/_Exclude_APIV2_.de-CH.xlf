@@ -3497,7 +3497,7 @@
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 1780786116" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The unit of measure values do not match to a specific Unit of Measure.</source>
-          <target state="translated">Die Werte der Maßeinheit stimmen nicht mit einer bestimmten Einheit überein.</target>
+          <target state="translated">Die Werte der Masseinheit stimmen nicht mit einer bestimmten Einheit überein.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType UnitOfMeasureValuesDontMatchErr</note>
         </trans-unit>
@@ -5357,7 +5357,7 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - Control 462527801 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount Including Tax</source>
-          <target state="translated">Nettobetrag einschließlich Salestax</target>
+          <target state="translated">Nettobetrag einschliesslich Salestax</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control netAmountIncludingTax - Property Caption</note>
         </trans-unit>

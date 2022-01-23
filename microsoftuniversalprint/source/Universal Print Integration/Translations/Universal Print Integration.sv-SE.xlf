@@ -99,12 +99,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Print Share Name - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2007124620 - NamedType 238027365" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The print job %1 has been sent for processing in Universal Print.</source>
-          <target state="translated">Utskriftsjobbet %1 har skickats för bearbetning i Universell utskrift.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = a print job ID.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType JobSentTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2007124620 - NamedType 446071167" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You don't have access to the printer %1.</source>
           <target state="translated">Du har inte åtkomst till skrivaren %1.</target>

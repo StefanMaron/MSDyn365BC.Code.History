@@ -160,6 +160,12 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Enum 1993094577</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 2604401247 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Microsoft 365 Connector - Objects</source>
+          <target state="translated">Conector de Microsoft 365 para correo electrónico - Objetos</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email Conn. - Objects - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -27,6 +27,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
         BatchPostingMsg: Label 'Bacth posting of purchase documents.';
         ApprovalPendingErr: Label 'Cannot post purchase document no. %1 of type %2 because it is pending approval.', Comment = '%1 = Document No.; %2 = Document Type';
         ApprovalWorkflowErr: Label 'Cannot post purchase document no. %1 of type %2 due to the approval workflow.', Comment = '%1 = Document No.; %2 = Document Type';
+        InterCompanyZipFileNamePatternTok: Label 'Purchase IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';
         ProcessBarMsg: Label 'Processing: @1@@@@@@@', Comment = '1 - overall progress';
 
     procedure RunBatch(var PurchaseHeader: Record "Purchase Header"; ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; CalcInvoiceDiscount: Boolean; Receive: Boolean; Invoice: Boolean)
@@ -108,6 +109,13 @@ codeunit 1372 "Purchase Batch Post Mgt."
         BatchProcessingMgt.BatchProcess(RecRef);
 
         RecRef.SetTable(PurchaseHeader);
+    end;
+
+    local procedure GetICBatchFileName() Result: Text
+    begin
+        Result := StrSubstNo(InterCompanyZipFileNamePatternTok, Format(WorkDate(), 10, '<Year4>-<Month,2>-<Day,2>'));
+
+        OnGetICBatchFileName(Result);
     end;
 
     local procedure PreparePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var BatchConfirm: Option)
@@ -341,6 +349,11 @@ codeunit 1372 "Purchase Batch Post Mgt."
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnGetICBatchFileName(var Result: Text)
+    begin
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnIsPostWithJobQueueEnabled', '', false, false)]
     local procedure OnIsPostWithJobQueueEnabledHandler(var Result: Boolean)
     var
@@ -358,6 +371,14 @@ codeunit 1372 "Purchase Batch Post Mgt."
         RecRef.SetTable(PurchaseHeader);
         ProcessBatchInBackground(PurchaseHeader, SkippedRecordExists);
         RecRef.GetTable(PurchaseHeader);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnBatchProcessOnBeforeResetBatchID', '', false, false)]
+    local procedure OnBatchProcessOnBeforeResetBatchID(var RecRef: RecordRef; ProcessingCodeunitID: Integer)
+    var
+        ICOutboxExport: Codeunit "IC Outbox Export";
+    begin
+        ICOutboxExport.DownloadBatchFiles(GetICBatchFileName());
     end;
 }
 
