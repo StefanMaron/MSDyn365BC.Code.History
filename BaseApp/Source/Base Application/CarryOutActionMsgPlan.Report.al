@@ -298,6 +298,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
     {
     }
 
+    trigger OnInitReport()
+    begin
+        OnAfterInitReport();
+    end;
+
     trigger OnPreReport()
     begin
         OnBeforePreReport;
@@ -676,6 +681,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRequisitionLineOnAfterGetRecord(var RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitReport()
     begin
     end;
 }

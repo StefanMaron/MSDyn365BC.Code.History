@@ -57,10 +57,16 @@ codeunit 5060 DuplicateManagement
         DuplCont.DeleteAll(true);
     end;
 
-    procedure DuplicateExist(Cont: Record Contact): Boolean
+    procedure DuplicateExist(Cont: Record Contact) Result: Boolean
     var
         DuplCont: Record "Contact Duplicate";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDuplicateExist(Cont, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         RMSetup.Get();
         if not RMSetup."Autosearch for Duplicates" then
             exit(false);
@@ -190,6 +196,11 @@ codeunit 5060 DuplicateManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRemoveContIndex(Contact: Record Contact; KeepAccepted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDuplicateExist(Contact: Record Contact; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

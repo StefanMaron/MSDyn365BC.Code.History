@@ -106,21 +106,39 @@ table 1513 "Notification Schedule"
     trigger OnDelete()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        EmailFeature: Codeunit "Email Feature";
     begin
-        if JobQueueEntry.Get("Last Scheduled Job") then begin
-            JobQueueEntry.Delete(true);
-            ScheduleNow;
-        end;
+        if not EmailFeature.IsEnabled() then
+            if JobQueueEntry.Get("Last Scheduled Job") then begin
+                JobQueueEntry.Delete(true);
+                ScheduleNow;
+            end;
+
+        if EmailFeature.IsEnabled() then
+            if Rec.Recurrence = Rec.Recurrence::Instantly then
+                JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow())
+            else
+                JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyLaterLbl, UserId(), OneMinuteFromNow());
     end;
 
     trigger OnModify()
     var
+        NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
+        EmailFeature: Codeunit "Email Feature";
     begin
-        if JobQueueEntry.Get("Last Scheduled Job") then begin
-            JobQueueEntry.Delete(true);
-            Schedule;
-        end;
+        if not EmailFeature.IsEnabled() then
+            if JobQueueEntry.Get("Last Scheduled Job") then begin
+                NotificationEntry.SetView(JobQueueEntry."Parameter String");
+                JobQueueEntry.Delete(true);
+                Schedule(CopyStr(NotificationEntry.GetFilter("Recipient User ID"), 1, 50));
+            end;
+
+        if EmailFeature.IsEnabled() then
+            if Rec.Recurrence = Rec.Recurrence::Instantly then
+                JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow())
+            else
+                JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyLaterLbl, UserId(), OneMinuteFromNow());
     end;
 
     var
@@ -132,6 +150,7 @@ table 1513 "Notification Schedule"
         NotifyLaterLbl: Label 'NOTIFYLTR', Locked = true;
         NotificationTelemetryCategoryTxt: Label 'Notifications', Locked = true;
         SchedulingNotificationTelemetryTxt: Label 'Scheduling notification', Locked = true;
+        ScheduleLaterRecipientIDErr: Label 'Recipient User ID is empty', Locked = true;
 
     [Obsolete('Replaced by CreateNewRecord().', '17.0')]
     procedure NewRecord(NewUserID: Code[50]; NewNotificationType: Option)
@@ -141,21 +160,21 @@ table 1513 "Notification Schedule"
 
     procedure CreateNewRecord(NewUserID: Code[50]; NewNotificationType: Enum "Notification Entry Type")
     begin
-        Init();
-        "User ID" := NewUserID;
-        "Notification Type" := NewNotificationType;
-        Insert();
+        Rec.Init();
+        Rec."User ID" := NewUserID;
+        Rec."Notification Type" := NewNotificationType;
+        Rec.Insert();
     end;
 
     local procedure UpdateDailyFrequency()
     begin
-        Monday := true;
-        Tuesday := true;
-        Wednesday := true;
-        Thursday := true;
-        Friday := true;
-        Saturday := "Daily Frequency" <> "Daily Frequency"::Weekday;
-        Sunday := "Daily Frequency" <> "Daily Frequency"::Weekday;
+        Rec.Monday := true;
+        Rec.Tuesday := true;
+        Rec.Wednesday := true;
+        Rec.Thursday := true;
+        Rec.Friday := true;
+        Rec.Saturday := Rec."Daily Frequency" <> Rec."Daily Frequency"::Weekday;
+        Rec.Sunday := Rec."Daily Frequency" <> Rec."Daily Frequency"::Weekday;
     end;
 
     local procedure GetFirstWorkdateOfMonth(CurrentDate: Date): Date
@@ -292,14 +311,14 @@ table 1513 "Notification Schedule"
         end;
     end;
 
-    local procedure Schedule()
+    local procedure Schedule(RecipientUserID: Code[50])
     begin
         Session.LogMessage('0000F6A', SchedulingNotificationTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, GetTelemetryDimensions());
 
         if Recurrence = Recurrence::Instantly then
-            ScheduleNow
+            ScheduleNow()
         else
-            ScheduleForLater
+            ScheduleForLater(RecipientUserID);
     end;
 
     local procedure CheckRequiredPermissions()
@@ -319,7 +338,9 @@ table 1513 "Notification Schedule"
         if not Get(NotificationEntry."Recipient User ID", NotificationEntry.Type) then
             if Get('', NotificationEntry.Type) then;
 
-        Schedule;
+        // It will always send instantly if only a default record exists
+        // User must have a schedule for it to be sent later
+        Schedule(NotificationEntry."Recipient User ID");
     end;
 
     local procedure OneMinuteFromNow(): DateTime
@@ -331,33 +352,55 @@ table 1513 "Notification Schedule"
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueCategory: Record "Job Queue Category";
+        EmailFeature: Codeunit "Email Feature";
     begin
         CheckRequiredPermissions();
-        if JobQueueEntry.ReuseExistingJobFromCatagory(NotifyNowLbl, OneMinuteFromNow()) then
-            exit;
+        if not EmailFeature.IsEnabled() then
+            if JobQueueEntry.ReuseExistingJobFromCategory(NotifyNowLbl, OneMinuteFromNow()) then
+                exit;
+
+        if EmailFeature.IsEnabled() then
+            if JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow()) then
+                exit;
 
         JobQueueCategory.InsertRec(NotifyNowLbl, NotifyNowDescriptionTxt);
         JobQueueEntry.ScheduleJobQueueEntryForLater(
           CODEUNIT::"Notification Entry Dispatcher", OneMinuteFromNow, NotifyNowLbl, '');
     end;
 
-    local procedure ScheduleForLater()
+    local procedure ScheduleForLater(RecipientUserID: Code[50])
     var
         JobQueueEntry: Record "Job Queue Entry";
         NotificationEntry: Record "Notification Entry";
-        ExcetutionDateTime: DateTime;
+        EmailFeature: Codeunit "Email Feature";
+        ExecutionDateTime: DateTime;
     begin
         CheckRequiredPermissions();
-        ExcetutionDateTime := CalculateExecutionTime(CurrentDateTime);
-        if JobQueueEntry.ReuseExistingJobFromID("Last Scheduled Job", ExcetutionDateTime) then
-            exit;
 
-        NotificationEntry.SetRange("Recipient User ID", "User ID");
+        if RecipientUserID = '' then begin
+            // If the JQ runs on an empty userid, it will fail.
+            // This is only possible from the onmodify trigger and using SMTP Mail Setup
+            Session.LogMessage('0000GD1', ScheduleLaterRecipientIDErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', NotificationTelemetryCategoryTxt);
+            exit;
+        end;
+
+        ExecutionDateTime := CalculateExecutionTime(CurrentDateTime);
+
+        NotificationEntry.SetRange("Recipient User ID", RecipientUserID);
         NotificationEntry.SetRange(Type, "Notification Type");
+
+        if not EmailFeature.IsEnabled() then
+            if JobQueueEntry.ReuseExistingJobFromCategoryAndParamString(NotifyLaterLbl, CopyStr(NotificationEntry.GetView(), 1, MaxStrLen(JobQueueEntry."Parameter String")), ExecutionDateTime) then
+                exit;
+
+        if EmailFeature.IsEnabled() then
+            if JobQueueEntry.ReuseExistingJobFromUserCategoryAndParamString(UserId(), NotifyLaterLbl, CopyStr(NotificationEntry.GetView(), 1, MaxStrLen(JobQueueEntry."Parameter String")), ExecutionDateTime) then
+                exit;
+
         JobQueueEntry.ScheduleJobQueueEntryForLater(
-          CODEUNIT::"Notification Entry Dispatcher", ExcetutionDateTime, NotifyLaterLbl, NotificationEntry.GetView);
-        "Last Scheduled Job" := JobQueueEntry.ID;
-        Modify
+          CODEUNIT::"Notification Entry Dispatcher", ExecutionDateTime, NotifyLaterLbl, NotificationEntry.GetView);
+        Rec."Last Scheduled Job" := JobQueueEntry.ID;
+        Rec.Modify();
     end;
 
     local procedure GetTelemetryDimensions() Dimensions: Dictionary of [Text, Text]

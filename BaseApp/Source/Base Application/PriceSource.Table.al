@@ -132,7 +132,7 @@ table 7005 "Price Source"
     var
         PriceSourceInterface: Interface "Price Source";
         AmountTypeNotAllowedForSourceTypeErr: Label '%1 is not allowed for %2.', Comment = '%1 - Price or Discount, %2 - the source type';
-        StartingDateErr: Label 'Starting Date cannot be after Ending Date.';
+        StartingDateErr: Label 'Starting Date %1 cannot be after Ending Date %2.', Comment = '%1 and %2 - dates';
         CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
 
     trigger OnInsert()
@@ -154,7 +154,8 @@ table 7005 "Price Source"
         foreach AmountTypeInt in AmountType.Ordinals() do begin
             AmountType := "Price Amount Type".FromInteger(AmountTypeInt);
             if IsForAmountType(AmountType) then
-                exit;
+                if AmountType <> AmountType::Any then
+                    exit;
         end;
     end;
 
@@ -277,7 +278,7 @@ table 7005 "Price Source"
     begin
         PriceSourceInterfaceVerifyDate();
         if ("Ending Date" <> 0D) and ("Starting Date" <> 0D) and ("Ending Date" < "Starting Date") then
-            Error(StartingDateErr);
+            Error(StartingDateErr, "Starting Date", "Ending Date");
     end;
 
     // Should be a method in Price Source Interface

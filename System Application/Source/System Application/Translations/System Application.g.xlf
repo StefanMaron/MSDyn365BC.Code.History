@@ -2928,10 +2928,20 @@
           <note from="Developer" annotates="general" priority="2">%1 = Source URI; %2 = Blob</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType AppendBlockFromUrlOperationNotSuccessfulErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 1422921443" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blob</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType BlobLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 335290041 - NamedType 4292101918" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not %2 block list on %1.</source>
           <note from="Developer" annotates="general" priority="2">%1 = Blob; %2 = Get/Set</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType BlockListOperationNotSuccessfulErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 1877850615" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Container</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType ContainerLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 335290041 - NamedType 1651198496" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not copy %1 to %2.</source>
@@ -2968,6 +2978,36 @@
           <note from="Developer" annotates="general" priority="2">%1 = Blob</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType GetBlobOperationNotSuccessfulErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 638986168" size-unit="char" translate="yes" xml:space="preserve">
+          <source>acquire</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType LeaseAcquireLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 866805029" size-unit="char" translate="yes" xml:space="preserve">
+          <source>break</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType LeaseBreakLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 592510374" size-unit="char" translate="yes" xml:space="preserve">
+          <source>change</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType LeaseChangeLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 3473948105" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not %1 lease for %2 %3.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Lease Action, %2 = Type (Container or Blob), %3 = Name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType LeaseOperationNotSuccessfulErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 2819296591" size-unit="char" translate="yes" xml:space="preserve">
+          <source>release</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType LeaseReleaseLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 1119377977" size-unit="char" translate="yes" xml:space="preserve">
+          <source>renew</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType LeaseRenewLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 335290041 - NamedType 579037001" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not list blobs for container %1.</source>
           <note from="Developer" annotates="general" priority="2">%1 = Container Name</note>
@@ -2977,6 +3017,21 @@
           <source>Could not list container.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType ListContainercOperationNotSuccessfulErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 3386439318" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Duration can be -1 (for infinite) or between 15 and 60 seconds. Parameter Value: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Current Value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType ParameterDurationErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 3084543117" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Duration can be  between 0 and 60 seconds. Parameter Value: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Current Value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType ParameterLeaseBreakDurationErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 335290041 - NamedType 3362851988" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You need to specify %1 (%2)</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Parameter Name, %2 = Header Identifer</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - NamedType ParameterMissingErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 335290041 - NamedType 3264097216" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not put block from URL %1 on %2.</source>
@@ -3007,16 +3062,6 @@
           <source>You need to specify an DateTime Value for option %1</source>
           <note from="Developer" annotates="general" priority="2">%1 = Expiry Option</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - Method SetBlobExpiry - NamedType SpecifyDateTimeErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2127254391 - Method 2022965485 - NamedType 2627506007" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1%2=%3</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Concatenation character, %2 = Parameter Identifer, %3 = Parameter Value</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Format Helper - Method AppendToUri - NamedType AppendType1Lbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2127254391 - Method 2022965485 - NamedType 3865131514" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1%2</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Concatenation character, %2 = Parameter Value</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Format Helper - Method AppendToUri - NamedType AppendType2Lbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 2127254391 - Method 3022268586 - NamedType 1467098217" size-unit="char" translate="yes" xml:space="preserve">
           <source>"%1" %2 %3%4%5</source>

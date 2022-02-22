@@ -1104,7 +1104,6 @@ table 5077 "Segment Line"
     procedure StartWizard()
     var
         Opp: Record Opportunity;
-
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1122,6 +1121,18 @@ table 5077 "Segment Line"
         Validate(Date, WorkDate);
         "Time of Interaction" := DT2Time(RoundDateTime(CurrentDateTime + 1000, 60000, '>'));
         Insert();
+
+        RunCreateInteraction();
+    end;
+
+    local procedure RunCreateInteraction()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunCreateInteraction(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         if PAGE.RunModal(PAGE::"Create Interaction", Rec, "Interaction Template Code") = ACTION::OK then;
         if "Wizard Step" = "Wizard Step"::"6" then
@@ -1205,11 +1216,7 @@ table 5077 "Segment Line"
         OnBeforeFinishSegLineWizard(Rec, IsFinish);
 
         HTMLAttachment := IsHTMLAttachment;
-        Flag := false;
-        if IsFinish then
-            Flag := true
-        else
-            Flag := Confirm(Text007);
+        Flag := GetFinishInteractionFlag(IsFinish);
 
         if Flag then begin
             CheckStatus;
@@ -1246,6 +1253,22 @@ table 5077 "Segment Line"
         end;
 
         OnAfterFinishWizard(Rec, InteractionLogEntry, IsFinish, Flag);
+    end;
+
+    local procedure GetFinishInteractionFlag(IsFinish: Boolean) Flag: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetFinishInteractionFlag(Rec, IsFinish, Flag, IsHandled);
+        if IsHandled then
+            exit(Flag);
+
+        Flag := false;
+        if IsFinish then
+            Flag := true
+        else
+            Flag := Confirm(Text007);
     end;
 
     local procedure ErrorMessage(FieldName: Text[1024])
@@ -1659,6 +1682,11 @@ table 5077 "Segment Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFinishInteractionFlag(var SegmentLine: Record "Segment Line"; IsFinish: Boolean; var Flag: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckStatus(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1685,6 +1713,11 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStartWizard(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCreateInteraction(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
 

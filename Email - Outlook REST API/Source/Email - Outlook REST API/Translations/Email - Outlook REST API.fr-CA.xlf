@@ -275,19 +275,19 @@
         </trans-unit>
         <trans-unit id="PermissionSet 143312419 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - Outlook REST API - Edit</source>
-          <target state="translated">courriel - API REST Outlook - Modifier</target>
+          <target state="translated">Courriel - API REST Outlook - Modifier</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email ORA - Edit - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 65726293 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - Outlook REST API - Objects</source>
-          <target state="translated">courriel - API REST Outlook - Objets</target>
+          <target state="translated">Courriel - API REST Outlook - Objets</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email ORA - Objects - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1262931937 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - Outlook REST API - Read</source>
-          <target state="translated">courriel - API REST Outlook - Lecture</target>
+          <target state="translated">Courriel - API REST Outlook - Lecture</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email ORA - Read - Property Caption</note>
         </trans-unit>

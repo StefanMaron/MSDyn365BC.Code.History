@@ -287,6 +287,7 @@ report 304 "Vendor - Detail Trial Balance"
                     VendorLedgerEntry.SetFilter("Posting Date", VendDateFilter);
                     if VendorLedgerEntry.Find('-') then
                         repeat
+                            OnOnAfterGetRecordOnVendorLedgerEntryLoopStart(VendorLedgerEntry, VendDateFilter);
                             VendorLedgerEntry.SetFilter("Date Filter", VendDateFilter);
                             VendorLedgerEntry.CalcFields("Amount (LCY)");
                             StartBalAdjLCY := StartBalAdjLCY - VendorLedgerEntry."Amount (LCY)";
@@ -298,6 +299,7 @@ report 304 "Vendor - Detail Trial Balance"
                             "Detailed Vendor Ledg. Entry".SetFilter("Posting Date", VendDateFilter);
                             if "Detailed Vendor Ledg. Entry".Find('-') then
                                 repeat
+                                    OnOnAfterGetRecordOnDetailedVendorLedgEntryLoopStart("Detailed Vendor Ledg. Entry");
                                     StartBalAdjLCY := StartBalAdjLCY - "Detailed Vendor Ledg. Entry"."Amount (LCY)";
                                 until "Detailed Vendor Ledg. Entry".Next() = 0;
                             "Detailed Vendor Ledg. Entry".Reset();
@@ -420,6 +422,16 @@ report 304 "Vendor - Detail Trial Balance"
         PrintAmountsInLCY := NewPrintAmountsInLCY;
         PrintOnlyOnePerPage := NewPrintOnlyOnePerPage;
         ExcludeBalanceOnly := NewExcludeBalanceOnly;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOnAfterGetRecordOnVendorLedgerEntryLoopStart(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendDateFilter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOnAfterGetRecordOnDetailedVendorLedgEntryLoopStart(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
     end;
 }
 

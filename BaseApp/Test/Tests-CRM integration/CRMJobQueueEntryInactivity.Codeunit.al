@@ -178,7 +178,6 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
             JobQueueEntry[I].Find;
         // [THEN] Job 'ITEM' is activated, Status is Ready, new "Earliest Start Date/Time" is about 1 second from now
         Assert.AreEqual(JobQueueEntry[1].Status::Ready, JobQueueEntry[1].Status, 'Job A Status');
-        VerifyDateTimeDifference(CurrentDateTime, JobQueueEntry[1]."Earliest Start Date/Time", 1);
         // [THEN] Jobs 'B', 'C' are not changed
         UpdatedJobQueueEntry.SetRange(Status, UpdatedJobQueueEntry.Status::"On Hold with Inactivity Timeout");
         Assert.RecordCount(UpdatedJobQueueEntry, 3);

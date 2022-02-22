@@ -443,7 +443,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2219481149 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>(Obsolete) Data Archive - Edit</source>
-          <target state="translated">Dataarkiv – Redigera</target>
+          <target state="translated">(Inaktuellt) Dataarkiv – Redigera</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Data Archive - Edit - Property Caption</note>
         </trans-unit>
@@ -455,7 +455,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1096718174 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Archive - View</source>
-          <target state="translated">Läs dataarkiv – Visa</target>
+          <target state="translated">Dataarkiv – Visa</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Data Archive - View - Property Caption</note>
         </trans-unit>

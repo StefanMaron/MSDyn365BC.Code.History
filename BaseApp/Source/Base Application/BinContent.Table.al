@@ -53,6 +53,7 @@ table 7302 "Bin Content"
                     "Bin Ranking" := Bin."Bin Ranking";
                     "Block Movement" := Bin."Block Movement";
                     "Zone Code" := Bin."Zone Code";
+                    OnAfterValidateBinCode(Rec, xRec, Bin);
                 end;
             end;
         }
@@ -519,6 +520,7 @@ table 7302 "Bin Content"
         "Block Movement" := Bin."Block Movement";
         "Zone Code" := Bin."Zone Code";
         "Cross-Dock Bin" := Bin."Cross-Dock Bin";
+        OnAfterSetUpNewLine(Rec, Bin)
     end;
 
     local procedure CheckManualChange(CaptionField: Text[80])
@@ -1397,6 +1399,16 @@ table 7302 "Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTrackingFiltersExist(var BinContent: Record "Bin Content"; var IsTrackingFiltersExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var BinContent: Record "Bin Content"; Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateBinCode(var BinContent: Record "Bin Content"; xBinContent: Record "Bin Content"; Bin: Record Bin)
     begin
     end;
 

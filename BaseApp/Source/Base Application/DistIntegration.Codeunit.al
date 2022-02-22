@@ -452,6 +452,11 @@ codeunit 5702 "Dist. Integration"
         NextLineNo: Integer;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSpecialOrders(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeader do begin
             TestField("Document Type", "Document Type"::Order);
 
@@ -619,6 +624,11 @@ codeunit 5702 "Dist. Integration"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSpecialOrders(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPurchLine(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")

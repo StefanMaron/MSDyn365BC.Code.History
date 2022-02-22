@@ -58,10 +58,7 @@ report 5690 "Index Fixed Assets"
                         end;
                         IndexAmount :=
                           DepreciationCalc.CalcRounding(DeprBookCode, IndexAmount * (IndexFigure / 100 - 1));
-                        if not GLIntegration[i] or "Budgeted Asset" then
-                            InsertFAJnlLine("No.", IndexAmount, "FA Journal Line FA Posting Type".FromInteger(i - 1))
-                        else
-                            InsertGenJnlLine("No.", IndexAmount, "FA Journal Line FA Posting Type".FromInteger(i - 1));
+                        InsertJournalLine("Fixed Asset");
                     end;
                 end;
             end;
@@ -350,6 +347,21 @@ report 5690 "Index Fixed Assets"
         end;
     end;
 
+    local procedure InsertJournalLine(FixedAsset: Record "Fixed Asset")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertJournalLine(FixedAsset, IndexAmount, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not GLIntegration[i] or FixedAsset."Budgeted Asset" then
+            InsertFAJnlLine(FixedAsset."No.", IndexAmount, "FA Journal Line FA Posting Type".FromInteger(i - 1))
+        else
+            InsertGenJnlLine(FixedAsset."No.", IndexAmount, "FA Journal Line FA Posting Type".FromInteger(i - 1));
+    end;
+
     procedure InitializeRequest(DeprBookCodeFrom: Code[10]; IndexFigureFrom: Decimal; FAPostingDateFrom: Date; PostingDateFrom: Date; DocumentNoFrom: Code[20]; PostingDescriptionFrom: Text[100]; BalAccountFrom: Boolean)
     begin
         DeprBookCode := DeprBookCodeFrom;
@@ -369,6 +381,11 @@ report 5690 "Index Fixed Assets"
     procedure SetIndexDepreciation(IndexChoice: Boolean)
     begin
         IndexChoices[2] := IndexChoice;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertJournalLine(FixedAsset: Record "Fixed Asset"; IndexAmount: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

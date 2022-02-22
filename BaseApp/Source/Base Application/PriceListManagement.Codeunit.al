@@ -395,6 +395,7 @@ codeunit 7017 "Price List Management"
                 PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::"All Jobs");
         end;
         PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader."Amount Type" := "Price Amount Type"::Any;
         PriceListHeader.Status := "Price Status"::Active;
         if PriceListHeader.Insert(true) then
             exit(PriceListHeader.Code);
@@ -696,6 +697,8 @@ codeunit 7017 "Price List Management"
             end;
             OrSeparator := '|';
         until PriceSource.Next() = 0;
+
+        OnAfterBuildSourceFilters(PriceSource, SourceFilter);
     end;
 
     local procedure GetFilterText(SourceNo: Code[20]): Text;
@@ -871,6 +874,11 @@ codeunit 7017 "Price List Management"
         JobQueueEntry.Insert(true);
 
         Page.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterBuildSourceFilters(var PriceSource: Record "Price Source"; var SourceFilter: array[3] of Text)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

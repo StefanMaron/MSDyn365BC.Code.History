@@ -297,6 +297,8 @@ codeunit 423 "Change Log Management"
                     if IsLogActive(RecRef.Number, FldRef.Number, 0) then
                         InsertLogEntry(FldRef, FldRef, RecRef, 0, true);
         end;
+
+        OnAfterLogInsertion(RecRef);
     end;
 
     procedure LogModification(var RecRef: RecordRef)
@@ -331,6 +333,8 @@ codeunit 423 "Change Log Management"
                     if IsLogActive(RecRef.Number, FldRef.Number, 1) then
                         InsertLogEntry(FldRef, xFldRef, RecRef, 1, IsReadable);
         end;
+
+        OnAfterLogModification(RecRef);
     end;
 
     procedure LogRename(var RecRef: RecordRef; var xRecRefParam: RecordRef)
@@ -377,6 +381,8 @@ codeunit 423 "Change Log Management"
                     if IsLogActive(RecRef.Number, FldRef.Number, 2) then
                         InsertLogEntry(FldRef, FldRef, RecRef, 2, true);
         end;
+
+        OnAfterLogDeletion(RecRef);
     end;
 
     local procedure IsNormalField(FieldRef: FieldRef): Boolean
@@ -513,6 +519,21 @@ codeunit 423 "Change Log Management"
         end;
 
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLogInsertion(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLogModification(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLogDeletion(var RecRef: RecordRef)
+    begin
     end;
 
     local procedure OnBeforeInsertChangeLogEntryByValue(ChangeLogEntry: Record "Change Log Entry"; AlwaysLog: Boolean; var Handled: Boolean)

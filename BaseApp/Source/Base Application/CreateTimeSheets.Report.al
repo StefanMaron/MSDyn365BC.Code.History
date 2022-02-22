@@ -21,7 +21,7 @@
                     IsHandled: Boolean;
                 begin
                     IsHandled := false;
-                    OnBeforeResourceOnAfterGerRecord(Resource, IsHandled);
+                    OnBeforeResourceOnAfterGerRecord(Resource, IsHandled, StartingDate, EndingDate);
                     if IsHandled then
                         CurrReport.Skip();
 
@@ -264,7 +264,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeResourceOnAfterGerRecord(var Resource: Record Resource; var IsHandled: Boolean)
+    local procedure OnBeforeResourceOnAfterGerRecord(var Resource: Record Resource; var IsHandled: Boolean; var StartingDate: Date; var EndingDate: Date)
     begin
     end;
 

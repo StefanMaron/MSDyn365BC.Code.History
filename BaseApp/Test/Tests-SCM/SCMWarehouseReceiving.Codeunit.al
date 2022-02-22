@@ -3308,6 +3308,56 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Assert.IsTrue(WarehouseActivityLine.IsEmpty(), 'Expected no warehouse activity line for non-inventory item');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure UndoPurchReceiptWithWarehouseWhenLineNoAndOrderLineNoDoNotMatch()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchRcptLine2: Record "Purch. Rcpt. Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Undo Receipt]
+        // [SCENARIO 422503] Undo warehouse entries for purchase receipt line with Line No. <> Order Line No.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with mandatory bin and required receipt.
+        CreateAndUpdateLocation(Location, false, false, true, false, true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Location.Validate("Receipt Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create purchase order and post warehouse receipt.
+        LibraryInventory.CreateItem(Item);
+        CreatePurchaseOrderAndPostWarehouseReceipt(PurchaseHeader, Location.Code, Item."No.", Qty, Item."Base Unit of Measure");
+
+        // [GIVEN] Verify that warehouse entry is posted.
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", Qty);
+
+        // [GIVEN] Make "Line No." on purchase receipt line be not equal to "Order Line No.".
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptLine.SetRange("No.", Item."No.");
+        PurchRcptLine.FindFirst();
+        PurchRcptLine2 := PurchRcptLine;
+        PurchRcptLine2."Line No." += 1;
+        PurchRcptLine2.Insert();
+        PurchRcptLine.Delete();
+
+        // [WHEN] Undo the purchase receipt line.
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+
+        // [THEN] The warehouse entry has been correctly reversed.
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

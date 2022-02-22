@@ -326,7 +326,13 @@ page 5129 "Update Opportunity"
     var
         SalesCycleStage: Record "Sales Cycle Stage";
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateEstimatedValues(Opp, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesCycleStage.Get("Sales Cycle Code", "Sales Cycle Stage") then begin
             "Estimated Close Date" := CalcDate(SalesCycleStage."Date Formula", "Date of Change");
             "Chances of Success %" := SalesCycleStage."Chances of Success %";
@@ -335,6 +341,11 @@ page 5129 "Update Opportunity"
             "Estimated Value (LCY)" := GetSalesDocValue(SalesHeader);
 
         Modify;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateEstimatedValues(Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

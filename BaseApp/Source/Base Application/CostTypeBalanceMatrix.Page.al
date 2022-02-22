@@ -339,6 +339,7 @@ page 1130 "Cost Type Balance Matrix"
         CostEntry.SetFilter("Cost Center Code", CostCenterFilter);
         CostEntry.SetFilter("Cost Object Code", CostObjectFilter);
         CostEntry.SetFilter("Posting Date", GetFilter("Date Filter"));
+        OnMATRIX_OnDrillDownOnBeforePageRun(CostEntry);
         PAGE.Run(0, CostEntry);
     end;
 
@@ -354,11 +355,22 @@ page 1130 "Cost Type Balance Matrix"
         SetDateFilter(ColumnID);
         SetFilter("Cost Center Filter", CostCenterFilter);
         SetFilter("Cost Object Filter", CostObjectFilter);
+        OnAfterSetFilters(Rec);
     end;
 
     local procedure FormatStr(): Text
     begin
         exit(RoundingFactorFormatString);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilters(var CostType: Record "Cost Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMATRIX_OnDrillDownOnBeforePageRun(var CostEntry: Record "Cost Entry")
+    begin
     end;
 }
 

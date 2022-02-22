@@ -42,20 +42,48 @@ table 253 "G/L Entry - VAT Entry Link"
         "G/L Entry No." := GLEntryNo;
         "VAT Entry No." := VATEntryNo;
         Insert();
+
+        OnInsertLink(Rec);
     end;
 
     procedure InsertLinkWithGLAccountSelf(GLEntryNo: Integer; VATEntryNo: Integer)
     var
-        GLEntry: Record "G/L Entry";
-        VATEntryEdit: Codeunit "VAT Entry - Edit";
+        IsHandled: Boolean;
     begin
         InsertLinkSelf(GLEntryNo, VATEntryNo);
 
-        if GLEntryNo <> 0 then begin
-            GLEntry.SetLoadFields("G/L Account No.");
-            GLEntry.Get(GLEntryNo);
-            VATEntryEdit.SetGLAccountNo("VAT Entry No.", GLEntry."G/L Account No.");
-        end
+        IsHandled := false;
+        OnBeforeAdjustGLAccountNoOnVATEntryOnInsertLink(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec.AdjustGLAccountNoOnVATEntry();
+    end;
+
+    procedure AdjustGLAccountNoOnVATEntry()
+    var
+        GLEntry: Record "G/L Entry";
+        VATEntryEdit: Codeunit "VAT Entry - Edit";
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if Rec."G/L Entry No." = 0 then
+            exit;
+
+        GLEntry.SetLoadFields("G/L Account No.");
+        GLEntry.Get(Rec."G/L Entry No.");
+        VATEntryEdit.SetGLAccountNo(Rec."VAT Entry No.", GLEntry."G/L Account No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLink(var GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAdjustGLAccountNoOnVATEntryOnInsertLink(var GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -23,7 +23,7 @@ codeunit 134123 "Price List Line UT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        StartingDateErr: Label 'Starting Date cannot be after Ending Date.';
+        StartingDateErr: Label 'Starting Date %1 cannot be after Ending Date %2.', Comment = '%1 and %2 - dates';
         CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
         AssetTypeForUOMErr: Label 'Product Type must be equal to Item or Resource.';
         AssetTypeMustBeItemErr: Label 'Product Type must be equal to ''Item''';
@@ -724,19 +724,19 @@ codeunit 134123 "Price List Line UT"
         Initialize();
         PriceListLine.DeleteAll();
         // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
-        PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Disc. Group");
-        // [THEN] "Amount Type" is 'Discount'
-        PriceListLine.TestField("Amount Type", "Price Amount Type"::Discount);
-
-        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
         PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Price Group");
         // [THEN] "Amount Type" is 'Price'
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
 
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Disc. Group");
+        // [THEN] "Amount Type" is 'Discount'
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Discount);
+
         // [WHEN] Set "Source Type" as "Customer" in Price list header
         PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
-        // [THEN] "Amount Type" is 'Any'
-        PriceListLine.TestField("Amount Type", "Price Amount Type"::Any);
+        // [THEN] "Amount Type" is 'Price'
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
     end;
 
     [Test]
@@ -2503,7 +2503,7 @@ codeunit 134123 "Price List Line UT"
         asserterror PriceListLine.Validate("Starting Date", PriceListLine."Ending Date" + 1);
 
         // [THEN] Error message: 'Starting Date cannot be after Ending Date'
-        Assert.ExpectedError(StartingDateErr);
+        Assert.ExpectedError(StrSubstNo(StartingDateErr, PriceListLine."Ending Date" + 1, PriceListLine."Ending Date"));
     end;
 
     [Test]
@@ -2519,7 +2519,7 @@ codeunit 134123 "Price List Line UT"
         asserterror PriceListLine.Validate("Ending Date", PriceListLine."Starting Date" - 1);
 
         // [THEN] Error message: 'Starting Date cannot be after Ending Date'
-        Assert.ExpectedError(StartingDateErr);
+        Assert.ExpectedError(StrSubstNo(StartingDateErr, PriceListLine."Starting Date", PriceListLine."Starting Date" - 1));
     end;
 
     [Test]

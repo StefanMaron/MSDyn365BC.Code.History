@@ -264,6 +264,8 @@ report 11 "G/L - VAT Reconciliation"
                     end;
 
                     trigger OnPreDataItem()
+                    var
+                        VATEntryCopy: Record "VAT Entry";
                     begin
                         if "VAT Statement Line".Type = "VAT Statement Line".Type::"Account Totaling" then begin
                             SetFilter("No.", "VAT Statement Line"."Account Totaling");
@@ -289,6 +291,7 @@ report 11 "G/L - VAT Reconciliation"
                                     VATEntry.SetRange("Posting Date", StartDate, EndDate);
                             VATEntry.SetRange(Reversed, false);
                         end;
+                        VATEntryCopy.SetGLAccountNo(true);
 
                         Identifier := Identifier + 1;
                     end;
@@ -320,14 +323,6 @@ report 11 "G/L - VAT Reconciliation"
 
             trigger OnPreDataItem()
             begin
-                VATEntry.SetGLAccountNo(true);
-
-                VATEntry.Reset();
-                VATEntry.SetRange("G/L Acc. No.", '');
-                if not VATEntry.IsEmpty() then
-                    Error(NoGLAccNoOnVATEntriesErr);
-                VATEntry.Reset();
-
                 if UseAmtsInAddCurr then
                     HeaderText := StrSubstNo(AllAmountsLbl, GLSetup."Additional Reporting Currency")
                 else begin
@@ -464,7 +459,6 @@ report 11 "G/L - VAT Reconciliation"
         VAT_Statement_Line___Account_Totaling_CaptionLbl: Label 'Account Totaling';
         Grand_TotalCaptionLbl: Label 'Grand Total';
         TotalCaptionLbl: Label 'Total';
-        NoGLAccNoOnVATEntriesErr: Label 'For performance reasons this report requires that you add a G/L Account No. field to all VAT entries.\To add the field to the VAT entries, use the Set G/L Account No. action on the VAT Entries page.';
 
     procedure ConditionalAdd(AmountToAdd: Decimal; AddCurrAmountToAdd: Decimal): Decimal
     begin

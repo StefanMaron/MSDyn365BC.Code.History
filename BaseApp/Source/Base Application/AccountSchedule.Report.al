@@ -1,4 +1,4 @@
-report 25 "Account Schedule"
+﻿report 25 "Account Schedule"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './AccountSchedule.rdlc';
@@ -828,6 +828,7 @@ report 25 "Account Schedule"
         Dim3FilterHidden := NewDim3Filter;
         Dim4FilterHidden := NewDim4Filter;
         UseHiddenFilters := true;
+        OnAfterSetFilters(AccScheduleName, CostCenterFilter, CostObjectFilter, CashFlowFilter, CurrReport.UseRequestPage());
     end;
 
     procedure ShowLine(Bold: Boolean; Italic: Boolean): Boolean
@@ -1032,6 +1033,11 @@ report 25 "Account Schedule"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferValues(var StartDate: Date; var EndDate: Date; var DateFilterHidden: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilters(var AccScheduleName: Record "Acc. Schedule Name"; CostCenterFilter: Text; CostObjectFilter: Text; CashFlowFilter: Text; UseReqPage: Boolean)
     begin
     end;
 }

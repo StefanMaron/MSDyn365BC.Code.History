@@ -156,9 +156,9 @@ page 7011 "Purchase Price List Lines"
                 {
                     AccessByPermission = tabledata "Purchase Price Access" = R;
                     ApplicationArea = All;
-                    Editable = AmountEditable and ResourceAsset;
+                    Editable = AmountEditable and (ResourceAsset or GLAccountAsset);
                     Enabled = PriceMandatory;
-                    Visible = PriceVisible and ResourceAsset;
+                    Visible = PriceVisible and (ResourceAsset or GLAccountAsset);
                     StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit cost of the resource.';
                 }
@@ -269,6 +269,7 @@ page 7011 "Purchase Price List Lines"
         ItemAsset: Boolean;
         PriceMandatory: Boolean;
         PriceVisible: Boolean;
+        GLAccountAsset: Boolean;
         ResourceAsset: Boolean;
         UOMEditable: Boolean;
 
@@ -288,6 +289,7 @@ page 7011 "Purchase Price List Lines"
         UOMEditable := Rec.IsUOMSupported();
         ItemAsset := Rec.IsAssetItem();
         ResourceAsset := Rec.IsAssetResource();
+        GLAccountAsset := Rec."Asset Type" = "Price Asset Type"::"G/L Account";
     end;
 
     local procedure SetMandatoryAmount()

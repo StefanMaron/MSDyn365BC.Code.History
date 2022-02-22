@@ -605,13 +605,15 @@ codeunit 5763 "Whse.-Post Shipment"
     local procedure TryPostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post")
     var
         Result: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeTryPostSourcePurchDocument(PurchPost, PurchHeader);
-
-        if PurchPost.Run(PurchHeader) then begin
-            CounterSourceDocOK := CounterSourceDocOK + 1;
-            Result := true;
-        end;
+        IsHandled := false;
+        OnBeforeTryPostSourcePurchDocument(PurchPost, PurchHeader, IsHandled);
+        if not IsHandled then
+            if PurchPost.Run(PurchHeader) then begin
+                CounterSourceDocOK := CounterSourceDocOK + 1;
+                Result := true;
+            end;
 
         OnAfterTryPostSourcePurchDocument(CounterSourceDocOK, PurchPost, PurchHeader, Result);
     end;
@@ -629,13 +631,15 @@ codeunit 5763 "Whse.-Post Shipment"
     local procedure TryPostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
     var
         Result: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeTryPostSourceTransferDocument(TransferPostShipment, TransHeader);
-
-        if TransferPostShipment.Run(TransHeader) then begin
-            CounterSourceDocOK := CounterSourceDocOK + 1;
-            Result := true;
-        end;
+        IsHandled := false;
+        OnBeforeTryPostSourceTransferDocument(TransferPostShipment, TransHeader, IsHandled);
+        if not IsHandled then
+            if TransferPostShipment.Run(TransHeader) then begin
+                CounterSourceDocOK := CounterSourceDocOK + 1;
+                Result := true;
+            end;
 
         OnAfterTryPostSourceTransferDocument(CounterSourceDocOK, TransferPostShipment, TransHeader, Result);
     end;
@@ -1673,12 +1677,12 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTryPostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header")
+    local procedure OnBeforeTryPostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTryPostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransHeader: Record "Transfer Header")
+    local procedure OnBeforeTryPostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -149,7 +149,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
                 if "Qty. Cross-Docked (Base)" + "Qty. to Cross-Dock (Base)" - xRec."Qty. to Cross-Dock (Base)" >
                    CalcQtyToHandleBase("Source Template Name", "Source Name/No.", "Source Line No.")
                 then
-                    Error(CrossDockQtyExceedsCrossDockQtyErr);
+                    ShowCrossDockQtyExceedsCrossDockQtyError();
             end;
         }
         field(27; "Qty. to Cross-Dock (Base)"; Decimal)
@@ -165,7 +165,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(28; "Qty. Cross-Docked (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Whse. Cross-Dock Opportunity"."Qty. to Cross-Dock (Base)" WHERE("Source Template Name" = FIELD("Source Template Name"),
+            CalcFormula = Sum("Whse. Cross-Dock Opportunity"."Qty. to Cross-Dock (Base)" WHERE("Source Template Name" = FIELD("Source Template Name"),
                                                                                                 "Source Name/No." = FIELD("Source Name/No."),
                                                                                                 "Source Line No." = FIELD("Source Line No."),
                                                                                                 "Location Code" = FIELD("Location Code")));
@@ -176,7 +176,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(29; "Total Qty. Needed (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Whse. Cross-Dock Opportunity"."Qty. Needed (Base)" WHERE("Source Template Name" = FIELD("Source Template Name"),
+            CalcFormula = Sum("Whse. Cross-Dock Opportunity"."Qty. Needed (Base)" WHERE("Source Template Name" = FIELD("Source Template Name"),
                                                                                          "Source Name/No." = FIELD("Source Name/No."),
                                                                                          "Source Line No." = FIELD("Source Line No."),
                                                                                          "Location Code" = FIELD("Location Code")));
@@ -185,7 +185,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(36; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("To Source No."),
+            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("To Source No."),
                                                                    "Source Ref. No." = FIELD("To Source Line No."),
                                                                    "Source Type" = FIELD("To Source Type"),
                                                                    "Source Subtype" = FIELD("To Source Subtype"),
@@ -198,7 +198,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         }
         field(37; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("To Source No."),
+            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("To Source No."),
                                                                    "Source Ref. No." = FIELD("To Source Line No."),
                                                                    "Source Type" = FIELD("To Source Type"),
                                                                    "Source Subtype" = FIELD("To Source Subtype"),
@@ -338,12 +338,24 @@ table 5768 "Whse. Cross-Dock Opportunity"
     local procedure CalcQtyToHandleBase(TemplateName: Code[10]; NameNo: Code[20]; LineNo: Integer) QtyToHandleBase: Decimal
     var
         ReceiptLine: Record "Warehouse Receipt Line";
+        IsHandled: Boolean;
     begin
-        QtyToHandleBase := 0;
-        if TemplateName = '' then begin
-            ReceiptLine.Get(NameNo, LineNo);
-            QtyToHandleBase := ReceiptLine."Qty. to Cross-Dock (Base)";
-        end;
+        IsHandled := false;
+        OnBeforeCalcQtyToHandleBase(TemplateName, NameNo, LineNo, QtyToHandleBase, IsHandled);
+        if not IsHandled then
+            if TemplateName = '' then begin
+                ReceiptLine.Get(NameNo, LineNo);
+                QtyToHandleBase := ReceiptLine."Qty. to Cross-Dock (Base)";
+            end;
+    end;
+
+    local procedure ShowCrossDockQtyExceedsCrossDockQtyError()
+    var
+        ErrorMessage: Text;
+    begin
+        ErrorMessage := CrossDockQtyExceedsCrossDockQtyErr;
+        OnBeforeShowCrossDockQtyExceedsCrossDockQtyError(Rec, ErrorMessage);
+        Error(ErrorMessage);
     end;
 
     procedure ShowReservation()
@@ -375,6 +387,16 @@ table 5768 "Whse. Cross-Dock Opportunity"
                     AssemblyLine.ShowReservation();
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyToHandleBase(TemplateName: Code[10]; NameNo: Code[20]; LineNo: Integer; var QtyToHandleBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCrossDockQtyExceedsCrossDockQtyError(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; var ErrorMessage: Text)
+    begin
     end;
 }
 

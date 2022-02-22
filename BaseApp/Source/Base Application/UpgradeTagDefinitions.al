@@ -20,6 +20,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetNewSalesCrMemoEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewSalesShipmentLineUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSetCoupledFlagsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetDataverseAuthenticationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCleanupDataExchUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDefaultDimensionAPIUpgradeTag());
         PerCompanyUpgradeTags.Add(GetBalAccountNoOnJournalAPIUpgradeTag());
@@ -105,6 +106,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetEnableOnlineMapUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDataExchOCRVendorNoTag());
         PerCompanyUpgradeTags.Add(GetConfigFieldMapUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetItemCrossReferenceInPEPPOLUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -538,6 +540,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-368854-IntegrationTableMapping-20200818');
     end;
 
+    internal procedure GetDataverseAuthenticationUpgradeTag(): Code[250];
+    begin
+        exit('MS-423171-DataverseAuthentication-20220125');
+    end;
+
     [Obsolete('Function will be removed', '19.0')]
     procedure GetIntegrationTableMappingCouplingCodeunitIdUpgradeTag(): Code[250];
     begin
@@ -885,6 +892,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetDataExchOCRVendorNoTag(): Code[250]
     begin
         exit('MS-415627-DataExchOCRVendorNo-20211111');
+    end;
+
+    internal procedure GetItemCrossReferenceInPEPPOLUpgradeTag(): Code[250]
+    begin
+        exit('MS-422103-GetItemCrossReferenceInPEPPOLUpgradeTag-20220114');
     end;
 }
 

@@ -2431,6 +2431,38 @@ codeunit 137413 "SCM Item Attributes"
         Assert.RecordIsEmpty(ItemAttributeValue);
     end;
 
+    [Test]
+    procedure TestPopulateItemAttributeValueDecimal()
+    var
+        ItemAttributeValueSelection: Record "Item Attribute Value Selection";
+        TempItemAttributeValue: Record "Item Attribute Value" temporary;
+        TempNewItemAttributeValue: Record "Item Attribute Value" temporary;
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        Item: Record Item;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 423054] "Item Attribute Selection"."Populate Item Attribute Value" must correct handle the empty string for decimal value
+        Initialize();
+        ItemAttributeValueSelection.DeleteAll();
+
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Decimal, '');
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, Format(LibraryRandom.RandDecInDecimalRange(1, 10, 1)));
+        LibraryInventory.CreateItem(Item);
+        SetItemAttributeValue(Item, ItemAttributeValue);
+
+        ItemAttributeValue.Value := '';
+        ItemAttributeValue.Modify(true);
+        TempItemAttributeValue.TransferFields(ItemAttributeValue);
+        TempItemAttributeValue.Insert();
+
+        ItemAttributeValueSelection.PopulateItemAttributeValueSelection(TempItemAttributeValue);
+
+        ItemAttributeValueSelection.PopulateItemAttributeValue(TempNewItemAttributeValue);
+
+        TempNewItemAttributeValue.TestField(Value, '0');
+    end;
+
     local procedure Initialize()
     var
         ItemAttribute: Record "Item Attribute";

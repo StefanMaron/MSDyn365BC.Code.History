@@ -1,4 +1,4 @@
-table 7000 "Price List Header"
+﻿table 7000 "Price List Header"
 {
     Caption = 'Price List';
 
@@ -109,8 +109,10 @@ table 7000 "Price List Header"
 
             trigger OnValidate()
             begin
-                CopyTo(PriceSource);
-                PriceSource.VerifyAmountTypeForSourceType("Amount Type");
+                if not "Allow Updating Defaults" then begin
+                    CopyTo(PriceSource);
+                    PriceSource.VerifyAmountTypeForSourceType("Amount Type");
+                end;
             end;
         }
         field(10; "Currency Code"; Code[10])
@@ -257,6 +259,10 @@ table 7000 "Price List Header"
             TestField(Code);
         if Code = '' then
             NoSeriesMgt.InitSeries(GetNoSeries(), xRec."No. Series", 0D, Code, "No. Series");
+        if "Amount Type" = "Amount Type"::Any then begin
+            CopyTo(PriceSource);
+            "Amount Type" := PriceSource.GetDefaultAmountType();
+        end;
     end;
 
     trigger OnDelete()
@@ -469,6 +475,7 @@ table 7000 "Price List Header"
     var
         PriceListLine: Record "Price List Line";
         ConfirmManagement: Codeunit "Confirm Management";
+        ToModify: Boolean;
     begin
         if IsTemporary() then
             exit;
@@ -480,12 +487,24 @@ table 7000 "Price List Header"
             if not ConfirmManagement.GetResponse(StrSubstNo(ConfirmUpdateQst, Caption), true) then
                 exit;
 
-        case FieldId of
-            FieldNo("Starting Date"):
-                PriceListLine.ModifyAll("Starting Date", "Starting Date");
-            FieldNo("Ending Date"):
-                PriceListLine.ModifyAll("Ending Date", "Ending Date");
-        end
+        PriceListLine.FindSet(true);
+        repeat
+            ToModify := false;
+            case FieldId of
+                FieldNo("Starting Date"):
+                    if "Starting Date" <> PriceListLine."Starting Date" then begin
+                        PriceListLine.Validate("Starting Date", "Starting Date");
+                        ToModify := true;
+                    end;
+                FieldNo("Ending Date"):
+                    if "Ending Date" <> PriceListLine."Ending Date" then begin
+                        PriceListLine.Validate("Ending Date", "Ending Date");
+                        ToModify := true;
+                    end;
+            end;
+            if ToModify then
+                PriceListLine.Modify();
+        until PriceListLine.Next() = 0;
     end;
 
     local procedure TestStatusDraft()
@@ -506,7 +525,7 @@ table 7000 "Price List Header"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeHasDraftLines(PriceListLine, Result, IsHandled);
+        OnBeforeHasDraftLines(PriceListLine, Result, IsHandled, Rec);
         if IsHandled then
             exit(Result);
 
@@ -589,7 +608,7 @@ table 7000 "Price List Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeHasDraftLines(var PriceListLine: Record "Price List Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeHasDraftLines(var PriceListLine: Record "Price List Line"; var Result: Boolean; var IsHandled: Boolean; var PriceListHeader: Record "Price List Header")
     begin
     end;
 }

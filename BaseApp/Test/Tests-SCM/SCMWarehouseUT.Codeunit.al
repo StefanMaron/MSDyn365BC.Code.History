@@ -17,6 +17,7 @@ codeunit 137831 "SCM - Warehouse UT"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         TransferRouteErr: Label 'You must specify a Transfer Route';
         LibraryRandom: Codeunit "Library - Random";
         CannotDeleteLocSKUExistErr: Label 'You cannot delete %1 because one or more stockkeeping units exist at this location.', Comment = '%1: Field(Code)';
@@ -1507,13 +1508,18 @@ codeunit 137831 "SCM - Warehouse UT"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM - Warehouse UT");
+
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"SCM - Warehouse UT");
 
         LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"SCM - Warehouse UT");
     end;
 
     local procedure CreateItemWithSNWhseTracking(): Code[20]

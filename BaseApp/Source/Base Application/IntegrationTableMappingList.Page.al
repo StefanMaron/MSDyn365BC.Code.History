@@ -193,7 +193,6 @@ page 5335 "Integration Table Mapping List"
                         Error(NoRecSelectedErr);
 
                     CRMIntegrationMgt.ResetIntTableMappingDefaultConfiguration(IntegrationTableMapping);
-                    CurrPage.Update();
 
                     if Confirm(JobQEntryCreatedQst) then
                         ShowJobQueueEntry(IntegrationTableMapping);

@@ -15,6 +15,8 @@ report 297 "Batch Post Sales Invoices"
             var
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
             begin
+                OnBeforeSalesHeaderPreDataItem("Sales Header");
+
                 SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, true);
 
@@ -127,5 +129,10 @@ report 297 "Batch Post Sales Invoices"
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderPreDataItem(var SalesHeader: Record "Sales Header")
+    begin
+    end;
 }
 

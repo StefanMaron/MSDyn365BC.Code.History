@@ -238,7 +238,7 @@ table 7321 "Warehouse Shipment Line"
                     "Qty. to Ship" := UOMMgt.RoundAndValidateQty("Qty. to Ship", "Qty. Rounding Precision", FieldCaption("Qty. to Ship"));
                     "Qty. to Ship (Base)" := MaxQtyToShipBase(CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)")));
 
-                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Qty. Shipped", "Qty. Shipped (Base)");
+                    ValidateQuantityIsBalanced();
 
                 end;
 
@@ -621,6 +621,18 @@ table 7321 "Warehouse Shipment Line"
             WhseShptHeader.Validate("Document Status", OrderStatus);
             WhseShptHeader.Modify();
         end;
+    end;
+
+    local procedure ValidateQuantityIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityIsBalanced(Rec, IsHandled, xRec);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Qty. Shipped", "Qty. Shipped (Base)");
     end;
 
     procedure CheckBin(DeductCubage: Decimal; DeductWeight: Decimal)
@@ -1173,6 +1185,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDocumentStatus(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityIsBalanced(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean; xWarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 

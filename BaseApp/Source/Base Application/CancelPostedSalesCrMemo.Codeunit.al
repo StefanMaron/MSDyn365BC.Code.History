@@ -136,7 +136,14 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     end;
 
     local procedure TestIfUnapplied(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfUnapplied(SalesCrMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesCrMemoHeader.CalcFields("Amount Including VAT");
         SalesCrMemoHeader.CalcFields("Remaining Amount");
         if SalesCrMemoHeader."Amount Including VAT" <> -SalesCrMemoHeader."Remaining Amount" then
@@ -467,5 +474,9 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     local procedure OnCreateCopyDocumentOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfUnapplied(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+}

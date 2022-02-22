@@ -165,7 +165,8 @@ table 7504 "Item Attribute Value Selection"
                                     if ItemAttributeValue.IsEmpty() then
                                         ItemAttributeValue.SetRange(Value, Value);
                                 end;
-                            end;
+                            end else
+                                ItemAttributeValue.SetRange(Value, Value);
                             TempNewItemAttributeValue.Value := Format(ValDecimal);
                         end;
                     "Attribute Type"::Date:

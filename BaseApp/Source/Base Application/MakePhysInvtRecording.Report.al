@@ -145,6 +145,7 @@ report 5881 "Make Phys. Invt. Recording"
             "Location Code" := PhysInvtOrderHeader."Location Code";
             "Bin Code" := PhysInvtOrderHeader."Bin Code";
             "Allow Recording Without Order" := AllowRecWithoutOrder;
+            OnInsertRecordingHeaderOnBeforeInsert(PhysInvtRecordHeader, PhysInvtOrderHeader);
             Insert(true);
         end;
     end;
@@ -190,6 +191,11 @@ report 5881 "Make Phys. Invt. Recording"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckOrderLineOnAfterSetFilters(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertRecordingHeaderOnBeforeInsert(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
 }

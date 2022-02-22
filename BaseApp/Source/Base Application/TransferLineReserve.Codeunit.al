@@ -287,6 +287,11 @@ codeunit 99000836 "Transfer Line-Reserve"
         TransferLocation: Code[10];
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferTransferToItemJnlLine(TransLine, ItemJnlLine, Direction, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FindReservEntry(TransLine, OldReservEntry, Direction) then
             exit;
 
@@ -424,13 +429,25 @@ codeunit 99000836 "Transfer Line-Reserve"
                 repeat
                     OldReservEntry.TestItemFields(OldTransLine."Item No.", OldTransLine."Variant Code", TransferLocation);
 
-                    TransferQty :=
-                      CreateReservEntry.TransferReservEntry(DATABASE::"Transfer Line",
-                        Direction.AsInteger(), NewTransLine."Document No.", '', NewTransLine."Derived From Line No.",
-                        NewTransLine."Line No.", NewTransLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                    UpdateTransferQuantity(TransferQty, Direction, NewTransLine, OldTransLine, OldReservEntry);
 
                 until (OldReservEntry.Next() = 0) or (TransferQty = 0);
         end;
+    end;
+
+    local procedure UpdateTransferQuantity(var TransferQty: Decimal; var Direction: Enum "Transfer Direction"; var NewTransLine: Record "Transfer Line"; var OldTransLine: Record "Transfer Line"; var OldReservEntry: Record "Reservation Entry")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateTransferQuantity(TransferQty, Direction, NewTransLine, OldTransLine, OldReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransferQty :=
+            CreateReservEntry.TransferReservEntry(DATABASE::"Transfer Line",
+            Direction.AsInteger(), NewTransLine."Document No.", '', NewTransLine."Derived From Line No.",
+            NewTransLine."Line No.", NewTransLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
     end;
 
     procedure DeleteLineConfirm(var TransLine: Record "Transfer Line"): Boolean
@@ -864,6 +881,16 @@ codeunit 99000836 "Transfer Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTransLineReceiptDate(var NewTransLine: REcord "Transfer Line"; var ShowErrorInbnd: Boolean; var HasErrorInbnd: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferTransferToItemJnlLine(var TransferLine: Record "Transfer Line"; var ItemJournalLine: Record "Item Journal Line"; Direction: Enum "Transfer Direction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTransferQuantity(var TransferQty: Decimal; var Direction: Enum "Transfer Direction"; var NewTransLine: Record "Transfer Line"; var OldTransLine: Record "Transfer Line"; var OldReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 

@@ -385,9 +385,16 @@
         CFManagement.ShowSource(Rec);
     end;
 
-    procedure GetNumberOfSourceTypes(): Integer
+    procedure GetNumberOfSourceTypes() Result: Integer
     begin
-        exit(16);
+        Result := 16;
+
+        OnAfterGetNumberOfSourceTypes(Rec, Result);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNumberOfSourceTypes(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var Result: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

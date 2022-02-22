@@ -164,7 +164,7 @@ page 5872 "BOM Cost Shares"
                 }
                 field("Overhead Rate"; "Overhead Rate")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies the item''s overhead rate.';

@@ -138,6 +138,8 @@ codeunit 99000845 "Reservation Management"
             DATABASE::"Invt. Document Line":
                 SetSourceForInvtDocLine();
         end;
+
+        OnAfterSetReservSource(SourceRecRef, CalcReservEntry, Direction);
     end;
 
     local procedure SetSourceForAssemblyHeader()
@@ -2865,6 +2867,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSaveTrackingSpecification(var ReservationEntry: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification"; QtyReleased: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservSource(var SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var Direction: Enum "Transfer Direction")
     begin
     end;
 

@@ -30,6 +30,7 @@ codeunit 5051 SegManagement
         CampaignNo: Code[20];
         NextInteractLogEntryNo: Integer;
         ShowIsNotEmptyError: Boolean;
+        ShouldModifyAttachment: Boolean;
     begin
         OnBeforeLogSegment(SegmentHeader, Deliver, Followup);
         LoggedSegment.LockTable();
@@ -103,7 +104,9 @@ codeunit 5051 SegManagement
                 InteractLogEntry.Insert();
                 OnLogSegmentOnAfterInteractLogEntryInsert(InteractLogEntry, SegmentLine);
                 Attachment.LockTable();
-                if Attachment.Get(SegmentLine."Attachment No.") and (not Attachment."Read Only") then begin
+                ShouldModifyAttachment := Attachment.Get(SegmentLine."Attachment No.") and (not Attachment."Read Only");
+                OnLogSegmentOnAfterCalcShouldModifyAttachment(Attachment, SegmentLine, SegmentHeader, ShouldModifyAttachment);
+                if ShouldModifyAttachment then begin
                     Attachment."Read Only" := true;
                     Attachment.Modify(true);
                 end;
@@ -150,8 +153,7 @@ codeunit 5051 SegManagement
     begin
         OnBeforeLogInteraction(SegmentLine, AttachmentTemp, InterLogEntryCommentLineTmp, Deliver, Postponed);
 
-        if not Postponed then
-            TestFields(SegmentLine, Deliver);
+        TestFieldsFromLogInteraction(SegmentLine, Deliver, Postponed);
         if (SegmentLine."Campaign No." <> '') and (not Postponed) then
             SegmentLine."Campaign Entry No." := GetCampaignEntryNo(SegmentLine, 0);
 
@@ -226,11 +228,24 @@ codeunit 5051 SegManagement
             TempDeliverySorter."Send Word Docs. as Attmt." := false;
             TempDeliverySorter."Language Code" := SegmentLine."Language Code";
             TempDeliverySorter."Wizard Action" := WizardAction;
-            OnLogInteractionOnBeforeTempDeliverySorterInsert(TempDeliverySorter);
+            OnLogInteractionOnBeforeTempDeliverySorterInsert(TempDeliverySorter, SegmentLine, InteractLogEntry);
             TempDeliverySorter.Insert();
             AttachmentManagement.Send(TempDeliverySorter);
         end;
-        OnAfterLogInteraction(SegmentLine, InteractLogEntry);
+        OnAfterLogInteraction(SegmentLine, InteractLogEntry, Deliver, Postponed);
+    end;
+
+    local procedure TestFieldsFromLogInteraction(var SegmentLine: Record "Segment Line"; Deliver: Boolean; Postponed: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestFieldsFromLogInteraction(SegmentLine, Deliver, Postponed, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not Postponed then
+            TestFields(SegmentLine, Deliver);
     end;
 
     procedure LogDocument(DocumentType: Integer; DocumentNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer; AccountTableNo: Integer; AccountNo: Code[20]; SalespersonCode: Code[20]; CampaignNo: Code[20]; Description: Text[100]; OpportunityNo: Code[20])
@@ -278,6 +293,11 @@ codeunit 5051 SegManagement
                     if SalespersonCode = '' then
                         SalespersonCode := Cont."Salesperson Code";
                     ContNo := AccountNo;
+                end;
+            else begin
+                    OnLogDocumentOnCaseElse(AccountTableNo, AccountNo, ContNo);
+                    if ContNo = '' then
+                        exit;
                 end;
         end;
 
@@ -677,7 +697,7 @@ codeunit 5051 SegManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLogInteraction(var SegmentLine: Record "Segment Line"; var InteractionLogEntry: Record "Interaction Log Entry")
+    local procedure OnAfterLogInteraction(var SegmentLine: Record "Segment Line"; var InteractionLogEntry: Record "Interaction Log Entry"; Deliver: Boolean; Postponed: Boolean)
     begin
     end;
 
@@ -732,6 +752,16 @@ codeunit 5051 SegManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestFieldsFromLogInteraction(var SegmentLine: Record "Segment Line"; Deliver: Boolean; Postponed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogDocumentOnCaseElse(AccountTableNo: Integer; AccountNo: Code[20]; var ContNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnLogInteractionOnBeforeInteractionLogEntryInsert(var InteractionLogEntry: Record "Interaction Log Entry")
     begin
     end;
@@ -747,7 +777,7 @@ codeunit 5051 SegManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLogInteractionOnBeforeTempDeliverySorterInsert(var DeliverySorter: Record "Delivery Sorter")
+    local procedure OnLogInteractionOnBeforeTempDeliverySorterInsert(var DeliverySorter: Record "Delivery Sorter"; SegmentLine: Record "Segment Line"; InteractionLogEntry: Record "Interaction Log Entry")
     begin
     end;
 
@@ -758,6 +788,11 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLogSegmentOnAfterCalcShowIsNotEmptyError(var LoggedSegment: Record "Logged Segment"; Deliver: Boolean; var ShowIsNotEmptyError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogSegmentOnAfterCalcShouldModifyAttachment(var Attachment: Record Attachment; SegmentLine: Record "Segment Line"; SegmentHeader: Record "Segment Header"; var ShouldModifyAttachment: Boolean)
     begin
     end;
 

@@ -984,7 +984,6 @@ codeunit 134120 "Price Source UT"
         Assert.IsFalse(PriceSource.IsForAmountType(AmountType::Any), 'AmountType::All');
         Assert.IsFalse(PriceSource.IsForAmountType(AmountType::Price), 'AmountType::Price');
         Assert.IsTrue(PriceSource.IsForAmountType(AmountType::Discount), 'AmountType::Discount');
-        Assert.IsFalse(PriceSource.IsForAmountType(AmountType::Cost), 'AmountType::Cost');
     end;
 
     [Test]
@@ -1181,7 +1180,6 @@ codeunit 134120 "Price Source UT"
         Assert.IsFalse(PriceSource.IsForAmountType(AmountType::Any), 'AmountType::All');
         Assert.IsTrue(PriceSource.IsForAmountType(AmountType::Price), 'AmountType::Price');
         Assert.IsFalse(PriceSource.IsForAmountType(AmountType::Discount), 'AmountType::Discount');
-        Assert.IsFalse(PriceSource.IsForAmountType(AmountType::Cost), 'AmountType::Cost');
     end;
 
     [Test]
@@ -2296,7 +2294,7 @@ codeunit 134120 "Price Source UT"
     var
         AmountType: Enum "Price Amount Type";
     begin
-        Assert.AreEqual(AmountType::Any, PriceSource.GetDefaultAmountType(), 'Wrong default amount type');
+        Assert.AreEqual(AmountType::Price, PriceSource.GetDefaultAmountType(), 'Wrong default amount type');
 
         PriceSource.VerifyAmountTypeForSourceType(AmountType::Price);
         PriceSource.VerifyAmountTypeForSourceType(AmountType::Discount);

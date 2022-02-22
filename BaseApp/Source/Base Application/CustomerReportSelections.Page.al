@@ -224,7 +224,7 @@ page 9657 "Customer Report Selections"
             "Report Selection Usage"::"S.Shipment":
                 Usage2 := "Custom Report Selection Sales"::Shipment;
             else
-                OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2);
+                OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2, Rec);
         end;
     end;
 
@@ -243,7 +243,7 @@ page 9657 "Customer Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection: Record "Custom Report Selection"; var ReportUsage: Option)
+    local procedure OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection: Record "Custom Report Selection"; var ReportUsage: Option; Rec: Record "Custom Report Selection")
     begin
     end;
 

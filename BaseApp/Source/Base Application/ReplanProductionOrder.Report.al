@@ -1,4 +1,4 @@
-report 99001026 "Replan Production Order"
+﻿report 99001026 "Replan Production Order"
 {
     Caption = 'Replan Production Order';
     ProcessingOnly = true;
@@ -283,6 +283,7 @@ report 99001026 "Replan Production Order"
     trigger OnInitReport()
     begin
         Direction := Direction::Backward;
+        OnAfterInitReport();
     end;
 
     trigger OnPreReport()
@@ -412,6 +413,11 @@ report 99001026 "Replan Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnProdOrderCompOnBeforeCalcExpectedQtyOnHand(ProdOrderComponent: Record "Prod. Order Component"; var CompItem: Record Item; WithInventory: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitReport()
     begin
     end;
 }

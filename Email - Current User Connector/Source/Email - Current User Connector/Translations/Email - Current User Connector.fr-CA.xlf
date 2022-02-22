@@ -123,7 +123,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3536309230 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Current User Connector - Objects</source>
-          <target state="translated">courriel connecteur utilisateur actuel - Objets</target>
+          <target state="translated">Courriel connecteur utilisateur actuel - Objets</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet EmailCurUser-Objects - Property Caption</note>
         </trans-unit>

@@ -18,6 +18,9 @@ codeunit 1380 "Batch Processing Mgt."
         IsCustomProcessingHandled: Boolean;
         IsHandled: Boolean;
         KeepParameters: Boolean;
+        TelemetryCategoryTxt: Label 'GenJournal', Locked = true;
+        GenJournalPostFailedTxt: Label 'General journal posting failed. Journal Template: %1, Journal Batch: %2', Locked = true;
+        InterCompanyZipFileNamePatternTok: Label 'General Journal IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';
         BatchProcessingTxt: Label 'Batch processing of %1 records.', Comment = '%1 - a table caption';
         ProcessingMsg: Label 'Executing codeunit %1 on record %2.', Comment = '%1 - codeunit id,%2 - record id';
 
@@ -88,6 +91,50 @@ codeunit 1380 "Batch Processing Mgt."
         end;
 
         OnAfterBatchProcess(RecRef, CounterPosted, ProcessingCodeunitID);
+    end;
+
+    procedure BatchProcessGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingCodeunitId: Integer)
+    var
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        BatchProcessingMgtHandler: Codeunit "Batch Processing Mgt. Handler";
+        ICOutboxExport: Codeunit "IC Outbox Export";
+        PostingResult: Boolean;
+    begin
+        Commit();
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+
+        BindSubscription(BatchProcessingMgtHandler);
+        PostingResult := Codeunit.Run(PostingCodeunitId, GenJournalLine);
+        if PostingResult then
+            ICOutboxExport.DownloadBatchFiles(GetICBatchFileName());
+        UnbindSubscription(BatchProcessingMgtHandler);
+
+        if not PostingResult then begin
+            ErrorMessageHandler.ShowErrors();
+            LogFailurePostTelemetry(GenJournalLine);
+        end;
+    end;
+
+    local procedure GetICBatchFileName() Result: Text
+    begin
+        Result := StrSubstNo(InterCompanyZipFileNamePatternTok, Format(WorkDate(), 10, '<Year4>-<Month,2>-<Day,2>'));
+
+        OnGetICBatchFileName(Result);
+    end;
+
+    local procedure LogFailurePostTelemetry(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        ErrorMessage: Record "Error Message";
+        Dimensions: Dictionary of [Text, Text];
+        ErrorMessageTxt: Text;
+    begin
+        ErrorMessage.SetRange("Context Table Number", Database::"Gen. Journal Line");
+        if ErrorMessage.FindLast() then
+            ErrorMessageTxt := ErrorMessage.Description;
+        Dimensions.Add('Category', TelemetryCategoryTxt);
+        Dimensions.Add('Error', ErrorMessageTxt);
+        Session.LogMessage('0000F9J', StrSubstNo(GenJournalPostFailedTxt, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 
     local procedure CanProcessRecord(var RecRef: RecordRef): Boolean
@@ -512,6 +559,11 @@ codeunit 1380 "Batch Processing Mgt."
 
     [InternalEvent(false)]
     local procedure OnSystemSetBatchProcessingActive(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetICBatchFileName(var Result: Text)
     begin
     end;
 

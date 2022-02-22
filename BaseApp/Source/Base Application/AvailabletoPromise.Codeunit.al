@@ -477,6 +477,7 @@
         if AllFieldCalculated and (PrevItemNo = Item."No.") and (PrevItemFilters = Item.GetFilters) then
             exit;
 
+        OnCalcAllItemFieldsOnBeforeItemCalcFields(Item);
         Item.CalcFields(
           Inventory, "Reserved Qty. on Inventory",
           "Qty. on Component Lines",
@@ -791,12 +792,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeQtyAvailableToPromise(var Item: Record Item; AvailabilityDate: Date; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; PeriodType: Option Day,Week,Month,Quarter,Year; LookaheadDateFormula: DateFormula; var AvailableToPromise: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeQtyAvailableToPromise(var Item: Record Item; var AvailabilityDate: Date; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; PeriodType: Option Day,Week,Month,Quarter,Year; LookaheadDateFormula: DateFormula; var AvailableToPromise: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAllItemFieldsOnAfterItemCalcFields(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAllItemFieldsOnBeforeItemCalcFields(var Item: Record Item)
     begin
     end;
 

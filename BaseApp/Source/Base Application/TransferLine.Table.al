@@ -143,7 +143,7 @@ table 5741 "Transfer Line"
                 CheckItemCanBeShipped();
 
                 "Qty. to Ship (Base)" := CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)"));
-                UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+                ValidateQuantityShipIsBalanced();
 
                 if ("In-Transit Code" = '') and ("Quantity Shipped" = "Quantity Received") then
                     Validate("Qty. to Receive", "Qty. to Ship");
@@ -177,7 +177,7 @@ table 5741 "Transfer Line"
                         else
                             Error(Text009);
                 "Qty. to Receive (Base)" := CalcBaseQty("Qty. to Receive", FieldCaption("Qty. to Receive"), FieldCaption("Qty. to Receive (Base)"));
-                UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Quantity Received", "Qty. Received (Base)");
+                ValidateQuantityReceiveIsBalanced();
 
             end;
         }
@@ -1225,6 +1225,30 @@ table 5741 "Transfer Line"
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", TransHeader."Dimension Set ID", DATABASE::Item);
     end;
 
+    local procedure ValidateQuantityShipIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityShipIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+    end;
+
+    local procedure ValidateQuantityReceiveIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityReceiveIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Quantity Received", "Qty. Received (Base)");
+    end;
+
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -1874,6 +1898,16 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityReceiveIsBalanced(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityShipIsBalanced(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -325,7 +325,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [THEN] New "Next Counting Start Date" = Old "Next Counting End Date" + 1 day
         // [THEN] New "Next Counting End Date" = New "Next Counting Start Date" + 1 week
         Item.TestField("Next Counting Start Date", CalcDate('<1D>', NextCountingEndDate));
-        Item.TestField("Next Counting End Date", CalcDate('<1W>', Item."Next Counting Start Date"));
+        Item.TestField("Next Counting End Date", CalcDate('<1W-1D>', Item."Next Counting Start Date"));
     end;
 
     [Test]
@@ -376,14 +376,14 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [GIVEN] Weekly (52 times a year) phys. inventory counting period.
         CountFrequency := 52;
 
-        // [GIVEN] The current counting period is 0..7 days from WORKDATE.
+        // [GIVEN] The current counting period is 0..6 days from WORKDATE.
         NextCountingStartDate := WorkDate;
-        NextCountingEndDate := WorkDate + 7;
+        NextCountingEndDate := WorkDate + 6;
 
-        // [GIVEN] The next counting periods will be as follows: 8..15, 16..23, 24..31, ...
+        // [GIVEN] The next counting periods will be as follows: 7..13, 14..20, 21..27, ...
         for i := 1 to ArrayLen(CountPeriodBounds, 1) do begin
-            CountPeriodBounds[i] [1] := 7 * i + i;
-            CountPeriodBounds[i] [2] := 7 * (i + 1) + i;
+            CountPeriodBounds[i] [1] := 7 * i;
+            CountPeriodBounds[i] [2] := 7 * i + 6;
         end;
 
         // [GIVEN] Last phys. inventory is carried out within the period of 8..15 days.
@@ -1710,6 +1710,135 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchaseHeader.SetRange("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
         PurchaseHeader.FindFirst();
         PurchaseHeader.TestField("Ship-to Code", SalesHeader."Ship-to Code");
+    end;
+
+    [Test]
+    procedure NextPhysInvtCountingPeriodWithBlankLastDate()
+    var
+        Item: Record Item;
+    begin
+        // [FEATURE] [Phys. Invt. Counting Period] [UT]
+        // [SCENARIO 420429] Next Phys. Invt. Counting Period is a current period when "Last Counting Period Update" is blank.
+        Initialize(false);
+
+        LibraryInventory.CreateItem(Item);
+
+        Item.Validate("Phys Invt Counting Period Code", CreatePhysInvtCountingPeriod(12));
+
+        Item.TestField("Next Counting Start Date", CalcDate('<-CM>', WorkDate()));
+        Item.TestField("Next Counting End Date", CalcDate('<CM>', WorkDate()));
+    end;
+
+    [Test]
+    procedure NextPhysInvtCountingPeriodWithNonBlankLastDate()
+    var
+        Item: Record Item;
+    begin
+        // [FEATURE] [Phys. Invt. Counting Period] [UT]
+        // [SCENARIO 420429] Next Phys. Invt. Counting Period is next period when "Last Counting Period Update" is not blank.
+        Initialize(false);
+
+        LibraryInventory.CreateItem(Item);
+        Item."Last Counting Period Update" := WorkDate();
+
+        Item.Validate("Phys Invt Counting Period Code", CreatePhysInvtCountingPeriod(12));
+
+        Item.TestField("Next Counting Start Date", CalcDate('<CM + 1D>', WorkDate()));
+        Item.TestField("Next Counting End Date", CalcDate('<CM + 1D + 1M - 1D>', WorkDate()));
+    end;
+
+    [Test]
+    procedure NextPhysInvtCountingPeriodWithNoPreviousInvtAndCustomFreq()
+    var
+        Item: Record Item;
+        PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
+    begin
+        // [FEATURE] [Phys. Invt. Counting Period] [UT]
+        // [SCENARIO 420429] When counting frequency is 52 times/year and there are no next counting dates, the next Phys. Invt. Counting Period will start in a week from WORKDATE.
+        Initialize(false);
+
+        LibraryInventory.CreateItem(Item);
+        Item."Last Counting Period Update" := WorkDate();
+        Item."Phys Invt Counting Period Code" := CreatePhysInvtCountingPeriod(52);
+        Item.Modify();
+
+        PhysInvtCountManagement.CalcPeriod(
+          Item."Last Counting Period Update", Item."Next Counting Start Date", Item."Next Counting End Date", 52);
+
+        Item.TestField("Next Counting Start Date", CalcDate('<1W>', WorkDate()));
+        Item.TestField("Next Counting End Date", CalcDate('<1W + 6D>', WorkDate()));
+    end;
+
+    [Test]
+    procedure NextPhysInvtCountingPeriodWithCurrentLastDateAndCustomFreq()
+    var
+        Item: Record Item;
+        PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
+    begin
+        // [FEATURE] [Phys. Invt. Counting Period] [UT]
+        // [SCENARIO 420429] When counting frequency is 52 times/year and "Last Counting Period Update" = WORKDATE, the next Phys. Invt. Counting Period will start right after the current week.
+        Initialize(false);
+
+        LibraryInventory.CreateItem(Item);
+        Item."Last Counting Period Update" := WorkDate();
+        Item."Next Counting Start Date" := CalcDate('<-CW>', WorkDate());
+        Item."Next Counting End Date" := CalcDate('<CW>', WorkDate());
+        Item."Phys Invt Counting Period Code" := CreatePhysInvtCountingPeriod(52);
+        Item.Modify();
+
+        PhysInvtCountManagement.CalcPeriod(
+          Item."Last Counting Period Update", Item."Next Counting Start Date", Item."Next Counting End Date", 52);
+
+        Item.TestField("Next Counting Start Date", CalcDate('<CW + 1D>', WorkDate()));
+        Item.TestField("Next Counting End Date", CalcDate('<CW + 7D>', WorkDate()));
+    end;
+
+    [Test]
+    procedure NextPhysInvtCountingPeriodWithPastLastDateAndCustomFreq()
+    var
+        Item: Record Item;
+        PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
+    begin
+        // [FEATURE] [Phys. Invt. Counting Period] [UT]
+        // [SCENARIO 420429] When counting frequency is 52 times/year and "Last Counting Period Update is a past date, the next Phys. Invt. Counting Period will start in a week from that past date.
+        Initialize(false);
+
+        LibraryInventory.CreateItem(Item);
+        Item."Last Counting Period Update" := CalcDate('<-2M>', WorkDate());
+        Item."Next Counting Start Date" := CalcDate('<-CW>', WorkDate());
+        Item."Next Counting End Date" := CalcDate('<CW>', WorkDate());
+        Item."Phys Invt Counting Period Code" := CreatePhysInvtCountingPeriod(52);
+        Item.Modify();
+
+        PhysInvtCountManagement.CalcPeriod(
+          Item."Last Counting Period Update", Item."Next Counting Start Date", Item."Next Counting End Date", 52);
+
+        Item.TestField("Next Counting Start Date", CalcDate('<1W>', Item."Last Counting Period Update"));
+        Item.TestField("Next Counting End Date", CalcDate('<1W + 6D>', Item."Last Counting Period Update"));
+    end;
+
+    [Test]
+    procedure NextPhysInvtCountingPeriodWithFutureDateAndCustomFreq()
+    var
+        Item: Record Item;
+        PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
+    begin
+        // [FEATURE] [Phys. Invt. Counting Period] [UT]
+        // [SCENARIO 420429] When counting frequency is 52 times/year and "Last Counting Period Update is a future date and the existing counting period starts from Tuesday (for example), the next counting period will start next Tuesday from that future date.
+        Initialize(false);
+
+        LibraryInventory.CreateItem(Item);
+        Item."Last Counting Period Update" := CalcDate('<WD4 + 4W>', WorkDate());
+        Item."Next Counting Start Date" := CalcDate('<WD2>', WorkDate());
+        Item."Next Counting End Date" := CalcDate('<WD2 + 6D>', WorkDate());
+        Item."Phys Invt Counting Period Code" := CreatePhysInvtCountingPeriod(52);
+        Item.Modify();
+
+        PhysInvtCountManagement.CalcPeriod(
+          Item."Last Counting Period Update", Item."Next Counting Start Date", Item."Next Counting End Date", 52);
+
+        Item.TestField("Next Counting Start Date", CalcDate('<WD2>', Item."Last Counting Period Update"));
+        Item.TestField("Next Counting End Date", CalcDate('<WD2 + 6D>', Item."Last Counting Period Update"));
     end;
 
     local procedure Initialize(Enable: Boolean)

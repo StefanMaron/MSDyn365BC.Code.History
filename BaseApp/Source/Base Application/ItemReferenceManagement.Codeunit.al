@@ -535,7 +535,6 @@ codeunit 5720 "Item Reference Management"
             if PAGE.RunModal(PAGE::"Item Reference List", ItemReference2) = ACTION::LookupOK then begin
                 PurchaseLine."Item Reference No." := ItemReference2."Reference No.";
                 ValidatePurchaseReferenceNo(PurchaseLine, PurchHeader, ItemReference2, false, 0);
-                PurchaseLine.Validate("Item Reference No.", ItemReference2."Reference No.");
                 PurchaseLine.UpdateReferencePriceAndDiscount();
                 OnPurchaseReferenceNoLookupOnBeforeValidateDirectUnitCost(PurchaseLine, PurchHeader);
                 PurchaseLine.Validate("Direct Unit Cost");

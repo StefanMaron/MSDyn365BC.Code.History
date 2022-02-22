@@ -20,12 +20,12 @@ page 5338 "Integration Synch. Job List"
         {
             repeater(Group)
             {
-                field("Start Date/Time"; "Start Date/Time")
+                field("Start Date/Time"; Rec."Start Date/Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the data and time that the integration synchronization job started.';
                 }
-                field("Finish Date/Time"; "Finish Date/Time")
+                field("Finish Date/Time"; Rec."Finish Date/Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and time that the integration synchronization job completed.';
@@ -37,48 +37,48 @@ page 5338 "Integration Synch. Job List"
                     HideValue = DoHideDuration;
                     ToolTip = 'Specifies how long the data synchronization has taken.';
                 }
-                field("Integration Table Mapping Name"; "Integration Table Mapping Name")
+                field("Integration Table Mapping Name"; Rec."Integration Table Mapping Name")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the table mapping that was used for the integration synchronization job.';
                     Visible = false;
                 }
-                field(Uncoupled; Uncoupled)
+                field(Uncoupled; Rec.Uncoupled)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of records that were uncoupled during the integration synchronization job.';
                     Visible = UncouplingSpecificColumnsVisible;
                 }
-                field(Coupled; Coupled)
+                field(Coupled; Rec.Coupled)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of records that were coupled by matching an existing entity during the integration synchronization job.';
                     Visible = CouplingSpecificColumnsVisible;
                 }
-                field(Inserted; Inserted)
+                field(Inserted; Rec.Inserted)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of new records that were created in the destination database table (such as the Dynamics 365 Sales Account entity or Business Central Customer table) by the integration synchronization job.';
                     Visible = SynchSpecificColumnsVisible;
                 }
-                field(Modified; Modified)
+                field(Modified; Rec.Modified)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of records that were modified in the destination database table (such as the Dynamics 365 Sales Account entity or Dynamics 365 Customer table) by the integration synchronization job.';
                 }
-                field(Deleted; Deleted)
+                field(Deleted; Rec.Deleted)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies entries that were deleted when synchronizing Dynamics 365 Sales data and Dynamics 365 data.';
                     Visible = SynchSpecificColumnsVisible;
                 }
-                field(Unchanged; Unchanged)
+                field(Unchanged; Rec.Unchanged)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of records that were not changed in the destination database table (such as the Dynamics 365 Sales Account entity or Dynamics 365 Customer table) by the integration synchronization job.';
                     Visible = SynchSpecificColumnsVisible;
                 }
-                field(Failed; Failed)
+                field(Failed; Rec.Failed)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of errors that occurred during the integration synchronization job.';
@@ -98,10 +98,17 @@ page 5338 "Integration Synch. Job List"
                         PAGE.Run(PAGE::"Integration Synch. Error List", IntegrationSynchJobErrors);
                     end;
                 }
-                field(Skipped; Skipped)
+                field(Skipped; Rec.Skipped)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of records that were skipped during the integration synchronization job.';
+                }
+                field("Synch. Direction"; Rec."Synch. Direction")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synch. Direction';
+                    ToolTip = 'Specifies in which direction data is synchronized.';
+                    Visible = false;
                 }
                 field(Direction; SynchDirection)
                 {
@@ -110,14 +117,14 @@ page 5338 "Integration Synch. Job List"
                     ToolTip = 'Specifies in which direction data is synchronized.';
                     Visible = SynchSpecificColumnsVisible;
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Type';
                     ToolTip = 'Specifies the type of the integration synchronization job.';
                     Visible = SynchSpecificColumnsVisible and UncouplingSpecificColumnsVisible and CouplingSpecificColumnsVisible;
                 }
-                field(Message; Message)
+                field(Message; Rec.Message)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a message that occurred as a result of the integration synchronization job.';
@@ -168,7 +175,7 @@ page 5338 "Integration Synch. Job List"
         TempIntegrationSynchJob: Record "Integration Synch. Job" temporary;
         JobTypeFilter: Text;
     begin
-        JobTypeFilter := GetFilter(Type);
+        JobTypeFilter := Rec.GetFilter(Type);
         if JobTypeFilter <> '' then begin
             TempIntegrationSynchJob.SetRange(Type, TempIntegrationSynchJob.Type::Uncoupling);
             UncouplingSpecificColumnsVisible := GetFilter(Type) = TempIntegrationSynchJob.GetFilter(Type);
@@ -194,21 +201,21 @@ page 5338 "Integration Synch. Job List"
         SynchDirection := '';
         if IntegrationTableMapping.Get("Integration Table Mapping Name") then begin
             TableMetadata.Get(IntegrationTableMapping."Table ID");
-            if not (Type in [Type::Uncoupling, Type::Coupling]) then
-                if "Synch. Direction" = "Synch. Direction"::ToIntegrationTable then
+            if not (Rec.Type in [Rec.Type::Uncoupling, Rec.Type::Coupling]) then
+                if Rec."Synch. Direction" = Rec."Synch. Direction"::ToIntegrationTable then
                     SynchDirection :=
                       StrSubstNo(SynchDirectionTxt, TableMetadata.Caption, IntegrationTableMapping.GetExtendedIntegrationTableCaption())
                 else
                     SynchDirection :=
                       StrSubstNo(SynchDirectionTxt, IntegrationTableMapping.GetExtendedIntegrationTableCaption(), TableMetadata.Caption);
         end;
-        DoHideDuration := "Finish Date/Time" < "Start Date/Time";
+        DoHideDuration := Rec."Finish Date/Time" < Rec."Start Date/Time";
         if DoHideDuration then
             Clear(Duration)
         else
-            Duration := "Finish Date/Time" - "Start Date/Time";
+            Duration := Rec."Finish Date/Time" - Rec."Start Date/Time";
 
-        HasRecords := not IsEmpty;
+        HasRecords := not Rec.IsEmpty();
     end;
 
     var

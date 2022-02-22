@@ -53,22 +53,7 @@ report 81 "Import Budget from Excel"
                 if not TempDimSetEntry.IsEmpty() then
                     TempDimSetEntry.DeleteAll(true);
 
-                if "Dimension Value Code 1" <> '' then
-                    InsertGLBudgetDim(DimCode[1], "Dimension Value Code 1", GLBudgetEntry);
-                if "Dimension Value Code 2" <> '' then
-                    InsertGLBudgetDim(DimCode[2], "Dimension Value Code 2", GLBudgetEntry);
-                if "Dimension Value Code 3" <> '' then
-                    InsertGLBudgetDim(DimCode[3], "Dimension Value Code 3", GLBudgetEntry);
-                if "Dimension Value Code 4" <> '' then
-                    InsertGLBudgetDim(DimCode[4], "Dimension Value Code 4", GLBudgetEntry);
-                if "Dimension Value Code 5" <> '' then
-                    InsertGLBudgetDim(DimCode[5], "Dimension Value Code 5", GLBudgetEntry);
-                if "Dimension Value Code 6" <> '' then
-                    InsertGLBudgetDim(DimCode[6], "Dimension Value Code 6", GLBudgetEntry);
-                if "Dimension Value Code 7" <> '' then
-                    InsertGLBudgetDim(DimCode[7], "Dimension Value Code 7", GLBudgetEntry);
-                if "Dimension Value Code 8" <> '' then
-                    InsertGLBudgetDim(DimCode[8], "Dimension Value Code 8", GLBudgetEntry);
+                InsertGLBudgetDimensions(BudgetBuf);
                 GLBudgetEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 GLBudgetEntry.Insert(true);
                 EntryNo := EntryNo + 1;
@@ -512,10 +497,32 @@ report 81 "Import Budget from Excel"
             Error(Text008);
     end;
 
+    local procedure InsertGLBudgetDimensions(var BudgetBuffer: Record "Budget Buffer")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertGLBudgetDimensions(GLBudgetEntry, BudgetBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
+        InsertGLBudgetDim(DimCode[1], BudgetBuffer."Dimension Value Code 1", GLBudgetEntry);
+        InsertGLBudgetDim(DimCode[2], BudgetBuffer."Dimension Value Code 2", GLBudgetEntry);
+        InsertGLBudgetDim(DimCode[3], BudgetBuffer."Dimension Value Code 3", GLBudgetEntry);
+        InsertGLBudgetDim(DimCode[4], BudgetBuffer."Dimension Value Code 4", GLBudgetEntry);
+        InsertGLBudgetDim(DimCode[5], BudgetBuffer."Dimension Value Code 5", GLBudgetEntry);
+        InsertGLBudgetDim(DimCode[6], BudgetBuffer."Dimension Value Code 6", GLBudgetEntry);
+        InsertGLBudgetDim(DimCode[7], BudgetBuffer."Dimension Value Code 7", GLBudgetEntry);
+        InsertGLBudgetDim(DimCode[8], BudgetBuffer."Dimension Value Code 8", GLBudgetEntry);
+    end;
+
     local procedure InsertGLBudgetDim(DimCode2: Code[20]; DimValCode2: Code[20]; var GLBudgetEntry2: Record "G/L Budget Entry")
     var
         DimValue: Record "Dimension Value";
     begin
+        if DimValCode2 = '' then
+            exit;
+
         if DimCode2 <> BusUnitDimCode then begin
             DimValue.Get(DimCode2, DimValCode2);
             if TempDimSetEntry.Get(TempDimSetEntry."Dimension Set ID", DimCode2) then begin
@@ -586,6 +593,11 @@ report 81 "Import Budget from Excel"
     procedure SetFileName(NewFileName: Text)
     begin
         ServerFileName := NewFileName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertGLBudgetDimensions(var GLBudgetEntry: Record "G/L Budget Entry"; var BudgetBuffer: Record "Budget Buffer"; var IsHandled: Boolean)
+    begin
     end;
 }
 

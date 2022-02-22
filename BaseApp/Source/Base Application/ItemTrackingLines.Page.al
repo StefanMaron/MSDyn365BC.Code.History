@@ -1196,7 +1196,7 @@
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         CurrentEntryStatusOption: Option;
     begin
-        OnBeforeSetSourceSpec(TrackingSpecification, ReservEntry);
+        OnBeforeSetSourceSpec(TrackingSpecification, ReservEntry, ExcludePostedEntries);
 
         SourceTrackingSpecification := TrackingSpecification;
         GetItem(TrackingSpecification."Item No.");
@@ -2443,7 +2443,7 @@
                 Error('');
             Rec.Insert();
 
-            OnAssignSerialNoBatchOnAfterInsert(Rec, QtyToCreate);
+            OnAssignSerialNoBatchOnAfterInsert(Rec, QtyToCreate, CreateLotNo);
 
             TempItemTrackLineInsert.TransferFields(Rec);
             TempItemTrackLineInsert.Insert();
@@ -2744,7 +2744,7 @@
                 Rec.Insert();
             end;
         until TempTrackingSpecification.Next() = 0;
-        OnAfterRegisterItemTrackingLines(SourceTrackingSpecification, TempTrackingSpecification, Rec, AvailabilityDate);
+        OnAfterRegisterItemTrackingLines(SourceTrackingSpecification, TempTrackingSpecification, Rec, AvailabilityDate, IsCorrection);
 
         Rec.Reset();
         if Rec.Find('-') then
@@ -3317,7 +3317,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRegisterItemTrackingLines(var TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var CurrTrackingSpecification: Record "Tracking Specification"; var AvailabilityDate: Date)
+    local procedure OnAfterRegisterItemTrackingLines(var TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var CurrTrackingSpecification: Record "Tracking Specification"; var AvailabilityDate: Date; var IsCorrection: Boolean)
     begin
     end;
 
@@ -3348,7 +3348,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAssignLotNoOnAfterInsert(var TrackingSpecification: Record "Tracking Specification")
     begin
     end;
@@ -3358,8 +3358,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAssignSerialNoBatchOnAfterInsert(var TrackingSpecification: Record "Tracking Specification"; QtyToCreate: Integer)
+    [IntegrationEvent(true, false)]
+    local procedure OnAssignSerialNoBatchOnAfterInsert(var TrackingSpecification: Record "Tracking Specification"; QtyToCreate: Integer; CreateLotNo: Boolean)
     begin
     end;
 
@@ -3444,7 +3444,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetSourceSpec(var TrackingSpecification: Record "Tracking Specification"; var ReservationEntry: Record "Reservation Entry")
+    local procedure OnBeforeSetSourceSpec(var TrackingSpecification: Record "Tracking Specification"; var ReservationEntry: Record "Reservation Entry"; var ExcludePostedEntries: Boolean)
     begin
     end;
 

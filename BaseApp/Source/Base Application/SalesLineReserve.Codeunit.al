@@ -45,7 +45,7 @@ codeunit 99000832 "Sales Line-Reserve"
         SalesLine.CalcFields("Reserved Qty. (Base)");
 
         IsHandled := false;
-        OnCreateReservationOnBeforeCheckReservedQty(SalesLine, IsHandled);
+        OnCreateReservationOnBeforeCheckReservedQty(SalesLine, IsHandled, QuantityBase);
         if IsHandled then
             exit;
 
@@ -410,7 +410,13 @@ codeunit 99000832 "Sales Line-Reserve"
     procedure AssignForPlanning(var SalesLine: Record "Sales Line")
     var
         PlanningAssignment: Record "Planning Assignment";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssignForPlanning(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesLine do begin
             if "Document Type" <> "Document Type"::Order then
                 exit;
@@ -474,7 +480,13 @@ codeunit 99000832 "Sales Line-Reserve"
     procedure RetrieveInvoiceSpecification(var SalesLine: Record "Sales Line"; var TempInvoicingSpecification: Record "Tracking Specification" temporary) OK: Boolean
     var
         SourceSpecification: Record "Tracking Specification";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRetrieveInvoiceSpecification(SalesLine, OK, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(TempInvoicingSpecification);
         if SalesLine.Type <> SalesLine.Type::Item then
             exit;
@@ -494,7 +506,13 @@ codeunit 99000832 "Sales Line-Reserve"
     var
         TrackingSpecification: Record "Tracking Specification";
         ReservEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRetrieveInvoiceSpecification2(SalesLine, OK, IsHandled);
+        if IsHandled then
+            exit;
+
         // Used for combined shipment/return:
         if SalesLine.Type <> SalesLine.Type::Item then
             exit;
@@ -524,8 +542,15 @@ codeunit 99000832 "Sales Line-Reserve"
           DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
 
-    local procedure DeleteInvoiceSpecFromLine(SalesLine: Record "Sales Line")
+    local procedure DeleteInvoiceSpecFromLine(var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteInvoiceSpecFromLine(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemTrackingMgt.DeleteInvoiceSpecFromLine(
           DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
     end;
@@ -1048,12 +1073,27 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignForPlanning(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeBindToProdOrder(SalesLine: Record "Sales Line"; ProdOrderLine: Record "Prod. Order Line"; ReservQty: Decimal; ReservQtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesReservEntries(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var ReservMgt: Codeunit "Reservation Management"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRetrieveInvoiceSpecification(var SalesLine: Record "Sales Line"; var OK: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRetrieveInvoiceSpecification2(var SalesLine: Record "Sales Line"; var OK: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1133,6 +1173,11 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteInvoiceSpecFromLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyQuantity(var NewSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1163,7 +1208,7 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservationOnBeforeCheckReservedQty(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnCreateReservationOnBeforeCheckReservedQty(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; QuantityBase: Decimal)
     begin
     end;
 }

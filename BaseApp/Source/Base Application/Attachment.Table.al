@@ -527,15 +527,8 @@ table 5062 Attachment
 
         "Storage Pointer" := RMSetup."Attachment Storage Location";
 
-        with Attachment2 do begin
-            "No." := Rec."No.";
-            "Storage Type" := "Storage Type"::"Disk File";
-            "Storage Pointer" := RMSetup."Attachment Storage Location";
-            "File Extension" := Rec."File Extension";
-            "Read Only" := Rec."Read Only";
-            "Last Date Modified" := Rec."Last Date Modified";
-            "Last Time Modified" := Rec."Last Time Modified";
-        end;
+        CopyAttachmentAsFile(Rec, Attachment2);
+
         Clear(Rec);
         Rec := Attachment2;
     end;
@@ -582,6 +575,19 @@ table 5062 Attachment
         if CorrespondenceType = CorrespondenceType::Fax then
             if (UpperCase("File Extension") <> 'DOC') and (UpperCase("File Extension") <> 'DOCX') then
                 exit(Text014);
+    end;
+
+    local procedure CopyAttachmentAsFile(var FromAttachment: Record Attachment; var ToAttachment: Record Attachment)
+    begin
+        ToAttachment."No." := FromAttachment."No.";
+        ToAttachment."Storage Type" := ToAttachment."Storage Type"::"Disk File";
+        ToAttachment."Storage Pointer" := RMSetup."Attachment Storage Location";
+        ToAttachment."File Extension" := FromAttachment."File Extension";
+        ToAttachment."Read Only" := FromAttachment."Read Only";
+        ToAttachment."Last Date Modified" := FromAttachment."Last Date Modified";
+        ToAttachment."Last Time Modified" := FromAttachment."Last Time Modified";
+
+        OnAfterCopyAttachmentAsFile(FromAttachment, ToAttachment);
     end;
 
     procedure LinkToMessage(MessageID: Text; EntryID: Text; RunTrigger: Boolean)
@@ -837,6 +843,11 @@ table 5062 Attachment
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyAttachmentAsFile(var FromAttachment: Record Attachment; var ToAttachment: Record Attachment)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowAttachment(var SegLine: Record "Segment Line"; WordCaption: Text; var IsHandled: Boolean)

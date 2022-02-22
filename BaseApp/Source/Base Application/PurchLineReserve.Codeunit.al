@@ -31,6 +31,7 @@
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text004);
 
+        OnBeforeCreateReservation(PurchLine);
         PurchLine.TestField(Type, PurchLine.Type::Item);
         PurchLine.TestField("No.");
         PurchLine.TestField("Expected Receipt Date");
@@ -204,8 +205,14 @@
     procedure VerifyQuantity(var NewPurchLine: Record "Purchase Line"; var OldPurchLine: Record "Purchase Line")
     var
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
         if Blocked then
+            exit;
+
+        IsHandled := false;
+        OnBeforeVerifyQuantity(NewPurchLine, IsHandled);
+        if IsHandled then
             exit;
 
         with NewPurchLine do begin
@@ -380,7 +387,12 @@
     local procedure AssignForPlanning(var PurchLine: Record "Purchase Line")
     var
         PlanningAssignment: Record "Planning Assignment";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssignForPlanning(PurchLine, IsHandled);
+        if IsHandled then
+            exit;
         with PurchLine do begin
             if "Document Type" <> "Document Type"::Order then
                 exit;
@@ -447,7 +459,13 @@
     procedure RetrieveInvoiceSpecification(var PurchLine: Record "Purchase Line"; var TempInvoicingSpecification: Record "Tracking Specification" temporary) OK: Boolean
     var
         SourceSpecification: Record "Tracking Specification";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRetrieveInvoiceSpecification(PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(TempInvoicingSpecification);
         if PurchLine.Type <> PurchLine.Type::Item then
             exit;
@@ -467,7 +485,12 @@
     var
         TrackingSpecification: Record "Tracking Specification";
         ReservEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRetrieveInvoiceSpecification2(PurchLine, IsHandled);
+        if IsHandled then
+            exit;
         // Used for combined receipt/return:
         if PurchLine.Type <> PurchLine.Type::Item then
             exit;
@@ -782,12 +805,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateReservation(var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferPurchLineToItemJnlLineReservEntry(var OldReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line"; ItemJnlLine: Record "Item Journal Line"; var TransferQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunItemTrackingLinesPage(var ItemTrackingLines: Page "Item Tracking Lines"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyQuantity(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -813,6 +846,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateStatisticsOnBeforeCheckSpecialOrder(var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignForPlanning(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRetrieveInvoiceSpecification(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRetrieveInvoiceSpecification2(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

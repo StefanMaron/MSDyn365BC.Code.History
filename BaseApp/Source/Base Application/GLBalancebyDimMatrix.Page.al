@@ -888,7 +888,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                 end;
         end;
 
-        OnAfterFindRec(DimOption, DimCodeBuf, Which, Found);
+        OnAfterFindRec(DimOption, DimCodeBuf, Which, Found, AnalysisByDimParameters);
     end;
 
     local procedure NextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer) ResultSteps: Integer
@@ -950,7 +950,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
         end;
-        OnAfterNextRec(DimOption, DimCodeBuf, Steps, ResultSteps);
+        OnAfterNextRec(DimOption, DimCodeBuf, Steps, ResultSteps, AnalysisByDimParameters);
     end;
 
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -1102,7 +1102,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                     DateFilter2 := AnalysisByDimParameters."Date Filter";
                 end else begin
                     SetFilter("Date Filter", AnalysisByDimParameters."Date Filter");
-                    DateFilter2 := StrSubstNo('%1..%2', AnalysisByDimParameters.GetRangeMinDateFilter(), GetRangeMax("Date Filter"));
+                    DateFilter2 := StrSubstNo('..%1', GetRangeMax("Date Filter"));
                 end;
                 if ExcludeClosingDateFilter <> '' then
                     DateFilter2 := StrSubstNo('%1 & %2', DateFilter2, ExcludeClosingDateFilter);
@@ -1157,10 +1157,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                         TheGLAcc.SetRange(
                           "Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End")
                     else
-                        if AnalysisByDimParameters."Date Filter" = '' then
-                            TheGLAcc.SetRange("Date Filter", 0D, DimCodeBuf."Period End")
-                        else
-                            TheGLAcc.SetRange("Date Filter", AnalysisByDimParameters.GetRangeMinDateFilter(), DimCodeBuf."Period End");
+                        TheGLAcc.SetRange("Date Filter", 0D, DimCodeBuf."Period End");
                     if (AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Exclude) and (ExcludeClosingDateFilter <> '') then
                         TheGLAcc.SetFilter(
                           "Date Filter", TheGLAcc.GetFilter("Date Filter") +
@@ -1289,8 +1286,12 @@ page 9233 "G/L Balance by Dim. Matrix"
     local procedure CalcActualAmount(): Decimal
     var
         Amount: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeCalcActualAmounts(GLAcc);
+        IsHandled := false;
+        OnBeforeCalcActualAmounts(GLAcc, AnalysisByDimParameters, Amount, IsHandled);
+        if IsHandled then
+            exit(Amount);
 
         if AnalysisByDimParameters."Show In Add. Currency" then
             case AnalysisByDimParameters."Show Amount Field" of
@@ -1502,12 +1503,12 @@ page 9233 "G/L Balance by Dim. Matrix"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterFindRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2",Fund,"Dimension 3","Dimension 4","Dimension 5","Dimension 6","Dimension 7","Dimension 8"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text; var Found: Boolean)
+    local procedure OnAfterFindRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2",Fund,"Dimension 3","Dimension 4","Dimension 5","Dimension 6","Dimension 7","Dimension 8"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text; var Found: Boolean; AnalysisbyDimParameters: Record "Analysis by Dim. Parameters")
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterNextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2",Fund,"Dimension 3","Dimension 4","Dimension 5","Dimension 6","Dimension 7","Dimension 8"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; var ResultSteps: Integer)
+    local procedure OnAfterNextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2",Fund,"Dimension 3","Dimension 4","Dimension 5","Dimension 6","Dimension 7","Dimension 8"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; var ResultSteps: Integer; AnalysisbyDimParameters: Record "Analysis by Dim. Parameters")
     begin
     end;
 
@@ -1527,7 +1528,7 @@ page 9233 "G/L Balance by Dim. Matrix"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcActualAmounts(var GLAcc: Record "G/L Account")
+    local procedure OnBeforeCalcActualAmounts(var GLAcc: Record "G/L Account"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var Amount: Decimal; var IsHandled: Boolean)
     begin
     end;
 

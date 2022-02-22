@@ -1,4 +1,4 @@
-codeunit 905 "Assembly Line Management"
+﻿codeunit 905 "Assembly Line Management"
 {
     Permissions = TableData "Assembly Line" = rimd;
 
@@ -118,14 +118,26 @@ codeunit 905 "Assembly Line Management"
             AssemblyLine.Position := BOMComponent.Position;
             AssemblyLine."Position 2" := BOMComponent."Position 2";
             AssemblyLine."Position 3" := BOMComponent."Position 3";
-            if "Location Code" <> '' then
-                if AssemblyLine.IsInventoriableItem() then
-                    AssemblyLine.Validate("Location Code", "Location Code");
+            UpdateAssemblyLineLocationCode(AssemblyHeader, AssemblyLine);
 
             OnAfterTransferBOMComponent(AssemblyLine, BOMComponent, AssemblyHeader);
 
             AssemblyLine.Modify(true);
         end;
+    end;
+
+    local procedure UpdateAssemblyLineLocationCode(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateAssemblyLineLocationCode(AssemblyHeader, AssemblyLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if AssemblyHeader."Location Code" <> '' then
+            if AssemblyLine.IsInventoriableItem() then
+                AssemblyLine.Validate("Location Code", AssemblyHeader."Location Code");
     end;
 
     procedure AddBOMLine(AsmHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
@@ -797,6 +809,11 @@ codeunit 905 "Assembly Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateQuantityToConsume(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; var QtyToConsume: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAssemblyLineLocationCode(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-report 1401 Check
+﻿report 1401 Check
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Check.rdlc';
@@ -721,6 +721,7 @@ report 1401 Check
                                     Error(Text005);
                                 if Vend."Purchaser Code" <> '' then
                                     SalesPurchPerson.Get(Vend."Purchaser Code");
+                                OnGenJnlLineOnAfterGetRecordOnAfterBalancingTypeVendorCase(Vend, GenJnlLine);
                             end;
                         BalancingType::"Bank Account":
                             begin
@@ -1163,6 +1164,8 @@ report 1401 Check
 
             LineDiscount := 0;
         end;
+
+        OnAfterVendUpdateAmounts(VendLedgEntry2, DocDate);
     end;
 
     local procedure EmployeeUpdateAmounts(var EmployeeLedgerEntry2: Record "Employee Ledger Entry"; RemainingAmount2: Decimal)
@@ -1415,6 +1418,16 @@ report 1401 Check
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFormatNoText(var NoText: array[2] of Text[80]; No: Decimal; CurrencyCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterVendUpdateAmounts(var VendLedgEntry2: Record "Vendor Ledger Entry"; var DocDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenJnlLineOnAfterGetRecordOnAfterBalancingTypeVendorCase(var Vendor: Record Vendor; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

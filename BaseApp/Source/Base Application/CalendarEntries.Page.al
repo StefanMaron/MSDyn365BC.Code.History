@@ -48,7 +48,9 @@ page 99000759 "Calendar Entries"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update(false);
+                        GetStartingEndingDateAndTime(StartingTime, EndingTime, CurrDate);
+                        Validate("Starting Time", StartingTime);
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Starting Time"; StartingTime)
@@ -71,7 +73,9 @@ page 99000759 "Calendar Entries"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update(false);
+                        GetStartingEndingDateAndTime(StartingTime, EndingTime, CurrDate);
+                        Validate("Ending Time", EndingTime);
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Ending Time"; EndingTime)

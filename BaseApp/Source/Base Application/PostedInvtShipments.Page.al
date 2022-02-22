@@ -101,6 +101,7 @@ page 6572 "Posted Invt. Shipments"
 
                 trigger OnAction()
                 begin
+                    InvtShptHeader := Rec;
                     CurrPage.SetSelectionFilter(InvtShptHeader);
                     InvtShptHeader.PrintRecords(true);
                 end;

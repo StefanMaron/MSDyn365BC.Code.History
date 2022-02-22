@@ -371,6 +371,8 @@ page 408 "G/L Balance by Dimension"
         Dim1FilterEnable := true;
         Field.Get(DATABASE::"G/L Account", 42);
         BusUnitFilterCaption := Field."Field Caption";
+
+        OnAfterOnInit();
     end;
 
     trigger OnOpenPage()
@@ -405,6 +407,8 @@ page 408 "G/L Balance by Dimension"
         end;
         LineDimOption := DimCodeToOption(LineDimCode);
         ColumnDimOption := DimCodeToOption(ColumnDimCode);
+
+        OnOnOpenPageOnBeforeFindPeriod(GLSetup, GLAcc);
 
         FindPeriod('');
 
@@ -444,26 +448,28 @@ page 408 "G/L Balance by Dimension"
         [InDataSet]
         Dim2FilterEnable: Boolean;
 
-    local procedure DimCodeToOption(DimCode: Text[30]): Integer
+    local procedure DimCodeToOption(DimCode: Text[30]) Result: Integer
     var
         BusUnit: Record "Business Unit";
     begin
         case DimCode of
             '':
-                exit(-1);
+                Result := -1;
             GLAcc.TableCaption:
-                exit(0);
+                Result := 0;
             Text001:
-                exit(1);
+                Result := 1;
             BusUnit.TableCaption:
-                exit(2);
+                Result := 2;
             GLSetup."Global Dimension 1 Code":
-                exit(3);
+                Result := 3;
             GLSetup."Global Dimension 2 Code":
-                exit(4);
+                Result := 4;
             else
-                exit(-1);
+                Result := -1;
         end;
+
+        OnAfterDimCodeToOption(DimCode, GLSetup, Result);
     end;
 
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -559,6 +565,8 @@ page 408 "G/L Balance by Dimension"
         if GLSetup."Global Dimension 2 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, GLSetup."Global Dimension 2 Code", '');
 
+        OnGetDimSelectionOnBeforeDimSelectionLookup(GLSetup, DimSelection);
+
         DimSelection.LookupMode := true;
         if DimSelection.RunModal = ACTION::LookupOK then
             exit(DimSelection.GetDimSelCode);
@@ -567,16 +575,8 @@ page 408 "G/L Balance by Dimension"
     end;
 
     local procedure ValidateLineDimCode()
-    var
-        BusUnit: Record "Business Unit";
     begin
-        if (UpperCase(LineDimCode) <> UpperCase(GLAcc.TableCaption)) and
-           (UpperCase(LineDimCode) <> UpperCase(BusUnit.TableCaption)) and
-           (UpperCase(LineDimCode) <> UpperCase(Text001)) and
-           (UpperCase(LineDimCode) <> GLSetup."Global Dimension 1 Code") and
-           (UpperCase(LineDimCode) <> GLSetup."Global Dimension 2 Code") and
-           (LineDimCode <> '')
-        then begin
+        if IsNotValidDefinition(LineDimCode) then begin
             Message(Text002, LineDimCode);
             LineDimCode := '';
         end;
@@ -591,16 +591,8 @@ page 408 "G/L Balance by Dimension"
     end;
 
     local procedure ValidateColumnDimCode()
-    var
-        BusUnit: Record "Business Unit";
     begin
-        if (UpperCase(ColumnDimCode) <> UpperCase(GLAcc.TableCaption)) and
-           (UpperCase(ColumnDimCode) <> UpperCase(BusUnit.TableCaption)) and
-           (UpperCase(ColumnDimCode) <> UpperCase(Text001)) and
-           (UpperCase(ColumnDimCode) <> GLSetup."Global Dimension 1 Code") and
-           (UpperCase(ColumnDimCode) <> GLSetup."Global Dimension 2 Code") and
-           (ColumnDimCode <> '')
-        then begin
+        if IsNotValidDefinition(ColumnDimCode) then begin
             Message(Text003, ColumnDimCode);
             ColumnDimCode := '';
         end;
@@ -612,6 +604,18 @@ page 408 "G/L Balance by Dimension"
                 "Date Filter" := CopyStr("Date Filter", 1, StrPos("Date Filter", '&') - 1);
         end else
             PeriodInitialized := false;
+    end;
+
+    local procedure IsNotValidDefinition(DimCode: Text[30]) Result: Boolean
+    begin
+        Result := (UpperCase(DimCode) <> UpperCase(GLAcc.TableCaption)) and
+           (UpperCase(DimCode) <> UpperCase(BusUnit.TableCaption)) and
+           (UpperCase(DimCode) <> UpperCase(Text001)) and
+           (UpperCase(DimCode) <> GLSetup."Global Dimension 1 Code") and
+           (UpperCase(DimCode) <> GLSetup."Global Dimension 2 Code") and
+           (DimCode <> '');
+
+        OnAfterIsNotValidDefinition(GLSetup, DimCode, Result);
     end;
 
     local procedure FindRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
@@ -679,6 +683,8 @@ page 408 "G/L Balance by Dimension"
                     if Found then
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
+            else
+                OnFindRecCaseElse(Rec, DimOption, GLSetup, Found, DimCodeBuf, Which);
         end;
         exit(Found);
     end;
@@ -742,6 +748,8 @@ page 408 "G/L Balance by Dimension"
                     if ResultSteps <> 0 then
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
+            else
+                OnNextRecCaseElse(Rec, DimOption, GLSetup, ResultSteps, DimCodeBuf, Steps);
         end;
         exit(ResultSteps);
     end;
@@ -878,8 +886,43 @@ page 408 "G/L Balance by Dimension"
         DateFilterOnAfterValidate;
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnInit()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDimCodeToOption(DimCode: Text[30]; GeneralLedgerSetup: Record "General Ledger Setup"; var Result: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsNotValidDefinition(GeneralLedgerSetup: Record "General Ledger Setup"; var DimCode: Text[30]; var Result: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGLAccFilter(var GLAccount: Record "G/L Account"; var GLAccFilter: Text; LineDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4"; ColumnDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecCaseElse(AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; DimOption: Integer; GeneralLedgerSetup: Record "General Ledger Setup"; var Found: Boolean; var DimensionCodeBuffer: Record "Dimension Code Buffer"; Which: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDimSelectionOnBeforeDimSelectionLookup(GeneralLedgerSetup: Record "General Ledger Setup"; var DimensionSelection: Page "Dimension Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNextRecCaseElse(AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; DimOption: Integer; GeneralLedgerSetup: Record "General Ledger Setup"; var ResultSteps: Integer; var DimensionCodeBuffer: Record "Dimension Code Buffer"; Steps: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOnOpenPageOnBeforeFindPeriod(GeneralLedgerSetup: Record "General Ledger Setup"; var GLAccount: Record "G/L Account")
     begin
     end;
 }

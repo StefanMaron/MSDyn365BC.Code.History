@@ -169,7 +169,13 @@ table 5064 "Interaction Template"
             trigger OnValidate()
             var
                 InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWizardAction(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if InteractionTmplLanguage.Get(Code, "Language Code (Default)") then
                     if ((InteractionTmplLanguage."Custom Layout Code" <> '') and ("Wizard Action" <> "Wizard Action"::Merge) and ("Word Template Code" = '')) or
                        ((InteractionTmplLanguage."Custom Layout Code" = '') and ("Wizard Action" = "Wizard Action"::Merge) and ("Word Template Code" = '')) or
@@ -252,5 +258,10 @@ table 5064 "Interaction Template"
         Text003: Label '%1 = %2 can not be specified for %3 %4.', Comment = '%1 = Wizard Action caption, %2= Wizard Action, %3 = Interaction Template, %4 = Code ';
         Text004: Label 'Do you want to create %1 %2?';
         RemoveAttachmentQst: Label 'You cannot use a Word template when an attachment is specified. Do you want to remove the attachment?';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWizardAction(var InteractionTemplate: Record "Interaction Template"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

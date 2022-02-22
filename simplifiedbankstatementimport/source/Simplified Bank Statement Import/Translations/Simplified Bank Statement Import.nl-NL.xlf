@@ -47,13 +47,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 1261045762 - NamedType 4123649463" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up a bank statement file import format.</source>
-          <target state="translated">Een importindeling voor het bankafschriftbestand instellen.</target>
+          <target state="translated">Importindeling van bankafschriftbestand instellen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - NamedType BankFileWizardDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1261045762 - NamedType 1254056685" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up a bank statement file import format</source>
-          <target state="translated">Een importindeling voor het bankafschriftbestand instellen.</target>
+          <target state="translated">Importindeling van bankafschriftbestand instellen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - NamedType BankFileWizardTxt</note>
         </trans-unit>

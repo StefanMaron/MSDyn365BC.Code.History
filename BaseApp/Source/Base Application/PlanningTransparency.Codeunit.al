@@ -161,9 +161,14 @@ codeunit 99000856 "Planning Transparency"
         QtyTracked := SupplyInvProfile."Quantity (Base)" - QtyRemaining;
         if (QtyRemaining > 0) or not TempPlanningWarning.IsEmpty() then
             with TempInvProfileTrack do begin
-                PlanningElement."Worksheet Template Name" := CurrTemplateName;
-                PlanningElement."Worksheet Batch Name" := CurrWorksheetName;
-                PlanningElement."Worksheet Line No." := SupplyInvProfile."Planning Line No.";
+                PlanningElement.SetRange("Worksheet Template Name", CurrTemplateName);
+                PlanningElement.SetRange("Worksheet Batch Name", CurrWorksheetName);
+                PlanningElement.SetRange("Worksheet Line No.", SupplyInvProfile."Planning Line No.");
+                if not PlanningElement.FindLast() then begin
+                    PlanningElement."Worksheet Template Name" := CurrTemplateName;
+                    PlanningElement."Worksheet Batch Name" := CurrWorksheetName;
+                    PlanningElement."Worksheet Line No." := SupplyInvProfile."Planning Line No.";
+                end;
                 if QtyRemaining <= 0 then
                     SetFilter("Warning Level", '<>%1', 0);
                 if FindSet then

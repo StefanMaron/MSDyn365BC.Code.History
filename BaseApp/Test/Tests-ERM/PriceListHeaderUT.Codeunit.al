@@ -22,7 +22,7 @@ codeunit 134118 "Price List Header UT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        StartingDateErr: Label 'Starting Date cannot be after Ending Date.';
+        StartingDateErr: Label 'Starting Date %1 cannot be after Ending Date %2.', Comment = '%1 and %2 - dates';
         CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
         AssetTypeForUOMErr: Label 'Asset Type must be equal to Item or Resource.';
         AssetTypeMustBeItemErr: Label 'Asset Type must be equal to ''Item''';
@@ -55,6 +55,7 @@ codeunit 134118 "Price List Header UT"
 
         PriceListHeader.Testfield(Code);
         PriceListHeader.TestField("No. Series", '');
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
     end;
 
     [Test]
@@ -70,6 +71,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader.Insert(true);
 
         PriceListHeader.Testfield(Code);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
         SalesReceivablesSetup.Get();
         PriceListHeader.TestField("No. Series", SalesReceivablesSetup."Price List Nos.");
     end;
@@ -87,6 +89,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader.Insert(true);
 
         PriceListHeader.Testfield(Code);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
         PurchasesPayablesSetup.Get();
         PriceListHeader.TestField("No. Series", PurchasesPayablesSetup."Price List Nos.");
     end;
@@ -104,6 +107,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader.Insert(true);
 
         PriceListHeader.Testfield(Code);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
         JobsSetup.Get();
         PriceListHeader.TestField("No. Series", JobsSetup."Price List Nos.");
     end;
@@ -302,7 +306,7 @@ codeunit 134118 "Price List Header UT"
         asserterror PriceListHeader.Validate("Starting Date", PriceListHeader."Ending Date" + 1);
 
         // [THEN] Error message: 'Starting Date cannot be after Ending Date'
-        Assert.ExpectedError(StartingDateErr);
+        Assert.ExpectedError(StrSubstNo(StartingDateErr, PriceListHeader."Ending Date" + 1, PriceListHeader."Ending Date"));
     end;
 
     [Test]
@@ -318,7 +322,7 @@ codeunit 134118 "Price List Header UT"
         asserterror PriceListHeader.Validate("Ending Date", PriceListHeader."Starting Date" - 1);
 
         // [THEN] Error message: 'Starting Date cannot be after Ending Date'
-        Assert.ExpectedError(StartingDateErr);
+        Assert.ExpectedError(StrSubstNo(StartingDateErr, PriceListHeader."Starting Date", PriceListHeader."Starting Date" - 1));
     end;
 
     [Test]
@@ -475,6 +479,58 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesSimpleHandler')]
+    procedure T028_SetConflictingEndingDateWithLines()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLineOrig: Record "Price List Line";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        // [GIVEN] Price List with one line, where "Ending Date" is '300120', "Allow Updating Defaults" is 'Yes'
+        CreatePriceList(PriceListHeader, PriceListLineOrig);
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Price List Line, where "Starting Date" is '300120'
+        PriceListLine := PriceListLineOrig;
+        PriceListLine.Validate("Starting Date", PriceListHeader."Ending Date");
+        PriceListLine.Modify(true);
+
+        // [WHEN] Set "Ending Date" as '290120', answer 'Yes' to confirm
+        asserterror PriceListHeader.Validate("Ending Date", PriceListLine."Starting Date" - 1);
+
+        // [THEN] Error message: 'Starting Date cannot be after Ending Date.'
+        Assert.ExpectedError(StrSubstNo(StartingDateErr, PriceListLine."Starting Date", PriceListLine."Starting Date" - 1));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesSimpleHandler')]
+    procedure T029_SetConflictingStartingDateWithLines()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLineOrig: Record "Price List Line";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        // [GIVEN] Price List with one line, where "Starting Date" is '300120', "Allow Updating Defaults" is 'Yes'
+        CreatePriceList(PriceListHeader, PriceListLineOrig);
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Price List Line, where "Ending Date" is '300120'
+        PriceListLine := PriceListLineOrig;
+        PriceListLine.Validate("Ending Date", PriceListHeader."Starting Date");
+        PriceListLine.Modify(true);
+
+        // [WHEN] Set "Starting Date" as '310120', answer 'Yes' to confirm
+        asserterror PriceListHeader.Validate("Starting Date", PriceListLine."Ending Date" + 1);
+
+        // [THEN] Error message: 'Starting Date cannot be after Ending Date.'
+        Assert.ExpectedError(StrSubstNo(StartingDateErr, PriceListLine."Ending Date" + 1, PriceListLine."Ending Date"));
+    end;
+
+    [Test]
     procedure T030_UpdateAmountTypeAnyNoLines()
     var
         PriceListHeader: Record "Price List Header";
@@ -601,19 +657,19 @@ codeunit 134118 "Price List Header UT"
         Initialize();
         PriceListHeader.DeleteAll();
         // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
-        PriceListHeader.Validate("Source Type", "Price Source Type"::"Customer Disc. Group");
-        // [THEN] "Amount Type" is 'Discount'
-        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Discount);
-
-        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
         PriceListHeader.Validate("Source Type", "Price Source Type"::"Customer Price Group");
         // [THEN] "Amount Type" is 'Price'
         PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
 
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListHeader.Validate("Source Type", "Price Source Type"::"Customer Disc. Group");
+        // [THEN] "Amount Type" is 'Discount'
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Discount);
+
         // [WHEN] Set "Source Type" as "Customer" in Price list header
         PriceListHeader.Validate("Source Type", "Price Source Type"::Customer);
-        // [THEN] "Amount Type" is 'Any'
-        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Any);
+        // [THEN] "Amount Type" is 'Price'
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
     end;
 
     [Test]
@@ -1731,7 +1787,7 @@ codeunit 134118 "Price List Header UT"
     begin
         Initialize();
         // [GIVEN] "Default Price List Code" is blank in Purchase Setup
-        LibraryPriceCalculation.ClearDefaultPriceList("Price Type"::Sale, "Price Source Group"::Customer);
+        LibraryPriceCalculation.ClearDefaultPriceList("Price Type"::Purchase, "Price Source Group"::Vendor);
         // [WHEN] GetDefaultPriceListCode for Purchase
         asserterror PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Vendor, true);
         // [THEN] Error message: 'Default Price List Code must have a value'
@@ -1758,7 +1814,7 @@ codeunit 134118 "Price List Header UT"
         PriceListManagement: Codeunit "Price List Management";
     begin
         Initialize();
-        // [GIVEN] "Default Price List Code" is blank in Jobs Setup
+        // [GIVEN] "Default Sales Price List Code" is blank in Jobs Setup
         LibraryPriceCalculation.ClearDefaultPriceList("Price Type"::Sale, "Price Source Group"::Job);
         // [WHEN] GetDefaultPriceListCode for Job Sale
         asserterror PriceListManagement.GetDefaultPriceListCode("Price Type"::Sale, "Price Source Group"::Job, true);
@@ -1786,8 +1842,8 @@ codeunit 134118 "Price List Header UT"
         PriceListManagement: Codeunit "Price List Management";
     begin
         Initialize();
-        // [GIVEN] "Default Price List Code" is blank in Purchase Setup
-        LibraryPriceCalculation.ClearDefaultPriceList("Price Type"::Sale, "Price Source Group"::Job);
+        // [GIVEN] "Default Purchase Price List Code" is blank in Job Setup
+        LibraryPriceCalculation.ClearDefaultPriceList("Price Type"::Purchase, "Price Source Group"::Job);
         // [WHEN] GetDefaultPriceListCode for Job Purchase
         asserterror PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Job, true);
         // [THEN] Error message: 'Default Purch Price List Code must have a value'
@@ -2145,6 +2201,12 @@ codeunit 134118 "Price List Header UT"
     procedure ConfirmYesHandler(Question: Text; var Reply: Boolean)
     begin
         LibraryVariableStorage.Enqueue(Question);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmYesSimpleHandler(Question: Text; var Reply: Boolean)
+    begin
         Reply := true;
     end;
 }

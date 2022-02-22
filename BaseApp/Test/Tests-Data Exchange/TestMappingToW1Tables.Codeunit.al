@@ -16,6 +16,7 @@ codeunit 132542 TestMappingToW1Tables
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         IsInitialized: Boolean;
         BalAccTypeErr: Label '%1 must be equal to ''%2''  in Data Exch. Def: Code=%3. Current value is ''%4''.', Comment = '%1=field caption,%2=definition type,%3=Data Exch. Def Code,%4=Data Exch. Def Code Value';
         BankStmtImpFormatBalAccErr: Label '%1 must be blank. When %2 = %3, then %1 on the Bank Account card will be used in %4 %5=''%6'',%7=''%8''.', Comment = '%1 = Bank Statement Import Format;%2 = Bal. Account Type;%3 = value;%4 = Gen. Journal Batch;%5 = Journal Template Name;%6 = value;%7 = Name;%8 = value';
@@ -373,6 +374,8 @@ codeunit 132542 TestMappingToW1Tables
 
         LineCount := GenJnlLineTemplate.Count();
         GenJnlLineTemplate.Next(LibraryRandom.RandInt(LineCount));
+        GenJnlLineTemplate.TestField("Data Exch. Entry No.");
+        GenJnlLineTemplate.TestField("Data Exch. Line No.");
         DataExchField.SetRange("Data Exch. No.", GenJnlLineTemplate."Data Exch. Entry No.");
         DataExchField.SetRange("Line No.", GenJnlLineTemplate."Data Exch. Line No.");
 
@@ -416,6 +419,8 @@ codeunit 132542 TestMappingToW1Tables
 
         LineCount := BankAccReconciliationLine.Count();
         BankAccReconciliationLine.Next(LibraryRandom.RandInt(LineCount));
+        BankAccReconciliationLine.TestField("Data Exch. Entry No.");
+        BankAccReconciliationLine.TestField("Data Exch. Line No.");
         DataExchField.SetRange("Data Exch. No.", BankAccReconciliationLine."Data Exch. Entry No.");
         DataExchField.SetRange("Line No.", BankAccReconciliationLine."Data Exch. Line No.");
 
@@ -937,12 +942,361 @@ codeunit 132542 TestMappingToW1Tables
         VerifyNegation(GLEntry, -100, -1000);
     end;
 
+    [Test]
+    procedure DataExchLineNoOnGenJournalLineWhenImportBankStatement()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        GenJnlLineTemplate: Record "Gen. Journal Line";
+        DateValues: List of [Date];
+        TextValues: List of [Text];
+        DecimalValues: List of [Decimal];
+        LinesNumber: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 418166] Data Exch. Line No. value of Gen. Journal Line when import bank statement for General Journals.
+        Initialize();
+
+        // [GIVEN] Data Exchange Definition "E" with Type "Bank Statement Import" and File Type "Variable Text".
+        // [GIVEN] Data Exchange Mapping for "E" with Table ID = 81 (Gen. Journal Line), Data Exch. No. Field ID = 0 and Data Exch. Line Field ID = 0.
+        SetupFileDefinition(DataExchDef, DataExchLineDef);
+        SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, Database::"Gen. Journal Line", Codeunit::"Process Gen. Journal  Lines", 0, 0,
+            GenJnlLineTemplate.FieldNo("Posting Date"), GenJnlLineTemplate.FieldNo(Description), GenJnlLineTemplate.FieldNo(Amount), -1);
+
+        // [GIVEN] Bank Export/Import Setup "BI" with Direction "Import" and with Data Exch. Def. Code "E".
+        // [GIVEN] Bank Account "B" with Bank Statement Import Format "BI". 
+        // [GIVEN] Gen. Journal Batch with Bal. Account Type "Bank Account" and Bal. Account No. = "B"
+        CreateRecTemplate(GenJnlLineTemplate, DataExchDef.Code);
+
+        // [GIVEN] Three text lines for import stored in TempBlob.
+        LinesNumber := 3;
+        CreateMultipleLinesForImport(DateValues, TextValues, DecimalValues, LinesNumber);
+
+        // [WHEN] Run import bank statement for Gen. Journal Lines.
+        AddFiltersToRecTemplate(GenJnlLineTemplate);
+        GenJnlLineTemplate.Delete(true);
+        GenJnlLineTemplate.ImportBankStatement();
+
+        // [THEN] Three Gen. Journal Lines with Data Exch. Line No. 1, 2, 3 were created.
+        // [THEN] Three sets of Data Exch. Field records with Line No. 1, 2, 3 were created.
+        Assert.AreEqual(LinesNumber, GenJnlLineTemplate.Count(), '');
+        for i := 1 to LinesNumber do begin
+            GenJnlLineTemplate.SetRange(Description, TextValues.Get(i));
+            GenJnlLineTemplate.FindFirst();
+            VerifyGenJournalLinePostingDateAndAmount(GenJnlLineTemplate, DateValues.Get(i), -DecimalValues.Get(i));
+
+            GenJnlLineTemplate.TestField("Data Exch. Entry No.");
+            GenJnlLineTemplate.TestField("Data Exch. Line No.");
+            VerifyDataExchField(
+                GenJnlLineTemplate."Data Exch. Entry No.", GenJnlLineTemplate."Data Exch. Line No.",
+                DateValues.Get(i), TextValues.Get(i), DecimalValues.Get(i));
+        end;
+    end;
+
+    [Test]
+    procedure DataExchFieldWhenDeleteImportedGenJournalLine()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        GenJnlLineTemplate: Record "Gen. Journal Line";
+        DateValues: List of [Date];
+        TextValues: List of [Text];
+        DecimalValues: List of [Decimal];
+        LinesNumber: Integer;
+        DataExchEntryNo: Integer;
+        DataExchLineNo: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 418166] Data Exch. Field records when delete Gen. Journal Line that was created by importing bank statement for General Journals.
+        Initialize();
+
+        // [GIVEN] Data Exchange Definition "E" with Type "Bank Statement Import" and File Type "Variable Text".
+        // [GIVEN] Data Exchange Mapping for "E" with Table ID = 81 (Gen. Journal Line), Data Exch. No. Field ID = 0 and Data Exch. Line Field ID = 0.
+        SetupFileDefinition(DataExchDef, DataExchLineDef);
+        SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, Database::"Gen. Journal Line", Codeunit::"Process Gen. Journal  Lines", 0, 0,
+            GenJnlLineTemplate.FieldNo("Posting Date"), GenJnlLineTemplate.FieldNo(Description), GenJnlLineTemplate.FieldNo(Amount), -1);
+
+        // [GIVEN] Bank Export/Import Setup "BI" with Direction "Import" and with Data Exch. Def. Code "E".
+        // [GIVEN] Bank Account "B" with Bank Statement Import Format "BI". 
+        // [GIVEN] Gen. Journal Batch with Bal. Account Type "Bank Account" and Bal. Account No. = "B"
+        CreateRecTemplate(GenJnlLineTemplate, DataExchDef.Code);
+
+        // [GIVEN] Three text lines for import stored in TempBlob.
+        LinesNumber := 3;
+        CreateMultipleLinesForImport(DateValues, TextValues, DecimalValues, LinesNumber);
+
+        // [GIVEN] Imported bank statement for Gen. Journal Lines. Three Gen. Journal Lines are created.
+        AddFiltersToRecTemplate(GenJnlLineTemplate);
+        GenJnlLineTemplate.Delete(true);
+        GenJnlLineTemplate.ImportBankStatement();
+
+        // [WHEN] Delete second Gen. Journal Line.
+        GenJnlLineTemplate.SetRange(Description, TextValues.Get(2));
+        GenJnlLineTemplate.FindFirst();
+        DataExchEntryNo := GenJnlLineTemplate."Data Exch. Entry No.";
+        DataExchLineNo := GenJnlLineTemplate."Data Exch. Line No.";
+        GenJnlLineTemplate.Delete(true);
+
+        // [THEN] Second Gen. Journal Line with Data Exch. Line No. 2 was deleted.
+        // [THEN] Data Exch. Field records with Line No. 2 were deleted.
+        Assert.RecordIsEmpty(GenJnlLineTemplate);
+        VerifyDataExchFieldNotExist(DataExchEntryNo, DataExchLineNo);
+
+        // [THEN] Data Exch. Field records with Line No. 1 and 3 were not deleted.
+        GenJnlLineTemplate.SetRange(Description, TextValues.Get(1));
+        GenJnlLineTemplate.FindFirst();
+        VerifyDataExchField(
+            GenJnlLineTemplate."Data Exch. Entry No.", GenJnlLineTemplate."Data Exch. Line No.",
+            DateValues.Get(1), TextValues.Get(1), DecimalValues.Get(1));
+
+        GenJnlLineTemplate.SetRange(Description, TextValues.Get(3));
+        GenJnlLineTemplate.FindFirst();
+        VerifyDataExchField(
+            GenJnlLineTemplate."Data Exch. Entry No.", GenJnlLineTemplate."Data Exch. Line No.",
+            DateValues.Get(3), TextValues.Get(3), DecimalValues.Get(3));
+    end;
+
+    [Test]
+    procedure DataExchFieldWhenPostImportedGenJournalLines()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        GenJnlLineTemplate: Record "Gen. Journal Line";
+        DataExchField: Record "Data Exch. Field";
+        DateValues: List of [Date];
+        TextValues: List of [Text];
+        DecimalValues: List of [Decimal];
+        LinesNumber: Integer;
+        DataExchEntryNo: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 418166] Data Exch. Field records when post Gen. Journal Lines that were created by importing bank statement for General Journals.
+        Initialize();
+
+        // [GIVEN] Data Exchange Definition "E" with Type "Bank Statement Import" and File Type "Variable Text".
+        // [GIVEN] Data Exchange Mapping for "E" with Table ID = 81 (Gen. Journal Line), Data Exch. No. Field ID = 0 and Data Exch. Line Field ID = 0.
+        SetupFileDefinition(DataExchDef, DataExchLineDef);
+        SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, Database::"Gen. Journal Line", Codeunit::"Process Gen. Journal  Lines", 0, 0,
+            GenJnlLineTemplate.FieldNo("Posting Date"), GenJnlLineTemplate.FieldNo(Description), GenJnlLineTemplate.FieldNo(Amount), -1);
+
+        // [GIVEN] Bank Export/Import Setup "BI" with Direction "Import" and with Data Exch. Def. Code "E".
+        // [GIVEN] Bank Account "B" with Bank Statement Import Format "BI". 
+        // [GIVEN] Gen. Journal Batch with Bal. Account Type "Bank Account" and Bal. Account No. = "B"
+        CreateRecTemplate(GenJnlLineTemplate, DataExchDef.Code);
+
+        // [GIVEN] Three text lines for import stored in TempBlob.
+        LinesNumber := 3;
+        CreateMultipleLinesForImport(DateValues, TextValues, DecimalValues, LinesNumber);
+
+        // [GIVEN] Imported bank statement for Gen. Journal Lines. Three Gen. Journal Lines are created.
+        AddFiltersToRecTemplate(GenJnlLineTemplate);
+        GenJnlLineTemplate.Delete(true);
+        GenJnlLineTemplate.ImportBankStatement();
+
+        // [GIVEN] Account No. is set for Gen. Journal Lines.
+        for i := 1 to LinesNumber do begin
+            GenJnlLineTemplate.SetRange(Description, TextValues.Get(i));
+            GenJnlLineTemplate.FindFirst();
+            GenJnlLineTemplate.Validate("Account No.", LibraryERM.CreateGLAccountNo());
+            GenJnlLineTemplate.Modify(true);
+        end;
+        DataExchEntryNo := GenJnlLineTemplate."Data Exch. Entry No.";
+
+        // [WHEN] Post all three Gen. Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJnlLineTemplate);
+
+        // [THEN] Gen. Journal Lines were deleted.
+        // [THEN] Corresponding Data Exch. Field records were deleted.
+        GenJnlLineTemplate.SetFilter(Description, '%1|%2|%3', TextValues.Get(1), TextValues.Get(2), TextValues.Get(3));
+        Assert.RecordIsEmpty(GenJnlLineTemplate);
+        DataExchField.SetRange("Data Exch. No.", DataExchEntryNo);
+        Assert.RecordIsEmpty(DataExchField);
+    end;
+
+    [Test]
+    procedure DataExchLineNoOnBankAccReconLineWhenImportBankStatement()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        DateValues: List of [Date];
+        TextValues: List of [Text];
+        DecimalValues: List of [Decimal];
+        LinesNumber: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 418166] Data Exch. Line No. value of Bank Acc. Reconciliation Line when import bank statement for Bank Account Reconciliation.
+        Initialize();
+
+        // [GIVEN] Data Exchange Definition "E" with Type "Bank Statement Import" and File Type "Variable Text".
+        // [GIVEN] Data Exchange Mapping for "E" with Table ID = 274 (Bank Acc. Reconciliation Line), Data Exch. No. Field ID = 0 and Data Exch. Line Field ID = 0.
+        SetupFileDefinition(DataExchDef, DataExchLineDef);
+        SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, Database::"Bank Acc. Reconciliation Line",
+            Codeunit::"Process Bank Acc. Rec Lines", 0, 0, BankAccReconciliationLine.FieldNo("Transaction Date"),
+            BankAccReconciliationLine.FieldNo(Description), BankAccReconciliationLine.FieldNo("Statement Amount"), 1);
+
+        // [GIVEN] Bank Export/Import Setup "BI" with Direction "Import" and with Data Exch. Def. Code "E".
+        // [GIVEN] Bank Account "B" with Bank Statement Import Format "BI".
+        // [GIVEN] Bank Account Reconciliation with Bank Account No. "B".
+        CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, DataExchDef.Code);
+
+        // [GIVEN] Three text lines for import stored in TempBlob.
+        LinesNumber := 3;
+        CreateMultipleLinesForImport(DateValues, TextValues, DecimalValues, LinesNumber);
+
+        // [WHEN] Run import bank statement for Bank Account Reconciliation.
+        BankAccReconciliationLine.Delete(true);
+        BankAccReconciliation.ImportBankStatement();
+
+        // [THEN] Three Bank Account Reconciliation Lines with Data Exch. Line No. 1, 2, 3 were created.
+        // [THEN] Three sets of Data Exch. Field records with Line No. 1, 2, 3 were created.
+        Assert.AreEqual(LinesNumber, BankAccReconciliationLine.Count(), '');
+        for i := 1 to LinesNumber do begin
+            BankAccReconciliationLine.SetRange(Description, TextValues.Get(i));
+            BankAccReconciliationLine.FindFirst();
+            VerifyBankAccReconLineTransactDateAndAmount(BankAccReconciliationLine, DateValues.Get(i), DecimalValues.Get(i));
+
+            BankAccReconciliationLine.TestField("Data Exch. Entry No.");
+            BankAccReconciliationLine.TestField("Data Exch. Line No.");
+            VerifyDataExchField(
+                BankAccReconciliationLine."Data Exch. Entry No.", BankAccReconciliationLine."Data Exch. Line No.",
+                DateValues.Get(i), TextValues.Get(i), DecimalValues.Get(i));
+        end;
+    end;
+
+    [Test]
+    procedure DataExchFieldWhenDeleteImportedBankAccReconLine()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        DateValues: List of [Date];
+        TextValues: List of [Text];
+        DecimalValues: List of [Decimal];
+        LinesNumber: Integer;
+        DataExchEntryNo: Integer;
+        DataExchLineNo: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 418166] Data Exch. Field records when delete Bank Acc. Reconciliation Line that was created by importing bank statement for Bank Account Reconciliation.
+        Initialize();
+
+        // [GIVEN] Data Exchange Definition "E" with Type "Bank Statement Import" and File Type "Variable Text".
+        // [GIVEN] Data Exchange Mapping for "E" with Table ID = 274 (Bank Acc. Reconciliation Line), Data Exch. No. Field ID = 0 and Data Exch. Line Field ID = 0.
+        SetupFileDefinition(DataExchDef, DataExchLineDef);
+        SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, Database::"Bank Acc. Reconciliation Line",
+            Codeunit::"Process Bank Acc. Rec Lines", 0, 0, BankAccReconciliationLine.FieldNo("Transaction Date"),
+            BankAccReconciliationLine.FieldNo(Description), BankAccReconciliationLine.FieldNo("Statement Amount"), 1);
+
+        // [GIVEN] Bank Export/Import Setup "BI" with Direction "Import" and with Data Exch. Def. Code "E".
+        // [GIVEN] Bank Account "B" with Bank Statement Import Format "BI".
+        // [GIVEN] Bank Account Reconciliation with Bank Account No. "B".
+        CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, DataExchDef.Code);
+
+        // [GIVEN] Three text lines for import stored in TempBlob.
+        LinesNumber := 3;
+        CreateMultipleLinesForImport(DateValues, TextValues, DecimalValues, LinesNumber);
+
+        // [GIVEN] Imported bank statement for Bank Account Reconciliation. Three Bank Acc. Reconciliation Lines are created.
+        BankAccReconciliationLine.Delete(true);
+        BankAccReconciliation.ImportBankStatement();
+
+        // [WHEN] Delete second Bank Acc. Reconciliation Line.
+        BankAccReconciliationLine.SetRange(Description, TextValues.Get(2));
+        BankAccReconciliationLine.FindFirst();
+        DataExchEntryNo := BankAccReconciliationLine."Data Exch. Entry No.";
+        DataExchLineNo := BankAccReconciliationLine."Data Exch. Line No.";
+        BankAccReconciliationLine.Delete(true);
+
+        // [THEN] Second Bank Account Reconciliation Line with Data Exch. Line No. 2 was deleted.
+        // [THEN] Data Exch. Field records with Line No. 2 were deleted.
+        Assert.RecordIsEmpty(BankAccReconciliationLine);
+        VerifyDataExchFieldNotExist(DataExchEntryNo, DataExchLineNo);
+
+        // [THEN] Data Exch. Field records with Line No. 1 and 3 were not deleted.
+        BankAccReconciliationLine.SetRange(Description, TextValues.Get(1));
+        BankAccReconciliationLine.FindFirst();
+        VerifyDataExchField(
+            BankAccReconciliationLine."Data Exch. Entry No.", BankAccReconciliationLine."Data Exch. Line No.",
+            DateValues.Get(1), TextValues.Get(1), DecimalValues.Get(1));
+
+        BankAccReconciliationLine.SetRange(Description, TextValues.Get(3));
+        BankAccReconciliationLine.FindFirst();
+        VerifyDataExchField(
+            BankAccReconciliationLine."Data Exch. Entry No.", BankAccReconciliationLine."Data Exch. Line No.",
+            DateValues.Get(3), TextValues.Get(3), DecimalValues.Get(3));
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure DataExchFieldWhenPostImportedBankAccReconLine()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        DataExchField: Record "Data Exch. Field";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        DateValues: List of [Date];
+        TextValues: List of [Text];
+        DecimalValues: List of [Decimal];
+        LinesNumber: Integer;
+        DataExchEntryNo: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 418166] Data Exch. Field records when post Bank Acc. Reconciliation Lines that were created by importing bank statement for Bank Account Reconciliation.
+        Initialize();
+
+        // [GIVEN] Data Exchange Definition "E" with Type "Bank Statement Import" and File Type "Variable Text".
+        // [GIVEN] Data Exchange Mapping for "E" with Table ID = 274 (Bank Acc. Reconciliation Line), Data Exch. No. Field ID = 0 and Data Exch. Line Field ID = 0.
+        SetupFileDefinition(DataExchDef, DataExchLineDef);
+        SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, Database::"Bank Acc. Reconciliation Line",
+            Codeunit::"Process Bank Acc. Rec Lines", 0, 0, BankAccReconciliationLine.FieldNo("Transaction Date"),
+            BankAccReconciliationLine.FieldNo(Description), BankAccReconciliationLine.FieldNo("Statement Amount"), 1);
+
+        // [GIVEN] Bank Export/Import Setup "BI" with Direction "Import" and with Data Exch. Def. Code "E".
+        // [GIVEN] Bank Account "B" with Bank Statement Import Format "BI".
+        // [GIVEN] Bank Account Reconciliation with Bank Account No. "B".
+        CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, DataExchDef.Code);
+
+        // [GIVEN] Three text lines for import stored in TempBlob. Format is <Date>,<Description>,<Amount>.
+        // [GIVEN] Dates are "D1", "D2", "D3"; Descriptions are "T1", "T2", "T3"; Amounts are 100, 200, 300.
+        LinesNumber := 3;
+        CreateMultipleLinesForImport(DateValues, TextValues, DecimalValues, LinesNumber);
+
+        // [GIVEN] Three posted Gen. Journal Lines with Posting Dates "D1", "D2", "D3"; Descriptions "T1", "T2", "T3"; Amounts -100, -200, -300.
+        CreateAndPostMultipleGenJournalLines(BankAccReconciliation."Bank Account No.", DateValues, TextValues, DecimalValues, LinesNumber);
+
+        // [GIVEN] Imported bank statement for Bank Account Reconciliation. Three Bank Acc. Reconciliation Lines are created.
+        BankAccReconciliationLine.Delete(true);
+        BankAccReconciliation.ImportBankStatement();
+
+        BankAccReconciliationLine.SetRange(Description, TextValues.Get(1));
+        BankAccReconciliationLine.FindFirst();
+        DataExchEntryNo := BankAccReconciliationLine."Data Exch. Entry No.";
+        BankAccReconciliationLine.SetRange(Description);
+
+        // [GIVEN] Bank Acc. Reconciliation Lines matched with Bank Account Ledger Entries.
+        BankAccReconciliation.MatchSingle(0);
+
+        // [WHEN] Post Bank Acc. Reconciliation.
+        PostBankAccReconciliation(BankAccReconciliation, DecimalValues.Get(1) + DecimalValues.Get(2) + DecimalValues.Get(3));
+
+        // [THEN] Bank Account Reconciliation Lines were deleted.
+        // [THEN] Corresponding Data Exch. Field records were deleted.
+        Assert.RecordIsEmpty(BankAccReconciliationLine);
+        DataExchField.SetRange("Data Exch. No.", DataExchEntryNo);
+        Assert.RecordIsEmpty(DataExchField);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
         if IsInitialized then
             exit;
 
+        LibraryERMCountryData.UpdateLocalPostingSetup();
         IsInitialized := true;
     end;
 
@@ -961,6 +1315,24 @@ codeunit 132542 TestMappingToW1Tables
         for i := 1 to AnyLineCount do
             WriteLine(
               OutStream, StrSubstNo('%1,%2,%3', Format(AnyDate[i], 6, '<Day,2><Month,2><Year,2>'), AnyText[i], Format(AnyDecimal[i], 20, 9)));
+        ConvertOEMToANSI(TempBlobOEM, TempBlobANSI);
+        AddTempBlobToArray(TempBlobANSI);
+    end;
+
+    local procedure CreateMultipleLinesForImport(var DateValues: List of [Date]; var TextValues: List of [Text]; var DecimalValues: List of [Decimal]; LinesNumber: Integer)
+    var
+        TempBlobANSI: Codeunit "Temp Blob";
+        TempBlobOEM: Codeunit "Temp Blob";
+        OutStream: OutStream;
+        i: Integer;
+    begin
+        TempBlobOEM.CreateOutStream(OutStream);
+        for i := 1 to LinesNumber do begin
+            DateValues.Add(LibraryRandom.RandDate(100));
+            TextValues.Add(LibraryUtility.GenerateGUID());
+            DecimalValues.Add(LibraryRandom.RandDecInRange(100, 200, 2));
+            WriteLine(OutStream, StrSubstNo('%1,%2,%3', Format(DateValues.Get(i), 6, '<Day,2><Month,2><Year,2>'), TextValues.Get(i), Format(DecimalValues.Get(i), 20, 9)));
+        end;
         ConvertOEMToANSI(TempBlobOEM, TempBlobANSI);
         AddTempBlobToArray(TempBlobANSI);
     end;
@@ -1178,17 +1550,6 @@ codeunit 132542 TestMappingToW1Tables
         end;
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure GenJnlLineTemplateListPageHandler(var GenJournalTemplateList: TestPage "General Journal Template List")
-    var
-        TemplateName: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(TemplateName);
-        GenJournalTemplateList.FILTER.SetFilter(Name, TemplateName);
-        GenJournalTemplateList.OK.Invoke;
-    end;
-
     local procedure CreateGenJnlBatchWithBalBankAcc(var GenJnlBatch: Record "Gen. Journal Batch"; DataExchDefCode: Code[20])
     var
         BankAccount: Record "Bank Account";
@@ -1249,6 +1610,40 @@ codeunit 132542 TestMappingToW1Tables
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Last Statement No."), DATABASE::"Bank Account"));
         BankAccount."Bank Statement Import Format" := BankExportImportSetup.Code;
         BankAccount.Modify(true);
+    end;
+
+    local procedure CreateAndPostMultipleGenJournalLines(BalBankAccountNo: Code[20]; PostingDates: List of [Date]; Descriptions: List of [Text]; Amounts: List of [Decimal]; LinesNumber: Integer)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+        i: Integer;
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
+        GenJournalBatch."Bal. Account No." := BalBankAccountNo;
+        GenJournalBatch.Modify(true);
+
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        for i := 1 to LinesNumber do begin
+            LibraryERM.CreateGeneralJnlLine(
+                GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+                "Gen. Journal Account Type"::Vendor, VendorNo, -Amounts.Get(i));
+            GenJournalLine.Validate("Posting Date", PostingDates.Get(i));
+            GenJournalLine.Validate(Description, Descriptions.Get(i));
+            GenJournalLine.Modify(true);
+        end;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure PostBankAccReconciliation(BankAccReconciliation: Record "Bank Acc. Reconciliation"; StatementAmount: Decimal)
+    begin
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
+        BankAccReconciliation.Validate("Statement Ending Balance", BankAccReconciliation."Balance Last Statement" + StatementAmount);
+        BankAccReconciliation.Modify();
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
     end;
 
     local procedure SetupSourceMock(DataExchDefCode: Code[20]; TempBlob: Codeunit "Temp Blob")
@@ -1318,6 +1713,45 @@ codeunit 132542 TestMappingToW1Tables
         GLEntry.TestField(Quantity, Value2);
     end;
 
+    local procedure VerifyDataExchField(DataExchNo: Integer; LineNo: Integer; Column1Value: Date; Column2Value: Text; Column3Value: Decimal)
+    var
+        DataExchField: Record "Data Exch. Field";
+    begin
+        DataExchField.SetRange("Data Exch. No.", DataExchNo);
+        DataExchField.SetRange("Line No.", LineNo);
+        DataExchField.SetRange("Column No.", 1);
+        DataExchField.FindFirst();
+        DataExchField.TestField(Value, Format(Column1Value, 6, '<Day,2><Month,2><Year,2>'));
+        DataExchField.SetRange("Column No.", 2);
+        DataExchField.FindFirst();
+        DataExchField.TestField(Value, Column2Value);
+        DataExchField.SetRange("Column No.", 3);
+        DataExchField.FindFirst();
+        DataExchField.TestField(Value, Format(Column3Value, 0, 9));
+    end;
+
+    local procedure VerifyDataExchFieldNotExist(DataExchNo: Integer; LineNo: Integer)
+    var
+        DataExchField: Record "Data Exch. Field";
+    begin
+        DataExchField.SetRange("Data Exch. No.", DataExchNo);
+        DataExchField.SetRange("Line No.", LineNo);
+        Assert.RecordIsEmpty(DataExchField);
+    end;
+
+
+    local procedure VerifyGenJournalLinePostingDateAndAmount(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AmountValue: Decimal)
+    begin
+        GenJournalLine.TestField("Posting Date", PostingDate);
+        GenJournalLine.TestField(Amount, AmountValue);
+    end;
+
+    local procedure VerifyBankAccReconLineTransactDateAndAmount(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TransactionDate: Date; StatementAmount: Decimal)
+    begin
+        BankAccReconciliationLine.TestField("Transaction Date", TransactionDate);
+        BankAccReconciliationLine.TestField("Statement Amount", StatementAmount);
+    end;
+
     local procedure AddTempBlobToArray(var TempBlob: Codeunit "Temp Blob")
     var
         ErmPeSourceTestMock: Codeunit "ERM PE Source Test Mock";
@@ -1326,6 +1760,21 @@ codeunit 132542 TestMappingToW1Tables
         ErmPeSourceTestMock.GetTempBlobList(TempBlobList);
         TempBlobList.Add(TempBlob);
         ErmPeSourceTestMock.SetTempBlobList(TempBlobList);
+    end;
+
+    [ModalPageHandler]
+    procedure GenJnlLineTemplateListPageHandler(var GenJournalTemplateList: TestPage "General Journal Template List")
+    var
+        TemplateName: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TemplateName);
+        GenJournalTemplateList.Filter.SetFilter(Name, TemplateName);
+        GenJournalTemplateList.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

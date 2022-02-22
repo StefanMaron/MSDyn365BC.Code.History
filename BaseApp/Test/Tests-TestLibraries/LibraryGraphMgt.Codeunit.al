@@ -348,6 +348,7 @@ codeunit 130618 "Library - Graph Mgt"
         TempBlob.CreateInStream(ResponseInStream);
 
         ClearLastError;
+        OnExecuteWebRequestAndReadResponseOnBeforeGetResponse(HttpWebRequestMgt);
         if HttpWebRequestMgt.GetResponse(ResponseInStream, HttpStatusCode, ResponseHeaders) then
             exit(true);
 
@@ -840,6 +841,11 @@ codeunit 130618 "Library - Graph Mgt"
         TargetURL := GetODataTargetURL(ObjectType::Page, PageNumber);
         TargetURL := AppendSubpageToTargetURL(ID, TargetURL, ServiceNameTxt, ServiceSubPageTxt);
         exit(AppendSubpageToTargetURL(SubPageID, TargetURL, ServiceSubPageTxt, ServiceSubSubPageTxt));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExecuteWebRequestAndReadResponseOnBeforeGetResponse(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt.")
+    begin
     end;
 }
 

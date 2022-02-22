@@ -2967,6 +2967,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Profile CompanyHub - Property ProfileDescription</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 1186116189 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Hub - Objects</source>
+          <target state="translated">Hub Entreprise – Objets</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Company Hub - Objects - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>
