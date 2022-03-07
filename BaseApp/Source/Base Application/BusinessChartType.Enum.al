@@ -2,6 +2,9 @@ enum 485 "Business Chart Type"
 {
     Extensible = true;
     AssignmentCompatibility = true;
+    ObsoleteReason = 'The enum will be moved to System Application.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.5';
 
     value(0; "Point") { Caption = 'Point'; }
     value(2; "Bubble") { Caption = 'Bubble'; }

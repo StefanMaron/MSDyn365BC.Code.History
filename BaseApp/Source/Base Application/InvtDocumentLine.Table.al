@@ -1048,6 +1048,8 @@
             SetFilter("Quantity (Base)", '>0')
         else
             SetFilter("Quantity (Base)", '<0');
+
+        OnAfterFilterReceiptLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
     end;
 
     procedure FilterShipmentLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
@@ -1063,6 +1065,8 @@
             SetFilter("Quantity (Base)", '<0')
         else
             SetFilter("Quantity (Base)", '>0');
+
+        OnAfterFilterShipmentLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
     end;
 
     procedure ReservEntryExist(): Boolean
@@ -1086,6 +1090,16 @@
     begin
         ReservEntry.SetSourceFilter(DATABASE::"Invt. Document Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
         ReservEntry.SetSourceFilter('', 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterReceiptLinesForReservation(var InvtDocumentLine: Record "Invt. Document Line"; ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterShipmentLinesForReservation(var InvtDocumentLine: Record "Invt. Document Line"; ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

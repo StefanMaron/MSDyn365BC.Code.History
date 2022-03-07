@@ -440,6 +440,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         SalesHeader.Invoice := Invoice;
 
                         SalesPost.SetWhseShptHeader(WhseShptHeader);
+                        SalesPost.SetSuppressCommit(SuppressCommit);
                         OnPostSourceDocumentOnBeforePostSalesHeader(SalesPost, SalesHeader, WhseShptHeader);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
@@ -480,6 +481,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         PurchHeader.Invoice := Invoice;
 
                         PurchPost.SetWhseShptHeader(WhseShptHeader);
+                        PurchPost.SetSuppressCommit(SuppressCommit);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
                                 TryPostSourcePurchDocument(PurchPost);
@@ -512,6 +514,7 @@ codeunit 5763 "Whse.-Post Shipment"
                     begin
                         OnPostSourceDocumentOnBeforeCaseTransferLine(TransHeader, WhseShptLine);
                         TransferPostShipment.SetWhseShptHeader(WhseShptHeader);
+                        TransferPostShipment.SetSuppressCommit(SuppressCommit);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
                                 TryPostSourceTransferDocument(TransferPostShipment);
@@ -535,6 +538,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 DATABASE::"Service Line":
                     begin
                         ServicePost.SetPostingOptions(true, false, InvoiceService);
+                        ServicePost.SetSuppressCommit(SuppressCommit);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
                                 begin

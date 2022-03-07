@@ -3185,19 +3185,19 @@
         </trans-unit>
         <trans-unit id="Page 2465020886 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>APIV2 - Inventory Post. Group</source>
-          <target state="translated">APIV2 - Stock Post. Group</target>
+          <target state="translated">APIV2 - Inventory Post. Group</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Inventory Post. Group - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2465020886 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inventory Posting Group</source>
-          <target state="translated">Stock Posting Group</target>
+          <target state="translated">Inventory Posting Group</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Inventory Post. Group - Property EntityCaption</note>
         </trans-unit>
         <trans-unit id="Page 2465020886 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inventory Posting Groups</source>
-          <target state="translated">Stock Posting Groups</target>
+          <target state="translated">Inventory Posting Groups</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Inventory Post. Group - Property EntitySetCaption</note>
         </trans-unit>
@@ -3575,19 +3575,19 @@
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 953500447 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inventory Posting Group</source>
-          <target state="translated">Stock Posting Group</target>
+          <target state="translated">Inventory Posting Group</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control inventoryPostingGroup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 4260022556 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inventory Posting Group Code</source>
-          <target state="translated">Stock Posting Group Code</target>
+          <target state="translated">Inventory Posting Group Code</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control inventoryPostingGroupCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 2160337404 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inventory Posting Group Id</source>
-          <target state="translated">Stock Posting Group Id</target>
+          <target state="translated">Inventory Posting Group Id</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control inventoryPostingGroupId - Property Caption</note>
         </trans-unit>

@@ -69,7 +69,7 @@ codeunit 63 "Sales-Explode BOM"
                     ToSalesLine."Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, FromBOMComp."Unit of Measure Code");
                     ToSalesLine."Outstanding Quantity" := Round("Quantity (Base)" * FromBOMComp."Quantity per", UOMMgt.QtyRndPrecision);
                     IsHandled := false;
-                    OnRunOnBeforeItemCheckAvailSalesLineCheck(ToSalesLine, FromBOMComp, Rec);
+                    OnRunOnBeforeItemCheckAvailSalesLineCheck(ToSalesLine, FromBOMComp, Rec, IsHandled, HideDialog);
                     if not IsHandled then
                         if ToSalesLine."Outstanding Quantity" > 0 then
                             if ItemCheckAvail.SalesLineCheck(ToSalesLine) then
@@ -169,6 +169,7 @@ codeunit 63 "Sales-Explode BOM"
                     FromBOMComp.Type::Resource:
                         ToSalesLine.Type := ToSalesLine.Type::Resource;
                 end;
+                OnExplodeBOMCompLinesOnAfterAssignType(ToSalesLine, SalesLine, FromBOMComp, SalesHeader);
                 if ToSalesLine.Type <> ToSalesLine.Type::" " then begin
                     FromBOMComp.TestField("No.");
                     ToSalesLine.Validate("No.", FromBOMComp."No.");
@@ -290,12 +291,17 @@ codeunit 63 "Sales-Explode BOM"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeItemCheckAvailSalesLineCheck(var ToSalesLine: Record "Sales Line"; FromBOMComp: Record "BOM Component"; SalesLine: Record "Sales Line")
+    local procedure OnRunOnBeforeItemCheckAvailSalesLineCheck(var ToSalesLine: Record "Sales Line"; FromBOMComp: Record "BOM Component"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; var HideDialog: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnExplodeBOMCompLinesOnAfterToSalesLineInsert(ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; FromBOMComp: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExplodeBOMCompLinesOnAfterAssignType(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; BOMComponent: Record "BOM Component"; var SalesHeader: Record "Sales Header");
     begin
     end;
 

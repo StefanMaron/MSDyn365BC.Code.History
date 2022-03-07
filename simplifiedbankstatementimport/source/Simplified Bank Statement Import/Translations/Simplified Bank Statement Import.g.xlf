@@ -89,7 +89,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType ChangeBankStatementImportFormatLbl</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - NamedType 1215989694" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Data Exchange Definition with the code %1 already exists.</source>
+          <source>A data exchange definition with the code %1 already exists.</source>
           <note from="Developer" annotates="general" priority="2">%1 = Data Exchange Definition Code</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DataExchDefAlreadyExistsErr</note>
         </trans-unit>
@@ -122,6 +122,11 @@
           <source>Bank statement file successfully uploaded</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType FileSuccessfullyUploadedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 510207457" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The line separator in the uploaded file, %1, differs from your setup. To continue, go back a step or two and change your setup to use %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Line separator</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType IncorrectLineSeparatorErr</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - NamedType 2421718085" size-unit="char" translate="yes" xml:space="preserve">
           <source>Line Definition</source>
@@ -269,7 +274,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control HeaderLines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 1003846730 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specify the column separator and column count for your bank statement file.</source>
+          <source>Specify the column separator, the number of columns, and line separator for your bank statement file.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step4 - Property InstructionalText</note>
         </trans-unit>
@@ -307,6 +312,21 @@
           <source>File Preview</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control File Preview Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1721594309 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the character that separates each line in the bank statement file.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control LineSeparator - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1721594309 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line Separator</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control LineSeparator - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1721594309 - Property 62802879" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CRLF,CR,LF</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control LineSeparator - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 366150113 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
           <source>Review and define the column definitions of your bank statement file. When you enter or change a value, the File Preview section will update accordingly.</source>

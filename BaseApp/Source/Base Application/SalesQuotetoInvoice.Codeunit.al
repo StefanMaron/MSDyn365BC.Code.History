@@ -124,6 +124,7 @@ codeunit 1305 "Sales-Quote to Invoice"
 
             MoveLineCommentsToSalesInvoice(SalesInvoiceHeader, SalesQuoteHeader);
 
+            OnCreateSalesInvoiceLinesOnBeforeSalesQuoteLineDeleteAll(SalesQuoteHeader, SalesInvoiceHeader, SalesQuoteLine);
             SalesQuoteLine.DeleteAll();
         end;
     end;
@@ -221,6 +222,11 @@ codeunit 1305 "Sales-Quote to Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceHeaderOnBeforeSalesInvoiceHeaderInsert(var SalesInvoiceHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceLinesOnBeforeSalesQuoteLineDeleteAll(QuoteSalesHeader: Record "Sales Header"; InvoiceSalesHeader: Record "Sales Header"; var QuoteSalesLine: Record "Sales Line")
     begin
     end;
 }

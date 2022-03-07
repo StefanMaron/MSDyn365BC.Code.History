@@ -172,7 +172,8 @@ table 7345 "Registered Invt. Movement Line"
         {
             Caption = 'Expiration Date';
         }
-        field(6515; "Package No."; Code[20])
+#pragma warning disable AS0086
+        field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';
 
@@ -181,6 +182,7 @@ table 7345 "Registered Invt. Movement Line"
                 ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
             end;
         }
+#pragma warning restore AS0086
         field(7300; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';

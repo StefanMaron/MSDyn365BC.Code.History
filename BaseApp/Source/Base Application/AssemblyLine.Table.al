@@ -1,4 +1,4 @@
-table 901 "Assembly Line"
+﻿table 901 "Assembly Line"
 {
     Caption = 'Assembly Line';
     DrillDownPageID = "Assembly Lines";
@@ -770,10 +770,7 @@ table 901 "Assembly Line"
         "Quantity to Consume" :=
           MinValue(MaxQtyToConsume, CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble"));
         RoundQty("Quantity to Consume");
-        "Quantity to Consume (Base)" :=
-          MinValue(
-            MaxQtyToConsumeBase,
-            CalcBaseQty(CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble (Base)"), FieldCaption("Quantity to Consume"), FieldCaption("Quantity to Consume (Base)")));
+        "Quantity to Consume (Base)" := MinValue(MaxQtyToConsumeBase, CalcBaseQty("Quantity to Consume", FieldCaption("Quantity to Consume"), FieldCaption("Quantity to Consume (Base)")));
 
         OnAfterInitQtyToConsume(Rec, xRec, CurrFieldNo);
     end;
@@ -1425,11 +1422,7 @@ table 901 "Assembly Line"
     begin
         OnBeforeCalcAvailQuantities(Rec);
         SetItemFilter(Item);
-        AvailableInventory := AvailableToPromise.CalcAvailableInventory(Item);
-        ScheduledReceipt := AvailableToPromise.CalcScheduledReceipt(Item);
-        ReservedReceipt := AvailableToPromise.CalcReservedReceipt(Item);
-        ReservedRequirement := AvailableToPromise.CalcReservedRequirement(Item);
-        GrossRequirement := AvailableToPromise.CalcGrossRequirement(Item);
+        CalcAvailBaseQuantities(Item, AvailableInventory, ScheduledReceipt, ReservedReceipt, ReservedRequirement, GrossRequirement);
 
         if OrderLineExists(OldAssemblyLine) then
             if OldAssemblyLine."Due Date" > "Due Date" then
@@ -1467,6 +1460,23 @@ table 901 "Assembly Line"
         GrossRequirement := CalcQtyFromBase(GrossRequirement);
         ScheduledReceipt := CalcQtyFromBase(ScheduledReceipt);
         ExpectedInventory := CalcQtyFromBase(ExpectedInventory);
+    end;
+
+    local procedure CalcAvailBaseQuantities(var Item: Record Item; var AvailableInventory: Decimal; var ScheduledReceipt: Decimal; var ReservedReceipt: Decimal; var ReservedRequirement: Decimal; var GrossRequirement: Decimal)
+    var
+        AvailableToPromise: Codeunit "Available to Promise";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcAvailBaseQuantities(Rec, Item, AvailableInventory, ScheduledReceipt, ReservedReceipt, ReservedRequirement, GrossRequirement, IsHandled);
+        if IsHandled then
+            exit;
+
+        AvailableInventory := AvailableToPromise.CalcAvailableInventory(Item);
+        ScheduledReceipt := AvailableToPromise.CalcScheduledReceipt(Item);
+        ReservedReceipt := AvailableToPromise.CalcReservedReceipt(Item);
+        ReservedRequirement := AvailableToPromise.CalcReservedRequirement(Item);
+        GrossRequirement := AvailableToPromise.CalcGrossRequirement(Item);
     end;
 
     local procedure CalcExpectedInventory(Inventory: Decimal; ScheduledReceipt: Decimal; GrossRequirement: Decimal): Decimal
@@ -1972,6 +1982,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcAvailQuantities(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAvailBaseQuantities(var AssemblyLine: Record "Assembly Line"; var Item: Record Item; var AvailableInventory: Decimal; var ScheduledReceipt: Decimal; var ReservedReceipt: Decimal; var ReservedRequirement: Decimal; var GrossRequirement: Decimal; var IsHandled: Boolean)
     begin
     end;
 

@@ -12,6 +12,7 @@ codeunit 138921 "O365 Test Quotes"
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         LibraryJobQueue: Codeunit "Library - Job Queue";
         O365TestQuotes: Codeunit "O365 Test Quotes";
@@ -174,6 +175,7 @@ codeunit 138921 "O365 Test Quotes"
         SMTPMailSetup: Record "SMTP Mail Setup";
         ReportSelections: Record "Report Selections";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Test Quotes");
         EnvironmentInfoTestLibrary.SetAppId('INV');
         BindSubscription(EnvironmentInfoTestLibrary);
         BindSubscription(LibraryJobQueue);
@@ -182,6 +184,7 @@ codeunit 138921 "O365 Test Quotes"
             exit;
         Initialized := true;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Test Quotes");
         if SMTPMailSetup.Get then
             SMTPMailSetup.Delete();
         SMTPMailSetup.Init();
@@ -197,6 +200,7 @@ codeunit 138921 "O365 Test Quotes"
         ReportSelections.Usage := "Report Selection Usage"::"S.Quote";
         ReportSelections."Report ID" := REPORT::"Standard Sales - Quote";
         ReportSelections.Insert();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"O365 Test Quotes");
     end;
 
     local procedure CleanUp()

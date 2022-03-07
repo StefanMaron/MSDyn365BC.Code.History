@@ -905,6 +905,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DocumentAttachment.SetRange("Line No.", RecLineNo);
         DocumentAttachment.SetRange("File Name", FileName);
         DocumentAttachment.SetRange("File Extension", FileExtension);
+        OnIsDuplicateFileOnAfterSetFilters(DocumentAttachment);
 
         if not DocumentAttachment.IsEmpty() then
             exit(true);
@@ -1017,7 +1018,7 @@ codeunit 1173 "Document Attachment Mgmt"
         // Copies attachments for header and then calls CopyAttachmentsForPostedDocsLines to copy attachments for lines.
     end;
 
-    local procedure CopyAttachmentsForPostedDocs(var FromRecRef: RecordRef; var ToRecRef: RecordRef)
+    procedure CopyAttachmentsForPostedDocs(var FromRecRef: RecordRef; var ToRecRef: RecordRef)
     var
         FromDocumentAttachment: Record "Document Attachment";
         ToDocumentAttachment: Record "Document Attachment";
@@ -1260,6 +1261,11 @@ codeunit 1173 "Document Attachment Mgmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyAttachmentsForPostedDocsOnAfterToDocumentAttachmentInsert(var FromDocumentAttachment: Record "Document Attachment"; var ToDocumentAttachment: Record "Document Attachment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsDuplicateFileOnAfterSetFilters(var DocumentAttachment: Record "Document Attachment")
     begin
     end;
 }

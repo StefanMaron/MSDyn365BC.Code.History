@@ -12,6 +12,7 @@ report 7391 "Whse. Get Bin Content"
             trigger OnAfterGetRecord()
             var
                 DummyItemTrackingSetup: Record "Item Tracking Setup";
+                ShouldSkipReportForQty: Boolean;
             begin
                 if BinType.Code <> "Bin Type Code" then
                     BinType.Get("Bin Type Code");
@@ -19,7 +20,9 @@ report 7391 "Whse. Get Bin Content"
                     CurrReport.Skip();
 
                 QtyToEmptyBase := GetQtyToEmptyBase(DummyItemTrackingSetup);
-                if QtyToEmptyBase <= 0 then
+                ShouldSkipReportForQty := QtyToEmptyBase <= 0;
+                OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty("Bin Content", ShouldSkipReportForQty);
+                if ShouldSkipReportForQty then
                     CurrReport.Skip();
 
                 case DestinationType2 of
@@ -508,6 +511,11 @@ report 7391 "Whse. Get Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterBinContentOnPostDataItem(ItemJournalLine: Record "Item Journal Line"; TransferHeader: Record "Transfer Header"; InternalMovementHeader: Record "Internal Movement Header"; DestinationType2: Option MovementWorksheet,WhseInternalPutawayHeader,ItemJournalLine,TransferHeader,InternalMovementHeader)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty(var BinContent: Record "Bin Content"; var ShouldSkipReportForQty: Boolean)
     begin
     end;
 

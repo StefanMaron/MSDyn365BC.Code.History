@@ -453,6 +453,51 @@ codeunit 136120 "Service Warranty and Discounts"
         ContractServiceDiscount[1].Delete(true);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure ServiceLineDiscountIsUpdatedOnValidateServiceItemLine()
+    var
+        Customer: Record Customer;
+        ItemOnServiceItemLine: Record Item;
+        ItemOnServiceLine: Record Item;
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Warranty] [Service Line]
+        // [SCENARIO 424215] "Line Discount %" on service line is updated when you set "Warranty %" on service item and validate Service Item No. on service item line.
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Items "A", "B".
+        CreateItem(ItemOnServiceItemLine, Customer."No.", 0);
+        CreateItem(ItemOnServiceLine, Customer."No.", 0);
+
+        // [GIVEN] Service item for item "A", "Warranty %" = 0 so far.
+        CreateServiceItem(ServiceItem, Customer."No.", ItemOnServiceItemLine."No.", 0);
+
+        // [GIVEN] Service order, create service line with item "B".
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::Item, ItemOnServiceLine."No.");
+
+        // [GIVEN] Set "Warranty %" = 100 on the service item.
+        ServiceItem.Validate("Warranty % (Parts)", 100);
+        ServiceItem.Modify(true);
+
+        // [WHEN] Revalidate Service Item No. on the service item line.
+        ServiceItemLine.Validate("Service Item No.", ServiceItem."No.");
+
+        // [THEN] "Line Discount %" is updated to 100 on the service line.
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetRange("No.", ItemOnServiceLine."No.");
+        ServiceLine.FindFirst();
+        ServiceLine.TestField("Line Discount %", 100);
+    end;
+
     local procedure AssignResourceGroupToResource(var Resource: Record Resource)
     var
         ResourceGroup: Record "Resource Group";

@@ -4103,7 +4103,7 @@
         </trans-unit>
         <trans-unit id="Page 3402555058 - Control 171324676 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Contact Company Name</source>
-          <target state="translated">Nom compagnie contact</target>
+          <target state="translated">Nom société contact</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - Control contactCompanyName - Property Caption</note>
         </trans-unit>

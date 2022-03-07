@@ -3263,7 +3263,7 @@
         </trans-unit>
         <trans-unit id="Table 2303806024 - Field 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company</source>
-          <target state="translated">Compagnie</target>
+          <target state="translated">Société</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table User Settings - Field Company - Property Caption</note>
         </trans-unit>
@@ -3608,18 +3608,6 @@
           <target state="translated">Vous devez spécifier une valeur DateTime pour l’option %1</target>
           <note from="Developer" annotates="general" priority="2">%1 = Expiry Option</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - Method SetBlobExpiry - NamedType SpecifyDateTimeErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2127254391 - Method 2022965485 - NamedType 2627506007" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1%2=%3</source>
-          <target state="translated">%1%2=%3</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Concatenation character, %2 = Parameter Identifer, %3 = Parameter Value</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Format Helper - Method AppendToUri - NamedType AppendType1Lbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2127254391 - Method 2022965485 - NamedType 3865131514" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1%2</source>
-          <target state="translated">%1%2</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Concatenation character, %2 = Parameter Value</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Format Helper - Method AppendToUri - NamedType AppendType2Lbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 2127254391 - Method 3022268586 - NamedType 1467098217" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>"%1" %2 %3%4%5</source>
@@ -3983,7 +3971,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3692338268 - NamedType 1564268693" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
           <source>Continue exploring the Cronus demo company to learn more.​</source>
-          <target state="translated">Continuez à explorer la compagnie de démonstration Cronus pour en savoir plus.</target>
+          <target state="translated">Continuez à explorer la société de démonstration Cronus pour en savoir plus.</target>
           <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerDescriptionCompletedEvaluationLbl</note>
         </trans-unit>
@@ -3995,13 +3983,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 3692338268 - NamedType 4074556712" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Cronus company data you are using is for demonstration, evaluation, and training purposes.</source>
-          <target state="translated">Veuillez utiliser les données de la compagnie Cronus uniquement à des fins de démonstration, d’évaluation et de formation.</target>
+          <target state="translated">Veuillez utiliser les données de la société Cronus uniquement à des fins de démonstration, d’évaluation et de formation.</target>
           <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerDescriptionInProgressEvaluationLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3692338268 - NamedType 2485686368" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
           <source>You're all set to try out our demo company, Cronus. Go explore on your own, or take a quick tour first.</source>
-          <target state="translated">Vous pouvez tester notre compagnie de démonstration Cronus. Explorez-la en détail ou commencez par une observation rapide.</target>
+          <target state="translated">Vous pouvez tester notre société de démonstration Cronus. Explorez-la en détail ou commencez par une observation rapide.</target>
           <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerDescriptionWelcomeEvaluationLbl</note>
         </trans-unit>
@@ -5603,7 +5591,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3102643942 - NamedType 1633402485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company %1 was just created, and we are still setting it up for you.\This may take up to 10 minutes, so take a short break before you begin to use %2.</source>
-          <target state="translated">La compagnie %1 vient d’être créée et nous sommes toujours en train de la configurer pour vous.\Cela peut prendre jusqu’à 10 minutes, alors faites une courte pause avant de commencer à utiliser %2.</target>
+          <target state="translated">La société %1 vient d’être créée et nous sommes toujours en train de la configurer pour vous.\Cela peut prendre jusqu’à 10 minutes, alors faites une courte pause avant de commencer à utiliser %2.</target>
           <note from="Developer" annotates="general" priority="2">%1 - a company name,%2 - our product name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Settings Impl. - NamedType CompanySetUpInProgressMsg</note>
         </trans-unit>
@@ -5801,13 +5789,13 @@
         </trans-unit>
         <trans-unit id="Page 2892733561 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Allowed Companies</source>
-          <target state="translated">Compagnies autorisées</target>
+          <target state="translated">Sociétés autorisées</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Accessible Companies - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2892733561 - Control 997278710 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the display name that is defined for the company. If a display name is not defined, then the company name is used.</source>
-          <target state="translated">Spécifie le nom d’affichage défini pour la compagnie. Si un nom d’affichage n’est pas défini, le nom de la compagnie est utilisé.</target>
+          <target state="translated">Spécifie le nom d’affichage défini pour la société. Si un nom d’affichage n’est pas défini, le nom de la société est utilisé.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Accessible Companies - Control CompanyDisplayName - Property ToolTip</note>
         </trans-unit>
@@ -5819,25 +5807,25 @@
         </trans-unit>
         <trans-unit id="Page 2892733561 - Control 2135837299 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies that the company is for trial purposes only, and that a subscription has not been purchased.</source>
-          <target state="translated">Spécifie que la compagnie est uniquement utilisée à des fins d’évaluation et qu’aucun abonnement n’a été acheté.</target>
+          <target state="translated">Spécifie que la société est uniquement utilisée à des fins d’évaluation et qu’aucun abonnement n’a été acheté.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Accessible Companies - Control Evaluation Company - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2892733561 - Control 2135837299 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Evaluation Company</source>
-          <target state="translated">Compagnie d’évaluation</target>
+          <target state="translated">Société d’évaluation</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Accessible Companies - Control Evaluation Company - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2892733561 - Action 246139633 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get assistance with creating a new company.</source>
-          <target state="translated">Obtenir de l’aide pour la création d’une compagnie.</target>
+          <target state="translated">Obtenir de l’aide pour la création d’une société.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Accessible Companies - Action Create New Company - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2892733561 - Action 246139633 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create New Company</source>
-          <target state="translated">Créer une compagnie</target>
+          <target state="translated">Créer une société</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Accessible Companies - Action Create New Company - Property Caption</note>
         </trans-unit>
@@ -13022,13 +13010,13 @@
         </trans-unit>
         <trans-unit id="Page 1849231761 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the company that the user works in. Unless restricted by permissions, users can change this on the My Settings page.</source>
-          <target state="translated">Spécifie la compagnie dans laquelle l’utilisateur travaille. Les utilisateurs peuvent modifier cette configuration sur la page Mes paramètres, sauf s’ils ne disposent pas des autorisations nécessaires.</target>
+          <target state="translated">Spécifie la société dans laquelle l’utilisateur travaille. Les utilisateurs peuvent modifier cette configuration sur la page Mes paramètres, sauf s’ils ne disposent pas des autorisations nécessaires.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Personalization - Control Company - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1849231761 - Control 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company</source>
-          <target state="translated">Compagnie</target>
+          <target state="translated">Société</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Personalization - Control Company - Property Caption</note>
         </trans-unit>
@@ -13172,7 +13160,7 @@
         </trans-unit>
         <trans-unit id="Page 2303806024 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>company,role center,work date,role</source>
-          <target state="translated">compagnie,tableau de bord,date de travail,rôle</target>
+          <target state="translated">société,tableau de bord,date de travail,rôle</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Settings - Property AdditionalSearchTerms</note>
         </trans-unit>
@@ -13196,13 +13184,13 @@
         </trans-unit>
         <trans-unit id="Page 2303806024 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the database company that you work in. You must sign out and then sign in again for the change to take effect.</source>
-          <target state="translated">Spécifie la base de données compagnie dans laquelle vous travaillez. Pour qu’un changement de compagnie prenne effet, vous devez vous déconnecter et vous reconnecter.</target>
+          <target state="translated">Spécifie la base de données société dans laquelle vous travaillez. Pour qu’un changement de société prenne effet, vous devez vous déconnecter et vous reconnecter.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Settings - Control Company - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2303806024 - Control 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company</source>
-          <target state="translated">Compagnie</target>
+          <target state="translated">Société</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Settings - Control Company - Property Caption</note>
         </trans-unit>
@@ -13286,13 +13274,13 @@
         </trans-unit>
         <trans-unit id="Page 1967324515 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the company that is associated with the user.</source>
-          <target state="translated">Spécifie la compagnie associée à l’utilisateur.</target>
+          <target state="translated">Spécifie la société associée à l’utilisateur.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Settings FactBox - Control Company - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1967324515 - Control 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company</source>
-          <target state="translated">Compagnie</target>
+          <target state="translated">Société</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Settings FactBox - Control Company - Property Caption</note>
         </trans-unit>
@@ -13382,13 +13370,13 @@
         </trans-unit>
         <trans-unit id="Page 281796026 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the company that the user works in. Unless restricted by permissions, users can change this on the My Settings page.</source>
-          <target state="translated">Spécifie la compagnie dans laquelle l’utilisateur travaille. Les utilisateurs peuvent modifier cette configuration sur la page Mes paramètres, sauf s’ils ne disposent pas des autorisations nécessaires.</target>
+          <target state="translated">Spécifie la société dans laquelle l’utilisateur travaille. Les utilisateurs peuvent modifier cette configuration sur la page Mes paramètres, sauf s’ils ne disposent pas des autorisations nécessaires.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Settings List - Control Company - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 281796026 - Control 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company</source>
-          <target state="translated">Compagnie</target>
+          <target state="translated">Société</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Settings List - Control Company - Property Caption</note>
         </trans-unit>

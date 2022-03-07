@@ -539,7 +539,7 @@
         </trans-unit>
         <trans-unit id="Table 414606611 - Field 2719173742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Spotlight Tour Type</source>
-          <target state="translated">Innføringstype for Rampelys</target>
+          <target state="translated">Type rampelysinnføring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Checklist Item Buffer - Field Spotlight Tour Type - Property Caption</note>
         </trans-unit>
@@ -1793,7 +1793,7 @@
         </trans-unit>
         <trans-unit id="Table 3519071095 - Field 2719173742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Spotlight Tour Type</source>
-          <target state="translated">Innføringstype for Rampelys</target>
+          <target state="translated">Type rampelysinnføring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Guided Experience Item - Field Spotlight Tour Type - Property Caption</note>
         </trans-unit>
@@ -2789,7 +2789,7 @@
         </trans-unit>
         <trans-unit id="Table 3404653217 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Spotlight Tour Text</source>
-          <target state="translated">Innføringstekst for Rampelys</target>
+          <target state="translated">Tekst for rampelysinnføring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Spotlight Tour Text - Property Caption</note>
         </trans-unit>
@@ -2807,13 +2807,13 @@
         </trans-unit>
         <trans-unit id="Table 3404653217 - Field 57552084 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Spotlight Tour Step</source>
-          <target state="translated">Innføringstrinn for rampelys</target>
+          <target state="translated">Trinn for rampelysinnføring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Spotlight Tour Text - Field Spotlight Tour Step - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3404653217 - Field 3404653217 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Spotlight Tour Text</source>
-          <target state="translated">Innføringstekst for Rampelys</target>
+          <target state="translated">Tekst for rampelysinnføring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Spotlight Tour Text - Field Spotlight Tour Text - Property Caption</note>
         </trans-unit>
@@ -3608,18 +3608,6 @@
           <target state="translated">Du må angi en DateTime-verdi for alternativ %1</target>
           <note from="Developer" annotates="general" priority="2">%1 = Expiry Option</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Client Impl. - Method SetBlobExpiry - NamedType SpecifyDateTimeErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2127254391 - Method 2022965485 - NamedType 2627506007" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1%2=%3</source>
-          <target state="translated">%1%2=%3</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Concatenation character, %2 = Parameter Identifer, %3 = Parameter Value</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Format Helper - Method AppendToUri - NamedType AppendType1Lbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2127254391 - Method 2022965485 - NamedType 3865131514" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1%2</source>
-          <target state="translated">%1%2</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Concatenation character, %2 = Parameter Value</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Format Helper - Method AppendToUri - NamedType AppendType2Lbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 2127254391 - Method 3022268586 - NamedType 1467098217" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>"%1" %2 %3%4%5</source>
@@ -6467,7 +6455,7 @@
         </trans-unit>
         <trans-unit id="Page 2693243134 - Control 2719173742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Spotlight Tour Type</source>
-          <target state="translated">Innføringstype for Rampelys</target>
+          <target state="translated">Type rampelysinnføring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Control Spotlight Tour Type - Property Caption</note>
         </trans-unit>

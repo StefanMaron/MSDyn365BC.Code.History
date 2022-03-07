@@ -26,8 +26,8 @@ codeunit 133780 "Exchange Contact Sync Test"
         Intials1Txt: Label 'Intials1';
         PostCode1Txt: Label 'PostCode1';
         HomePage1Txt: Label 'HomePage1';
-        Phone1Txt: Label 'Phone1';
-        Phone11Txt: Label 'Mobile1';
+        Phone1Txt: Label '111222333';
+        Phone11Txt: Label '444555666';
         Fax1Txt: Label 'Fax1';
         Address1Txt: Label 'Address1';
         City1Txt: Label 'City 1';
@@ -48,9 +48,9 @@ codeunit 133780 "Exchange Contact Sync Test"
         O365Email1emailcomTxt: Label 'O365Email1@email.com';
         O365Email12emailcomTxt: Label 'O365Email12@email.com';
         O365BusinessHomePage1Txt: Label 'O365BusinessHomePage1';
-        O365Phone1Txt: Label 'O365Phone1';
-        O365Phone12Txt: Label 'O365Phone12';
-        O365Phone13Txt: Label 'O365Phone13';
+        O365Phone1Txt: Label '365112233';
+        O365Phone12Txt: Label '365445566';
+        O365Phone13Txt: Label '365778899';
         O365Street1Txt: Label 'O365Street1';
         O365City1Txt: Label 'O365City1';
         O365FirstName3Txt: Label 'O365FirstName3';

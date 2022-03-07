@@ -182,9 +182,9 @@ codeunit 5336 "Integration Record Synch."
             end;
         end else begin
             SourceFieldRef := ParameterSourceRecordRef.Field(SourceFieldNo);
-            if (SourceFieldRef.Class = FieldClass::FlowField) or (SourceFieldRef.Type = FieldType::Blob) then
-                if not IsExternalTable(SourceFieldRef.Record().Number()) then
-                    SourceFieldRef.CalcField();
+            if (SourceFieldRef.Class = FieldClass::FlowField) or
+               ((SourceFieldRef.Type = FieldType::Blob) and (not IsExternalTable(SourceFieldRef.Record().Number()))) then
+                SourceFieldRef.CalcField();
             if (not ParameterOnlyModified) or IsFieldModified(SourceFieldRef, DestinationFieldRef) then begin
                 CurrValue := GetTextValue(DestinationFieldRef);
                 if TransferFieldData(SourceFieldRef, DestinationFieldRef, ValidateDestinationField, SkipNullValue) then

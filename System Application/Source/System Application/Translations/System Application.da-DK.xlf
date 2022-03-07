@@ -5561,7 +5561,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2946214440 - NamedType 978914654" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This functionality cannot be used without enabling the Cloud Migration. It should be used only in the context of the Cloud Migration.</source>
-          <target state="translated">Denne funktionalitet kan ikke bruges uden at aktivere overførslen til skyen. Den må kun bruges i forbindelse med overførslen til skyen.</target>
+          <target state="translated">Denne funktionalitet kan ikke bruges uden at aktivere cloudmigrering. Den må kun bruges i forbindelse med cloudmigrering.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Upgrade Tag Impl. - NamedType CannotUseWithoutEnablingCloudMigrationErr</note>
         </trans-unit>

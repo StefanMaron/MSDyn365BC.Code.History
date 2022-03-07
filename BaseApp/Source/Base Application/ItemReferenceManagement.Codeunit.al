@@ -243,6 +243,22 @@ codeunit 5720 "Item Reference Management"
         CountItemReference(ItemReference, QtyCustOrVendCR, QtyBarCodeAndBlankCR, ItemRefType, ItemRefTypeNo);
         MultipleItemsToChoose := true;
 
+        ProcessDecisionTree(QtyCustOrVendCR, QtyBarCodeAndBlankCR, ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose);
+
+        SelectOrFindReference(ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose, ShowDialog);
+
+        ItemReferenceToReturn.Copy(ItemReference);
+    end;
+
+    local procedure ProcessDecisionTree(QtyCustOrVendCR: Integer; QtyBarCodeAndBlankCR: Integer; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; var TempRecRequired: Boolean; var MultipleItemsToChoose: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessDecisionTree(ItemReference, QtyCustOrVendCR, QtyBarCodeAndBlankCR, ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose, IsHandled);
+        if IsHandled then
+            exit;
+
         case true of
             (QtyCustOrVendCR = 0) and (QtyBarCodeAndBlankCR = 0):
                 Error(ItemRefNotExistErr, ItemRefNo);
@@ -259,6 +275,16 @@ codeunit 5720 "Item Reference Management"
             (QtyCustOrVendCR > 1) and (QtyBarCodeAndBlankCR > 0):
                 TempRecRequired := true;
         end;
+    end;
+
+    local procedure SelectOrFindReference(ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; TempRecRequired: Boolean; MultipleItemsToChoose: Boolean; ShowDialog: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSelectOrFindReference(ItemReference, ItemRefNo, ItemRefType, ItemRefTypeNo, TempRecRequired, MultipleItemsToChoose, ShowDialog, IsHandled);
+        if IsHandled then
+            exit;
 
         if ShowDialog and MultipleItemsToChoose then begin
             if not RunPageReferenceListOnRealOrTempRec(ItemReference, TempRecRequired, ItemRefType, ItemRefTypeNo) then
@@ -266,8 +292,6 @@ codeunit 5720 "Item Reference Management"
         end else
             if not FindFirstCustVendItemReference(ItemReference, ItemRefType, ItemRefTypeNo) then
                 FindFirstBarCodeOrBlankTypeItemReference(ItemReference);
-
-        ItemReferenceToReturn.Copy(ItemReference);
     end;
 
     local procedure InitItemReferenceFilters(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type")
@@ -663,6 +687,11 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessDecisionTree(var ItemReference: Record "Item Reference"; QtyCustOrVendCR: Integer; QtyBarCodeAndBlankCR: Integer; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; var TempRecRequired: Boolean; var MultipleItemsToChoose: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeReferenceLookupSalesItem(var SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -674,6 +703,11 @@ codeunit 5720 "Item Reference Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesReferenceNoLookup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectOrFindReference(var ItemReference: Record "Item Reference"; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; TempRecRequired: Boolean; MultipleItemsToChoose: Boolean; ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

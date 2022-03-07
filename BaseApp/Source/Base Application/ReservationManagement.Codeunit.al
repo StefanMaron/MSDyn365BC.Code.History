@@ -303,7 +303,7 @@ codeunit 99000845 "Reservation Management"
         UpdateReservation(UpdReservation);
     end;
 
-    local procedure UpdateReservation(EntryIsPositive: Boolean)
+    procedure UpdateReservation(EntryIsPositive: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -3141,7 +3141,7 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnSetReservSource(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
     end;

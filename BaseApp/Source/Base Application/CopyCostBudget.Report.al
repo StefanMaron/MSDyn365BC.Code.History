@@ -31,12 +31,14 @@ report 1134 "Copy Cost Budget"
 
                 CostBudgetEntryTarget.Amount := Round(Amount * Factor, 0.01);
                 CostBudgetEntryTarget.Allocated := false;
+                OnAfterGetRecordOnAfterCostBudgetEntryTargetPopulated(CostBudgetEntryTarget, "Cost Budget Entry");
 
                 for i := 1 to NoOfCopies do begin
                     CostBudgetEntryTarget."Entry No." := NextEntryNo;
                     NextEntryNo := NextEntryNo + 1;
                     if DateChangeFormula <> '' then
                         CostBudgetEntryTarget.Date := CalcDate(DateFormula, CostBudgetEntryTarget.Date);
+                    OnAfterGetRecordOnBeforeCostBudgetEntryTargetInsert(CostBudgetEntryTarget);
                     CostBudgetEntryTarget.Insert();
                     NoInserted := NoInserted + 1;
 
@@ -227,5 +229,15 @@ report 1134 "Copy Cost Budget"
         Text008: Label 'Define name of source budget.';
         Text009: Label 'Define name of target budget.';
         Text010: Label 'No entries were copied.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCostBudgetEntryTargetPopulated(var CostBudgetEntryTarget: Record "Cost Budget Entry"; CostBudgetEntry: Record "Cost Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnBeforeCostBudgetEntryTargetInsert(var CostBudgetEntryTarget: Record "Cost Budget Entry")
+    begin
+    end;
 }
 

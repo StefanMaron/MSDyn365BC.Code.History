@@ -118,6 +118,8 @@ codeunit 5870 "Calculate BOM Tree"
         ProdBOMLine: Record "Production BOM Line";
         IsHandled: Boolean;
     begin
+        OnBeforeGenerateTreeForItemLocal(ParentItem, DemandDate, TreeType);
+
         with ParentItem do begin
             InitVars;
 
@@ -190,6 +192,7 @@ codeunit 5870 "Calculate BOM Tree"
     begin
         with BOMBuffer do begin
             ParentItem.Get(ItemNo);
+            OnGenerateItemSubTreeOnAfterParentItemGet(ParentItem);
             if TempItem.Get(ItemNo) then begin
                 "Is Leaf" := false;
                 Modify(true);
@@ -313,6 +316,7 @@ codeunit 5870 "Calculate BOM Tree"
                                         end;
                                         OnAfterTransferFromProdItem(BOMBuffer, ProdBOMLine, EntryNo);
                                         GenerateItemSubTree("No.", BOMBuffer);
+                                        OnGenerateProdCompSubTreeOnAfterGenerateItemSubTree(ParentBOMBuffer, BOMBuffer);
                                     end;
                                 Type::"Production BOM":
                                     begin
@@ -338,9 +342,10 @@ codeunit 5870 "Calculate BOM Tree"
                                         GenerateProdCompSubTree(ParentItem, BOMBuffer);
                                         ParentItem := CopyOfParentItem;
 
-                                        OnAfterGenerateProdCompSubTree(ParentItem, BOMBuffer);
+                                        OnAfterGenerateProdCompSubTree(ParentItem, BOMBuffer, ParentBOMBuffer);
                                     end;
                             end;
+                    OnGenerateProdCompSubTreeOnAfterProdBOMLineLoop(ParentBOMBuffer, BOMBuffer);
                 until Next() = 0;
                 FoundSubTree := true;
             end;
@@ -370,6 +375,7 @@ codeunit 5870 "Calculate BOM Tree"
                                 BOMBuffer.RoundCosts(
                                   ParentBOMBuffer."Qty. per Top Item" *
                                   UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code") / LotSize);
+                                OnGenerateProdCompSubTreeOnBeforeBOMBufferModify(BOMBuffer, ParentBOMBuffer, ParentItem);
                                 BOMBuffer.Modify();
                             end;
                             OnGenerateProdCompSubTreeOnAfterBOMBufferModify(BOMBuffer, RoutingLine, LotSize, ParentItem, ParentBOMBuffer);
@@ -402,6 +408,7 @@ codeunit 5870 "Calculate BOM Tree"
                         BOMBuffer.TransferFromAsmLine(EntryNo, AsmLine);
                         GenerateItemSubTree("No.", BOMBuffer);
                     end;
+                    OnGenerateAsmHeaderSubTreeOnAfterAsmLineLoop(ParentBOMBuffer, BOMBuffer);
                 until Next() = 0;
                 BOMBuffer := ParentBOMBuffer;
 
@@ -979,7 +986,7 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGenerateProdCompSubTree(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer")
+    local procedure OnAfterGenerateProdCompSubTree(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; var ParentBOMBuffer: Record "BOM Buffer")
     begin
     end;
 
@@ -1019,12 +1026,42 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateTreeForItemLocal(var ParentItem: Record Item; DemandDate: Date; TreeType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferFromProdBOM(var BOMBuffer: Record "BOM Buffer"; var ProdBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; var ParentBOMBuffer: Record "BOM Buffer"; var EntryNo: Integer; TreeType: Option " ",Availability,Cost)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferProdBOMLine(var BOMBuffer: Record "BOM Buffer"; var ProdBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; var ParentBOMBuffer: Record "BOM Buffer"; var EntryNo: Integer; TreeType: Option " ",Availability,Cost; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateAsmHeaderSubTreeOnAfterAsmLineLoop(var ParentBOMBuffer: Record "BOM Buffer"; var BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateProdCompSubTreeOnAfterGenerateItemSubTree(var ParentBOMBuffer: Record "BOM Buffer"; var BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateProdCompSubTreeOnAfterProdBOMLineLoop(var ParentBOMBuffer: Record "BOM Buffer"; var BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateItemSubTreeOnAfterParentItemGet(var ParentItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateProdCompSubTreeOnBeforeBOMBufferModify(var BOMBuffer: Record "BOM Buffer"; var ParentBOMBuffer: Record "BOM Buffer"; ParentItem: Record Item)
     begin
     end;
 

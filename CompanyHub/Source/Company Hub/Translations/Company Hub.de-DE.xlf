@@ -2963,7 +2963,7 @@
         </trans-unit>
         <trans-unit id="Profile 3084187460 - Property 4111922599" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>For users that primarily do work in other companies. Company Hub gives you a list of links to the companies you work in.</source>
-          <target state="translated">Für Benutzer, die in erster Linie in anderen Unternehmen arbeiten. Mit dem Unternehemens-Hub erhalten Sie eine Liste mit Links zu den Unternehmen, in denen Sie arbeiten.</target>
+          <target state="translated">Für Benutzer, die in erster Linie in anderen Unternehmen arbeiten. Mit dem Unternehmens-Hub erhalten Sie eine Liste mit Links zu den Unternehmen, in denen Sie arbeiten.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Profile CompanyHub - Property ProfileDescription</note>
         </trans-unit>

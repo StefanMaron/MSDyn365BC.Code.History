@@ -19,6 +19,7 @@ codeunit 134924 "ERM Cues"
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibrarySales: Codeunit "Library - Sales";
         ShipStatus: Option Full,Partial,"Not Shipped";
         WrongNumberOfDelayedOrdersErr: Label 'Wrong number of delayed Sales Orders.';
         RedundantSalesOnListErr: Label 'List of delayed Sales Order contains redundant documents.';
@@ -584,6 +585,56 @@ codeunit 134924 "ERM Cues"
         ManufacturingCue.TestField("Prod. Orders Routings-in Prog.", 1);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure DelayedOrdersCountOnSalesCue()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SOProcessorActivities: TestPage "SO Processor Activities";
+        SalesOrderList: TestPage "Sales Order List";
+        DocumentNos: List of [Code[20]];
+        ShipmentDates: List of [Date];
+        i: Integer;
+    begin
+        // [FEATURE] [Sales Cue]
+        // [SCENARIO 423683] Sales Order is considered delayed if there is an outstanding Sales Line with "Shipment Date" <= WorkDate.
+        Initialize();
+        SalesHeader.SetRange("Document Type", "Sales Document Type"::Order);
+        SalesHeader.SetRange(Status, "Sales Document Status"::Released);
+        SalesHeader.DeleteAll();
+
+        // [GIVEN] Three released Sales Orders "S1", "S2", "S3".
+        // [GIVEN] "S1" has Sales Line with "Shipment Date" = WorkDate - 1.
+        // [GIVEN] "S2" has Sales Line with "Shipment Date" = WorkDate.
+        // [GIVEN] "S3" has Sales Line with "Shipment Date" = WorkDate + 1.
+        ShipmentDates.AddRange(WorkDate() - 1, WorkDate(), WorkDate() + 1);
+        for i := 1 to ShipmentDates.Count do begin
+            LibrarySales.CreateSalesOrder(SalesHeader);
+            LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+            UpdateShipmentDateOnSalesLine(SalesLine, ShipmentDates.Get(i));
+            LibrarySales.ReleaseSalesDocument(SalesHeader);
+            DocumentNos.Add(SalesHeader."No.");
+        end;
+
+        // [WHEN] Open Activities page.
+        SOProcessorActivities.OpenView();
+
+        // [THEN] Orders "S1" and "S2" are treated as delayed, i.e. Delayed cue has value 2.
+        Assert.AreEqual(Format(2), SOProcessorActivities.DelayedOrders.Value, '');
+
+        // [WHEN] DrillDown to Delayed cue.
+        SalesOrderList.Trap();
+        SOProcessorActivities.DelayedOrders.Drilldown();
+
+        // [THEN] Only orders "S1" and "S2" are shown on Sales Order List page.
+        SalesOrderList.First();
+        SalesOrderList."No.".AssertEquals(DocumentNos.Get(1));
+        SalesOrderList.Next();
+        SalesOrderList."No.".AssertEquals(DocumentNos.Get(2));
+        Assert.IsFalse(SalesOrderList.Next(), '');
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -816,18 +867,10 @@ codeunit 134924 "ERM Cues"
         exit(b);
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    local procedure UpdateShipmentDateOnSalesLine(var SalesLine: Record "Sales Line"; ShipmentDate: Date)
     begin
-        Reply := true;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure SelectTemplateHandler(var ServiceContractTemplateList: Page "Service Contract Template List"; var Response: Action)
-    begin
-        Response := ACTION::OK;
+        SalesLine.Validate("Shipment Date", ShipmentDate);
+        SalesLine.Modify(true);
     end;
 
     local procedure VerifySalesCueFlowFields()
@@ -985,6 +1028,23 @@ codeunit 134924 "ERM Cues"
             Assert.AreEqual(
               0, "Posted Shipments - Today", StrSubstNo(WrongValueErr, FieldCaption("Posted Shipments - Today"), TableCaption));
         end;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(MessageText: Text[1024])
+    begin
+    end;
+
+    [ModalPageHandler]
+    procedure SelectTemplateHandler(var ServiceContractTemplateList: Page "Service Contract Template List"; var Response: Action)
+    begin
+        Response := ACTION::OK;
     end;
 }
 

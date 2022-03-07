@@ -178,11 +178,17 @@ codeunit 5813 "Undo Purchase Receipt Line"
         end;
     end;
 
-    local procedure GetCorrectionLineNo(PurchRcptLine: Record "Purch. Rcpt. Line"): Integer
+    local procedure GetCorrectionLineNo(PurchRcptLine: Record "Purch. Rcpt. Line") Result: Integer
     var
         PurchRcptLine2: Record "Purch. Rcpt. Line";
         LineSpacing: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCorrectionLineNo(PurchRcptLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with PurchRcptLine do begin
             PurchRcptLine2.SetRange("Document No.", "Document No.");
             PurchRcptLine2."Document No." := "Document No.";
@@ -559,6 +565,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPurchRcptLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Window: Dialog; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCorrectionLineNo(PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 

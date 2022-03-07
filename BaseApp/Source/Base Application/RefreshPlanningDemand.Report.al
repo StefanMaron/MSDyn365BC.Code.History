@@ -16,7 +16,8 @@ report 99001021 "Refresh Planning Demand"
                 Window.Update(2, "Starting Date");
 
                 PlngLnMgt.Calculate("Requisition Line", Direction, CalcRoutings, CalcComponents, 0);
-                Modify;
+                OnRequisitionLineOnAfterGetRecordOnBeforeModify("Requisition Line");
+                Modify();
             end;
 
             trigger OnPreDataItem()
@@ -106,6 +107,11 @@ report 99001021 "Refresh Planning Demand"
         Direction := SchDirection;
         CalcRoutings := CalcRouting;
         CalcComponents := CalcCompNeed;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRequisitionLineOnAfterGetRecordOnBeforeModify(var RequisitionLine: Record "Requisition Line")
+    begin
     end;
 }
 

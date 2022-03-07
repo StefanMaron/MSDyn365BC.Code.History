@@ -497,6 +497,7 @@ codeunit 5407 "Prod. Order Status Management"
         Item: Record Item;
         ItemJnlLine: Record "Item Journal Line";
         ProdOrderLine: Record "Prod. Order Line";
+        SuppliedByProdOrderLine: Record "Prod. Order Line";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ProdOrderComp: Record "Prod. Order Component";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -573,8 +574,13 @@ codeunit 5407 "Prod. Order Status Management"
                     ProdOrderLine.Get(Status, ProdOrder."No.", "Prod. Order Line No.");
                     if NewStatus = NewStatus::Released then
                         QtyToPost := GetNeededQty(1, false)
-                    else
+                    else begin
                         QtyToPost := GetNeededQty(0, false);
+                        if SuppliedByProdOrderLine.Get(Status, "Prod. Order No.", "Supplied-by Line No.") and
+                           (SuppliedByProdOrderLine."Remaining Quantity" = 0)
+                        then
+                            QtyToPost := GetNeededQty(1, false);
+                    end;
 
                     OnAfterCalculateQtyToPost(ProdOrderComp, QtyToPost, ProdOrder, NewStatus);
                     RoundQtyToPost(ProdOrderComp, Item, QtyToPost);

@@ -1468,6 +1468,53 @@ codeunit 137908 "SCM Assembly Order"
         Assert.AreEqual(5, AssemblyLine."Quantity to Consume (Base)", 'Base quantity is not rounded correctly.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AssemblyLineQtyToConsumeIsCorrectlyCalculatedWithDifferentUoMforItems()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize();
+        NonBaseQtyPerUOM := 0.001;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.00001;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 100));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", NonBaseUOM.Code, 0.5, 0.005, '');
+        Assert.AreEqual(0.5, AssemblyLine.Quantity, 'Quantity is not calculated correctly.');
+        Assert.AreEqual(0.5, AssemblyLine."Quantity to Consume", 'Quantity to Consume is not calculated correctly from Quantity.');
+        Assert.AreEqual(0.0005, AssemblyLine."Quantity to Consume (Base)", 'Quantity to Consume (Base) is not calculated correctly from Quantity to Consume.');
+
+        AssemblyHeader.Validate(Quantity, 90);
+        AssemblyHeader.Modify();
+
+        AssemblyLine.Find();
+        Assert.AreEqual(0.45, AssemblyLine.Quantity, 'Quantity is not calculated correctly.');
+        Assert.AreEqual(0.45, AssemblyLine."Quantity to Consume", 'Quantity to Consume is not calculated correctly from Quantity.');
+        Assert.AreEqual(0.00045, AssemblyLine."Quantity to Consume (Base)", 'Quantity to Consume (Base) is not calculated correctly from Quantity to Consume.');
+    end;
+
     local procedure CreatePostedAssemblyHeader(var PostedAsmHeader: Record "Posted Assembly Header"; AssemblyHeader: Record "Assembly Header")
     var
         AssemblySetup: Record "Assembly Setup";

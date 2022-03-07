@@ -156,10 +156,12 @@ page 9657 "Customer Report Selections"
                 var
                     ReportSelections: Record "Report Selections";
                     CustomReportSelection: Record "Custom Report Selection";
+                    Customer: Record Customer;
                 begin
                     CustomReportSelection := Rec;
                     FilterCustomerUsageReportSelections(ReportSelections);
-                    CopyFromReportSelections(ReportSelections, Database::Customer, GetFilter("Source No."));
+                    Customer.Get("Source No.");
+                    CopyFromReportSelections(ReportSelections, Database::Customer, Customer."No.");
                     CurrPage.SetRecord(CustomReportSelection);
                 end;
             }

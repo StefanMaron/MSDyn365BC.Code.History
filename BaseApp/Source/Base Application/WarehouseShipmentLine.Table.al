@@ -1014,6 +1014,8 @@ table 7321 "Warehouse Shipment Line"
                   "Warehouse Worksheet Document Type"::Shipment, "No.", "Line No.",
                   "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
         end;
+
+        OnAfterCreateWhseItemTrackingLines(Rec);
     end;
 
     procedure DeleteWhseItemTrackingLines()
@@ -1115,6 +1117,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePickDoc(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseShptLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateWhseItemTrackingLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 

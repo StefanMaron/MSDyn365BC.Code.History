@@ -1353,7 +1353,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         UpdateTempSKUTransferLevels;
 
         TempSKU.SetCurrentKey("Item No.", "Transfer-Level Code");
-        OnPlanItemOnBeforeTempSKUFind(TempSKU);
+        OnPlanItemOnBeforeTempSKUFind(TempSKU, PlanningStartDate);
         if TempSKU.Find('-') then
             repeat
                 IsReorderPointPlanning := IsSKUSetUpForReorderPointPlanning(TempSKU);
@@ -4283,6 +4283,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 Clear(PlngLnMgt);
                 if PlanningResilicency then
                     PlngLnMgt.SetResiliencyOn("Worksheet Template Name", "Journal Batch Name", "No.");
+                OnGetRoutingOnAfterSetResiliencyOn(ReqLine);
             end else
                 if "Ref. Order Type" = "Ref. Order Type"::"Prod. Order" then begin
                     ProdOrderLine.Get("Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
@@ -5448,7 +5449,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPlanItemOnBeforeTempSKUFind(var TempSKU: Record "Stockkeeping Unit" temporary)
+    local procedure OnPlanItemOnBeforeTempSKUFind(var TempSKU: Record "Stockkeeping Unit" temporary; var PlanningStartDate: Date)
     begin
     end;
 
@@ -5474,6 +5475,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindCombinationOnBeforeSetState(var TempSKU: Record "Stockkeeping Unit" temporary; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRoutingOnAfterSetResiliencyOn(var ReqLine: Record "Requisition Line")
     begin
     end;
 

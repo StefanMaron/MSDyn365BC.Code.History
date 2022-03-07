@@ -333,7 +333,13 @@
     procedure CalculateRoutingFromActual(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Direction: Option Forward,Backward; CalcStartEndDate: Boolean)
     var
         CalculateRoutingLine: Codeunit "Calculate Routing Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateRoutingFromActual(ProdOrderRoutingLine, Direction, CalcStartEndDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if ProdOrderRouteMgt.NeedsCalculation(
              ProdOrderRoutingLine.Status,
              ProdOrderRoutingLine."Prod. Order No.",
@@ -507,7 +513,7 @@
         ProdOrderLine.UpdateDatetime;
         ProdOrderLine.Modify();
 
-        OnBeforeUpdateProdOrderDates(ProdOrder, ProdOrderLine);
+        OnBeforeUpdateProdOrderDates(ProdOrder, ProdOrderLine, ProdOrderModify);
 
         if not ProdOrderModify then begin
             ProdOrder.AdjustStartEndingDate;
@@ -923,6 +929,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateRoutingFromActual(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Direction: Option; CalcStartEndDate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateProdOrderDates(var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
@@ -953,7 +964,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateProdOrderDates(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnBeforeUpdateProdOrderDates(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderModify: Boolean)
     begin
     end;
 

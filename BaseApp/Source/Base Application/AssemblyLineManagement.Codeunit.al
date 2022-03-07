@@ -479,7 +479,7 @@
 
             if UpdateQtyToConsume then
                 if not AssemblyLine.FixedUsage then begin
-                    AssemblyLine.InitQtyToConsume;
+                    AssemblyLine.InitQtyToConsume();
                     QtyToConsume := AssemblyLine.Quantity * "Quantity to Assemble" / Quantity;
                     AssemblyLine.RoundQty(QtyToConsume);
                     UpdateQuantityToConsume(AsmHeader, AssemblyLine, QtyToConsume);

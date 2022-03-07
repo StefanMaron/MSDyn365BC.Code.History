@@ -97,13 +97,16 @@ table 95 "G/L Budget Name"
     end;
 
     trigger OnModify()
+    var
+        ShouldUpdateDimensions: Boolean;
     begin
-        if ("Budget Dimension 1 Code" <> xRec."Budget Dimension 1 Code") or
+        ShouldUpdateDimensions := ("Budget Dimension 1 Code" <> xRec."Budget Dimension 1 Code") or
            ("Budget Dimension 2 Code" <> xRec."Budget Dimension 2 Code") or
            ("Budget Dimension 3 Code" <> xRec."Budget Dimension 3 Code") or
-           ("Budget Dimension 4 Code" <> xRec."Budget Dimension 4 Code")
-        then
-            UpdateGLBudgetEntryDim;
+           ("Budget Dimension 4 Code" <> xRec."Budget Dimension 4 Code");
+        OnOnModifyOnAfterCalcShouldUpdateDimensions(Rec, xRec, ShouldUpdateDimensions);
+        if ShouldUpdateDimensions then
+            UpdateGLBudgetEntryDim();
     end;
 
     var
@@ -139,6 +142,7 @@ table 95 "G/L Budget Name"
                 GLBudgetEntry."Budget Dimension 2 Code" := GetDimValCode(GLBudgetEntry."Dimension Set ID", "Budget Dimension 2 Code");
                 GLBudgetEntry."Budget Dimension 3 Code" := GetDimValCode(GLBudgetEntry."Dimension Set ID", "Budget Dimension 3 Code");
                 GLBudgetEntry."Budget Dimension 4 Code" := GetDimValCode(GLBudgetEntry."Dimension Set ID", "Budget Dimension 4 Code");
+                OnUpdateGLBudgetEntryDimOnBeforeModify(Rec, GLBudgetEntry);
                 GLBudgetEntry.Modify();
             until GLBudgetEntry.Next() = 0;
         Window.Close;
@@ -160,5 +164,16 @@ table 95 "G/L Budget Name"
         TempDimSetEntry.Insert();
         exit(TempDimSetEntry."Dimension Value Code")
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnModifyOnAfterCalcShouldUpdateDimensions(var GLBudgetName: Record "G/L Budget Name"; xGLBudgetName: Record "G/L Budget Name"; var ShouldUpdateDimensions: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateGLBudgetEntryDimOnBeforeModify(var GLBudgetName: Record "G/L Budget Name"; var GLBudgetEntry: Record "G/L Budget Entry")
+    begin
+    end;
+
 }
 

@@ -41,10 +41,14 @@ codeunit 1252 "Match Bank Rec. Lines"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         PaymentMatchingDetails: Record "Payment Matching Details";
         BankAccEntrySetReconNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
+        LineCount: Integer;
     begin
         if SelectedBankAccountLedgerEntry.FindFirst() then begin
             BankAccountLedgerEntry.Get(SelectedBankAccountLedgerEntry."Entry No.");
             BankAccEntrySetReconNo.RemoveApplication(BankAccountLedgerEntry);
+
+            LineCount := SelectedBankAccReconciliationLine.Count();
+            BankAccEntrySetReconNo.SetLineCount(LineCount);
 
             if SelectedBankAccReconciliationLine.FindSet() then
                 repeat

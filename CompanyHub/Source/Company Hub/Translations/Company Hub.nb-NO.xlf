@@ -1373,7 +1373,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2252641548 - NamedType 3371301238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Selskapshub</target>
+          <target state="translated">Selskapssenter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType ActivityContextTxt</note>
         </trans-unit>
@@ -1421,13 +1421,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 2252641548 - NamedType 2429686466" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This notification is raised to help set up the company hub if no enviroments have been added.</source>
-          <target state="translated">Denne varslingen er sendt for å hjelpe til med å konfigurere selskapshuben hvis det ikke er lagt til noen miljøer.</target>
+          <target state="translated">Denne varslingen er sendt for å hjelpe til med å konfigurere selskapssenteret hvis det ikke er lagt til noen miljøer.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType DontShowAgainSetupCompanyHubNotificationDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2252641548 - NamedType 664455644" maxwidth="128" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub Setup Notification</source>
-          <target state="translated">Varsling for oppsett av selskapshub</target>
+          <target state="translated">Varsling for oppsett av selskapssenter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType DontShowAgainSetupCompanyHubNotificationTxt</note>
         </trans-unit>
@@ -1481,19 +1481,19 @@
         </trans-unit>
         <trans-unit id="Codeunit 2252641548 - NamedType 1453233508" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The company hub is empty. Go ahead and add the first environment.</source>
-          <target state="translated">Selskapshuben er tom. Gå videre og legg til det første miljøet.</target>
+          <target state="translated">Selskapssenteret er tomt. Gå videre og legg til det første miljøet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType NoEnviromentsMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 1604991389 - NamedType 3371301238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Selskapshub</target>
+          <target state="translated">Selskapssenter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Delete Activity Log - NamedType ActivityContextTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2706456750 - NamedType 1599302730" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dyn. 365 Company Hub</source>
-          <target state="translated">Dyn. 365-selskapshub</target>
+          <target state="translated">Dyn. 365-selskapssenter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Install - NamedType CompanyHubDescriptionTxt</note>
         </trans-unit>
@@ -1523,7 +1523,7 @@
         </trans-unit>
         <trans-unit id="Page 2379616563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Selskapshub</target>
+          <target state="translated">Selskapssenter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Companies Overview - Property Caption</note>
         </trans-unit>
@@ -1571,7 +1571,7 @@
         </trans-unit>
         <trans-unit id="Page 2379616563 - Action 1268314337 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Show the list of enviroments that you have access to in the Company Hub.</source>
-          <target state="translated">Vis listen over miljøer som du har tilgang til i selskapshuben.</target>
+          <target state="translated">Vis listen over miljøer som du har tilgang til i selskapssenteret.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Companies Overview - Action Manage Environment Links - Property ToolTip</note>
         </trans-unit>
@@ -1613,7 +1613,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Selskapshub</target>
+          <target state="translated">Selskapssenter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Property Caption</note>
         </trans-unit>
@@ -2879,7 +2879,7 @@
         </trans-unit>
         <trans-unit id="Page 1623714640 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Selskapshub</target>
+          <target state="translated">Selskapssenter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Role Center - Property Caption</note>
         </trans-unit>
@@ -2897,7 +2897,7 @@
         </trans-unit>
         <trans-unit id="Page 1623714640 - Action 3084187460 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Selskapshub</target>
+          <target state="translated">Selskapssenter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Role Center - Action CompanyHub - Property Caption</note>
         </trans-unit>
@@ -2933,7 +2933,7 @@
         </trans-unit>
         <trans-unit id="Page 1623714640 - Action 1268314337 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Show the list of enviroments that you have access to in the Company Hub.</source>
-          <target state="translated">Vis listen over miljøer som du har tilgang til i selskapshuben.</target>
+          <target state="translated">Vis listen over miljøer som du har tilgang til i selskapssenteret.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Role Center - Action Manage Environment Links - Property ToolTip</note>
         </trans-unit>
@@ -2957,13 +2957,13 @@
         </trans-unit>
         <trans-unit id="Profile 3084187460 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Selskapshub</target>
+          <target state="translated">Selskapssenter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Profile CompanyHub - Property Caption</note>
         </trans-unit>
         <trans-unit id="Profile 3084187460 - Property 4111922599" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>For users that primarily do work in other companies. Company Hub gives you a list of links to the companies you work in.</source>
-          <target state="translated">For brukere som hovedsakelig gjør arbeid i andre selskaper. Selskapshub gir deg en oversikt over koblinger til selskapene du arbeider i.</target>
+          <target state="translated">For brukere som hovedsakelig gjør arbeid i andre selskaper. Selskapssenter gir deg en oversikt over koblinger til selskapene du arbeider i.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Profile CompanyHub - Property ProfileDescription</note>
         </trans-unit>

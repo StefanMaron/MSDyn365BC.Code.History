@@ -60,6 +60,7 @@ report 1143 "Import Cost Budget from Excel"
                     if not Confirm(Text001, false, CostBudgetName.TableCaption, ToCostBudgetName) then
                         CurrReport.Break();
                     CostBudgetName.Name := ToCostBudgetName;
+                    OnPreDataItemOnBeforeCostBudgetNameInsert(CostBudgetName);
                     CostBudgetName.Insert();
                 end else begin
                     if not Confirm(Text003, false, LowerCase(Format(SelectStr(ImportOption + 1, Text027))), ToCostBudgetName) then
@@ -343,6 +344,11 @@ report 1143 "Import Cost Budget from Excel"
         TempExcelBuffer := ExcelBuffer;
         TempExcelBuffer.Comment := Text;
         TempExcelBuffer.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreDataItemOnBeforeCostBudgetNameInsert(var CostBudgetName: Record "Cost Budget Name")
+    begin
     end;
 }
 

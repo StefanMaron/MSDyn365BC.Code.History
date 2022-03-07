@@ -115,5 +115,21 @@ table 6504 "Serial No. Information"
 
     var
         ItemTrackingComment: Record "Item Tracking Comment";
+
+    procedure ShowCard(SerialNo: Code[50]; TrackingSpecification: Record "Tracking Specification")
+    var
+        SerialNoInfoNew: Record "Serial No. Information";
+        SerialNoInfoForm: Page "Serial No. Information Card";
+    begin
+        Clear(SerialNoInfoForm);
+        SerialNoInfoForm.Init(TrackingSpecification);
+
+        SerialNoInfoNew.SetRange("Item No.", TrackingSpecification."Item No.");
+        SerialNoInfoNew.SetRange("Variant Code", TrackingSpecification."Variant Code");
+        SerialNoInfoNew.SetRange("Serial No.", SerialNo);
+
+        SerialNoInfoForm.SetTableView(SerialNoInfoNew);
+        SerialNoInfoForm.Run();
+    end;
 }
 

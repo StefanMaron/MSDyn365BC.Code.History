@@ -527,7 +527,7 @@
                                     Abs(ReturnRcptLine."Item Charge Base Amount"));
                         end;
                 end;
-                OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
+                OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, PurchHeader, TotalQtyToAssign, TotalAmtToAssign);
                 if TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" <> 0 then
                     TempItemChargeAssgntPurch.Insert
                 else begin
@@ -596,7 +596,7 @@
                 TotalGrossWeight := TotalGrossWeight + (LineAray[2] * LineAray[1]);
             end;
         until ItemChargeAssgntPurch.Next() = 0;
-        OnAssignByWeightOnAfterCalcTotalGrossWeight(ItemChargeAssgntPurch, TotalGrossWeight);
+        OnAssignByWeightOnAfterCalcTotalGrossWeight(ItemChargeAssgntPurch, TotalGrossWeight, TempItemChargeAssgntPurch);
 
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
@@ -629,6 +629,7 @@
                 TotalUnitVolume := TotalUnitVolume + (LineAray[3] * LineAray[1]);
             end;
         until ItemChargeAssgntPurch.Next() = 0;
+        OnAssignByVolumeOnAfterCalcTotalUnitVolume(ItemChargeAssgntPurch, TotalUnitVolume, TempItemChargeAssgntPurch);
 
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
@@ -669,56 +670,64 @@
         TransferRcptLine: Record "Transfer Receipt Line";
         SalesShptLine: Record "Sales Shipment Line";
         ReturnRcptLine: Record "Return Receipt Line";
+        IsHandled: Boolean;
     begin
-        Clear(DecimalArray);
-        with TempItemChargeAssgntPurch do
-            case "Applies-to Doc. Type" of
-                "Applies-to Doc. Type"::Order,
-                "Applies-to Doc. Type"::Invoice,
-                "Applies-to Doc. Type"::"Return Order",
-                "Applies-to Doc. Type"::"Credit Memo":
-                    begin
-                        PurchLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                        DecimalArray[1] := PurchLine.Quantity;
-                        DecimalArray[2] := PurchLine."Gross Weight";
-                        DecimalArray[3] := PurchLine."Unit Volume";
-                    end;
-                "Applies-to Doc. Type"::Receipt:
-                    begin
-                        PurchRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                        DecimalArray[1] := PurchRcptLine.Quantity;
-                        DecimalArray[2] := PurchRcptLine."Gross Weight";
-                        DecimalArray[3] := PurchRcptLine."Unit Volume";
-                    end;
-                "Applies-to Doc. Type"::"Return Receipt":
-                    begin
-                        ReturnRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                        DecimalArray[1] := ReturnRcptLine.Quantity;
-                        DecimalArray[2] := ReturnRcptLine."Gross Weight";
-                        DecimalArray[3] := ReturnRcptLine."Unit Volume";
-                    end;
-                "Applies-to Doc. Type"::"Return Shipment":
-                    begin
-                        ReturnShptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                        DecimalArray[1] := ReturnShptLine.Quantity;
-                        DecimalArray[2] := ReturnShptLine."Gross Weight";
-                        DecimalArray[3] := ReturnShptLine."Unit Volume";
-                    end;
-                "Applies-to Doc. Type"::"Transfer Receipt":
-                    begin
-                        TransferRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                        DecimalArray[1] := TransferRcptLine.Quantity;
-                        DecimalArray[2] := TransferRcptLine."Gross Weight";
-                        DecimalArray[3] := TransferRcptLine."Unit Volume";
-                    end;
-                "Applies-to Doc. Type"::"Sales Shipment":
-                    begin
-                        SalesShptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                        DecimalArray[1] := SalesShptLine.Quantity;
-                        DecimalArray[2] := SalesShptLine."Gross Weight";
-                        DecimalArray[3] := SalesShptLine."Unit Volume";
-                    end;
-            end;
+        IsHandled := false;
+        OnBeforeGetItemValues(TempItemChargeAssgntPurch, DecimalArray, IsHandled);
+        if not IsHandled then begin
+
+            Clear(DecimalArray);
+            with TempItemChargeAssgntPurch do
+                case "Applies-to Doc. Type" of
+                    "Applies-to Doc. Type"::Order,
+                    "Applies-to Doc. Type"::Invoice,
+                    "Applies-to Doc. Type"::"Return Order",
+                    "Applies-to Doc. Type"::"Credit Memo":
+                        begin
+                            PurchLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
+                            DecimalArray[1] := PurchLine.Quantity;
+                            DecimalArray[2] := PurchLine."Gross Weight";
+                            DecimalArray[3] := PurchLine."Unit Volume";
+                        end;
+                    "Applies-to Doc. Type"::Receipt:
+                        begin
+                            PurchRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
+                            DecimalArray[1] := PurchRcptLine.Quantity;
+                            DecimalArray[2] := PurchRcptLine."Gross Weight";
+                            DecimalArray[3] := PurchRcptLine."Unit Volume";
+                        end;
+                    "Applies-to Doc. Type"::"Return Receipt":
+                        begin
+                            ReturnRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
+                            DecimalArray[1] := ReturnRcptLine.Quantity;
+                            DecimalArray[2] := ReturnRcptLine."Gross Weight";
+                            DecimalArray[3] := ReturnRcptLine."Unit Volume";
+                        end;
+                    "Applies-to Doc. Type"::"Return Shipment":
+                        begin
+                            ReturnShptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
+                            DecimalArray[1] := ReturnShptLine.Quantity;
+                            DecimalArray[2] := ReturnShptLine."Gross Weight";
+                            DecimalArray[3] := ReturnShptLine."Unit Volume";
+                        end;
+                    "Applies-to Doc. Type"::"Transfer Receipt":
+                        begin
+                            TransferRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
+                            DecimalArray[1] := TransferRcptLine.Quantity;
+                            DecimalArray[2] := TransferRcptLine."Gross Weight";
+                            DecimalArray[3] := TransferRcptLine."Unit Volume";
+                        end;
+                    "Applies-to Doc. Type"::"Sales Shipment":
+                        begin
+                            SalesShptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
+                            DecimalArray[1] := SalesShptLine.Quantity;
+                            DecimalArray[2] := SalesShptLine."Gross Weight";
+                            DecimalArray[3] := SalesShptLine."Unit Volume";
+                        end;
+                end;
+        end;
+
+        OnAfterGetItemValues(TempItemChargeAssgntPurch, DecimalArray);
     end;
 
     procedure SuggestAssgntFromLine(var FromItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
@@ -837,7 +846,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignByWeightOnAfterCalcTotalGrossWeight(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; TotalGrossWeight: Decimal)
+    local procedure OnAfterGetItemValues(var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByWeightOnAfterCalcTotalGrossWeight(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; TotalGrossWeight: Decimal; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByVolumeOnAfterCalcTotalUnitVolume(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; TotalUnitVolume: Decimal; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
     begin
     end;
 
@@ -873,6 +892,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateReturnRcptChargeAssgnt(var FromReturnRcptLine: Record "Return Receipt Line"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemValues(var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -937,7 +961,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary);
+    local procedure OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; PurchHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal);
     begin
     end;
 }

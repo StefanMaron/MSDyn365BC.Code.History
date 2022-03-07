@@ -1,4 +1,4 @@
-page 554 "Analysis by Dimensions"
+﻿page 554 "Analysis by Dimensions"
 {
     Caption = 'Analysis by Dimensions';
     DeleteAllowed = false;
@@ -1236,7 +1236,7 @@ page 554 "Analysis by Dimensions"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDimCodeToOption(DimCode: Text[30]; var AnalysisView: Record "Analysis View"; Result: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeDimCodeToOption(DimCode: Text[30]; var AnalysisView: Record "Analysis View"; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 

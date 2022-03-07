@@ -334,6 +334,8 @@ page 6500 "Item Tracking Summary"
         Rec.CalcSums("Selected Quantity");
         SelectedQuantity := Rec."Selected Quantity";
         Rec := xEntrySummary;
+
+        OnAfterUpdateSelectedQuantity(Rec, SelectedQuantity);
     end;
 
     procedure GetSelected(var EntrySummary: Record "Entry Summary")
@@ -442,6 +444,11 @@ page 6500 "Item Tracking Summary"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCurrentBinAndItemTrkgCode(var CurrBinCode: Code[20]; var CurrItemTrackingCode: Record "Item Tracking Code"; var BinContentVisible: Boolean; var EntrySummary: Record "Entry Summary"; var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateSelectedQuantity(var EntrySummary: Record "Entry Summary"; var SelectedQuantity: Decimal)
     begin
     end;
 

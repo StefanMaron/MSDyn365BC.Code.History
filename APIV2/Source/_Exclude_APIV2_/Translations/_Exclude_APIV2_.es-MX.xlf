@@ -3281,7 +3281,7 @@
         </trans-unit>
         <trans-unit id="Page 3667506997 - Control 2564822067 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cost Amount (Actual)</source>
-          <target state="translated">Monto de costo (real)</target>
+          <target state="translated">Importe de costo (real)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Item Ledger Entries - Control costAmountActual - Property Caption</note>
         </trans-unit>

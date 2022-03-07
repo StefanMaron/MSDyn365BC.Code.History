@@ -66,6 +66,7 @@ codeunit 6638 "Sales-Get Return Receipts"
                         if Type = Type::"Charge (Item)" then
                             GetItemChargeAssgnt(ReturnRcptLine2, SalesLine."Qty. to Invoice");
                     end;
+                    OnCreateInvLinesOnAfterReturnRcptLoop(ShouldInsertReturnRcptLine, ReturnRcptHeader, ReturnRcptLine2, SalesHeader, SalesLine);
                 until Next() = 0;
             end;
         end;
@@ -189,6 +190,11 @@ codeunit 6638 "Sales-Get Return Receipts"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvLinesOnAfterReturnRcptLine2SetFilters(var ReturnReceiptLine: Record "Return Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnAfterReturnRcptLoop(ShouldInsertReturnRcptLine: Boolean; ReturnReceiptHeader: Record "Return Receipt Header"; ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 

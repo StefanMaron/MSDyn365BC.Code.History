@@ -3107,7 +3107,7 @@
         </trans-unit>
         <trans-unit id="Page 2439990863 - Control 489516592 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default VAT Product Posting Group</source>
-          <target state="translated">Default VAT Product Posting Group</target>
+          <target state="translated">Default Tax Product Posting Group</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Gen. Prod. Post. Group - Control defaultVATProductPostingGroup - Property Caption</note>
         </trans-unit>

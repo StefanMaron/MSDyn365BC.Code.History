@@ -1,4 +1,4 @@
-codeunit 5056 "CustCont-Update"
+﻿codeunit 5056 "CustCont-Update"
 {
 
     trigger OnRun()
@@ -26,35 +26,40 @@ codeunit 5056 "CustCont-Update"
         OldCont: Record Contact;
         ContNo: Code[20];
         NoSeries: Code[20];
+        IsHandled: Boolean;
     begin
-        with ContBusRel do begin
-            SetCurrentKey("Link to Table", "No.");
-            SetRange("Link to Table", "Link to Table"::Customer);
-            SetRange("No.", Cust."No.");
-            if not FindFirst then
-                exit;
-            if not Cont.Get("Contact No.") then begin
-                Delete();
-                Session.LogMessage('0000B37', CustContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustContactUpdateCategoryTxt);
-                exit;
+        IsHandled := false;
+        OnBeforeOnModify(Cust, ContBusRel, IsHandled);
+        if not IsHandled then begin
+            with ContBusRel do begin
+                SetCurrentKey("Link to Table", "No.");
+                SetRange("Link to Table", "Link to Table"::Customer);
+                SetRange("No.", Cust."No.");
+                if not FindFirst() then
+                    exit;
+                if not Cont.Get("Contact No.") then begin
+                    Delete();
+                    Session.LogMessage('0000B37', CustContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustContactUpdateCategoryTxt);
+                    exit;
+                end;
+                OldCont := Cont;
             end;
-            OldCont := Cont;
+
+            ContNo := Cont."No.";
+            NoSeries := Cont."No. Series";
+            Cont.Validate("E-Mail", Cust."E-Mail");
+            Cont.TransferFields(Cust);
+            Cont."No." := ContNo;
+            Cont."No. Series" := NoSeries;
+            OnAfterTransferFieldsFromCustToCont(Cont, Cust);
+
+            Cont.Type := OldCont.Type;
+            Cont.Validate(Name);
+            Cont.DoModify(OldCont);
+            Cont.Modify(true);
+
+            Cust.Get(Cust."No.");
         end;
-
-        ContNo := Cont."No.";
-        NoSeries := Cont."No. Series";
-        Cont.Validate("E-Mail", Cust."E-Mail");
-        Cont.TransferFields(Cust);
-        Cont."No." := ContNo;
-        Cont."No. Series" := NoSeries;
-        OnAfterTransferFieldsFromCustToCont(Cont, Cust);
-
-        Cont.Type := OldCont.Type;
-        Cont.Validate(Name);
-        Cont.DoModify(OldCont);
-        Cont.Modify(true);
-
-        Cust.Get(Cust."No.");
 
         OnAfterOnModify(Cont, OldCont, Cust);
     end;
@@ -215,6 +220,11 @@ codeunit 5056 "CustCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(Customer: Record Customer; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(Customer: Record Customer; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 

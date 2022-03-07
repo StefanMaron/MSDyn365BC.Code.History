@@ -1,4 +1,4 @@
-page 9203 "Budget Matrix"
+﻿page 9203 "Budget Matrix"
 {
     Caption = 'Budget Matrix';
     DataCaptionExpression = BudgetName;
@@ -425,14 +425,13 @@ page 9203 "Budget Matrix"
         end;
     end;
 
-    local procedure FindRec(DimType: Enum "G/L Budget Matrix Dimensions"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
+    local procedure FindRec(DimType: Enum "G/L Budget Matrix Dimensions"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]) Found: Boolean
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
         PeriodPageMgt: Codeunit PeriodPageManagement;
-        Found: Boolean;
     begin
         case DimType of
             DimType::"G/L Account":
@@ -514,17 +513,16 @@ page 9203 "Budget Matrix"
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
         end;
-        exit(Found);
+        OnAfterFindRec(DimType, Which, DimCodeBuf, Found);
     end;
 
-    local procedure NextRec(DimType: Enum "G/L Budget Matrix Dimensions"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer): Integer
+    local procedure NextRec(DimType: Enum "G/L Budget Matrix Dimensions"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer) ResultSteps: Integer
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
         PeriodPageMgt: Codeunit PeriodPageManagement;
-        ResultSteps: Integer;
     begin
         case DimType of
             DimType::"G/L Account":
@@ -600,7 +598,7 @@ page 9203 "Budget Matrix"
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
         end;
-        exit(ResultSteps);
+        OnAfterNextRec(DimType, Steps, DimCodeBuf, ResultSteps);
     end;
 
     local procedure SetDimensionValueFilters(var DimensionValue: Record "Dimension Value"; CodeFilter: Code[250]; SetupDimensionCode: Code[20]; DimensionCodeBuffer: Record "Dimension Code Buffer")
@@ -698,6 +696,7 @@ page 9203 "Budget Matrix"
                     PAGE.RunModal(PAGE::"Dimension Value List", DimVal);
                 end;
         end;
+        OnAfterLookUpCode(DimType, DimCode, Code);
     end;
 
     local procedure SetCommonFilters(var TheGLAccBudgetBuf: Record "G/L Acc. Budget Buffer")
@@ -726,6 +725,7 @@ page 9203 "Budget Matrix"
             if BudgetDim4Filter <> '' then
                 SetFilter("Budget Dimension 4 Filter", BudgetDim4Filter);
         end;
+        OnAfterSetCommonFilters(GLAccBudgetBuf);
     end;
 
     local procedure SetDimFilters(var TheGLAccBudgetBuf: Record "G/L Acc. Budget Buffer"; LineOrColumn: Option Line,Column)
@@ -783,6 +783,7 @@ page 9203 "Budget Matrix"
                     else
                         SetRange("Budget Dimension 4 Filter", DimCodeBuf.Code);
             end;
+        OnAfterSetDimFilters(TheGLAccBudgetBuf, DimType, DimCodeBuf);
     end;
 
     local procedure BudgetDrillDown()
@@ -817,6 +818,7 @@ page 9203 "Budget Matrix"
                 SetCurrentKey("Budget Name", "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code")
             else
                 SetCurrentKey("Budget Name", "G/L Account No.", Date);
+        OnBudgetDrillDownOnBeforePageRun(GLAccBudgetBuf, GLBudgetEntry);
         PAGE.Run(0, GLBudgetEntry);
     end;
 
@@ -826,6 +828,18 @@ page 9203 "Budget Matrix"
         SetDimFilters(GLAccBudgetBuf, 0);
         if SetColumnFilter then
             SetDimFilters(GLAccBudgetBuf, 1);
+        exit(CalcFieldsAndGetBudgetedAmount(GLAccBudgetBuf));
+    end;
+
+    local procedure CalcFieldsAndGetBudgetedAmount(var GLAccBudgetBuf: Record "G/L Acc. Budget Buffer") Result: Decimal
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcFieldsAndGetBudgetedAmount(GLAccBudgetBuf, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GLAccBudgetBuf.CalcFields("Budgeted Amount");
         exit(GLAccBudgetBuf."Budgeted Amount");
     end;
@@ -921,10 +935,22 @@ page 9203 "Budget Matrix"
         MATRIX_MatrixRecord := MatrixRecords[MATRIX_ColumnOrdinal];
         NewAmount := FromRoundedValue(MATRIX_CellData[MATRIX_ColumnOrdinal]);
         if CalcAmount(true) = 0 then; // To set filters correctly
-        GLAccBudgetBuf.CalcFields("Budgeted Amount");
-        GLAccBudgetBuf.Validate("Budgeted Amount", NewAmount);
+        CalcFieldsAndSetNewBudgetedAmount(GLAccBudgetBuf, NewAmount);
         Amount := MatrixMgt.RoundAmount(CalcAmount(false), RoundingFactor);
         CurrPage.Update();
+    end;
+
+    local procedure CalcFieldsAndSetNewBudgetedAmount(var GLAccBudgetBuf: Record "G/L Acc. Budget Buffer"; NewAmount: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcFieldsAndSetNewBudgetedAmount(GLAccBudgetBuf, NewAmount, IsHandled);
+        if IsHandled then
+            exit;
+
+        GLAccBudgetBuf.CalcFields("Budgeted Amount");
+        GLAccBudgetBuf.Validate("Budgeted Amount", NewAmount);
     end;
 
     local procedure GLAccountBalanceBudget()
@@ -985,12 +1011,52 @@ page 9203 "Budget Matrix"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFindRec(DimType: Enum "G/L Budget Matrix Dimensions"; Which: Text[250]; var DimensionCodeBuffer: Record "Dimension Code Buffer"; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookUpCode(DimType: Enum "G/L Budget Matrix Dimensions"; DimCode: Text[30]; FieldCode: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNextRec(DimType: Enum "G/L Budget Matrix Dimensions"; Steps: Integer; var DimensionCodeBuffer: Record "Dimension Code Buffer"; var ResultSteps: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCommonFilters(var TheGLAccBudgetBuffer: Record "G/L Acc. Budget Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimFilters(var TheGLAccBudgetBuffer: Record "G/L Acc. Budget Buffer"; DimType: Enum "G/L Budget Matrix Dimensions"; DimCodeBuf: Record "Dimension Code Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetIncomeBalanceGLAccFilterOnGLAcc(var GLAccount: Record "G/L Account")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDimensionValueFilters(var DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcFieldsAndGetBudgetedAmount(var GLAccBudgetBuffer: Record "G/L Acc. Budget Buffer"; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcFieldsAndSetNewBudgetedAmount(var GLAccBudgetBuf: Record "G/L Acc. Budget Buffer"; NewAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBudgetDrillDownOnBeforePageRun(var GLAccBudgetBuffer: Record "G/L Acc. Budget Buffer"; var GLBudgetEntry: Record "G/L Budget Entry")
     begin
     end;
 }

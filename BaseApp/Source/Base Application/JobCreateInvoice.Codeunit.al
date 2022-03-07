@@ -372,10 +372,7 @@ codeunit 1002 "Job Create-Invoice"
     local procedure CreateSalesLine(var JobPlanningLine: Record "Job Planning Line")
     var
         Job: Record Job;
-        SourceCodeSetup: Record "Source Code Setup";
-        DimMgt: Codeunit DimensionManagement;
         Factor: Integer;
-        DimSetIDArr: array[10] of Integer;
         IsHandled: Boolean;
     begin
         OnBeforeCreateSalesLine(JobPlanningLine, SalesHeader, SalesHeader2, JobInvCurrency);
@@ -442,26 +439,6 @@ codeunit 1002 "Job Create-Invoice"
             SalesLine.Validate("Job Contract Entry No.", JobPlanningLine."Job Contract Entry No.");
         SalesLine."Job No." := JobPlanningLine."Job No.";
         SalesLine."Job Task No." := JobPlanningLine."Job Task No.";
-        if SalesLine."Job Task No." <> '' then begin
-            SourceCodeSetup.Get();
-            DimSetIDArr[1] := SalesLine."Dimension Set ID";
-            DimSetIDArr[2] :=
-              DimMgt.CreateDimSetFromJobTaskDim(
-                SalesLine."Job No.", SalesLine."Job Task No.", SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
-            DimSetIDArr[3] := GetLedgEntryDimSetID(JobPlanningLine);
-            DimSetIDArr[4] := GetJobLedgEntryDimSetID(JobPlanningLine);
-            DimMgt.CreateDimForSalesLineWithHigherPriorities(
-              SalesLine,
-              0,
-              DimSetIDArr[5],
-              SalesLine."Shortcut Dimension 1 Code",
-              SalesLine."Shortcut Dimension 2 Code",
-              SourceCodeSetup.Sales,
-              DATABASE::Job);
-            SalesLine."Dimension Set ID" :=
-              DimMgt.GetCombinedDimensionSetID(
-                DimSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
-        end;
         SalesLine.Description := JobPlanningLine.Description;
         SalesLine."Description 2" := JobPlanningLine."Description 2";
         SalesLine."Line No." := GetNextLineNo(SalesLine);
@@ -497,6 +474,8 @@ codeunit 1002 "Job Create-Invoice"
             JobPlanningLine."VAT Line Amount" := SalesLine."Line Amount";
             JobPlanningLine."VAT %" := SalesLine."VAT %";
         end;
+        if SalesLine."Job Task No." <> '' then
+            UpdateSalesLineDimension(SalesLine, JobPlanningLine);
 
         IsHandled := false;
         OnCreateSalesLineOnBeforeSalesCheckIfAnyExtText(JobPlanningLine, SalesLine, IsHandled);
@@ -893,6 +872,33 @@ codeunit 1002 "Job Create-Invoice"
             exit(JobLedgerEntry."Dimension Set ID");
 
         exit(0);
+    end;
+
+    local procedure UpdateSalesLineDimension(var SalesLine: Record "Sales Line"; JobPlanningLine: Record "Job Planning Line")
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        DimMgt: Codeunit DimensionManagement;
+        DimSetIDArr: array[10] of Integer;
+    begin
+        SourceCodeSetup.Get();
+        DimSetIDArr[1] := SalesLine."Dimension Set ID";
+        DimSetIDArr[2] :=
+            DimMgt.CreateDimSetFromJobTaskDim(
+            SalesLine."Job No.", SalesLine."Job Task No.", SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
+        DimSetIDArr[3] := GetLedgEntryDimSetID(JobPlanningLine);
+        DimSetIDArr[4] := GetJobLedgEntryDimSetID(JobPlanningLine);
+        DimMgt.CreateDimForSalesLineWithHigherPriorities(
+            SalesLine,
+            0,
+            DimSetIDArr[5],
+            SalesLine."Shortcut Dimension 1 Code",
+            SalesLine."Shortcut Dimension 2 Code",
+            SourceCodeSetup.Sales,
+            DATABASE::Job);
+        SalesLine."Dimension Set ID" :=
+            DimMgt.GetCombinedDimensionSetID(
+            DimSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
+        Salesline.Modify();
     end;
 
     [IntegrationEvent(false, false)]

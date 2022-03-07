@@ -15,9 +15,22 @@ codeunit 139086 "Azure AD Mgt. Tests"
         AuthUrlSaasNoResourceTxt: Label 'https://login.microsoftonline.com/common/oauth2/authorize?response_type=code&client_id=11111111-1111-1111-1111-111111111111&redirect_uri=', Locked = true;
         AuthUrlOnPremWithResourceTxt: Label 'https://login.microsoftonline.com/common/oauth2/authorize?response_type=code&client_id=22222222-2222-2222-2222-222222222222&resource=http%3a%2f%2fcontoso.com%2fa%2fvalid%2fresource&redirect_uri=', Locked = true;
         AuthUrlOnPremNoResourceTxt: Label 'https://login.microsoftonline.com/common/oauth2/authorize?response_type=code&client_id=22222222-2222-2222-2222-222222222222&redirect_uri=', Locked = true;
+        AuthUrlFromUrlHelperTxt: Label 'https://login.microsoftonline.com/common/oauth2/authorize', Locked = true;
         ValidResourceUrlTxt: Label 'http://contoso.com/a/valid/resource', Locked = true;
         ValidResourceNameTxt: Label 'Azure Service', Locked = true;
         ValidGuestTenantTxt: Label 'fabrikam.contoso.biz', Locked = true;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetUrlFromUrlHelperReturnsExpectedUrl()
+    var
+        UrlHelper: Codeunit "Url Helper";
+    begin
+        // [GIVEN] A SaaS environment.
+        // [WHEN] Azure AD Mgt calls Url Helper to get the Azure AD Auth Endpoint.
+        // [THEN] The return URL is the expected one (from the server settings).
+        Assert.AreEqual(UrlHelper.GetAzureADAuthEndpoint(), AuthUrlFromUrlHelperTxt, 'The auth endpoint should match the expected value.');
+    end;
 
     [Test]
     [Scope('OnPrem')]

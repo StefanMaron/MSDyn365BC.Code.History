@@ -75,7 +75,7 @@ codeunit 130618 "Library - Graph Mgt"
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
     begin
-        HttpWebRequestMgt.Initialize(TargetURL);
+        InitializeWebRequestWithURL(HttpWebRequestMgt, TargetURL);
         HttpWebRequestMgt.SetMethod('GET');
         HttpWebRequestMgt.SetContentType('application/json;odata.metadata=minimal');
         HttpWebRequestMgt.SetReturnType('application/json');
@@ -87,7 +87,7 @@ codeunit 130618 "Library - Graph Mgt"
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
     begin
-        HttpWebRequestMgt.Initialize(TargetURL);
+        InitializeWebRequestWithURL(HttpWebRequestMgt, TargetURL);
         HttpWebRequestMgt.SetMethod('GET');
         HttpWebRequestMgt.SetContentType('application/json;odata.metadata=minimal');
         HttpWebRequestMgt.SetReturnType(ReturnType);
@@ -99,7 +99,7 @@ codeunit 130618 "Library - Graph Mgt"
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
     begin
-        HttpWebRequestMgt.Initialize(TargetURL);
+        InitializeWebRequestWithURL(HttpWebRequestMgt, TargetURL);
         HttpWebRequestMgt.SetReturnType('application/json');
         HttpWebRequestMgt.SetContentType('application/json;odata.metadata=minimal');
         HttpWebRequestMgt.SetMethod('POST');
@@ -113,7 +113,7 @@ codeunit 130618 "Library - Graph Mgt"
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
     begin
-        HttpWebRequestMgt.Initialize(TargetURL);
+        InitializeWebRequestWithURL(HttpWebRequestMgt, TargetURL);
         HttpWebRequestMgt.SetReturnType('application/json');
         HttpWebRequestMgt.SetContentType('application/json;odata.metadata=minimal');
         HttpWebRequestMgt.SetMethod('POST');
@@ -129,7 +129,7 @@ codeunit 130618 "Library - Graph Mgt"
     begin
         ETag := GetEtag(TargetURL);
 
-        HttpWebRequestMgt.Initialize(TargetURL);
+        InitializeWebRequestWithURL(HttpWebRequestMgt, TargetURL);
         HttpWebRequestMgt.SetContentType('application/json;odata.metadata=minimal');
         HttpWebRequestMgt.SetReturnType('application/json');
         HttpWebRequestMgt.SetMethod(Method);
@@ -146,7 +146,7 @@ codeunit 130618 "Library - Graph Mgt"
     begin
         ETag := '*';
 
-        HttpWebRequestMgt.Initialize(TargetURL);
+        InitializeWebRequestWithURL(HttpWebRequestMgt, TargetURL);
         HttpWebRequestMgt.SetContentType('application/octet-stream');
         HttpWebRequestMgt.SetReturnType('application/json');
         HttpWebRequestMgt.AddHeader('If-Match', ETag);
@@ -154,6 +154,12 @@ codeunit 130618 "Library - Graph Mgt"
         HttpWebRequestMgt.AddBodyBlob(TempBlob);
 
         GetTextResponseAndCheckForErrors(HttpWebRequestMgt, ResponseText, ExpectedResponseCode);
+    end;
+
+    procedure InitializeWebRequestWithURL(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt."; TargetURL: Text)
+    begin
+        HttpWebRequestMgt.Initialize(TargetURL);
+        OnAfterInitializeWebRequestWithURL(HttpWebRequestMgt);
     end;
 
     procedure PatchToWebServiceAndCheckResponseCode(TargetURL: Text; JSONBody: Text; var ResponseText: Text; ExpectedResponseCode: Integer)
@@ -841,6 +847,11 @@ codeunit 130618 "Library - Graph Mgt"
         TargetURL := GetODataTargetURL(ObjectType::Page, PageNumber);
         TargetURL := AppendSubpageToTargetURL(ID, TargetURL, ServiceNameTxt, ServiceSubPageTxt);
         exit(AppendSubpageToTargetURL(SubPageID, TargetURL, ServiceSubPageTxt, ServiceSubSubPageTxt));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeWebRequestWithURL(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt.")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

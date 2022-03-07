@@ -1490,7 +1490,8 @@ codeunit 132204 "Library - Warehouse"
     begin
         // Find Item Journal Template for the given Template Type.
         WarehouseJournalTemplate.SetRange(Type, WarehouseJournalTemplateType);
-        WarehouseJournalTemplate.FindFirst;
+        if not WarehouseJournalTemplate.FindFirst() then
+            CreateWhseJournalTemplate(WarehouseJournalTemplate, WarehouseJournalTemplateType);
     end;
 
     procedure SelectWhseJournalBatchName(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WhseJournalBatchTemplateType: Enum "Warehouse Journal Template Type"; WarehouseJournalTemplateName: Code[10]; LocationCode: Code[10])

@@ -1409,7 +1409,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2252641548 - NamedType 3101518995" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub extension is not supported in the On-Prem enviroment.</source>
-          <target state="translated">L’extension du Hub de la société n’est pas prise en charge dans l’environnement Sur site.</target>
+          <target state="translated">L’extension du Hub de la société n’est pas prise en charge dans l’environnement sur site.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType CompanyHubNotSupportedOnPremMsg</note>
         </trans-unit>
@@ -2513,7 +2513,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 1842558322 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if the demo companies from this environment should be included or not.</source>
-          <target state="translated">Spécifie si les compagnies de démonstration de cet environnement doivent être incluses ou non.</target>
+          <target state="translated">Spécifie si les sociétés de démonstration de cet environnement doivent être incluses ou non.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Include Demo Companies - Property ToolTip</note>
         </trans-unit>
@@ -2525,7 +2525,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 3817506388 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the link used to access the environment's companies.</source>
-          <target state="translated">Spécifie le lien utilisé pour accéder aux compagnies de l’environnement.</target>
+          <target state="translated">Spécifie le lien utilisé pour accéder aux sociétés de l’environnement.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Link - Property ToolTip</note>
         </trans-unit>
@@ -2561,7 +2561,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 880902346 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if the companies from this environment are blocked for privacy reasons.</source>
-          <target state="translated">Spécifie si les compagnies de cet environnement sont bloquées pour des raisons de confidentialité.</target>
+          <target state="translated">Spécifie si les sociétés de cet environnement sont bloquées pour des raisons de confidentialité.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Privacy Blocked - Property ToolTip</note>
         </trans-unit>

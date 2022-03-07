@@ -515,7 +515,7 @@
         </trans-unit>
         <trans-unit id="Page 4268182158 - NamedType 594054157" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This extension uses a third-party payment service from PayPal. If you enable this extension, you will be subject to the terms, conditions, and privacy policies from PayPal.\\When you connect to PayPal through the PayPal Payments Standard extension, customer data from the invoice, such as the invoice number, due date, amount, and currency, as well as your PayPal account ID, will be inserted into the link to PayPal on invoices and sent to PayPal when the customer uses the link to pay the invoice. This data is used to ensure that the link contains enough information for your customers to pay the invoice, and for PayPal to identify you as the recipient of the payment.\\You also agree that you or your customers are accountable for any payments that are processed though this extension. Microsoft is not responsible for any payment disputes.</source>
-          <target state="translated">Bei dieser Erweiterung wird ein Drittanbieterzahlungsdienst von PayPal verwendet. Wenn Sie diese Erweiterung aktivieren, gelten die Geschäftsbedingungen und Datenschutzrichtlinien von PayPal.\\Wenn Sie über die PayPal Payments Standard-Erweiterung eine Verbindung zu PayPal herstellen, werden Debitorendaten aus der Rechnung wie Rechnungsnummer, Fälligkeitsdatum, Betrag und Währung sowie Ihre PayPal-Konto-ID in den Link zu PayPal auf Rechnungen eingefügt und an PayPal gesendet, wenn der Debitor den Link verwendet, um die Rechnung zu bezahlen. Diese Daten dienen zur Gewährleistung, dass der Link ausreichend Informationen enthält, sowohl für Ihre Debitoren zur Bezahlung der Rechnung als auch für PayPal, um Sie als Empfänger der Zahlung zu identifizieren.\\Sie stimmen ausserdem zu, dass Sie oder Ihre Debitoren für Zahlungen verantwortlich sind, die durch diese Erweiterung verarbeitet werden. Microsoft übernimmt keine Verantwortung für Zahlungsstreitigkeiten.</target>
+          <target state="translated">Bei dieser Erweiterung wird ein Drittanbieterzahlungsdienst von PayPal verwendet. Wenn Sie diese Erweiterung aktivieren, gelten die Geschäftsbedingungen und Datenschutzrichtlinien von PayPal.\\Wenn Sie über die PayPal Payments Standard-Erweiterung eine Verbindung zu PayPal herstellen, werden Debitorendaten aus der Rechnung wie Rechnungsnummer, Fälligkeitsdatum, Betrag und Währung sowie Ihre PayPal-Konto-ID in den Link zu PayPal auf Rechnungen eingefügt und an PayPal gesendet, wenn der Debitor den Link verwendet, um die Rechnung zu bezahlen. Diese Daten dienen zur Gewährleistung, dass der Link ausreichend Informationen enthält, sowohl für Ihre Debitoren zur Bezahlung der Rechnung als auch für PayPal, um Sie als Empfänger der Zahlung zu identifizieren.\\Sie stimmen außerdem zu, dass Sie oder Ihre Debitoren für Zahlungen verantwortlich sind, die durch diese Erweiterung verarbeitet werden. Microsoft übernimmt keine Verantwortung für Zahlungsstreitigkeiten.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - NamedType ExchangeWithExternalServicesMsg</note>
         </trans-unit>
@@ -545,7 +545,7 @@
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 3302455580 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if this PayPal account should be included on all of the Documents by default.</source>
-          <target state="translated">Gibt an, ob dieses PayPal-Konto standardmässig in alle Belege einbezogen werden soll.</target>
+          <target state="translated">Gibt an, ob dieses PayPal-Konto standardmäßig in alle Belege einbezogen werden soll.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Always Include on Documents - Property ToolTip</note>
         </trans-unit>
@@ -647,7 +647,7 @@
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 2228795340 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the URL from which the logo will be refreshed regularly.</source>
-          <target state="translated">Gibt die URL an, von der das Logo regelmässig aktualisiert wird.</target>
+          <target state="translated">Gibt die URL an, von der das Logo regelmäßig aktualisiert wird.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control LogoURL - Property ToolTip</note>
         </trans-unit>

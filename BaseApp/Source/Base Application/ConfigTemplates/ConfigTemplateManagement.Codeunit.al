@@ -84,7 +84,7 @@ codeunit 8612 "Config. Template Management"
                                     UpdatingRelatedTable := false;
                                 end;
                     else
-                        OnInsertTemplateCaseElse(ConfigTemplateLine, ConfigTemplateHeader2, FieldRef, RecRef2, SkipFields, TempSkipField);
+                        OnInsertTemplateCaseElse(ConfigTemplateLine, ConfigTemplateHeader2, FieldRef, RecRef2, SkipFields, TempSkipField, RecRef);
                 end;
             until ConfigTemplateLine.Next() = 0;
     end;
@@ -591,7 +591,7 @@ codeunit 8612 "Config. Template Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertTemplateCaseElse(var ConfigTemplateLine: Record "Config. Template Line"; var ConfigTemplateHeader: Record "Config. Template Header"; FldRef: FieldRef; var RecRef: RecordRef; SkipFields: Boolean; var TempSkipField: record Field)
+    local procedure OnInsertTemplateCaseElse(var ConfigTemplateLine: Record "Config. Template Line"; var ConfigTemplateHeader: Record "Config. Template Header"; FldRef: FieldRef; var RecRef: RecordRef; SkipFields: Boolean; var TempSkipField: record Field; OldRecRef: RecordRef)
     begin
     end;
 }

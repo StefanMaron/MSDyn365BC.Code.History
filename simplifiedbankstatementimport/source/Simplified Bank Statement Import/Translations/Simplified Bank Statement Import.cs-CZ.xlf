@@ -47,13 +47,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 1261045762 - NamedType 4123649463" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up a bank statement file import format.</source>
-          <target state="translated">Nastavení formátu importu souboru bankovního výpisu</target>
+          <target state="translated">Nastavit formát importu souboru bankovního výpisu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - NamedType BankFileWizardDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1261045762 - NamedType 1254056685" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up a bank statement file import format</source>
-          <target state="translated">Nastavení formátu importu souboru bankovního výpisu</target>
+          <target state="translated">Nastavit formát importu souboru bankovního výpisu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - NamedType BankFileWizardTxt</note>
         </trans-unit>
@@ -104,12 +104,6 @@
           <target state="translated">Formát importu bankovního výpisu %1 je již definován pro bankovní účet %2. Chcete jej přepsat novým formátem?</target>
           <note from="Developer" annotates="general" priority="2">%1 = Bank Statement Import Format, %2 = Bank Account</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType ChangeBankStatementImportFormatLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 1261045762 - NamedType 1215989694" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Data Exchange Definition with the code %1 already exists.</source>
-          <target state="translated">Definice výměny dat s kódem %1 již existuje.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Data Exchange Definition Code</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DataExchDefAlreadyExistsErr</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - NamedType 1662316861" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Exchange Definition</source>
@@ -316,12 +310,6 @@
           <target state="translated">Řádky záhlaví k přeskočení</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control HeaderLines - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 1261045762 - Control 1003846730 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specify the column separator and column count for your bank statement file.</source>
-          <target state="translated">Zadejte oddělovač sloupců a počet sloupců pro soubor bankovního výpisu.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step4 - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 1003846730 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source></source>
@@ -587,7 +575,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 4184426718 - NamedType 207204715" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up Bank Statement File Import Format</source>
-          <target state="translated">Nastavení formátu importu souboru bankovního výpisu</target>
+          <target state="translated">Nastavit formát importu souboru bankovního výpisu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">PageExtension 4184426718</note>

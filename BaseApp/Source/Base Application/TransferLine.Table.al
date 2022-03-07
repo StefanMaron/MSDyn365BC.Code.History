@@ -1640,6 +1640,8 @@ table 5741 "Transfer Line"
             SetFilter("Outstanding Qty. (Base)", '>0')
         else
             SetFilter("Outstanding Qty. (Base)", '<0');
+
+        OnAfterFilterInboundLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
     end;
 
     procedure FilterOutboundLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
@@ -1654,6 +1656,8 @@ table 5741 "Transfer Line"
             SetFilter("Outstanding Qty. (Base)", '<0')
         else
             SetFilter("Outstanding Qty. (Base)", '>0');
+
+        OnAfterFilterOutboundLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
     end;
 
     procedure VerifyItemLineDim()
@@ -1783,6 +1787,16 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean; var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterInboundLinesForReservation(var TransferLine: Record "Transfer Line"; ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterOutboundLinesForReservation(var TransferLine: Record "Transfer Line"; ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
     begin
     end;
 

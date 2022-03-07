@@ -380,7 +380,7 @@ codeunit 9200 "Matrix Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGeneratePeriodAndCaption(PeriodType, Calendar, IsHandled);
+        OnBeforeGeneratePeriodAndCaption(PeriodType, Calendar, IsHandled, UseNameForCaption);
         if IsHandled then
             exit;
 
@@ -550,7 +550,7 @@ codeunit 9200 "Matrix Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGeneratePeriodAndCaption(PeriodType: Enum "Analysis Period Type"; Calendar: Record Date; var IsHandled: Boolean)
+    local procedure OnBeforeGeneratePeriodAndCaption(PeriodType: Enum "Analysis Period Type"; Calendar: Record Date; var IsHandled: Boolean; UseNameForCaption: Boolean)
     begin
     end;
 

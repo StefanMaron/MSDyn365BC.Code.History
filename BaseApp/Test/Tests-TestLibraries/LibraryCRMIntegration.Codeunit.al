@@ -575,7 +575,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMContact.Init();
         CRMContact.FullName :=
           CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(CRMContact.FullName)), 1, MaxStrLen(CRMContact.FullName));
-        CRMContact.MobilePhone := LibraryUtility.GenerateGUID;
+        CRMContact.MobilePhone := LibraryUtility.GenerateRandomPhoneNo();
         CRMContact.CreatedBy := CRMSystemuserId;
         CRMContact.ModifiedBy := CRMSystemuserId;
         CRMContact.CreatedOn := CurrentCRMDateTime();

@@ -1,4 +1,4 @@
-codeunit 1371 "Sales Batch Post Mgt."
+﻿codeunit 1371 "Sales Batch Post Mgt."
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Batch Processing Parameter" = rimd,
@@ -130,6 +130,7 @@ codeunit 1371 "Sales Batch Post Mgt."
             CalculateInvoiceDiscount(SalesHeader);
 
         SalesHeader.BatchConfirmUpdateDeferralDate(BatchConfirm, ReplacePostingDate, PostingDate);
+        OnPrepareSalesHeaderOnAfterBatchConfirmUpdateDeferralDate(SalesHeader, BatchProcessingMgt);
 
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::Ship, SalesHeader.Ship);
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::Invoice, SalesHeader.Invoice);
@@ -158,7 +159,7 @@ codeunit 1371 "Sales Batch Post Mgt."
         end;
     end;
 
-    local procedure CanPostDocument(var SalesHeader: Record "Sales Header"): Boolean
+    local procedure CanPostDocument(var SalesHeader: Record "Sales Header") Result: Boolean
     begin
         if not CheckApprovalWorkflow(SalesHeader) then
             exit(false);
@@ -166,7 +167,8 @@ codeunit 1371 "Sales Batch Post Mgt."
         if not SalesHeader.IsApprovedForPostingBatch then
             exit(false);
 
-        exit(true);
+        Result := true;
+        OnAfterCanPostDocument(SalesHeader, BatchProcessingMgt, Result);
     end;
 
     [TryFunction]
@@ -325,6 +327,18 @@ codeunit 1371 "Sales Batch Post Mgt."
             RecRef.GetTable(SalesHeader);
             Handled := true;
         end;
+
+        OnAfterHandleOnCustomProcessing(RecRef, SalesHeader, BatchProcessingMgt, Handled, KeepParameters);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCanPostDocument(var SalesHeader: Record "Sales Header"; var BatchProcessingMgt: Codeunit "Batch Processing Mgt."; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHandleOnCustomProcessing(var RecRef: RecordRef; var SalesHeader: Record "Sales Header"; var BatchProcessingMgt: Codeunit "Batch Processing Mgt."; var Handled: Boolean; var KeepParameters: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -334,6 +348,11 @@ codeunit 1371 "Sales Batch Post Mgt."
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeRunBatch(var SalesHeader: Record "Sales Header"; var ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; Ship: Boolean; Invoice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareSalesHeaderOnAfterBatchConfirmUpdateDeferralDate(var SalesHeader: Record "Sales Header"; var BatchProcessingMgt: Codeunit "Batch Processing Mgt.")
     begin
     end;
 

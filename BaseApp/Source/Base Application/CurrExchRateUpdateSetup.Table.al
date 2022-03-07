@@ -125,15 +125,27 @@ table 1650 "Curr. Exch. Rate Update Setup"
 
     procedure SetWebServiceURL(ServiceURL: Text)
     var
-        WebRequestHelper: Codeunit "Web Request Helper";
         OutStream: OutStream;
     begin
-        WebRequestHelper.IsValidUri(ServiceURL);
-        WebRequestHelper.IsHttpUrl(ServiceURL);
+        EnsureURLIsHttpAndValidUri(ServiceURL);
 
         "Web Service URL".CreateOutStream(OutStream);
         OutStream.Write(ServiceURL);
         Modify;
+    end;
+
+    local procedure EnsureURLIsHttpAndValidUri(ServiceURL: Text)
+    var
+        WebRequestHelper: Codeunit "Web Request Helper";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeEnsureURLIsHttpAndValidUri(ServiceURL, IsHandled);
+        if IsHandled then
+            exit;
+
+        WebRequestHelper.IsValidUri(ServiceURL);
+        WebRequestHelper.IsHttpUrl(ServiceURL);
     end;
 
     local procedure SuggestDataExchangeCode() NewDataExchCode: Code[20]
@@ -261,6 +273,11 @@ table 1650 "Curr. Exch. Rate Update Setup"
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeSetupCurrencyExchRateService(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnsureURLIsHttpAndValidUri(ServiceURL: Text; var IsHandled: Boolean)
     begin
     end;
 

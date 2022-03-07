@@ -105,12 +105,6 @@
           <note from="Developer" annotates="general" priority="2">%1 = Bank Statement Import Format, %2 = Bank Account</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType ChangeBankStatementImportFormatLbl</note>
         </trans-unit>
-        <trans-unit id="Page 1261045762 - NamedType 1215989694" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Data Exchange Definition with the code %1 already exists.</source>
-          <target state="translated">La definizione di scambio dati con il codice %1 esiste già.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Data Exchange Definition Code</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DataExchDefAlreadyExistsErr</note>
-        </trans-unit>
         <trans-unit id="Page 1261045762 - NamedType 1662316861" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Exchange Definition</source>
           <target state="translated">Definizione di scambio dati</target>
@@ -316,12 +310,6 @@
           <target state="translated">Righe di intestazione da ignorare</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control HeaderLines - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 1261045762 - Control 1003846730 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specify the column separator and column count for your bank statement file.</source>
-          <target state="translated">Specificare il separatore e il numero di colonne per il file estratto conto bancario.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step4 - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 1003846730 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source></source>

@@ -6,7 +6,7 @@ page 157 "Item Availability by Periods"
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = ListPlus;
-    RefreshOnActivate = true;
+    RefreshOnActivate = false;
     SaveValues = true;
     SourceTable = Item;
 

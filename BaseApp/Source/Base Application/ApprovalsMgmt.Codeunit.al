@@ -1,4 +1,4 @@
-codeunit 1535 "Approvals Mgmt."
+﻿codeunit 1535 "Approvals Mgmt."
 {
     Permissions = TableData "Approval Entry" = imd,
                   TableData "Approval Comment Line" = imd,
@@ -795,6 +795,11 @@ codeunit 1535 "Approvals Mgmt."
                 if i > MaxCount then
                     Error(ApproverChainErr);
                 ApproverId := UserSetup."Approver ID";
+
+                IsHandled := false;
+                OnCreateApprovalRequestForApproverChainOnBeforeCheckApproverId(UserSetup, WorkflowStepArgument, ApprovalEntryArgument, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if ApproverId = '' then
                     Error(NoSuitableApproverFoundErr);
@@ -2360,6 +2365,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateApprovalRequestForApproverChainOnAfterCheckUserSetupSenderID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestForApproverChainOnBeforeCheckApproverId(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 

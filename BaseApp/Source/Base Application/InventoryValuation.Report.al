@@ -1,4 +1,4 @@
-report 1001 "Inventory Valuation"
+﻿report 1001 "Inventory Valuation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventoryValuation.rdlc';
@@ -273,7 +273,7 @@ report 1001 "Inventory Valuation"
                 CostPostedToGL := ExpCostPostedToGL + InvCostPostedToGL;
 
                 IsHandled := false;
-                OnAfterGetRecordItemOnBeforeSkipEmptyLine(Item, StartingInvoicedQty, IncreaseInvoicedQty, DecreaseInvoicedQty, IsHandled);
+                OnAfterGetRecordItemOnBeforeSkipEmptyLine(Item, StartingInvoicedQty, IncreaseInvoicedQty, DecreaseInvoicedQty, IsHandled, IsEmptyLine);
                 if not IsHandled then
                     if IsEmptyLine then
                         CurrReport.Skip();
@@ -448,7 +448,7 @@ report 1001 "Inventory Valuation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetRecordItemOnBeforeSkipEmptyLine(var Item: Record Item; StartingInvoicedQty: Decimal; IncreaseInvoicedQty: Decimal; DecreaseInvoicedQty: Decimal; var IsHandled: Boolean)
+    local procedure OnAfterGetRecordItemOnBeforeSkipEmptyLine(var Item: Record Item; StartingInvoicedQty: Decimal; IncreaseInvoicedQty: Decimal; DecreaseInvoicedQty: Decimal; var IsHandled: Boolean; var IsEmptyLine: Boolean)
     begin
     end;
 

@@ -1580,6 +1580,32 @@ codeunit 134198 "Price Worksheet Line UT"
     end;
 
     [Test]
+    procedure T099_ValidateBlankNoForAsset()
+    var
+        Item: Record Item;
+        PriceWorksheetLine: Record "Price Worksheet Line";
+    begin
+        Initialize();
+        // [GIVEN] Item 'X'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Price List Line, where "Source Type" is 'All Customers', "Asset Type" is Item, "Asset No." is 'X', "Minimum Quantity" is 10, "Unit Price" is 100
+        PriceWorksheetLine.Validate("Source Type", "Price Source Type"::"All Customers");
+        PriceWorksheetLine.Validate("Asset Type", "Price Asset Type"::Item);
+        PriceWorksheetLine.Validate("Asset No.", Item."No.");
+        PriceWorksheetLine.Validate("Minimum Quantity", 10);
+        PriceWorksheetLine.Validate("Unit Price", 100.00);
+
+        // [WHEN] Blank "Asset No."
+        PriceWorksheetLine.Validate("Asset No.", '');
+
+        // [THEN] Price List Line, where "Asset Type" is Item, "Asset No." is <blank>, "Minimum Quantity" is 10, "Unit Price" is 100
+        PriceWorksheetLine.TestField("Asset Type", "Price Asset Type"::Item);
+        PriceWorksheetLine.TestField("Asset No.", '');
+        PriceWorksheetLine.TestField("Minimum Quantity", 10);
+        PriceWorksheetLine.TestField("Unit Price", 100.00);
+    end;
+
+    [Test]
     procedure T100_ValidateItemNoForCustomer()
     var
         Customer: Record Customer;

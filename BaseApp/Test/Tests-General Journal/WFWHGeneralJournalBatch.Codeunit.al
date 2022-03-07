@@ -707,6 +707,47 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure EnsureGeneralJournalBatchApprovalWorkflowFunctionsCorrectlyWhenLastGeneralJournalLineIsDeleted()
+    var
+        ApproverUserSetup: Record "User Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RequestorUserSetup: Record "User Setup";
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowStepInstance: Record "Workflow Step Instance";
+        DummyWorkflowCode: Code[20];
+    begin
+        // [SCENARIO 426689] A user deletes the last line of the general journal batch, sent for approval, and the batch approval request gets cancelled.
+        Initialize();
+
+        // [GIVEN] Existing batch approval
+        CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
+        CreateAndEnableGeneralJournalBatchWorkflowDefinition(ApproverUserSetup."User ID");
+        CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // Exercise
+        Commit();
+        SendApprovalRequestForGeneralJournal(GenJournalBatch.Name);
+
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+        // [GIVEN] "Pending Approval" is Yes in the Batch
+        GenJournalBatch.Find();
+        GenJournalBatch.TestField("Pending Approval");
+
+        // [WHEN] The user deletes the last general journal line.
+        GenJournalLine.Delete(true);
+
+        // [THEN] The approval entries are cancelled the general journal batch is deleted.
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
+        WorkflowStepInstance.SetRange("Workflow Code", DummyWorkflowCode);
+        Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
+        // [GIVEN] "Pending Approval" is No in the Batch
+        GenJournalBatch.Find();
+        GenJournalBatch.TestField("Pending Approval", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CannotModifyJournalLineAfterBatchApprovalIsSent()
     var
         ApproverUserSetup: Record "User Setup";

@@ -669,6 +669,7 @@ table 60 "Document Sending Profile"
         DocumentMailing: Codeunit "Document-Mailing";
         DataCompression: Codeunit "Data Compression";
         TempBlob: Codeunit "Temp Blob";
+        TypeHelper: Codeunit "Type Helper";
         SourceReference: RecordRef;
         ShowDialog: Boolean;
         ClientFilePath: Text[250];
@@ -702,8 +703,8 @@ table 60 "Document Sending Profile"
 
                     DataCompression.SaveZipArchive(TempBlob);
                     TempBlob.CreateInStream(AttachmentStream);
-                    SourceReference := RecordVariant;
 
+                    TypeHelper.CopyRecVariantToRecRef(RecordVariant, SourceReference);
                     SourceTableIDs.Add(SourceReference.Number());
                     SourceIDs.Add(SourceReference.Field(SourceReference.SystemIdNo).Value());
                     SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());

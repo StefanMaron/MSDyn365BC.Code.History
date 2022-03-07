@@ -152,7 +152,7 @@ codeunit 1008 "Job Calculate Statistics"
         JobLedgEntry.SetFilter("Posting Date", Job.GetFilter("Posting Date Filter"));
         JobPlanningLine.SetFilter("Planning Date", Job.GetFilter("Planning Date Filter"));
 
-        OnAfterJobCalculateCommonFilters(Job);
+        OnAfterJobCalculateCommonFilters(Job, JobLedgEntry, JobPlanningLine);
     end;
 
     procedure JTCalculateCommonFilters(var JT2: Record "Job Task"; var Job2: Record Job; UseJobFilter: Boolean)
@@ -331,7 +331,7 @@ codeunit 1008 "Job Calculate Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterJobCalculateCommonFilters(var Job: Record Job)
+    local procedure OnAfterJobCalculateCommonFilters(var Job: Record Job; var JobLedgerEntry: Record "Job Ledger Entry"; var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

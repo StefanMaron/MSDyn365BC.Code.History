@@ -401,8 +401,6 @@ codeunit 99000778 OrderTrackingManagement
 
     local procedure DrillOrdersUp(var ReservEntry: Record "Reservation Entry"; Level: Integer)
     var
-        ReservEntry2: Record "Reservation Entry";
-        ReservEntry3: Record "Reservation Entry";
         FilterReservEntry: Record "Reservation Entry";
         ContinueDrillUp: Boolean;
         IncludePlanningFilter: Boolean;
@@ -421,47 +419,7 @@ codeunit 99000778 OrderTrackingManagement
                 end;
 
             repeat
-                ReservEntry3.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
-                InsertOrderTrackingEntry(ReservEntry, ReservEntry3, Level);
-                with ReservEntry3 do
-                    case "Source Type" of
-                        DATABASE::"Item Ledger Entry":
-                            begin
-                                ItemLedgEntry3.Get("Source Ref. No.");
-                                DrillItemLedgEntries(Level + 1, ItemLedgEntry3);
-                            end;
-                        DATABASE::"Prod. Order Component",
-                        DATABASE::"Planning Component":
-                            begin
-                                FiltersForTrackingFromComponents(ReservEntry3, ReservEntry2);
-                                DrillOrdersUp(ReservEntry2, Level + 1);
-                                if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
-                                    DrillOrdersUp(FilterReservEntry, Level + 1);
-                            end;
-                        DATABASE::"Prod. Order Line",
-                        DATABASE::"Requisition Line":
-                            begin
-                                FiltersForTrackingFromReqLine(ReservEntry3, ReservEntry2, SearchUp);
-                                DrillOrdersUp(ReservEntry2, Level + 1);
-                                if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
-                                    DrillOrdersUp(FilterReservEntry, Level + 1);
-                            end;
-                        DATABASE::"Transfer Line":
-                            begin
-                                FiltersForTrackingFromTransfer(ReservEntry3, ReservEntry2, SearchUp);
-                                DrillOrdersUp(ReservEntry2, Level + 1);
-                                if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
-                                    DrillOrdersUp(FilterReservEntry, Level + 1);
-                            end;
-                        else begin
-                                OnDrillOrdersUpCaseElse(ReservEntry3, ReservEntry2, SearchUp, ContinueDrillUp, IncludePlanningFilter);
-                                if ContinueDrillUp then
-                                    DrillOrdersUp(ReservEntry2, Level + 1);
-                                if IncludePlanningFilter then
-                                    if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
-                                        DrillOrdersUp(FilterReservEntry, Level + 1);
-                            end;
-                    end;
+                ProcessReservEntry(ReservEntry, FilterReservEntry, ContinueDrillUp, IncludePlanningFilter, Level);
             until ReservEntry.Next() = 0;
         end;
 
@@ -472,6 +430,60 @@ codeunit 99000778 OrderTrackingManagement
                     SearchUpIsSet := true;
                 end;
                 DrillOrdersUp(FilterReservEntry, Level);
+            end;
+    end;
+
+    local procedure ProcessReservEntry(var ReservEntry: Record "Reservation Entry"; var FilterReservEntry: Record "Reservation Entry"; var ContinueDrillUp: Boolean; var IncludePlanningFilter: Boolean; Level: Integer)
+    var
+        ReservEntry2: Record "Reservation Entry";
+        ReservEntry3: Record "Reservation Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessReservEntry(ReservEntry, FilterReservEntry, ContinueDrillUp, IncludePlanningFilter, Level, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReservEntry3.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
+        InsertOrderTrackingEntry(ReservEntry, ReservEntry3, Level);
+        with ReservEntry3 do
+            case "Source Type" of
+                DATABASE::"Item Ledger Entry":
+                    begin
+                        ItemLedgEntry3.Get("Source Ref. No.");
+                        DrillItemLedgEntries(Level + 1, ItemLedgEntry3);
+                    end;
+                DATABASE::"Prod. Order Component",
+                DATABASE::"Planning Component":
+                    begin
+                        FiltersForTrackingFromComponents(ReservEntry3, ReservEntry2);
+                        DrillOrdersUp(ReservEntry2, Level + 1);
+                        if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
+                            DrillOrdersUp(FilterReservEntry, Level + 1);
+                    end;
+                DATABASE::"Prod. Order Line",
+                DATABASE::"Requisition Line":
+                    begin
+                        FiltersForTrackingFromReqLine(ReservEntry3, ReservEntry2, SearchUp);
+                        DrillOrdersUp(ReservEntry2, Level + 1);
+                        if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
+                            DrillOrdersUp(FilterReservEntry, Level + 1);
+                    end;
+                DATABASE::"Transfer Line":
+                    begin
+                        FiltersForTrackingFromTransfer(ReservEntry3, ReservEntry2, SearchUp);
+                        DrillOrdersUp(ReservEntry2, Level + 1);
+                        if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
+                            DrillOrdersUp(FilterReservEntry, Level + 1);
+                    end;
+                else begin
+                        OnDrillOrdersUpCaseElse(ReservEntry3, ReservEntry2, SearchUp, ContinueDrillUp, IncludePlanningFilter);
+                        if ContinueDrillUp then
+                            DrillOrdersUp(ReservEntry2, Level + 1);
+                        if IncludePlanningFilter then
+                            if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
+                                DrillOrdersUp(FilterReservEntry, Level + 1);
+                    end;
             end;
     end;
 
@@ -919,6 +931,11 @@ codeunit 99000778 OrderTrackingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSoucreRecord(var SourceRecordVar: Variant; var ReservationEntry: Record "Reservation Entry"; var CaptionText: Text; var ItemLedgerEntry2: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessReservEntry(var ReservEntry: Record "Reservation Entry"; var FilterReservEntry: Record "Reservation Entry"; var ContinueDrillUp: Boolean; var IncludePlanningFilter: Boolean; Level: Integer; var IsHandled: Boolean)
     begin
     end;
 

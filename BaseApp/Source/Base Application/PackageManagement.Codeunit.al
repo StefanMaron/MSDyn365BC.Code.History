@@ -985,7 +985,7 @@ codeunit 6516 "Package Management"
     [EventSubscriber(ObjectType::Table, Database::"Item Tracking Code", 'OnAfterIsWarehouseTracking', '', false, false)]
     local procedure ItemTrackingCodeIsWarehouseTracking(ItemTrackingCode: Record "Item Tracking Code"; var WarehouseTracking: Boolean)
     begin
-        WarehouseTracking := WarehouseTracking or ItemTrackingCode."Package Specific Tracking";
+        WarehouseTracking := WarehouseTracking or ItemTrackingCode."Package Warehouse Tracking";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item Tracking Code", 'OnAfterIsWarehouseTrackingChanged', '', false, false)]
@@ -1042,6 +1042,13 @@ codeunit 6516 "Package Management"
     local procedure WhseActivityLineCopyTrackingFromWhseItemTrackingLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
         WarehouseActivityLine."Package No." := WhseItemTrackingLine."Package No.";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Activity Line", 'OnAfterHasRequiredTracking', '', false, false)]
+    local procedure WhseActivityLineHasRequiredTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var Result: Boolean)
+    begin
+        if WhseItemTrackingSetup."Package No. Required" <> (WarehouseActivityLine."Package No." <> '') then
+            Result := false;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Warehouse Activity Line", 'OnAfterSetTrackingFilterIfNotEmpty', '', false, false)]
@@ -1719,10 +1726,15 @@ codeunit 6516 "Package Management"
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
         LineReservedQty: Decimal;
         AvailQtyFromOtherResvLines: Decimal;
     begin
         if CheckType <> CheckType::"Package No." then
+            exit;
+
+        ItemTrackingMgt.GetWhseItemTrkgSetup(WarehouseActivityLine."Item No.", WhseItemTrackingSetup);
+        if not WhseItemTrackingSetup."Package No. Required" then
             exit;
 
         Item.Get(WarehouseActivityLine."Item No.");

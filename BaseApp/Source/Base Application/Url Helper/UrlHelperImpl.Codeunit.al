@@ -1,9 +1,9 @@
 codeunit 3704 "Url Helper Impl."
 {
 
-    trigger OnRun()
-    begin
-    end;
+    var
+        TelemetryCategoryLbl: Label 'AL Url Helper', Locked = true;
+        NoServerAuthEndpointTelemetryErr: Label 'The server did not return any auth endpoint.', Locked = true;
 
     [Scope('OnPrem')]
     procedure IsPPE(): Boolean
@@ -27,7 +27,7 @@ codeunit 3704 "Url Helper Impl."
         exit(
           (StrPos(Url, 'financials.dynamics.com') <> 0) or
           (StrPos(Url, 'invoicing.office.net') <> 0) or
-          (StrPos(Url, 'businesscentral.dynamics.com') <> 0) or 
+          (StrPos(Url, 'businesscentral.dynamics.com') <> 0) or
           IsPartnerPROD());
     end;
 
@@ -83,12 +83,22 @@ codeunit 3704 "Url Helper Impl."
     end;
 
     [Scope('OnPrem')]
-    procedure GetAzureADAuthEndpoint(): Text
+    procedure GetAzureADAuthEndpoint() AuthEndpoint: Text
+    var
+        NavUserAccountHelper: DotNet NavUserAccountHelper;
     begin
-        if IsPPE then
-            exit('https://login.windows-ppe.net/common/oauth2/authorize');
+        AuthEndpoint := NavUserAccountHelper.GetTokenAuthorityEndpointServerSetting();
 
-        exit('https://login.microsoftonline.com/common/oauth2/authorize');
+        if AuthEndpoint = '' then begin
+            Session.LogMessage('0000GN6', NoServerAuthEndpointTelemetryErr, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
+
+            if IsPPE then
+                AuthEndpoint := 'https://login.windows-ppe.net/'
+            else
+                AuthEndpoint := 'https://login.microsoftonline.com/';
+        end;
+
+        exit(DelChr(AuthEndpoint, '>', '/') + '/common/oauth2/authorize');
     end;
 
     [Scope('OnPrem')]

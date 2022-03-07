@@ -168,31 +168,31 @@ codeunit 5815 "Undo Sales Shipment Line"
     begin
         IsHandled := false;
         OnBeforeCheckSalesShptLine(SalesShptLine, IsHandled, SkipTestFields, SkipUndoPosting, SkipUndoInitPostATO);
-        if IsHandled then
-            exit;
-
-        with SalesShptLine do begin
-            if not SkipTestFields then begin
-                if Correction then
-                    Error(AlreadyReversedErr);
-                if "Qty. Shipped Not Invoiced" <> Quantity then
-                    if HasInvoicedNotReturnedQuantity(SalesShptLine) then
-                        Error(Text005);
-            end;
-            if Type = Type::Item then begin
-                if not SkipTestFields then
-                    TestField("Drop Shipment", false);
-
-                if not SkipUndoPosting then begin
-                    UndoPostingMgt.TestSalesShptLine(SalesShptLine);
-                    UndoPostingMgt.CollectItemLedgEntries(
-                        TempItemLedgEntry, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-                    UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.", "Qty. Shipped Not Invoiced" <> Quantity);
+        if not IsHandled then
+            with SalesShptLine do begin
+                if not SkipTestFields then begin
+                    if Correction then
+                        Error(AlreadyReversedErr);
+                    if "Qty. Shipped Not Invoiced" <> Quantity then
+                        if HasInvoicedNotReturnedQuantity(SalesShptLine) then
+                            Error(Text005);
                 end;
-                if not SkipUndoInitPostATO then
-                    UndoInitPostATO(SalesShptLine);
+                if Type = Type::Item then begin
+                    if not SkipTestFields then
+                        TestField("Drop Shipment", false);
+
+                    if not SkipUndoPosting then begin
+                        UndoPostingMgt.TestSalesShptLine(SalesShptLine);
+                        UndoPostingMgt.CollectItemLedgEntries(
+                            TempItemLedgEntry, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+                        UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.", "Qty. Shipped Not Invoiced" <> Quantity);
+                    end;
+                    if not SkipUndoInitPostATO then
+                        UndoInitPostATO(SalesShptLine);
+                end;
             end;
-        end;
+
+        OnAfterCheckSalesShptLine(SalesShptLine, TempItemLedgEntry);
     end;
 
     local procedure GetCorrectionLineNo(SalesShptLine: Record "Sales Shipment Line") Result: Integer;
@@ -578,6 +578,11 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyItemJnlLineFromSalesShpt(var ItemJournalLine: Record "Item Journal Line"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var WhseUndoQty: Codeunit "Whse. Undo Quantity")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckSalesShptLine(var SalesShptLine: Record "Sales Shipment Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
 

@@ -4222,11 +4222,13 @@
         </trans-unit>
         <trans-unit id="Page 2385105780 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Report Label</source>
+          <target state="translated">Popisek sestavy</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Power BI Labels - Property EntityCaption</note>
         </trans-unit>
         <trans-unit id="Page 2385105780 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Report Labels</source>
+          <target state="translated">Popisky sestav</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Power BI Labels - Property EntitySetCaption</note>
         </trans-unit>
@@ -8448,11 +8450,13 @@
         </trans-unit>
         <trans-unit id="Page 2511651920 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Shipment Line</source>
+          <target state="translated">Řádek prodejní dodávky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipment Lines - Property EntityCaption</note>
         </trans-unit>
         <trans-unit id="Page 2511651920 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Shipment Lines</source>
+          <target state="translated">Řádky prodejní dodávky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipment Lines - Property EntitySetCaption</note>
         </trans-unit>
@@ -8548,11 +8552,13 @@
         </trans-unit>
         <trans-unit id="Page 3546002718 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Shipment</source>
+          <target state="translated">Prodejní dodávka</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Property EntityCaption</note>
         </trans-unit>
         <trans-unit id="Page 3546002718 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Shipments</source>
+          <target state="translated">Prodejní dodávky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Property EntitySetCaption</note>
         </trans-unit>

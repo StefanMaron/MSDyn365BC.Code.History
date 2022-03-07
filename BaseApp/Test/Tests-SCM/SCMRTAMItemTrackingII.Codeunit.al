@@ -2903,6 +2903,101 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandler')]
+    procedure ItemTrackingNotSynchronizedToShipmentFromWhsePickSortedByBin()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: array[3] of Record Bin;
+        ItemA: Record Item;
+        ItemB: Record Item;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        LotA1: Code[20];
+        LotA2: Code[20];
+        LotB1: Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Warehouse] [Shipment] [Pick] [Sorting]
+        // [SCENARIO 420049] Item tracking on all pick lines must be synchronized to the source document regardless of how the pick lines are sorted.
+        Initialize();
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        WarehouseEmployee.DeleteAll(true);
+        LibraryWarehouse.CreateFullWMSLocation(Location, 3);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Items "A" and "B" with lot tracking.
+        ItemA.Get(CreateItemWithLotTracking());
+        LotA1 := LibraryUtility.GenerateGUID();
+        LotA2 := LibraryUtility.GenerateGUID();
+
+        ItemB.Get(CreateItemWithLotTracking());
+        LotB1 := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Bins "B1", "B2", "B3" in pick zone.
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        for i := 1 to ArrayLen(Bin) do
+            LibraryWarehouse.FindBin(Bin[i], Location.Code, Zone.Code, i);
+
+        // [GIVEN] Post three warehouse journal lines -
+        // [GIVEN] Item "A", lot "L1" to bin "B1".
+        // [GIVEN] Item "A", lot "L2" to bin "B3" (important!).
+        // [GIVEN] Item "B", lot "L3" to bin "B2".
+        UpdateInventoryInBinWithLotNo(Bin[1], ItemA."No.", LotA1, 1);
+        UpdateInventoryInBinWithLotNo(Bin[3], ItemA."No.", LotA2, 2);
+        UpdateInventoryInBinWithLotNo(Bin[2], ItemB."No.", LotB1, 3);
+
+        // [GIVEN] Transfer order for items "A" and "B".
+        // [GIVEN] Release the order, create warehouse shipment and pick.
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location.Code, LocationBlue.Code, LocationIntransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, ItemA."No.", 3);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, ItemB."No.", 3);
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+        FindWarehouseShipmentHeader(
+          WarehouseShipmentHeader, TransferHeader."No.", WarehouseActivityLine."Source Document"::"Outbound Transfer");
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Select lots in the pick.
+        UpdateLotNoOnWhseActivityLines(ItemA."No.", 1, LotA1);
+        UpdateLotNoOnWhseActivityLines(ItemA."No.", 2, LotA2);
+        UpdateLotNoOnWhseActivityLines(ItemB."No.", 3, LotB1);
+
+        // [GIVEN] Set "Sorting Method" for the pick to "Shelf or Bin".
+        // [GIVEN] Thus, the pick lines related to the first transfer line will be split by those for the second transfer line, as follows:
+        // [GIVEN] PICK LINES:
+        // [GIVEN] Item "A", lot "L1", transfer line 1
+        // [GIVEN] Item "B", lot "L3", transfer line 2
+        // [GIVEN] Item "A", lot "L2", transfer line 1
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, TransferHeader."No.", WarehouseActivityLine."Source Document"::"Outbound Transfer",
+          Location.Code, ItemA."No.", '', WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.Validate("Sorting Method", WarehouseActivityHeader."Sorting Method"::"Shelf or Bin");
+        WarehouseActivityHeader.SortWhseDoc();
+        WarehouseActivityHeader.Modify(true);
+
+        // [WHEN] Register the pick.
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetCurrentKey("Sorting Sequence No.");
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WarehouseActivityLine);
+
+        // [THEN] The lots are properly assigned to the transfer lines.
+        VerifyReservationEntryExists(ItemA."No.", LotA1);
+        VerifyReservationEntryExists(ItemA."No.", LotA2);
+        VerifyReservationEntryExists(ItemB."No.", LotB1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4219,6 +4314,22 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(ItemNo, LocationCode, Qty, true);
     end;
 
+    local procedure UpdateInventoryInBinWithLotNo(Bin: Record Bin; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, ItemNo, Qty, true);
+    end;
+
+    local procedure UpdateLotNoOnWhseActivityLines(ItemNo: Code[20]; Qty: Decimal; LotNo: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange(Quantity, Qty);
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNo);
+    end;
+
     local procedure VerifyPurchaseLineReceived(var PurchaseLine: Record "Purchase Line")
     begin
         with PurchaseLine do begin
@@ -4404,6 +4515,15 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             SumCostAmountActual += ItemLedgerEntry."Cost Amount (Actual)";
         until ItemLedgerEntry.Next = 0;
         Assert.AreEqual(SumCostAmountActual, Amount, ValueNotEqual);  // Veriy that sum of Cost Amount(Actual) equals to assigned amount.
+    end;
+
+    local procedure VerifyReservationEntryExists(ItemNo: Code[20]; LotNo: Code[20])
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        Assert.RecordIsNotEmpty(ReservationEntry);
     end;
 
     [ModalPageHandler]

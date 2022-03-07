@@ -2384,7 +2384,6 @@ codeunit 137038 "SCM Transfers"
     [Test]
     procedure SaveDimensionsWhenPostingDirectTransfer()
     var
-        InventorySetup: Record "Inventory Setup";
         Item: Record Item;
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
@@ -2400,10 +2399,7 @@ codeunit 137038 "SCM Transfers"
         Initialize();
 
         // [GIVEN] Enable direct transfers.
-        InventorySetup.Get();
-        InventorySetup.Validate("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Direct Transfer");
-        InventorySetup.Validate("Posted Direct Trans. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-        InventorySetup.Modify(true);
+        EnableDirectTransfersInInventorySetup();
 
         // [GIVEN] Item "I" with dimension.
         LibraryInventory.CreateItem(Item);
@@ -2598,6 +2594,54 @@ codeunit 137038 "SCM Transfers"
         Assert.IsTrue(PostedTransferReceipt."Partner VAT ID".Visible(), '');
         Assert.IsFalse(PostedTransferReceipt."Partner VAT ID".Editable(), '');
         PostedTransferReceipt.Close();
+    end;
+
+    [Test]
+    procedure PostingDirectTransferWithItemTracking()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LocationFromCode: Code[10];
+        LocationToCode: Code[10];
+        LotNo: Code[50];
+    begin
+        // [FEATURE] [Direct Transfer] [Item Tracking]
+        // [SCENARIO 422832] Posting direct transfer with item tracking.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Enable direct transfers in Inventory Setup.
+        EnableDirectTransfersInInventorySetup();
+
+        // [GIVEN] Locations "From" and "To".
+        CreateLocations(LocationFromCode, LocationToCode);
+
+        // [GIVEN] Post inventory with lot no. "L" to location "From".
+        LibraryItemTracking.CreateLotItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", LocationFromCode, '', LibraryRandom.RandIntInRange(10, 20));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine."Quantity (Base)");
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create direct transfer "From" -> "To", select lot no. "L".
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFromCode, LocationToCode, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandInt(10));
+        LibraryItemTracking.CreateTransferOrderItemTracking(
+          ReservationEntry, TransferLine, '', LotNo, TransferLine."Quantity (Base)");
+
+        // [WHEN] Post the direct transfer.
+        LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [THEN] The direct transfer is successfully posted.
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", "Item Ledger Entry Type"::Transfer, LocationToCode, true);
+        ItemLedgerEntry.TestField("Lot No.", LotNo);
     end;
 
     local procedure Initialize()
@@ -3119,6 +3163,16 @@ codeunit 137038 "SCM Transfers"
         // Update Vendor No in Requisition Worksheet and Carry Out Action Message.
         GenerateRequisitionWorksheet(RequisitionLine, ItemNo);
         RequisitionCarryOutActMessage(ItemNo);
+    end;
+
+    local procedure EnableDirectTransfersInInventorySetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Direct Transfer");
+        InventorySetup.Validate("Posted Direct Trans. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup.Modify(true);
     end;
 
     local procedure FilterWhseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceType: Integer; SourceNo: Code[20])

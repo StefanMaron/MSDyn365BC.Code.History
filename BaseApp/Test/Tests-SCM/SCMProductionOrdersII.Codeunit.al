@@ -57,6 +57,8 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderRtngLineNotUpdatedMsg: Label 'Prod. Order Routing Line is not updated.';
         TotalDurationExceedsAvailTimeErr: Label 'The sum of setup, move and wait time exceeds the available time in the period.';
         CancelReservationTxt: Label 'Cancel reservation';
+        PostingProductionJournalQst: Label 'Do you want to post the journal lines?';
+        PostingProductionJournalTxt: Label 'The journal lines were successfully posted';
         Direction: Option Forward,Backward;
         CalcMethod: Option "No Levels","One level","All levels";
         IncorrectValueErr: Label 'Incorrect value of %1.%2.';
@@ -3282,6 +3284,87 @@ codeunit 137072 "SCM Production Orders II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandlerTrue,MessageHandler')]
+    procedure UsingRemainingQtyOnFlushingConsumptionInMakeToOrder()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProdItemUnitOfMeasure: Record "Item Unit of Measure";
+        CompItemUnitOfMeasure: Record "Item Unit of Measure";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        UnitOfMeasureMgt: Codeunit "Unit of Measure Management";
+        ProdItemQtyPer: Decimal;
+        CompItemQtyPer: Decimal;
+        ProdBOMQtyPer: Decimal;
+    begin
+        // [FEATURE] [Flushing] [Consumption]
+        // [SCENARIO 423544] Flushing consumption on finishing production order takes remaining qty. of interim item in make-to-order production order.
+        Initialize();
+        ProdItemQtyPer := 12240;
+        CompItemQtyPer := 60.96;
+        ProdBOMQtyPer := 3;
+
+        // [GIVEN] Interim production item "C" set up for backward flushing.
+        // [GIVEN] Base unit of measure = "KG", alternate unit of measure = "BOX" = 60.96 "KG".
+        CreateProductionItem(CompItem, '');
+        CompItem.Validate("Manufacturing Policy", CompItem."Manufacturing Policy"::"Make-to-Order");
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Backward);
+        CompItem.Validate("Rounding Precision", UnitOfMeasureMgt.QtyRndPrecision());
+        CompItem.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(CompItemUnitOfMeasure, CompItem."No.", CompItemQtyPer);
+
+        // [GIVEN] Finished item "P".
+        // [GIVEN] Base unit of measure = "PCS", alternate unit of measure = "PALLET" = 12240 "PCS".
+        CreateProductionItem(ProdItem, '');
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Order");
+        ProdItem.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure, ProdItem."No.", ProdItemQtyPer);
+
+        // [GIVEN] Create and cerfity production BOM. 1 "PALLET" of item "P" = 3 "BOX" of item "C".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItemUnitOfMeasure.Code);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", ProdBOMQtyPer);
+        ProductionBOMLine.Validate("Unit of Measure Code", CompItemUnitOfMeasure.Code);
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create make-to-order production order for items "P" and "C".
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", ProdItemQtyPer, '', '');
+
+        // [GIVEN] Post output of the interim item "C".
+        // [GIVEN] Post output of the finished good "P".
+        FindProductionOrderLine(ProdOrderLine, CompItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+        FindProductionOrderLine(ProdOrderLine, ProdItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Finish the production order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] The production order is finished.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [THEN] The component item "C" is backward flushed.
+        // [THEN] Consumption quantity = output quantity = 3 * 60.96 "KG".
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField(Quantity, ProdBOMQtyPer * CompItemQtyPer);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField(Quantity, -ProdBOMQtyPer * CompItemQtyPer);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4826,6 +4909,14 @@ codeunit 137072 "SCM Production Orders II"
         FindProductionOrderLine(ProdOrderLine, ItemNo);
         Assert.RecordCount(ProdOrderLine, 1);
         ProdOrderLine.TestField(Quantity, Quantity);
+    end;
+
+    [ModalPageHandler]
+    procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        LibraryVariableStorage.Enqueue(PostingProductionJournalQst);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalTxt);
+        ProductionJournal.Post.Invoke();
     end;
 
     [ModalPageHandler]

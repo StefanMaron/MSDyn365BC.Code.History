@@ -153,7 +153,7 @@ report 115 "Salesperson - Commission"
                 begin
                     SalesCommissionAmt := Round("Sales (LCY)" * "Salesperson/Purchaser"."Commission %" / 100);
                     ProfitCommissionAmt := Round("Profit (LCY)" * "Salesperson/Purchaser"."Commission %" / 100);
-                    AdjProfit := "Sales (LCY)" + CostCalcMgt.CalcCustLedgActualCostLCY("Cust. Ledger Entry");
+                    AdjProfit := "Profit (LCY)" + CostCalcMgt.CalcCustLedgAdjmtCostLCY("Cust. Ledger Entry");
                     AdjProfitCommissionAmt := Round(AdjProfit * "Salesperson/Purchaser"."Commission %" / 100);
                 end;
 
