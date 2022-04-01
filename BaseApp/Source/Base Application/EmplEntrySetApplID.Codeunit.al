@@ -15,7 +15,7 @@ codeunit 112 "Empl. Entry-SetAppl.ID"
         EmplLedgEntryToUpdate: Record "Employee Ledger Entry";
     begin
         EmplLedgEntry.LockTable();
-        if EmplLedgEntry.FindSet then begin
+        if EmplLedgEntry.FindSet() then begin
             // Make Applies-to ID
             if EmplLedgEntry."Applies-to ID" <> '' then
                 EmplEntryApplID := ''
@@ -33,7 +33,7 @@ codeunit 112 "Empl. Entry-SetAppl.ID"
             until EmplLedgEntry.Next() = 0;
         end;
 
-        if TempEmplLedgEntry.FindSet then
+        if TempEmplLedgEntry.FindSet() then
             repeat
                 EmplLedgEntryToUpdate.Copy(TempEmplLedgEntry);
                 EmplLedgEntryToUpdate.TestField(Open, true);

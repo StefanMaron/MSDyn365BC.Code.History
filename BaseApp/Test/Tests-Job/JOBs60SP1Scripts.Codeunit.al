@@ -58,9 +58,9 @@ codeunit 132521 "JOBs-60SP1-Scripts"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"JOBs-60SP1-Scripts");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
@@ -542,7 +542,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset.FindFirst;
+        FixedAsset.FindFirst();
         exit(FixedAsset."No.");
     end;
 
@@ -584,12 +584,12 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         JobSchedule: Integer;
         JobContract: Integer;
     begin
-        if not TempPurchHeader.FindFirst then
+        if not TempPurchHeader.FindFirst() then
             Error(Text006);
 
         // Verify Job Planning Line fields with Purchase Invoice fields.
         // For each Purchase Line in TempPurchLine, find out the corresponding matching line in Job Planning Line table and Compare both.
-        if TempPurchLine.FindFirst then
+        if TempPurchLine.FindFirst() then
             repeat
                 Clear(JobPlanLine);
                 // Find the particular Line type of 'Schedule' in Job Planning Line.
@@ -612,7 +612,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
                     // Find the respective Job Planning Line.
                     JobPlanLine.SetRange("Line Type", "Job Planning Line Line Type".FromInteger(TempPurchLine."Job Line Type".AsInteger() - 1));
                     JobPlanLine.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
-                    if JobPlanLine.FindFirst then begin
+                    if JobPlanLine.FindFirst() then begin
                         // Count how many 'Schedule' and 'Contract' are there in JobPlanLine.
                         if JobPlanLine."Line Type" = JobPlanLine."Line Type"::Budget then
                             JobSchedule := JobSchedule + 1
@@ -634,7 +634,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
 
                     JobPlanLine.SetRange("Schedule Line", true);
                     JobPlanLine.SetCurrentKey("Job No.", "Job Task No.", "Schedule Line", "Planning Date");
-                    if JobPlanLine.FindFirst then begin
+                    if JobPlanLine.FindFirst() then begin
                         // It must be a Line Type of 'Schedule', so add one count.
                         JobSchedule := JobSchedule + 1;
                         CompareLines(TempPurchHeader, TempPurchLine, JobPlanLine)
@@ -646,7 +646,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
                     JobPlanLine.SetRange("Contract Line", true);
                     JobPlanLine.SetRange("Schedule Line", false);
                     JobPlanLine.SetCurrentKey("Job No.", "Job Task No.", "Contract Line", "Planning Date");
-                    if JobPlanLine.FindFirst then begin
+                    if JobPlanLine.FindFirst() then begin
                         // It must be a Line Type of 'Contract', so add one count.
                         JobContract := JobContract + 1;
                         CompareLines(TempPurchHeader, TempPurchLine, JobPlanLine)
@@ -672,7 +672,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
     begin
         // Verify Job Ledger Entry values with Purchase Order Values before posting.
 
-        if TempPurchLine.FindFirst then
+        if TempPurchLine.FindFirst() then
             repeat
                 Clear(JobLedgerEntry);
                 JobLedgerEntry.SetRange("Job No.", TempPurchLine."Job No.");
@@ -680,7 +680,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
                 JobLedgerEntry.SetRange("No.", TempPurchLine."No.");
                 JobLedgerEntry.SetRange("Line Type", TempPurchLine."Job Line Type");
                 JobLedgerEntry.SetRange(Quantity, TempPurchLine."Qty. to Receive");
-                if JobLedgerEntry.FindFirst then
+                if JobLedgerEntry.FindFirst() then
                     CompareEntries(TempPurchHeader, TempPurchLine, JobLedgerEntry)
                 else
                     Error(Text012);
@@ -701,7 +701,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchLine.SetRange("Document No.", PurchOrderNo);
 
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 TempPurchLine := PurchLine;
                 TempPurchLine.Insert();
@@ -781,12 +781,12 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         JobPlanLine: Record "Job Planning Line";
     begin
         // Verify if there are no lines created in Job Planning Line if the PO is posted with 'Receive' option.
-        if TempPurchLine.FindFirst then
+        if TempPurchLine.FindFirst() then
             repeat
                 JobPlanLine.SetRange("Job No.", TempPurchLine."Job No.");
                 JobPlanLine.SetRange("Job Task No.", TempPurchLine."Job Task No.");
                 JobPlanLine.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
-                if JobPlanLine.FindFirst then
+                if JobPlanLine.FindFirst() then
                     Error(Text030);
             until TempPurchLine.Next = 0;
     end;

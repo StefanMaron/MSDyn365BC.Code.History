@@ -28,7 +28,7 @@ codeunit 136908 "Report Settings"
     begin
         // [FEATURE]
         // [SCENARIO 176067] If Cancel is pressed in 'Pick Report' page, no Object Options is inserted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open 'Report Settings', press 'New' action. 'Pick Report' is opened.
         ReportSettings.OpenEdit;
@@ -54,14 +54,14 @@ codeunit 136908 "Report Settings"
     begin
         // [FEATURE]
         // [SCENARIO 176067] If Cancel is pressed in RequestPage for report settings, no Object Options is inserted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open 'Report Settings', press 'New' action. 'Pick Report' is opened.
         ReportSettings.OpenEdit;
 
         // [GIVEN] On 'Pick Report' set 'Name', set 'Report ID' and press 'OK'. RequestPage is opened.
         LibraryVariableStorage.Enqueue(PageAction::OK); // for PickReportPageModalHandler
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID); // for PickReportPageModalHandler
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID()); // for PickReportPageModalHandler
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] On RequestPage press 'Cancel'.
@@ -86,10 +86,10 @@ codeunit 136908 "Report Settings"
     begin
         // [FEATURE]
         // [SCENARIO 176067] If OK is pressed in RequestPage for report settings, Object Options is inserted for given report.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open 'Report Settings', press 'New' action. 'Pick Report' is opened.
-        ParameterName := LibraryUtility.GenerateGUID;
+        ParameterName := LibraryUtility.GenerateGUID();
         ReportSettings.OpenEdit;
 
         // [GIVEN] On 'Pick Report' set 'Name', set 'Report ID' and press 'OK'. RequestPage is opened.
@@ -169,7 +169,7 @@ codeunit 136908 "Report Settings"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Report Settings");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         ClearObjectOptions;
 
         if IsInitialized then

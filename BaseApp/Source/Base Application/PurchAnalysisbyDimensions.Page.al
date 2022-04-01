@@ -719,7 +719,7 @@ page 7157 "Purch. Analysis by Dimensions"
             CurItemFilter, CurLocationFilter, CurDim1Filter, CurDim2Filter, CurDim3Filter,
             DateFilter, BudgetFilter, InternalDateFilter);
 
-        PurchAnalysisByDimMatrix.RunModal;
+        PurchAnalysisByDimMatrix.RunModal();
     end;
 
     procedure SetCurrentAnalysisViewCode(NewAnalysisViewCode: Code[10])

@@ -36,7 +36,7 @@ report 1139 "Delete Cost Budget Entries"
                 Reset;
                 SetRange(Source, Source::Allocation);
 
-                if FindLast then begin
+                if FindLast() then begin
                     CostBudgetEntry.Get("To Cost Budget Entry No.");
                     CostAccSetup.Get();
                     CostAccSetup."Last Allocation Doc. No." := CostBudgetEntry."Document No.";
@@ -88,8 +88,8 @@ report 1139 "Delete Cost Budget Entries"
 
         trigger OnOpenPage()
         begin
-            CostBudgetRegister2.FindLast;
-            CostBudgetRegister3.FindLast;
+            CostBudgetRegister2.FindLast();
+            CostBudgetRegister3.FindLast();
         end;
     }
 

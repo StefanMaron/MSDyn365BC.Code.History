@@ -110,7 +110,7 @@ page 1604 "Office New Contact Dlg"
         NameLength: Integer;
     begin
         Contact.SetRange("Search E-Mail", TempOfficeAddinContext.Email);
-        if not Contact.FindFirst then begin
+        if not Contact.FindFirst() then begin
             NameLength := 50;
             if StrPos(TempOfficeAddinContext.Name, ' ') = 0 then
                 NameLength := 30;

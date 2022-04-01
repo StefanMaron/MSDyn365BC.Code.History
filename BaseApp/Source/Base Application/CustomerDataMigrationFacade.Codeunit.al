@@ -298,12 +298,6 @@ codeunit 6112 "Customer Data Migration Facade"
         GlobalCustomer.Validate(Blocked, BlockedTypeToSet);
     end;
 
-    [Obsolete('Replaced by procedure SetBlocked with enum data type.', '17.0')]
-    procedure SetBlockedType(BlockedTypeToSet: Option " ",Ship,Invoice,All)
-    begin
-        SetBlocked("Customer Blocked".FromInteger(BlockedTypeToSet));
-    end;
-
     procedure SetFaxNo(FaxNoToSet: Text[30])
     begin
         if not CustomerIsSet then

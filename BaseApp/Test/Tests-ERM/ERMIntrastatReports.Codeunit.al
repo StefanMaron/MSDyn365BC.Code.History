@@ -37,7 +37,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Checklist report with Item Journal Line posting data.
 
         // Setup: Create and post two Item Journal Lines.
-        Initialize;
+        Initialize();
         CreateAndPostItemJournalLine(
           ItemJournalLine, CreateItem, ItemJournalLine."Entry Type"::Purchase, GetTransactionType, GetTransportMethod, GetCountryRegionCode);
         Quantity := ItemJournalLine.Quantity;
@@ -64,7 +64,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Checklist report with Purchase Order posting data.
 
         // Setup: Create and post two Purchase Orders.
-        Initialize;
+        Initialize();
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::Order, Quantity);
 
         // Exercise: Generate Intrastat Checklist.
@@ -86,7 +86,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Checklist report with Purchase Credit Memo posting data.
 
         // Setup: Create and post two Purchase Credit Memos.
-        Initialize;
+        Initialize();
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Checklist.
@@ -108,7 +108,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // [SCENARIO] Run 'Intrastat - Checklist' for purchase documents having mutiple intrastat journal batches.
 
         // [GIVEN] Two posted Purchase Orders
-        Initialize;
+        Initialize();
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::Order, Quantity);
         // [GIVEN] Two Intrastat Journal Batches: B1, B2
         CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate);
@@ -133,7 +133,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Checklist report with Sales Order posting data.
 
         // Setup: Create and post two Sales Orders.
-        Initialize;
+        Initialize();
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::Order, Quantity);
 
         // Exercise: Generate Intrastat Checklist.
@@ -155,7 +155,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Checklist report with Sales Credit Memo posting data.
 
         // Setup: Create and post two Sales Credit Memos.
-        Initialize;
+        Initialize();
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Checklist.
@@ -177,7 +177,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // [SCENARIO] Run 'Intrastat - Checklist' for sales documents having mutiple intrastat journal batches.
 
         // [GIVEN] Two posted Sales Orders
-        Initialize;
+        Initialize();
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::Order, Quantity);
         // [GIVEN] Two Intrastat Journal Batches: B1, B2
         CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate);
@@ -202,7 +202,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Form report with Item Journal Line posting data.
 
         // Setup: Create and post two Item Journal Lines.
-        Initialize;
+        Initialize();
         CreateAndPostItemJournalLine(
           ItemJournalLine, CreateItem, ItemJournalLine."Entry Type"::Purchase, GetTransactionType, GetTransportMethod, GetCountryRegionCode);
         Quantity := ItemJournalLine.Quantity;
@@ -228,7 +228,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Form report with Purchase Order posting data.
 
         // Setup: Create and post two Purchase Orders.
-        Initialize;
+        Initialize();
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::Order, Quantity);
 
         // Exercise: Generate Intrastat Form.
@@ -250,7 +250,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Form report with Purchase Credit Memo posting data.
 
         // Setup: Create and post two Purchase Credit Memos.
-        Initialize;
+        Initialize();
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Form.
@@ -272,7 +272,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Form report with Sales Order posting data.
 
         // Setup: Create and post two Sales Orders.
-        Initialize;
+        Initialize();
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::Order, Quantity);
 
         // Exercise: Generate Intrastat Form.
@@ -294,7 +294,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat Form report with Sales Credit Memo posting data.
 
         // Setup: Create and post two Sales Credit Memos.
-        Initialize;
+        Initialize();
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Form.
@@ -317,7 +317,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test default Intrastat report when Sales has zero amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         Item.Get(CreateItemWithNonZeroUnitPrice);
 
         CreateAndPostSalesDocumentWithUnitPrice(
@@ -348,7 +348,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat report with true 'Don't recalculate zero amounts' setting when Sales has zero amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocumentWithUnitPrice(
           SalesLine, SalesLine."Document Type"::Order, CreateItemWithNonZeroUnitPrice,
           GetTransactionType, GetTransportMethod, 0);
@@ -379,7 +379,7 @@ codeunit 134063 "ERM Intrastat Reports"
         // Test Intrastat report with true 'Don't recalculate zero amounts' and true 'Don't show zero amounts' setting when Sales has zero amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocumentWithUnitPrice(
           SalesLine, SalesLine."Document Type"::Order, CreateItemWithNonZeroUnitPrice,
           GetTransactionType, GetTransportMethod, 0);
@@ -404,15 +404,15 @@ codeunit 134063 "ERM Intrastat Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Intrastat Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         IntrastatSetup.DeleteAll();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Intrastat Reports");
         UpdateIntrastatCountryCode; // Required for Intrastat.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateTransportMethodTableData;
         isInitialized := true;
         Commit();
@@ -545,7 +545,7 @@ codeunit 134063 "ERM Intrastat Reports"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         LibraryInventory.CreateItem(Item);
         Item.Validate("Tariff No.", TariffNumber."No.");
         Item.Validate("Net Weight", LibraryRandom.RandDec(100, 2));
@@ -558,7 +558,7 @@ codeunit 134063 "ERM Intrastat Reports"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         LibraryInventory.CreateItem(Item);
         Item.Validate("Tariff No.", TariffNumber."No.");
         Item.Validate("Net Weight", LibraryRandom.RandDec(100, 2));
@@ -572,7 +572,7 @@ codeunit 134063 "ERM Intrastat Reports"
         CountryRegion: Record "Country/Region";
     begin
         CountryRegion.SetFilter("Intrastat Code", '<>%1', '');
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         exit(CountryRegion.Code);
     end;
 
@@ -580,7 +580,7 @@ codeunit 134063 "ERM Intrastat Reports"
     var
         TransactionType: Record "Transaction Type";
     begin
-        TransactionType.FindFirst;
+        TransactionType.FindFirst();
         exit(TransactionType.Code);
     end;
 
@@ -588,7 +588,7 @@ codeunit 134063 "ERM Intrastat Reports"
     var
         TransportMethod: Record "Transport Method";
     begin
-        TransportMethod.FindFirst;
+        TransportMethod.FindFirst();
         exit(TransportMethod.Code);
     end;
 
@@ -632,7 +632,7 @@ codeunit 134063 "ERM Intrastat Reports"
         IntrastatJnlLine.SetRange("Transaction Type", TransactionType);
         IntrastatJnlLine.SetRange(Type, Type);
         IntrastatChecklist.SetTableView(IntrastatJnlLine);
-        IntrastatChecklist.Run;
+        IntrastatChecklist.Run();
     end;
 
     local procedure RunIntrastatForm(IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option; ItemNo: Code[20]; TransactionType: Code[10])
@@ -648,7 +648,7 @@ codeunit 134063 "ERM Intrastat Reports"
         Commit();
         Clear(IntrastatForm);
         IntrastatForm.SetTableView(IntrastatJnlLine);
-        IntrastatForm.Run;
+        IntrastatForm.Run();
     end;
 
     local procedure RunGetItemEntries(IntrastatJnlLine: Record "Intrastat Jnl. Line"; StartDate: Date; EndDate: Date; UseReqPage: Boolean)
@@ -661,7 +661,7 @@ codeunit 134063 "ERM Intrastat Reports"
             Commit
         else
             GetItemLedgerEntries.UseRequestPage(false);
-        GetItemLedgerEntries.Run;
+        GetItemLedgerEntries.Run();
     end;
 
     local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -696,7 +696,7 @@ codeunit 134063 "ERM Intrastat Reports"
     local procedure VerifyValuesOnIntrastatJournal(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemNo: Code[20]; Quantity: Decimal; Amount: Decimal)
     begin
         IntrastatJnlLine.SetRange("Item No.", ItemNo);
-        if IntrastatJnlLine.FindFirst then begin
+        if IntrastatJnlLine.FindFirst() then begin
             Assert.AreEqual(Quantity, IntrastatJnlLine.Quantity, IntrastatJnlErr);
             Assert.AreEqual(Amount, IntrastatJnlLine.Amount, IntrastatJnlErr)
         end else

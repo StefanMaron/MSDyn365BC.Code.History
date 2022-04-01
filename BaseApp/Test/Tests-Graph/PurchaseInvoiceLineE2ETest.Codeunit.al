@@ -82,9 +82,9 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
 
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LineNo1 := Format(PurchaseLine."Line No.");
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         LineNo2 := Format(PurchaseLine."Line No.");
 
         // [WHEN] we GET all the lines with the unposted invoice ID from the web service
@@ -118,9 +118,9 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         PostedInvoiceId := CreatePostedPurchaseInvoiceWithLines(PurchInvHeader);
 
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         LineNo1 := Format(PurchInvLine."Line No.");
-        PurchInvLine.FindLast;
+        PurchInvLine.FindLast();
         LineNo2 := Format(PurchInvLine."Line No.");
 
         // [WHEN] we GET all the lines with the posted invoice ID from the web service
@@ -250,7 +250,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LineNo := PurchaseLine."Line No.";
 
         PurchaseQuantity := 4;
@@ -302,7 +302,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LineNo := PurchaseLine."Line No.";
 
         NewSequence := PurchaseLine."Line No." + 1;
@@ -337,7 +337,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
 
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LineNo := PurchaseLine."Line No.";
 
         Commit();
@@ -376,7 +376,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         PostedInvoiceId := CreatePostedPurchaseInvoiceWithLines(PurchInvHeader);
 
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         LineNo := PurchInvLine."Line No.";
 
         // [WHEN] we DELETE the first line through the API
@@ -666,7 +666,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstPurchaseLine(PurchaseHeader, PurchaseLine);
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         Assert.AreEqual('', PurchaseLine."No.", 'No should be blank');
         Assert.AreEqual(PurchaseLine.Type, PurchaseLine.Type::Item, 'Wrong type is set');
 
@@ -708,7 +708,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstPurchaseLine(PurchaseHeader, PurchaseLine);
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         Assert.AreEqual(PurchaseLine.Type, PurchaseLine.Type::" ", 'Wrong type is set');
         Assert.AreEqual('test', PurchaseLine.Description, 'Wrong description is set');
 
@@ -792,7 +792,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
 
         PurchInvHeader.Reset();
         PurchInvHeader.SetFilter("No.", NewNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         exit(PostedPurchaseInvoiceID);
     end;
@@ -816,7 +816,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
 
     local procedure CreateInvoiceAndLinesThroughPage(var PurchaseInvoice: TestPage "Purchase Invoice"; VendorNo: Text; ItemNo: Text; ItemQuantity: Integer)
     begin
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Document Date".SetValue(WorkDate);
         PurchaseInvoice."Buy-from Vendor No.".SetValue(VendorNo);
 
@@ -930,7 +930,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure SetupAmountDiscountTest(var PurchaseHeader: Record "Purchase Header"; var DiscountAmount: Decimal)

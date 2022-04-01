@@ -89,7 +89,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create Item and Post Item Journal. Create Sales Order with multiple lines with Shipping Advice Complete.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostItemJournalLine(
           Item."No.", ItemJournalLine."Entry Type"::"Positive Adjmt.", LibraryRandom.RandDec(10, 2), LocationWithRequirePick.Code,
@@ -123,7 +123,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create two Items. Post Item Journal line for one Item. Create and release Sales Orders with different Shipping Advice.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -140,7 +140,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
 
         // Exercise: Create Inventory Pick for all Sales Orders on the Location.
         WarehouseRequest.SetRange("Location Code", LocationWithRequirePick2.Code);
-        WarehouseRequest.FindFirst;
+        WarehouseRequest.FindFirst();
         LibraryWarehouse.CreateInvtPutAwayPick(WarehouseRequest, false, true, false);
 
         // Verify: Warehouse Activity Lines.
@@ -173,7 +173,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ItemTrackingMode: Option "Assign Lot No.","Assign Lot And Serial","Assign Serial No.","Select Entries","Assign Multiple Lot No";
     begin
         // Setup: Create Item with Lot Specific Tracking. Create and release Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode);  // Taking True for Lot.
         FindBin(Bin, LocationSilver.Code);
@@ -207,7 +207,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Reordering Policy as Order. Post Item Journal line. Create and Release Sales Order.
-        Initialize;
+        Initialize();
         CreateItemWithOrderReorderingPolicy(Item);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateAndPostItemJournalLine(Item."No.", ItemJournalLine."Entry Type"::"Positive Adjmt.", Quantity, LocationOrange.Code, false);
@@ -244,7 +244,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // Setup: Create Item with Lot Specific Tracking. Release and Post Purchase Order with Lot No. Create and Release Sales Order.
         // Create Inventory Pick. Update Lot No. and Quantity to Handle on Inventory Pick Line.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode);  // Taking True for Lot.
         FindBin(Bin, LocationSilver.Code);
@@ -280,7 +280,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // Setup: Create Item. Set Maximum Quantity in Bin Content of Receive Bin of Location. Update Item Inventory using Warehouse Journal. Create and Release Purchase Order.
         // Create and Post the Warehouse Receipt. Open Put Away Worksheet page and invoke Get Warehouse Document.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandInt(10);
         FindBinWithBinTypeCode(Bin, LocationWhite2.Code, true, false, false, false);  // Find Receive Bin.
@@ -316,7 +316,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // Setup: Create Item with different Put-Away Unit of Measure. Create Stock keeping Unit. Create and Release Purchase Order with multiple lines.
         // Create and Post Warehouse Receipt. Delete the Warehouse Put-Away.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithDifferentPutAwayUnitOfMeasure(Item, ItemUnitOfMeasure);
         CreateStockkeepingUnit(LocationWhite.Code, Item."No.", LocationWhite."Put-away Template Code");
@@ -357,7 +357,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         OldUsePutAwayWorksheet: Boolean;
     begin
         // Setup: Modify Use Put-Away Worksheet as True on Location. Create Items. Create Put-Away from two Purchase Orders.
-        Initialize;
+        Initialize();
         UpdateUsePutAwayWorksheetOnLocation(LocationWhite, OldUsePutAwayWorksheet, true);
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
@@ -399,7 +399,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ItemTrackingMode: Option "Assign Lot No.","Assign Lot And Serial","Assign Serial No.","Select Entries","Assign Multiple Lot No";
     begin
         // Setup: Create Items. Create and register Put-Away from two Purchase Orders. Create two Sales Orders. Get Source Documents on Warehouse Shipment.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
@@ -442,7 +442,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Items. Create and Release Warehouse Internal Put-Away.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
@@ -481,7 +481,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // Setup: Create Items. Update Inventory using Warehouse Item Journal. Create Put-Away from Warehouse Internal Put-Away and Register it.
         // Create and Release Warehouse Internal Pick.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
@@ -527,7 +527,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Items. Update Inventory using Warehouse Item Journal. Create Movement Worksheet Lines for both Items.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
@@ -567,7 +567,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ItemTrackingMode: Option "Assign Lot No.","Assign Lot And Serial","Assign Serial No.","Select Entries","Assign Multiple Lot No";
     begin
         // Setup: Create Item with Lot specific Tracking and different Purchase Unit of Measure.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode);  // Taking True for Lot.
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", 0);  // Taking 0 for Blank Length.
@@ -603,13 +603,13 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         BindSubscription(SCMWarehouseReceiving);
         // Setup: Create Item. Create and release Purchase Order. Create Warehouse Receipt Header and Get Source Document to create Receipt line.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         CreateAndReleasePurchaseOrder(PurchaseHeader, LocationWhite.Code, '', Item."No.", Quantity, Item."Base Unit of Measure", false);
         GetSourceDocumentOnWarehouseReceipt(WarehouseReceiptHeader, LocationWhite.Code, true, false, false, Item."No.", Item."No.");
         WarehouseReceiptLine.SetRange("No.", WarehouseReceiptHeader."No.");
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
 
         // Exercise: Enter Quantity to Receive more than the Quantity in Purchase Line.
         asserterror WarehouseReceiptLine.Validate("Qty. to Receive", Quantity + LibraryRandom.RandDec(10, 2));  // Value is required to generate the Error.
@@ -633,7 +633,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ItemTrackingMode: Option "Assign Lot No.","Assign Lot And Serial","Assign Serial No.","Select Entries","Assign Multiple Lot No";
     begin
         // Setup: Create Item with Serial and Lot specific Tracking.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItemWithItemTrackingCode(Item, true, true, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode);  // Taking True for Serial and Lot.
 
@@ -658,7 +658,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure BinMaximumCubageConfirmWithWarehouseReceipt()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         BinMaximumCubageAndMaximumQuantityConfirmWithWarehouseReceipt(false);
     end;
 
@@ -668,7 +668,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure BinContentMaximumQuantityConfirmWithWarehouseReceipt()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         BinMaximumCubageAndMaximumQuantityConfirmWithWarehouseReceipt(true);  // Taking True for Maximum Quantity Confirm Message.
     end;
 
@@ -736,7 +736,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         // [SCENARIO 378278] Field "From Unit of Measure Code" in Whse. Worksheet Line should be validated successfully when "Unit of Measure" is not set for this line.
 
         // [GIVEN] Create Item and Item Unit of Measure assigned with this item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create Whse. Worksheet Line.
@@ -760,7 +760,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         // [SCENARIO 378278] Field "Qty. per From Unit of Measure" in Whse. Worksheet Line should be equal to "1" when "From Unit of Measure Code" is blank
 
         // [GIVEN] Create Item and Item Unit of Measure assigned to this item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create Whse. Worksheet Line.
@@ -787,7 +787,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Cubage: Decimal;
     begin
         // Setup: Create Item with different Put-Away Unit of Measure. Update Cubage and Weight on both Item Units of Measures. Create Zone with Bin Type as Put-Away and Pick. Create Warehouse Receipt from Purchase Order.
-        Initialize;
+        Initialize();
         Cubage := LibraryRandom.RandInt(5);
         Quantity := LibraryRandom.RandInt(5);
         CreateItemWithDifferentPutAwayUnitOfMeasure(Item, ItemUnitOfMeasure);
@@ -822,7 +822,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LotNo: Code[50];
     begin
         // Setup: Create Item with Lot specific Tracking. Create and refresh Production Order with different Unit of Measure. Create Inbound Warehouse Request and create Inventory Put-Away.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode);  // Taking True for Lot.
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", 0);  // Taking Blank Length.
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), LocationBrown.Code);
@@ -831,7 +831,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
         LibraryVariableStorage.Enqueue(InvPutAwayMessage);  // Enqueue for MessageHandler.
         CreateInventoryActivity(WarehouseRequest."Source Document"::"Prod. Output", ProductionOrder."No.", LocationBrown.Code, true, false);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         UpdateLotNoAndQuantityToHandleOnInventoryPutAwayLine(WarehouseActivityHeader, ProductionOrder."No.", LotNo);
 
         // Exercise.
@@ -855,7 +855,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Variant. Create and release Purchase Order with multiple lines of different locations. Create Warehouse Receipts from Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
@@ -898,7 +898,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Items. Create and release two Purchase Orders. Get Source Document on Warehouse Receipt for both Purchase Orders.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
@@ -944,7 +944,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item. Post Item Journal on two Locations. Create and Post two Transfer Orders. Get Source Document on Warehouse Receipt for both Transfer Orders.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         CreateAndPostItemJournalLine(Item."No.", ItemJournalLine."Entry Type"::"Positive Adjmt.", Quantity, LocationBlue.Code, false);
@@ -991,7 +991,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item. Create and release two Sales Return Orders. Get Source Document on Warehouse Receipt for both Sales Return Orders.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         CreateAndReleaseSalesDocument(
@@ -1028,7 +1028,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     [Scope('OnPrem')]
     procedure PostInventoryPutAwayAndPickWithSerialLotAndExpirationDateOnPurchaseOrder()
     begin
-        Initialize;
+        Initialize();
         PostInventoryPutAwayAndPickWithSerialLotAndExpirationDate(false);  // Expiration Date on Inventory Put Away as FALSE.
     end;
 
@@ -1037,7 +1037,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     [Scope('OnPrem')]
     procedure PostInventoryPutAwayAndPickWithSerialLotAndExpirationDateModifiedOnInventoryPutAway()
     begin
-        Initialize;
+        Initialize();
         PostInventoryPutAwayAndPickWithSerialLotAndExpirationDate(true);  // Expiration Date on Inventory Put Away as TRUE.
     end;
 
@@ -1109,7 +1109,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Bin: Record Bin;
     begin
         // Setup: Create and Post Warehouse Receipt. Update Cross-Dock Bin on Warehouse Put Away.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseOrderAndPostWarehouseReceipt(
           PurchaseHeader, LocationWhite.Code, Item."No.", LibraryRandom.RandDec(10, 2), Item."Base Unit of Measure");
@@ -1140,7 +1140,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Put-Away Unit of Measure.Create Bin and update Bin Content. Create Put-Away Template.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         UpdatePutAwayUnitOfMeasureOnItem(Item, Item."Base Unit of Measure");
@@ -1165,7 +1165,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     [Scope('OnPrem')]
     procedure PostWarehouseReceiptWithDifferentPutAwayTemplateItem()
     begin
-        Initialize;
+        Initialize();
         PostWarehouseReceiptWithDifferentPutAwayTemplate(false);  // Taking False for UsestockKeepingUnit.
     end;
 
@@ -1173,7 +1173,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     [Scope('OnPrem')]
     procedure PostWarehouseReceiptWithDifferentPutAwayTemplateSKU()
     begin
-        Initialize;
+        Initialize();
         PostWarehouseReceiptWithDifferentPutAwayTemplate(true);  // Taking True for UsestockKeepingUnit.
     end;
 
@@ -1241,7 +1241,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ExpectedReceiptDate: Date;
     begin
         // Setup: Create Purchase Order with two lines. Create Warehouse Receipt and update different Due dates on two Receipt lines. Post the Warehouse Receipt.
-        Initialize;
+        Initialize();
         UpdateUsePutAwayWorksheetOnLocation(LocationWhite, OldUsePutAwayWorksheet, true);
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
@@ -1290,7 +1290,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ExpectedReceiptDate: Date;
     begin
         // Setup: Create Purchase Order with two lines. Create Warehouse Receipt and update Bin Codes with different Bin Ranking on two Receipt lines. Post the Warehouse Receipt.
-        Initialize;
+        Initialize();
         UpdateUsePutAwayWorksheetOnLocation(LocationWhite, OldUsePutAwayWorksheet, true);
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
@@ -1335,7 +1335,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         OldUsePutAwayWorksheet: Boolean;
     begin
         // Setup: Create Purchase Order with different Unit of Measure. Create Warehouse Receipt and post it.
-        Initialize;
+        Initialize();
         UpdateUsePutAwayWorksheetOnLocation(LocationWhite, OldUsePutAwayWorksheet, true);
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
@@ -1371,7 +1371,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ItemTrackingMode: Option "Assign Lot No.","Assign Lot And Serial","Assign Serial No.","Select Entries","Assign Multiple Lot No";
     begin
         // Setup: Create Purchase Order with multiple Lot No for partial Quantity. Create Warehouse Receipt and post it.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode);  // Taking True for Lot.
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Multiple Lot No");
@@ -1421,7 +1421,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity2: Decimal;
     begin
         // Setup: Create Bins with Maximum Quantity. Create and Release Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(50);
         Quantity2 := LibraryRandom.RandInt(50);
         LibraryInventory.CreateItem(Item);
@@ -1458,7 +1458,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ItemTrackingMode: Option "Assign Lot No.","Assign Lot And Serial","Assign Serial No.","Select Entries";
     begin
         // Setup: Create and Post Item Journal Line, Transfer Order from Red location to White location.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode);  // Taking True for Lot.
         FindBinAndCreateBinContent(Bin, Item, LocationWhite.Code);
@@ -1497,7 +1497,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Variant and Flushing Method Forward, Find Bin, Create and Refresh Released Production Order. Create and Post Output Journal.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Using Random for Quantity.
         CreateItemwithReplenishment(Item, '');
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");  // Update Variant on Item.
@@ -1531,7 +1531,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Put Away Template Code and UOM, Find Bin. Create Warehouse Receipt from Purchase Order. Post Warehouse Receipt.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Using Random for Quantity.
         CreateItemWithDifferentPutAwayUnitOfMeasure(Item, ItemUnitOfMeasure);
         CreateWarehouseReceiptFromPurchaseOrder(PurchaseHeader, LocationWhite.Code, Item."No.", Quantity, Item."Base Unit of Measure");
@@ -1565,7 +1565,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         // [FEATURE] [Put-away] [Unit of Measure] [Bin Content]
         // [SCENARIO 362996] UOM of Whse. Receipt Line is used for getting Bin Content while creating Put-Away from Posted Whse. Receipt when Directed Put-away is set
         // Setup: Create Item with UOM. Create and Release Purchase Order for Multiple Lines with different UOM. Create and Post Warehouse Receipt. Delete Put Away.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Directed Put-away and Pick" = TRUE
         Quantity := LibraryRandom.RandDec(10, 2);  // Using Random for Quantity.
@@ -1616,7 +1616,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         QuantityPer: Decimal;
     begin
         // Setup: Create Item with Production BOM. Create and register Pick from Production Order. Calculate and post Consumption Journal for partial Quantity. Create Put-Away from Internal Put-Away for remaining Quantity.
-        Initialize;
+        Initialize();
         QuantityPer := LibraryRandom.RandInt(5);
         Quantity := LibraryRandom.RandInt(10);
         CreateItemWithProductionBOM(ParentItem, ComponentItem, ItemVariant, QuantityPer);
@@ -1653,7 +1653,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure RegisterPutAwayWithPartialQuantityFromPutAwayWorksheetWithMultipleLotNoOnPurchaseOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         RegisterPutAwayFromPutAwayWorksheetWithMultipleLotNoOnPurchaseOrder(false);
     end;
 
@@ -1663,7 +1663,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure RegisterPutAwayWithRemainingQuantityFromPutAwayWorksheetWithMultipleLotNoOnPurchaseOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         RegisterPutAwayFromPutAwayWorksheetWithMultipleLotNoOnPurchaseOrder(true);  // TRUE for Register Put-Away for remaining Quantity.
     end;
 
@@ -1738,7 +1738,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure PostWarehouseReceiptFromPurchaseOrderWithMultipleItemVariant()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptAndWarehouseShipmentWithMultipleItemVariant(false, false);  // Use RegisterPick as False and PostWhseShipment as False.
     end;
 
@@ -1747,7 +1747,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure WarehouseShipmentAfterRegisterPickWithMultipleItemVariant()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptAndWarehouseShipmentWithMultipleItemVariant(true, false);  // Use RegisterPick as True and PostWhseShipment as False.
     end;
 
@@ -1756,7 +1756,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure PostWarehouseShipmentAfterRegisterPickWithMultipleItemVariant()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseReceiptAndWarehouseShipmentWithMultipleItemVariant(true, true);  // Use RegisterPick as True and PostWhseShipment as True.
     end;
 
@@ -1826,7 +1826,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure PostWarehouseShipmentFromTransferOrderUsingFromLocationWithRequireShipmentAndToLocationWithDirectedPutAwayAndPick()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWhseShpmntAndWhseRcptFromTransferOrderUsingFromLocWithRequireShpmntAndToLocWithDirectedPutAwayAndPick(
           false);  // Use WarehouseReceipt as False.
     end;
@@ -1837,7 +1837,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure PostWarehouseReceiptFromTransferOrderUsingFromLocationWithRequireShipmentAndToLocationWithDirectedPutAwayAndPick()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWhseShpmntAndWhseRcptFromTransferOrderUsingFromLocWithRequireShpmntAndToLocWithDirectedPutAwayAndPick(true);  // Use WarehouseReceipt as True.
     end;
 
@@ -1886,7 +1886,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure ErrorOnCreatePickFromTransferOrderBeforeCancelReservationOnSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseShipmentFromTransferOrderForQuantityReservedAgainstSalesOrder(false);  // Use CancelReservation as False.
     end;
 
@@ -1896,7 +1896,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure PostWarehouseShipmentFromTransferOrderAfterCancelReservationOnSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseShipmentFromTransferOrderForQuantityReservedAgainstSalesOrder(true);  // Use CancelReservation as True.
     end;
 
@@ -1957,7 +1957,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Default Dimension. Create and post Purchase Order as receive.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateDefaultDimensionItem(DimensionValue, Item."No.");
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -1986,7 +1986,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create and post Inventory Put Away from Purchase Order using multiple Bin and Lot. Create Inventory Pick from Sales Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode);  // Taking True for Lot.
         CreateAndPostInventoryPutAwayFromPurchaseOrderUsingMultipleBinAndLot(Bin, LotNo, Item."No.", LocationSilver.Code, Quantity);
@@ -2009,7 +2009,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure AvailableQuantityToPickOnPickWorksheetBeforeRegisterPutAway()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         AvailableQuantityToPickOnPickWorksheet(false);  // Use RegisterPutAway as False.
     end;
 
@@ -2018,7 +2018,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure AvailableQuantityToPickOnPickWorksheetAfterRegisterPutAway()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         AvailableQuantityToPickOnPickWorksheet(true);  // Use RegisterPutAway as True.
     end;
 
@@ -2068,7 +2068,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure AvailableQuantityToPickOnPickWorksheetBeforeCancelReservationOnSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         AvailableQuantityToPickOnPickWorksheetWithSalesOrderReservation(false);  // Use CancelReservation as False.
     end;
 
@@ -2078,7 +2078,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure AvailableQuantityToPickOnPickWorksheetAfterCancelReservationOnSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         AvailableQuantityToPickOnPickWorksheetWithSalesOrderReservation(true);  // Use CancelReservation as True.
     end;
 
@@ -2131,7 +2131,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Inventory Put Away from Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateInventoryPutAwayFromPurchaseOrder(PurchaseHeader, Item, LocationSilver.Code, LibraryRandom.RandDec(100, 2));
 
@@ -2160,7 +2160,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create and post Inventory Put Away from Purchase Order. Create Inventory Pick from Sales Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateInventoryPutAwayFromPurchaseOrder(PurchaseHeader, Item, LocationSilver.Code, Quantity);
@@ -2198,7 +2198,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create and post Inventory Put Away from Purchase Order. Create Inventory Pick from Transfer Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateInventoryPutAwayFromPurchaseOrder(PurchaseHeader, Item, LocationSilver.Code, Quantity);
@@ -2238,7 +2238,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Order Reordering Policy. Create and Release Sales Order. Carry Out Action Message after Calculate Plan On Requisition Line. Register Put away from Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithOrderReorderingPolicy(Item);
         FindBinWithBinTypeCode(Bin, LocationWhite.Code, false, true, true, true);  // Find Receive Bin.
@@ -2267,7 +2267,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure ExpirationDateOnPutAwayAfterPostWarehouseReceipt()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndRegisterPickAfterRegisterPutAway(false, false, false);  // Register Put Away, Warehouse Pick and Register Pick as False.
     end;
 
@@ -2277,7 +2277,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure ExpirationDateOnRegisteredPutAway()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndRegisterPickAfterRegisterPutAway(true, false, false);  // Register Put Away as True. Warehouse Pick and Register Pick as False.
     end;
 
@@ -2287,7 +2287,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure ExpirationDateOnPickAfterCreateWarehouseShipment()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndRegisterPickAfterRegisterPutAway(true, true, false);  // Register Put Away and Warehouse Pick as True. Register Pick as False.
     end;
 
@@ -2297,7 +2297,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure ExpirationDateOnRegisteredPick()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndRegisterPickAfterRegisterPutAway(true, true, true);  // Register Put Away, Warehouse Pick and Register Pick as True.
     end;
 
@@ -2376,7 +2376,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure ErrorOnPostNegOutputOnprodJnlAfterReserveSalesOrd()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostNegativeOutputOnProductionJournal(true, false);  // Show Error as TRUE and Cancel Reservation as FALSE.
     end;
 
@@ -2386,7 +2386,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     procedure PostNegOutputOnProdJnlAfterCancelReservOnSalesOrd()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostNegativeOutputOnProductionJournal(false, true);  // Show Error as FALSE and Cancel Reservation as TRUE.
     end;
 
@@ -2446,7 +2446,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Decimal;
     begin
         // Setup: Create Item
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
 
@@ -2505,7 +2505,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         OldUsePutAwayWorksheet: Boolean;
     begin
         // Setup: Create Item, Unit Of Measure, which is multiple of Base Unit of Measure. Set Put Away Unit of Measure
-        Initialize;
+        Initialize();
         UpdateUsePutAwayWorksheetOnLocation(LocationWhite, OldUsePutAwayWorksheet, true);
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
@@ -2574,7 +2574,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Quantity: Integer;
     begin
         // Setup: Create Item with Item Tracking and Expiration Calculation.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, true, true, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode); // Lot and Serial as TRUE.
         UpdateExpirationCalculationOnItem(Item);
         Quantity := LibraryRandom.RandIntInRange(2, 10); // Integer type was reuqired for Serial Tracking.
@@ -2599,7 +2599,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Create Item. Create Location with Shipment Bin Code. Create and release Sales Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateLocationSetupWithBins(Location, false, true, false, true, true); // Create Location with Require Pick and Require Shipment and Bin Mandatory.
         CreateAndReleaseSalesDocument(
@@ -2623,7 +2623,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create Item. Create Location with Receipt Bin Code. Create and release Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateLocationSetupWithBins(Location, true, false, true, false, true); // Create Location with Require Put-away and Require Receive and Bin Mandatory.
         CreateAndReleasePurchaseOrder(
@@ -2651,7 +2651,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Put-away] [Unit of Measure] [Bin Content]
         // [SCENARIO 362996] Base UOM of Item is used for getting Bin Content while creating Put-Away from Posted Whse. Receipt when Directed Put-away is not set
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Directed Put-away and Pick" = FALSE
         CreateLocationSetupWithBins(Location, true, true, true, true, true);
@@ -2695,7 +2695,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Warehouse Pick] [Warehouse Shipment] [Assembly Order]
         // [SCENARIO 371965] Creating Pick from Warehouse Shipment with Assembly while having Pick Worksheet from that Shipment should be prohibited
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandInt(10);
         QtyPer := LibraryRandom.RandInt(10);
@@ -2732,7 +2732,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Bin Content]
         // [SCENARIO 363334] FlowField "Pick Quantity (Base)" of Bin Content table is filtered by UOM of Whse. Active Line while "Directed Put-Away and Pick" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Directed Put-away and Pick" = TRUE
         // [GIVEN] Warehouse Activity Line with "Item Unit of Measure" = "X" and "Qty. Outstanding (Base)" = "Q"
@@ -2765,7 +2765,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Bin Content]
         // [SCENARIO 363334] FlowField "Pick Quantity (Base)" of Bin Content table is not filtered by UOM of Whse. Active Line while "Directed Put-Away and Pick" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Directed Put-away and Pick" = FALSE
         CreateLocationSetupWithBins(Location, true, true, true, true, true);
@@ -2801,7 +2801,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Warehouse Receipt] [Document Status] [Purchase Order]
         // [SCENARIO 216481] Warehouse Receipt Document Status is set to "Partially Received" when additional Warehouse Receipt is created from Purchase Order after partial receipts have been posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "PO" with non-zero Quantity = "Q"
         Quantity := LibraryRandom.RandIntInRange(10, 100);
@@ -2840,7 +2840,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Warehouse Receipt] [Document Status] [TransferOrder]
         // [SCENARIO 216481] Warehouse Receipt Document Status is set to "Partially Received" when additional Warehouse Receipt is created from Transfer Order after partial receipts have been posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order "TO" with non-zero Quantity = "Q"
         Quantity := LibraryRandom.RandIntInRange(10, 100);
@@ -2879,7 +2879,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Warehouse Receipt] [Document Status] [Sales Order]
         // [SCENARIO 216481] Warehouse Receipt Document Status is set to "Partially Received" when additional Warehouse Receipt is created from Sales Return Order after partial receipts have been posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "SO" with non-zero Quantity = "Q"
         Quantity := LibraryRandom.RandIntInRange(10, 100);
@@ -2918,7 +2918,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Warehouse Receipt] [Document Status] [Purchase Order]
         // [SCENARIO 220473] Document Status is set to "Partially Received" in all Warehouse Receipts when multiple additional Warehouse Receipts is created from Purchase Order after partial receipts have been posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "PO" with two items "I" from different Warehouses with non-zero Quantities = "Q"
         Quantity := LibraryRandom.RandIntInRange(10, 100);
@@ -2969,7 +2969,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Warehouse Receipt] [Document Status] [Sales Order]
         // [SCENARIO 220473] Document Status is set to "Partially Received" in all Warehouse Receipts when multiple additional Warehouse Receipts is created from Sales Return Order after partial receipts have been posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "SO" with two items "I" from different Warehouses with non-zero Quantities = "Q"
         Quantity := LibraryRandom.RandIntInRange(10, 100);
@@ -3020,7 +3020,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Warehouse Receipt] [Put-away] [Bin Content]
         // [SCENARIO 229915] When a put-away is created automatically after posting warehouse receipt, and the place-to bin is empty so far, no bin content record is created for this bin.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with directed put-away and pick.
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
@@ -3036,7 +3036,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
             FilterWarehouseActivityLines(
               WarehouseActivityLine, "Source Document"::"Purchase Order", PurchaseHeader."No.", '', "Activity Type"::"Put-away");
             SetRange("Action Type", "Action Type"::Place);
-            FindFirst;
+            FindFirst();
 
             FilterBinContent(BinContent, "Location Code", "Bin Code", "Item No.");
             Assert.RecordIsEmpty(BinContent);
@@ -3056,7 +3056,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Warehouse Receipt] [Put-away] [Bin Content]
         // [SCENARIO 229915] When a put-away is created manually by user from posted warehouse receipt, and the place-to bin is empty so far, no bin content record is created for this bin.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with directed put-away and pick.
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
@@ -3081,7 +3081,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
             FilterWarehouseActivityLines(
               WarehouseActivityLine, "Source Document"::"Purchase Order", PurchaseHeader."No.", '', "Activity Type"::"Put-away");
             SetRange("Action Type", "Action Type"::Place);
-            FindFirst;
+            FindFirst();
 
             FilterBinContent(BinContent, "Location Code", "Bin Code", "Item No.");
             Assert.RecordIsEmpty(BinContent);
@@ -3101,7 +3101,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURE] [Put-away] [Bin Content]
         // [SCENARIO 252119] When bin content is already above its maximum capacity, the program does not suggest this bin for a new put-away.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I".
         LibraryInventory.CreateItem(Item);
@@ -3127,7 +3127,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
             FilterWarehouseActivityLines(
               WarehouseActivityLine, "Source Document"::"Purchase Order", PurchaseHeader."No.", '', "Activity Type"::"Put-away");
             SetRange("Action Type", "Action Type"::Place);
-            FindFirst;
+            FindFirst();
             TestField("Bin Code", Bin[1].Code);
         end;
     end;
@@ -3150,7 +3150,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         // [FEATURES] [Undo Receipt] [Purchase Order]
         // [SCENARIO 292815] Undo Purchase Receipt should consider Location Code for each Purchase Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -3183,7 +3183,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
         PurchRcptLine.SetRange("Order Line No.", PurchaseLine[2]."Line No.");
         PurchRcptLine.SetRange(Quantity, PurchaseLine[2].Quantity);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
 
         // [WHEN] Create new Whse. Receipt for the Line 2
@@ -3193,7 +3193,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WhseManagement.SetSourceFilterForWhseRcptLine(
           WarehouseReceiptLine, DATABASE::"Purchase Line", PurchaseLine[2]."Document Type".AsInteger(),
           PurchaseLine[2]."Document No.", PurchaseLine[2]."Line No.", true);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         WarehouseReceiptLine.TestField("Location Code", PurchaseLine[2]."Location Code");
         WarehouseReceiptLine.TestField(Quantity, PurchaseLine[2].Quantity);
     end;
@@ -3363,19 +3363,19 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse - Receiving");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse - Receiving");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         CreateLocationSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
         ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch, ItemJournalTemplate.Type::Item);
         ItemJournalSetup(OutputItemJournalTemplate, OutputItemJournalBatch, OutputItemJournalTemplate.Type::Output);
         LibraryWarehouse.WarehouseJournalSetup(LocationWhite2.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
@@ -3486,7 +3486,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
           ProductionOrderNo, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
         ItemJournalLine.SetRange("Journal Template Name", ConsumptionItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ConsumptionItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate(Quantity, Quantity);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
@@ -3554,13 +3554,13 @@ codeunit 137152 "SCM Warehouse - Receiving"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::"Req.");
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         LibraryPlanning.CalculatePlanForReqWksh(
           Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate, WorkDate);
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
         RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
         RequisitionLine.Modify(true);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
@@ -4047,7 +4047,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
 
     local procedure CreateItemTrackingLine(var ItemTrackingLines: TestPage "Item Tracking Lines"; Quantity: Decimal)
     begin
-        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
         ItemTrackingLines."Quantity (Base)".SetValue(Quantity);
         LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
     end;
@@ -4059,7 +4059,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseRequest.SetRange("Source Document", SourceDocument);
         WarehouseRequest.SetRange("Source No.", SourceNo);
         WarehouseRequest.SetRange("Location Code", LocationCode);
-        WarehouseRequest.FindFirst;
+        WarehouseRequest.FindFirst();
         LibraryWarehouse.CreateInvtPutAwayPick(WarehouseRequest, PutAway, Pick, false);
     end;
 
@@ -4155,7 +4155,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetTemplate.Name);
         WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
         WhseWorksheetLine.SetFilter("Item No.", ItemNo + '|' + ItemNo2);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         if QuantityToHandle <> 0 then begin
             WhseWorksheetLine.Validate("Qty. to Handle", QuantityToHandle);
             WhseWorksheetLine.Modify(true);
@@ -4217,7 +4217,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WorkCenter: Record "Work Center";
         RoutingLine: Record "Routing Line";
     begin
-        WorkCenter.FindFirst;
+        WorkCenter.FindFirst();
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLineSetup(
           RoutingLine, RoutingHeader, WorkCenter."No.", Format(LibraryRandom.RandInt(5)), LibraryRandom.RandInt(5),
@@ -4258,7 +4258,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         with WarehouseActivityLine do begin
             "Activity Type" := "Activity Type"::"Invt. Pick";
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Location Code" := LocationCode;
             "Action Type" := "Action Type"::Take;
             "Unit of Measure Code" := UnitOfMeasure.Code;
@@ -4319,7 +4319,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
     begin
         WhseWorksheetTemplate.SetRange(Type, WhseWorksheetTemplate.Type::Movement);
-        WhseWorksheetTemplate.FindFirst;
+        WhseWorksheetTemplate.FindFirst();
         LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationWhite.Code);
     end;
 
@@ -4351,13 +4351,13 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Bin.SetFilter(Code, '<>%1', Location."Adjustment Bin Code");
         Bin.SetRange("Location Code", Location.Code);
         Bin.SetRange("Zone Code", Zone.Code);
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10])
     begin
         Bin.SetRange("Location Code", LocationCode);
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure FindBinAndCreateBinContent(var Bin: Record Bin; Item: Record Item; LocationCode: Code[10])
@@ -4375,14 +4375,14 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Bin.SetRange("Zone Code", Zone.Code);
         LibraryWarehouse.FindBin(Bin, LocationCode, Zone.Code, LibraryRandom.RandInt(Bin.Count));  // Find Random Bin.
         if FindLastBin then
-            Bin.FindLast;
+            Bin.FindLast();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
     end;
 
     local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ItemJournalLine: Record "Item Journal Line")
@@ -4391,7 +4391,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ItemJournalLine."Order No.");
         ProdOrderRoutingLine.SetRange("Routing Reference No.", ItemJournalLine."Routing Reference No.");
         ProdOrderRoutingLine.SetRange("Routing No.", ItemJournalLine."Routing No.");
-        ProdOrderRoutingLine.FindLast;
+        ProdOrderRoutingLine.FindLast();
     end;
 
     local procedure FindProductionOrderLine(ProductionOrderNo: Code[20]): Integer
@@ -4400,7 +4400,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         exit(ProdOrderLine."Line No.");
     end;
 
@@ -4418,7 +4418,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(Receive, false, PutAway, Pick));
         Zone.SetRange("Cross-Dock Bin Zone", false);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
@@ -4437,7 +4437,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
         WarehouseReceiptLine.SetRange("Location Code", LocationCode);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptHeaderFromPurchaseOrder(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceNo: Code[20]; LocationCode: Code[10])
@@ -4476,7 +4476,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure FindPostedWhseReceiptLine(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10])
@@ -4485,7 +4485,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         PostedWhseReceiptLine.SetRange("Source No.", SourceNo);
         PostedWhseReceiptLine.SetRange("Item No.", ItemNo);
         PostedWhseReceiptLine.SetRange("Variant Code", VariantCode);
-        PostedWhseReceiptLine.FindFirst;
+        PostedWhseReceiptLine.FindFirst();
     end;
 
     local procedure FilterBinContent(var BinContent: Record "Bin Content"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
@@ -4518,7 +4518,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         ExpectedReceiptDate := PurchaseLine."Expected Receipt Date";
     end;
 
@@ -4689,7 +4689,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
@@ -4713,7 +4713,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         SalesLine: Record "Sales Line";
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.ShowReservation();
     end;
 
@@ -4765,7 +4765,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Prod. Output");
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.Validate("Lot No.", LotNo);
         WarehouseActivityLine.Modify(true);
         WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
@@ -4778,7 +4778,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
         ProdOrderLine.Modify(true);
     end;
@@ -4897,7 +4897,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         LibraryInventory.CreateItem(Item);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("No.", Item."No.");
     end;
 
@@ -4909,7 +4909,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LibrarySales.ReopenSalesDocument(SalesHeader);
         LibraryInventory.CreateItem(Item);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("No.", Item."No.");
     end;
 
@@ -4921,7 +4921,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LibraryWarehouse.ReopenTransferOrder(TransferHeader);
         LibraryInventory.CreateItem(Item);
         TransferLine.SetRange("Document No.", TransferHeader."No.");
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.Validate("Item No.", Item."No.");
     end;
 
@@ -5007,7 +5007,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         BinContent: Record "Bin Content";
     begin
         FilterBinContent(BinContent, LocationCode, BinCode, ItemNo);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.CalcFields(Quantity);
         BinContent.TestField(Quantity, Quantity);
         BinContent.CalcFields("Quantity (Base)");
@@ -5030,7 +5030,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Shortcut Dimension 1 Code", ShortcutDimension1Code);
         ItemJournalLine.TestField("Qty. (Calculated)", QtyCalculated);
     end;
@@ -5078,7 +5078,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
         WhseWorksheetLine.SetRange("Location Code", WhseWorksheetName."Location Code");
         WhseWorksheetLine.SetRange("Item No.", ItemNo);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.TestField(Quantity, Quantity);
         Assert.AreEqual(AvailableQtyToPick, WhseWorksheetLine.AvailableQtyToPick, QuantityMustBeSame);
     end;
@@ -5089,7 +5089,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         PostedInvtPutAwayLine.SetRange("Source Document", SourceDocument);
         PostedInvtPutAwayLine.SetRange("Source No.", SourceNo);
-        PostedInvtPutAwayLine.FindFirst;
+        PostedInvtPutAwayLine.FindFirst();
         PostedInvtPutAwayLine.TestField("Location Code", LocationCode);
         PostedInvtPutAwayLine.TestField("Item No.", ItemNo);
         PostedInvtPutAwayLine.TestField(Quantity, Quantity);
@@ -5141,7 +5141,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         PostedWhseShipmentLine.SetRange("Source No.", SourceNo);
         PostedWhseShipmentLine.SetRange("Item No.", ItemNo);
         PostedWhseShipmentLine.SetRange("Variant Code", VariantCode);
-        PostedWhseShipmentLine.FindFirst;
+        PostedWhseShipmentLine.FindFirst();
         PostedWhseShipmentLine.TestField(Quantity, Quantity);
     end;
 
@@ -5182,7 +5182,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.CalcFields("Reserved Qty. (Base)");
         PurchaseLine.TestField("Reserved Qty. (Base)", Quantity);
     end;
@@ -5195,7 +5195,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
           RegisteredWhseActivityLine, SourceDocument, SourceNo, RegisteredWhseActivityLine."Activity Type"::"Put-away", ActionType);
         RegisteredWhseActivityLine.SetRange("Lot No.", LotNo);
         RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
-        RegisteredWhseActivityLine.FindFirst;
+        RegisteredWhseActivityLine.FindFirst();
         RegisteredWhseActivityLine.TestField(Quantity, Quantity);
         RegisteredWhseActivityLine.TestField("Unit of Measure Code", UnitOfMeasureCode);
         RegisteredWhseActivityLine.TestField("Variant Code", VariantCode);
@@ -5282,7 +5282,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseEntry.SetRange("Item No.", ItemNo);
         WarehouseEntry.SetRange("Location Code", Bin."Location Code");
         WarehouseEntry.SetRange("Zone Code", Bin."Zone Code");
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
         WarehouseEntry.Validate("Bin Code", Bin.Code);
         WarehouseEntry.Validate(Quantity, Quantity);
     end;

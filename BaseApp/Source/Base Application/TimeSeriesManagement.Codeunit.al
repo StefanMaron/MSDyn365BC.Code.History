@@ -220,7 +220,7 @@ codeunit 2000 "Time Series Management"
 
         GetDistinctRecords(RecRef, GroupIDFieldNo, TempTimeSeriesBufferDistinct);
 
-        if TempTimeSeriesBufferDistinct.FindSet then
+        if TempTimeSeriesBufferDistinct.FindSet() then
             repeat
                 GroupIDFieldRef.SetRange(TempTimeSeriesBufferDistinct."Group ID");
                 for CurrentPeriod := -TimeSeriesObservationPeriods to -1 do begin
@@ -259,7 +259,7 @@ codeunit 2000 "Time Series Management"
         if ValueFieldRef.Class <> FieldClass::FlowField then
             exit(0);
 
-        if RecRef.FindSet then
+        if RecRef.FindSet() then
             repeat
                 ValueFieldRef.CalcField;
                 CurrentValue := ValueFieldRef.Value;
@@ -273,7 +273,7 @@ codeunit 2000 "Time Series Management"
         AzureMLConnector.AddInputColumnName('DateKey');
         AzureMLConnector.AddInputColumnName('TransactionQty');
 
-        if TempTimeSeriesBuffer.FindSet then
+        if TempTimeSeriesBuffer.FindSet() then
             repeat
                 AzureMLConnector.AddInputRow;
                 AzureMLConnector.AddInputValue(Format(TempTimeSeriesBuffer."Group ID"));
@@ -332,7 +332,7 @@ codeunit 2000 "Time Series Management"
     begin
         FieldRef := RecRef.Field(FieldNo);
 
-        if RecRef.FindSet then
+        if RecRef.FindSet() then
             repeat
                 TempTimeSeriesBufferDistinct.Init();
                 if FieldRef.Type = FieldType::Option then begin
@@ -376,7 +376,7 @@ codeunit 2000 "Time Series Management"
             else
                 Error(NotARecordErr);
 
-        if not SourceRecordRef.FindFirst then
+        if not SourceRecordRef.FindFirst() then
             exit(false);
 
         // last date of transaction history that will be used for forecast
@@ -384,7 +384,7 @@ codeunit 2000 "Time Series Management"
 
         PeriodFieldRef := SourceRecordRef.Field(PeriodFieldNo);
         PeriodFieldRef.SetFilter('%1..', CalculateMaxStartDate(HistoryEndDate, PeriodType));
-        if SourceRecordRef.FindSet then;
+        if SourceRecordRef.FindSet() then;
         PeriodFieldRef := SourceRecordRef.Field(PeriodFieldNo);
         HistoryStartDate := PeriodFieldRef.Value;
         if not (HistoryStartDate.IsDate or HistoryStartDate.IsDateTime) then

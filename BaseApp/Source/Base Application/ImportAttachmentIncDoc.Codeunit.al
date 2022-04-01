@@ -378,7 +378,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
     begin
         with IncomingDocumentAttachment do begin
             SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-            if FindLast then;
+            if FindLast() then;
             exit("Line No." + LineIncrement);
         end;
     end;

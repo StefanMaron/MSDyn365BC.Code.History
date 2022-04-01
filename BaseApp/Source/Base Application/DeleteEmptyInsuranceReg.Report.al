@@ -14,7 +14,7 @@ report 5695 "Delete Empty Insurance Reg."
             trigger OnAfterGetRecord()
             begin
                 InsCoverageLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
-                if InsCoverageLedgEntry.FindFirst then
+                if InsCoverageLedgEntry.FindFirst() then
                     CurrReport.Skip();
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");

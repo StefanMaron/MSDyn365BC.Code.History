@@ -124,7 +124,7 @@ table 2132 "O365 Settings Menu"
             else
                 Error(UnexpectedParemeterErr, Parameter);
         end;
-        O365ImportFromExcelWizard.RunModal;
+        O365ImportFromExcelWizard.RunModal();
     end;
 }
 

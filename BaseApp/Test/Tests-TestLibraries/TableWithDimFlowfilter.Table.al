@@ -1,13 +1,18 @@
 table 134484 "Table With Dim Flowfilter"
 {
+
+#if not CLEAN20
     LookupPageID = "XBRL Taxonomy Lines";
+#endif
 
     fields
     {
         field(1; Name; Code[20])
         {
             NotBlank = true;
+#if not CLEAN20
             TableRelation = "XBRL Taxonomy";
+#endif
         }
         field(16; "Global Dimension 1 Filter"; Code[20])
         {
@@ -40,4 +45,3 @@ table 134484 "Table With Dim Flowfilter"
     {
     }
 }
-

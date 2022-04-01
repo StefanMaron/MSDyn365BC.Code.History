@@ -141,7 +141,7 @@ report 214 "Pick Instruction"
                         AssembleToOrderLink.SetRange("Document Type", "Document Type");
                         AssembleToOrderLink.SetRange("Document No.", "Document No.");
                         AssembleToOrderLink.SetRange("Document Line No.", "Line No.");
-                        AsmExists := AssembleToOrderLink.FindFirst;
+                        AsmExists := AssembleToOrderLink.FindFirst();
                         QtyToAsm := 0;
                         if AsmExists then
                             if AsmHeader.Get(AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.") then

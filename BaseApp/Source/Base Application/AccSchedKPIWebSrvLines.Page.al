@@ -40,7 +40,7 @@ page 196 "Acc. Sched. KPI Web Srv. Lines"
                     AccSchedule: Page "Account Schedule";
                 begin
                     AccSchedule.SetAccSchedName("Acc. Schedule Name");
-                    AccSchedule.Run;
+                    AccSchedule.Run();
                 end;
             }
         }

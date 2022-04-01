@@ -128,7 +128,7 @@ table 5207 "Employee Absence"
     trigger OnInsert()
     begin
         EmployeeAbsence.SetCurrentKey("Entry No.");
-        if EmployeeAbsence.FindLast then
+        if EmployeeAbsence.FindLast() then
             "Entry No." := EmployeeAbsence."Entry No." + 1
         else begin
             CheckBaseUOM;

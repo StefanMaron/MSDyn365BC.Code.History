@@ -16,7 +16,7 @@ report 9000 "Add/Subtract Permission Set"
             begin
                 if Scope = Scope::System then begin
                     Permission.SetRange("Role ID", "Role ID");
-                    if Permission.FindSet then
+                    if Permission.FindSet() then
                         repeat
                             if DestinationAggregatePermissionSet.Scope = DestinationAggregatePermissionSet.Scope::System then
                                 IncludeExcludePermissionInPermission(Permission)
@@ -26,7 +26,7 @@ report 9000 "Add/Subtract Permission Set"
                 end else begin
                     TenantPermission.SetRange("App ID", "App ID");
                     TenantPermission.SetRange("Role ID", "Role ID");
-                    if TenantPermission.FindSet then
+                    if TenantPermission.FindSet() then
                         repeat
                             if DestinationAggregatePermissionSet.Scope = DestinationAggregatePermissionSet.Scope::System then
                                 IncludeExcludeTenantPermissionInPermission(TenantPermission)
@@ -74,7 +74,6 @@ report 9000 "Add/Subtract Permission Set"
 
                     trigger OnAssistEdit()
                     var
-                        TempPermissionSetBuffer: Record "Permission Set Buffer" temporary;
                         PermissionSetList: Page "Permission Set List";
                         SelectionFilterManagement: Codeunit SelectionFilterManagement;
                     begin
@@ -177,7 +176,7 @@ report 9000 "Add/Subtract Permission Set"
                     DestinationTenantPermission.SetRange("Object Type", SourcePermission."Object Type");
                     if SourcePermission."Object ID" <> 0 then
                         DestinationTenantPermission.SetRange("Object ID", SourcePermission."Object ID");
-                    if DestinationTenantPermission.FindSet then
+                    if DestinationTenantPermission.FindSet() then
                         repeat
                             if PermissionValueIsGreaterOrEqual(SourcePermission."Read Permission", DestinationTenantPermission."Read Permission") then
                                 DestinationTenantPermission."Read Permission" := SourcePermission."Read Permission"::" ";
@@ -246,7 +245,7 @@ report 9000 "Add/Subtract Permission Set"
                     DestinationTenantPermission.SetRange("Object Type", SourceTenantPermission."Object Type");
                     if SourceTenantPermission."Object ID" <> 0 then
                         DestinationTenantPermission.SetRange("Object ID", SourceTenantPermission."Object ID");
-                    if DestinationTenantPermission.FindSet then
+                    if DestinationTenantPermission.FindSet() then
                         repeat
                             if PermissionValueIsGreaterOrEqual(
                                  SourceTenantPermission."Read Permission", DestinationTenantPermission."Read Permission")
@@ -319,7 +318,7 @@ report 9000 "Add/Subtract Permission Set"
                     DestinationPermission.SetRange("Object Type", SourcePermission."Object Type");
                     if SourcePermission."Object ID" <> 0 then
                         DestinationPermission.SetRange("Object ID", SourcePermission."Object ID");
-                    if DestinationPermission.FindSet then
+                    if DestinationPermission.FindSet() then
                         repeat
                             if PermissionValueIsGreaterOrEqual(SourcePermission."Read Permission", DestinationPermission."Read Permission") then
                                 DestinationPermission."Read Permission" := SourcePermission."Read Permission"::" ";
@@ -392,7 +391,7 @@ report 9000 "Add/Subtract Permission Set"
                     DestinationPermission.SetRange("Object Type", SourceTenantPermission."Object Type");
                     if SourceTenantPermission."Object ID" <> 0 then
                         DestinationPermission.SetRange("Object ID", SourceTenantPermission."Object ID");
-                    if DestinationPermission.FindSet then
+                    if DestinationPermission.FindSet() then
                         repeat
                             if PermissionValueIsGreaterOrEqual(
                                  SourceTenantPermission."Read Permission", DestinationPermission."Read Permission")

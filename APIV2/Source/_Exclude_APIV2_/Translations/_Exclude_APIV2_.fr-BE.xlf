@@ -501,11 +501,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 193372512 - Control 707985127 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a code for the configuration package.</source>
+          <target state="translated">Spécifie un code pour le package configuration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control code - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 193372512 - Control 707985127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Code</source>
           <target state="translated">Code</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 193372512 - Control 2374100451 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a contect package.</source>
+          <target state="translated">Spécifie un package de contact.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control content - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 193372512 - Control 2374100451 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Content</source>
@@ -1076,6 +1088,12 @@
           <target state="translated">L’ensemble d’autorisations %1 est défini plusieurs fois dans ce contexte.</target>
           <note from="Developer" annotates="general" priority="2">%1 will be replaced with a Role ID code value from the Permission Set table</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Group Perm. - NamedType MultipleRoleIDErr</note>
+        </trans-unit>
+        <trans-unit id="Page 945262719 - NamedType 3058781679" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You cannot change the User Group Code for a user group permission.</source>
+          <target state="translated">Vous ne pouvez pas modifier le code groupe d’utilisateurs pour une autorisation de groupe d’utilisateurs.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Group Perm. - NamedType UserGroupCodeNotEditableErr</note>
         </trans-unit>
         <trans-unit id="Page 945262719 - NamedType 509535601" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify a User Group Code to access user group permissions.</source>
@@ -3740,6 +3758,12 @@
           <target state="translated">La balancingAccountId ne correspond à aucun compte.</target>
           <note from="Developer" annotates="general" priority="2">balancingAccountId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - NamedType BalAccountIdDoesNotMatchAnAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3494060223 - NamedType 2792529467" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Journal Batch Id isn't editable.</source>
+          <target state="translated">Le code de la feuille n’est pas modifiable.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - NamedType CannotEditBatchIdErr</note>
         </trans-unit>
         <trans-unit id="Page 3494060223 - NamedType 3222313909" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Journal Batch Display Name isn't editable.</source>

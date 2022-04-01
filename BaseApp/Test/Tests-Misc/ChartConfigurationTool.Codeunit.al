@@ -132,7 +132,7 @@ codeunit 136149 "Chart Configuration Tool"
         ExpectedDescription: Text[1024];
     begin
         // [GIVEN] Create a table based chart with X Dimension and 4 measures
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         CountOfMeasures := 4;
@@ -276,7 +276,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a table based chart with X and Z dimensions
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         CountOfMeasures := 1;
@@ -381,7 +381,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a table based chart with required measure only
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         CountOfMeasures := 1;
@@ -513,7 +513,7 @@ codeunit 136149 "Chart Configuration Tool"
         RetrievedDescription: Text;
     begin
         // [GIVEN] Create a query based chart
-        Initialize;
+        Initialize();
         GetDefaultSourceQueryInfo(SourceName, SourceID, SourceType);
         CountOfMeasures := 1;
 
@@ -575,7 +575,7 @@ codeunit 136149 "Chart Configuration Tool"
         VerifyChartSourceProperties(ChartBuilder, SourceType, SourceName, SourceID, DefaultChartDescription);
         Clear(Chart);
         Chart.SetRange(ID, ChartCode);
-        Chart.FindFirst;
+        Chart.FindFirst();
         GenericChartMgt.RetrieveXML(
           Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartCaptionsBuf, TempGenericChartMemoBuf, TempGenericChartFilter);
         RetrievedDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage);
@@ -630,7 +630,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // Y Axis, Index is Zero based
@@ -662,7 +662,7 @@ codeunit 136149 "Chart Configuration Tool"
         TargetChartCode := GenerateRandomChartCode;
         GenericChartMgt.CopyChart(Chart, TargetChartCode, TargetChartCode);
         CopiedChart.SetRange(ID, TargetChartCode);
-        CopiedChart.FindFirst;
+        CopiedChart.FindFirst();
         CopiedChart.CalcFields(BLOB);
         CopiedChart.BLOB.CreateInStream(InStream);
         while not InStream.EOS do begin
@@ -702,7 +702,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Set the field info
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // [WHEN] Add the fields to chart object by invoking the two methods LookupObjectID and RetrieveFieldColumn
@@ -758,7 +758,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // Y Axis, Index is Zero based
@@ -814,7 +814,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a query based chart
-        Initialize;
+        Initialize();
         GetDefaultSourceQueryInfo(SourceName, SourceID, SourceType);
 
         // Y Axis
@@ -865,7 +865,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // X Axis
@@ -906,7 +906,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // Y Axis, Index is Zero based
@@ -959,7 +959,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
 
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
@@ -999,7 +999,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // Y Axis, Index is Zero based
@@ -1061,7 +1061,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // Y Axis, Index is Zero based
@@ -1118,7 +1118,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // Y Axis, Index is Zero based
@@ -1168,7 +1168,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // Y Axis, Index is Zero based
@@ -1216,7 +1216,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
         CreateDefaultChart(Chart, ChartCode);
 
@@ -1256,7 +1256,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
         CreateDefaultChart(Chart, ChartCode);
 
@@ -1299,7 +1299,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
         CreateDefaultChart(Chart, ChartCode);
 
@@ -1338,7 +1338,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceQueryInfo(SourceName, SourceID, SourceType);
         CreateDefaultChart(Chart, ChartCode);
 
@@ -1381,7 +1381,7 @@ codeunit 136149 "Chart Configuration Tool"
         index: Integer;
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
         CreateDefaultChart(Chart, ChartCode);
 
@@ -1447,7 +1447,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a table based chart with X Dimension and 4 measures
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         CountOfMeasures := 4;
@@ -1530,7 +1530,7 @@ codeunit 136149 "Chart Configuration Tool"
         ShowZDimensionTitle: Boolean;
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // Y Axis, Index is Zero based
@@ -1592,7 +1592,7 @@ codeunit 136149 "Chart Configuration Tool"
         ChartCode: Code[20];
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
 
         // Y Axis, Index is Zero based
@@ -1644,7 +1644,7 @@ codeunit 136149 "Chart Configuration Tool"
         ShowXDimensionTitle: Boolean;
     begin
         // [GIVEN] Create a Source Chart
-        Initialize;
+        Initialize();
         GetDefaultSourceTableInfo(SourceName, SourceID, SourceType);
         CreateDefaultChart(Chart, ChartCode);
 
@@ -2183,12 +2183,12 @@ codeunit 136149 "Chart Configuration Tool"
 
         TempGenericChartMemoBuf.Code := GenericChartMgt.DescriptionCode;
         TempGenericChartMemoBuf."Language Code" := GenericChartMgt.GetUserLanguage;
-        TempGenericChartMemoBuf.Memo1 := LibraryUtility.GenerateGUID;
+        TempGenericChartMemoBuf.Memo1 := LibraryUtility.GenerateGUID();
         TempGenericChartMemoBuf.Insert();
 
         TempGenericChartCaptionsBuf.Code := GenericChartMgt.XAxisCaptionCode;
         TempGenericChartCaptionsBuf."Language Code" := GenericChartMgt.GetUserLanguage;
-        TempGenericChartCaptionsBuf.Caption := LibraryUtility.GenerateGUID;
+        TempGenericChartCaptionsBuf.Caption := LibraryUtility.GenerateGUID();
         TempGenericChartCaptionsBuf.Insert();
 
         GenericChartMgt.SaveChanges(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
@@ -2215,7 +2215,7 @@ codeunit 136149 "Chart Configuration Tool"
         GenericChartYAxis: Record "Generic Chart Y-Axis";
         Cust: Record Customer;
     begin
-        ChartSetup.OpenNew;
+        ChartSetup.OpenNew();
         ChartSetup.Name.Value := ChartName;
         ChartSetup.ID.Value := ChartID;
         ChartSetup."Source Type".SetValue(GenericChartSetup."Source Type"::Table);
@@ -2245,7 +2245,7 @@ codeunit 136149 "Chart Configuration Tool"
     local procedure GetChartFromDB(var Chart: Record Chart; ChartID: Code[20])
     begin
         Chart.SetRange(ID, ChartID);
-        if not Chart.FindFirst then
+        if not Chart.FindFirst() then
             Assert.Fail(StrSubstNo(ChartNotFoundErr, ChartID))
     end;
 
@@ -2254,7 +2254,7 @@ codeunit 136149 "Chart Configuration Tool"
         Chart: Record Chart;
     begin
         Chart.SetRange(ID, ChartID);
-        if Chart.FindFirst then
+        if Chart.FindFirst() then
             Chart.Delete
     end;
 
@@ -2563,7 +2563,7 @@ codeunit 136149 "Chart Configuration Tool"
                             FieldColName := FieldName;
                     end else begin
                         SetRange(TableNo, SourceNo);
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 if UpperCase(FieldName) = UpperCase(FieldColName) then begin
                                     Found := true;
@@ -2578,10 +2578,10 @@ codeunit 136149 "Chart Configuration Tool"
                         if FieldColNo > 0 then begin
                             FieldColName := '';
                             SetRange("Query Column No.", FieldColNo);
-                            if FindFirst then
+                            if FindFirst() then
                                 FieldColName := "Column Name";
                         end else begin
-                            if FindSet then
+                            if FindSet() then
                                 repeat
                                     if UpperCase("Column Name") = UpperCase(FieldColName) then begin
                                         Found := true;
@@ -2597,7 +2597,7 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         Clear(Chart);
         Chart.SetRange(ID, ChartCode);
-        Chart.FindFirst;
+        Chart.FindFirst();
     end;
 
     local procedure SaveChartWithDefaultDescription(var Chart: Record Chart; var TempGenericChartSetup: Record "Generic Chart Setup" temporary; var TempGenericChartYAxis: Record "Generic Chart Y-Axis" temporary; var TempGenericChartFilter: Record "Generic Chart Filter" temporary)
@@ -2711,7 +2711,7 @@ codeunit 136149 "Chart Configuration Tool"
           IsMeasureDefinedAtIndex, ChartBuilder.HasMeasureField(MeasureIndex),
           StrSubstNo('Property: HasMeasure for measure field:%1 matches', MeasureIndex));
         TempGenericChartYAxis.SetRange("Line No.", (MeasureIndex + 1) * 10000);
-        TempGenericChartYAxis.FindFirst;
+        TempGenericChartYAxis.FindFirst();
         if IsMeasureDefinedAtIndex then begin
             Assert.AreEqual(
               Format(TempGenericChartYAxis."Chart Type"), Format(ChartBuilder.GetMeasureChartType(MeasureIndex)),
@@ -2831,7 +2831,7 @@ codeunit 136149 "Chart Configuration Tool"
         Chart: Record Chart;
     begin
         Chart.SetRange(ID, ChartID);
-        if Chart.FindFirst then
+        if Chart.FindFirst() then
             Assert.Fail(ChartFoundInDBErr)
     end;
 

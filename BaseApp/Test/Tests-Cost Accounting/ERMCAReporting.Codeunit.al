@@ -41,7 +41,7 @@ codeunit 134816 "ERM CA Reporting"
         NoOfCostBudgetRegEntries: Integer;
         NoOfRegisterEntriesBefore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
@@ -65,7 +65,7 @@ codeunit 134816 "ERM CA Reporting"
     var
         NoOfCostRegisterEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         NoOfCostRegisterEntries := 2;
         CloseCostRegisterEntries(NoOfCostRegisterEntries);
@@ -85,14 +85,14 @@ codeunit 134816 "ERM CA Reporting"
         LastAllocatedJnlNo: Integer;
         TotalAllocatedEntriesCountOld: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         Commit();
         REPORT.Run(REPORT::"Cost Allocation");
 
         CostRegister.SetRange(Source, CostRegister.Source::Allocation);
-        CostRegister.FindLast;
+        CostRegister.FindLast();
         LastAllocatedJnlNo := CostRegister."No.";
         ReversedCostAllocEntriesCount := AllocatedWithJnlNo(LastAllocatedJnlNo) + AllocatedInJnlNo(LastAllocatedJnlNo);
         TotalAllocatedEntriesCountOld := TotalAllocatedCostEntries;
@@ -107,7 +107,7 @@ codeunit 134816 "ERM CA Reporting"
 
         // Verify Last Alloc Doc No. field from Cost Accounting Setup
         CostEntry.SetRange(Allocated, true);
-        CostEntry.FindLast;
+        CostEntry.FindLast();
         VerifyLastAllocationDocNo(CostEntry."Document No.");
     end;
 
@@ -122,7 +122,7 @@ codeunit 134816 "ERM CA Reporting"
         NoOfRegisterEntriesBefore: Integer;
         LastClosedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
@@ -150,7 +150,7 @@ codeunit 134816 "ERM CA Reporting"
         NoOfCostRegisterEntries: Integer;
         LastClosedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         NoOfCostRegisterEntries := 1;
@@ -175,7 +175,7 @@ codeunit 134816 "ERM CA Reporting"
         TotalNoOfBudgetRegEntries: Integer;
         NoOfRegisterEntriesBefore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
@@ -198,7 +198,7 @@ codeunit 134816 "ERM CA Reporting"
         // Verify Last Alloc Doc No. field from Cost Accounting Setup
 
         CostBudgetRegister.SetRange(Source, CostBudgetRegister.Source::Allocation);
-        CostBudgetRegister.FindLast;
+        CostBudgetRegister.FindLast();
         CostBudgetEntry.Get(CostBudgetRegister."To Cost Budget Entry No.");
         VerifyLastAllocationDocNo(CostBudgetEntry."Document No.");
     end;
@@ -211,7 +211,7 @@ codeunit 134816 "ERM CA Reporting"
         CostBudgetEntry: Record "Cost Budget Entry";
         CostBudgetEntryCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CostBudgetEntryCount := CostBudgetEntry.Count();
@@ -231,10 +231,10 @@ codeunit 134816 "ERM CA Reporting"
         CostBudgetRegister: Record "Cost Budget Register";
         DeleteCostBudgetEntries: Report "Delete Cost Budget Entries";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
-        CostBudgetRegister.FindLast;
+        CostBudgetRegister.FindLast();
 
         // Setup
         Clear(DeleteCostBudgetEntries);
@@ -242,7 +242,7 @@ codeunit 134816 "ERM CA Reporting"
 
         // Exercise
         DeleteCostBudgetEntries.UseRequestPage := false;
-        asserterror DeleteCostBudgetEntries.RunModal;
+        asserterror DeleteCostBudgetEntries.RunModal();
 
         // Verify
         Assert.ExpectedError(FromRegNoHigherThanToRegNo);
@@ -254,7 +254,7 @@ codeunit 134816 "ERM CA Reporting"
     procedure DeleteCostBudgetEntriesFromValueNotExisting()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         REPORT.Run(REPORT::"Delete Cost Budget Entries");
@@ -271,7 +271,7 @@ codeunit 134816 "ERM CA Reporting"
         CostEntry: Record "Cost Entry";
         CostEntryCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CostEntryCount := CostEntry.Count();
@@ -291,10 +291,10 @@ codeunit 134816 "ERM CA Reporting"
         CostRegister: Record "Cost Register";
         DeleteCostEntries: Report "Delete Cost Entries";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
-        CostRegister.FindLast;
+        CostRegister.FindLast();
 
         // Setup
         Clear(DeleteCostEntries);
@@ -302,7 +302,7 @@ codeunit 134816 "ERM CA Reporting"
 
         // Exercise
         DeleteCostEntries.UseRequestPage := false;
-        asserterror DeleteCostEntries.RunModal;
+        asserterror DeleteCostEntries.RunModal();
 
         // Verify
         Assert.ExpectedError(FromRegNoHigherThanToRegNo);
@@ -314,7 +314,7 @@ codeunit 134816 "ERM CA Reporting"
     procedure DeleteCostEntriesFromValueNotExisting()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         REPORT.Run(REPORT::"Delete Cost Entries");
@@ -334,7 +334,7 @@ codeunit 134816 "ERM CA Reporting"
         YearEndDate: Date;
     begin
         // Setup:
-        Initialize;
+        Initialize();
         YearEndDate := CalcDate('<CY - 2Y>', WorkDate);
         LibraryVariableStorage.Enqueue(YearEndDate);
 
@@ -362,7 +362,7 @@ codeunit 134816 "ERM CA Reporting"
         CostEntry: Record "Cost Entry";
         CostEntryCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CostEntryCount := CostEntry.Count();
@@ -382,7 +382,7 @@ codeunit 134816 "ERM CA Reporting"
     var
         YearEndingDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         YearEndingDate := LibraryUtility.GenerateRandomDate(CalcDate('<-CY>', WorkDate), CalcDate('<CY-1D>', WorkDate));
@@ -405,7 +405,7 @@ codeunit 134816 "ERM CA Reporting"
         OldWorkDate: Date;
         YearEndingDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         YearEndingDate := CalcDate('<CY>', Today);
@@ -436,7 +436,7 @@ codeunit 134816 "ERM CA Reporting"
         NoOfRegisterEntriesBefore: Integer;
         LastClosedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
@@ -465,7 +465,7 @@ codeunit 134816 "ERM CA Reporting"
         NoOfCostRegisterEntries: Integer;
         LastClosedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         NoOfCostRegisterEntries := 1;
@@ -495,14 +495,14 @@ codeunit 134816 "ERM CA Reporting"
 
         REPORT.Run(REPORT::"Transfer Budget to Actual", false, false, CostBudgetEntry);
 
-        CostRegister.FindLast;
+        CostRegister.FindLast();
         CostRegister.TestField(Source, CostRegister.Source::"Transfer from Budget");
     end;
 
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM CA Reporting");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;

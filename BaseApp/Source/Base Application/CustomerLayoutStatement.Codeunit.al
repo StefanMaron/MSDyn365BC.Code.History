@@ -67,7 +67,7 @@ codeunit 8810 "Customer Layout - Statement"
         LocalRepId: Integer;
     begin
         LocalReportSelections.SetRange(Usage, LocalReportSelections.Usage::"C.Statement");
-        if not LocalReportSelections.FindFirst then
+        if not LocalReportSelections.FindFirst() then
             Error(StatementReportNotFoundErr);
 
         LocalRepId := LocalReportSelections."Report ID";
@@ -97,7 +97,7 @@ codeunit 8810 "Customer Layout - Statement"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         SetJobQueueEntryFilter(JobQueueEntry);
-        if JobQueueEntry.FindFirst then
+        if JobQueueEntry.FindFirst() then
             if JobQueueEntry.DoesExistLocked then
                 Error(DuplicateJobQueueRecordErr);
     end;

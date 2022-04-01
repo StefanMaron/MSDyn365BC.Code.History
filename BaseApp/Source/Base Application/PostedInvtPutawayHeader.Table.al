@@ -196,7 +196,7 @@ table 7340 "Posted Invt. Put-away Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     local procedure CheckLocation()

@@ -39,6 +39,11 @@ table 315 "Jobs Setup"
             Caption = 'Allow Sched/Contract Lines Def';
             InitValue = true;
         }
+        field(9; "Document No. Is Job No."; Boolean)
+        {
+            Caption = 'Document No. Is Job No.';
+            InitValue = true;
+        }
         field(31; "Logo Position on Documents"; Option)
         {
             Caption = 'Logo Position on Documents';

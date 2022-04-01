@@ -480,7 +480,7 @@ codeunit 134346 "Skipped Document Lines"
     begin
         // [FEATURE] [Sales] [Item]
         // [SCENARIO] "Copy Document" skips document lines, where the item is blocked
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item 'X' is created
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -539,7 +539,7 @@ codeunit 134346 "Skipped Document Lines"
     begin
         // [FEATURE] [Sales] [Resource]
         // [SCENARIO] "Copy Document" skips document lines, where the resource is blocked
-        Initialize;
+        Initialize();
 
         // [GIVEN] Resource 'X' is created
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -592,7 +592,7 @@ codeunit 134346 "Skipped Document Lines"
     begin
         // [FEATURE] [Purchase] [Item]
         // [SCENARIO] "Copy Document" skips document lines, where the item is blocked
-        Initialize;
+        Initialize();
 
         // [GIVEN] An Item 'X' is created
         LibraryInventory.CreateItem(Item);

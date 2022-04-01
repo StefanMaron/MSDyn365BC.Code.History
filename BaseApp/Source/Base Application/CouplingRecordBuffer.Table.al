@@ -23,13 +23,21 @@ table 5332 "Coupling Record Buffer"
             trigger OnValidate()
             var
                 CRMIntegrationRecord: Record "CRM Integration Record";
+                CRMOptionMapping: Record "CRM Option Mapping";
             begin
-                if FindCRMRecordByName("CRM Name") then begin
-                    if "Saved CRM ID" <> "CRM ID" then
-                        CRMIntegrationRecord.AssertRecordIDCanBeCoupled("NAV Record ID", "CRM ID");
-                    CalcCRMName;
+                if "Is Option" then begin
+                    if FindCRMOptionByName("CRM Name", "CRM Table ID") then begin
+                        if "Saved CRM Option Id" <> "CRM Option Id" then
+                            CRMOptionMapping.AssertCRMOptionIdCanBeMapped("NAV Record ID", "CRM Option Id");
+                    end else
+                        Error(NoSuchCRMRecordErr, "CRM Name", CRMProductName.CDSServiceName());
                 end else
-                    Error(NoSuchCRMRecordErr, "CRM Name", CRMProductName.CDSServiceName());
+                    if FindCRMRecordByName("CRM Name") then begin
+                        if "Saved CRM ID" <> "CRM ID" then
+                            CRMIntegrationRecord.AssertRecordIDCanBeCoupled("NAV Record ID", "CRM ID");
+                        CalcCRMName;
+                    end else
+                        Error(NoSuchCRMRecordErr, "CRM Name", CRMProductName.CDSServiceName());
             end;
         }
         field(3; "NAV Table ID"; Integer)
@@ -43,7 +51,7 @@ table 5332 "Coupling Record Buffer"
             begin
                 IntegrationTableMapping.SetRange("Table ID", "NAV Table ID");
                 IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-                if IntegrationTableMapping.FindFirst then
+                if IntegrationTableMapping.FindFirst() then
                     "CRM Table Name" := IntegrationTableMapping.Name
                 else
                     "CRM Table Name" := '';
@@ -88,12 +96,19 @@ table 5332 "Coupling Record Buffer"
                 if "Create New" then begin
                     "Saved Sync Action" := "Sync Action";
                     "Saved CRM ID" := "CRM ID";
+                    "Saved CRM Option Id" := "CRM Option Id";
                     Validate("Sync Action", "Sync Action"::"To Integration Table");
                     Clear(NullGUID);
-                    Validate("CRM ID", NullGUID);
+                    if not "Is Option" then
+                        Validate("CRM ID", NullGUID)
+                    else
+                        Validate("CRM Option Id", 0);
                 end else begin
                     Validate("Sync Action", "Saved Sync Action");
-                    Validate("CRM ID", "Saved CRM ID");
+                    if not "Is Option" then
+                        Validate("CRM ID", "Saved CRM ID")
+                    else
+                        Validate("CRM Option Id", "Saved CRM Option Id");
                 end;
             end;
         }
@@ -114,6 +129,26 @@ table 5332 "Coupling Record Buffer"
             Caption = 'CRM Table Name';
             DataClassification = SystemMetadata;
             Editable = false;
+        }
+        field(14; "CRM Option Id"; Integer)
+        {
+            Caption = 'CRM Option Id';
+            DataClassification = SystemMetadata;
+
+            trigger OnValidate()
+            begin
+                CalcCRMName()
+            end;
+        }
+        field(15; "Saved CRM Option Id"; Integer)
+        {
+            Caption = 'Saved CRM Option Id';
+            DataClassification = SystemMetadata;
+        }
+        field(16; "Is Option"; Boolean)
+        {
+            Caption = 'Is Option';
+            DataClassification = SystemMetadata;
         }
     }
 
@@ -136,7 +171,7 @@ table 5332 "Coupling Record Buffer"
         LookupCRMTables: Codeunit "Lookup CRM Tables";
         CRMProductName: Codeunit "CRM Product Name";
 
-    procedure Initialize(NAVRecordID: RecordID)
+    procedure Initialize(NAVRecordID: RecordID; IsOption: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         RecordRef: RecordRef;
@@ -148,16 +183,35 @@ table 5332 "Coupling Record Buffer"
         Validate("NAV Table ID", NAVRecordID.TableNo);
         "NAV Record ID" := NAVRecordID;
         "NAV Name" := NameValue(RecordRef);
+        "Is Option" := IsOption;
         "CRM Table ID" := CRMSetupDefaults.GetCRMTableNo("NAV Table ID");
-        if CRMSetupDefaults.GetDefaultDirection("NAV Table ID") = IntegrationTableMapping.Direction::FromIntegrationTable then
-            Validate("Sync Action", "Sync Action"::"From Integration Table")
-        else
-            Validate("Sync Action", "Sync Action"::"To Integration Table");
-        if FindCRMId then
-            if CalcCRMName then begin
+        if not IsOption then begin
+            if CRMSetupDefaults.GetDefaultDirection("NAV Table ID") = IntegrationTableMapping.Direction::FromIntegrationTable then
+                Validate("Sync Action", "Sync Action"::"From Integration Table")
+            else
+                Validate("Sync Action", "Sync Action"::"To Integration Table");
+
+            if FindCRMId then
+                if CalcCRMName then begin
+                    Validate("Sync Action", "Sync Action"::"Do Not Synchronize");
+                    "Saved CRM ID" := "CRM ID";
+                end;
+        end else begin
+            if IntegrationTableMapping.FindMappingForTable(RecordRef.Number) then
+                if IntegrationTableMapping.GetDirection() = IntegrationTableMapping.Direction::FromIntegrationTable then
+                    Validate("Sync Action", "Sync Action"::"From Integration Table")
+                else
+                    Validate("Sync Action", "Sync Action"::"To Integration Table");
+            if FindCRMOptionId() then begin
                 Validate("Sync Action", "Sync Action"::"Do Not Synchronize");
-                "Saved CRM ID" := "CRM ID";
+                "Saved CRM Option Id" := "CRM Option Id";
             end;
+        end;
+    end;
+
+    procedure Initialize(NAVRecordID: RecordID)
+    begin
+        Initialize(NAVRecordID, false);
     end;
 
     local procedure FindCRMId(): Boolean
@@ -165,6 +219,19 @@ table 5332 "Coupling Record Buffer"
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
         exit(CRMIntegrationRecord.FindIDFromRecordID("NAV Record ID", "CRM ID"))
+    end;
+
+    local procedure FindCRMOptionId(): Boolean
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+    begin
+        CRMOptionMapping.SetRange("Record ID", Rec."NAV Record ID");
+        if CRMOptionMapping.FindFirst() then begin
+            Rec."CRM Option Id" := CRMOptionMapping."Option Value";
+            Rec."CRM Name" := CRMOptionMapping."Option Value Caption";
+            exit(true);
+        end;
+        exit(false);
     end;
 
     local procedure FindCRMRecordByName(var CRMName: Text[250]): Boolean
@@ -176,13 +243,13 @@ table 5332 "Coupling Record Buffer"
         RecordRef.Open("CRM Table ID");
         FieldRef := RecordRef.Field(CRMSetupDefaults.GetNameFieldNo("CRM Table ID"));
         FieldRef.SetRange(CRMName);
-        if RecordRef.FindFirst then
+        if RecordRef.FindFirst() then
             Found := true
         else begin
             RecordRef.CurrentKeyIndex(2); // "Name" key should be the second key in a CRM table
             FieldRef := RecordRef.Field(CRMSetupDefaults.GetNameFieldNo("CRM Table ID"));
             FieldRef.SetFilter("CRM Name" + '*');
-            if RecordRef.FindFirst then
+            if RecordRef.FindFirst() then
                 Found := true;
         end;
         if Found then begin
@@ -193,28 +260,86 @@ table 5332 "Coupling Record Buffer"
         exit(Found);
     end;
 
+    local procedure FindCRMOptionByName(var CRMName: Text[250]; CRMTableId: Integer): Boolean
+    var
+        TableMetadata: Record "Table Metadata";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        EntityName: Text;
+        FieldName: Text;
+        OptionId: Integer;
+        Found: Boolean;
+        Handled: Boolean;
+        OptionSetMetadataDictionary: Dictionary of [Integer, Text];
+    begin
+        OnFindCRMOptionByName(CRMTableId, EntityName, FieldName, Handled);
+        if not Handled then begin
+            if TableMetadata.Get(Database::"CRM Account") then
+                EntityName := TableMetadata.ExternalName
+            else
+                exit(Found);
+            case CRMTableId of
+                Database::"CRM Payment Terms":
+                    FieldName := 'paymenttermscode';
+                Database::"CRM Freight Terms":
+                    FieldName := 'address1_freighttermscode';
+                Database::"CRM Shipping Method":
+                    FieldName := 'address1_shippingmethodcode';
+            end;
+        end;
+        OptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(EntityName, FieldName);
+        foreach OptionId in OptionSetMetadataDictionary.Keys() do
+            if OptionSetMetadataDictionary.Get(OptionId).StartsWith(CRMName) then begin
+                CRMName := CopyStr(OptionSetMetadataDictionary.Get(OptionId), 1, MaxStrLen(CRMName));
+                "CRM Option Id" := OptionId;
+                Found := true;
+                break;
+            end;
+        exit(Found);
+    end;
+
     procedure LookUpCRMName()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMOptionMapping: Record "CRM Option Mapping";
     begin
-        if LookupCRMTables.Lookup("CRM Table ID", "NAV Table ID", "Saved CRM ID", "CRM ID") then begin
-            if "Saved CRM ID" <> "CRM ID" then
-                CRMIntegrationRecord.AssertRecordIDCanBeCoupled("NAV Record ID", "CRM ID");
-            CalcCRMName;
-        end;
+        if "Is Option" then begin
+            if LookupCRMTables.LookupOptions("CRM Table ID", "NAV Table ID", "Saved CRM Option Id", "CRM Option Id", "CRM Name") then
+                if "Saved CRM Option Id" <> "CRM Option Id" then
+                    CRMOptionMapping.AssertCRMOptionIdCanBeMapped("NAV Record ID", "CRM Option Id")
+        end else
+            if LookupCRMTables.Lookup("CRM Table ID", "NAV Table ID", "Saved CRM ID", "CRM ID") then begin
+                if "Saved CRM ID" <> "CRM ID" then
+                    CRMIntegrationRecord.AssertRecordIDCanBeCoupled("NAV Record ID", "CRM ID");
+                CalcCRMName;
+            end;
     end;
 
     local procedure CalcCRMName() Found: Boolean
     var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMOptionMapping: Record "CRM Option Mapping";
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         RecordRef: RecordRef;
     begin
-        RecordRef.Open("CRM Table ID");
-        Found := FindCRMRecRefByPK(RecordRef, "CRM ID");
-        if Found then
-            "CRM Name" := NameValue(RecordRef)
-        else
-            "CRM Name" := '';
-        RecordRef.Close;
+        if not "Is Option" then begin
+            RecordRef.Open("CRM Table ID");
+            Found := FindCRMRecRefByPK(RecordRef, "CRM ID");
+            if Found then
+                "CRM Name" := NameValue(RecordRef)
+            else
+                "CRM Name" := '';
+            RecordRef.Close;
+        end else begin
+            IntegrationTableMapping.SetRange("Table ID", "NAV Table ID");
+            IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+            if IntegrationTableMapping.FindFirst() then begin
+                CRMIntegrationTableSynch.LoadCRMOption(RecordRef, IntegrationTableMapping);
+                if FindCRMRecRefByOptionId(RecordRef, "CRM Option Id") then
+                    "CRM Name" := CRMOptionMapping.GetRecordRefOptionValue(RecordRef)
+                else
+                    "CRM Name" := '';
+            end;
+        end;
     end;
 
     procedure GetInitialSynchronizationDirection(): Integer
@@ -262,6 +387,22 @@ table 5332 "Coupling Record Buffer"
         FieldRef := PrimaryKeyRef.FieldIndex(1);
         FieldRef.SetRange(CRMId);
         exit(RecordRef.FindFirst);
+    end;
+
+    local procedure FindCRMRecRefByOptionId(var RecordRef: RecordRef; CRMOptionId: Integer): Boolean
+    var
+        FieldRef: FieldRef;
+        PrimaryKeyRef: KeyRef;
+    begin
+        PrimaryKeyRef := RecordRef.KeyIndex(1);
+        FieldRef := PrimaryKeyRef.FieldIndex(1);
+        FieldRef.SetRange(CRMOptionId);
+        exit(RecordRef.FindFirst());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCRMOptionByName(CRMTableID: Integer; var EntityName: Text; var FieldName: Text; var Handled: Boolean)
+    begin
     end;
 }
 

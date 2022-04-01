@@ -31,7 +31,7 @@ codeunit 135512 "Country/Region Entity E2E Test"
         "Count": Integer;
     begin
         // [SCENARIO] User can retrieve all Country/Region records from the countriesRegions API.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 item categories in the Country/Region Table
         for Count := 1 to 2 do
@@ -58,7 +58,7 @@ codeunit 135512 "Country/Region Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a Country/Region through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a Country/Region JSON object to send to the service.
         CountryRegionJSON := GetCountryRegionJSON(TempCountryRegion);
@@ -86,12 +86,12 @@ codeunit 135512 "Country/Region Entity E2E Test"
         CountryRegionCode: Text;
     begin
         // [SCENARIO] User can modify a Country/Region through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Country/Region exists.
         CountryRegionCode := CreateCountryRegion;
         CountryRegion.Get(CountryRegionCode);
-        CountryRegion.Name := LibraryUtility.GenerateGUID;
+        CountryRegion.Name := LibraryUtility.GenerateGUID();
         RequestBody := GetCountryRegionJSON(CountryRegion);
 
         // [WHEN] The user makes a patch request to the service.
@@ -116,7 +116,7 @@ codeunit 135512 "Country/Region Entity E2E Test"
         Responsetext: Text;
     begin
         // [SCENARIO] User can delete a Country/Region by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An Country/Region exists.
         CountryRegionCode := CreateCountryRegion;
@@ -164,7 +164,7 @@ codeunit 135512 "Country/Region Entity E2E Test"
         CountryRegion: Record "Country/Region";
     begin
         CountryRegion.SetFilter(Code, StrSubstNo('%1*', CountryRegionPrefixTxt));
-        if CountryRegion.FindLast then
+        if CountryRegion.FindLast() then
             exit(IncStr(CountryRegion.Code));
 
         exit(CopyStr(CountryRegionPrefixTxt + '00001', 1, 10));
@@ -180,7 +180,7 @@ codeunit 135512 "Country/Region Entity E2E Test"
         if CountryRegion.Code = '' then
             CountryRegion.Code := GetNextCountryRegionID;
         if CountryRegion.Name = '' then
-            CountryRegion.Name := LibraryUtility.GenerateGUID;
+            CountryRegion.Name := LibraryUtility.GenerateGUID();
         JSONManagement.AddJPropertyToJObject(JsonObject, 'code', CountryRegion.Code);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'displayName', CountryRegion.Name);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'addressFormat', Format(CountryRegion."Address Format"));

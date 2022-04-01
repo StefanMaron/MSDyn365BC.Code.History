@@ -36,7 +36,7 @@ codeunit 135506 "ShipmentMethod Entity E2E Test"
     begin
         // [SCENARIO] Create a Shipment Method and verify it has Id and Last Modified Date Time
         // [GIVEN] a modified Shipment Method record
-        Initialize;
+        Initialize();
         CreateShipmentMethod(ShipmentMethod);
         ShipmentMethodCode := ShipmentMethod.Code;
         Commit();
@@ -60,7 +60,7 @@ codeunit 135506 "ShipmentMethod Entity E2E Test"
     begin
         // [SCENARIO] Create Shipment Methods and use a GET method to retrieve them
         // [GIVEN] 2 Shipment Methods in the Shipment Method Table
-        Initialize;
+        Initialize();
         for Count := 1 to 2 do begin
             CreateShipmentMethod(ShipmentMethod);
             ShipmentMethodCode[Count] := ShipmentMethod.Code;

@@ -189,6 +189,15 @@ codeunit 46 SelectionFilterManagement
         exit(GetSelectionFilter(RecRef, GLAccount.FieldNo("No.")));
     end;
 
+    procedure GetSelectionFilterForGLAccountCategory(var GLAccountCategory: Record "G/L Account Category"): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(GLAccountCategory);
+        exit(GetSelectionFilter(RecRef, GLAccountCategory.FieldNo("Entry No.")));
+    end;
+
+
     procedure GetSelectionFilterForCustomer(var Customer: Record Customer): Text
     var
         RecRef: RecordRef;

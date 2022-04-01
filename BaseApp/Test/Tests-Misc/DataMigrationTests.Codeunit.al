@@ -81,7 +81,7 @@ codeunit 135020 "Data Migration Tests"
     begin
         // [SCENARIO] An error is raised during migration, this is then re-migrated
 
-        Initialize;
+        Initialize();
         IssueError := true;
 
         if not BindSubscription(DataMigrationTests) then;
@@ -121,7 +121,7 @@ codeunit 135020 "Data Migration Tests"
 
         // [THEN] One entry on the data migration errors
         Assert.AreEqual(1, DataMigrationError.Count, 'Only one error occured');
-        DataMigrationError.FindFirst;
+        DataMigrationError.FindFirst();
         Assert.AreEqual(FakeErrorErr, DataMigrationError."Error Message", 'The wrong error message');
 
         // [THEN] G/L Account table is not cleared
@@ -136,7 +136,7 @@ codeunit 135020 "Data Migration Tests"
 
         // [THEN] Error persists. One entry on the data migration errors
         Assert.AreEqual(1, DataMigrationError.Count, 'Only one error occured');
-        DataMigrationError.FindFirst;
+        DataMigrationError.FindFirst();
         Assert.AreEqual(FakeErrorErr, DataMigrationError."Error Message", 'The wrong error message');
 
         // [WHEN] Mark the error as Scheduled for migrate
@@ -186,7 +186,7 @@ codeunit 135020 "Data Migration Tests"
     begin
         // [SCENARIO] Item, Customer and Vendor migration is run, with existing entities
 
-        Initialize;
+        Initialize();
         IssueError := true;
         ExistingDataCheck := true;
 
@@ -267,7 +267,7 @@ codeunit 135020 "Data Migration Tests"
     begin
         // [SCENARIO] GL account migration is run, and existing GL accounts are cleared
 
-        Initialize;
+        Initialize();
         IssueError := true;
 
         if not BindSubscription(DataMigrationTests) then;
@@ -400,7 +400,7 @@ codeunit 135020 "Data Migration Tests"
         DataMigrationOverview: TestPage "Data Migration Overview";
     begin
         // [SCENARIO] Extensions can subscribe on the OnSelectRecord event to open a page for showing the staging records
-        Initialize;
+        Initialize();
 
         if not BindSubscription(DataMigrationTests) then;
         // [GIVEN] There is at least one line on the Data Migration Overview Page
@@ -432,7 +432,7 @@ codeunit 135020 "Data Migration Tests"
     begin
         // [SCENARIO] When a record is skipped then error count and total number of records decreases
         // if the total number of records reaches 0 then this entry is removed
-        Initialize;
+        Initialize();
 
         if not BindSubscription(DataMigrationTests) then;
 
@@ -470,7 +470,7 @@ codeunit 135020 "Data Migration Tests"
     begin
         // [SCENARIO] When a record is skipped then error count and total number of records decreases
         // if all errors are skipped or corrected then the status changes to completed
-        Initialize;
+        Initialize();
 
         if not BindSubscription(DataMigrationTests) then;
 
@@ -489,7 +489,7 @@ codeunit 135020 "Data Migration Tests"
         SkipFirstError(DataMigrationErrorPage);
 
         // [THEN] The status is changed to completed
-        DataMigrationStatus.FindFirst;
+        DataMigrationStatus.FindFirst();
         Assert.AreEqual(DataMigrationStatus.Status::Completed, DataMigrationStatus.Status, 'Status was expected to be completed.');
 
         UnbindSubscription(DataMigrationTests);
@@ -507,7 +507,7 @@ codeunit 135020 "Data Migration Tests"
         // [SCENARIO] When the action migrate is clicked for a record with errors
         // then migration starts on the background
         if not BindSubscription(DataMigrationTests) then;
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Migration has completed errors
         InitializeMigrationWithErrors(2);
@@ -608,7 +608,7 @@ codeunit 135020 "Data Migration Tests"
         LibraryVariableStorage.Dequeue(CustomerNoVariant);
         Assert.IsFalse(Customer.Get(CustomerNoVariant), 'Staging record was expected to be deleted');
 
-        DataMigrationStatus.FindFirst;
+        DataMigrationStatus.FindFirst();
         Assert.AreEqual(TotalNumber, DataMigrationStatus."Total Number", 'A different number of total records was expected.');
         DataMigrationStatus.CalcFields("Error Count");
         Assert.AreEqual(ErrorCount, DataMigrationStatus."Error Count", 'A different number of errors was expected.');

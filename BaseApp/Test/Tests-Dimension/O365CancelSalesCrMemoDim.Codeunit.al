@@ -33,7 +33,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         // [FEATURE] [Blocked Dimension]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when Item Dimension is Blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Dimension = "X" for Item
         PostInvoiceWithDim(SalesInvHeader, '', '', LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue, 1), '');
@@ -56,7 +56,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         // [FEATURE] [Blocked Dimension]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when Customer Dimension is Blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Dimension = "X" for Customer
         PostInvoiceWithDim(SalesInvHeader, LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue, 1), '', '', '');
@@ -80,7 +80,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         // [FEATURE] [Dimension Combination]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when Item Dimension Combination is Blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Dimensions "X1" and "X2" for Item
         PostInvoiceWithDim(
@@ -106,7 +106,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         // [FEATURE] [Dimension Combination]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when Customer Dimension Combination is Blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Dimensions "X1" and "X2" for Customer
         PostInvoiceWithDim(
@@ -132,7 +132,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         // [FEATURE] [Dimension Code Mandatory]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when mandatory "Default Dimension" assigned to "Receivables Account"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Customer "X"
         PostSimpleInvoice(SalesInvHeader, CustNo, ItemNo);
@@ -160,7 +160,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         // [FEATURE] [Dimension Code Mandatory]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when mandatory "Default Dimension" assigned to "Inventory Account"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Item "X"
         PostSimpleInvoice(SalesInvHeader, CustNo, ItemNo);
@@ -188,7 +188,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         // [FEATURE] [Dimension Code Mandatory]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when VAT and G/L Account dimensions are mandatory
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Customer "A" and Item "B"
         PostSimpleInvoice(SalesInvHeader, CustNo, ItemNo);
@@ -210,15 +210,15 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Cancel Sales Cr Memo Dim.");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddAccountReceivables;
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Cancel Sales Cr Memo Dim.");
 
         IsInitialized := true;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Cancel Sales Cr Memo Dim.");
     end;
@@ -278,7 +278,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        SalesInvHeader.FindLast;
+        SalesInvHeader.FindLast();
     end;
 
     local procedure AddMandatoryDefDimToReceivablesAccount(CustNo: Code[20])

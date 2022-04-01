@@ -36,7 +36,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating and posting a Service Order for the Service Item
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
@@ -71,7 +71,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating and posting a Service Order for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -105,7 +105,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating and posting a Service Order for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -159,7 +159,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating and posting a Service Order for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] A customer
         CustomerNo := CreateCustomer;
         // [GIVEN] An item with service item group
@@ -218,7 +218,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating and posting a Service Order for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -281,7 +281,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating and posting a Service Order for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -315,7 +315,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating and posting a Service Order for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -372,7 +372,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating and posting a Service Order for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -437,7 +437,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating and posting a Service Order for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -492,7 +492,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating a Service Contract for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] A service account group
         ServiceAccountGroupCode := CreateServiceContractAccountGroup;
         // [GIVEN] An item with service item group
@@ -526,7 +526,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating a Service Contract for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] A service account group
         ServiceAccountGroupCode := CreateServiceContractAccountGroup;
         // [GIVEN] An item with service item group
@@ -572,7 +572,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating a Service Contract for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] A service account group
         ServiceAccountGroupCode := CreateServiceContractAccountGroup;
         // [GIVEN] A customer
@@ -620,7 +620,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating a Service Contract for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -658,7 +658,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating a Service Contract for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] A service account group
         ServiceAccountGroupCode := CreateServiceContractAccountGroup;
         // [GIVEN] An item with service item group
@@ -705,7 +705,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating a Service Contract for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -745,7 +745,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order with an Item with Service Item Group
         // then creating a Service Contract for the Service Item
 
-        Initialize;
+        Initialize();
         // [GIVEN] A service account group
         ServiceAccountGroupCode := CreateServiceContractAccountGroup;
         // [GIVEN] An item with service item group
@@ -792,7 +792,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Mgmt. Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryE2EPlanPermissions.SetPremiumUserPlan;
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Preview));
@@ -807,10 +807,10 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         LibraryTemplates.EnableTemplatesFeature();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
 
         Resource := CreateItem(CreateServiceItemGroup);
@@ -827,7 +827,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
         SalesOrder.SalesLines.New;
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
@@ -862,7 +862,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenNew;
+        ServiceOrder.OpenNew();
         ServiceOrder."Customer No.".SetValue(CustomerNo);
         ServiceOrder.ServItemLines.New;
         ServiceOrder.ServItemLines.ServiceItemNo.SetValue(ServiceItemNo);
@@ -890,7 +890,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     begin
         OldDate := WorkDate;
         WorkDate := CalcDate('<-1D>', WorkDate);
-        ServiceContract.OpenNew;
+        ServiceContract.OpenNew();
         ServiceContract."Customer No.".Activate;
         ServiceContract."Customer No.".SetValue(CustomerNo);
         ServiceContract."Serv. Contract Acc. Gr. Code".SetValue(ServiceAccountGroupCode);
@@ -907,7 +907,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         BaseCalendar: Record "Base Calendar";
         BaseCalendarCard: TestPage "Base Calendar Card";
     begin
-        BaseCalendarCard.OpenNew;
+        BaseCalendarCard.OpenNew();
         BaseCalendarCode :=
           LibraryUtility.GenerateRandomCodeWithLength(BaseCalendar.FieldNo(Code), DATABASE::"Base Calendar", MaxStrLen(BaseCalendar.Code));
         BaseCalendarCard.Code.SetValue(BaseCalendarCode);
@@ -944,7 +944,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemCard."Service Item Group".SetValue(ServiceItemGroup);
         ItemNo := ItemCard."No.".Value;
@@ -957,7 +957,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
     begin
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;

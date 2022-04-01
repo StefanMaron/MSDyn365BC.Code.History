@@ -105,6 +105,12 @@
           <note from="Developer" annotates="general" priority="2">%1 = Bank Statement Import Format, %2 = Bank Account</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType ChangeBankStatementImportFormatLbl</note>
         </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 1215989694" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A data exchange definition with the code %1 already exists.</source>
+          <target state="translated">Er bestaat al een definitie van gegevensuitwisseling met de code %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Data Exchange Definition Code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DataExchDefAlreadyExistsErr</note>
+        </trans-unit>
         <trans-unit id="Page 1261045762 - NamedType 1662316861" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Exchange Definition</source>
           <target state="translated">Definitie van gegevensuitwisseling</target>
@@ -140,6 +146,12 @@
           <target state="translated">Bankafschriftbestand geüpload</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType FileSuccessfullyUploadedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 510207457" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The line separator in the uploaded file, %1, differs from your setup. To continue, go back a step or two and change your setup to use %1.</source>
+          <target state="translated">Het regelscheidingsteken in het geüploade bestand, %1, verschilt van uw instellingen. Ga om door te gaan een of twee stappen terug en wijzig uw instelling, zodat %1 wordt gebruikt.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Line separator</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType IncorrectLineSeparatorErr</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - NamedType 2421718085" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Line Definition</source>
@@ -311,6 +323,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control HeaderLines - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1003846730 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the column separator, the number of columns, and line separator for your bank statement file.</source>
+          <target state="translated">Het kolomscheidingsteken, het aantal kolommen en het regelscheidingsteken voor uw bankafschriftbestand opgeven.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step4 - Property InstructionalText</note>
+        </trans-unit>
         <trans-unit id="Page 1261045762 - Control 1003846730 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source></source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -351,6 +369,24 @@
           <target state="translated">Voorbeeld van bestand</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control File Preview Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1721594309 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the character that separates each line in the bank statement file.</source>
+          <target state="translated">Hiermee wordt het teken opgegeven waarmee regels in het bankafschriftbestand worden gescheiden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control LineSeparator - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1721594309 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line Separator</source>
+          <target state="translated">Regelscheiding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control LineSeparator - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1721594309 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CRLF,CR,LF</source>
+          <target state="translated">CRLF,CR,LF</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control LineSeparator - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 366150113 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Review and define the column definitions of your bank statement file. When you enter or change a value, the File Preview section will update accordingly.</source>
@@ -593,6 +629,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 4286163337</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 658748726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SimplifiedBankStatementImport - Edit</source>
+          <target state="translated">SimplifiedBankStatementImport - Bewerken</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SBSI - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2063104060 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SimplifiedBankStatementImport - Objects</source>
+          <target state="translated">SimplifiedBankStatementImport - Objecten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SBSI - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2170860736 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SimplifiedBankStatementImport - Read</source>
+          <target state="translated">SimplifiedBankStatementImport - Lezen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SBSI - Read - Property Caption</note>
         </trans-unit>
       </group>
     </body>

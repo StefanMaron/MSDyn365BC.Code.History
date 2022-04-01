@@ -69,11 +69,13 @@ codeunit 136503 "RES Time Sheets Creation"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"RES Time Sheets Creation");
+        SetUp();
+
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"RES Time Sheets Creation");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RES Time Sheets Creation");
@@ -85,7 +87,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Resource: Record Resource;
         UserSetup: Record "User Setup";
     begin
-        LibraryTimeSheet.Initialize;
+        LibraryTimeSheet.Initialize();
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         ResourcesSetup.Get();
         // clear "Time Sheet Owner User ID"
@@ -104,8 +106,8 @@ codeunit 136503 "RES Time Sheets Creation"
         Resource: Record Resource;
     begin
         // Test case checks that Resource cannot be linked with non-existent USER ID
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User ID, Resource
         LibraryTimeSheet.CreateTimeSheetResource(Resource);
         // 2. Fill 'User ID' field with non-existent User ID
@@ -123,8 +125,8 @@ codeunit 136503 "RES Time Sheets Creation"
         Resource: Record Resource;
     begin
         // Test case checks that Resource cannot be linked with non-existent Time Sheet Owner USER ID
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User ID, Resource
         LibraryTimeSheet.CreateTimeSheetResource(Resource);
         // 2. Fill 'Manager User ID' field with non-existent User ID
@@ -143,8 +145,8 @@ codeunit 136503 "RES Time Sheets Creation"
         Resource: Record Resource;
     begin
         // Test case checks that Resource field Time Sheet Owner User ID can be changed
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User ID, Resource
         LibraryTimeSheet.CreateTimeSheetResource(Resource);
         // 2. Add new User ID
@@ -168,8 +170,8 @@ codeunit 136503 "RES Time Sheets Creation"
         ResourceNo: Text[30];
     begin
         // Test case checks that Resource cannot be linked with non-existent USER ID
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User Setup (User ID)
         LibraryTimeSheet.CreateUserSetup(UserSetup, false);
         // 2. Create Resource
@@ -197,8 +199,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // Test case check that Resource with non-posted Timesheets cannot be deleted
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User Setup, Resource, Time Sheet
         LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
         Resource.Get(TimeSheetHeader."Resource No.");
@@ -219,8 +221,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // Test case check that "Use Time Sheet" option cannot be unchecked when not posted Time Sheet exists
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User Setup, Resource, Time Sheet
         LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
         Resource.Get(TimeSheetHeader."Resource No.");
@@ -247,8 +249,8 @@ codeunit 136503 "RES Time Sheets Creation"
         CreateTimeSheets: Report "Create Time Sheets";
     begin
         // Test case check creation of Time Sheets for multiple Resources
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create user setup (User ID1, User ID2)
         LibraryTimeSheet.CreateUserSetup(UserSetup1, false);
         LibraryTimeSheet.CreateUserSetup(UserSetup2, false);
@@ -268,7 +270,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 6. Create 1 Time Sheet
         CreateTimeSheets.InitParameters(Date."Period Start", 1, StrSubstNo('%1|%2', Resource1."No.", Resource2."No."), false, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
 
         // 7. Verify that time sheet is created for both Resources
         TimeSheetHeader.SetRange("Resource No.", Resource1."No.");
@@ -292,8 +294,8 @@ codeunit 136503 "RES Time Sheets Creation"
         CreateTimeSheets: Report "Create Time Sheets";
     begin
         // Test case checks that Time Sheets are not created for Resource with Use Time Sheet = false
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create user setup (User ID1)
         LibraryTimeSheet.CreateUserSetup(UserSetup, false);
 
@@ -313,7 +315,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 6. Create Time sheet
         CreateTimeSheets.InitParameters(Date."Period Start", 1, Resource."No.", false, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
         // 7. Verify that time sheet is not created as Use Time Sheet = false for Resource
         TimeSheetHeader.Reset();
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
@@ -331,8 +333,8 @@ codeunit 136503 "RES Time Sheets Creation"
         Date: Record Date;
     begin
         // Test case checks that Time Sheets cannot be created twice for the same period
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Create 1 extra time sheet for the same period
@@ -356,8 +358,8 @@ codeunit 136503 "RES Time Sheets Creation"
         ResourcesSetup: Record "Resources Setup";
     begin
         // Test case checks that if Time Sheet First Weekday = Any Day of week, created time sheets begin from the same day
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User Setup
         LibraryTimeSheet.CreateUserSetup(UserSetup, false);
         // 2. Create new Resource
@@ -365,7 +367,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 3. Setup Time Sheet functionality for Resource
         SetupTSResourceUserID(Resource, UserSetup);
         // 4. Set Time Sheet First Weekday = random day of week in Resources Setup
-        ResourcesSetup.FindFirst;
+        ResourcesSetup.FindFirst();
         ResourcesSetup."Time Sheet First Weekday" := LibraryRandom.RandInt(6);
         ResourcesSetup.Modify();
         // 5. find first open accounting period
@@ -398,8 +400,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TempInt2: Integer;
     begin
         // Test case checks error appears when trying to change Time Sheet First Weekday with already created Time Sheets
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create user setup
         LibraryTimeSheet.CreateUserSetup(UserSetup, false);
         // 2. Create new Resource
@@ -408,7 +410,7 @@ codeunit 136503 "RES Time Sheets Creation"
         SetupTSResourceUserID(Resource, UserSetup);
         TempInt1 := LibraryRandom.RandInt(6);
         // 4. Set Time Sheet First Weekday = any day of week in Resources Setup
-        ResourcesSetup.FindFirst;
+        ResourcesSetup.FindFirst();
         ResourcesSetup."Time Sheet First Weekday" := TempInt1;
         ResourcesSetup.Modify();
         // 5. Find first open accounting period
@@ -446,8 +448,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Verify that Time Sheet fields Job No./Job Task No. can be filled in lines
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Create Job
@@ -470,7 +472,7 @@ codeunit 136503 "RES Time Sheets Creation"
 
         // 7. Validate Description, Job No., Job Task No. fields
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindLast;
+        TimeSheetLine.FindLast();
         TimeSheetLine.TestField("Job No.", Job."No.");
         TimeSheetLine.TestField("Job Task No.", JobTask."Job Task No.");
         TimeSheetLine.TestField(Description, JobTask.Description);
@@ -494,8 +496,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TempText: Text[30];
     begin
         // Test case checks that Days represented in one Timesheet for Leap Year are correct
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User Setup
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         // 2. Create Resource
@@ -513,7 +515,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TempDate := CalcDate('<-6D>', TempDate);
         Date.SetFilter("Period Start", '%1..', TempDate);
         Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
-        Date.FindFirst;
+        Date.FindFirst();
         // 4. Create 1 new Time Sheet
         TimeSheetCreate(Date."Period Start", 1, Resource, TimeSheetHeader);
         // 5. Open Time Sheet and create line of Resource Type
@@ -551,8 +553,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Verify that Time Sheet Line with Type = Resource can be created
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and create Resource Type line
@@ -578,8 +580,8 @@ codeunit 136503 "RES Time Sheets Creation"
         LibraryJob: Codeunit "Library - Job";
     begin
         // Verify that Time Sheet fields Job No./Job Task No. cannot be filled for line of Resource type
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Create Job
@@ -614,8 +616,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet3: TestPage "Time Sheet";
     begin
         // Test case to check that values for Time distribution can be modified
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and add Time Sheet line
@@ -648,8 +650,8 @@ codeunit 136503 "RES Time Sheets Creation"
         DayTimeAllocation2: array[5] of Decimal;
     begin
         // Test case to check that user can switch between Time Sheets directly from Time Sheet page
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         // 2. Create Time Sheets lines
@@ -661,7 +663,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 4. Press Next Period
         TimeSheet.NextPeriod.Invoke;
         // 5. Validate correct Time Sheet opened
-        TimeSheetHeader.FindLast;
+        TimeSheetHeader.FindLast();
         Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
         // 6. Add Time Sheet Line
         AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
@@ -669,13 +671,13 @@ codeunit 136503 "RES Time Sheets Creation"
         // 7. Press Previous Period
         TimeSheet.PreviousPeriod.Invoke;
         // 8. Verify values on different Time Sheet pages
-        TimeSheetHeader.FindFirst;
+        TimeSheetHeader.FindFirst();
         Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
         // 9. Validate time allocation values are correct
         ValidateTimeAllocation(DayTimeAllocation1, TimeSheet);
         // 10. Press Next Period
         TimeSheet.NextPeriod.Invoke;
-        TimeSheetHeader.FindLast;
+        TimeSheetHeader.FindLast();
         Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
         // 11. Validate time allocation values are correct
         ValidateTimeAllocation(DayTimeAllocation2, TimeSheet);
@@ -695,8 +697,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Verify that user cannot modify sumbitted Time Sheet lines
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and fill Time allocation
@@ -726,8 +728,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetNo: Code[20];
     begin
         // Verify that Time Sheet line cannot be edited in Approved state
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and fill Time allocation
@@ -766,8 +768,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Verify that after Time Sheet line was submitted - status has changed
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and add line
@@ -793,8 +795,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Verify that line with non-distributed time cannot be submitted
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Ppen Time Sheet and add line
@@ -819,8 +821,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Verify that after Time Sheet line was submitted, user can Reopen it
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and create line
@@ -851,8 +853,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetNo: Code[20];
     begin
         // Verify that after Time Sheet line was submitted all the fields values are the same in Manager Time Sheet
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and fill the fields
@@ -909,8 +911,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetNo: Code[20];
     begin
         // Verify that Time Sheet line can be Rejected from Manager Time Sheet
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and create line
@@ -949,8 +951,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet1: TestPage "Time Sheet";
     begin
         // Verify that Time Sheet line can be Approved from Manager Time Sheet, validate Time Sheet page line status
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User Setup, Resource, Time Sheet
         LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
         Resource.Get(TimeSheetHeader."Resource No.");
@@ -982,8 +984,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Verify that Time Sheet line can be Reopened from Manager Time Sheet, validate Time Sheet page line status
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
         Resource.Get(TimeSheetHeader."Resource No.");
@@ -1021,13 +1023,13 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetNo: Code[20];
     begin
         // Test case to check that user can switch between Time Sheets directly from Manager Time Sheet page
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
-        TimeSheetHeader.FindFirst;
+        TimeSheetHeader.FindFirst();
         TimeSheet1No := TimeSheetHeader."No.";
-        TimeSheetHeader.FindLast;
+        TimeSheetHeader.FindLast();
         TimeSheet2No := TimeSheetHeader."No.";
         // 2. Open Time Sheet 1 and fill line
         TimeSheet.OpenEdit;
@@ -1037,7 +1039,7 @@ codeunit 136503 "RES Time Sheets Creation"
         GenerateTimeAllocation(DayTimeAllocation1, TimeSheet);
         // 8. Switch to Next Time Sheet and fill lines
         TimeSheet.NextPeriod.Invoke;
-        TimeSheetHeader.FindLast;
+        TimeSheetHeader.FindLast();
         Assert.AreEqual(TimeSheet2No, TimeSheet.CurrTimeSheetNo.Value, 'Time Sheet No. is not correct');
         AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
         GenerateTimeAllocation(DayTimeAllocation2, TimeSheet);
@@ -1073,8 +1075,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Verify that Time Sheet line can be Rejected, then Submitted and approved
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
         Resource.Get(TimeSheetHeader."Resource No.");
@@ -1107,8 +1109,8 @@ codeunit 136503 "RES Time Sheets Creation"
         ResJnlLine: Record "Res. Journal Line";
     begin
         // Verify that Approved Time Sheet line with Type = Resource can be suggested to Resource Journal
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
         Resource.Get(TimeSheetHeader."Resource No.");
@@ -1134,8 +1136,8 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         // Verify that Approved Time Sheet line with Type = Resource can be suggested to Resource Journal,
         // filtering by Date
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and create Time Sheet line
@@ -1175,8 +1177,8 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         // Verify that Approved Time Sheets with can be suggested to Resource Journal,
         // Multiple Time Sheets
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         // 2. Open Time Sheet and add Time Sheet line with time allocation
@@ -1188,7 +1190,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet.Submit.Invoke;
         // 4. Switch to Next Time Sheet and add Time Sheet line with time allocation
         TimeSheet.NextPeriod.Invoke;
-        TimeSheetHeader.FindLast;
+        TimeSheetHeader.FindLast();
         Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
         AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
         GenerateTimeAllocation(DayTimeAllocation2, TimeSheet);
@@ -1234,8 +1236,8 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         // Verify that Approved Time Sheets can be suggested to Resource Journal,
         // Partialy approved
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         // 2. Open Time Sheet and add line
@@ -1251,7 +1253,7 @@ codeunit 136503 "RES Time Sheets Creation"
 
         // 4. Open next period Time Sheet and add line
         TimeSheet.NextPeriod.Invoke;
-        TimeSheetHeader.FindLast;
+        TimeSheetHeader.FindLast();
         Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
         TimeSheet.New;
         AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
@@ -1270,7 +1272,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 7. Set Filter to show only one line and Validate that
         ResJnlLine.Reset();
         ResJnlLine.SetFilter(Quantity, Format(TempDayAllocation[1]));
-        ResJnlLine.FindFirst;
+        ResJnlLine.FindFirst();
         Assert.AreEqual(TempDate, ResJnlLine."Posting Date", IncorrectPostingDateErr);
         Assert.AreEqual(Resource."Unit Price" * TempDayAllocation[1],
           ResJnlLine."Total Price", IncorrectCostValueErr);
@@ -1297,8 +1299,8 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         // Verify that approved Job Time Sheet lines are correctly suggested for Multiple Jobs
 
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Create Job, Job Task, Job Planning Lines
@@ -1337,8 +1339,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetNo: Code[20];
     begin
         // Verify that Time Sheet page Activity FactBox shows correct values
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 1 Time Sheet
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 1);
         // 2. Open Time Sheet and add line, which will be submitted
@@ -1404,8 +1406,8 @@ codeunit 136503 "RES Time Sheets Creation"
         CauseOfAbsence: Record "Cause of Absence";
     begin
         // Verify that Time Sheet line with Type Absence cannot be created when no Employee is linked with Resource
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create user setup
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         // 2. Create new Resource
@@ -1448,8 +1450,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TempDate: Date;
     begin
         // Verify that Time Sheet line with Type Absence can be posted. Validate fields.
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User Setup
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         // 2. Create Resource
@@ -1486,7 +1488,7 @@ codeunit 136503 "RES Time Sheets Creation"
         for Counter := 1 to 7 do begin
             TempDate := CalcDate('<+1D>', TempDate);
             EmployeeAbsence.SetFilter("From Date", Format(TempDate));
-            EmployeeAbsence.FindFirst;
+            EmployeeAbsence.FindFirst();
             Assert.AreEqual(CauseOfAbsence.Code, EmployeeAbsence."Cause of Absence Code",
               'Employee Absences incorrect Cause of Absence Code');
             Assert.AreEqual(CauseOfAbsence.Description, EmployeeAbsence.Description, 'Employee Absences incorrect Description');
@@ -1514,8 +1516,8 @@ codeunit 136503 "RES Time Sheets Creation"
         CreateTimeSheets: Report "Create Time Sheets";
     begin
         // Verify that Time Sheet fields Job No./Job Task No. are suggested by report if option Create lines from Job Planning is On
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create user setup
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         // 2. Create Resource
@@ -1530,12 +1532,12 @@ codeunit 136503 "RES Time Sheets Creation"
         // 6. Create time sheet
         CreateTimeSheets.InitParameters(Date."Period Start", 1, Resource."No.", true, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
         // 7. Validate Time Sheet was created
         ValidateTimeSheetCreated(TimeSheetHeader, Resource);
         // 8. Validate that lines were successfully suggested by report with correct Job No./Job Task No.
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindLast;
+        TimeSheetLine.FindLast();
         TimeSheetLine.TestField(Type, TimeSheetLine.Type::Job);
         TimeSheetLine.TestField("Job No.", Job."No.");
         TimeSheetLine.TestField("Job Task No.", JobTask."Job Task No.");
@@ -1560,8 +1562,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Verify that Time Sheet fields Job No./Job Task No. are suggested by report if option Create lines from Job Planning is On
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create user setup
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         // 2. Create Resource
@@ -1581,7 +1583,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet.CreateLinesFromJobPlanning.Invoke;
         // 9. Validate that lines were successfully suggested by report with correct Job No./Job Task No.
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindLast;
+        TimeSheetLine.FindLast();
         TimeSheetLine.TestField(Type, TimeSheetLine.Type::Job);
         TimeSheetLine.TestField("Job No.", Job."No.");
         TimeSheetLine.TestField("Job Task No.", JobTask."Job Task No.");
@@ -1613,8 +1615,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetNo: Code[20];
     begin
         // Test case to check that Time Sheet can be moved to Archive
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Create Job, Job Task, Job Planning lines
@@ -1649,7 +1651,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetHeader.SetRange("No.", TimeSheetNo);
         MoveTimeSheetsToArchive.SetTableView(TimeSheetHeader);
         MoveTimeSheetsToArchive.UseRequestPage(false);
-        MoveTimeSheetsToArchive.Run;
+        MoveTimeSheetsToArchive.Run();
         // 13. Validate Time Sheet Archive fields values
         TimeSheetHeaderArchive.Get(TimeSheet1No);
         TimeSheetHeaderArchive.TestField("Starting Date", TimeSheetStartingDate);
@@ -1688,8 +1690,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetNo: Code[20];
     begin
         // Test case to check that Time Sheet cannot be modified after posting lines
-        Initialize;
-        SetUp;
+        Initialize();
+
 
         // 1. Create Resource and 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
@@ -1734,8 +1736,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetNo: Code[20];
     begin
         // Test case to check that suggested Resource Journal line has Dimension the same as for Resource Card
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Create Dimension and Dimension Value for Resource
@@ -1784,8 +1786,8 @@ codeunit 136503 "RES Time Sheets Creation"
         DimensionSetID: Integer;
     begin
         // Test case to check that suggested Job Journal line has Dimension the same as for Job Card
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Create Dimension and Dimension Value for Resource
@@ -1800,7 +1802,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 5. Add Time Sheet line with Type = Job
         AddJobTimeSheetLine(TimeSheetHeader, Job, JobTask);
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindFirst;
+        TimeSheetLine.FindFirst();
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
         TimeSheetApprovalMgt.Approve(TimeSheetLine);
 
@@ -1809,7 +1811,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 9. Verify Job Journal Lines have Dimension Code and Dimension value the same as for Job
         JobJnlLine.Reset();
         JobJnlLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        JobJnlLine.FindFirst;
+        JobJnlLine.FindFirst();
         DimensionSetID := JobJnlLine."Dimension Set ID";
         VerifyDimInJournalDimSet(Dimension.Code, DimensionValue.Code, DimensionSetID);
         TearDown;
@@ -1832,8 +1834,8 @@ codeunit 136503 "RES Time Sheets Creation"
         DayTimeAllocation2: array[7] of Decimal;
     begin
         // Test case to check that Time Sheet line after posting has Posted = True value
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Create Job, Job Task, Job Planning lines
@@ -1886,8 +1888,8 @@ codeunit 136503 "RES Time Sheets Creation"
         DayTimeAllocationSched: array[7] of Decimal;
     begin
         // Test case to check Period Summary Fact box in Time Sheet page
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2.1 Create Job, Job Task, Job Planning lines
@@ -1922,8 +1924,8 @@ codeunit 136503 "RES Time Sheets Creation"
         DayTimeAllocation: array[7] of Decimal;
     begin
         // Test case to check that Time Sheet line after posting has Posted = True value
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create Resource and 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 3. Add Time Sheet line with Type = Resource
@@ -1954,8 +1956,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetList: TestPage "Time Sheet List";
     begin
         // Test case to check that user can switch between Time Sheets directly from Time Sheet page
-        Initialize;
-        SetUp;
+        Initialize();
+
         BindSubscription(RESTimeSheetsCreation);
 
         // 1. Create Resource and 2 Time Sheets
@@ -1987,8 +1989,8 @@ codeunit 136503 "RES Time Sheets Creation"
         Counter: Integer;
     begin
         // Test case to check that user can switch between Time Sheets directly from Manager Time Sheet page
-        Initialize;
-        SetUp;
+        Initialize();
+
         BindSubscription(RESTimeSheetsCreation);
 
         // 1. Create Resource and 2 Time Sheets
@@ -2023,8 +2025,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheet: TestPage "Time Sheet";
     begin
         // Test case to check that values for Time distribution can be modified
-        Initialize;
-        SetUp;
+        Initialize();
+
         // 1. Create User setup, Resource, 1 Time Sheet
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         // 2. Open Time Sheet and add Time Sheet line
@@ -2054,8 +2056,8 @@ codeunit 136503 "RES Time Sheets Creation"
         ManagerTimeSheet: TestPage "Manager Time Sheet";
     begin
         // Test case to validate Posting Entries page values
-        Initialize;
-        SetUp;
+        Initialize();
+
         Clear(GlobalTimeSheetNo);
         // 1. Create Time Sheet with Resource Type Line
         LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
@@ -2089,8 +2091,8 @@ codeunit 136503 "RES Time Sheets Creation"
         Counter: Integer;
     begin
         // Test case to check that Manager can overview archived Time Sheets
-        Initialize;
-        SetUp;
+        Initialize();
+
         BindSubscription(RESTimeSheetsCreation);
         // 1. Create Resource and 2 Time Sheets, Submit, Approve, Suggest and post Resource Lines
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
@@ -2110,7 +2112,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
         MoveTimeSheetsToArchive.SetTableView(TimeSheetHeader);
         MoveTimeSheetsToArchive.UseRequestPage(false);
-        MoveTimeSheetsToArchive.Run;
+        MoveTimeSheetsToArchive.Run();
         // 3. Open Manager Time Sheet Archive List, then open Manager Time Sheet and validate No.
         ManagerTSArchiveList.OpenView;
         ManagerTSArchiveList.FILTER.SetFilter("No.", GlobalTimeSheetNo);
@@ -2141,8 +2143,8 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeAllocation: array[5] of Decimal;
     begin
         // [SCENARIO 360297] Check Time Sheet Detail Lines are not created for columns(dates) with zero value
-        Initialize;
-        SetUp;
+        Initialize();
+
         // [GIVEN] Time Sheet Document
         GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
         TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
@@ -2173,8 +2175,8 @@ codeunit 136503 "RES Time Sheets Creation"
         PostRecordCount: Integer;
     begin
         // Verify that Time Sheet fields Job No./Job Task No. can be filled in lines
-        Initialize;
-        SetUp;
+        Initialize();
+
 
         // [GIVEN] Get a record count of My Time Sheets for current user before creating a timesheet
         InitialRecordCount := GetMyTimeSheetRecordCount;
@@ -2207,8 +2209,8 @@ codeunit 136503 "RES Time Sheets Creation"
         PostRecordCount: Integer;
     begin
         // Verify that Time Sheet fields Job No./Job Task No. can be filled in lines
-        Initialize;
-        SetUp;
+        Initialize();
+
 
         // [GIVEN] Get a record count of My Time Sheets for current user before creating a timesheet
         InitialRecordCount := GetMyTimeSheetRecordCount;
@@ -2232,7 +2234,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // [FEATURE] [UT] [Employee] [Unit of Measure]
         // [SCENARIO 382310] Stan can assign "Human Resource Unit of Measure" in "Cause of Absense"
 
-        Initialize;
+        Initialize();
         LibraryTimeSheet.CreateHRUnitOfMeasure(HumanResourceUnitOfMeasure, 1);
         CauseOfAbsence.Init();
         CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
@@ -2250,7 +2252,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // [FEATURE] [UT] [Employee] [Unit of Measure]
         // [SCENARIO 382310] Stan cannot assign normal "Unit of Measure" in "Cause of Absense"
 
-        Initialize;
+        Initialize();
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         CauseOfAbsence.Init();
         asserterror CauseOfAbsence.Validate("Unit of Measure Code", UnitOfMeasure.Code);
@@ -2281,7 +2283,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // Create time sheet
         CreateTimeSheets.InitParameters(Date, NoOfPeriods, Resource."No.", false, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
         // Validate Time Sheet was created
         ValidateTimeSheetCreated(TimeSheetHeader, Resource);
     end;
@@ -2300,7 +2302,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Date.SetRange("Period Type", Date."Period Type"::Date);
         Date.SetFilter("Period Start", '%1..', AccountingPeriod."Starting Date");
         Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
-        Date.FindFirst;
+        Date.FindFirst();
     end;
 
     local procedure FindJobJournalBatch(var JobJournalBatch: Record "Job Journal Batch")
@@ -2458,7 +2460,7 @@ codeunit 136503 "RES Time Sheets Creation"
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
         with CauseOfAbsence do
             if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst;
+                HumanResourceUnitOfMeasure.FindFirst();
                 Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
                 Modify(true);
             end;
@@ -2504,7 +2506,7 @@ codeunit 136503 "RES Time Sheets Creation"
           TimeSheetHeader."Starting Date",
           EndDate);
         SuggestResJnlLines.UseRequestPage(false);
-        SuggestResJnlLines.Run;
+        SuggestResJnlLines.Run();
     end;
 
     local procedure PrepareResourceJournal(var ResJnlLine: Record "Res. Journal Line")
@@ -2536,7 +2538,7 @@ codeunit 136503 "RES Time Sheets Creation"
         for Counter := 1 to ExtCount do begin
             ResJournalLine.Reset();
             ResJournalLine.SetFilter(Quantity, Format(DayTimeAllocation[Counter]));
-            if ResJournalLine.FindFirst then begin
+            if ResJournalLine.FindFirst() then begin
                 TempDate := CalcDate('<+1D>', TempDate);
                 Assert.AreEqual(TempDate, ResJournalLine."Posting Date", IncorrectPostingDateErr);
                 Assert.AreEqual(ResJournalLine."Entry Type"::Usage, ResJournalLine."Entry Type", IncorrectEntryTypeErr);
@@ -2626,7 +2628,7 @@ codeunit 136503 "RES Time Sheets Creation"
           TimeSheetHeader."Starting Date",
           TimeSheetHeader."Ending Date");
         SuggestJobJnlLines.UseRequestPage(false);
-        SuggestJobJnlLines.Run;
+        SuggestJobJnlLines.Run();
     end;
 
     local procedure PrepareJobJournal(var JobJnlLine: Record "Job Journal Line")
@@ -2739,7 +2741,7 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.SetRange("Dimension Code", ShortcutDimCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         Assert.AreEqual(DimensionSetEntry."Dimension Value Code", ShortcutDimValueCode,
           'Wrong Dimension value on gen. Jnl. line dimension');
     end;
@@ -2789,7 +2791,7 @@ codeunit 136503 "RES Time Sheets Creation"
         NextEntryNo: Integer;
     begin
         ResCapacityEntry.Reset();
-        ResCapacityEntry.FindLast;
+        ResCapacityEntry.FindLast();
         NextEntryNo := ResCapacityEntry."Entry No.";
         for Counter := 1 to DaysToGenerate do begin
             NextEntryNo := NextEntryNo + 1;
@@ -2808,7 +2810,7 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         TimeSheetHeader.Reset();
         TimeSheetHeader.SetRange("Resource No.", ResourceNo);
-        TimeSheetHeader.FindFirst;
+        TimeSheetHeader.FindFirst();
     end;
 
     local procedure AssignTimeSheetDayValues(var TimeSheet: TestPage "Time Sheet"; TimeAllocation: array[5] of Decimal)
@@ -2880,7 +2882,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // Handles Time Sheet Allocation page and validates
         TimeSheetPostingEntry.Reset();
         TimeSheetPostingEntry.SetRange("Time Sheet No.", GlobalTimeSheetNo);
-        TimeSheetPostingEntry.FindFirst;
+        TimeSheetPostingEntry.FindFirst();
         Evaluate(TempDecimal, TSPostingEntriesPage.Quantity.Value);
         Assert.AreEqual(GlobalTimeSheetNo, Format(TSPostingEntriesPage."Time Sheet No.".Value), IncorrectPostingEntryOpenedErr);
         Assert.AreEqual(TimeSheetPostingEntry.Quantity, TempDecimal, IncorrectPostingEntryQuantityErr);

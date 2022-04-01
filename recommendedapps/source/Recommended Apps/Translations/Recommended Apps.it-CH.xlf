@@ -207,6 +207,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum App Recommended By - EnumValue Your Microsoft Reseller - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 2717034780 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RecommendedApps - Edit</source>
+          <target state="translated">RecommendedApps-modifica</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RecommApps - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2505057798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RecommendedApps - Objects</source>
+          <target state="translated">RecommendedApps-oggetti</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RecommApps - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3677553818 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RecommendedApps - Read</source>
+          <target state="translated">RecommendedApps-leggi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RecommApps - Read - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

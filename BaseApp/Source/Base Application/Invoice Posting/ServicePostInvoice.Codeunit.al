@@ -1,4 +1,4 @@
-codeunit 817 "Service Post Invoice" implements "Invoice Posting"
+﻿codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 {
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -7,6 +7,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         TotalServiceLine: Record "Service Line";
         TotalServiceLineLCY: Record "Service Line";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        ServicePostInvoiceEvents: Codeunit "Service Post Invoice Events";
         FALineNo: Integer;
         HideProgressWindow: Boolean;
         PreviewMode: Boolean;
@@ -70,7 +71,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         ServiceLineACY := DocumentLineACYVar;
 
         IsHandled := false;
-        //OnBeforeFillInvoicePostBuffer(TempInvoicePostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader, IsHandled);
+        ServicePostInvoiceEvents.RunOnBeforePrepareLine(ServiceHeader, ServiceLine, ServiceLineACY, IsHandled);
         if IsHandled then
             exit;
 
@@ -78,8 +79,10 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
             if (ServiceLine."Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
                (ServiceLine."Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
-            then
+            then begin
                 GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
+                GenPostingSetup.TestField(Blocked, false);
+            end;
 
         InvoicePostingBuffer.PrepareService(ServiceLine);
 
@@ -93,7 +96,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         if SalesSetup."Discount Posting" in
            [SalesSetup."Discount Posting"::"Invoice Discounts", SalesSetup."Discount Posting"::"All Discounts"]
         then begin
-            InvPostingBufferCalcInvoiceDiscountAmount(InvoicePostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader);
+            CalcInvoiceDiscountPosting(InvoicePostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader);
             if (InvoicePostingBuffer.Amount <> 0) or (InvoicePostingBuffer."Amount (ACY)" <> 0) then begin
                 InvoicePostingBuffer.SetAccount(
                   GenPostingSetup.GetSalesInvDiscAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
@@ -111,7 +114,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         if SalesSetup."Discount Posting" in
            [SalesSetup."Discount Posting"::"Line Discounts", SalesSetup."Discount Posting"::"All Discounts"]
         then begin
-            InvPostingBufferCalcLineDiscountAmount(InvoicePostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader);
+            CalcLineDiscountPosting(InvoicePostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader);
             if (InvoicePostingBuffer.Amount <> 0) or (InvoicePostingBuffer."Amount (ACY)" <> 0) then begin
                 InvoicePostingBuffer.SetAccount(
                   GenPostingSetup.GetSalesLineDiscAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
@@ -141,17 +144,17 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         end;
         InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
 
-        //OnAfterFillInvoicePostBuffer(InvoicePostBuffer, ServiceLine, TempInvoicePostingBuffer, SuppressCommit, ServiceLineACY);
+        ServicePostInvoiceEvents.RunOnPrepareLineOnAfterFillInvoicePostingBuffer(InvoicePostingBuffer, ServiceLine, ServiceLineACY, SuppressCommit);
 
         UpdateInvoicePostingBuffer(InvoicePostingBuffer, ServiceLine);
     end;
 
-    local procedure InvPostingBufferCalcInvoiceDiscountAmount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
+    local procedure CalcInvoiceDiscountPosting(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        //OnBeforeInvPostingBufferCalcInvoiceDiscountAmount(InvoicePostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader, IsHandled);
+        ServicePostInvoiceEvents.RunOnBeforeCalcInvoiceDiscountPosting(ServiceHeader, ServiceLine, ServiceLineACY, InvoicePostingBuffer, IsHandled);
         if IsHandled then
             exit;
 
@@ -163,12 +166,12 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
               ServiceHeader."Prices Including VAT", -ServiceLine."Inv. Discount Amount", -ServiceLineACY."Inv. Discount Amount");
     end;
 
-    local procedure InvPostingBufferCalcLineDiscountAmount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
+    local procedure CalcLineDiscountPosting(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        //OnBeforeInvPostingBufferCalcLineDiscountAmount(InvoicePostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader, IsHandled);
+        ServicePostInvoiceEvents.RunOnBeforeCalcLineDiscountPosting(ServiceHeader, ServiceLine, ServiceLineACY, InvoicePostingBuffer, IsHandled);
         if IsHandled then
             exit;
 
@@ -188,9 +191,9 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
             InvoicePostingBuffer."Fixed Asset Line No." := FALineNo;
         end;
 
-        //OnBeforeUpdateInvPostBuffer(InvoicePostingBuffer);
+        ServicePostInvoiceEvents.RunOnUpdateInvoicePostingBufferOnBeforeUpdate(InvoicePostingBuffer);
         TempInvoicePostingBuffer.Update(InvoicePostingBuffer);
-        //OnAfterUpdateInvPostBuffer(InvoicePostingBuffer);
+        ServicePostInvoiceEvents.RunOnAfterUpdateInvoicePostingBuffer(InvoicePostingBuffer);
     end;
 
     procedure PostLines(DocumentHeaderVar: Variant; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var Window: Dialog; var TotalAmount: Decimal)
@@ -211,9 +214,11 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 
                 PrepareGenJnlLineFromInvoicePostBuffer(ServiceHeader, TempInvoicePostingBuffer, GenJnlLine);
 
-                // OnBeforePostInvoicePostBuffer(GenJnlLine, TempInvoicePostingBuffer, ServiceHeader, GenJnlPostLine);
+                ServicePostInvoiceEvents.RunOnPostLinesOnBeforeGenJnlLinePost(
+                    GenJnlLine, ServiceHeader, TempInvoicePostingBuffer, GenJnlPostLine, PreviewMode, SuppressCommit);
                 GLEntryNo := GenJnlPostLine.RunWithCheck(GenJnlLine);
-            // OnAfterPostInvoicePostBuffer(GenJnlLine, TempInvoicePostingBuffer, ServiceHeader, GLEntryNo, GenJnlPostLine);
+                ServicePostInvoiceEvents.RunOnPostLinesOnAfterGenJnlLinePost(
+                    GenJnlLine, ServiceHeader, TempInvoicePostingBuffer, GenJnlPostLine, PreviewMode, SuppressCommit, GLEntryNo);
             until TempInvoicePostingBuffer.Next(-1) = 0;
 
         TempInvoicePostingBuffer.CalcSums(Amount);
@@ -276,9 +281,11 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
             "Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
             "System-Created Entry" := true;
 
-            OnPostLedgerEntryOnBeforeGenJnlPostLine(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+            ServicePostInvoiceEvents.RunOnPostLedgerEntryOnBeforeGenJnlPostLine(
+                GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
-            OnPostLedgerEntryOnAfterGenJnlPostLine(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+            ServicePostInvoiceEvents.RunOnPostLedgerEntryOnAfterGenJnlPostLine(
+                GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
         end;
     end;
 
@@ -303,7 +310,8 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
                     "Document Type"::Refund, InvoicePostingParameters."Document No.",
                     InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '')
             else
-                CopyDocumentFields("Document Type"::Payment, InvoicePostingParameters."Document No.",
+                CopyDocumentFields(
+                    "Document Type"::Payment, InvoicePostingParameters."Document No.",
                     InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
 
             "Account Type" := "Account Type"::Customer;
@@ -323,9 +331,11 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
                   TotalServiceLineLCY."Amount Including VAT" +
                   Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
 
-            OnPostBalancingEntryOnBeforeGenJnlPostLine(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+            ServicePostInvoiceEvents.RunOnPostBalancingEntryOnBeforeGenJnlPostLine(
+                GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
-            OnPostBalancingEntryOnAfterGenJnlPostLine(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+            ServicePostInvoiceEvents.RunOnPostBalancingEntryOnAfterGenJnlPostLine(
+                GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
         end;
     end;
 
@@ -352,24 +362,29 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by RunOnPostBalancingEntryOnAfterGenJnlPostLine in codeunit Service Post Invoice Subscr.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostBalancingEntryOnAfterGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; PreviewMode: Boolean; SuppressCommit: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by RunOnPostBalancingEntryOnBeforeGenJnlPostLine in codeunit Service Post Invoice Subscr.', '20.0')]
     local procedure OnPostBalancingEntryOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; PreviewMode: Boolean; SuppressCommit: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by RunOnPostLedgerEntryOnAfterGenJnlPostLine in codeunit Service Post Invoice Subscr.', '20.0')]
     local procedure OnPostLedgerEntryOnAfterGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; PreviewMode: Boolean; SuppressCommit: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by RunOnPostLedgerEntryOnBeforeGenJnlPostLine in codeunit Service Post Invoice Subscr.', '20.0')]
     local procedure OnPostLedgerEntryOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; PreviewMode: Boolean; SuppressCommit: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
-
+#endif
 }

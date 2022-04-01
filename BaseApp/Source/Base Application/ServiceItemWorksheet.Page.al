@@ -607,7 +607,7 @@ page 5906 "Service Item Worksheet"
         Clear(FaultResolutionRelation);
         FaultResolutionRelation.SetDocument(DATABASE::"Service Item Line", "Document Type".AsInteger(), "Document No.", "Line No.");
         FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", "Service Item Group Code");
-        FaultResolutionRelation.RunModal;
+        FaultResolutionRelation.RunModal();
         CurrPage.Update(false);
     end;
 

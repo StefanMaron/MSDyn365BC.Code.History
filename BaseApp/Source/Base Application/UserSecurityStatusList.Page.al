@@ -195,7 +195,7 @@ page 9818 "User Security Status List"
         UserSecurityStatus: Record "User Security Status";
     begin
         CurrPage.SetSelectionFilter(UserSecurityStatus);
-        if not UserSecurityStatus.FindSet then
+        if not UserSecurityStatus.FindSet() then
             exit;
         repeat
             UserSecurityStatus.Reviewed := ReviewStatus;

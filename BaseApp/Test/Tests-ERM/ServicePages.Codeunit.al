@@ -36,7 +36,7 @@ codeunit 136150 "Service Pages"
     begin
         // [FEATURE] [Print] [Post] [Order]
         // [SCENARIO 268383] Stan does not see confirmation to close service order card page when document fully shiped and invoiced with printing documents
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
 
@@ -46,7 +46,7 @@ codeunit 136150 "Service Pages"
         ServiceOrder.GotoRecord(ServiceHeader);
         ServiceOrder."Post and &Print".Invoke; // Post and Print
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -61,7 +61,7 @@ codeunit 136150 "Service Pages"
     begin
         // [FEATURE] [Print] [Post] [Invoice]
         // [SCENARIO 268383] Stan does not see confirmation to close Service Invoices card page when document fully invoiced with printing documents
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Invoice);
 
@@ -72,7 +72,7 @@ codeunit 136150 "Service Pages"
         ServiceInvoice.GotoRecord(ServiceHeader);
         ServiceInvoice."Post and &Print".Invoke; // Post and Print
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -87,7 +87,7 @@ codeunit 136150 "Service Pages"
     begin
         // [FEATURE] [Print] [Post] [Credit Memo]
         // [SCENARIO 268383] Stan does not see confirmation to close service credit memo card page when document fully invoiced with printing documents
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
 
@@ -98,7 +98,7 @@ codeunit 136150 "Service Pages"
         ServiceCreditMemo.GotoRecord(ServiceHeader);
         ServiceCreditMemo."Post and &Print".Invoke; // Post and Print
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -114,7 +114,7 @@ codeunit 136150 "Service Pages"
     begin
         // [FEATURE] [FCY] [Order]
         // [SCENARIO 308004] Confirmation message to recreate service lines must appear when Stan clears "Currency Code" field on Service Order.
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
         CurrencyCode :=
@@ -785,8 +785,8 @@ codeunit 136150 "Service Pages"
         Commit();
         IsInitialized := true;
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryService.SetupServiceMgtNoSeries();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Pages");
     end;
@@ -835,7 +835,7 @@ codeunit 136150 "Service Pages"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.SetFilter("Bal. Account No.", '<>''''');
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
         exit(PaymentMethod.Code);
     end;
 

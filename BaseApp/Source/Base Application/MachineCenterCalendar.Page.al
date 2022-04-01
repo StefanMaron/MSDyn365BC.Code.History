@@ -59,7 +59,7 @@ page 99000770 "Machine Center Calendar"
                     Clear(MatrixForm);
                     MatrixForm.Load(MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns);
                     MatrixForm.SetTableView(Rec);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

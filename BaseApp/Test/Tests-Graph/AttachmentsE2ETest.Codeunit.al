@@ -339,7 +339,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [THEN] The content is correctly updated.
         IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         ActualBase64Content := GetAttachmentBase64Content(IncomingDocumentAttachment);
         Assert.AreEqual(ExpectedBase64Content, ActualBase64Content, 'Wrong content');
     end;
@@ -376,7 +376,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [THEN] The content is correctly updated.
         IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         ActualBase64Content := GetAttachmentBase64Content(IncomingDocumentAttachment);
         Assert.AreEqual(ExpectedBase64Content, ActualBase64Content, 'Wrong content');
     end;
@@ -476,7 +476,7 @@ codeunit 135545 "Attachments E2E Test"
         LibraryGraphMgt.VerifyIDFieldInJson(ResponseText, 'id');
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'id', AttachmentId);
         IncomingDocumentAttachment.SetFilter(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
 
         if IncomingDocument.Posted then begin
             Assert.AreEqual(IncomingDocument."Document No.", IncomingDocumentAttachment."Document No.", '');
@@ -520,7 +520,7 @@ codeunit 135545 "Attachments E2E Test"
         LibraryGraphMgt.VerifyIDFieldInJson(ResponseText, 'id');
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'id', AttachmentId);
         IncomingDocumentAttachment.SetFilter(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
 
         if IncomingDocument.Posted then begin
             Assert.AreEqual(IncomingDocument."Document No.", IncomingDocumentAttachment."Document No.", '');
@@ -694,9 +694,9 @@ codeunit 135545 "Attachments E2E Test"
 
         // [THEN] The Attachment exists and is correctly linked to the posted invoice.
         IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         SalesInvoiceHeader.SetRange("Draft Invoice SystemId", DocumentId);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         DocumentRecordRef.GetTable(SalesInvoiceHeader);
         FindIncomingDocument(DocumentRecordRef, IncomingDocument);
         Assert.AreEqual(SalesInvoiceHeader."No.", IncomingDocument."Document No.", 'Wrong Document No.');
@@ -734,9 +734,9 @@ codeunit 135545 "Attachments E2E Test"
 
         // [THEN] The Attachment exists and is correctly linked to the posted invoice.
         IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         PurchInvHeader.SetRange("Draft Invoice SystemId", DocumentId);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         DocumentRecordRef.GetTable(PurchInvHeader);
         FindIncomingDocument(DocumentRecordRef, IncomingDocument);
         Assert.AreEqual(PurchInvHeader."No.", IncomingDocument."Document No.", 'Wrong Document No.');
@@ -768,7 +768,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] A linked attachment exists.
         AttachmentId := CreateAttachment(DocumentRecordRef);
         IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         OldBase64Content := GetAttachmentBase64Content(IncomingDocumentAttachment);
         Commit();
 
@@ -785,7 +785,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [THEN] The attachment content is not changed.
         IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         NewBase64Content := GetAttachmentBase64Content(IncomingDocumentAttachment);
         Assert.AreEqual(OldBase64Content, NewBase64Content, 'Attachment content has been changed.');
 
@@ -816,7 +816,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] A linked attachment exists.
         AttachmentId := CreateAttachment(DocumentRecordRef);
         IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         OldFileName := NameAndExtensionToFileName(IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
         TempBlob.FromRecord(IncomingDocumentAttachment, IncomingDocumentAttachment.FieldNo(Content));
         Commit();
@@ -828,7 +828,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [THEN] The attachment name is not changed in the database.
         IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         NewFileName := NameAndExtensionToFileName(IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
         Assert.AreEqual(OldFileName, NewFileName, 'Attachment file name has been changed.');
 
@@ -974,7 +974,7 @@ codeunit 135545 "Attachments E2E Test"
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, 1);
         GLEntry.SetCurrentKey("Entry No.");
         GLEntry.SetAscending("Entry No.", false);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         DocumentRecordRef.GetTable(GLEntry);
     end;
 
@@ -1173,7 +1173,7 @@ codeunit 135545 "Attachments E2E Test"
         LineNo: Integer;
     begin
         LastUsedIncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if not LastUsedIncomingDocumentAttachment.FindLast then
+        if not LastUsedIncomingDocumentAttachment.FindLast() then
             LineNo := 10000
         else
             LineNo := LastUsedIncomingDocumentAttachment."Line No." + 10000;

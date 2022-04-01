@@ -62,10 +62,10 @@ codeunit 7150 "Update Item Analysis View"
         if LastEntryNoIsInitialized then
             exit;
         with ValueEntry do
-            if FindLast then
+            if FindLast() then
                 LastValueEntryNo := "Entry No.";
         with ItemBudgetEntry do
-            if FindLast then
+            if FindLast() then
                 LastItemBudgetEntryNo := "Entry No.";
         LastEntryNoIsInitialized := true;
     end;
@@ -93,7 +93,7 @@ codeunit 7150 "Update Item Analysis View"
             ItemAnalysisView2.SetFilter("Last Entry No.", '<%1', LastValueEntryNo);
 
         ItemAnalysisView2.LockTable();
-        if ItemAnalysisView2.FindSet then
+        if ItemAnalysisView2.FindSet() then
             repeat
                 UpdateOne(ItemAnalysisView2, Which, ItemAnalysisView2."Last Entry No." < LastValueEntryNo - 1000);
             until ItemAnalysisView2.Next() = 0;
@@ -352,7 +352,7 @@ codeunit 7150 "Update Item Analysis View"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast then begin
+                        if AccountingPeriod.FindLast() then begin
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
                         end else
                             PrevCalculatedPostingDate := PostingDate;
@@ -367,7 +367,7 @@ codeunit 7150 "Update Item Analysis View"
     begin
         if ShowProgressWindow then
             Window.Update(6, Text011);
-        if TempItemAnalysisViewEntry.FindSet then
+        if TempItemAnalysisViewEntry.FindSet() then
             repeat
                 ItemAnalysisViewEntry.Init();
                 ItemAnalysisViewEntry := TempItemAnalysisViewEntry;
@@ -408,7 +408,7 @@ codeunit 7150 "Update Item Analysis View"
     begin
         if ShowProgressWindow then
             Window.Update(6, Text011);
-        if TempItemAnalysisViewBudgEntry.FindSet then
+        if TempItemAnalysisViewBudgEntry.FindSet() then
             repeat
                 ItemAnalysisViewBudgetEntry.Init();
                 ItemAnalysisViewBudgetEntry := TempItemAnalysisViewBudgEntry;
@@ -537,7 +537,7 @@ codeunit 7150 "Update Item Analysis View"
             exit(TempDimEntryBuffer."Dimension Entry No." <> 0);
 
         InFilters := true;
-        if ItemAnalysisViewFilter.FindSet then
+        if ItemAnalysisViewFilter.FindSet() then
             repeat
                 if DimSetEntry.Get(DimSetID, ItemAnalysisViewFilter."Dimension Code") then
                     InFilters :=

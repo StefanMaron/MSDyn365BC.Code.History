@@ -41,33 +41,6 @@ codeunit 136600 "ERM RS Questionnaire"
         Commit();
     end;
 
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure QuestionnaireSetupExportExcel()
-    var
-        ConfigQuestionnaire: Record "Config. Questionnaire";
-        ConfigQuestionArea: Record "Config. Question Area";
-        FilePath: Text;
-    begin
-        // [SCENARIO] Questionnaire Setup can be exported to Excel.
-
-        // [GIVEN] Create new Config. Questionnaire, Question Area, update Questions and input Comments.
-        SetupQuestionnaireTestScenarioWithComments(ConfigQuestionnaire, ConfigQuestionArea, FindTable);
-
-        // [WHEN] Export Questionnaire to Excel.
-        FilePath := FileMgt.ClientTempFileName('xlsx');
-        QuestionnaireManagement.ExportQuestionnaireToExcel(FilePath, ConfigQuestionnaire);
-        OpenExcelWorksheet(FilePath);
-
-        // [THEN] Check the Questionnaire Setup exported to Excel.
-        VerifyQuestionnaireSetupExport(ConfigQuestionArea);
-
-        FileMgt.DeleteClientFile(FilePath);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure QuestionnaireExcelImportExportWindowsClientUI()
@@ -78,7 +51,7 @@ codeunit 136600 "ERM RS Questionnaire"
     begin
         // [FEATURE] [Windows Client] [Excel] [UI]
         // [SCENARIO 216173] Excel/XML Import/Export controls are visible in Windows client
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
 
         BindSubscription(TestClientTypeSubscriber);
@@ -102,7 +75,7 @@ codeunit 136600 "ERM RS Questionnaire"
     begin
         // [FEATURE] [Web Client] [Excel] [UI]
         // [SCENARIO 216173] Excel/XML Import/Export controls are visible in Web client
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
 
         BindSubscription(TestClientTypeSubscriber);
@@ -212,7 +185,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] a new Config. Questionnaire can be created.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // [WHEN] Create new Config. Questionnaire.
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
@@ -230,7 +203,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] the application generates an error on inserting Config. Questionnaire with existing code.
 
         // [GIVEN] Create new Config. Questionnaire.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
 
         // [WHEN] Try to insert another Config. Questionnaire with the same code.
@@ -249,7 +222,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] the application generates an error on renaming a Config. Questionnaire.
 
         // [GIVEN] Create new Config. Questionnaire.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
 
         // [WHEN] Try to rename the Config. Questionnaire.
@@ -273,7 +246,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] a Config. Questionnaire can be modified.
 
         // [GIVEN] Create new Config. Questionnaire.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
 
         // [WHEN] Modify the Config. Questionnaire.
@@ -335,7 +308,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] answer can be applied for a field that does not exist.
 
         // [GIVEN] Create new Config. Questionnaire, Question Area, Question.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
         CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
         LibraryRapidStart.CreateQuestion(ConfigQuestion, ConfigQuestionArea);
@@ -420,7 +393,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] autogeneration of questions for the fields not mentioned in the Question Area.
 
         // [GIVEN] Create new Config. Questionnaire, two new Question Areas.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
         CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
         CreateQuestionAreaWithTableID(ConfigQuestionArea2, ConfigQuestionnaire.Code, FindNextTable(ConfigQuestionArea."Table ID"));
@@ -460,7 +433,7 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionnaireCode: Code[10];
         XMLText: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
         QuestionnaireCode := ConfigQuestionnaire.Code;
@@ -495,7 +468,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
-        ConfigQuestion.FindFirst;
+        ConfigQuestion.FindFirst();
 
         QuestionnaireCode := ConfigQuestionnaire.Code;
         QuestionAreaCode := ConfigQuestionArea.Code;
@@ -560,7 +533,7 @@ codeunit 136600 "ERM RS Questionnaire"
         XMLDocument: DotNet XmlDocument;
         XMLQuestionnaireCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
 
@@ -583,7 +556,7 @@ codeunit 136600 "ERM RS Questionnaire"
         XMLDocument: DotNet XmlDocument;
         XMLQuestionAreaCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
         CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
@@ -648,7 +621,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] a Config. Question Area can be deleted.
 
         // [GIVEN] Create new Config. Questionnaire, Question Area, update Questions.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
         CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
         QuestionnaireManagement.UpdateQuestions(ConfigQuestionArea);
@@ -679,7 +652,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] the application generates an error on renaming a Config. Question Area.
 
         // [GIVEN] Create new Config. Questionnaire.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
         CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
 
@@ -716,7 +689,7 @@ codeunit 136600 "ERM RS Questionnaire"
     begin
         // Find the first table of the database. Random cannot be used as some tables have only one field.
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
         exit(AllObj."Object ID");
     end;
 
@@ -727,7 +700,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // Find the first table of the database. Random cannot be used as some tables have only one field.
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetFilter("Object ID", '<>%1', ID);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
         exit(AllObj."Object ID");
     end;
 
@@ -743,7 +716,7 @@ codeunit 136600 "ERM RS Questionnaire"
         ConfigQuestion.SetRange("Questionnaire Code", QuestionnaireCode);
         ConfigQuestion.SetRange("Question Area Code", QuestionAreaCode);
         ConfigQuestion.SetRange("Field ID", FieldID);
-        ConfigQuestion.FindFirst;
+        ConfigQuestion.FindFirst();
 
         ConfigQuestion.Validate(Answer, AnswerValue);
         ConfigQuestion.Modify(true);
@@ -778,7 +751,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
     local procedure SetupQuestionnaireTestScenario(var ConfigQuestionnaire: Record "Config. Questionnaire"; var ConfigQuestionArea: Record "Config. Question Area"; TableID: Integer)
     begin
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
         CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, TableID);
         QuestionnaireManagement.UpdateQuestions(ConfigQuestionArea);
@@ -877,10 +850,10 @@ codeunit 136600 "ERM RS Questionnaire"
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
 
         ConfigPackageMgt.SetFieldFilter(Field, ConfigQuestionArea."Table ID", 0);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 ConfigQuestion.SetRange("Field ID", Field."No.");
-                ConfigQuestion.FindFirst;
+                ConfigQuestion.FindFirst();
                 Assert.AreEqual(
                   ConfigQuestion."Table ID",
                   ConfigQuestionArea."Table ID",
@@ -985,7 +958,7 @@ codeunit 136600 "ERM RS Questionnaire"
     local procedure GenerateGLAccountNoFromGUID() GeneratedCode: Code[20]
     begin
         // Some localized versions require G/L Account to start with a digit other than 0
-        GeneratedCode := LibraryUtility.GenerateGUID;
+        GeneratedCode := LibraryUtility.GenerateGUID();
         while StrLen(GeneratedCode) < MaxStrLen(GeneratedCode) do
             GeneratedCode := '1' + GeneratedCode;
     end;
@@ -1008,7 +981,7 @@ codeunit 136600 "ERM RS Questionnaire"
         ConfigQuestion: Record "Config. Question";
         "Field": Record "Field";
     begin
-        Initialize;
+        Initialize();
 
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
         CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
@@ -1017,7 +990,7 @@ codeunit 136600 "ERM RS Questionnaire"
         ConfigQuestion.FieldLookup;
 
         Field.SetRange(TableNo, ConfigQuestionArea."Table ID");
-        Field.FindFirst;
+        Field.FindFirst();
 
         Assert.AreEqual(
           Field."No.", ConfigQuestion."Field ID",
@@ -1031,7 +1004,7 @@ codeunit 136600 "ERM RS Questionnaire"
         ConfigPackageData: Record "Config. Package Data";
     begin
         ConfigPackageDataPage.SetTableView(ConfigPackageData);
-        ConfigPackageData.FindFirst;
+        ConfigPackageData.FindFirst();
         ConfigPackageDataPage.SetRecord(ConfigPackageData);
         Response := ACTION::LookupOK;
     end;
@@ -1064,12 +1037,12 @@ codeunit 136600 "ERM RS Questionnaire"
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
         ConfigQuestion.SetRange("Table ID", DATABASE::Currency);
         ConfigQuestion.SetRange("Field ID", Currency.FieldNo("Unrealized Gains Acc."));
-        ConfigQuestion.FindFirst;
+        ConfigQuestion.FindFirst();
     end;
 
     local procedure VerifyConfigQuestionAnswer(ExpectedValue: Variant; var ConfigQuestion: Record "Config. Question")
     begin
-        ConfigQuestion.FindFirst;
+        ConfigQuestion.FindFirst();
         Assert.AreEqual(
           ExpectedValue,
           ConfigQuestion.Answer,
@@ -1088,7 +1061,7 @@ codeunit 136600 "ERM RS Questionnaire"
         GLAccount: Record "G/L Account";
         ConfigQuestionAreaPage: TestPage "Config. Question Area";
     begin
-        Initialize;
+        Initialize();
         ConfigQuestion.DeleteAll(true);
         ConfigPackageData.DeleteAll(true);
 
@@ -1115,7 +1088,7 @@ codeunit 136600 "ERM RS Questionnaire"
         GLAccount: Record "G/L Account";
         ConfigQuestionAreaPage: TestPage "Config. Question Area";
     begin
-        Initialize;
+        Initialize();
 
         InitQuestionnaireAnswerScenario(ConfigQuestionArea, ConfigQuestion, ConfigPackage);
 
@@ -1130,18 +1103,5 @@ codeunit 136600 "ERM RS Questionnaire"
 
         VerifyConfigQuestionAnswer(ConfigPackageData.Value, ConfigQuestion);
     end;
-
-#if not CLEAN17
-    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
-    local procedure OpenExcelWorksheet(ClientFileName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-        ServerFileName: Text;
-    begin
-        ServerFileName := FileManagement.UploadFileSilent(ClientFileName);
-        LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
-    end;
-#endif
 }
 

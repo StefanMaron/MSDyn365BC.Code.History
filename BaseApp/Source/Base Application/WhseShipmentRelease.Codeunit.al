@@ -47,7 +47,7 @@ codeunit 7310 "Whse.-Shipment Release"
                         AsmLine.SetRange("Document Type", ATOLink."Assembly Document Type");
                         AsmLine.SetRange("Document No.", ATOLink."Assembly Document No.");
                         AsmLine.SetRange(Type, AsmLine.Type::Item);
-                        if AsmLine.FindSet then
+                        if AsmLine.FindSet() then
                             repeat
                                 if AsmLine.CalcQtyToPickBase > 0 then
                                     if AsmLine.IsInventoriableItem() then

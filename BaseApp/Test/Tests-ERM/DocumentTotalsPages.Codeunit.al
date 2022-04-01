@@ -1586,7 +1586,7 @@ codeunit 134344 "Document Totals Pages"
         // [FEATURE] [UI] [VAT] [Purchase] [VAT Difference]
         // [SCENARIO 401242] "Amount Including VAT" of the purchase line must consider "VAT Differrence" specified other document lines.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Difference" is allowed in setup
         MaxAllowedVATDifference := LibraryRandom.RandIntInRange(5, 10);
@@ -2016,7 +2016,7 @@ codeunit 134344 "Document Totals Pages"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Document Totals Pages");
 
         if IsInitialized then
@@ -2106,7 +2106,7 @@ codeunit 134344 "Document Totals Pages"
 
         LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
         LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
-        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID);
+        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
         ExtendedTextLine.Modify(true);
     end;
 

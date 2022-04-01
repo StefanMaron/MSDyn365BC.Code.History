@@ -103,11 +103,12 @@ page 5333 "CRM Skipped Records"
                 trigger OnAction()
                 var
                     CRMIntegrationRecord: Record "CRM Integration Record";
+                    CRMOptionMapping: Record "CRM Option Mapping";
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                 begin
-                    SetCurrentSelectionFilter(CRMIntegrationRecord);
-                    CRMIntegrationManagement.UpdateSkippedNow(CRMIntegrationRecord);
-                    Refresh(CRMIntegrationRecord);
+                    SetCurrentSelectionFilter(CRMIntegrationRecord, CRMOptionMapping);
+                    CRMIntegrationManagement.UpdateSkippedNow(CRMIntegrationRecord, CRMOptionMapping);
+                    Refresh(CRMIntegrationRecord, CRMOptionMapping);
                 end;
             }
             action(RestoreAll)
@@ -126,12 +127,13 @@ page 5333 "CRM Skipped Records"
                 trigger OnAction()
                 var
                     CRMIntegrationRecord: Record "CRM Integration Record";
+                    CRMOptionMapping: Record "CRM Option Mapping";
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                 begin
                     if IsEmpty() then
                         exit;
                     CRMIntegrationManagement.UpdateAllSkippedNow();
-                    Refresh(CRMIntegrationRecord);
+                    Refresh(CRMIntegrationRecord, CRMOptionMapping);
                     Session.LogMessage('0000CUG', UserRetriedAllTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 end;
             }
@@ -150,13 +152,17 @@ page 5333 "CRM Skipped Records"
                 trigger OnAction()
                 var
                     CRMIntegrationRecord: Record "CRM Integration Record";
+                    CRMOptionMapping: Record "CRM Option Mapping";
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                 begin
-                    SetCurrentSelectionFilter(CRMIntegrationRecord);
-                    CRMIntegrationManagement.UpdateSkippedNow(CRMIntegrationRecord, true);
-                    Refresh(CRMIntegrationRecord);
-                    CRMIntegrationManagement.UpdateMultipleNow(CRMIntegrationRecord);
-                    Refresh(CRMIntegrationRecord);
+                    SetCurrentSelectionFilter(CRMIntegrationRecord, CRMOptionMapping);
+                    CRMIntegrationManagement.UpdateSkippedNow(CRMIntegrationRecord, CRMOptionMapping, true);
+                    Refresh(CRMIntegrationRecord, CRMOptionMapping);
+                    if not CRMIntegrationRecord.IsEmpty() then
+                        CRMIntegrationManagement.UpdateMultipleNow(CRMIntegrationRecord);
+                    if not CRMOptionMapping.IsEmpty() then
+                        CRMIntegrationManagement.UpdateMultipleNow(CRMOptionMapping, true);
+                    Refresh(CRMIntegrationRecord, CRMOptionMapping);
                 end;
             }
             action(ShowLog)
@@ -179,7 +185,10 @@ page 5333 "CRM Skipped Records"
                     CRMIntegrationRecord."Table ID" := "Table ID";
                     CRMIntegrationRecord."Integration ID" := "Integration ID";
                     CRMIntegrationRecord.FindRecordId(RecId);
-                    CRMIntegrationManagement.ShowLog(RecId);
+                    if "CRM Option Id" = 0 then
+                        CRMIntegrationManagement.ShowLog(RecId)
+                    else
+                        CRMIntegrationManagement.ShowOptionLog(RecId);
                 end;
             }
             action(ManageCRMCoupling)
@@ -196,6 +205,7 @@ page 5333 "CRM Skipped Records"
                 trigger OnAction()
                 var
                     CRMIntegrationRecord: Record "CRM Integration Record";
+                    CRMOptionMapping: Record "CRM Option Mapping";
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     RecId: RecordId;
                 begin
@@ -205,7 +215,7 @@ page 5333 "CRM Skipped Records"
                     if CRMIntegrationRecord.FindByRecordID(RecId) then
                         if CRMIntegrationManagement.DefineCoupling(RecId) then begin
                             CRMIntegrationRecord.SetRecFilter;
-                            Refresh(CRMIntegrationRecord);
+                            Refresh(CRMIntegrationRecord, CRMOptionMapping);
                         end;
                 end;
             }
@@ -392,27 +402,31 @@ page 5333 "CRM Skipped Records"
     local procedure CollectSkippedCRMIntegrationRecords(TableIdFilter: Text)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMOptionMapping: Record "CRM Option Mapping";
     begin
-        if TableIdFilter <> '' then
+        if TableIdFilter <> '' then begin
             CRMIntegrationRecord.SetFilter("Table ID", TableIdFilter);
+            CRMOptionMapping.SetFilter("Table ID", TableIdFilter);
+        end;
         CRMIntegrationRecord.SetRange(Skipped, true);
-        SetRecords(CRMIntegrationRecord);
+        CRMOptionMapping.SetRange(Skipped, true);
+        SetRecords(CRMIntegrationRecord, CRMOptionMapping);
     end;
 
-    local procedure SetCurrentSelectionFilter(var CRMIntegrationRecord: Record "CRM Integration Record")
+    local procedure SetCurrentSelectionFilter(var CRMIntegrationRecord: Record "CRM Integration Record"; var CRMOptionMapping: Record "CRM Option Mapping")
     var
         TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
     begin
         TempCRMSynchConflictBuffer.Copy(Rec, true);
         CurrPage.SetSelectionFilter(TempCRMSynchConflictBuffer);
-        TempCRMSynchConflictBuffer.SetSelectionFilter(CRMIntegrationRecord);
+        TempCRMSynchConflictBuffer.SetSelectionFilter(CRMIntegrationRecord, CRMOptionMapping);
     end;
 
-    procedure SetRecords(var CRMIntegrationRecord: Record "CRM Integration Record")
+    procedure SetRecords(var CRMIntegrationRecord: Record "CRM Integration Record"; var CRMOptionMapping: Record "CRM Option Mapping")
     var
         cnt: Integer;
     begin
-        cnt := Fill(CRMIntegrationRecord);
+        cnt := Fill(CRMIntegrationRecord, CRMOptionMapping);
         SetOutside := true;
         if cnt >= 100 then begin
             TooManyErrorsNotification.Id(GetTooManyErrorsNotificationId());
@@ -421,14 +435,21 @@ page 5333 "CRM Skipped Records"
         end;
     end;
 
+    procedure SetRecords(var CRMIntegrationRecord: Record "CRM Integration Record")
+    var
+        TempCRMOptionMapping: Record "CRM Option Mapping" temporary;
+    begin
+        SetRecords(CRMIntegrationRecord, TempCRMOptionMapping);
+    end;
+
     local procedure GetTooManyErrorsNotificationId(): Guid;
     begin
         exit('2d60b73e-8879-40b8-a16d-1edffad711cd');
     end;
 
-    local procedure Refresh(var CRMIntegrationRecord: Record "CRM Integration Record")
+    local procedure Refresh(var CRMIntegrationRecord: Record "CRM Integration Record"; var CRMOptionMapping: Record "CRM Option Mapping")
     begin
-        UpdateSourceTable(CRMIntegrationRecord);
+        UpdateSourceTable(CRMIntegrationRecord, CRMOptionMapping);
         AreRecordsExist := false;
     end;
 

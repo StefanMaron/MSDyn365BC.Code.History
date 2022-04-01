@@ -79,7 +79,7 @@ table 726 "Custom Address Format Line"
         CustomAddressFormatLine.SetRange("Country/Region Code", "Country/Region Code");
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
         CustomAddressFormatLine.SetRange("Field Position", "Field Position" + MoveBy);
-        if CustomAddressFormatLine.FindFirst then begin
+        if CustomAddressFormatLine.FindFirst() then begin
             CustomAddressFormatLine."Field Position" -= MoveBy;
             CustomAddressFormatLine.Modify();
             "Field Position" += MoveBy;
@@ -113,7 +113,7 @@ table 726 "Custom Address Format Line"
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
         CustomAddressFormatLine.SetFilter("Field ID", '<>%1', "Field ID");
         CustomAddressFormatLine.SetCurrentKey("Country/Region Code", "Line No.", "Field Position");
-        if CustomAddressFormatLine.FindLast then
+        if CustomAddressFormatLine.FindLast() then
             "Field Position" := CustomAddressFormatLine."Field Position" + 1;
     end;
 

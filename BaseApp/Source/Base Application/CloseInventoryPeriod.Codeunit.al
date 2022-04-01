@@ -55,21 +55,17 @@ codeunit 5820 "Close Inventory Period"
 
     local procedure CheckCostIsAdjusted(EndingDate: Date)
     var
-        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         ValueEntry: Record "Value Entry";
+        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
     begin
-        AvgCostAdjmtEntryPoint.Reset();
-        AvgCostAdjmtEntryPoint.SetCurrentKey("Item No.", "Cost Is Adjusted", "Valuation Date");
-        AvgCostAdjmtEntryPoint.SetRange("Cost Is Adjusted", false);
-        AvgCostAdjmtEntryPoint.SetRange("Valuation Date", 0D, EndingDate);
-        if not AvgCostAdjmtEntryPoint.IsEmpty() then
+        if not AvgCostEntryPointHandler.IsEntriesAdjusted('', EndingDate) then
             Error(Text000);
 
         InvtAdjmtEntryOrder.SetCurrentKey("Cost is Adjusted");
         InvtAdjmtEntryOrder.SetRange("Cost is Adjusted", false);
         InvtAdjmtEntryOrder.SetRange("Is Finished", true);
-        if InvtAdjmtEntryOrder.FindSet then
+        if InvtAdjmtEntryOrder.FindSet() then
             repeat
                 ValueEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.");
                 ValueEntry.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
@@ -137,7 +133,7 @@ codeunit 5820 "Close Inventory Period"
     begin
         with InvtPeriod do begin
             InvtPeriodEntry.SetRange("Ending Date", "Ending Date");
-            if InvtPeriodEntry.FindLast then
+            if InvtPeriodEntry.FindLast() then
                 EntryNo := InvtPeriodEntry."Entry No." + 1
             else
                 EntryNo := 1;
@@ -150,7 +146,7 @@ codeunit 5820 "Close Inventory Period"
             InvtPeriodEntry."Creation Time" := Time;
             if Closed then begin
                 InvtPeriodEntry."Entry Type" := InvtPeriodEntry."Entry Type"::Close;
-                if ItemRegister.FindLast then
+                if ItemRegister.FindLast() then
                     InvtPeriodEntry."Closing Item Register No." := ItemRegister."No.";
             end else
                 InvtPeriodEntry."Entry Type" := InvtPeriodEntry."Entry Type"::"Re-open";

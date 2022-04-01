@@ -176,10 +176,10 @@ page 1797 "Data Migration Error"
         if DataMigrationError.Count > 1 then
             Error(MultipleRecordsSelectedErr);
 
-        DataMigrationError.FindFirst;
+        DataMigrationError.FindFirst();
         DataMigrationStatus.SetRange("Migration Type", DataMigrationError."Migration Type");
         DataMigrationStatus.SetRange("Destination Table ID", DataMigrationError."Destination Table ID");
-        DataMigrationStatus.FindFirst;
+        DataMigrationStatus.FindFirst();
 
         if not RecordRef.Get(DataMigrationError."Source Staging Table Record ID") then
             Error(ExtensionNotInstalledErr);

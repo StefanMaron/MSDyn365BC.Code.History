@@ -64,7 +64,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [FEATURE] [Sales]
         // [SCENARIO] Existing order line should get new Bin Code after Bin Code is renamed.
         // Setup.
-        Initialize;
+        Initialize();
         BinCode :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), 1,
@@ -98,7 +98,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [FEATURE] [Purchase]
         // [SCENARIO] Existing order line should get new Bin Code after Bin Code is renamed.
         // Setup.
-        Initialize;
+        Initialize();
         BinCode :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), 1,
@@ -127,7 +127,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code after creating Warehouse Receipt from Purchase Order: Default Bin Selection - Fixed Bin.
         // Setup.
-        Initialize;
+        Initialize();
         WhseReceiptFromPurchaseOrder(Location."Default Bin Selection"::"Fixed Bin");
     end;
 
@@ -140,7 +140,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code after creating Warehouse Receipt from Purchase Order: Default Bin Selection - Last-Used Bin.
         // Setup.
-        Initialize;
+        Initialize();
         WhseReceiptFromPurchaseOrder(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
@@ -179,7 +179,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code after creating Warehouse Receipt from Purchase Order and changed Bin Code on Warehouse Receipt Line: Default Bin Selection - Fixed Bin.
         // Setup.
-        Initialize;
+        Initialize();
         PostWhseReceipt(Location."Default Bin Selection"::"Fixed Bin");
     end;
 
@@ -192,7 +192,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code after creating Warehouse Receipt from Purchase Order and changed Bin Code on Warehouse Receipt Line: Default Bin Selection - Last-Used Bin.
         // Setup.
-        Initialize;
+        Initialize();
         PostWhseReceipt(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
@@ -246,7 +246,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // [FEATURE] [Sales Order] [Location] [Require Shipment]
         // [SCENARIO 387693] Bin Code is blank on Sales Lines when Location has "Require Shipment" and "Shipment Bin Code" set. Default Bin Selection = Fixed Bin.
-        Initialize;
+        Initialize();
         SalesOrderWithBin(Location."Default Bin Selection"::"Fixed Bin");
     end;
 
@@ -259,7 +259,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // [FEATURE] [Sales Order] [Location] [Require Shipment]
         // [SCENARIO 387693] Bin Code is blank on Sales Lines when Location has "Require Shipment" and "Shipment Bin Code" set. Default Bin Selection = Last-Used Bin.
-        Initialize;
+        Initialize();
         SalesOrderWithBin(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
@@ -311,7 +311,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code after creating Warehouse Shipment from Sales Order: Default Bin Selection - Fixed Bin.
         // Setup.
-        Initialize;
+        Initialize();
         WhseShipmentFromSalesOrder(Location."Default Bin Selection"::"Fixed Bin");
     end;
 
@@ -324,7 +324,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code after creating Warehouse Shipment from Sales Order: Default Bin Selection - Last-Used Bin.
         // Setup.
-        Initialize;
+        Initialize();
         WhseShipmentFromSalesOrder(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
@@ -373,7 +373,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code after creating Warehouse Shipment from Sales Order and changed Bin Code on Warehouse Shipment Line: Default Bin Selection - Fixed Bin.
         // Setup.
-        Initialize;
+        Initialize();
         PickFromShipment(Location."Default Bin Selection"::"Fixed Bin");
     end;
 
@@ -429,7 +429,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code after creating Warehouse Shipment from Sales Order and changed Bin Code on Warehouse Shipment Line: Default Bin Selection - Last-Used Bin.
         // Setup.
-        Initialize;
+        Initialize();
         PickFromShipment(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
@@ -491,7 +491,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [SCENARIO] Bin Code after creating Warehouse Shipment from Sales Order, changed Bin Code on Warehouse Shipment Line and Post:
         // [SCENARIO] Default Bin Selection - "Fixed Bin".
         // Setup.
-        Initialize;
+        Initialize();
         PostWhseShipment(Location."Default Bin Selection"::"Fixed Bin");
     end;
 
@@ -505,7 +505,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [SCENARIO] Bin Code after creating Warehouse Shipment from Sales Order, changed Bin Code on Warehouse Shipment Line and Post:
         // [SCENARIO] Default Bin Selection - "Last-Used Bin".
         // Setup.
-        Initialize;
+        Initialize();
         PostWhseShipment(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
@@ -554,10 +554,10 @@ codeunit 137064 "SCM Warehouse Management"
 
         // Verify: Verify that the new Bin Codes are updated on the Sales Lines.
         PostedWhseShipmentLine.SetRange("Item No.", Item."No.");
-        PostedWhseShipmentLine.FindFirst;
+        PostedWhseShipmentLine.FindFirst();
         PostedWhseShipmentLine.TestField("Bin Code", BinShip.Code);
         PostedWhseShipmentLine.SetRange("Item No.", Item2."No.");
-        PostedWhseShipmentLine.FindFirst;
+        PostedWhseShipmentLine.FindFirst();
         PostedWhseShipmentLine.TestField("Bin Code", LocationOrange."Shipment Bin Code");
     end;
 
@@ -568,7 +568,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code in Warehouse Activity Line after creating Inventory put-away.
         // Setup.
-        Initialize;
+        Initialize();
         InventoryPutAwayMultipleUOM(false);  // Boolean for Single Bin Content.
     end;
 
@@ -579,7 +579,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code in Warehouse Activity Line after creating Inventory put-away.
         // Setup.
-        Initialize;
+        Initialize();
         InventoryPutAwayMultipleUOM(true);  // Boolean for Multiple Bin Content.
     end;
 
@@ -624,7 +624,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code in Warehouse Activity Line after Posting Werehouse Receipt.
         // Setup.
-        Initialize;
+        Initialize();
         PostWhseReceiptMultipleUOM(false);  // Boolean for Single Bin Content.
     end;
 
@@ -634,7 +634,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code in Warehouse Activity Line after Posting Werehouse Receipt.
         // Setup.
-        Initialize;
+        Initialize();
         PostWhseReceiptMultipleUOM(true);  // Boolean for Multiple Bin Content.
     end;
 
@@ -695,7 +695,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Warehouse Shipment after creating multilple Sales Order With Shipping Advice as Complete.
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
@@ -723,7 +723,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Error message on Creating Warehouse Shipment If Sales Order have Shipping Advice as Complete and blank Inventory on Location.
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWhseShipment(false);  // Update Inventory as False.
     end;
 
@@ -733,7 +733,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Error message on Creating Warehouse Shipment If Sales Order have Shipping Advice as Complete and blank Inventory on Location.
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWhseShipment(true);  // Update Inventory as True.
     end;
 
@@ -768,7 +768,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Error message on Creating Warehouse Shipment If Sales Order have Shipping Advice as Complete, multiple lines, Partial and blank Inventory on location.
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWhseShipmentWithDiffSalesLines(false);  // Update Inventory as False.
     end;
 
@@ -778,7 +778,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Error message on Creating Warehouse Shipment If Sales Order have Shipping Advice as Complete, multiple lines, Partial and blank Inventory on location.
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWhseShipmentWithDiffSalesLines(true);  // Update Inventory as True.
     end;
 
@@ -836,7 +836,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Warehouse Shipment Line after changing Quantity to Handle On Warehouse Activity Line on Location - Green.
         // Setup: Create Item and update inventory on location.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateInventoryOnLocation(LocationGreen.Code, Item."No.", 100 + LibraryRandom.RandDec(100, 2));  // For large Quantity.
         QuantityToHandleOnWhseActivityLine(LocationGreen, Item);
@@ -850,7 +850,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Warehouse Shipment Line after changing Quantity to Handle On Warehouse Activity Line on Full WMS Location - White.
         // Setup: Create Item and update inventory on location.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateInventoryOnLocationWithWhseAdjustment(LocationWhite, Item, 100 + LibraryRandom.RandDec(100, 2));  // For large Quantity.
         QuantityToHandleOnWhseActivityLine(LocationWhite, Item);
@@ -897,7 +897,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Warehouse Shipment Line after changing Quantity to Handle On Warehouse Activity Line and Auto fill Qty to Ship on Location - Green.
         // Setup: Create Item and update inventory on location.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateInventoryOnLocation(LocationGreen.Code, Item."No.", 100 + LibraryRandom.RandDec(100, 2));  // For large Quantity.
         WhseShipmentAutofillQtyToShip(LocationGreen, Item);
@@ -911,7 +911,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Warehouse Shipment Line after changing Quantity to Handle On Warehouse Activity Line and Auto fill Qty to Ship on Full WMS Location - White.
         // Setup: Create Item and update inventory on location.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateInventoryOnLocationWithWhseAdjustment(LocationWhite, Item, 100 + LibraryRandom.RandDec(100, 2));  // For large Quantity.
         WhseShipmentAutofillQtyToShip(LocationWhite, Item);
@@ -959,7 +959,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Warehouse Shipment Line after changing Qty to Ship On Warehouse Shipment Line, Auto fill Qty to Ship and post Shipment on Location - Green.
         // Setup: Create Item and update inventory on location.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateInventoryOnLocation(LocationGreen.Code, Item."No.", 100 + LibraryRandom.RandDec(100, 2));  // For large Quantity.;
         QtyToShipOnWhseShipmentLine(LocationGreen, Item);
@@ -973,7 +973,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Warehouse Shipment Line after changing Qty to Ship On Warehouse Shipment Line, Auto fill Qty to Ship and post Shipment on Full WMS Location - White.
         // Setup: Create Item and update inventory on location.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateInventoryOnLocationWithWhseAdjustment(LocationWhite, Item, 100 + LibraryRandom.RandDec(100, 2));  // For large Quantity.;
         QtyToShipOnWhseShipmentLine(LocationWhite, Item);
@@ -1026,7 +1026,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Warehouse Receipt Line after changing Qty to Receive On Warehouse Receipt Line on Location - Green.
         // Setup.
-        Initialize;
+        Initialize();
         WhseReceiptAutofillQtyToRecv(LocationGreen);
     end;
 
@@ -1036,7 +1036,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Warehouse Receipt Line after changing Qty to Receive On Warehouse Receipt Line on Full WMS Location - White.
         // Setup.
-        Initialize;
+        Initialize();
         WhseReceiptAutofillQtyToRecv(LocationWhite);
     end;
 
@@ -1091,7 +1091,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Blank Bin Code on Warehouse Receipt line after Get Source Documents Receipt.
         // Setup: Create two Item, Create Location, Create two different Warehouse Class Code, Create Purchase Order, Create Warehouse Receipt Header.
-        Initialize;
+        Initialize();
         CreateMultipleItemWithWarehouseClass(Item, Item2, WarehouseClass, WarehouseClass2);
 
         CreateAndReleasePurchaseOrder(
@@ -1130,7 +1130,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code on Warehouse Receipt line after posting of Warehouse Receipt.
         // Setup: Create two Item, Create Location,Create two different Warehouse Class Codes, Create Purchase Order, Create Warehouse Receipt Header and change Bin on line.
-        Initialize;
+        Initialize();
         CreateMultipleItemWithWarehouseClass(Item, Item2, WarehouseClass, WarehouseClass2);
         CreateAndReleasePurchaseOrder(
           PurchaseHeader, Item."No.", Item2."No.", LocationWhite.Code, '', LibraryRandom.RandDec(10, 2),
@@ -1178,7 +1178,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code on Registered Whse Activity Line after Register Warehouse Activity.
         // Setup: Create two Item, Create Location, Create two different Warehouse Class Code, Create Purchase Order, Create Warehouse Receipt Header and change Bin on line and Post.
-        Initialize;
+        Initialize();
         CreateMultipleItemWithWarehouseClass(Item, Item2, WarehouseClass, WarehouseClass2);
 
         CreateAndReleasePurchaseOrder(
@@ -1223,7 +1223,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Blank Bin Code on Warehouse Shipment Line after creating Warehouse Shipment from Sales Order.
         // Setup: Create two Item, Create Location, Create the two different Warehouse Class Code and sales Order.
-        Initialize;
+        Initialize();
         CreateMultipleItemWithWarehouseClass(Item, Item2, WarehouseClass, WarehouseClass2);
         CreateAndReleaseSalesOrder(
           SalesHeader, Item."No.", Item2."No.", LocationWhite.Code, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
@@ -1256,7 +1256,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Blank Bin Code on Production Order line after refresh Production Order.
         // Setup: Create two Item, Create Location, Create the two different Warehouse Class Code and Production Order.
-        Initialize;
+        Initialize();
         CreateMultipleItemWithWarehouseClass(Item, Item2, WarehouseClass, WarehouseClass2);
 
         CreateBinWithWarehouseClass(Bin, LocationWhite.Code, false, false, false, false, '');
@@ -1291,7 +1291,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify error msg after changing Bin code in Prod Order Component.
         // Setup: Create two Item, Create Location, Create the two different Warehouse Class Code, Production Order change Bin Code on Prod Order Component.
-        Initialize;
+        Initialize();
         CreateMultipleItemWithWarehouseClass(Item, Item2, WarehouseClass, WarehouseClass2);
 
         CreateBinWithWarehouseClass(Bin, LocationWhite.Code, false, false, false, false, '');
@@ -1326,7 +1326,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // Verify Bin Code on Prod Order Component after changing Bin code  with Warehouse Class Code in Prod Order Component.
         // Setup: Create two Item, Create Location, Create two different Warehouse Class Code, Production Order change Bin Code on Prod Order Component with Warehouse Class Code.
-        Initialize;
+        Initialize();
         CreateMultipleItemWithWarehouseClass(Item, Item2, WarehouseClass, WarehouseClass2);
 
         CreateBinWithWarehouseClass(Bin, LocationWhite.Code, false, false, false, false, '');
@@ -1341,7 +1341,7 @@ codeunit 137064 "SCM Warehouse Management"
         ChangeBinCodeOnProdOrderComponent(ProdOrderComponent, Bin.Code);
 
         CreateBinWithWarehouseClass(Bin2, LocationWhite.Code, false, false, false, false, WarehouseClass2.Code);
-        ProdOrderComponent.FindLast;
+        ProdOrderComponent.FindLast();
         ChangeBinCodeOnProdOrderComponent(ProdOrderComponent, Bin2.Code);
 
         // Verify: Verify Bin Code on Prod Order Component.
@@ -1386,7 +1386,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create two bin contents - one of which is blocked - to hold lot tracked item.
-        Initialize;
+        Initialize();
 
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateItem(Item);
@@ -1516,7 +1516,7 @@ codeunit 137064 "SCM Warehouse Management"
         end;
 
         WhseEntry.Init();
-        if WhseEntryCurrent.FindLast then
+        if WhseEntryCurrent.FindLast() then
             WhseEntry."Entry No." := WhseEntryCurrent."Entry No." + 1
         else
             WhseEntry."Entry No." := 1;
@@ -1570,7 +1570,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create two bin contents - one of which is blocked - to hold lot tracked item.
-        Initialize;
+        Initialize();
 
         LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
         LibraryInventory.CreateItem(Item);
@@ -1651,7 +1651,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseRequest.SetRange(Type, WhseRequest.Type::Outbound);
         WhseRequest.SetRange("Source Type", 0);
         WhseRequest.SetRange("Source Subtype", 0);
-        WhseRequest.FindLast;
+        WhseRequest.FindLast();
         SourceDocuments.SetRecord(WhseRequest);
         Response := ACTION::LookupOK;
     end;
@@ -1662,7 +1662,7 @@ codeunit 137064 "SCM Warehouse Management"
         ItemLedgerEntryCurrent: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.Init();
-        if ItemLedgerEntryCurrent.FindLast then
+        if ItemLedgerEntryCurrent.FindLast() then
             ItemLedgerEntry."Entry No." := ItemLedgerEntryCurrent."Entry No." + 1
         else
             ItemLedgerEntry."Entry No." := 1;
@@ -1680,7 +1680,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         ReservationEntry.Init();
         ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Surplus;
-        if ReservationEntryCurrent.FindLast then
+        if ReservationEntryCurrent.FindLast() then
             ReservationEntry."Entry No." := ReservationEntryCurrent."Entry No." + 1
         else
             ReservationEntry."Entry No." := 1;
@@ -1711,7 +1711,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_WMS(BinContent, LotBlocked, LotUnblocked, SNBlocked,
           SNUnblocked, BlockedQty, UnblockedQty, false);
@@ -1757,7 +1757,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_WMS(
           BinContent, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, true);
@@ -1834,7 +1834,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_BW(
           BinContent, WhseActivityHeader, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, false, false, false);
@@ -1867,7 +1867,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_BW(
           BinContent, WhseActivityHeader, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, false, true, false);
@@ -1897,7 +1897,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_BW(
           BinContent, WhseActivityHeader, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, false, false, true);
@@ -1930,7 +1930,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_BW(
           BinContent, WhseActivityHeader, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, false, true, true);
@@ -1963,7 +1963,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_BW(
           BinContent, WhseActivityHeader, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, true, false, false);
@@ -1997,7 +1997,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_BW(
           BinContent, WhseActivityHeader, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, true, true, false);
@@ -2027,7 +2027,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_BW(
           BinContent, WhseActivityHeader, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, true, false, true);
@@ -2061,7 +2061,7 @@ codeunit 137064 "SCM Warehouse Management"
         UnblockedQty: Decimal;
     begin
         // SETUP: Create a bin content with two lots - one of which is blocked and the other is not.
-        Initialize;
+        Initialize();
 
         BlockedITAffectsAvailabilityForPick_BW(
           BinContent, WhseActivityHeader, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, true, true, true);
@@ -2192,7 +2192,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // See changes in VSTF 323171 for details- This is a test to check if the Bin Content gives
         // correct quantities with the filtering on item tracking
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
@@ -2202,8 +2202,8 @@ codeunit 137064 "SCM Warehouse Management"
         QtyLotNoSerial := LibraryRandom.RandDec(100, 2);
         QtyNoLotSerial := LibraryRandom.RandDec(1000, 2);
         QtyLotSerial := LibraryRandom.RandDec(10000, 2);
-        LotNo := LibraryUtility.GenerateGUID;
-        SerialNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
+        SerialNo := LibraryUtility.GenerateGUID();
 
         CheckBinContentWithItemTrackingCreateWhseEntry(BinContent, '', '', QtyNoLotNoSerial);
         CheckBinContentWithItemTrackingCreateWhseEntry(BinContent, LotNo, '', QtyLotNoSerial);
@@ -2227,7 +2227,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseEntry2: Record "Warehouse Entry";
     begin
         WhseEntry.Init();
-        if WhseEntry2.FindLast then
+        if WhseEntry2.FindLast() then
             WhseEntry."Entry No." := WhseEntry2."Entry No." + 1
         else
             WhseEntry."Entry No." := 1;
@@ -2250,7 +2250,7 @@ codeunit 137064 "SCM Warehouse Management"
             BinContent.SetRange("Lot No. Filter", LotNo);
         if SerialNo <> '' then
             BinContent.SetRange("Serial No. Filter", SerialNo);
-        BinContent.FindLast;
+        BinContent.FindLast();
         BinContent.CalcFields("Quantity (Base)");
     end;
 
@@ -2267,7 +2267,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [FEATURE] [Warehouse] [Pick Worksheet]
         // [SCENARIO 362753] Blocked bin content is excluded from quantity available to pick when calculting available qty. from pick worksheet
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "X" pieces of item "I" on a pick bin "B"
         LibraryInventory.CreateItem(Item);
@@ -2298,7 +2298,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [FEATURE] [Warehouse] [Move Worksheet]
         // [SCENARIO 362753] Blocked bin content is excluded from quantity available to pick when calculting available qty. from move worksheet
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "X" pieces of item "I" on a pick bin "B"
         LibraryInventory.CreateItem(Item);
@@ -2334,7 +2334,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // [FEATURE] [Bin Content] [Move Worksheet]
         // [SCENARIO 211627] Unpacking of bin content should be reflected in Warehouse Movements after creating movement with multiple lines for bin with filled "Min. Qty." and "Max. Qty.".
-        Initialize;
+        Initialize();
 
         Delta := LibraryRandom.RandInt(5);
         QtyPerUOM := LibraryRandom.RandIntInRange(Delta, 50);
@@ -2383,7 +2383,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // [FEATURE] [Sales Order] [Warehouse Shipment]
         // [SCENARIO 374793] Shipment Date on Sales Line should be updated after Posting Warehouse Shipment with a different Shipment Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Sales Order Line "L" with "Shipment Date" = "D1"
         LibraryInventory.CreateItem(Item);
@@ -2409,7 +2409,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [THEN] "L" has Shipment Date = "D2"
         with SalesLine do begin
             SetRange("Document No.", SalesHeader."No.");
-            FindFirst;
+            FindFirst();
             TestField("Shipment Date", WorkDate + DeltaDate);
         end;
     end;
@@ -2426,7 +2426,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // [FEATURE] [Warehouse Pick] [Bin Content]
         // [SCENARIO 377947] Create Pick Job should fill "Take" Line with Bin Code taken from Default Bin Content of Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin Mandatory Location with Require Pick and Shipment
         // [GIVEN] Item of Quantity = "Q" on Bin Content "X" and "Q" on Default Bin Content "Y"
@@ -2457,7 +2457,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // [FEATURE] [Warehouse Pick] [Bin Content]
         // [SCENARIO 377947] Create Pick Job should fill "Take" Line with Bin Code taken from first Bin Content of Item if there is no Default
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin Mandatory Location with Require Pick and Shipment
         // [GIVEN] Item of Quantity = "Q" on Bin Content "X" and "Q" on Bin Content "Y"
@@ -2496,7 +2496,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // [FEATURE] [Warehouse Shipment] [Item Reclassification] [Basic Warehousing] [UT]
         // [SCENARIO 302510] At location with disabled directed put-away and pick quantity on outbound bins is zero when the shipment was reverted using item reclassification journal.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with required shipment and pick.
         // [GIVEN] Two bins - "BULK" and "SHIP".
@@ -2505,10 +2505,10 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
         LibraryWarehouse.CreateBin(BulkBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
 
-        LotNo := LibraryUtility.GenerateGUID;
-        SalesDocNo := LibraryUtility.GenerateGUID;
-        ShipmentDocNo := LibraryUtility.GenerateGUID;
-        ReclassDocNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
+        SalesDocNo := LibraryUtility.GenerateGUID();
+        ShipmentDocNo := LibraryUtility.GenerateGUID();
+        ReclassDocNo := LibraryUtility.GenerateGUID();
 
         Qty := LibraryRandom.RandIntInRange(10, 20);
 
@@ -2569,7 +2569,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // [FEATURE] [Warehouse Shipment] [Basic Warehousing] [UT]
         // [SCENARIO 302510] At location with disabled directed put-away and pick quantity on outbound bins is calculated when there is an active warehouse shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with required shipment and pick.
         // [GIVEN] Two bins - "BULK" and "SHIP".
@@ -2578,10 +2578,10 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
         LibraryWarehouse.CreateBin(BulkBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
 
-        LotNo := LibraryUtility.GenerateGUID;
-        SalesDocNo := LibraryUtility.GenerateGUID;
-        ShipmentDocNo := LibraryUtility.GenerateGUID;
-        PostedShipmentDocNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
+        SalesDocNo := LibraryUtility.GenerateGUID();
+        ShipmentDocNo := LibraryUtility.GenerateGUID();
+        PostedShipmentDocNo := LibraryUtility.GenerateGUID();
 
         Qty := LibraryRandom.RandIntInRange(20, 40);
 
@@ -2643,7 +2643,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         // [FEATURE] [Warehouse Shipment] [Item Reclassification] [Basic Warehousing] [UT]
         // [SCENARIO 302510] At location with disabled directed put-away and pick quantity on outbound bins is properly calculated when the first shipment was picked but deleted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with required shipment and pick.
         // [GIVEN] Two bins - "BULK" and "SHIP".
@@ -2652,9 +2652,9 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
         LibraryWarehouse.CreateBin(BulkBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
 
-        LotNo := LibraryUtility.GenerateGUID;
-        SalesDocNo := LibraryUtility.GenerateGUID;
-        ReclassDocNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
+        SalesDocNo := LibraryUtility.GenerateGUID();
+        ReclassDocNo := LibraryUtility.GenerateGUID();
 
         Qty := LibraryRandom.RandIntInRange(10, 20);
 
@@ -2666,7 +2666,7 @@ codeunit 137064 "SCM Warehouse Management"
 
         // [GIVEN] Create warehouse shipment, pick and register the pick.
         // [GIVEN] 10 pcs are taken from bin "BULK" and placed into bin "SHIP".
-        WarehouseShipmentHeader[1]."No." := LibraryUtility.GenerateGUID;
+        WarehouseShipmentHeader[1]."No." := LibraryUtility.GenerateGUID();
         WarehouseShipmentHeader[1].Insert();
         MockWhseEntry(
           Location.Code, BulkBin.Code, Item."No.", LotNo, -Qty,
@@ -2692,7 +2692,7 @@ codeunit 137064 "SCM Warehouse Management"
 
         // [GIVEN] Create another shipment, pick and register the pick.
         // [GIVEN] 10 pcs are taken from bin "BULK" and placed into bin "SHIP".
-        WarehouseShipmentHeader[2]."No." := LibraryUtility.GenerateGUID;
+        WarehouseShipmentHeader[2]."No." := LibraryUtility.GenerateGUID();
         WarehouseShipmentHeader[2].Insert();
         MockWhseEntry(
           Location.Code, BulkBin.Code, Item."No.", LotNo, -Qty,
@@ -2722,11 +2722,11 @@ codeunit 137064 "SCM Warehouse Management"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse Management");
 
-        NoSeriesSetup;
+        NoSeriesSetup();
         ItemJournalSetup;
         CreateLocationSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
 
         Initialized := true;
@@ -2758,7 +2758,7 @@ codeunit 137064 "SCM Warehouse Management"
             SetRange("Location Code", LocationCode);
             SetRange("Bin Code", BinCode);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
 
             Validate("Block Movement", "Block Movement"::All);
             Modify(true);
@@ -3069,7 +3069,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         FindWarehouseReceiptHeader(WarehouseReceiptHeader, LocationCode);
         WarehouseReceiptLine.SetRange("No.", WarehouseReceiptHeader."No.");
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         WarehouseReceiptLine.Validate("Bin Code", BinCode);  // Change Bin Code.
         WarehouseReceiptLine.Modify(true);
     end;
@@ -3081,7 +3081,7 @@ codeunit 137064 "SCM Warehouse Management"
         FindWarehouseShipmentHeader(WarehouseShipmentHeader, LocationCode);
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
         WarehouseShipmentLine.SetRange("Item No.", ItemNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.Validate("Bin Code", BinCode);  // Change Bin Code.
         WarehouseShipmentLine.Modify(true);
     end;
@@ -3187,7 +3187,7 @@ codeunit 137064 "SCM Warehouse Management"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; No: Code[20])
@@ -3195,26 +3195,26 @@ codeunit 137064 "SCM Warehouse Management"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; LocationCode: Code[10])
     begin
         WarehouseReceiptHeader.SetRange("Location Code", LocationCode);
-        WarehouseReceiptHeader.FindLast;
+        WarehouseReceiptHeader.FindLast();
     end;
 
     local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
     begin
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
-        WarehouseShipmentHeader.FindLast;
+        WarehouseShipmentHeader.FindLast();
     end;
 
     local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; LocationCode: Code[10]; Type: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityHeader.SetRange(Type, Type);
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
-        WarehouseActivityHeader.FindLast;
+        WarehouseActivityHeader.FindLast();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20])
@@ -3223,7 +3223,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
         WarehouseActivityLine.SetRange("Action Type", ActionType);
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindPlaceWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeaderNo: Code[20]; QuantityFilter: Decimal)
@@ -3232,7 +3232,7 @@ codeunit 137064 "SCM Warehouse Management"
             SetRange("Action Type", "Action Type"::Place);
             SetRange("No.", WarehouseActivityHeaderNo);
             SetRange("Qty. (Base)", QuantityFilter);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3242,7 +3242,7 @@ codeunit 137064 "SCM Warehouse Management"
         BinType.SetRange(Pick, Pick);
         BinType.SetRange(Receive, Receive);
         BinType.SetRange(Ship, Ship);
-        BinType.FindFirst;
+        BinType.FindFirst();
     end;
 
     local procedure FindPickBin(var Bin: Record Bin; LocationCode: Code[10])
@@ -3253,10 +3253,10 @@ codeunit 137064 "SCM Warehouse Management"
 
         Bin.SetRange("Location Code", LocationCode);
         BinType.SetRange(Pick, true);
-        if BinType.FindSet then
+        if BinType.FindSet() then
             repeat
                 Bin.SetRange("Bin Type Code", BinType.Code);
-                if Bin.FindFirst then
+                if Bin.FindFirst() then
                     exit;
             until BinType.Next = 0;
     end;
@@ -3265,7 +3265,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", BinTypeCode);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; BinCode: Code[20])
@@ -3274,14 +3274,14 @@ codeunit 137064 "SCM Warehouse Management"
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
         ProdOrderComponent.SetRange("Bin Code", BinCode);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure SplitAndChangeUnitofMeasureofPutAwayLines(ItemUnitOfMeasure: Record "Item Unit of Measure"; Item: Record Item; Bin: Record Bin; WarehouseActivityHeaderNo: Code[20]; QtyPerUOMForNotBOM: Integer; Delta: Integer; PutAwayQuantity: Integer; QuantityAfterTwoSplitting: Integer)
@@ -3427,7 +3427,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
         WarehouseReceiptLine.SetRange("Item No.", ItemNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         WarehouseReceiptLine.Validate("Bin Code", BinCode);
         WarehouseReceiptLine.Modify(true);
     end;
@@ -3485,7 +3485,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseShipmentLine.SetRange("No.", No);
         WarehouseShipmentLine.SetRange("Item No.", ItemNo);
         WarehouseShipmentLine.SetRange(Quantity, Quantity);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.TestField("Qty. Outstanding", QtyOutstanding);
         WarehouseShipmentLine.TestField("Qty. to Ship", QtyToShip);
         WarehouseShipmentLine.TestField("Qty. Picked", QtyPicked);
@@ -3499,7 +3499,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseReceiptLine.SetRange("No.", No);
         WarehouseReceiptLine.SetRange("Item No.", ItemNo);
         WarehouseReceiptLine.SetRange(Quantity, Quantity);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         WarehouseReceiptLine.TestField("Qty. Outstanding", QtyOutstanding);
         WarehouseReceiptLine.TestField("Qty. to Receive", QtyToReceive);
         WarehouseReceiptLine.TestField("Qty. Received", QtyReceived)
@@ -3523,7 +3523,7 @@ codeunit 137064 "SCM Warehouse Management"
             SetRange("Action Type", ActionType);
             SetRange("Unit of Measure Code", UnitOfMeasureCode);
             SetFilter("Bin Code", '<>%1', BinCode);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, ExpectedQuantity);
         end;
     end;
@@ -3535,7 +3535,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
         WarehouseActivityLine.SetRange("Unit of Measure Code", UnitOfMeasureCode);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
 
         WarehouseActivityLine.TestField("Activity Type", ActivityType);
         WarehouseActivityLine.TestField("Item No.", ItemNo);
@@ -3561,7 +3561,7 @@ codeunit 137064 "SCM Warehouse Management"
         PostedWhseReceiptLine.SetRange("Whse. Receipt No.", WhseReceiptNo);
         PostedWhseReceiptLine.SetRange("Source Document", PostedWhseReceiptLine."Source Document"::"Purchase Order");
         PostedWhseReceiptLine.SetRange("Item No.", ItemNo);
-        PostedWhseReceiptLine.FindFirst;
+        PostedWhseReceiptLine.FindFirst();
         PostedWhseReceiptLine.TestField("Bin Code", BinCode);
     end;
 
@@ -3574,7 +3574,7 @@ codeunit 137064 "SCM Warehouse Management"
         RegisteredWhseActivityLine.SetRange("Source Type", DATABASE::"Purchase Line");
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
         RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
-        RegisteredWhseActivityLine.FindFirst;
+        RegisteredWhseActivityLine.FindFirst();
         RegisteredWhseActivityLine.TestField("Bin Code", BinCode);
     end;
 

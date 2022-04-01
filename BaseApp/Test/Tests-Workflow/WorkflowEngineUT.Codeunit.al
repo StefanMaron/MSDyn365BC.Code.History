@@ -58,7 +58,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] All the responses of the workflow are marked as processing.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         Guid := CreateGuid;
@@ -126,7 +126,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The workflow has only one entry point and is enabled.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateWorkflow(Workflow);
 
@@ -168,7 +168,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] There are records returned.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         CreateIncDocEventID :=
@@ -201,7 +201,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The workflow is not triggered.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryIncomingDocuments.InitIncomingDocuments;
         LibraryWorkflow.CreateWorkflow(Workflow);
 
@@ -238,7 +238,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] A Notification record is not created for that user.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         WorkflowEntryPointStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
@@ -277,7 +277,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User sets another step as an entry point
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -311,7 +311,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User changes the workflow code
         // [THEN] The workflow code is changed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -342,7 +342,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] The user wants to delete the workflow template.
         // [THEN] An error will be shown informing the user that a workflow template cannot be deleted.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -385,7 +385,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] Confirmation message is displayed
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(SubWorkflow);
@@ -441,7 +441,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] Confirmation message is displayed
         // [THEN] Referring workflow is disabled
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(SubWorkflow);
@@ -494,7 +494,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -526,7 +526,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -561,7 +561,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -595,7 +595,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -633,7 +633,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] Workflow is enabled
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -675,7 +675,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] Workflow is enabled
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -716,7 +716,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] An error occurs
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -756,7 +756,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] The workflow has only one entry point and is enabled.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -802,7 +802,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -847,7 +847,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] The workflow has only one entry point and is enabled.
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -898,7 +898,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] The workflow has only one entry point and is enabled.
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -949,7 +949,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks the Enabled checkbox
         // [THEN] Workflow is enabled.
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -995,7 +995,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks a step as an entry point
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1030,7 +1030,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User marks a step as an entry point
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1067,7 +1067,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] The user wants to enable the workflow.
         // [THEN] The user will get an error.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1099,7 +1099,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] The user wants to enable the workflow.
         // [THEN] The workflow will be enabled.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1128,7 +1128,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] The user wants to enable the workflow.
         // [THEN] The user will get an error.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1159,7 +1159,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User sets Previous Workflow Step ID equal to current step ID
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1193,7 +1193,7 @@ codeunit 134300 "Workflow Engine UT"
         // [WHEN] User sets Next Workflow Step ID equal to current step ID
         // [THEN] Error message is displayed
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1234,7 +1234,7 @@ codeunit 134300 "Workflow Engine UT"
         // [GIVEN] A Workflow Step that needs to be inserted between the two steps
         // [WHEN] InsertStepAfter is invoked on a workflow step
         // [THEN] The workflow step is inserted between two steps
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1277,7 +1277,7 @@ codeunit 134300 "Workflow Engine UT"
         // [GIVEN] A Workflow Step that needs to be inserted after the occurence of a function name
         // [WHEN] InsertAfterFunctionName is invoked on a function name
         // [THEN] The workflow step is inserted between two steps
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1307,7 +1307,7 @@ codeunit 134300 "Workflow Engine UT"
         Variant: Variant;
         Result: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         WorkflowStepInstance.Init();
@@ -1334,7 +1334,7 @@ codeunit 134300 "Workflow Engine UT"
         EntryPointStepID: Integer;
         Result: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1519,7 +1519,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The engine creates a new workflow instance for that workflow.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
@@ -1561,7 +1561,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The user will get an error.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.InsertEntryPointEventStep(Workflow,
           WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
@@ -1595,7 +1595,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] They will receive an error.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(FirstWorkflow);
         LibraryWorkflow.InsertEntryPointEventStep(FirstWorkflow,
           WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
@@ -1627,7 +1627,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The user will receive an error.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
@@ -1656,7 +1656,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The workflow will be enabled.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
@@ -1688,7 +1688,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] We get the same record with the same values.
 
         // Setup
-        Customer.FindFirst;
+        Customer.FindFirst();
         Index := WorkflowRecordManagement.BackupRecord(Customer);
 
         // Exercise
@@ -1744,7 +1744,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] It will throw an error if the data passed in is not a record.
 
         // Setup
-        Customer.FindFirst;
+        Customer.FindFirst();
         RecRef.Get(Customer.RecordId);
 
         Actn := ACTION::OK;
@@ -1848,7 +1848,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := LibraryRandom.RandDecInRange(1000000, 2000000, 2);
 
         DataTypeBuffer.Init();
@@ -1886,7 +1886,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := LibraryRandom.RandIntInRange(1000000, 2000000);
 
         DataTypeBuffer.Init();
@@ -1924,7 +1924,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := DataTypeBuffer.Option::option1;
 
         DataTypeBuffer.Init();
@@ -1962,7 +1962,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := Today;
 
         DataTypeBuffer.Init();
@@ -2000,7 +2000,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := CurrentDateTime;
 
         DataTypeBuffer.Init();
@@ -2038,7 +2038,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := Time;
 
         DataTypeBuffer.Init();
@@ -2076,7 +2076,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := true;
 
         DataTypeBuffer.Init();
@@ -2114,7 +2114,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         Evaluate(OldValue, '<+2D>');
 
         DataTypeBuffer.Init();
@@ -2152,7 +2152,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := LibraryRandom.RandIntInRange(1000000, 2000000);
 
         DataTypeBuffer.Init();
@@ -2190,7 +2190,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := LibraryRandom.RandIntInRange(1000000000, 2000000000);
 
         DataTypeBuffer.Init();
@@ -2228,7 +2228,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The value is correctly applied.
 
         // Setup
-        Initialize;
+        Initialize();
         OldValue := 'TESTCODE';
 
         DataTypeBuffer.Init();
@@ -2303,7 +2303,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The user will get an error.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
@@ -2337,7 +2337,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The user will get an error.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
@@ -2371,7 +2371,7 @@ codeunit 134300 "Workflow Engine UT"
         // [THEN] The user will get an error.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
@@ -2406,7 +2406,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
         // [SCENARIO 220210] User can validate correct value to "Custom Link" of "Workflow Step Argument"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record of "Workflow Step Argument"
 
@@ -2424,7 +2424,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
         // [SCENARIO 220210] User can not validate incorrect value to "Custom Link" of "Workflow Step Argument"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record of "Workflow Step Argument"
 
@@ -2444,7 +2444,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
         // [SCENARIO 220210] User can validate empty value to "Custom Link" of "Workflow Step Argument"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record of "Workflow Step Argument" with "Custom Link" = 'http://bing.com'
         WorkflowStepArgument."Custom Link" := 'http://bing.com';
@@ -2470,7 +2470,7 @@ codeunit 134300 "Workflow Engine UT"
         ApprovalEntry.DeleteAll();
         NotificationEntry.DeleteAll();
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 
@@ -2482,7 +2482,7 @@ codeunit 134300 "Workflow Engine UT"
     local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event"; TableID: Integer)
     begin
         WorkflowEvent.Init();
-        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
+        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
         WorkflowEvent.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowEvent.Description)), 1,
             MaxStrLen(WorkflowEvent.Description));
         WorkflowEvent."Table ID" := TableID;
@@ -2492,7 +2492,7 @@ codeunit 134300 "Workflow Engine UT"
     local procedure CreateAnyResponse(var WorkflowResponse: Record "Workflow Response")
     begin
         WorkflowResponse.Init();
-        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
+        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID();
         WorkflowResponse.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowResponse.Description)), 1,
             MaxStrLen(WorkflowResponse.Description));
         WorkflowResponse.Insert(true);
@@ -2531,7 +2531,7 @@ codeunit 134300 "Workflow Engine UT"
     begin
         NotificationEntry.SetRange("Recipient User ID", UserID);
         NotificationEntry.SetRange("Triggered By Record", RecordID);
-        NotificationEntry.FindFirst;
+        NotificationEntry.FindFirst();
     end;
 
     local procedure EnableWorkflow(WorkflowCode: Code[20])

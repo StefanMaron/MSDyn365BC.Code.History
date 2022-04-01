@@ -40,7 +40,6 @@ codeunit 703 "Find Record Management"
     [Scope('OnPrem')]
     procedure GetIntFieldValues(RecRef: RecordRef; var IntFields: list of [Integer])
     var
-        FldRef: FieldRef;
         FieldNos: list of [Integer];
         FieldNo: Integer;
         FieldValue: Variant;
@@ -183,7 +182,7 @@ codeunit 703 "Find Record Management"
         KeyNoMaxStrLen := SearchFieldRef[1].Length;
         if StrLen(SearchText) <= KeyNoMaxStrLen then begin
             SearchFieldRef[1].SetRange(CopyStr(SearchText, 1, KeyNoMaxStrLen));
-            if RecRef.FindFirst then begin
+            if RecRef.FindFirst() then begin
                 Result := SearchFieldRef[1].Value;
                 exit(1);
             end;
@@ -195,7 +194,7 @@ codeunit 703 "Find Record Management"
 
         // Try FINDFIRST "No." by mask "Search string *"
         if TrySetFilterOnFieldRef(SearchFieldRef[1], RecWithoutQuote + '*') then
-            if RecRef.FindFirst then begin
+            if RecRef.FindFirst() then begin
                 Result := SearchFieldRef[1].Value;
                 exit(1);
             end;
@@ -205,7 +204,7 @@ codeunit 703 "Find Record Management"
         // Two items with descrptions = "aaa" and "AAA";
         // Try FINDFIRST by exact "Description" = "AAA"
         SearchFieldRef[2].SetRange(CopyStr(SearchText, 1, SearchFieldRef[2].Length));
-        if RecRef.FindFirst then begin
+        if RecRef.FindFirst() then begin
             Result := SearchFieldRef[1].Value;
             exit(1);
         end;
@@ -214,7 +213,7 @@ codeunit 703 "Find Record Management"
         // Example of SearchText = "Search string ''";
         // Try FINDFIRST "Description" by mask "@Search string ?"
         SearchFieldRef[2].SetFilter('''@' + RecWithoutQuote + '''');
-        if RecRef.FindFirst then begin
+        if RecRef.FindFirst() then begin
             Result := SearchFieldRef[1].Value;
             exit(1);
         end;
@@ -226,7 +225,7 @@ codeunit 703 "Find Record Management"
         SearchFieldRef[1].SetFilter(RecFilterFromStart);
         SearchFieldRef[2].SetFilter(RecFilterFromStart);
         OnBeforeFindRecordStartingWithSearchString(Type, RecRef, RecFilterFromStart);
-        if RecRef.FindFirst then begin
+        if RecRef.FindFirst() then begin
             Result := SearchFieldRef[1].Value;
             exit(1);
         end;
@@ -238,7 +237,7 @@ codeunit 703 "Find Record Management"
         if SearchFieldNo[3] <> 0 then
             SearchFieldRef[3].SetFilter(RecFilterContains);
         OnBeforeFindRecordContainingSearchString(Type, RecRef, RecFilterContains);
-        if RecRef.FindFirst then begin
+        if RecRef.FindFirst() then begin
             Result := SearchFieldRef[1].Value;
             exit(RecRef.Count);
         end;
@@ -281,7 +280,7 @@ codeunit 703 "Find Record Management"
         RecRef.Reset();
         RecRef."SecurityFiltering" := SECURITYFILTER::Filtered;
         RecRef.Ascending(false); // most likely to search for newest records
-        if RecRef.FindSet then
+        if RecRef.FindSet() then
             repeat
                 RecCount += 1;
                 Description := RecRef.Field(DescriptionFieldNo).Value;

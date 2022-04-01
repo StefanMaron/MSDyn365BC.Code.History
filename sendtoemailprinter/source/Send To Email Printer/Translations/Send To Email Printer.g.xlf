@@ -58,11 +58,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Width - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 1480471845" size-unit="char" translate="yes" xml:space="preserve">
-          <source>An email from address was not found.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType FromAddressWasNotFoundErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2195109935 - NamedType 3036052668" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email is not set up for the action you are trying to take. Ask your administrator to either add the %1 scenario to your email account, or to specify a default account for email scenarios.</source>
           <note from="Developer" annotates="general" priority="2">%1 = Email scenario. E.g. "Email Printer"</note>
@@ -77,11 +72,6 @@
           <source>The email couldn't be sent. %1</source>
           <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SendErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 1133563836" size-unit="char" translate="yes" xml:space="preserve">
-          <source>To send print job to the %1 printer, you must set up SMTP.</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Printer name.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SetupSMTPErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1148211046 - NamedType 2244223965" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email address is not valid. Do you want to exit?</source>
@@ -322,6 +312,21 @@
           <source>Email Printer</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">EnumExtension Email Printer Scenario - EnumValue Email Printer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 514516880 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SendToEmailPrinter - Edit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SendToEmailPrinter - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 55009354 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SendToEmailPrinter - Objects</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SendToEmailPrinter - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 488051654 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SendToEmailPrinter - Read</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SendToEmailPrinter - Read - Property Caption</note>
         </trans-unit>
       </group>
     </body>

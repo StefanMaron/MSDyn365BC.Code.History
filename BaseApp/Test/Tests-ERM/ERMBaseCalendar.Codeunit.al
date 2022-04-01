@@ -250,10 +250,10 @@ codeunit 134233 "ERM Base Calendar"
         // [SCENARIO 292658] Base Calendar Card updates CalendarCode on subform when it's changed on the page
 
         // [GIVEN] Base Calendar Card is open
-        BaseCalendarCard.OpenNew;
+        BaseCalendarCard.OpenNew();
 
         // [GIVEN] Enter Calendar Code
-        BaseCalendarCard.Code.SetValue(LibraryUtility.GenerateGUID);
+        BaseCalendarCard.Code.SetValue(LibraryUtility.GenerateGUID());
 
         // [WHEN] Set any entry as non-working
         BaseCalendarCard.BaseCalendarEntries.Nonworking.SetValue(true);
@@ -264,7 +264,7 @@ codeunit 134233 "ERM Base Calendar"
         Assert.RecordIsNotEmpty(BaseCalendarChange);
 
         // [GIVEN] Add Description as 'X' to the same row
-        NewDescription := LibraryUtility.GenerateGUID;
+        NewDescription := LibraryUtility.GenerateGUID();
         BaseCalendarCard.BaseCalendarEntries.Description.SetValue(NewDescription);
 
         // [WHEN] Move the cursor to the previous row and back   

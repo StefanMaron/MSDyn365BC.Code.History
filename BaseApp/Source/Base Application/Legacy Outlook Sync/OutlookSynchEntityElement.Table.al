@@ -306,7 +306,7 @@ table 5301 "Outlook Synch. Entity Element"
     begin
         OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("Synch. Entity Code", "Synch. Entity Code");
-        if not OSynchUserSetup.FindSet then
+        if not OSynchUserSetup.FindSet() then
             exit;
 
         repeat
@@ -324,7 +324,7 @@ table 5301 "Outlook Synch. Entity Element"
         OSynchEntityElement.Reset();
         OSynchEntityElement.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchEntityElement.SetRange("Outlook Collection", "Outlook Collection");
-        if OSynchEntityElement.FindFirst then
+        if OSynchEntityElement.FindFirst() then
             Error(
               Text005,
               OSynchEntityElement.FieldCaption("Synch. Entity Code"),

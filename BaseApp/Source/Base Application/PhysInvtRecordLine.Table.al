@@ -413,7 +413,7 @@ table 5878 "Phys. Invt. Record Line"
                 until ItemLedgEntry.Next() = 0;
         end;
 
-        if TempPhysInvtTracking.FindFirst then begin
+        if TempPhysInvtTracking.FindFirst() then begin
             PhysInvtTrackingLines.SetRecord(TempPhysInvtTracking);
             PhysInvtTrackingLines.SetSources(TempPhysInvtTracking);
             PhysInvtTrackingLines.LookupMode(true);
@@ -433,7 +433,7 @@ table 5878 "Phys. Invt. Record Line"
         PhysInvtRecordLine.Reset();
         PhysInvtRecordLine.SetRange("Order No.", "Order No.");
         PhysInvtRecordLine.SetRange("Item No.", "Item No.");
-        if PhysInvtRecordLine.FindSet then
+        if PhysInvtRecordLine.FindSet() then
             repeat
                 if "Serial No." <> '' then
                     if PhysInvtRecordLine."Serial No." = "Serial No." then

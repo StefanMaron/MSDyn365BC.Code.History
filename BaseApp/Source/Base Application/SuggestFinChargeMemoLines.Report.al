@@ -29,7 +29,7 @@ report 192 "Suggest Fin. Charge Memo Lines"
                         end;
                         OldDateTime := CurrentDateTime;
                     end;
-                    Mark := not MakeFinChrgMemo.Run;
+                    Mark := not MakeFinChrgMemo.Run();
                 end;
             end;
 
@@ -40,7 +40,7 @@ report 192 "Suggest Fin. Charge Memo Lines"
                 Commit();
                 Window.Close;
                 MarkedOnly := true;
-                if FindFirst then
+                if FindFirst() then
                     if ConfirmManagement.GetResponse(Text002, true) then
                         PAGE.RunModal(0, "Finance Charge Memo Header");
             end;

@@ -37,7 +37,7 @@ page 2152 "O365 Country/Region List"
     var
         CountryRegion: Record "Country/Region";
     begin
-        if CountryRegion.FindSet then
+        if CountryRegion.FindSet() then
             repeat
                 Code := CountryRegion.Code;
                 Name := CountryRegion.GetNameInCurrentLanguage;

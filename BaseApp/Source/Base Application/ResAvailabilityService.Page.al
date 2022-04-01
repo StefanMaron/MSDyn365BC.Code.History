@@ -72,7 +72,7 @@ page 6004 "Res. Availability (Service)"
                     MatrixForm.SetData(CurrentDocumentType, CurrentDocumentNo, CurrentServItemLineNo, CurrentEntryNo,
                       MatrixColumnCaptions, MatrixRecords, PeriodType);
                     MatrixForm.SetTableView(Rec);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

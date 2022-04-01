@@ -48,7 +48,7 @@ codeunit 1636 "Office Contact Handler"
 
             if Count() = 1 then begin
                 OfficeMgt.ChangeCompany(Company);
-                FindFirst;
+                FindFirst();
                 ShowCustomerVendor(TempOfficeAddinContext, Contact, "Associated Table", GetContactNo);
                 exit;
             end;
@@ -56,7 +56,7 @@ codeunit 1636 "Office Contact Handler"
             SetRange(Type, Type::"Contact Person");
             if Count() = 1 then begin
                 OfficeMgt.ChangeCompany(Company);
-                FindFirst;
+                FindFirst();
                 ShowCustomerVendor(TempOfficeAddinContext, Contact, "Associated Table", GetContactNo);
                 exit;
             end;
@@ -218,7 +218,7 @@ codeunit 1636 "Office Contact Handler"
                     exit;
             end;
 
-        if ContactBusinessRelation.FindSet then begin
+        if ContactBusinessRelation.FindSet() then begin
             Contact.FilterGroup(-1);
             repeat
                 Contact.SetRange("Company No.", ContactBusinessRelation."Contact No.");

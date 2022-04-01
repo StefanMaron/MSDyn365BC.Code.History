@@ -58,7 +58,7 @@ table 66 "Merge Duplicates Conflict"
         MergeDuplicate: Page "Merge Duplicate";
     begin
         MergeDuplicate.SetConflict(Rec);
-        MergeDuplicate.RunModal;
+        MergeDuplicate.RunModal();
         exit(MergeDuplicate.IsConflictResolved);
     end;
 }

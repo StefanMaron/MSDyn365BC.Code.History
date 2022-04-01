@@ -128,7 +128,7 @@ report 99000788 "Prod. Order - Shortage List"
                         SetRange("Item No.", "Item No.");
                         SetRange("Variant Code", "Variant Code");
                         SetRange("Location Code", "Location Code");
-                        FindLast;
+                        FindLast();
                         SetRange("Item No.");
                         SetRange("Variant Code");
                         SetRange("Location Code");
@@ -307,7 +307,7 @@ report 99000788 "Prod. Order - Shortage List"
     begin
         ProdOrderLine.Copy(ProdOrderLineFields);
 
-        if ProdOrderLine.FindSet then
+        if ProdOrderLine.FindSet() then
             repeat
                 ProdOrderLine.CalcFields("Reserved Qty. (Base)");
                 RemainingQtyBase += ProdOrderLine."Remaining Qty. (Base)";
@@ -326,7 +326,7 @@ report 99000788 "Prod. Order - Shortage List"
     begin
         ProdOrderComp.Copy(ProdOrderCompFields);
 
-        if ProdOrderComp.FindSet then
+        if ProdOrderComp.FindSet() then
             repeat
                 ProdOrderComp.CalcFields("Reserved Qty. (Base)");
                 RemainingQtyBase += ProdOrderComp."Remaining Qty. (Base)";

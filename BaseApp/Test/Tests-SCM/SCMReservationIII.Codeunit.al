@@ -67,7 +67,7 @@ codeunit 137270 "SCM Reservation III"
         FullWMSLocationCode: Code[10];
     begin
         // RFH 324960
-        Initialize;
+        Initialize();
 
         // Setup
         SetupVendorAndLocations(SimpleLocationCode, InTransitLocationCode, FullWMSLocationCode, VendorNo);
@@ -135,7 +135,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Warehouse Shipment using Reservation and Item Tracking.
 
         // Setup: Create Sales Order using Item Tracking and Reservation.
-        Initialize;
+        Initialize();
         CreateAndReserveSalesOrder(SalesLine);
 
         // Exercise:
@@ -156,7 +156,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Pick Activity Line using Sales Order and Item Journal Line with Item Tracking.
 
         // Setup: Create Sales Order using Item Tracking and Reservation.
-        Initialize;
+        Initialize();
         CreateAndReserveSalesOrder(SalesLine);
 
         // Exercise: Create Pick.
@@ -196,7 +196,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify: Verify Posted Invoice for Charge Item.
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("No.", SalesInvoiceLine."No.");
         SalesInvoiceLine.TestField(Quantity, SalesLine.Quantity);
     end;
@@ -212,7 +212,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Warehouse Worksheet Line using Purchase and Sales Order with Reservation and Item Tracking.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Location, Purchase and Sales Order with Item Tracking, Create and Register Warehouse Activity.
         RegisterWhseActivityAndCreateWkshLine(PurchaseLine);
@@ -234,7 +234,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Create Pick from Worksheet error.
 
         // Setup: Create Location, Purchase and Sales Order with Item Tracking, Create and Register Warehouse Activity.
-        Initialize;
+        Initialize();
         RegisterWhseActivityAndCreateWkshLine(PurchaseLine);
 
         // Exercise: Create Worksheet Line.
@@ -259,7 +259,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Availability error with Sales Order Reservation.
 
         // Setup: Create Sales Order with Item Tracking.
-        Initialize;
+        Initialize();
         CreateWarehouseLocation(Location);
         CreateSalesDocument(
           SalesLine, SalesLine.Type::Item, CreateAndModifyTrackedItem(false, false, true), Location.Code, LibraryRandom.RandInt(10));
@@ -285,7 +285,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify error while Registering Pick without Bin Code.
 
         // Setup: Create Item Journal Line with Item Tracking Code, Create and Release a Sales Order with Item Tracking and Reservation.
-        Initialize;
+        Initialize();
         CreateAndReserveSalesOrder(SalesLine);
         CreatePick(SalesLine."Location Code", SalesLine."Document No.");
 
@@ -306,7 +306,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify error while validation blank Bin Code on Warehouse Activity Line with Action Type 'Place'.
 
         // Setup: Create Item Journal Line with Item Tracking Code, Create and Release a Sales Order with Item Tracking.
-        Initialize;
+        Initialize();
         ErrorUsingCreatePick(WarehouseActivityLine."Action Type"::Place, '', PlaceBinCodeError);
     end;
 
@@ -320,7 +320,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify error while validation Bin Code on Warehouse Activity Line with Action Type 'Take'.
 
         // Setup: Create Item Journal Line with Item Tracking Code, Create and Release a Sales Order with Item Tracking.
-        Initialize;
+        Initialize();
         ErrorUsingCreatePick(WarehouseActivityLine."Action Type"::Take, LibraryUtility.GenerateGUID, BinContentError);
     end;
 
@@ -349,7 +349,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Warehouse Request error using Sales Order while creating Inventory Put Away Pick.
 
         // Setup: Create Sales Order with Item Tracking.
-        Initialize;
+        Initialize();
         CreateWarehouseLocation(Location);
         CreateSalesDocument(SalesLine, SalesLine.Type::Item, CreateItem, Location.Code, LibraryRandom.RandInt(10));
 
@@ -372,7 +372,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Item No. On Enter Quantity to Create page.
 
         // Setup: Create Sales Order and assign Item Tracking.
-        Initialize;
+        Initialize();
         CreateWarehouseLocation(Location);
         CreateSalesDocument(
           SalesLine, SalesLine.Type::Item, CreateAndModifyTrackedItem(false, false, true), Location.Code, LibraryRandom.RandInt(10));
@@ -400,7 +400,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Pick Lines created after Get Warehouse Documents.
 
         // Setup: Create and post Warehouse Receipt, create Warehouse Shipment and create Pick from Pick Worksheet after Get Warehouse Documents.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         DocumentNo := PostWhseRcptAndCreateWhseShpt(PurchaseLine);
         GetWhseDocFromPickWksh;
@@ -427,7 +427,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Pick Worksheet created after Get Warehouse Documents.
 
         // Setup: Create and post Warehouse Receipt and create Warehouse Shipment.
-        Initialize;
+        Initialize();
         DocumentNo := PostWhseRcptAndCreateWhseShpt(PurchaseLine);
 
         // Exercise: Get Warehouse Documents from Pick Worksheet.
@@ -451,7 +451,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Warehouse Activity Line for Put Away after post Warehouse Receipt.
 
         // Setup: Create Location, create and release Purchase Order with Item Tracking and create Warehouse Receipt.
-        Initialize;
+        Initialize();
         CreateWarehouseLocation(Location);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, CreateAndModifyTrackedItem(false, false, true), Location.Code);  // Using Random Quantity.
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
@@ -479,7 +479,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Put Away Worksheet Line using Get Warehouse Documents.
 
         // Setup: Create Location, create and release Purchase Order with Item Tracking, create and post Warehouse Receipt.
-        Initialize;
+        Initialize();
         CreateWarehouseLocation(Location);
         Location.Validate("Use Put-away Worksheet", true);
         Location.Modify(true);
@@ -508,7 +508,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify error while validation Location Code on the Warehouse Shipment Header.
 
         // Setup: Create Location, Sales Order with Reservation and create Warehouse Shipment Header.
-        Initialize;
+        Initialize();
         CreateWarehouseLocation(Location);
         CreateAndReserveSalesOrder(SalesLine);
         LibraryWarehouse.CreateWarehouseShipmentHeader(WarehouseShipmentHeader);
@@ -535,7 +535,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Warehouse Shipment Lines created through Get Source Documents.
 
         // Setup: Create Location, create and release Purchase Order with Item Tracking, create Warehouse Receipt, create Sales Order and create Warehouse Shipment Header.
-        Initialize;
+        Initialize();
         CreateAndPostWhseReceipt(PurchaseLine);
         DocumentNo := CreateWhseShptWithIT(SalesLine, PurchaseLine);
         WarehouseShipmentHeader.Get(DocumentNo);
@@ -565,7 +565,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Warehouse Activity Line created through Get Source Documents.
 
         // Setup: Create Location, create and release Purchase Order with Item Tracking, create Warehouse Receipt, create Sales Order and create Warehouse Shipment Header.
-        Initialize;
+        Initialize();
         CreateAndPostWhseReceipt(PurchaseLine);
         RegisterWarehouseActivity(PurchaseLine."Document No.", WarehouseActivityHeader.Type::"Put-away", PurchaseLine."Location Code");
         DocumentNo := CreateWhseShptWithIT(SalesLine, PurchaseLine);
@@ -597,7 +597,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify that Bin Code must be blank on Warehouse Activity Line's Action Type 'Take'.
 
         // Setup: Create Sales Order with Item Tracking and Reservation, find Zone, find Bin, create Warehouse Internal Pick.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         No := CreateWhseInternalPickLine(SalesLine);
         PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate, false);
@@ -624,14 +624,14 @@ codeunit 137270 "SCM Reservation III"
         // Verify values on Warehouse Internal Pick Line.
 
         // Setup: Create Sales Order with Item Tracking and Reservation, find Zone, find Bin, create Warehouse Internal Pick.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreateWhseInternalPickLine(SalesLine);
 
         // Verify: Verify values on Warehouse Internal Pick Line.
         WhseInternalPickLine.SetRange("Location Code", SalesLine."Location Code");
-        WhseInternalPickLine.FindFirst;
+        WhseInternalPickLine.FindFirst();
         WhseInternalPickLine.TestField("Item No.", SalesLine."No.");
         WhseInternalPickLine.TestField("Qty. Outstanding", SalesLine.Quantity);
         WhseInternalPickLine.TestField("Pick Qty.", 0);  // Here taken zero for Pick Qty. Pick Activity is not created.
@@ -652,7 +652,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify that Bin Code must not be blank on Warehouse Activity Line's Action Type 'Take'.
 
         // Setup: Create Sales Order with Item Tracking and Reservation, find Zone, find Bin, create Warehouse Internal Put Away.
-        Initialize;
+        Initialize();
         BinCode := CreateWhseInternalPutAwayLine(SalesLine);
         WarehouseSetup.Get();
         PutAwayNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Put-away Nos.", WorkDate, false);
@@ -680,14 +680,14 @@ codeunit 137270 "SCM Reservation III"
         // Verify values on Warehouse Internal Put Away Line.
 
         // Setup: Create Sales Order with Item Tracking and Reservation, find Zone, find Bin, create Warehouse Internal Put Away.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreateWhseInternalPutAwayLine(SalesLine);
 
         // Verify: Verify values on Warehouse Internal Put Away Line.
         WhseInternalPutAwayLine.SetRange("Location Code", SalesLine."Location Code");
-        WhseInternalPutAwayLine.FindFirst;
+        WhseInternalPutAwayLine.FindFirst();
         WhseInternalPutAwayLine.TestField("Item No.", SalesLine."No.");
         WhseInternalPutAwayLine.TestField("Qty. Outstanding", SalesLine.Quantity);
         WhseInternalPutAwayLine.TestField("Qty. Put Away", 0);  // Here taken zero for Pick Qty. Pick Activity is not created.
@@ -703,7 +703,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify values on Warehouse Entry after Registering Whse. Journal Line.
 
         // Setup: Create and Register Warehouse Journal Line.
-        Initialize;
+        Initialize();
         CreateAndRegisterWhseItemJnlLine(WarehouseJournalLine);
 
         // Verify: Verify Serial No and Quantity on Warehouse Entry after Registering Whse. Journal Line.
@@ -723,7 +723,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify that Item Journal Line must be generated after Calculate Whse. Adjustment.
 
         // Setup: Create and Register Warehouse Journal Line.
-        Initialize;
+        Initialize();
         CreateAndRegisterWhseItemJnlLine(WarehouseJournalLine);
         Item.Get(WarehouseJournalLine."Item No.");
 
@@ -732,7 +732,7 @@ codeunit 137270 "SCM Reservation III"
 
         // Verify: Verify that Item Journal Line must be generated after Calculate Whse. Adjustment.
         ItemJournalLine.SetRange("Item No.", WarehouseJournalLine."Item No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Location Code", WarehouseJournalLine."Location Code");
         ItemJournalLine.TestField(Quantity, WarehouseJournalLine.Quantity);
     end;
@@ -750,7 +750,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify that Item Journal Line must be generated after Calculate Whse. Adjustment.
 
         // Setup: Create and Register Warehouse Journal Line.
-        Initialize;
+        Initialize();
         CreateAndRegisterWhseItemJnlLine(WarehouseJournalLine);
         Item.Get(WarehouseJournalLine."Item No.");
         CalculateWhseAdjustment(ItemJournalBatch, Item, WarehouseJournalLine."Item No.", true);
@@ -760,7 +760,7 @@ codeunit 137270 "SCM Reservation III"
 
         // Verify: Verify Item Ledger Entry after Calculate Whse. Adjustment and post Item Journal Line.
         ItemLedgerEntry.SetRange("Item No.", WarehouseJournalLine."Item No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Location Code", WarehouseJournalLine."Location Code");
         ItemLedgerEntry.TestField(Quantity, WarehouseJournalLine.Quantity);
     end;
@@ -779,7 +779,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Warehouse Activity line for Pick.
 
         // Setup: Create and Register Warehouse Activity line, Calculate Adjustment, Post Item Journal Line, create and release Sales Order.
-        Initialize;
+        Initialize();
         CreateAndRegisterWhseItemJnlLine(WarehouseJournalLine);
         Item.Get(WarehouseJournalLine."Item No.");
         CalculateWhseAdjustment(ItemJournalBatch, Item, WarehouseJournalLine."Item No.", true);
@@ -807,7 +807,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Warehouse Activity line for Pick using Get Source Documents from Warehouse Shipment.
 
         // Setup: Create and Register Warehouse Activity line, Calculate Adjustment, Post Item Journal Line, create and release Sales Order.
-        Initialize;
+        Initialize();
         CreatePickUsingGetSourceDocWithWhseJournal(SalesLine);
 
         // Verify: Verify Warehouse Activity line for Pick using Get Source Documents from Warehouse Shipment.
@@ -828,7 +828,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify error message while posting Warehouse Shipment without Registering Pick.
 
         // Setup: Create and Register Warehouse Activity line, Calculate Adjustment, Post Item Journal Line, create and release Sales Order.
-        Initialize;
+        Initialize();
         DocumentNo := CreatePickUsingGetSourceDocWithWhseJournal(SalesLine);
 
         // Exercise.
@@ -851,7 +851,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify that Item Inventory must be equal to combined Quantity on Item Journal and Purchase Line.
 
         // Setup: Create and post a Item Journal Line, create and post a Warehouse Receipt Line.
-        Initialize;
+        Initialize();
         CreateAndPosteItenJnlLine(ItemJournalLine);
         CreateAndPostWhseRcpt(PurchaseLine, ItemJournalLine."Item No.", ItemJournalLine."Location Code");
         InventoryQuantity := ItemJournalLine.Quantity + PurchaseLine.Quantity;
@@ -878,7 +878,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Warehouse Activity Line after creating Pick.
 
         // Setup: Create and post a Item Journal Line, create and post a Warehouse Receipt Line.
-        Initialize;
+        Initialize();
         CreateAndPosteItenJnlLine(ItemJournalLine);
         CreateAndPostWhseRcpt(PurchaseLine, ItemJournalLine."Item No.", ItemJournalLine."Location Code");
         InventoryQuantity := ItemJournalLine.Quantity + PurchaseLine.Quantity;
@@ -906,7 +906,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Message 'There are no order tracking entries for this line. must be come after opening Order Tracking Page', verification done in MessageHandler.
 
         // Setup: Create and post Warehouse Receipt, create Sales Order with Reservation, creare Warehouse Shipment and Create Pick.
-        Initialize;
+        Initialize();
         CreatePOAndWhseRcptUsingReqLine(PurchaseLine);
 
         // Exercise.
@@ -927,7 +927,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Message 'There are no order tracking entries for this line. must be come while opening Order Tracking Page' after Registering Pick, verification done in MessageHandler.
 
         // Setup: Create and post Warehouse Receipt, create Sales Order with Reservation, creare Warehouse Shipment, Create and Register Pick.
-        Initialize;
+        Initialize();
         DocumentNo := CreatePOAndWhseRcptUsingReqLine(PurchaseLine);
         RegisterWarehouseActivity(DocumentNo, WarehouseActivityHeader.Type::Pick, PurchaseLine."Location Code");
 
@@ -951,7 +951,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify error while assigning Reservation on Transfer Line.
 
         // Setup: Create Location, create Purchase Order with Item Tracking.
-        Initialize;
+        Initialize();
         CreateWarehouseLocation(Location);
         CreatePurchaseOrder(PurchaseLine, Location.Code, CreateAndModifyTrackedItem(false, false, true));
         LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);  // Enqueue value for ItemTrackingLinesPageHandler.
@@ -979,7 +979,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify error while reassigning Item Tracking values on Purchase Line.
 
         // Setup: Create Location, create and post Purchase Order with Item Tracking, create Transfer Order with Item Tracking.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreatePurchaseOrder(PurchaseLine, Location.Code, CreateAndModifyTrackedItem(false, true, false));
         LibraryVariableStorage.Enqueue(TrackingOption::SetValues);  // Enqueue value for ItemTrackingLinesPageHandler.
@@ -1015,7 +1015,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Item Ledger Entry after Posting Transfer Order with Item Tracking and Reservation.
 
         // Setup: Create Location, create Purchase Order with Item Tracking, create Transfer Order with Item Tracking.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreatePurchaseOrder(PurchaseLine, Location.Code, CreateAndModifyTrackedItem(false, true, false));
         LibraryVariableStorage.Enqueue(TrackingOption::SetValues);  // Enqueue value for ItemTrackingLinesPageHandler.
@@ -1025,7 +1025,7 @@ codeunit 137270 "SCM Reservation III"
         CreateTransferOrder(TransferHeader, PurchaseLine."Location Code", PurchaseLine."No.", PurchaseLine.Quantity);
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
         TransferLine.SetRange("Document No.", TransferHeader."No.");
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
 
         // Exercise.
@@ -1036,7 +1036,7 @@ codeunit 137270 "SCM Reservation III"
         ItemLedgerEntry.SetRange("Item No.", TransferLine."Item No.");
         ItemLedgerEntry.SetRange("Location Code", TransferLine."Transfer-to Code");
         ItemLedgerEntry.SetRange(Open, true);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField(Quantity, TransferLine.Quantity / 2);  // Divided by 2 because half value is assigned in Item tracking and posted.
         ItemLedgerEntry.TestField("Invoiced Quantity", TransferLine.Quantity / 2);  // Divided by 2 because half value is assigned in Item tracking and posted.
     end;
@@ -1056,7 +1056,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify error message while posting Warehouse Shipment.
 
         // Setup: Create Warehouse Receipt, create Warehouse Shipment and release.
-        Initialize;
+        Initialize();
         CreateAndPostWhseReceipt(PurchaseLine);
         RegisterWarehouseActivity(PurchaseLine."Document No.", WarehouseActivityHeader.Type::"Put-away", PurchaseLine."Location Code");
         DocumentNo := CreateWhseShptWithIT(SalesLine, PurchaseLine);
@@ -1083,7 +1083,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify Reservation Entry values after modifying the Shipment Date on Sales Line.
 
         // Setup: Create and post Purchase Order, create Sales Order and reserve Sales Line.
-        Initialize;
+        Initialize();
         ReservOnSalesOrderUsingPO(SalesLine);
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
 
@@ -1093,7 +1093,7 @@ codeunit 137270 "SCM Reservation III"
 
         // Verify: Verify Reservation Entry values after modifying the Shipment Date on Sales Line.
         ReservationEntry.SetRange("Item No.", SalesLine."No.");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
         ReservationEntry.TestField("Qty. to Handle (Base)", -SalesLine.Quantity);
         ReservationEntry.TestField("Shipment Date", SalesHeader."Shipment Date");
@@ -1111,7 +1111,7 @@ codeunit 137270 "SCM Reservation III"
         // Verify message 'the existing sales lines will be deleted...', verification done in Confirm Handler.
 
         // Setup: Create Location, create and release Purchase Order with Item Tracking, create Warehouse Receipt, create Sales Order and create Warehouse Shipment Header.
-        Initialize;
+        Initialize();
         LibraryERM.FindCurrency(Currency);
         ReservOnSalesOrderUsingPO(SalesLine);
         SalesHeader.Get(SalesLine."Document Type"::Order, SalesLine."Document No.");
@@ -1140,7 +1140,7 @@ codeunit 137270 "SCM Reservation III"
         // [FEATURE] [Sales] [Order] [Pick] [Reservation]
         // [SCENARIO 226023] Trying to create Whse. Pick from shpmt for stock qty, which is reserved for another Shpmt; error must occur.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new Item.
         LibraryInventory.CreateItem(Item);
@@ -1271,7 +1271,7 @@ codeunit 137270 "SCM Reservation III"
     local procedure PostWhseReceipt(var WhseReceiptHeader: Record "Warehouse Receipt Header"; LocationCode: Code[10])
     begin
         WhseReceiptHeader.SetRange("Location Code", LocationCode);
-        WhseReceiptHeader.FindFirst;
+        WhseReceiptHeader.FindFirst();
         LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
     end;
 
@@ -1284,7 +1284,7 @@ codeunit 137270 "SCM Reservation III"
         // Find Whse activity no.
         WhseActivityLine.SetRange("Source No.", SourceNo);
         WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type::"Put-away");
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
 
         WhseActivityHeader.Get(WhseActivityHeader.Type::"Put-away", WhseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
@@ -1314,12 +1314,12 @@ codeunit 137270 "SCM Reservation III"
         WhseActivityHeader: Record "Warehouse Activity Header";
     begin
         WhseShipmentHeader.SetRange("Location Code", LocationCode);
-        WhseShipmentHeader.FindFirst;
+        WhseShipmentHeader.FindFirst();
         LibraryWarehouse.CreateWhsePick(WhseShipmentHeader);
 
         WhseActivityHeader.SetRange(Type, WhseActivityHeader.Type::Pick);
         WhseActivityHeader.SetRange("Location Code", LocationCode);
-        WhseActivityHeader.FindFirst;
+        WhseActivityHeader.FindFirst();
         LibraryWarehouse.AutoFillQtyInventoryActivity(WhseActivityHeader);
     end;
 
@@ -1353,7 +1353,7 @@ codeunit 137270 "SCM Reservation III"
     begin
         // [FEATURE] [Reservation] [Unit of Measure]
         // [SCENARIO 140608] Reserved Quantity should be calculated correct when reserving SO in different UoM then PO
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with two nonbasic UoM: "A" with Qty Per= "0.1" and "B" with Qty Per = "100"
         QtyPer1 := LibraryRandom.RandDec(10, 2);
@@ -1450,7 +1450,7 @@ codeunit 137270 "SCM Reservation III"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Reservation III");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
@@ -1458,10 +1458,10 @@ codeunit 137270 "SCM Reservation III"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Reservation III");
 
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservation III");
@@ -1502,7 +1502,7 @@ codeunit 137270 "SCM Reservation III"
         CreatePick(SalesLine."Location Code", SalesLine."Document No.");
         WarehouseActivityLine.SetRange("Source No.", SalesLine."Document No.");
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure CreateAndPostWhseReceipt(var PurchaseLine: Record "Purchase Line")
@@ -1729,7 +1729,7 @@ codeunit 137270 "SCM Reservation III"
         SalesHeader.Get(SalesHeader."Document Type"::Order, DocumentNo);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
-        WarehouseShipmentHeader.FindFirst;
+        WarehouseShipmentHeader.FindFirst();
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         exit(WarehouseShipmentHeader."No.");
     end;
@@ -1823,7 +1823,7 @@ codeunit 137270 "SCM Reservation III"
 
         // Open Purchase Order created after Carry Out Action Message, Release Purchase Order and Create Warehouse Receipt.
         PurchaseHeader.SetRange("Buy-from Vendor No.", RequisitionLine."Vendor No.");
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         exit(SalesLine."Document No.");
@@ -1921,7 +1921,7 @@ codeunit 137270 "SCM Reservation III"
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
     begin
         WhseWorksheetTemplate.SetRange(Type, Type);
-        WhseWorksheetTemplate.FindFirst;
+        WhseWorksheetTemplate.FindFirst();
         LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
     end;
 
@@ -2039,7 +2039,7 @@ codeunit 137270 "SCM Reservation III"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindLast;  // Using Findlast to delete the last line of Sales Order because value is not important for the test.
+        SalesLine.FindLast();  // Using Findlast to delete the last line of Sales Order because value is not important for the test.
         SalesLine.Delete(true);
     end;
 
@@ -2048,14 +2048,14 @@ codeunit 137270 "SCM Reservation III"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindWorksheetTemplate(var RequisitionWkshName: Record "Requisition Wksh. Name"; TemplateType: Option)
     begin
         RequisitionWkshName.SetRange("Template Type", TemplateType);
         RequisitionWkshName.SetRange(Recurring, false);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
     end;
 
     local procedure FindWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; LocationCode: Code[10])
@@ -2063,7 +2063,7 @@ codeunit 137270 "SCM Reservation III"
         WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.SetRange("Location Code", LocationCode);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ActionType: Enum "Warehouse Action Type"): Code[20]
@@ -2072,7 +2072,7 @@ codeunit 137270 "SCM Reservation III"
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindLast;  // Using Findlast to take value from last line of Activity Type.
+        WarehouseActivityLine.FindLast();  // Using Findlast to take value from last line of Activity Type.
         exit(WarehouseActivityLine."No.");
     end;
 
@@ -2082,7 +2082,7 @@ codeunit 137270 "SCM Reservation III"
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         exit(WarehouseReceiptLine."No.");
     end;
 
@@ -2096,13 +2096,13 @@ codeunit 137270 "SCM Reservation III"
     begin
         WhseWorksheetLine.SetRange("Item No.", ItemNo);
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
     end;
 
     local procedure FindZone(var Zone: Record Zone; LocationCode: Code[20])
     begin
         Zone.SetRange("Location Code", LocationCode);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure GetWhseDocFromPickWksh()
@@ -2121,7 +2121,7 @@ codeunit 137270 "SCM Reservation III"
     begin
         WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
         WarehouseShipmentLine.SetRange("Source No.", SalesOrderNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
@@ -2183,7 +2183,7 @@ codeunit 137270 "SCM Reservation III"
         WarehouseActivityHeader.SetRange(
           "No.",
           FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType, LocationCode, WarehouseActivityLine."Action Type"::Place));
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
@@ -2210,7 +2210,7 @@ codeunit 137270 "SCM Reservation III"
     begin
         LibraryVariableStorage.Enqueue(OrderTrackingMessage);  // Enqueue for Message Handler.
         OrderTracking.SetPurchLine(PurchaseLine);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -2235,7 +2235,7 @@ codeunit 137270 "SCM Reservation III"
         WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::"Positive Adjmt.");
         WarehouseEntry.SetRange("Item No.", ItemNo);
         WarehouseEntry.SetRange("Location Code", LocationCode);
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
         WarehouseEntry.TestField(Quantity, Quantity);
         WarehouseEntry.TestField("Qty. (Base)", Quantity);
     end;
@@ -2266,7 +2266,7 @@ codeunit 137270 "SCM Reservation III"
     begin
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.SetRange("Item No.", ItemNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.TestField(Quantity, Quantity);
         WarehouseShipmentLine.TestField("Qty. Outstanding (Base)", Quantity);
     end;
@@ -2345,10 +2345,10 @@ codeunit 137270 "SCM Reservation III"
             OptionString::SetValues:
                 begin
                     TrackingQuantity := ItemTrackingLines.Quantity3.AsDEcimal;
-                    ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);  // Using half value to assign the Quantity equally in both the ITem Tracking Line.
                     ItemTrackingLines.Next;
-                    ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);  // Using half value to assign the Quantity equally in both the ITem Tracking Line.
                 end;
         end;
@@ -2421,7 +2421,7 @@ codeunit 137270 "SCM Reservation III"
         case TrackingOption of
             OptionString::AssignSerialNo:
                 begin
-                    WhseItemTrackingLines."Serial No.".SetValue(LibraryUtility.GenerateGUID);
+                    WhseItemTrackingLines."Serial No.".SetValue(LibraryUtility.GenerateGUID());
                     WhseItemTrackingLines.Quantity.SetValue(1);  // Using 1 because value is important.
                 end;
         end;

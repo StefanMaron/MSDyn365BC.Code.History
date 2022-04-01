@@ -25,7 +25,7 @@ codeunit 139090 "Test Postcode Service Manager"
         // [SCENARIO] When DiscoverPostcodeServices event is raised, at least one (Dummy) service should respond
 
         // [GIVEN]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
 
         // [WHEN]
@@ -42,7 +42,7 @@ codeunit 139090 "Test Postcode Service Manager"
         // [SCENARIO] A list of addresses should be retrieved from Dummy service when requested
 
         // [GIVEN]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
 
         // [WHEN]
@@ -64,7 +64,7 @@ codeunit 139090 "Test Postcode Service Manager"
 
         // [GIVEN]
         // Set values that you want to get
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         TempAutocompleteAddress.Address := 'ADDRESS';
         TempAutocompleteAddress.Postcode := 'POSTCODE';
@@ -86,7 +86,7 @@ codeunit 139090 "Test Postcode Service Manager"
         // [SCENARIO] In external service unhandled error occurs. Check that Postcode Service Manager catches is it and shows general error
 
         // [GIVEN]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         LibraryVariableStorage.Enqueue('A general technical error occurred while contacting remote service.'); // Expected error message
 
@@ -106,7 +106,7 @@ codeunit 139090 "Test Postcode Service Manager"
         // [SCENARIO] Error occurs in a postcode but services handles it. Custom error should surface through Postcode Service Manager.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         LibraryVariableStorage.Enqueue('Error from postcode service.'); // Expe
 

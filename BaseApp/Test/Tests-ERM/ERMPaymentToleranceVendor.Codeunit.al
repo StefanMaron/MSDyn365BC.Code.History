@@ -32,7 +32,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Compute Amounts to use them in General Journal Line. Create General Journal Lines for Invoice
         // and Payment and Post them with Random Values. Take Payment Amount more than Invoice Amount.
-        Initialize;
+        Initialize();
         UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         PmtAmount := InvAmount + LibraryRandom.RandInt(10);
@@ -60,7 +60,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Compute Amounts to use them in General Journal Line. Create General Journal Lines for
         // Credit Memo and Refund and Post them with Random Values. Refund Amount is more than Credit Memo Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := 10 * LibraryRandom.RandInt(100);
         RefAmount := CrMemoAmount + LibraryRandom.RandInt(10);
@@ -91,7 +91,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Create Two Currencies. Update General Ledger Setup, Create and  Post Invoice, Payment entries for Vendor through General
         // Journal Line with Random Values. Take Posting Date before Payment Discount Period.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
@@ -120,7 +120,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup, Create and Post General Journal Lines for Payment and Invoice with Random Amounts.
         // Take posting date before Payment Discount Date.
-        Initialize;
+        Initialize();
         UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -146,7 +146,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post General Journal Lines for Invoice and Payment with Random Amounts.
         // Take Payment Amount less than Invoice Amount. Post Entries on a Date before Payment Discount Date.
-        Initialize;
+        Initialize();
         UpdateAddCurrencySetup;
         ComputeUnderAmountForMinValue(InvAmount, PmtAmount);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -174,7 +174,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post General Journal Lines for Credit Memo and Refund with Random Amounts.
         // Take Refund Amount always greater than Maximum Payment Tolerance Amount. Post Entries on a Date before Payment Discount Date.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         ComputeUnderAmountForMaxValue(CrMemoAmount, RefAmount);
         CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate);
@@ -206,7 +206,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Create Two Currencies. Update General Ledger Setup. Create and Post General Journal Lines for Invoice and Payment
         // with Random Amounts. Post Entries on a Date before Payment Discount Date.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
@@ -239,7 +239,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post General Journal Lines for Payment and Invoice with Random Amounts.
         // Post Entries on a Date before Payment Discount Date.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := LibraryRandom.RandInt(499);
         PmtTolAmount := InvAmount * GetPaymentTolerancePercent / 100;
@@ -271,7 +271,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post General Journal Lines for Refund and Credit Memo with Random Amounts.
         // Post Entries on a Date before Payment Discount Date.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := 500 * LibraryRandom.RandInt(5);
         CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate);
@@ -303,7 +303,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post General Journal Lines for Payment and Invoice with Random Amounts.
         // Post Entries on a Date after Payment Discount Date.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -333,7 +333,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post General Journal Lines for Credit Memo and Refund with Random Amounts.
         // Post Entries on a Date after Payment Discount Date.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate));
@@ -366,7 +366,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create Two new Currencies. Create and Post General Journal Lines for Invoice and Payment
         // using Random Amount. Post Entries on a Date after Payment Discount Date.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
@@ -398,7 +398,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post General Journal Lines for Invoice and Payment using Random Amount.
         // Post Entries on a Date after Payment Discount Date. Take Payment Amount less than Invoice Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -428,7 +428,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post General Journal Lines for Invoice and Payment using Random Amount.
         // Post Entries on a Date within Payment Discount Grace Period. Take Payment Amount less than Invoice Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         ComputeUnderAmountForMinValue(InvAmount, PmtAmount);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -458,7 +458,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post Journal Lines of Refund and Credit Memo for a Vendor. Take Random
         // Amounts. Post Entries on a Date within Payment Discount Grace Period. Take Refund Amount less than Credit Memo Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         ComputeUnderAmountForMaxValue(CrMemoAmount, RefAmount);
         DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate));
@@ -491,7 +491,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Create two Currencies. Update General Ledger Setup. Create and Post Journal Lines of Payment and Invoice for a Vendor.
         // Take Random Amounts. Post Entries on a Date within Payment Discount Grace Period. Take Payment Amount less than Invoice Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
@@ -525,7 +525,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post Journal Lines of Payment and Invoice for a Vendor. Take Random
         // Amounts. Post Entries on a Date within Payment Discount Grace Period. Take Payment Amount less than Invoice Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -556,7 +556,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post Journal Lines of Payment and Invoice for a Vendor. Take Random
         // Amounts. Post Entries on a Date after Payment Discount Grace Period. Take Payment Amount greater than Invoice Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 501 * LibraryRandom.RandInt(5);
         PmtAmount := InvAmount + GetMaxPaymentToleranceAmount;
@@ -588,7 +588,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post Journal Lines of Credit Memo and Refund for a Vendor. Take Random
         // Amounts. Post Entries on a Date after Payment Discount Grace Period. Take Refund Amount greater than Credit Memo Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := LibraryRandom.RandInt(499);
         RefAmount := CrMemoAmount + (CrMemoAmount * GetPaymentTolerancePercent / 100);
@@ -616,7 +616,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post Journal Lines of Invoice and Payment for a Vendor. Take Random
         // Amounts. Post Entries on a Date after Payment Discount Grace Period. Take Payment Amount Equal to Invoice Amount.
-        Initialize;
+        Initialize();
         UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         CreateAndPostDocumentLine(
@@ -646,7 +646,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post Journal Lines of Invoice and Payment for a Vendor. Take Random
         // Amounts. Post Entries on a Date after Payment Discount Grace Period. Take Payment Amount less than Invoice Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 500 * LibraryRandom.RandInt(5);
         PmtAmount := InvAmount - GetMaxPaymentToleranceAmount;
@@ -678,7 +678,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post Journal Lines of Credit Memo and Refund for a Vendor. Take Random
         // Amounts. Post Entries on a Date after Payment Discount Grace Period. Take Refund Amount greater than Credit Memo Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := LibraryRandom.RandInt(499);
         RefAmount := CrMemoAmount - (CrMemoAmount * GetPaymentTolerancePercent / 100);
@@ -712,7 +712,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Create Two Currencies. Update General Ledger Setup. Create and Post General Journal Lines of Invoice and
         // Payment Type for a Vendor. Take Random Amounts. Make Payment less than Invoice Amount to create rounding Entry.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
@@ -748,7 +748,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
         // Setup: Update General Ledger Setup. Create and Post General Journal Lines of Credit Memo and Refund for Vendor with Random
         // Amounts. Take Refund Amount always gerater between 0.1 and 0.5 from Credit Memo Amount to create Payment Tolerance Entry.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         UpdateAppRndgPrecisionCurrency(CurrencyCode);
         CrMemoAmount := 10 * LibraryRandom.RandInt(100);
@@ -778,7 +778,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         // [FEATURE] [UI] [Apply]
         // [SCENARIO 277758] No application post if user choose "No" in "Payment Discount Tolerance Warning" window when apply payment to invoice with discount
 
-        Initialize;
+        Initialize();
         UpdateAddCurrencySetup;
 
         // [GIVEN] Payment Discount Tolerance Warning is set in General Ledger Setup
@@ -806,7 +806,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         // [THEN] "Accepted Payment Discount Tolerance" is not set on invoice vendor ledger entry
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
 
         // [THEN] "Remainig Amount" equals "Amount" on invoice vendor ledger entry
@@ -818,12 +818,12 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         Commit();
@@ -876,10 +876,10 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         LibraryERM.SetApplyVendorEntry(ApplyingVendorLedgerEntry, ApplyingVendorLedgerEntry."Remaining Amount");
 
         // Find Posted Vendor Ledger Entries.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VendorLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         VendorLedgerEntry.SetRange("Applying Entry", false);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
@@ -1022,7 +1022,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         Counter := 0;
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange(Blocked, false);
-        if GLAccount.FindSet then
+        if GLAccount.FindSet() then
             repeat
                 Counter += 1;
                 VendorPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
@@ -1091,7 +1091,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         Currency.InitRoundingPrecision;
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           DetailedVendorLedgEntry."Amount (LCY)", Amount, Currency."Amount Rounding Precision", StrSubstNo(PaymentToleranceError,
             Amount, DetailedVendorLedgEntry.TableCaption, DetailedVendorLedgEntry.FieldCaption("Entry No."),
@@ -1112,10 +1112,10 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         Currency.InitRoundingPrecision;
 
         // Verify Amount in GL Entry.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision", StrSubstNo(RoundingMessage, GLEntry.FieldCaption(Amount),
             GLEntry.Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
@@ -1134,7 +1134,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
     begin
         // Watch Discount Amount expected value should be same as per Delta amount.
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
           DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition, VendorLedgerEntry.FieldNo("Original Pmt. Disc. Possible"),
           VendorLedgerEntry."Original Pmt. Disc. Possible" + PmtDiscAmount);

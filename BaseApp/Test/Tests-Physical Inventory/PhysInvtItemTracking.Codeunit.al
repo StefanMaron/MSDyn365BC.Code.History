@@ -37,7 +37,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         // [FEATURE] [Item Tracking]
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode(true, false));  // Item Tracking Code with Lot No is TRUE.
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for use in ItemTrackingPageHandler.
         CreateLocation(Location, Item."No.", false);  // Bin Mandatory - FALSE.
@@ -64,7 +64,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
     begin
         // [SCENARIO] "Pos. Qty. (Base)" in posted order shows difference if recorded quantity is greater than expected quantity.
-        Initialize;
+        Initialize();
         // [GIVEN] Phys. Inventory Order with for one Item (without item tracking), where "Qty. Expected (Base)" is 5.
         // [GIVEN] Finished Recording, where "Quantity" is 7
         CreatePhysInventoryOrderWithFinishedRecording(PhysInvtOrderHeader, Item, Location, 5, 7);
@@ -86,7 +86,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
     begin
         // [SCENARIO] "Neg. Qty. (Base)" in posted order shows difference if recorded quantity is smaller than expected quantity .
-        Initialize;
+        Initialize();
         // [GIVEN] Phys. Inventory Order with for one Item (without item tracking), where "Qty. Expected (Base)" is 3.
         // [GIVEN] Finished Recording, where "Quantity" is 1.
         CreatePhysInventoryOrderWithFinishedRecording(PhysInvtOrderHeader, Item, Location, 3, 1);
@@ -106,7 +106,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         // [FEATURE] [Item Tracking]
         // Verify the Phys. Inventory Order Tracking with Positive Phys. Inventory Recording.
         // Setup.
-        Initialize;
+        Initialize();
         PhysInventoryOrderTrackingWithRecording(true);
     end;
 
@@ -118,7 +118,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         // [FEATURE] [Item Tracking]
         // Verify the Phys. Inventory Order Tracking with Negative Phys. Inventory Recording.
         // Setup.
-        Initialize;
+        Initialize();
         PhysInventoryOrderTrackingWithRecording(false);
     end;
 
@@ -164,7 +164,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         // [FEATURE] [Item Tracking]
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode(true, false));  // Item Tracking Code with Lot No is TRUE.
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for use in ItemTrackingPageHandler.
         CreateLocation(Location, Item."No.", true);  // Bin Mandatory - TRUE.
@@ -194,7 +194,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         // [FEATURE] [Item Tracking]
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode(false, true));  // Item Tracking Code with Serial No is TRUE.
         LibraryVariableStorage.Enqueue(true);  // Enqueue value for use in ItemTrackingPageHandler.
         CreateLocation(Location, Item."No.", false);  // Bin Mandatory - FALSE.
@@ -218,7 +218,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader, '');  // Location is blank.
         CreatePhysInventoryLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
@@ -239,7 +239,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader, '');  // Location is blank.
         CreatePhysInventoryLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
@@ -264,7 +264,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         // [FEATURE] [Item Tracking]
         // [GIVEN] Create Item with max length Description and Description2, Create Phys. Inventory Header.
-        Initialize;
+        Initialize();
         CreateItemWithMaxLengthDescription(Item);
         LibraryVariableStorage.Enqueue(false); // Enqueue value for use in ItemTrackingPageHandler.
         CreateAndPostItemJournalLine('', Item."No.", false); // Set Location to blank.
@@ -302,7 +302,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         // [FEATURE] [Inventory Recording] [Item Tracking]
         // [SCENARIO 257226] The same "Serial No." can be processed twice in inventory recording if an item is moving from one bin to another.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with "Serial No." "SN1" is stored at bin "Bin1", with "Serial No." "SN2" at bin "Bin2"
         CreatePhysInventoryOfSNTrackingItem(PhysInvtOrderHeader, Item, BinCode, SN);
@@ -346,7 +346,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         // [FEATURE] [Inventory Recording] [Item Tracking]
         // [SCENARIO 257226] When try to post excessing "Serial No." in "Phys. Invt. Recording Line" error "Serial No. XXXXXX for item XXXXXX already exists." occurs.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with "Serial No." "SN1" is stored at bin "Bin1", with "Serial No." "SN2" at bin "Bin2"
         CreatePhysInventoryOfSNTrackingItem(PhysInvtOrderHeader, Item, BinCode, SN);
@@ -377,8 +377,8 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         ExpectedQty: Integer;
     begin
         // [SCENARIO 311486] When last used Bin is deleted then report Calc. Phys. Invt. Order Lines generates lines for existing Bins, and no error
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         ExpectedQty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Location with Bins "B1" and B2"
@@ -415,7 +415,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         // [THEN] Phys. Invt. Order Line is created with 10 PCS and Bin "B1"
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
         Assert.RecordCount(PhysInvtOrderLine, 1);
-        PhysInvtOrderLine.FindFirst;
+        PhysInvtOrderLine.FindFirst();
         PhysInvtOrderLine.TestField("Bin Code", Bin.Code);
         PhysInvtOrderLine.TestField("Qty. Expected (Base)", ExpectedQty);
     end;
@@ -433,8 +433,8 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         ItemNo: Code[20];
     begin
         // [SCENARIO 311486] When last used Bin is deleted then report Calc. Phys. Invt. Order Bins generates lines for existing Bin, and no error
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
 
         // [GIVEN] Location with Bins "B1" and B2"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -470,7 +470,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         // [THEN] Phys. Invt. Order Line is created with Bin "B1"
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
         Assert.RecordCount(PhysInvtOrderLine, 1);
-        PhysInvtOrderLine.FindFirst;
+        PhysInvtOrderLine.FindFirst();
         PhysInvtOrderLine.TestField("Bin Code", Bin.Code);
     end;
 
@@ -670,8 +670,8 @@ codeunit 137460 "Phys. Invt. Item Tracking"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Phys. Invt. Item Tracking");
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Phys. Invt. Item Tracking");
@@ -838,8 +838,8 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         i: Integer;
     begin
         for i := 1 to 2 do begin
-            BinCode[i] := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
-            SN[i] := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
+            BinCode[i] := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
+            SN[i] := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
         end;
         CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode(false, true));
         CreateBinMandatoryLocationWithTwoBins(Location, BinCode);
@@ -860,7 +860,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         CalcPhysInvtOrderLines.InitializeRequest(true, CalcQtyExpected);
         CalcPhysInvtOrderLines.UseRequestPage(false);
         CalcPhysInvtOrderLines.SetTableView(Item);
-        CalcPhysInvtOrderLines.Run;
+        CalcPhysInvtOrderLines.Run();
     end;
 
     local procedure CalcPhysInvtOrderBins(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; Bin: Record Bin)
@@ -872,7 +872,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         CalcPhysInvtOrderBins.SetPhysInvtOrderHeader(PhysInvtOrderHeader);
         CalcPhysInvtOrderBins.UseRequestPage(false);
         CalcPhysInvtOrderBins.SetTableView(Bin);
-        CalcPhysInvtOrderBins.Run;
+        CalcPhysInvtOrderBins.Run();
     end;
 
     local procedure CalculatePhysInventoryLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; LocationCode: Code[10]; ItemNo: Code[20])
@@ -909,7 +909,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         CopyOfPhysInvtRecordLine.SetRange("Order No.", PhysInvtRecordLine."Order No.");
         CopyOfPhysInvtRecordLine.SetRange("Recording No.", PhysInvtRecordLine."Recording No.");
-        CopyOfPhysInvtRecordLine.FindLast;
+        CopyOfPhysInvtRecordLine.FindLast();
         LineNo := CopyOfPhysInvtRecordLine."Line No." + 10000;
         Clear(CopyOfPhysInvtRecordLine);
         CopyOfPhysInvtRecordLine := PhysInvtRecordLine;
@@ -921,20 +921,20 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindPhysInventoryOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; DocumentNo: Code[20])
     begin
         PhysInvtOrderLine.SetRange("Document No.", DocumentNo);
-        PhysInvtOrderLine.FindFirst;
+        PhysInvtOrderLine.FindFirst();
     end;
 
     local procedure FindPhysInvtRecordingLine(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; ItemNo: Code[20]; BinCode: Code[20])
     begin
         PhysInvtRecordLine.SetRange("Item No.", ItemNo);
         PhysInvtRecordLine.SetRange("Bin Code", BinCode);
-        PhysInvtRecordLine.FindFirst;
+        PhysInvtRecordLine.FindFirst();
     end;
 
     local procedure FindAndUpdatePhysInvtRecordingLine(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; ItemNo: Code[20]; OldBinCode: Code[20]; NewBinCode: Code[20]; SN: Code[20]; Quantity: Decimal)
@@ -998,7 +998,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
     begin
         ExpPhysInvtTracking.SetRange("Order No", OrderNo);
-        ExpPhysInvtTracking.FindFirst;
+        ExpPhysInvtTracking.FindFirst();
         ExpPhysInvtTracking.TestField("Serial No.", SerialNo);
         ExpPhysInvtTracking.TestField("Lot No.", LotNo);
         ExpPhysInvtTracking.TestField("Quantity (Base)", QuantityBase);
@@ -1025,7 +1025,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::"Positive Adjmt.", ItemNo);
         PstdPhysInvtOrderLine.SetRange("Item No.", ItemNo);
-        PstdPhysInvtOrderLine.FindFirst;
+        PstdPhysInvtOrderLine.FindFirst();
 
         // Enqueue values for use in PostedItemTrackingLinesPageHandler and PostExpPhInTrackListPageHandler.
         LibraryVariableStorage.Enqueue(ItemLedgerEntry."Lot No.");
@@ -1042,9 +1042,9 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
     begin
         PstdPhysInvtOrderHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PstdPhysInvtOrderHdr.FindFirst;
+        PstdPhysInvtOrderHdr.FindFirst();
         PstdPhysInvtOrderLine.SetRange("Document No.", PstdPhysInvtOrderHdr."No.");
-        PstdPhysInvtOrderLine.FindFirst;
+        PstdPhysInvtOrderLine.FindFirst();
         PstdPhysInvtOrderLine.TestField("Item No.", ItemNo);
         PstdPhysInvtOrderLine.TestField("Location Code", LocationCode);
     end;
@@ -1056,7 +1056,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PstdPhysInvtOrderLine.SetRange("Document No.", OrderNo);
         PstdPhysInvtOrderLine.SetRange("Item No.", ItemNo);
         PstdPhysInvtOrderLine.SetRange("Location Code", LocationCode);
-        PstdPhysInvtOrderLine.FindFirst;
+        PstdPhysInvtOrderLine.FindFirst();
         PstdPhysInvtOrderLine.TestField("Quantity (Base)", PosQty + NegQty);
         PstdPhysInvtOrderLine.TestField("Pos. Qty. (Base)", PosQty);
         PstdPhysInvtOrderLine.TestField("Neg. Qty. (Base)", NegQty);
@@ -1068,10 +1068,10 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
     begin
         PstdPhysInvtOrderHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PstdPhysInvtOrderHdr.FindFirst;
+        PstdPhysInvtOrderHdr.FindFirst();
 
         PstdPhysInvtOrderLine.SetRange("Document No.", PstdPhysInvtOrderHdr."No.");
-        PstdPhysInvtOrderLine.FindFirst;
+        PstdPhysInvtOrderLine.FindFirst();
         PstdPhysInvtOrderLine.TestField(Description, Description);
         PstdPhysInvtOrderLine.TestField("Description 2", Description2);
     end;
@@ -1081,7 +1081,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line";
     begin
         PstdPhysInvtRecordLine.SetRange("Item No.", Item."No.");
-        PstdPhysInvtRecordLine.FindFirst;
+        PstdPhysInvtRecordLine.FindFirst();
         PstdPhysInvtRecordLine.TestField(Description, Item.Description);
         PstdPhysInvtRecordLine.TestField("Description 2", Item."Description 2");
     end;
@@ -1095,7 +1095,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         BinContent.SetRange("Item No.", Item."No.");
         BinContent.SetRange("Variant Code", '');
         BinContent.SetRange("Unit of Measure Code", Item."Base Unit of Measure");
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.SetRange("Serial No. Filter", SerialNo);
         BinContent.CalcFields("Quantity (Base)");
         BinContent.TestField("Quantity (Base)", Quantity);

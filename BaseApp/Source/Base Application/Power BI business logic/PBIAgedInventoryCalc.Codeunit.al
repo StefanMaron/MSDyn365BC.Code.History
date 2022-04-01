@@ -44,7 +44,7 @@ codeunit 6307 "PBI Aged Inventory Calc."
     begin
         with TempPowerBIChartBuffer do
             for i := 1 to 5 do begin
-                if FindLast then
+                if FindLast() then
                     ID += 1
                 else
                     ID := 1;

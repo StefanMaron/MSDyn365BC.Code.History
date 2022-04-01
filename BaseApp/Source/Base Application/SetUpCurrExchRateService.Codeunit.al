@@ -34,7 +34,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         SuggestColDefinitionXML: Codeunit "Suggest Col. Definition - XML";
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", ECB_EXCH_RATESTxt);
-        if DataExchLineDef.FindFirst then;
+        if DataExchLineDef.FindFirst() then;
 
         CreateCurrencyExchangeSetup(
           CurrExchRateUpdateSetup, ECB_EXCH_RATESTxt, ECB_EXCH_RATESDescTxt,
@@ -75,7 +75,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
     local procedure CreateExchLineDef(var DataExchLineDef: Record "Data Exch. Line Def"; DataExchDefCode: Code[20]; RepeaterPath: Text[250])
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         DataExchLineDef.Validate("Data Line Tag", RepeaterPath);
         DataExchLineDef.Modify(true);
     end;
@@ -89,14 +89,14 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
             SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
             SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
             if NewDefaultValue <> '' then begin
-                if FindLast then begin
+                if FindLast() then begin
                     Init;
                     "Column No." += 10000;
                     Insert;
                 end
             end else begin
                 SetRange(Name, FromColumnName);
-                FindFirst;
+                FindFirst();
             end;
             Validate("Data Type", DataType);
             Validate("Data Format", NewDataFormat);

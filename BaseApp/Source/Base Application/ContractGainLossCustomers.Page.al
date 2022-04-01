@@ -132,7 +132,7 @@ page 6067 "Contract Gain/Loss (Customers)"
 
                     MatrixForm.LoadMatrix(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, AmountType, PeriodType,
                       CustomerNo, PeriodStart, ShipToCodeFilter);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

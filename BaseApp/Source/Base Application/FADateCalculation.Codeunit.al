@@ -30,7 +30,7 @@ codeunit 5617 "FA Date Calculation"
                 exit(CalcDate('<-CY>', EndingDate));
             SetRange("New Fiscal Year", true);
             SetRange("Starting Date", 0D, EndingDate);
-            if FindLast then
+            if FindLast() then
                 exit("Starting Date");
 
             Error(Text001, FieldCaption("Starting Date"), TableCaption);

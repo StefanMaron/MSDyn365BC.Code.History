@@ -176,7 +176,7 @@ codeunit 411 "Dimension Buffer Management"
     var
         NewDimensionComb: Boolean;
     begin
-        if not Dimbuf.FindFirst then
+        if not Dimbuf.FindFirst() then
             exit(0);
 
         if NextDimBufNo = 0 then
@@ -208,7 +208,7 @@ codeunit 411 "Dimension Buffer Management"
         DimensionIDBuffer.SetCurrentKey(ID);
         DimensionIDBuffer.SetRange(ID, DimId);
         repeat
-            DimensionIDBuffer.FindFirst;
+            DimensionIDBuffer.FindFirst();
             DimBuf.Init();
             DimBuf."Entry No." := DimId;
             DimBuf."Dimension Code" := DimensionIDBuffer."Dimension Code";

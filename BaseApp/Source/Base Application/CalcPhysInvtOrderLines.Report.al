@@ -1,4 +1,4 @@
-﻿report 5880 "Calc. Phys. Invt. Order Lines"
+report 5880 "Calc. Phys. Invt. Order Lines"
 {
     Caption = 'Calc. Phys. Invt. Order Lines';
     ProcessingOnly = true;
@@ -14,9 +14,7 @@
                 if not HideValidationDialog then
                     Window.Update(1, "No.");
 
-                LastItemNo := '';
-                LastVariantCode := '';
-                LastLocationCode := '';
+                Clear(LastItemLedgEntry);
 
                 if not Blocked then
                     CalcItemPhysInvtOrderLines()
@@ -47,7 +45,7 @@
 
                 PhysInvtOrderLine.Reset();
                 PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
-                if PhysInvtOrderLine.FindLast then
+                if PhysInvtOrderLine.FindLast() then
                     NextLineNo := PhysInvtOrderLine."Line No." + 10000
                 else
                     NextLineNo := 10000;
@@ -113,16 +111,14 @@
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
         ItemLedgEntry: Record "Item Ledger Entry";
+        LastItemLedgEntry: Record "Item Ledger Entry";
         WhseEntry: Record "Warehouse Entry";
+        LastWhseEntry: Record "Warehouse Entry";
         PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
         Window: Dialog;
         ErrorText: Text[250];
         CycleSourceType: Option " ",Item,SKU;
         InvtCountCode: Code[10];
-        LastItemNo: Code[20];
-        LastVariantCode: Code[10];
-        LastLocationCode: Code[10];
-        LastBinCode: Code[20];
         QtyExp: Decimal;
         LastItemLedgEntryNo: Integer;
         NextLineNo: Integer;
@@ -161,6 +157,8 @@
     local procedure CalcItemPhysInvtOrderLines()
     var
         Bin: Record Bin;
+        BlankWhseEntry: Record "Warehouse Entry";
+        PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -168,6 +166,54 @@
         if IsHandled then
             exit;
 
+        SetItemLedgEntryFilters();
+        if ItemLedgEntry.Find('-') then
+            repeat
+                if IsNewItemLedgEntryGroup() then begin
+                    LastItemLedgEntry := ItemLedgEntry;
+
+                    if PhysInvtTrackingMgt.LocationIsBinMandatory(ItemLedgEntry."Location Code") then begin
+                        Clear(LastWhseEntry);
+                        SetWhseEntryFilters();
+                        if WhseEntry.Find('-') then
+                            repeat
+                                if IsNewWhseEntryGroup() then begin
+                                    LastWhseEntry := WhseEntry;
+                                    Bin.SetRange("Location Code", WhseEntry."Location Code");
+                                    Bin.SetRange(Code, WhseEntry."Bin Code");
+                                    IsHandled := false;
+                                    OnBeforeCreateNewPhysInvtOrderLineForWhseEntry(
+                                      Item, WhseEntry, ItemLedgEntry, PhysInvtOrderHeader, PhysInvtOrderLine, ErrorText,
+                                      NextLineNo, InvtCountCode, CycleSourceType, CalcQtyExpected, LastItemLedgEntryNo, LineCount, IsHandled);
+                                    if not IsHandled then begin
+                                        PhysInvtOrderLineArgs.PrepareLineArgs(WhseEntry, ItemLedgEntry);
+                                        if (not Bin.IsEmpty) and
+                                           (PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
+                                              PhysInvtOrderLineArgs,
+                                              ErrorText,
+                                              PhysInvtOrderLine) = 0)
+                                        then
+                                            CreateNewPhysInvtOrderLine;
+                                    end;
+                                end;
+                            until WhseEntry.Next() = 0;
+                    end else begin
+                        PhysInvtOrderLineArgs.PrepareLineArgs(BlankWhseEntry, ItemLedgEntry);
+                        if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
+                             PhysInvtOrderLineArgs,
+                             ErrorText,
+                             PhysInvtOrderLine) = 0
+                        then begin
+                            WhseEntry.Init();
+                            CreateNewPhysInvtOrderLine;
+                        end;
+                    end;
+                end;
+            until ItemLedgEntry.Next() = 0;
+    end;
+
+    local procedure SetItemLedgEntryFilters()
+    begin
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey(
           "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
@@ -178,76 +224,50 @@
             Item.CopyFilter("Location Filter", ItemLedgEntry."Location Code");
         if Item.GetFilter("Date Filter") <> '' then
             Item.CopyFilter("Date Filter", ItemLedgEntry."Posting Date");
-        if ItemLedgEntry.Find('-') then
-            repeat
-                if (LastItemNo <> ItemLedgEntry."Item No.") or
-                   (LastVariantCode <> ItemLedgEntry."Variant Code") or
-                   (LastLocationCode <> ItemLedgEntry."Location Code")
-                then begin
-                    LastItemNo := ItemLedgEntry."Item No.";
-                    LastVariantCode := ItemLedgEntry."Variant Code";
-                    LastLocationCode := ItemLedgEntry."Location Code";
+        OnAfterSetItemLedgEntryFilters(ItemLedgEntry, Item);
+    end;
 
-                    if PhysInvtTrackingMgt.LocationIsBinMandatory(ItemLedgEntry."Location Code") then begin
-                        LastBinCode := '';
-                        WhseEntry.Reset();
-                        WhseEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Bin Code");
-                        WhseEntry.SetRange("Item No.", ItemLedgEntry."Item No.");
-                        WhseEntry.SetRange("Variant Code", ItemLedgEntry."Variant Code");
-                        WhseEntry.SetRange("Location Code", ItemLedgEntry."Location Code");
-                        if Item.GetFilter("Bin Filter") <> '' then
-                            Item.CopyFilter("Bin Filter", WhseEntry."Bin Code");
-                        if WhseEntry.Find('-') then
-                            repeat
-                                if LastBinCode <> WhseEntry."Bin Code" then begin
-                                    LastBinCode := WhseEntry."Bin Code";
-                                    Bin.SetRange("Location Code", WhseEntry."Location Code");
-                                    Bin.SetRange(Code, WhseEntry."Bin Code");
-                                    IsHandled := false;
-                                    OnBeforeCreateNewPhysInvtOrderLineForWhseEntry(
-                                      Item, WhseEntry, ItemLedgEntry, PhysInvtOrderHeader, PhysInvtOrderLine, ErrorText,
-                                      NextLineNo, InvtCountCode, CycleSourceType, CalcQtyExpected, LastItemLedgEntryNo, LineCount, IsHandled);
-                                    if not IsHandled then
-                                        if (not Bin.IsEmpty) and
-                                           (PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                                              ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code",
-                                              ItemLedgEntry."Location Code",
-                                              WhseEntry."Bin Code",
-                                              ErrorText,
-                                              PhysInvtOrderLine) = 0)
-                                        then
-                                            CreateNewPhysInvtOrderLine;
-                                end;
-                            until WhseEntry.Next() = 0;
-                    end else
-                        if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                             ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code",
-                             ItemLedgEntry."Location Code",
-                             '',// without BIN Code
-                             ErrorText,
-                             PhysInvtOrderLine) = 0
-                        then begin
-                            WhseEntry.Init();
-                            CreateNewPhysInvtOrderLine;
-                        end;
-                end;
-            until ItemLedgEntry.Next() = 0;
+    local procedure IsNewItemLedgEntryGroup() Result: Boolean
+    begin
+        Result :=
+            (LastItemLedgEntry."Item No." <> ItemLedgEntry."Item No.") or
+            (LastItemLedgEntry."Variant Code" <> ItemLedgEntry."Variant Code") or
+            (LastItemLedgEntry."Location Code" <> ItemLedgEntry."Location Code");
+        OnAfterIsNewItemLedgEntryGroup(ItemLedgEntry, LastItemLedgEntry, Result);
+    end;
+
+    local procedure SetWhseEntryFilters()
+    begin
+        WhseEntry.Reset();
+        WhseEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Bin Code");
+        WhseEntry.SetRange("Item No.", ItemLedgEntry."Item No.");
+        WhseEntry.SetRange("Variant Code", ItemLedgEntry."Variant Code");
+        WhseEntry.SetRange("Location Code", ItemLedgEntry."Location Code");
+        if Item.GetFilter("Bin Filter") <> '' then
+            Item.CopyFilter("Bin Filter", WhseEntry."Bin Code");
+        OnAfterSetWhseEntryFilters(WhseEntry, ItemLedgEntry, Item);
+    end;
+
+    local procedure IsNewWhseEntryGroup() Result: Boolean
+    begin
+        Result := LastWhseEntry."Bin Code" <> WhseEntry."Bin Code";
+        OnAfterIsNewWhseEntryGroup(WhseEntry, LastWhseEntry, Result);
     end;
 
     procedure CreateNewPhysInvtOrderLine()
     var
+        PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line";
         InsertLine: Boolean;
     begin
+        PhysInvtOrderLineArgs.PrepareLineArgs(WhseEntry, ItemLedgEntry);
         PhysInvtOrderLine.PrepareLine(
-          PhysInvtOrderHeader."No.", NextLineNo,
-          ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", WhseEntry."Bin Code",
-          InvtCountCode, CycleSourceType);
+            PhysInvtOrderHeader."No.", NextLineNo, PhysInvtOrderLineArgs, InvtCountCode, CycleSourceType);
         PhysInvtOrderLine.CalcQtyAndLastItemLedgExpected(QtyExp, LastItemLedgEntryNo);
         InsertLine := false;
         OnCreateNewPhysInvtOrderLineOnAfterCalcQtyAndLastItemLedgExpected(QtyExp, LastItemLedgEntryNo, ItemLedgEntry, PhysInvtOrderLine, InsertLine, WhseEntry);
         if (QtyExp <> 0) or ZeroQty or InsertLine then begin
             PhysInvtOrderLine.Insert(true);
-            PhysInvtOrderLine.CreateDim(DATABASE::Item, PhysInvtOrderLine."Item No.");
+            PhysInvtOrderLine.CreateDimFromDefaultDim();
             if CalcQtyExpected then
                 PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
             OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, CalcQtyExpected);
@@ -289,6 +309,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenPage(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemLedgEntryFilters(var ItemLedgEntry: Record "Item Ledger Entry"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsNewItemLedgEntryGroup(ItemLedgEntry: Record "Item Ledger Entry"; LastItemLedgEntry: Record "Item Ledger Entry"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsNewWhseEntryGroup(WhseEntry: Record "Warehouse Entry"; LastWhseEntry: Record "Warehouse Entry"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetWhseEntryFilters(var WhseEntry: Record "Warehouse Entry"; ItemLedgEntry: Record "Item Ledger Entry"; Item: Record Item)
     begin
     end;
 }

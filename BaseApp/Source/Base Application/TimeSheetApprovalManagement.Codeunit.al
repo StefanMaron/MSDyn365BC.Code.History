@@ -209,7 +209,7 @@ codeunit 951 "Time Sheet Approval Management"
         TimeSheetHeader.Get(TimeSheetLine."Time Sheet No.");
         Resource.Get(TimeSheetHeader."Resource No.");
         Employee.SetRange("Resource No.", TimeSheetHeader."Resource No.");
-        Employee.FindFirst;
+        Employee.FindFirst();
         TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetLine."Time Sheet No.");
         TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
         if TimeSheetDetail.FindSet(true) then

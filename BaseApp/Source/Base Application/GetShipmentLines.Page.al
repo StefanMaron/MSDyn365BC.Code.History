@@ -267,11 +267,11 @@ page 5708 "Get Shipment Lines"
         TempSalesShptLine.Reset();
         TempSalesShptLine.CopyFilters(Rec);
         TempSalesShptLine.SetRange("Document No.", "Document No.");
-        if not TempSalesShptLine.FindFirst then begin
+        if not TempSalesShptLine.FindFirst() then begin
             SalesShptLine.CopyFilters(Rec);
             SalesShptLine.SetRange("Document No.", "Document No.");
             SalesShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
-            if SalesShptLine.FindFirst then begin
+            if SalesShptLine.FindFirst() then begin
                 TempSalesShptLine := SalesShptLine;
                 TempSalesShptLine.Insert();
             end;
@@ -284,6 +284,7 @@ page 5708 "Get Shipment Lines"
     begin
         CurrPage.SetSelectionFilter(Rec);
         SalesGetShpt.SetSalesHeader(SalesHeader);
+        OnCreateLinesOnAfterSalesGetShptSetSalesHeader(SalesHeader, Rec);
         SalesGetShpt.CreateInvLines(Rec);
     end;
 
@@ -302,6 +303,11 @@ page 5708 "Get Shipment Lines"
         OrderNo := SalesShipmentHeader."Order No.";
         YourReference := SalesShipmentHeader."Your Reference";
         ExternalDocumentNo := SalesShipmentHeader."External Document No.";
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateLinesOnAfterSalesGetShptSetSalesHeader(var SalesHeader: Record "Sales Header"; var SalesShipmentLine: Record "Sales Shipment Line")
+    begin
     end;
 }
 

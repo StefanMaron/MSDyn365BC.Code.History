@@ -167,11 +167,11 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         DimSetEntry.SetRange("Dimension Set ID", NewDimID);
         Assert.AreEqual(DimSetEntry.Count, 1, '2 : Not exactly one Dimension Set Entry was inserted');
 
-        DimSetEntry.FindFirst; // only one exists
+        DimSetEntry.FindFirst(); // only one exists
         Assert.AreEqual(DimSetEntry."Dimension Value ID", DimVal."Dimension Value ID", '3 : Dimension Value ID is wrong');
 
         DimSetTreeNode.SetRange("Dimension Set ID", NewDimID);
-        DimSetTreeNode.FindFirst; // only one exists
+        DimSetTreeNode.FindFirst(); // only one exists
         Assert.AreEqual(DimSetTreeNode."Parent Dimension Set ID", 0, '4 : Parent Dimension ID should be zero');
         Assert.AreEqual(DimSetTreeNode."Dimension Value ID", DimVal."Dimension Value ID", '5 : Dimension Value ID in Tree Node is wrong');
         Assert.AreEqual(DimSetTreeNode."Dimension Set ID", DimSetEntry."Dimension Set ID", '6 : Dimension Set ID in Tree Node is wrong');
@@ -284,7 +284,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         TempDimSetEntry.DeleteAll();
         DimMgt.GetDimensionSet(TempDimSetEntry, DimSetID);
         Assert.AreEqual(1, TempDimSetEntry.Count, '2: Only one record was expected.');
-        TempDimSetEntry.FindFirst;
+        TempDimSetEntry.FindFirst();
         Assert.AreEqual(DimVal."Dimension Code", TempDimSetEntry."Dimension Code", '3: Wrong Dimension Code.');
         Assert.AreEqual(DimVal.Code, TempDimSetEntry."Dimension Value Code", '4: Wrong Dimension Value Code.');
     end;
@@ -330,8 +330,8 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         SelectedDimText := '';
         DimTextFieldName := '';
 
-        CreateDimensionSelectionBuffer(TempDimSelectionBuf, LibraryRandom.RandIntInRange(1, 5) - 1, LibraryUtility.GenerateGUID);
-        CreateDimensionSelectionBuffer(TempDimSelectionBuf, LibraryRandom.RandIntInRange(1, 5) - 1, LibraryUtility.GenerateGUID);
+        CreateDimensionSelectionBuffer(TempDimSelectionBuf, LibraryRandom.RandIntInRange(1, 5) - 1, LibraryUtility.GenerateGUID());
+        CreateDimensionSelectionBuffer(TempDimSelectionBuf, LibraryRandom.RandIntInRange(1, 5) - 1, LibraryUtility.GenerateGUID());
 
         TempDimSelectionBuf.SetDimSelection(ObjectType, ObjectID, AnalysisViewCode, SelectedDimText, TempDimSelectionBuf);
         TempDimSelectionBuf.CompareDimText(ObjectType, ObjectID, AnalysisViewCode, SelectedDimText, DimTextFieldName);
@@ -351,15 +351,15 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         InsertDim(Dim1, false);
         InsertDim(Dim2, false);
         Global1DimVal.SetRange("Dimension Code", Dim1);
-        Global1DimVal.FindFirst;
+        Global1DimVal.FindFirst();
         Global2DimVal.SetRange("Dimension Code", Dim2);
-        Global2DimVal.FindFirst;
+        Global2DimVal.FindFirst();
         GeneralLedgerSetup.Get();
         GeneralLedgerSetupOld := GeneralLedgerSetup;
         GeneralLedgerSetup."Global Dimension 1 Code" := Global1DimVal."Dimension Code";
         GeneralLedgerSetup."Global Dimension 2 Code" := Global2DimVal."Dimension Code";
         GeneralLedgerSetup.Modify();
-        DimSetEntry.FindLast;
+        DimSetEntry.FindLast();
         DimSetEntry."Dimension Set ID" += 1;
         DimSetEntry."Dimension Code" := Global1DimVal."Dimension Code";
         DimSetEntry."Dimension Value Code" := Global1DimVal.Code;

@@ -54,11 +54,13 @@ page 783 "Relationship Performance"
     var
         BusinessChartBuffer: Record "Business Chart Buffer";
         TempOpportunity: Record Opportunity temporary;
-        RlshpPerformanceMgt: Codeunit "Relationship Performance Mgt.";
         StatusText: Text;
         IsChartAddInReady: Boolean;
 
-    local procedure UpdateChart()
+    protected var
+        RlshpPerformanceMgt: Codeunit "Relationship Performance Mgt.";
+
+    protected procedure UpdateChart()
     begin
         if not IsChartAddInReady then
             exit;

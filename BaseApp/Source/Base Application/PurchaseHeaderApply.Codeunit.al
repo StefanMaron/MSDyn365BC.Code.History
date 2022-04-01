@@ -31,7 +31,7 @@ codeunit 402 "Purchase Header Apply"
             VendLedgEntry.SetRange(Open, true);
             VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
             OnRunOnBeforeVendLedgEntryFindFirst(VendLedgEntry);
-            if VendLedgEntry.FindFirst then begin
+            if VendLedgEntry.FindFirst() then begin
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
             end else

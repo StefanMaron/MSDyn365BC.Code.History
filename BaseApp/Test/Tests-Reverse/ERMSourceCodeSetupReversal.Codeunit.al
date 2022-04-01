@@ -41,7 +41,7 @@ codeunit 134143 "ERM Source Code Setup Reversal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Reversal of General Ledger Entries.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -65,7 +65,7 @@ codeunit 134143 "ERM Source Code Setup Reversal"
         SourceCode: Record "Source Code";
     begin
         SourceCode.SetFilter(Code, SourceCodeNo);
-        SourceCode.FindFirst;
+        SourceCode.FindFirst();
         SourceCode.Delete(true);
     end;
 
@@ -83,7 +83,7 @@ codeunit 134143 "ERM Source Code Setup Reversal"
         Assert: Codeunit Assert;
     begin
         // Verify Source Code from Source Code Setup and GL Register must be Same.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         Assert.AreEqual(Reversal, GLRegister."Source Code", 'Source Code Must be equal');
     end;
 

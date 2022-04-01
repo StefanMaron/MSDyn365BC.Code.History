@@ -83,10 +83,10 @@ report 215 "Archived Sales Quote"
                     column(CompanyInfo__Giro_No__; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfo__Bank_Name_; CompanyInfo."Bank Name")
+                    column(CompanyInfo__Bank_Name_; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfo__Bank_Account_No__; CompanyInfo."Bank Account No.")
+                    column(CompanyInfo__Bank_Account_No__; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(Sales_Header_Archive___Bill_to_Customer_No__; "Sales Header Archive"."Bill-to Customer No.")
@@ -202,7 +202,7 @@ report 215 "Archived Sales Quote"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -441,7 +441,7 @@ report 215 "Archived Sales Quote"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -878,6 +878,9 @@ report 215 "Archived Sales Quote"
                 FormatAddressFields("Sales Header Archive");
                 FormatDocumentFields("Sales Header Archive");
 
+                if not CompanyBankAccount.Get("Sales Header Archive"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
                 CalcFields("No. of Archived Versions");
@@ -951,6 +954,7 @@ report 215 "Archived Sales Quote"
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
@@ -1072,7 +1076,7 @@ report 215 "Archived Sales Quote"
         SalesLineArchive.SetRange("Document Type", "Sales Header Archive"."Document Type");
         SalesLineArchive.SetRange("Document No.", "Sales Header Archive"."No.");
         SalesLineArchive.SetRange("Version No.", "Sales Header Archive"."Version No.");
-        if SalesLineArchive.FindSet then
+        if SalesLineArchive.FindSet() then
             repeat
                 SalesLineArchTmp := SalesLineArchive;
                 SalesLineArchTmp.Insert();

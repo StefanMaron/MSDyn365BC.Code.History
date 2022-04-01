@@ -193,7 +193,7 @@ table 1225 "Data Exch. Field Mapping"
         DataExchColDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchColDef.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
         DataExchColDef.SetRange("Column No.", "Column No.");
-        if DataExchColDef.FindFirst then
+        if DataExchColDef.FindFirst() then
             exit(DataExchColDef.Name);
         exit('');
     end;
@@ -226,7 +226,7 @@ table 1225 "Data Exch. Field Mapping"
         DataExchColDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchColDef.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
         DataExchColDef.SetRange("Column No.", "Column No.");
-        if DataExchColDef.FindFirst then
+        if DataExchColDef.FindFirst() then
             exit(DataExchColDef.Path);
         exit('');
     end;

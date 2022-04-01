@@ -191,7 +191,7 @@ codeunit 5817 "Undo Posting Management"
     begin
         with WhseEntry do begin
             SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
 
             BinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
@@ -417,7 +417,7 @@ codeunit 5817 "Undo Posting Management"
             SetRange("Applies-to Doc. No.", SourceID);
             SetRange("Applies-to Doc. Line No.", SourceRefNo);
             if not IsEmpty() then
-                if FindFirst then
+                if FindFirst() then
                     Error(Text011, UndoLineNo, "Document Type", "Document No.", "Line No.");
         end;
     end;
@@ -439,7 +439,7 @@ codeunit 5817 "Undo Posting Management"
             SetRange("Applies-to Doc. No.", SourceID);
             SetRange("Applies-to Doc. Line No.", SourceRefNo);
             if not IsEmpty() then
-                if FindFirst then
+                if FindFirst() then
                     Error(Text011, UndoLineNo, "Document Type", "Document No.", "Line No.");
         end;
     end;
@@ -1057,7 +1057,7 @@ codeunit 5817 "Undo Posting Management"
 
         with ValueEntry do begin
             SetRange("Item Ledger Entry No.", EntryNo);
-            FindFirst;
+            FindFirst();
             ItemJnlLine."Source Posting Group" := "Source Posting Group";
             ItemJnlLine."Salespers./Purch. Code" := "Salespers./Purch. Code";
         end;
@@ -1086,17 +1086,16 @@ codeunit 5817 "Undo Posting Management"
         ItemApplnEntry.Reset();
         ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemRcptEntryNo);
         ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', ItemRcptEntryNo);
-        ItemApplnEntry.FindFirst;
+        ItemApplnEntry.FindFirst();
     end;
 
     procedure FindItemShipmentApplication(var ItemApplnEntry: Record "Item Application Entry"; ItemShipmentEntryNo: Integer)
     begin
         ItemApplnEntry.Reset();
         ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemShipmentEntryNo);
-        ItemApplnEntry.FindFirst;
+        ItemApplnEntry.FindFirst();
     end;
 
-    [Scope('OnPrem')]
     procedure UpdatePurchaseLineOverRcptQty(PurchaseLine: Record "Purchase Line"; OverRcptQty: Decimal)
     begin
         PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", PurchaseLine."Line No.");

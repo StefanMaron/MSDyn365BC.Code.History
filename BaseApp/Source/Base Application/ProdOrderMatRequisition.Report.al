@@ -97,7 +97,7 @@ report 99000765 "Prod. Order - Mat. Requisition"
                         SetRange("Source Batch Name", '');
                         SetRange("Source Prod. Order Line", "Prod. Order Line No.");
 
-                        if FindSet then begin
+                        if FindSet() then begin
                             RemainingQtyReserved := 0;
                             repeat
                                 if ReservationEntry2.Get("Entry No.", not Positive) then

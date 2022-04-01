@@ -79,7 +79,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         RevisionedCRMQuote.SetRange(QuoteNumber, CRMQuote.QuoteNumber);
         RevisionedCRMQuote.SetRange(StateCode, RevisionedCRMQuote.StateCode::Closed);
         RevisionedCRMQuote.SetRange(StatusCode, RevisionedCRMQuote.StatusCode::Revised);
-        if RevisionedCRMQuote.FindSet then
+        if RevisionedCRMQuote.FindSet() then
             repeat
                 if CRMIntegrationRecord.FindRecordIDFromID(RevisionedCRMQuote.QuoteId, DATABASE::"Sales Header", RecordId) then begin
                     GetSalesHeaderByRecordId(RecordId, SalesHeader);
@@ -231,7 +231,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
     begin
         CRMAnnotation.SetRange(ObjectId, CRMQuote.QuoteId);
         CRMAnnotation.SetRange(IsDocument, false);
-        if CRMAnnotation.FindSet then
+        if CRMAnnotation.FindSet() then
             repeat
                 CreateNote(SalesHeader, CRMAnnotation);
             until CRMAnnotation.Next() = 0;
@@ -247,7 +247,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CRMQuotedetail.SetCurrentKey(SequenceNumber);
         CRMQuotedetail.Ascending(true);
 
-        if CRMQuotedetail.FindSet then begin
+        if CRMQuotedetail.FindSet() then begin
             repeat
                 InitializeSalesQuoteLine(CRMQuotedetail, SalesHeader, SalesLine);
                 SalesLine.Insert();

@@ -611,7 +611,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         "Count": Integer;
     begin
         Count := Lines;
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
         for Index := 0 to Count do begin
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, ItemQauntity);
@@ -634,7 +634,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         "Count": Integer;
     begin
         Count := Lines;
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
         for Index := 0 to Count do begin
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, ItemQauntity);

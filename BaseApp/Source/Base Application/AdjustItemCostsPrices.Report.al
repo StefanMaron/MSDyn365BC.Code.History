@@ -30,7 +30,7 @@ report 794 "Adjust Item Costs/Prices"
                 end;
                 NewFieldValue := OldFieldValue * AdjFactor;
 
-                GetGLSetup;
+                GetGLSetup();
                 PriceIsRnded := false;
                 if RoundingMethod.Code <> '' then begin
                     RoundingMethod."Minimum Amount" := NewFieldValue;

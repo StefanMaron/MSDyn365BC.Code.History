@@ -200,10 +200,10 @@ report 96 "Copy G/L Budget"
                         SetFilter("G/L Account No.", FromGLAccountNo);
                     if FromDate <> '' then
                         SetFilter(Date, FromDate);
-                    if FindLast then
+                    if FindLast() then
                         SetFilter("Entry No.", '<=%1', "Entry No.");
                     SetCurrentKey("Budget Name", "G/L Account No.", Description, Date);
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             ProcessRecord(
                               "G/L Account No.", "Business Unit Code", Date, Description,
@@ -240,7 +240,7 @@ report 96 "Copy G/L Budget"
 
         Continue := true;
         GLBudgetName.SetRange(Name, ToGLBudgetName);
-        if not GLBudgetName.FindFirst then begin
+        if not GLBudgetName.FindFirst() then begin
             if not NoMessage then
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text005, ToGLBudgetName), true) then
                     Continue := false;
@@ -273,7 +273,7 @@ report 96 "Copy G/L Budget"
                 until TempSelectedDim.Next() = 0;
 
             ToGLBudgetEntry.LockTable();
-            if ToGLBudgetEntry.FindLast then
+            if ToGLBudgetEntry.FindLast() then
                 GLBudgetEntryNo := ToGLBudgetEntry."Entry No." + 1
             else
                 GLBudgetEntryNo := 1;
@@ -389,13 +389,13 @@ report 96 "Copy G/L Budget"
         TempGLBudgetEntry.SetRange("Business Unit Code", BUCode);
         TempGLBudgetEntry.SetRange("Dimension Set ID", DimSetID);
 
-        if TempGLBudgetEntry.FindFirst then begin
+        if TempGLBudgetEntry.FindFirst() then begin
             TempGLBudgetEntry.Amount := TempGLBudgetEntry.Amount + Amount;
             TempGLBudgetEntry.Modify();
             TempGLBudgetEntry.Reset();
         end else begin
             TempGLBudgetEntry.Reset();
-            if TempGLBudgetEntry.FindLast then
+            if TempGLBudgetEntry.FindLast() then
                 TempGLBudgetEntry."Entry No." := TempGLBudgetEntry."Entry No." + 1
             else
                 TempGLBudgetEntry."Entry No." := 1;
@@ -516,7 +516,7 @@ report 96 "Copy G/L Budget"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast then begin
+                        if AccountingPeriod.FindLast() then begin
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
                         end else
                             PrevCalculatedPostingDate := PostingDate;
@@ -560,7 +560,7 @@ report 96 "Copy G/L Budget"
                 DimSetEntry.SetRange("Dimension Code", TempSelectedDim."Dimension Code");
                 if TempSelectedDim."Dimension Value Filter" <> '' then
                     DimSetEntry.SetFilter("Dimension Value Code", TempSelectedDim."Dimension Value Filter");
-                if DimSetEntry.FindFirst then begin
+                if DimSetEntry.FindFirst() then begin
                     TempDimSetEntry := DimSetEntry;
                     TempDimSetEntry."Dimension Set ID" := 0;
                     if TempSelectedDim."New Dimension Value Code" <> '' then
@@ -570,7 +570,7 @@ report 96 "Copy G/L Budget"
                     if TempSelectedDim."Dimension Value Filter" <> '' then
                         if TempSelectedDim.Level = 1 then begin
                             DimSetEntry.SetRange("Dimension Value Code");
-                            IncludeEntry := not DimSetEntry.FindFirst;
+                            IncludeEntry := not DimSetEntry.FindFirst();
                         end else
                             IncludeEntry := false;
                     if IncludeEntry and (TempSelectedDim."New Dimension Value Code" <> '') then begin

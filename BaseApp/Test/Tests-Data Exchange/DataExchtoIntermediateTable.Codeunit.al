@@ -58,7 +58,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         // [WHEN] Importing single table
         // [THEN] it is properly imported into Intermediate Table
-        Initialize;
+        Initialize();
         CreateCurrencyExchangeSetup(DataExchLineDef, DataExchDef);
         NumberOfRecords := 10;
         CreateCurrencyExchangeTestData(DataExch, DataExchLineDef, NumberOfRecords, CurrentNodeID, LineNo);
@@ -86,7 +86,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         // [WHEN] Importing multiple records that have parent child relationship setup
         // [THEN] They are properly imported into Intermediate Table
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 3;
@@ -123,7 +123,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         // [WHEN] Importing multiple records with and without parent/child relationship setup
         // [THEN] They are properly imported into Intermediate Table
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, DataExchDef);
         CreateCurrencyExchangeSetup(CurrencyExchangeRateDataExchLineDef, DataExchDef);
 
@@ -166,7 +166,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         // [WHEN] Importing multiple records that have parent child relationship setup but there is no child definitions
         // [THEN] They are properly imported into Intermediate Table
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 0;
@@ -205,7 +205,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         // [WHEN] Importing multiple records and child records have only the record definition and no other data
         // [THEN] They are properly imported into Intermediate Table
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 3;
@@ -250,7 +250,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         // [WHEN] Importing multiple records where parent and child have only record definition
         // [THEN] They are properly imported into Intermediate Table
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 3;
@@ -292,7 +292,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         // [WHEN] Importing data into Intermediate Table
         // [THEN] It is possible to import multiple times
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, DataExchDef);
         CreateCurrencyExchangeSetup(CurrencyExchangeRateDataExchLineDef, DataExchDef);
 
@@ -338,7 +338,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         // [WHEN] There are no records to import but the definion is present
         // [THEN] No records are imported
-        Initialize;
+        Initialize();
         DataExch.Init();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, DataExchDef);
 
@@ -359,7 +359,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         // [WHEN] There is no definition but the codeunit is run
         // [THEN] No records are imported
-        Initialize;
+        Initialize();
         DataExch.Init();
 
         // Execute
@@ -384,7 +384,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         CurrentNodeID: Integer;
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, DataExchDef);
         NumberOfSalesHeaders := 2;
         NumberOfSalesLinesPerHeader := 3;
@@ -412,7 +412,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         RecNo: Integer;
         RandomValue: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         EntryNo := LibraryRandom.RandInt(100);
         ParentRecNo := 0;
@@ -447,7 +447,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         RecNo: Integer;
         RandomValue: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         EntryNo := LibraryRandom.RandInt(100);
         ParentRecNo := 0;
@@ -480,7 +480,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         ParentRecNo: Integer;
         RecNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         EntryNo := LibraryRandom.RandInt(100);
         ParentRecNo := 0;
@@ -774,7 +774,7 @@ codeunit 139156 "DataExch to Intermediate Table"
             TempReferenceDataExchField.Insert();
         until TempDataExchField.Next = 0;
 
-        TempReferenceDataExchField.FindFirst;
+        TempReferenceDataExchField.FindFirst();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchLineDef.FindSet();
@@ -796,7 +796,7 @@ codeunit 139156 "DataExch to Intermediate Table"
             DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
             DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
             DataExchFieldMapping.SetRange("Column No.", DataExchField."Column No.");
-            DataExchFieldMapping.FindFirst;
+            DataExchFieldMapping.FindFirst();
 
             IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
             IntermediateDataImport.SetRange("Table ID", DataExchFieldMapping."Target Table ID");

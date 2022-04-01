@@ -39,7 +39,7 @@ codeunit 5059 ProfileManagement
                         ContProfileAnswer.Reset();
                         ContProfileAnswer.SetRange("Contact No.", Cont."No.");
                         ContProfileAnswer.SetRange("Profile Questionnaire Code", Code);
-                        if ContProfileAnswer.FindFirst then
+                        if ContProfileAnswer.FindFirst() then
                             Valid := true;
                     end;
                     if Valid then begin
@@ -54,7 +54,7 @@ codeunit 5059 ProfileManagement
     var
         ProfileQuestnHeader: Record "Profile Questionnaire Header";
     begin
-        if ProfileQuestnHeader.FindFirst then
+        if ProfileQuestnHeader.FindFirst() then
             exit(ProfileQuestnHeader.Code);
 
         ProfileQuestnHeader.Init();
@@ -70,7 +70,7 @@ codeunit 5059 ProfileManagement
 
         if ProfileQuestnHeaderTemp.Get(ProfileQuestnHeaderCode) then
             exit(ProfileQuestnHeaderCode);
-        if ProfileQuestnHeaderTemp.FindFirst then
+        if ProfileQuestnHeaderTemp.FindFirst() then
             exit(ProfileQuestnHeaderTemp.Code);
 
         Error(Text001);
@@ -87,7 +87,7 @@ codeunit 5059 ProfileManagement
             ProfileQuestnLine.Get(ProfileQuestnLineCode, ProfileQuestnLineLineNo);
             ContProfileAnswers.SetRecord(ProfileQuestnLine);
         end;
-        ContProfileAnswers.RunModal;
+        ContProfileAnswers.RunModal();
     end;
 
     procedure CheckName(CurrentQuestionsChecklistCode: Code[20]; var Cont: Record Contact)

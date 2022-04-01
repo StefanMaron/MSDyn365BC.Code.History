@@ -124,7 +124,7 @@ codeunit 99000856 "Planning Transparency"
         TempInvProfileTrack.SetRange("Surplus Type", SurplusType);
         TempInvProfileTrack.SetRange("Source Type", SourceType);
         TempInvProfileTrack.SetRange("Source ID", SourceID);
-        if TempInvProfileTrack.FindLast then begin
+        if TempInvProfileTrack.FindLast() then begin
             TempInvProfileTrack."Quantity Tracked" += Qty;
             TempInvProfileTrack.Modify();
         end;
@@ -171,12 +171,12 @@ codeunit 99000856 "Planning Transparency"
                 end;
                 if QtyRemaining <= 0 then
                     SetFilter("Warning Level", '<>%1', 0);
-                if FindSet then
+                if FindSet() then
                     repeat
                         SetRange(Priority, Priority);
                         SetRange("Demand Line No.", "Demand Line No.");
                         PlanningElement.Init();
-                        FindLast;
+                        FindLast();
                         PlanningElement."Track Quantity From" := QtyRemaining;
                         PlanningElement."Warning Level" := "Warning Level";
                         case Priority of
@@ -302,7 +302,7 @@ codeunit 99000856 "Planning Transparency"
         ReqLine.SetReservationFilters(ReservEntry);
         with ReservEntry do begin
             SetRange("Reservation Status", "Reservation Status"::Surplus);
-            if FindSet then
+            if FindSet() then
                 repeat
                     QtyTracked1 += "Quantity (Base)";
                 until Next() = 0;
@@ -333,7 +333,7 @@ codeunit 99000856 "Planning Transparency"
                         end;
                 end;
                 SetRange("Reservation Status", "Reservation Status"::Surplus);
-                if FindSet then
+                if FindSet() then
                     repeat
                         QtyTracked2 += "Quantity (Base)";
                     until Next() = 0;
@@ -396,7 +396,7 @@ codeunit 99000856 "Planning Transparency"
 
             SurplusTrackForm.SetTableView(PlanningElement);
             SurplusTrackForm.SetCaption(CaptionText);
-            SurplusTrackForm.RunModal;
+            SurplusTrackForm.RunModal();
         end;
     end;
 
@@ -409,7 +409,7 @@ codeunit 99000856 "Planning Transparency"
             PlanningElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
             PlanningElement.SetRange("Worksheet Line No.", "Line No.");
             PlanningElement.SetFilter("Warning Level", '>%1', 0);
-            if PlanningElement.FindSet then
+            if PlanningElement.FindSet() then
                 repeat
                     if (PlanningElement."Warning Level" < WarningLevel) or (WarningLevel = 0) then
                         WarningLevel := PlanningElement."Warning Level";
@@ -427,7 +427,7 @@ codeunit 99000856 "Planning Transparency"
                 PlanningElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
                 PlanningElement.SetRange("Worksheet Line No.", "Line No.");
 
-                if not PlanningElement.FindLast then begin
+                if not PlanningElement.FindLast() then begin
                     PlanningElement."Worksheet Template Name" := "Worksheet Template Name";
                     PlanningElement."Worksheet Batch Name" := "Journal Batch Name";
                     PlanningElement."Worksheet Line No." := "Line No.";

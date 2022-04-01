@@ -370,7 +370,7 @@ codeunit 1140 "OAuth 2.0 Mgt."
     end;
 
     [NonDebuggable]
-    local procedure ParseAccessAndRefreshTokens(ResponseJson: Text; var AccessToken: Text; var RefreshToken: Text; var ExpireInSec: BigInteger) Result: Boolean
+    local procedure ParseAccessAndRefreshTokens(ResponseJson: Text; var AccessToken: Text; var RefreshToken: Text; var ExpireInSec: BigInteger): Boolean
     var
         JToken: JsonToken;
         NewAccessToken: Text;
@@ -558,7 +558,7 @@ codeunit 1140 "OAuth 2.0 Mgt."
     end;
 
     [NonDebuggable]
-    local procedure InvokeHttpJSONRequest(RequestJson: Text; var ResponseJson: Text; var HttpError: Text) Result: Boolean
+    local procedure InvokeHttpJSONRequest(RequestJson: Text; var ResponseJson: Text; var HttpError: Text): Boolean
     var
         Client: HttpClient;
         RequestMessage: HttpRequestMessage;

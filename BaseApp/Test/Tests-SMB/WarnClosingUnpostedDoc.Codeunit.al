@@ -1248,7 +1248,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ClearTable(DATABASE::"Troubleshooting Setup");
         ClearTable(DATABASE::Resource);
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateUserPersonalization;
 
         MyNotificationsPage.InitializeNotificationsWithDefaultState;
@@ -1264,7 +1264,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
     begin
         LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Location.DeleteAll();
     end;
 
@@ -1278,7 +1278,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
         RepairStatus: Record "Repair Status";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::"Job Planning Line":
                 JobPlanningLine.DeleteAll();
@@ -1314,7 +1314,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesLine: Record "Sales Line";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
@@ -1334,7 +1334,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
@@ -1354,8 +1354,8 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ServiceLine: Record "Service Line";
         Customer: Record Customer;
     begin
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");

@@ -51,7 +51,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestChart(
@@ -66,7 +66,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestChart(
@@ -81,7 +81,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestChart(
@@ -96,7 +96,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestChart(
@@ -111,7 +111,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestChart(
@@ -126,7 +126,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestChart(AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0);
@@ -139,7 +139,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestChart(AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", AccountSchedulesChartSetup."Period Length", 0);
@@ -152,7 +152,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -167,7 +167,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -182,7 +182,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -197,7 +197,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -212,7 +212,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -227,7 +227,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -242,7 +242,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -257,7 +257,7 @@ codeunit 134923 "ERM Finance Performance"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -273,7 +273,7 @@ codeunit 134923 "ERM Finance Performance"
         MovePeriod: Option " ",Next,Previous;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -289,7 +289,7 @@ codeunit 134923 "ERM Finance Performance"
         MovePeriod: Option " ",Next,Previous;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -305,7 +305,7 @@ codeunit 134923 "ERM Finance Performance"
         MovePeriod: Option " ",Next,Previous;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -321,7 +321,7 @@ codeunit 134923 "ERM Finance Performance"
         MovePeriod: Option " ",Next,Previous;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -337,7 +337,7 @@ codeunit 134923 "ERM Finance Performance"
         MovePeriod: Option " ",Next,Previous;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -353,7 +353,7 @@ codeunit 134923 "ERM Finance Performance"
         MovePeriod: Option " ",Next,Previous;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -370,7 +370,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -387,7 +387,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -404,7 +404,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -421,7 +421,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -438,7 +438,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -455,7 +455,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -472,7 +472,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -489,7 +489,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -506,7 +506,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -523,7 +523,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -540,7 +540,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
 
         AccountSchedulesChartSetup.Init();
 
@@ -558,7 +558,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -575,7 +575,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -592,7 +592,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -609,7 +609,7 @@ codeunit 134923 "ERM Finance Performance"
         TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
@@ -626,7 +626,7 @@ codeunit 134923 "ERM Finance Performance"
         AnalysisViewType: Option GLAccount,CashFlow;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
@@ -643,7 +643,7 @@ codeunit 134923 "ERM Finance Performance"
         AnalysisViewType: Option GLAccount,CashFlow;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
@@ -660,7 +660,7 @@ codeunit 134923 "ERM Finance Performance"
         AnalysisViewType: Option GLAccount,CashFlow;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
@@ -677,7 +677,7 @@ codeunit 134923 "ERM Finance Performance"
         AnalysisViewType: Option GLAccount,CashFlow;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
@@ -694,7 +694,7 @@ codeunit 134923 "ERM Finance Performance"
         AnalysisViewType: Option GLAccount,CashFlow;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
@@ -711,7 +711,7 @@ codeunit 134923 "ERM Finance Performance"
         AnalysisViewType: Option GLAccount,CashFlow;
     begin
         // [FEATURE] [Account Schedule] [Chart]
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
@@ -761,7 +761,7 @@ codeunit 134923 "ERM Finance Performance"
         // Test Drilldown from Chart Of Accs. Analysis View Budget Amount will open Analysis Budget View Entries.
 
         // Setup: Create Analysis View Budget Entry with Column Layout.
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.Init();
         SetupStartAndEndDates(
           StartDate, EndDate, AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5), 0);
@@ -785,7 +785,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Sales] [My Notifications]
         // [SCENARIO 220587] Code Coverage for the Page function MyNotification.IsEnabledForRecord has only 1 hits execution profile without cycling and the dependance on Customer count.
-        Initialize;
+        Initialize();
         MyNotifications.DeleteAll();
 
         // [GIVEN] Customer.
@@ -813,7 +813,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Sales] [My Notifications]
         // [SCENARIO 220587] Code Coverage for the Page function MyNotification.IsEnabledForRecord has only 1 hits execution profile without cycling and the dependance on Customer count when filter is applied.
-        Initialize;
+        Initialize();
         MyNotifications.DeleteAll();
 
         // [GIVEN] Customer.
@@ -845,10 +845,10 @@ codeunit 134923 "ERM Finance Performance"
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 228888] Function "PickCustomer" does not call MARK on Customer Table when no customers meets input CustomerText filter
 
-        Initialize;
+        Initialize();
 
         CodeCoverageMgt.StartApplicationCoverage;
-        Customer.GetCustNo(LibraryUtility.GenerateGUID);
+        Customer.GetCustNo(LibraryUtility.GenerateGUID());
         CodeCoverageMgt.StopApplicationCoverage;
         Assert.AreEqual(
           1,
@@ -875,9 +875,9 @@ codeunit 134923 "ERM Finance Performance"
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 228888] Function "PickCustomer" call MARK on Customer Table when some customers meets input CustomerText filter
 
-        Initialize;
+        Initialize();
 
-        CustFilter := LibraryUtility.GenerateGUID;
+        CustFilter := LibraryUtility.GenerateGUID();
         for i := 1 to 2 do begin
             Customer.Init();
             Customer."No." := Format(i) + CustFilter;
@@ -910,10 +910,10 @@ codeunit 134923 "ERM Finance Performance"
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 230142] Function "PickVendor" does not call MARK on Vendor Table when no vendors meets input VendorText filter
 
-        Initialize;
+        Initialize();
 
         CodeCoverageMgt.StartApplicationCoverage;
-        Vendor.GetVendorNo(LibraryUtility.GenerateGUID);
+        Vendor.GetVendorNo(LibraryUtility.GenerateGUID());
         CodeCoverageMgt.StopApplicationCoverage;
         Assert.AreEqual(
           1,
@@ -940,9 +940,9 @@ codeunit 134923 "ERM Finance Performance"
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 230142] Function "PickVendor" call MARK on Vendor Table when some vendors meets input VendorText filter
 
-        Initialize;
+        Initialize();
 
-        VendFilter := LibraryUtility.GenerateGUID;
+        VendFilter := LibraryUtility.GenerateGUID();
         for i := 1 to 2 do begin
             Vendor.Init();
             Vendor."No." := Format(i) + VendFilter;
@@ -975,7 +975,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 267982] The "No. Of Hits" must not depend on number of lines in sales document on COD1320.SalesCheckAllLinesHaveQuantityAssigned call
-        Initialize;
+        Initialize();
 
         FilterCodeCoverageForLinesIntructionPerfTest(CodeCoverage);
         LibrarySales.CreateSalesDocumentWithItem(
@@ -1001,7 +1001,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 267982] The "No. Of Hits" must not depend on number of lines in sales document on COD1320.PurchaseCheckAllLinesHaveQuantityAssigned call
-        Initialize;
+        Initialize();
 
         FilterCodeCoverageForLinesIntructionPerfTest(CodeCoverage);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -1031,7 +1031,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [UT] [Report] [Posted Sales Invoice]
         // [SCENARIO 334288] Printing Posted Sales Invoice with blank "Order No." do not invoke calculation of shipped and invoiced items
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Sales Order "SO" with an Item
         PostSalesOrderWithItem(SalesHeader, SalesLine);
@@ -1067,7 +1067,7 @@ codeunit 134923 "ERM Finance Performance"
         CostAccSetup.Get();
         CostAccSetup."Align G/L Account" := CostAccSetup."Align G/L Account"::"No Alignment";
         CostAccSetup.Modify();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if IsInitialized then
@@ -1167,7 +1167,7 @@ codeunit 134923 "ERM Finance Performance"
         SalesInvoiceLine.SetRange("Bill-to Customer No.", CustomerNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
         SalesInvoiceLine.SetRange("No.", ChargeItemNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
     end;
 
@@ -1192,7 +1192,7 @@ codeunit 134923 "ERM Finance Performance"
         GLEntry."Bal. Account No." := BalAccountNo;
         GLEntry."Posting Date" := PostingDate;
         GLEntry.Amount := Amount;
-        if LastGLEntry.FindLast then;
+        if LastGLEntry.FindLast() then;
         GLEntry."Entry No." := LastGLEntry."Entry No." + 1;
         GLEntry.Insert();
     end;
@@ -1217,7 +1217,7 @@ codeunit 134923 "ERM Finance Performance"
         CostEntry."Cost Type No." := CostTypeNo;
         CostEntry."Posting Date" := PostingDate;
         CostEntry.Amount := Amount;
-        if LastCostEntry.FindLast then;
+        if LastCostEntry.FindLast() then;
         CostEntry."Entry No." := LastCostEntry."Entry No." + 1;
         CostEntry.Insert();
     end;
@@ -1243,7 +1243,7 @@ codeunit 134923 "ERM Finance Performance"
         CashFlowForecastEntry."Cash Flow Account No." := CFAccountNo;
         CashFlowForecastEntry."Cash Flow Date" := PostingDate;
         CashFlowForecastEntry."Amount (LCY)" := Amount;
-        if LastCashFlowForecastEntry.FindLast then;
+        if LastCashFlowForecastEntry.FindLast() then;
         CashFlowForecastEntry."Entry No." := LastCashFlowForecastEntry."Entry No." + 1;
         CashFlowForecastEntry.Insert();
     end;
@@ -1325,7 +1325,7 @@ codeunit 134923 "ERM Finance Performance"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
 
         LibrarySales.CreateSalesHeader(InvoiceSalesHeader, InvoiceSalesHeader."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
         LibrarySales.CreateSalesLine(InvoiceSalesLine, InvoiceSalesHeader, InvoiceSalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
@@ -1445,20 +1445,20 @@ codeunit 134923 "ERM Finance Performance"
         case TestDrillDownType of
             TestDrillDownType::ColumnFormula:
                 begin
-                    ColumnLayout.FindLast;
+                    ColumnLayout.FindLast();
                     DrillDownColumnLayout := ColumnLayout;
                     DrillDownAccScheduleLine.Init();
                 end;
             TestDrillDownType::RowFormula:
                 begin
-                    AccScheduleLine.FindLast;
+                    AccScheduleLine.FindLast();
                     DrillDownAccScheduleLine := AccScheduleLine;
                     DrillDownColumnLayout.Init();
                 end;
             TestDrillDownType::GLAccount:
                 begin
-                    AccScheduleLine.FindFirst;
-                    ColumnLayout.FindFirst;
+                    AccScheduleLine.FindFirst();
+                    ColumnLayout.FindFirst();
                     AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
                     AccSchedManagement.SetStartDateEndDate(FromDate, ToDate);
                     AccSchedManagement.SetGLAccRowFilters(DrillDownGLAccount, AccScheduleLine);
@@ -1470,7 +1470,7 @@ codeunit 134923 "ERM Finance Performance"
                 begin
                     AccScheduleLine.FindSet();
                     AccScheduleLine.Next;
-                    ColumnLayout.FindFirst;
+                    ColumnLayout.FindFirst();
                     AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
                     AccSchedManagement.SetStartDateEndDate(FromDate, ToDate);
                     AccSchedManagement.SetCostTypeRowFilters(DrillDownCostType, AccScheduleLine, ColumnLayout);
@@ -1482,7 +1482,7 @@ codeunit 134923 "ERM Finance Performance"
                 begin
                     AccScheduleLine.FindSet();
                     AccScheduleLine.Next(2);
-                    ColumnLayout.FindFirst;
+                    ColumnLayout.FindFirst();
                     AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
                     AccSchedManagement.SetStartDateEndDate(FromDate, ToDate);
                     AccSchedManagement.SetCFAccRowFilter(DrillDownCFAccount, AccScheduleLine);
@@ -1521,8 +1521,8 @@ codeunit 134923 "ERM Finance Performance"
                 end;
         end;
 
-        AccScheduleLine.FindFirst;
-        ColumnLayout.FindFirst;
+        AccScheduleLine.FindFirst();
+        ColumnLayout.FindFirst();
         AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
         AccSchedManagement.SetStartDateEndDate(FromDate, ToDate);
         if AnalysisViewType = AnalysisViewType::GLAccount then begin
@@ -1865,7 +1865,7 @@ codeunit 134923 "ERM Finance Performance"
           AccScheduleLine, AccScheduleName.Name, GLAccount[2]."No.", AccScheduleLine."Totaling Type"::"Posting Accounts");
 
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.FindFirst;
+        AccScheduleLine.FindFirst();
     end;
 
     [Normal]
@@ -1890,7 +1890,7 @@ codeunit 134923 "ERM Finance Performance"
         CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name, TotalingFormula, AccScheduleLine."Totaling Type"::Formula);
 
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.FindFirst;
+        AccScheduleLine.FindFirst();
     end;
 
     local procedure SetupAccountScheduleWithAnalysisView2Cols(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var AnalysisView: Record "Analysis View"; var AccountNo: Code[20]; AnalysisViewType: Option GLAccount,CashFlow)
@@ -1925,7 +1925,7 @@ codeunit 134923 "ERM Finance Performance"
               AccScheduleLine, AccScheduleName.Name, AccountNo, AccScheduleLine."Totaling Type"::"Cash Flow Entry Accounts");
 
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.FindFirst;
+        AccScheduleLine.FindFirst();
     end;
 
     local procedure CreateColumnLayoutWithNameAndDesc(var ColumnLayout: Record "Column Layout")
@@ -1961,7 +1961,7 @@ codeunit 134923 "ERM Finance Performance"
         ColumnLayout.Modify(true);
 
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
-        ColumnLayout.FindFirst;
+        ColumnLayout.FindFirst();
     end;
 
     local procedure CreateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; Totaling: Text[250]; TotalingType: Enum "Acc. Schedule Line Totaling Type")
@@ -2076,7 +2076,7 @@ codeunit 134923 "ERM Finance Performance"
     var
         PageNetChangeValue: Decimal;
     begin
-        DrillDownGLAccount.FindFirst;
+        DrillDownGLAccount.FindFirst();
         DrillDownGLAccount.CalcFields("Net Change");
         if ChartOfAccountsPage."Net Change".Value <> '' then
             Evaluate(PageNetChangeValue, ChartOfAccountsPage."Net Change".Value);
@@ -2093,7 +2093,7 @@ codeunit 134923 "ERM Finance Performance"
     var
         PageNetChangeValue: Decimal;
     begin
-        DrillDownCostType.FindFirst;
+        DrillDownCostType.FindFirst();
         DrillDownCostType.CalcFields("Net Change");
         if ChartofCostTypePage."Net Change".Value <> '' then
             Evaluate(PageNetChangeValue, ChartofCostTypePage."Net Change".Value);
@@ -2110,7 +2110,7 @@ codeunit 134923 "ERM Finance Performance"
     var
         PageAmountValue: Decimal;
     begin
-        DrillDownCFAccount.FindFirst;
+        DrillDownCFAccount.FindFirst();
         DrillDownCFAccount.CalcFields(Amount);
         if ChartofCashFlowAccPage.Amount.Value <> '' then
             Evaluate(PageAmountValue, ChartofCashFlowAccPage.Amount.Value);

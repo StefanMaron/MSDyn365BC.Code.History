@@ -249,9 +249,9 @@ page 99000915 "Work Center Task List"
                         ProdOrderLine.SetRange(Status, Status);
                         ProdOrderLine.SetRange("Prod. Order No.", "Prod. Order No.");
                         ProdOrderLine.SetRange("Routing No.", "Routing No.");
-                        if ProdOrderLine.FindFirst then begin
+                        if ProdOrderLine.FindFirst() then begin
                             TrackingForm.SetProdOrderLine(ProdOrderLine);
-                            TrackingForm.RunModal;
+                            TrackingForm.RunModal();
                         end;
                     end;
                 }

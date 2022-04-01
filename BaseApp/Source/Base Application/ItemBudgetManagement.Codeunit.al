@@ -405,7 +405,7 @@ codeunit 7130 "Item Budget Management"
         Cust: Record Customer;
         Vend: Record Vendor;
     begin
-        GetGLSetup;
+        GetGLSetup();
         case DimCode of
             '':
                 exit("Item Budget Dimension Type"::Undefined);
@@ -442,7 +442,7 @@ codeunit 7130 "Item Budget Management"
         Location: Record Location;
         DimSelection: Page "Dimension Selection";
     begin
-        GetGLSetup;
+        GetGLSetup();
         DimSelection.InsertDimSelBuf(false, Item.TableCaption, Item.TableCaption);
         DimSelection.InsertDimSelBuf(false, Cust.TableCaption, Cust.TableCaption);
         DimSelection.InsertDimSelBuf(false, Location.TableCaption, Location.TableCaption);
@@ -524,7 +524,7 @@ codeunit 7130 "Item Budget Management"
         Vend: Record Vendor;
         Location: Record Location;
     begin
-        GetGLSetup;
+        GetGLSetup();
         exit(
           not (UpperCase(DimCode) in
                [UpperCase(Item.TableCaption),
@@ -661,7 +661,7 @@ codeunit 7130 "Item Budget Management"
                 if BudgetDim3Filter <> '' then
                     SetFilter("Budget Dimension 3 Code", BudgetDim3Filter);
                 SetCurrentKey("Entry No.");
-                if FindFirst then
+                if FindFirst() then
                     UpdateItemAnalysisView.SetLastBudgetEntryNo("Entry No." - 1);
                 SetCurrentKey("Analysis Area", "Budget Name");
                 DeleteAll(true);

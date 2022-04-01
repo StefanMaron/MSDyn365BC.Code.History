@@ -21,17 +21,23 @@ page 1173 "Document Attachment Details"
 
                     trigger OnDrillDown()
                     var
-                        TempBlob: Codeunit "Temp Blob";
-                        FileName: Text;
+                        Selection: Integer;
                     begin
                         if "Document Reference ID".HasValue then
                             Export(true)
-                        else begin
-                            ImportWithFilter(TempBlob, FileName);
-                            if FileName <> '' then
-                                SaveAttachment(FromRecRef, FileName, TempBlob);
-                            CurrPage.Update(false);
-                        end;
+                        else
+                            if not IsOfficeAddin or not EmailHasAttachments then
+                                InitiateUploadFile()
+                            else begin
+                                Selection := StrMenu(MenuOptionsTxt, 1, SelectInstructionTxt);
+                                case
+                                    Selection of
+                                    1:
+                                        InitiateAttachFromEmail();
+                                    2:
+                                        InitiateUploadFile();
+                                end;
+                            end;
                     end;
                 }
                 field("File Extension"; "File Extension")
@@ -87,12 +93,13 @@ page 1173 "Document Attachment Details"
                 Caption = 'Open in OneDrive';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
                 Image = Cloud;
-                Enabled = ShareOprionsEnabled;
+                Enabled = ShareOptionsEnabled;
                 Promoted = true;
                 PromotedOnly = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 Scope = Repeater;
+                Visible = ShareOptionsVisible;
                 trigger OnAction()
                 var
                     FileManagement: Codeunit "File Management";
@@ -104,6 +111,32 @@ page 1173 "Document Attachment Details"
                     FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
 
                     DocumentServiceMgt.OpenInOneDriveFromMedia(FileName, FileExtension, "Document Reference ID".MediaId());
+                end;
+            }
+            action(ShareWithOneDrive)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Share';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
+                Image = Share;
+                Enabled = ShareOptionsEnabled;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                Scope = Repeater;
+                Visible = ShareOptionsVisible;
+                trigger OnAction()
+                var
+                    FileManagement: Codeunit "File Management";
+                    DocumentServiceMgt: Codeunit "Document Service Management";
+                    FileName: Text;
+                    FileExtension: Text;
+                begin
+                    FileName := FileManagement.StripNotsupportChrInFileName(Rec."File Name");
+                    FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
+
+                    DocumentServiceMgt.ShareWithOneDriveFromMedia(FileName, FileExtension, "Document Reference ID".MediaId());
                 end;
             }
             action(Preview)
@@ -125,19 +158,66 @@ page 1173 "Document Attachment Details"
                         Export(true);
                 end;
             }
+            action(AttachFromEmail)
+            {
+                ApplicationArea = All;
+                Caption = 'Attach from email';
+                Image = Email;
+                Enabled = EmailHasAttachments;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                Scope = Page;
+                ToolTip = 'Attach files directly from email.';
+                Visible = IsOfficeAddin;
+
+                trigger OnAction()
+                begin
+                    InitiateAttachFromEmail();
+                end;
+            }
+            action(UploadFile)
+            {
+                ApplicationArea = All;
+                Caption = 'Upload file';
+                Image = Document;
+                Enabled = true;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                Scope = Page;
+                ToolTip = 'Upload file';
+                Visible = IsOfficeAddin;
+
+                trigger OnAction()
+                begin
+                    InitiateUploadFile();
+                end;
+            }
         }
     }
 
     trigger OnInit()
     begin
         FlowFieldsEditable := true;
+        IsOfficeAddin := OfficeMgmt.IsAvailable();
+        ShareOptionsVisible := false;
+
+        if IsOfficeAddin then
+            EmailHasAttachments := OfficeHostMgmt.EmailHasAttachments()
+        else begin
+            EmailHasAttachments := false;
+            ShareOptionsVisible := NOT OfficeMgmt.IsPopOut();
+        end;
     end;
 
     trigger OnAfterGetCurrRecord()
     var
         DocumentSharing: Codeunit "Document Sharing";
     begin
-        ShareOprionsEnabled := (Rec."Document Reference ID".HasValue()) and (DocumentSharing.ShareEnabled());
+        ShareOptionsEnabled := (Rec."Document Reference ID".HasValue()) and (DocumentSharing.ShareEnabled());
         DowbloadEnabled := Rec."Document Reference ID".HasValue();
     end;
 
@@ -147,21 +227,46 @@ page 1173 "Document Attachment Details"
     end;
 
     var
+        OfficeMgmt: Codeunit "Office Management";
+        OfficeHostMgmt: Codeunit "Office Host Management";
         SalesDocumentFlow: Boolean;
         FileExtensionLbl: Label '.%1', Locked = true;
         FileDialogTxt: Label 'Attachments (%1)|%1', Comment = '%1=file types, such as *.txt or *.docx';
         FilterTxt: Label '*.jpg;*.jpeg;*.bmp;*.png;*.gif;*.tiff;*.tif;*.pdf;*.docx;*.doc;*.xlsx;*.xls;*.pptx;*.ppt;*.msg;*.xml;*.*', Locked = true;
         ImportTxt: Label 'Attach a document.';
-        SelectFileTxt: Label 'Select File...';
+        SelectFileTxt: Label 'Attach File(s)...';
         PurchaseDocumentFlow: Boolean;
-        ShareOprionsEnabled: Boolean;
+        ShareOptionsEnabled: Boolean;
         DowbloadEnabled: Boolean;
         FlowToPurchTxt: Label 'Flow to Purch. Trx';
         FlowToSalesTxt: Label 'Flow to Sales Trx';
         FlowFieldsEditable: Boolean;
+        EmailHasAttachments: Boolean;
+        IsOfficeAddin: Boolean;
+        MenuOptionsTxt: Label 'Attach from email,Upload file', Comment = 'Comma seperated phrases must be translated seperately.';
+        SelectInstructionTxt: Label 'Choose the files to attach.';
+        ShareOptionsVisible: Boolean;
 
     protected var
         FromRecRef: RecordRef;
+
+    local procedure InitiateAttachFromEmail()
+    begin
+        OfficeMgmt.InitiateSendToAttachments(FromRecRef);
+        CurrPage.Update(true);
+    end;
+
+    local procedure InitiateUploadFile()
+    var
+        DocumentAttachment: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+        FileName: Text;
+    begin
+        ImportWithFilter(TempBlob, FileName);
+        if FileName <> '' then
+            DocumentAttachment.SaveAttachment(FromRecRef, FileName, TempBlob);
+        CurrPage.Update(true);
+    end;
 
     local procedure GetCaptionClass(FieldNo: Integer): Text
     begin

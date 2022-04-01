@@ -205,6 +205,7 @@ page 9171 "Profile List"
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedOnly = true;
+                    AccessByPermission = TableData "Profile Designer Diagnostic" = I;
                     Visible = IsWebClient;
                     ToolTip = 'Import a profile package that adds or replaces profiles in this list. This may include new profiles, modified profiles and page customizations.';
                     RunPageMode = Edit;

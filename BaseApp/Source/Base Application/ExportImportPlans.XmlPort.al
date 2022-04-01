@@ -1,7 +1,9 @@
 xmlport 9010 "Export/Import Plans"
 {
     Caption = 'Export/Import Plans';
+#if not CLEAN20
     Permissions = TableData "Plan Permission Set" = rimd;
+#endif 
     UseRequestPage = false;
     Direction = Import;
 
@@ -64,11 +66,12 @@ xmlport 9010 "Export/Import Plans"
                         OnlyLicenseVar := false;
                     end;
 
+#if not CLEAN20
                     trigger OnAfterInsertRecord()
                     begin
                         InsertPermissionSetsFromUserGroup;
                     end;
-
+#endif
                     trigger OnBeforeInsertRecord()
                     var
                         UserGroupPlan: Record "User Group Plan";
@@ -98,8 +101,9 @@ xmlport 9010 "Export/Import Plans"
     }
 
     var
-        XLOCALTxt: Label 'Local';
         OnlyLicenseVar: Boolean;
+#if not CLEAN20
+        XLOCALTxt: Label 'Local';
 
     local procedure InsertPermissionSetsFromUserGroup()
     var
@@ -109,7 +113,7 @@ xmlport 9010 "Export/Import Plans"
         if UserGroup.Get("User Group Plan"."User Group Code") then begin
             // make mapping between Plan and Permissionsets by using User Group
             UserGroupPermissionSet.SetRange("User Group Code", "User Group Plan"."User Group Code");
-            if UserGroupPermissionSet.FindSet then
+            if UserGroupPermissionSet.FindSet() then
                 repeat
                     InsertPlanPermissionset(UserGroupPermissionSet."Role ID", id);
                 until UserGroupPermissionSet.Next() = 0;
@@ -132,5 +136,6 @@ xmlport 9010 "Export/Import Plans"
         PlanPermissionSet."Plan ID" := UpperCase(PlanId);
         PlanPermissionSet.Insert(true);
     end;
+#endif
 }
 

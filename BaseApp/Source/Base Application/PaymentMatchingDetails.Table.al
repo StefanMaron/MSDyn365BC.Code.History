@@ -94,7 +94,7 @@ table 1299 "Payment Matching Details"
         PaymentMatchingDetails.SetRange("Statement No.", "Statement No.");
         PaymentMatchingDetails.SetRange("Statement Line No.", "Statement Line No.");
 
-        if PaymentMatchingDetails.FindLast then
+        if PaymentMatchingDetails.FindLast() then
             NextLineNo += PaymentMatchingDetails."Line No.";
 
         exit(NextLineNo);

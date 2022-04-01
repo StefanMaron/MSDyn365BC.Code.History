@@ -40,7 +40,7 @@ codeunit 136137 "Service Item Availability"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Item Availability");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         // Clear the needed globals
         ClearGlobals;
 
@@ -49,9 +49,9 @@ codeunit 136137 "Service Item Availability"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Item Availability");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Item Availability");
@@ -76,7 +76,7 @@ codeunit 136137 "Service Item Availability"
         // overview, the overview of availability should be updated when recalculating.
 
         // Initialize all variables
-        Initialize;
+        Initialize();
         SupplyQuantity := RANDOMRANGE(2, 10);
         DemandQuantity := SupplyQuantity - 1;
         CreateItem(Item);
@@ -110,7 +110,7 @@ codeunit 136137 "Service Item Availability"
 
         Assert.AreEqual(true, FoundSecondLocation, StrSubstNo('Verify that location %1 is found in the grid.', SecondLocationName));
         Assert.AreEqual(true, FoundFirstLocation, StrSubstNo('Verify that location %1 is found in the grid.', FirstLocationName));
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -124,7 +124,7 @@ codeunit 136137 "Service Item Availability"
         FoundLocationCount: Integer;
     begin
         // All initializations go here
-        Initialize;
+        Initialize();
         SupplyQuantity := LibraryRandom.RandInt(10);
         DemandQuantity := SupplyQuantity;
         CreateItem(Item);
@@ -171,7 +171,7 @@ codeunit 136137 "Service Item Availability"
     begin
         // Test Demand from Jobs and Service show up in Stockkeeping Unit Cards.
         // All initializations go here
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
         FirstLocationName := CreateLocation;
@@ -220,7 +220,7 @@ codeunit 136137 "Service Item Availability"
         ItemAvailabilityByPeriod: TestPage "Item Availability by Periods";
     begin
         // All initializations go here
-        Initialize;
+        Initialize();
         SupplyQuantity := LibraryRandom.RandInt(12) + 6;
         DemandQuantity := SupplyQuantity - 5;
 
@@ -253,7 +253,7 @@ codeunit 136137 "Service Item Availability"
         NeededByDate: Date;
     begin
         // All initializations go here
-        Initialize;
+        Initialize();
         SupplyQuantity := RANDOMRANGE(2, 12);
         DemandQuantity := LibraryRandom.RandInt(SupplyQuantity - 1);
 
@@ -292,7 +292,7 @@ codeunit 136137 "Service Item Availability"
         FoundVariantCount: Integer;
     begin
         // All initializations go here
-        Initialize;
+        Initialize();
         SupplyQuantity := RANDOMRANGE(2, 12);
         DemandQuantity := LibraryRandom.RandInt(SupplyQuantity - 1);
 
@@ -335,7 +335,7 @@ codeunit 136137 "Service Item Availability"
         FoundSecondVariant: Boolean;
     begin
         // All initializations go here
-        Initialize;
+        Initialize();
         SupplyQuantity := RANDOMRANGE(2, 12);
         DemandQuantity := LibraryRandom.RandInt(SupplyQuantity - 1);
 
@@ -404,7 +404,7 @@ codeunit 136137 "Service Item Availability"
 
             // VERIFY: Qty. on Asm. Component field is correct when location contains mutiple different items.
             StockkeepingUnit.SetRange("Item No.", Item."No.");
-            StockkeepingUnit.FindFirst;
+            StockkeepingUnit.FindFirst();
             StockkeepingUnit.CalcFields("Qty. on Asm. Component");
             Assert.AreEqual(Quantity * QuantityPer, StockkeepingUnit."Qty. on Asm. Component", QtyOnAsmComponentErr);
         end;
@@ -422,7 +422,7 @@ codeunit 136137 "Service Item Availability"
         NeededByDate: Date;
     begin
         // All initializations go here
-        Initialize;
+        Initialize();
         SupplyQuantity := RANDOMRANGE(2, 12);
         DemandQuantity := LibraryRandom.RandInt(SupplyQuantity - 1);
         PostingDate := CalcDate('<-1D>', WorkDate);
@@ -462,8 +462,8 @@ codeunit 136137 "Service Item Availability"
     begin
         // Verify Item Availability By Event in case of several Blanket Orders
         // with several lines and partial Sales Order from Blankets
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
         CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         ShipmentDate[1] := WorkDate;
@@ -502,7 +502,7 @@ codeunit 136137 "Service Item Availability"
     begin
         // [FEATURE] [Item Availability by Event] [Reservation]
         // [SCENARIO 364616] "Item Availability by Event" page should sum all reserved quantity from appropriate Item Ledger Entries when calculating "Reserved Receipt"
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -537,7 +537,7 @@ codeunit 136137 "Service Item Availability"
         ExpectedSuggestedProjectedInventory: Decimal;
     begin
         // [SCENARIO 361049] "Suggested Projected Inventory" consider forecast in "Item Availability By Event"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Data with "Action Message Qty." = "W", "Remaining Forecast" = "X", "Gross Requirement" - "Y" and "Scheduled Receipt" = "Z"
         CreateInventoryPageData(InventoryPageData);
@@ -762,7 +762,7 @@ codeunit 136137 "Service Item Availability"
     local procedure CreateInventoryPageData(var InventoryPageData: Record "Inventory Page Data")
     begin
         with InventoryPageData do begin
-            if FindLast then;
+            if FindLast() then;
 
             "Line No." += 1;
             "Action Message Qty." := LibraryRandom.RandDec(100, 2);
@@ -799,7 +799,7 @@ codeunit 136137 "Service Item Availability"
         Customer: Record Customer;
     begin
         Clear(ServiceItem);
-        if ServiceItem.FindFirst then
+        if ServiceItem.FindFirst() then
             repeat
                 Customer.Get(ServiceItem."Customer No.");
                 Item.Get(ServiceItem."Item No.");
@@ -839,7 +839,7 @@ codeunit 136137 "Service Item Availability"
 
         ServiceLineToSelect.SetRange("Document Type", ServiceLineToSelect."Document Type"::Order);
         ServiceLineToSelect.SetRange("Document No.", ServiceOrderNo);
-        ServiceLineToSelect.FindFirst;
+        ServiceLineToSelect.FindFirst();
 
         ServiceLinesToReturn.First;
         ServiceLinesToReturn.FILTER.SetFilter("Document Type", 'Order');

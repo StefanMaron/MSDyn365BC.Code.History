@@ -42,7 +42,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnCreteIncomingDocument event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode, '', WorkflowStep);
 
         // Excercise
@@ -69,7 +69,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnPurchaseDocSentForApproval event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, '', WorkflowStep);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
@@ -96,7 +96,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnPurchaseDocSentForApproval event is not tiggered and the workflow is not run.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, '', WorkflowStep);
         Workflow.Get(WorkflowStep."Workflow Code");
         DisableWorkflow(Workflow);
@@ -127,7 +127,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnPurchaseDocSentForApproval event is not triggered.
 
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchDocWithLine(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.Status := PurchaseHeader.Status::Released;
         PurchaseHeader.Modify();
@@ -157,7 +157,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSalesDocSentForApproval event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode, '', WorkflowStep);
         CreateSalesDocWithLine(SalesHeader, SalesHeader."Document Type"::Invoice);
 
@@ -184,7 +184,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSalesDocSentForApproval event is not triggered.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode, '', WorkflowStep);
         Workflow.Get(WorkflowStep."Workflow Code");
         DisableWorkflow(Workflow);
@@ -215,7 +215,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSalesDocSentForApproval event is not triggered.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesDocWithLine(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesHeader.Status := SalesHeader.Status::Released;
         SalesHeader.Modify();
@@ -247,7 +247,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnApprovalRequestsCancelled event is triggered.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, '', WorkflowStep);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode, '', WorkflowStep);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -277,7 +277,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] Error is thrown.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, '', WorkflowStep);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         PurchaseHeader.Status := PurchaseHeader.Status::Released;
@@ -306,7 +306,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] Error is thrown.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, '', WorkflowStep);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
 
@@ -335,7 +335,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnApprovalRequestsCancelled event is triggered.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode, '', WorkflowStep);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode, '', WorkflowStep);
         CreateSalesDocWithLine(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -365,7 +365,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] Error is thrown.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode, '', WorkflowStep);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         SalesHeader.Status := SalesHeader.Status::Released;
@@ -394,7 +394,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] Error is thrown.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode, '', WorkflowStep);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
 
@@ -420,7 +420,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnPurchaseInvoicePosted event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, '', WorkflowStep);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
@@ -445,7 +445,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnPurchaseDocumentReleased event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode, '', WorkflowStep);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
@@ -470,7 +470,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSalesDocumentReleased event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnAfterReleaseSalesDocCode, '', WorkflowStep);
         CreateSalesDocWithLine(SalesHeader, SalesHeader."Document Type"::Invoice);
 
@@ -498,7 +498,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnPaymentJournalLineCreated event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
@@ -534,7 +534,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnApprovalRequestApproved event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         WorkflowInstanceID := CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
             '', WorkflowStep);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -563,7 +563,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnApprovalRequestApproved event step in the workflow is selected, executed and an error is thrown.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode, '', WorkflowStep);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
@@ -594,7 +594,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnApprovalRequestDelegated event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
         UserSetup.Substitute := UserId;
         UserSetup.Modify();
@@ -627,7 +627,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnApprovalRequestRejected event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         WorkflowInstanceID := CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
             '', WorkflowStep);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -655,7 +655,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnApprovalRequestRejected event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode, '', WorkflowStep);
         CreatePurchDocWithLine(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
@@ -679,7 +679,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSendOverdueNotifications event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendOverdueNotificationsCode, '', WorkflowStep);
 
         // Excercise
@@ -704,7 +704,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnCustomerCreditLimitExceeded event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesDocWithLine(SalesHeader, SalesHeader."Document Type"::Invoice);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode, '', WorkflowStep);
 
@@ -730,7 +730,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnCustomerCreditLimitNotExceeded event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesDocWithLine(SalesHeader, SalesHeader."Document Type"::Invoice);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode, '', WorkflowStep);
 
@@ -757,7 +757,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSendCustomerForApproval event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode, '', WorkflowStep);
 
@@ -787,7 +787,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSendCustomerForApproval event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         LibrarySales.CreateCustomer(Customer);
@@ -821,7 +821,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnCancelCustomerApprovalRequest event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryDocumentApprovals.CreateOrFindUserSetup(UserSetup, UserId);
 
@@ -864,7 +864,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSendCustomerForApproval event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode, '', WorkflowStep);
 
@@ -894,7 +894,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSendCustomerForApproval event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode, '', WorkflowStep);
@@ -927,7 +927,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnCancelCustomerApprovalRequest event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryDocumentApprovals.CreateOrFindUserSetup(UserSetup, UserId);
 
@@ -970,7 +970,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSendCustomerForApproval event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode, '', WorkflowStep);
 
@@ -1000,7 +1000,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnSendCustomerForApproval event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryInventory.CreateItem(Item);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode, '', WorkflowStep);
@@ -1032,7 +1032,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnCancelCustomerApprovalRequest event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // Setup - Workflow
@@ -1070,7 +1070,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] RunWorkflowOnGeneralJournalBatchBalanced event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchBalancedCode, '', WorkflowStep);
 
@@ -1096,7 +1096,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] RunWorkflowOnGeneralJournalBatchNotBalanced event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnGeneralJournalBatchNotBalancedCode, '', WorkflowStep);
 
@@ -1123,7 +1123,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] RunWorkflowOnGeneralJournalBatchNotBalanced event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomer(Customer2);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnCustomerChangedCode, '', WorkflowStep);
@@ -1154,7 +1154,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] RunWorkflowOnGeneralJournalBatchNotBalanced event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendor(Vendor2);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnVendorChangedCode, '', WorkflowStep);
@@ -1185,7 +1185,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] RunWorkflowOnGeneralJournalBatchNotBalanced event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnItemChangedCode, '', WorkflowStep);
@@ -1232,7 +1232,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnItemChangedCode, '', WorkflowStep);
@@ -1266,7 +1266,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnAfterCreateGenJnlLineFromIncomingDocSuccess event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(
           WorkflowEventHandling.RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode, '', WorkflowStep);
 
@@ -1295,7 +1295,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         // [THEN] OnAfterCreateGenJnlLineFromIncomingDocFail event step in the workflow is selected and executed.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableOneEventStepWorkflow(
           WorkflowEventHandling.RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode, '', WorkflowStep);
 
@@ -1321,7 +1321,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 231847] When Item is changed and only Item Change Workflow is enabled, no errors invoked when push SendApprovalRequest actionbutton.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnItemChangedCode, '', WorkflowStep);
@@ -1342,7 +1342,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 231847] When Item is changed and both Item Change Workflow with Item Approval Workflow are enabled, SendApprovalRequest actionbutton causes no errors.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnItemChangedCode, '', WorkflowStep[1]);
@@ -1364,7 +1364,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 231847] When Customer is changed and only Customer Change Workflow is enabled, no errors invoked when push SendApprovalRequest actionbutton.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnCustomerChangedCode, '', WorkflowStep);
@@ -1385,7 +1385,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 231847] When Customer is changed and both Customer Change Workflow with Customer Approval Workflow are enabled, SendApprovalRequest actionbutton causes no errors.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnCustomerChangedCode, '', WorkflowStep[1]);
@@ -1407,7 +1407,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 231847] When Vendor is changed and only Vendor Change Workflow is enabled, no errors invoked when push SendApprovalRequest actionbutton.
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnVendorChangedCode, '', WorkflowStep);
@@ -1428,7 +1428,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 231847] When Vendor is changed and both Vendor Change Workflow with Vendor Approval Workflow are enabled, SendApprovalRequest actionbutton causes no errors.
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnVendorChangedCode, '', WorkflowStep[1]);
@@ -1446,10 +1446,10 @@ codeunit 134309 "Workflow Trigger/Event Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Trigger/Event Tests");
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryApplicationArea.EnableFoundationSetup();
         UserSetup.DeleteAll();
         if isInitialized then
             exit;
@@ -1489,7 +1489,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
         Workflow.CreateInstance(WorkflowStepInstance);
-        WorkflowStepInstance.FindFirst;
+        WorkflowStepInstance.FindFirst();
         WorkflowStepInstance.Status := WorkflowStepInstance.Status::Active;
         WorkflowStepInstance.Modify();
         exit(WorkflowStepInstance.ID);
@@ -1503,7 +1503,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         WorkflowStepInstanceArchive.SetRange("Original Workflow Step ID", WorkflowStep.ID);
         WorkflowStepInstanceArchive.SetRange(Type, WorkflowStep.Type);
         WorkflowStepInstanceArchive.SetRange("Function Name", WorkflowStep."Function Name");
-        WorkflowStepInstanceArchive.FindFirst;
+        WorkflowStepInstanceArchive.FindFirst();
         Assert.AreEqual(1, WorkflowStepInstanceArchive.Count, WorkflowStepInstanceArchive.GetFilters);
         WorkflowStepInstanceArchive.TestField(Status, WorkflowStepInstanceArchive.Status::Completed);
     end;

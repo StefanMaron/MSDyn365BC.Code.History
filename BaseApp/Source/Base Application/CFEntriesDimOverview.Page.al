@@ -50,7 +50,7 @@ page 860 "CF Entries Dim. Overview"
                         CFEntriesDimMatrix.SetTempCFForecastEntry(TempCFForecastEntry)
                     else
                         CFEntriesDimMatrix.SetTableView(Rec);
-                    CFEntriesDimMatrix.RunModal;
+                    CFEntriesDimMatrix.RunModal();
                 end;
             }
             action("Previous Set")

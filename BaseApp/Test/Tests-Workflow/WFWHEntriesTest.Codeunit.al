@@ -34,7 +34,7 @@ codeunit 134218 "WFWH Entries Test"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateSubscription;
         MockOnPostNotificationRequest.SetReturnType('ErrorReceived');
         CreateSalesOrderAndSendForApproval(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -61,7 +61,7 @@ codeunit 134218 "WFWH Entries Test"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateSubscription;
         MockOnPostNotificationRequest.SetReturnType('ErrorReceived');
         CreateSalesOrderAndSendForApproval(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -152,9 +152,9 @@ codeunit 134218 "WFWH Entries Test"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WFWH Entries Test");
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         UserSetup.DeleteAll();
         LibraryWorkflow.DeleteAllExistingWorkflows;

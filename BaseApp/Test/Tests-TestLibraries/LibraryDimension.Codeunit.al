@@ -276,7 +276,7 @@ codeunit 131001 "Library - Dimension"
 
         DimVal.Get(DimCode, DimValCode);
         TempDimSetEntry.SetRange("Dimension Code", DimVal."Dimension Code");
-        TempDimSetEntry.FindFirst;
+        TempDimSetEntry.FindFirst();
         TempDimSetEntry.Validate("Dimension Value Code", DimVal.Code);
         TempDimSetEntry.Validate("Dimension Value ID", DimVal."Dimension Value ID");
         TempDimSetEntry.Modify(true);
@@ -300,7 +300,7 @@ codeunit 131001 "Library - Dimension"
         DimMgt.GetDimensionSet(TempDimSetEntry, DimSetID);
 
         TempDimSetEntry.SetRange("Dimension Code", DimCode);
-        TempDimSetEntry.FindFirst;
+        TempDimSetEntry.FindFirst();
         TempDimSetEntry.Delete(true);
 
         TempDimSetEntry.Reset();
@@ -401,7 +401,7 @@ codeunit 131001 "Library - Dimension"
             DimValue.SetRange("Dimension Code", LibraryERM.GetGlobalDimensionCode(DimNo));
             DimValue.SetRange("Dimension Value Type", DimValue."Dimension Value Type"::Standard);
             DimValue.SetRange(Blocked, false);
-            DimValue.FindFirst;
+            DimValue.FindFirst();
         end;
     end;
 

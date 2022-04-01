@@ -132,7 +132,7 @@ page 1207 "Direct Debit Collections"
                 begin
                     TestField(Status, Status::"File Created");
                     PostDirectDebitCollection.SetCollectionEntry("No.");
-                    PostDirectDebitCollection.Run;
+                    PostDirectDebitCollection.Run();
                 end;
             }
         }

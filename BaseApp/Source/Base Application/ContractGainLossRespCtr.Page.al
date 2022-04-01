@@ -102,7 +102,7 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
                     MatrixForm.LoadMatrix(
                         MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, AmountType,
                         PeriodType, RespCrFilter, PeriodStart);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

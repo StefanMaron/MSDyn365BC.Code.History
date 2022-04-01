@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2801 "Native - Customer Entity"
 {
     Caption = 'invoicingCustomers', Locked = true;
@@ -29,11 +30,6 @@ page 2801 "Native - Customer Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'graphContactId';
-
-                    trigger OnValidate()
-                    begin
-                        FindOrCreateCustomer("Contact Graph Id");
-                    end;
                 }
                 field(contactId; "Contact ID")
                 {
@@ -41,11 +37,6 @@ page 2801 "Native - Customer Entity"
                     Caption = 'contactId', Locked = true;
                     Editable = false;
                     ToolTip = 'Specifies the contact Id from exchange.';
-
-                    trigger OnValidate()
-                    begin
-                        FindOrCreateCustomer("Contact ID");
-                    end;
                 }
                 field(displayName; Name)
                 {
@@ -285,20 +276,11 @@ page 2801 "Native - Customer Entity"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
-        Customer: Record Customer;
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         RecRef: RecordRef;
     begin
         if Name = '' then
             Error(NotProvidedCustomerNameErr);
-
-        if not CustomerCreatedFromGraph then begin
-            Customer.SetRange("No.", "No.");
-            if not Customer.IsEmpty() then
-                Insert;
-
-            Insert(true);
-        end;
 
         ProcessPostalAddress;
         RecRef.GetTable(Rec);
@@ -371,8 +353,6 @@ page 2801 "Native - Customer Entity"
         PaymentTermsIdDoesNotMatchAPaymentTermsErr: Label 'The "paymentTermsId" does not match to a Payment Terms.', Locked = true;
         ShipmentMethodIdDoesNotMatchAShipmentMethodErr: Label 'The "shipmentMethodId" does not match to a Shipment Method.', Locked = true;
         PaymentMethodIdDoesNotMatchAPaymentMethodErr: Label 'The "paymentMethodId" does not match to a Payment Method.', Locked = true;
-        CannotFindContactErr: Label 'Cannot find the contact for the given ID.', Locked = true;
-        CustomerCreatedFromGraph: Boolean;
         CannotFindCustomerErr: Label 'Cannot find the customer for the given ID.', Locked = true;
         NotProvidedCustomerNameErr: Label 'A "displayName" must be provided.', Locked = true;
         BlankCustomerNameErr: Label 'The blank "displayName" is not allowed.', Locked = true;
@@ -394,7 +374,6 @@ page 2801 "Native - Customer Entity"
         BalanceVar := "Balance (LCY)";
         SalesVar := "Sales (LCY)";
 
-        SetContactId;
         TaxAreaDisplayName := TaxAreaBuffer.GetTaxAreaDisplayName("Tax Area ID");
     end;
 
@@ -426,31 +405,8 @@ page 2801 "Native - Customer Entity"
         exit(TempFieldSet.Get(DATABASE::Customer, FieldNo));
     end;
 
-    local procedure SetContactId(): Boolean
-    var
-        NewContact: Record Contact;
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        IntegrationRecord: Record "Integration Record";
-        GraphIntContact: Codeunit "Graph Int. - Contact";
-        GraphContactId: Text[250];
-    begin
-        if not GraphIntContact.FindGraphContactIdFromCustomer(GraphContactId, Rec, NewContact) then
-            exit(false);
-
-        IntegrationRecord.SetRange("Record ID", NewContact.RecordId);
-        if not IntegrationRecord.FindFirst then
-            exit;
-
-        if not GraphIntegrationRecord.Get(GraphContactId, IntegrationRecord."Integration ID") then
-            exit(false);
-
-        "Contact Graph Id" := GraphIntegrationRecord."Graph ID";
-        exit(Evaluate("Contact ID", GraphIntegrationRecord.XRMId));
-    end;
-
     local procedure TranslateContactIdFilterToCustomerNoFilter()
     var
-        GraphIntegrationRecord: Record "Graph Integration Record";
         NewContact: Record Contact;
         IntegrationRecord: Record "Integration Record";
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -458,22 +414,15 @@ page 2801 "Native - Customer Entity"
         ContactIDFilter: Text;
     begin
         ContactIDFilter := GetFilter("Contact ID");
-        if ContactIDFilter <> '' then begin
-            SetFilter("Contact ID", '');
-            GraphIntegrationRecord.SetFilter(XRMId, ContactIDFilter);
-            GraphIntegrationRecord.FindFirst;
-        end else begin
+        if ContactIDFilter <> '' then
+            SetFilter("Contact ID", '')
+        else begin
             ContactIDFilter := GetFilter("Contact Graph Id");
             if ContactIDFilter = '' then
                 exit;
 
             SetFilter("Contact Graph Id", '');
-            GraphIntegrationRecord.SetFilter("Graph ID", ContactIDFilter);
-            GraphIntegrationRecord.FindFirst;
         end;
-
-        if not IntegrationRecord.Get(GraphIntegrationRecord."Integration ID") then
-            exit;
 
         if not NewContact.Get(IntegrationRecord."Record ID") then
             exit;
@@ -483,7 +432,7 @@ page 2801 "Native - Customer Entity"
         if MarketingSetup.Get then
             ContactBusinessRelation.SetRange("Business Relation Code", MarketingSetup."Bus. Rel. Code for Customers");
 
-        if ContactBusinessRelation.FindFirst then
+        if ContactBusinessRelation.FindFirst() then
             SetRange("No.", ContactBusinessRelation."No.")
         else
             Error(CannotFindCustomerErr);
@@ -494,19 +443,6 @@ page 2801 "Native - Customer Entity"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         exit(GeneralLedgerSetup.UseVat);
-    end;
-
-    local procedure FindOrCreateCustomer(GraphContactID: Text[250])
-    var
-        Customer: Record Customer;
-        NewContact: Record Contact;
-        GraphIntContact: Codeunit "Graph Int. - Contact";
-    begin
-        if not GraphIntContact.FindOrCreateCustomerFromGraphContactSafe(GraphContactID, Customer, NewContact) then
-            Error(CannotFindContactErr);
-
-        TransferFields(Customer, true);
-        CustomerCreatedFromGraph := true;
     end;
 
     local procedure ProcessPostalAddress()
@@ -547,4 +483,4 @@ page 2801 "Native - Customer Entity"
         Validate("Prices Including VAT", "Contact Type" = "Contact Type"::Person);
     end;
 }
-
+#endif

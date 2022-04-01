@@ -598,12 +598,12 @@ codeunit 137061 "SCM Purchases & Payables"
         Initialize(false);
         CreateItem(Item);
         LibraryInventory.CreateStockKeepingUnit(Item, 0, false, false); // Create per Location
-        Location.FindFirst;
+        Location.FindFirst();
 
         // [GIVEN] Create Drop Shipment Sales-Purchase orders using Location "L".
         CreatePurchasingCode(Purchasing);
         CreateDropShipOrders(Item, SalesHeader, PurchaseHeader, Purchasing, Location.Code);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         ExpectedDirectCost := Item."Last Direct Cost" * 2;
 
@@ -796,7 +796,7 @@ codeunit 137061 "SCM Purchases & Payables"
         ManufacturingSetup.Modify(true);
     end;
 
-    local procedure ModifyInventorySetup(AutomaticCostAdjustment: Option; AverageCostPeriod: Option)
+    local procedure ModifyInventorySetup(AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostPeriod: Option)
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -835,14 +835,14 @@ codeunit 137061 "SCM Purchases & Payables"
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
         RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
         RequisitionLine.Modify(true);
         LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
 
         // Select created Purchase Header.
         PurchaseHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        PurchaseHeader.FindLast;
+        PurchaseHeader.FindLast();
     end;
 
     local procedure GetSalesOrder(var SalesLine: Record "Sales Line"; RetrieveDimensionsFrom: Option)
@@ -852,9 +852,9 @@ codeunit 137061 "SCM Purchases & Payables"
         Commit();
         RequisitionLine.Init();
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         RequisitionWkshName.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom);
@@ -973,7 +973,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // Combine Purchase Receipts and Post Invoice.
         CreatePurchaseInvoiceHeader(PurchaseHeader, Vendor."No.");
         PurchRcptLine.SetRange("Buy-from Vendor No.", Vendor."No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         PurchGetReceipt.SetPurchHeader(PurchaseHeader);
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
@@ -1003,7 +1003,7 @@ codeunit 137061 "SCM Purchases & Payables"
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         ReturnShipmentLine.SetRange("Buy-from Vendor No.", Vendor."No.");
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
 
         PurchGetReturnShipments.SetPurchHeader(PurchaseHeader);
         PurchGetReturnShipments.CreateInvLines(ReturnShipmentLine);
@@ -1055,7 +1055,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // combine the receipts to a credit memo and post it.
         LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
         Clear(CombineReturnReceipts);
-        CombineReturnReceipts.Run;
+        CombineReturnReceipts.Run();
     end;
 
     local procedure CreateAndReleasePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Quantity: Decimal)
@@ -1068,13 +1068,13 @@ codeunit 137061 "SCM Purchases & Payables"
     local procedure FindPurchRcptHeader(var PurchRcptHeader: Record "Purch. Rcpt. Header"; OrderNo: Code[20])
     begin
         PurchRcptHeader.SetRange("Order No.", OrderNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
     end;
 
     local procedure FindSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; OrderNo: Code[20])
     begin
         SalesShipmentHeader.SetRange("Order No.", OrderNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
     end;
 
     local procedure UpdateLeadTimeCalculationOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; var LeadTimeCalculation: DateFormula)
@@ -1091,7 +1091,7 @@ codeunit 137061 "SCM Purchases & Payables"
             SetRange("Document No.", PurchaseHeader."No.");
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1107,17 +1107,17 @@ codeunit 137061 "SCM Purchases & Payables"
             VerifyLineType::Shipment:
                 begin
                     SalesShipmentHeader.SetRange("Order No.", SalesOrderNo);
-                    SalesShipmentHeader.FindFirst;
+                    SalesShipmentHeader.FindFirst();
                     ItemLedgEntry.SetRange("Document No.", SalesShipmentHeader."No.");
                 end;
             VerifyLineType::Invoice:
                 begin
                     SalesInvoiceHeader.SetRange("Order No.", SalesOrderNo);
-                    SalesInvoiceHeader.FindFirst;
+                    SalesInvoiceHeader.FindFirst();
                     ItemLedgEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
                 end;
         end;
-        ItemLedgEntry.FindFirst;
+        ItemLedgEntry.FindFirst();
         ItemLedgEntry.CalcFields("Sales Amount (Expected)", "Cost Amount (Expected)", "Sales Amount (Actual)", "Cost Amount (Actual)");
         Assert.AreEqual(SalesExpectedAmount, ItemLedgEntry."Sales Amount (Expected)", SalesAmountExpectedError);
         Assert.AreEqual(SalesActualAmount, ItemLedgEntry."Sales Amount (Actual)", SalesAmountActualError);
@@ -1137,17 +1137,17 @@ codeunit 137061 "SCM Purchases & Payables"
             VerifyLineType::Receipt:
                 begin
                     PurchRcptHeader.SetRange("Order No.", PurchOrderNo);
-                    PurchRcptHeader.FindFirst;
+                    PurchRcptHeader.FindFirst();
                     ItemLedgEntry.SetRange("Document No.", PurchRcptHeader."No.");
                 end;
             VerifyLineType::Invoice:
                 begin
                     PurchInvHeader.SetRange("Order No.", PurchOrderNo);
-                    PurchInvHeader.FindFirst;
+                    PurchInvHeader.FindFirst();
                     ItemLedgEntry.SetRange("Document No.", PurchInvHeader."No.");
                 end;
         end;
-        ItemLedgEntry.FindFirst;
+        ItemLedgEntry.FindFirst();
         ItemLedgEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
         Assert.AreEqual(CostExpectedAmount, ItemLedgEntry."Cost Amount (Expected)", CostAmountExpectedError);
         Assert.AreEqual(CostActualAmount, ItemLedgEntry."Cost Amount (Actual)", CostAmountActualError);
@@ -1160,7 +1160,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         ManufacturingSetup.Get();
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Expected Receipt Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
         PurchaseLine.TestField("Promised Receipt Date", WorkDate);
     end;
@@ -1173,7 +1173,7 @@ codeunit 137061 "SCM Purchases & Payables"
         GeneralLedgerSetup.Get();
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("External Document No.", ExternalDocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         ItemLedgerEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
         Assert.AreNearlyEqual(
@@ -1190,7 +1190,7 @@ codeunit 137061 "SCM Purchases & Payables"
             SetRange("Document No.", DocumentNo);
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", EntryType);
-            FindFirst;
+            FindFirst();
             TestField("Cost Amount (Actual)", CostAmt);
         end;
     end;

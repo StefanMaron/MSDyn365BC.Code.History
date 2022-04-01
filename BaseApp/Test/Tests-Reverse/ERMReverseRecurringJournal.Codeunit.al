@@ -29,7 +29,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse Recurring Journal");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -119,7 +119,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // 1. Setup: Create Recurring Journal, Allocation Line and Post it with Random Amount.
-        Initialize;
+        Initialize();
         CreateRecurringGenJournalBatch(GenJournalBatch);
         CreateRecurringJournalLine(
           GenJournalLine, GenJournalBatch, RecurringMethod, DocumentType,
@@ -171,7 +171,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // Setup: Create General Journal, Recurring Journal with Amount 0, Define Allocation and Post it.
-        Initialize;
+        Initialize();
         CreateRecurringGenJournalBatch(GenJournalBatch);
 
         CreateAndPostGenJournalLine(GenJournalLine);
@@ -223,7 +223,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // 1. Setup: Create General Journal, Recurring Journal with Amount 0, Define Allocation and Post it.
-        Initialize;
+        Initialize();
         CreateRecurringGenJournalBatch(GenJournalBatch);
 
         CreateAndPostGenJournalLine(GenJournalLine);
@@ -257,8 +257,8 @@ codeunit 134146 "ERM Reverse Recurring Journal"
 
         // 1. Setup: Create Customer,create and post General Journal Line, create Recurring Journal with Applies to Document No.
         LibrarySales.CreateCustomer(Customer);
-        GLAccountNo[1] := LibraryERM.CreateGLAccountNo;
-        GLAccountNo[2] := LibraryERM.CreateGLAccountNo;
+        GLAccountNo[1] := LibraryERM.CreateGLAccountNo();
+        GLAccountNo[2] := LibraryERM.CreateGLAccountNo();
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.",
           LibraryRandom.RandInt(1000));  // Using Random Number Generator for Amount, Integer value for Allocation.
@@ -293,8 +293,8 @@ codeunit 134146 "ERM Reverse Recurring Journal"
 
         // 1. Setup: Create Vendor,Create and post General Journal Line, create Recurring Journal with Applies to Document No.
         LibraryPurchase.CreateVendor(Vendor);
-        GLAccountNo[1] := LibraryERM.CreateGLAccountNo;
-        GLAccountNo[2] := LibraryERM.CreateGLAccountNo;
+        GLAccountNo[1] := LibraryERM.CreateGLAccountNo();
+        GLAccountNo[2] := LibraryERM.CreateGLAccountNo();
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, Vendor."No.",
           -LibraryRandom.RandInt(1000));  // Using Random Number Generator for Amount, Integer value for Allocation.
@@ -333,8 +333,8 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
 
         // [GIVEN] Four recurring Gen. Journal lines with Reversing Variable method and created with Document No. in order TEST1, TEST2, TEST1, TEST2.
-        DocumentNo[1] := LibraryUtility.GenerateGUID;
-        DocumentNo[2] := LibraryUtility.GenerateGUID;
+        DocumentNo[1] := LibraryUtility.GenerateGUID();
+        DocumentNo[2] := LibraryUtility.GenerateGUID();
         Amount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
         Amount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
         GetPostedDocumentNos(PostedDocumentNo, GenJournalBatch."Posting No. Series");
@@ -489,7 +489,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GLRegister: Record "G/L Register";
         ReversalEntry: Record "Reversal Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
     end;
@@ -526,7 +526,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Reversed, true);
     end;
 
@@ -544,7 +544,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         for i := 1 to ArrayLen(Amount) do begin
             GLEntry.SetRange("Document No.", PostedDocumentNo[i]);
             Assert.RecordCount(GLEntry, 2);
-            GLEntry.FindFirst;
+            GLEntry.FindFirst();
             GLAmount := GLEntry.Amount;
             Assert.AreEqual(Amount[i], Abs(GLAmount), '');
             GLEntry.Next;
@@ -556,7 +556,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         for i := 1 to ArrayLen(Amount) do begin
             GLEntry.SetRange("Document No.", PostedDocumentNo[i + 2]);
             Assert.RecordCount(GLEntry, 2);
-            GLEntry.FindFirst;
+            GLEntry.FindFirst();
             GLAmount := GLEntry.Amount;
             Assert.AreEqual(Amount[i], Abs(GLAmount), '');
             GLEntry.Next;
@@ -578,7 +578,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
     begin
         GeneralLedgerSetup.Get();
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Appln. Rounding Precision",
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount));
@@ -589,7 +589,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.TestField("Remaining Amount", 0);
     end;
@@ -599,7 +599,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Remaining Amount");
         VendorLedgerEntry.TestField("Remaining Amount", 0);
     end;

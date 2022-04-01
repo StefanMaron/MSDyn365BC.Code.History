@@ -217,7 +217,7 @@ codeunit 5819 "Undo Service Consumption Line"
                 SignFactor := 1;
                 TempTrkgItemLedgEntry2.DeleteAll();
                 TempTrkgItemLedgEntry.Reset();
-                if TempTrkgItemLedgEntry.FindFirst then
+                if TempTrkgItemLedgEntry.FindFirst() then
                     repeat
                         TempTrkgItemLedgEntry2 := TempTrkgItemLedgEntry;
                         TempTrkgItemLedgEntry2.Insert();
@@ -312,7 +312,7 @@ codeunit 5819 "Undo Service Consumption Line"
     begin
         with TempTrkgItemLedgEntry2 do begin
             SignFactor := -SignFactor;
-            if FindSet then
+            if FindSet() then
                 repeat
                     ReservEntry.Init();
                     ReservEntry."Item No." := "Item No.";
@@ -359,11 +359,11 @@ codeunit 5819 "Undo Service Consumption Line"
     begin
         // replace in tracking specification old item entry relation for a new one, and adjust qtys
         TempTrkgItemLedgEntry.Reset();
-        if TempTrkgItemLedgEntry.FindFirst then begin
+        if TempTrkgItemLedgEntry.FindFirst() then begin
             TempSSLItemLedgEntry.Reset();
             TempSSLItemLedgEntry.DeleteAll();
             CollectItemLedgerEntries(CurrentServShptLine, TempSSLItemLedgEntry);
-            if TempSSLItemLedgEntry.FindFirst then
+            if TempSSLItemLedgEntry.FindFirst() then
                 repeat
                     InsertOneNewTrackSpec(TempTrkgItemLedgEntry."Entry No.", TempSSLItemLedgEntry."Entry No.", Balancing);
 
@@ -387,10 +387,10 @@ codeunit 5819 "Undo Service Consumption Line"
         with TrackingSpecification do begin
             Reset;
             SetRange("Item Ledger Entry No.", OldItemShptEntryNo);
-            if FindFirst then begin
+            if FindFirst() then begin
                 NewTrackingSpecification.LockTable();
                 NewTrackingSpecification.Reset();
-                if NewTrackingSpecification.FindLast then
+                if NewTrackingSpecification.FindLast() then
                     NewEntryNo := NewTrackingSpecification."Entry No." + 1
                 else
                     NewEntryNo := 1;

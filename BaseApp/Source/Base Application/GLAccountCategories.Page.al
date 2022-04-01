@@ -248,6 +248,15 @@ page 790 "G/L Account Categories"
         GLAccTotaling: Code[250];
         PageEditable: Boolean;
 
+    procedure GetSelectionFilter(): Text
+    var
+        GLAccountCategory: Record "G/L Account Category";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+    begin
+        CurrPage.SetSelectionFilter(GLAccountCategory);
+        exit(SelectionFilterManagement.GetSelectionFilterForGLAccountCategory(GLAccountCategory));
+    end;
+
     local procedure SetRow(EntryNo: Integer)
     begin
         if EntryNo = 0 then

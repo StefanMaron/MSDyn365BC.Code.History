@@ -358,7 +358,7 @@ page 5742 "Transfer Orders"
                         BinContent.SetRange("Location Code", "Transfer-from Code");
                         GetBinContent.SetTableView(BinContent);
                         GetBinContent.InitializeTransferHeader(Rec);
-                        GetBinContent.RunModal;
+                        GetBinContent.RunModal();
                     end;
                 }
             }

@@ -1,4 +1,4 @@
-﻿codeunit 5703 "Catalog Item Management"
+codeunit 5703 "Catalog Item Management"
 {
 
     trigger OnRun()
@@ -95,62 +95,19 @@
         ItemVend.Insert(true);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by NonstockItemReference().', '17.0')]
-    local procedure NonstockItemCrossRef(var NonStock2: Record "Nonstock Item")
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeNonstockItemCrossRef(NonStock2, IsHandled);
-        if not IsHandled then begin
-            ItemCrossReference.SetRange("Item No.", NonStock2."Item No.");
-            ItemCrossReference.SetRange("Unit of Measure", NonStock2."Unit of Measure");
-            ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
-            ItemCrossReference.SetRange("Cross-Reference Type No.", NonStock2."Vendor No.");
-            ItemCrossReference.SetRange("Cross-Reference No.", NonStock2."Vendor Item No.");
-            OnAfterItemCrossReferenceFilter(ItemCrossReference, NonStock2);
-            if not ItemCrossReference.FindFirst() then begin
-                ItemCrossReference.Init();
-                ItemCrossReference.Validate("Item No.", NonStock2."Item No.");
-                ItemCrossReference.Validate("Unit of Measure", NonStock2."Unit of Measure");
-                ItemCrossReference.Validate("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
-                ItemCrossReference.Validate("Cross-Reference Type No.", NonStock2."Vendor No.");
-                ItemCrossReference.Validate("Cross-Reference No.", NonStock2."Vendor Item No.");
-                ItemCrossReference.Insert();
-                OnAfterItemCrossReferenceInsert(ItemCrossReference, NonStock2);
-            end;
-        end;
-        if NonStock2."Bar Code" <> '' then begin
-            ItemCrossReference.Reset();
-            ItemCrossReference.SetRange("Item No.", NonStock2."Item No.");
-            ItemCrossReference.SetRange("Unit of Measure", NonStock2."Unit of Measure");
-            ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::"Bar Code");
-            ItemCrossReference.SetRange("Cross-Reference No.", NonStock2."Bar Code");
-            OnAfterItemCrossReferenceFilter(ItemCrossReference, NonStock2);
-            if not ItemCrossReference.FindFirst() then begin
-                ItemCrossReference.Init();
-                ItemCrossReference.Validate("Item No.", NonStock2."Item No.");
-                ItemCrossReference.Validate("Unit of Measure", NonStock2."Unit of Measure");
-                ItemCrossReference.Validate("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::"Bar Code");
-                ItemCrossReference.Validate("Cross-Reference No.", NonStock2."Bar Code");
-                ItemCrossReference.Insert();
-                OnAfterItemCrossReferenceInsert(ItemCrossReference, NonStock2);
-            end;
-        end;
-
-        OnAfterNonstockItemCrossRef(NonStock2);
-    end;
-#endif
-
     procedure NonstockItemReference(var NonStock2: Record "Nonstock Item")
     var
         ItemReference: Record "Item Reference";
         IsHandled: Boolean;
     begin
+#if not CLEAN20
         IsHandled := false;
         OnBeforeNonstockItemCrossRef(NonStock2, IsHandled);
+        if IsHandled then
+            exit;
+#endif
+        IsHandled := false;
+        OnBeforeNonstockItemReference(NonStock2, IsHandled);
         if IsHandled then
             exit;
 
@@ -605,22 +562,6 @@
     begin
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by OnNonstockItemReferenceOnAfterSetVendorItemNoFilters().', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterItemCrossReferenceFilter(var ItemCrossReference: Record "Item Cross Reference"; NonstockItem: Record "Nonstock Item")
-    begin
-    end;
-#endif
-
-#if not CLEAN17
-    [Obsolete('Replaced by OnAfterItemReferenceInsert().', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterItemCrossReferenceInsert(var ItemCrossReference: Record "Item Cross Reference"; NonstockItem: Record "Nonstock Item")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
     begin
@@ -704,8 +645,16 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by event OnBeforeNonstockItemReference', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNonstockItemCrossRef(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNonstockItemReference(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
     begin
     end;
 

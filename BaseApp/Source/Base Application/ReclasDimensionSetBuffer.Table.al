@@ -114,7 +114,7 @@ table 482 "Reclas. Dimension Set Buffer"
             ReclasDimSetBuf.SetFilter("New Dimension Value Code", '<>%1', '')
         else
             ReclasDimSetBuf.SetFilter("Dimension Value Code", '<>%1', '');
-        if not ReclasDimSetBuf.FindSet then
+        if not ReclasDimSetBuf.FindSet() then
             exit(0);
         repeat
             TempDimSetEntry."Dimension Set ID" := 0;

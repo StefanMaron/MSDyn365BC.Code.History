@@ -85,7 +85,7 @@ codeunit 6502 "Late Binding Management"
     begin
         TempTrackingSpecification.Reset();
         TempTrackingSpecification.SetFilter("Buffer Value4", '< %1', 0);
-        if TempTrackingSpecification.FindSet then
+        if TempTrackingSpecification.FindSet() then
             repeat
                 TempTrackingSpecification2 := TempTrackingSpecification;
                 TempTrackingSpecification2.Insert();
@@ -93,11 +93,11 @@ codeunit 6502 "Late Binding Management"
         TempTrackingSpecification.Reset();
 
         TempCurrSupplyReservEntry.Reset();
-        if TempTrackingSpecification2.FindSet then
+        if TempTrackingSpecification2.FindSet() then
             repeat
                 TempCurrSupplyReservEntry.SetTrackingFilterFromSpec(TempTrackingSpecification2);
                 QtyToReallocate := Abs(TempTrackingSpecification2."Buffer Value4");
-                if TempCurrSupplyReservEntry.FindSet then
+                if TempCurrSupplyReservEntry.FindSet() then
                     repeat
                         QtyToReallocate := ReshuffleReservEntry(TempCurrSupplyReservEntry, QtyToReallocate, TempTrackingSpecification);
                     until (TempCurrSupplyReservEntry.Next() = 0) or (QtyToReallocate = 0);
@@ -123,7 +123,7 @@ codeunit 6502 "Late Binding Management"
         ItemLedgEntry.SetRange(Open, true);
         OnPrepareTempDataSetOnAfterItemLedgEntrySetFilters(ItemLedgEntry, TempTrackingSpecification);
 
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 TempTrackingSpecification.SetTrackingFilterFromItemLedgEntry(ItemLedgEntry);
                 if TempTrackingSpecification.IsEmpty() then begin
@@ -192,10 +192,10 @@ codeunit 6502 "Late Binding Management"
         xQtyToReshuffleThisLine := QtyToReshuffleThisLine;
 
         TempSupplyReservEntry.SetRange("Reservation Status", TempSupplyReservEntry."Reservation Status"::Surplus);
-        if TempSupplyReservEntry.FindSet then
+        if TempSupplyReservEntry.FindSet() then
             repeat
                 TempTrackingSpecification.SetTrackingFilterFromReservEntry(TempSupplyReservEntry);
-                if TempTrackingSpecification.FindFirst then begin
+                if TempTrackingSpecification.FindFirst() then begin
                     if TempTrackingSpecification."Buffer Value4" > 0 then begin
                         if TempTrackingSpecification."Buffer Value4" < QtyToReshuffleThisLine then begin
                             AdjustmentQty := QtyToReshuffleThisLine - TempTrackingSpecification."Buffer Value4";
@@ -309,20 +309,20 @@ codeunit 6502 "Late Binding Management"
         TempReservEntryModify.Reset();
         TempReservEntryInsert.Reset();
 
-        if TempReservEntryDelete.FindSet then
+        if TempReservEntryDelete.FindSet() then
             repeat
                 ReservEntry := TempReservEntryDelete;
                 ReservEntry.Delete();
             until TempReservEntryDelete.Next() = 0;
 
-        if TempReservEntryModify.FindSet then
+        if TempReservEntryModify.FindSet() then
             repeat
                 ReservEntry := TempReservEntryModify;
                 ReservEntry.Validate("Quantity (Base)");
                 ReservEntry.Modify();
             until TempReservEntryModify.Next() = 0;
 
-        if TempReservEntryInsert.FindSet then
+        if TempReservEntryInsert.FindSet() then
             repeat
                 ReservEntry := TempReservEntryInsert;
                 if ReservEntry."Entry No." < 0 then
@@ -365,10 +365,10 @@ codeunit 6502 "Late Binding Management"
         ItemLedgEntry.SetRange(Positive, true);
         ItemLedgEntry.SetRange(Open, true);
 
-        if TempTrackingSpecification.FindSet then
+        if TempTrackingSpecification.FindSet() then
             repeat
                 ItemLedgEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
-                if ItemLedgEntry.FindSet then
+                if ItemLedgEntry.FindSet() then
                     repeat
                         TempTrackingSpecification."Buffer Value2" += ItemLedgEntry."Remaining Quantity";
                         ItemLedgEntry.CalcFields("Reserved Quantity");
@@ -435,7 +435,7 @@ codeunit 6502 "Late Binding Management"
         // The quantity temporary records representing Item Ledger Entries are adjusted according to the
         // reservation entries actually existing in the database pointing at those entries. Otherwise these
         // would be counted twice.
-        if TempTrackingSpecification.FindSet then
+        if TempTrackingSpecification.FindSet() then
             repeat
                 ReservEntry.SetTrackingFilterFromTrackingSpecIfNotBlank(TempTrackingSpecification);
                 if ReservEntry.FindSet() then
@@ -530,18 +530,6 @@ codeunit 6502 "Late Binding Management"
             until ReservEntry.Next() = 0;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by ReleaseForReservation(ItemNo, VariantCode, LocationCode, ItemTrackingSetup, QtyToRelease)', '17.0')]
-    procedure ReleaseForReservation(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; SerialNo: Code[50]; LotNo: Code[50]; QtyToRelease: Decimal) AllocationsChanged: Boolean
-    var
-        ItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        ItemTrackingSetup."Serial No." := SerialNo;
-        ItemTrackingSetup."Lot No." := LotNo;
-        exit(ReleaseForReservation(ItemNo, VariantCode, LocationCode, ItemTrackingSetup, QtyToRelease));
-    end;
-#endif
-
     procedure ReleaseForReservation(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"; QtyToRelease: Decimal) AllocationsChanged: Boolean
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
@@ -572,7 +560,7 @@ codeunit 6502 "Late Binding Management"
         // Used when doing item tracking specific reservations on reservation form.
         // "Buffer Value4" : Qty for reallocation (negative = need for reallocation)
 
-        if CalcItemLedgEntry.FindSet then
+        if CalcItemLedgEntry.FindSet() then
             repeat
                 CalcItemLedgEntry.CalcFields("Reserved Quantity");
                 AvailableToReserve +=
@@ -618,7 +606,7 @@ codeunit 6502 "Late Binding Management"
         ReservEntry.SetPointerFilter;
         ReservEntry.SetTrackingFilterFromReservEntry(ReservEntry);
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
                 UnreservedQty -= Abs(ReservEntry."Quantity (Base)");
             until ReservEntry.Next() = 0;

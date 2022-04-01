@@ -72,7 +72,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Whse.-Asm. To Stock");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibraryPatterns.SETNoSeries;
         Initialized := true;
@@ -108,13 +108,13 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         if DirectedPutPick then begin // create a zone and set bin type code
             BinTypePick.SetRange(Pick, true);
             BinTypePick.SetRange("Put Away", false);
-            BinTypePick.FindFirst;
+            BinTypePick.FindFirst();
             LibraryWarehouse.CreateZone(Zone, 'ZONE', Location.Code, BinTypePick.Code, '', '', 0, false);
             BinTypePutaway.SetRange("Put Away", true);
             BinTypePutaway.SetRange(Pick, false);
-            BinTypePutaway.FindFirst;
+            BinTypePutaway.FindFirst();
             BinTypeReceive.SetRange(Receive, true);
-            BinTypeReceive.FindFirst;
+            BinTypeReceive.FindFirst();
             LibraryWarehouse.CreateBin(Bin, Location.Code, 'BINX', Zone.Code, BinTypePick.Code);
             Location.Validate("Adjustment Bin Code", 'BINX');
             Location.Modify(true);
@@ -154,15 +154,15 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
 
         if Location."Directed Put-away and Pick" then begin
             WarehouseJournalTemplate.SetRange(Type, WarehouseJournalTemplate.Type::Item);
-            WarehouseJournalTemplate.FindFirst;
+            WarehouseJournalTemplate.FindFirst();
             WarehouseJournalBatch.SetRange("Journal Template Name", WarehouseJournalTemplate.Name);
-            WarehouseJournalBatch.FindFirst;
+            WarehouseJournalBatch.FindFirst();
             LibraryWarehouse.CreateWhseJournalLine(
               WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name,
               Location.Code, '', BinCode, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
@@ -198,7 +198,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     var
         BinType: Record "Bin Type";
     begin
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Commit(); // committing as subsequent errors might roll back item creation
 
@@ -299,7 +299,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     var
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         // BIN CODE IS DEFAULTED TO WHEN CHANGES ARE MADE TO ITEM, VARIANT OR LOCATION
         MockItem(Item, ItemVariant);
         MockLocation(Location, true, false, false, false);
@@ -367,7 +367,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // IN CASE OF WMS LOCATIONS, IF A BIN CONTENT EXISTS, WAREHOUSE CLASS CODE IS CHECKED
         MockLocation(Location, false, false, false, true);
         MockItem(Item, ItemVariant);
-        WarehouseClass.FindFirst;
+        WarehouseClass.FindFirst();
         Item.Validate("Warehouse Class Code", WarehouseClass.Code);
         Item.Modify(true);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate2, Item."No.", '', 1, '');
@@ -404,7 +404,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         ParentItem: Record Item;
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         // IF TYPE IS CHANGED TO RESOURCE, BIN CODE IS EMPTIED AND BIN CODE IS EMPTY WHEN RESOURCE IS CHANGED
         MockLocation(Location, true, false, false, false);
         MockItem(Item, ItemVariant);
@@ -483,7 +483,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // IN CASE OF WMS LOCATIONS, IF A BIN CONTENT EXISTS, WAREHOUSE CLASS CODE IS CHECKED
         MockLocation(Location, false, false, false, true);
         LibraryInventory.CreateItem(Item);
-        WarehouseClass.FindFirst;
+        WarehouseClass.FindFirst();
         Item.Validate("Warehouse Class Code", WarehouseClass.Code);
         Item.Modify(true);
         LibraryInventory.CreateItem(ParentItem);
@@ -508,7 +508,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     [Scope('OnPrem')]
     procedure UT5121()
     begin
-        Initialize;
+        Initialize();
         // POSTING ASSEMBLY RELEASES IT BEFORE PROCEEDING
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 2);
         MockLocation(Location, false, false, false, false);
@@ -527,7 +527,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        Initialize;
+        Initialize();
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
 
         // RELEASE OF ASSEMBLY RAISES ERROR IN CASE THERE ARE NO LINES WITH ITEMS WITH NON-ZERO QTY
@@ -574,7 +574,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         CompItem2: Record Item;
         AsmItem2: Record Item;
     begin
-        Initialize;
+        Initialize();
         // ASSEMBLY ORDER CAN ONLY BE MODIFIED WHEN STATUS IS OPEN
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         LibraryInventory.CreateItem(CompItem2);
@@ -618,7 +618,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     [Scope('OnPrem')]
     procedure UT5124()
     begin
-        Initialize;
+        Initialize();
         // ASSEMBLY LINE CANNOT BE INSERTED IF STATUS NOT EQUAL Open
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         LibraryAssembly.ReleaseAO(AsmHeader);
@@ -660,7 +660,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         WhseRequest: Record "Warehouse Request";
         WhsePickRequest: Record "Whse. Pick Request";
     begin
-        Initialize;
+        Initialize();
         // RELEASE SHOULD CREATE A Warehouse Request FOR EVERY UNIQUE LOCATION CODE ON ASSEMBLY LINE
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
@@ -768,7 +768,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // delete 2nd line
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
-        AsmLine.FindLast;
+        AsmLine.FindLast();
         AsmLine.Delete(true);
         // verify that warehouse request stays
         Assert.AreEqual(true,
@@ -778,7 +778,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // delete 1st line as well.
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
-        AsmLine.FindFirst;
+        AsmLine.FindFirst();
         AsmLine.Delete(true);
         // verify that warehouse request is deleted.
         Assert.AreEqual(false,
@@ -795,7 +795,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         WhseActivityLine: Record "Warehouse Activity Line";
         CountOfWhseActivityLines: Integer;
     begin
-        Initialize;
+        Initialize();
         // CREATING INVENTORY PICK FOR ASSEMBLY COMPONENTS LEADS TO MESSAGE "Nothing to Handle"
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         MockLocation(Location, true, true, false, false); // Require Pick location
@@ -843,7 +843,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         WhseActivityLine: Record "Warehouse Activity Line";
         CountOfWhseActivityLines: Integer;
     begin
-        Initialize;
+        Initialize();
         // CREATING INVENTORY MOVEMENT MAKES AN INVENTORY MOVEMENT
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         MockLocation(Location, true, true, false, false); // Require Pick location
@@ -870,7 +870,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         WhseActivityLine: Record "Warehouse Activity Line";
         CountOfWhseActivityLines: Integer;
     begin
-        Initialize;
+        Initialize();
         // CREATING INVENTORY MOVEMENT FOR WMS LOCATIONS NOT ALLOWED
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         MockLocation(Location, false, false, false, true); // WMS location
@@ -898,7 +898,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         WhseActivityLine: Record "Warehouse Activity Line";
         CountOfWhseActivityLines: Integer;
     begin
-        Initialize;
+        Initialize();
         // CREATE PICK CREATES A WAREHOUSE PICK
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         MockLocation(Location, true, true, true, false); // Require Shipment & Pick location
@@ -950,7 +950,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        Initialize;
+        Initialize();
         // CREATING INVENTORY PICK FROM THE INVENTORY PICK PAGE DOES NOT CREATE INVENTORY PICK
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         MockLocation(Location, true, true, false, false); // Require Pick location
@@ -1035,7 +1035,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         WarehouseRequest.SetRange("Source Type", DATABASE::"Assembly Line");
         WarehouseRequest.SetRange("Source Subtype", AsmHeader."Document Type");
         WarehouseRequest.SetRange("Source No.", AsmHeader."No.");
-        WarehouseRequest.FindFirst;
+        WarehouseRequest.FindFirst();
 
         SourceDocuments.First;
         if (SourceDocuments."Source Document".AsInteger() <> WarehouseRequest."Source Document".AsInteger()) or
@@ -1066,7 +1066,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     [Scope('OnPrem')]
     procedure VSTF278221()
     begin
-        Initialize;
+        Initialize();
         // create inventory pick location
         MockLocation(Location, true, true, false, false); // Require Pick location
         Location.Validate("To-Assembly Bin Code", Bin1);
@@ -1106,13 +1106,13 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         TrySourceType: Option ,,,Assembly;
     begin
         // See VSTF 329733 for details
-        Initialize;
+        Initialize();
 
         // SETUP : Make location with To and From Asm bins and make a req line for asm order
         ParentItem."No." := LibraryUtility.GenerateRandomCode(ParentItem.FieldNo("No."), DATABASE::Item);
         ParentItem.Insert();
         CompItem."No." := LibraryUtility.GenerateRandomCode(CompItem.FieldNo("No."), DATABASE::Item);
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
         CompItem."Inventory Posting Group" := InventoryPostingGroup.Code;
         CompItem.Insert();
         DefaultBinCodeToBeFilledSetupBOMLine(BomComp, ParentItem."No.", "BOM Component Type"::Item, CompItem."No.");
@@ -1126,11 +1126,11 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // VERIFY : in the asm header and lines created, the bin codes are the ones from location card.
         AsmHeader.SetRange("Document Type", AsmHeader."Document Type"::Order);
         AsmHeader.SetRange("Item No.", ParentItem."No.");
-        AsmHeader.FindLast;
+        AsmHeader.FindLast();
         Assert.AreEqual(FromAsmBin.Code, AsmHeader."Bin Code", 'Bin Code on header matches From Asm bin');
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
-        AsmLine.FindLast;
+        AsmLine.FindLast();
         Assert.AreEqual(ToAsmBin.Code, AsmLine."Bin Code", 'Bin Code on line matches To Asm bin');
     end;
 
@@ -1153,11 +1153,11 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         ParentItem."No." := LibraryUtility.GenerateRandomCode(ParentItem.FieldNo("No."), DATABASE::Item);
         ParentItem.Insert();
         CompItem."No." := LibraryUtility.GenerateRandomCode(CompItem.FieldNo("No."), DATABASE::Item);
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
         CompItem."Inventory Posting Group" := InventoryPostingGroup.Code;
         CompItem.Insert();
         CompResource."No." := LibraryUtility.GenerateRandomCode(CompResource.FieldNo("No."), DATABASE::Resource);
-        GenProdPostingGroup.FindFirst;
+        GenProdPostingGroup.FindFirst();
         CompResource."Gen. Prod. Posting Group" := GenProdPostingGroup.Code;
         CompResource.Insert();
         DefaultBinCodeToBeFilledSetupBOMLine(BomComp, ParentItem."No.", "BOM Component Type"::Item, CompItem."No.");
@@ -1184,10 +1184,10 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
         AsmLine.SetRange(Type, AsmLine.Type::Item);
-        AsmLine.FindLast;
+        AsmLine.FindLast();
         Assert.AreEqual(ToAsmBin.Code, AsmLine."Bin Code", 'Bin Code on line matches To Asm bin');
         AsmLine.SetRange(Type, AsmLine.Type::Resource);
-        AsmLine.FindLast;
+        AsmLine.FindLast();
         Assert.AreEqual('', AsmLine."Bin Code", 'Bin Code on resource line matches blank');
     end;
 
@@ -1207,13 +1207,13 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         CarryOutAction: Codeunit "Carry Out Action";
         TrySourceType: Option ,,,Assembly;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP : Make location with To and From Asm bins and make a req line for asm order
         ParentItem."No." := LibraryUtility.GenerateRandomCode(ParentItem.FieldNo("No."), DATABASE::Item);
         ParentItem.Insert();
         CompResource."No." := LibraryUtility.GenerateRandomCode(CompResource.FieldNo("No."), DATABASE::Resource);
-        GenProdPostingGroup.FindFirst;
+        GenProdPostingGroup.FindFirst();
         CompResource."Gen. Prod. Posting Group" := GenProdPostingGroup.Code;
         CompResource.Insert();
         DefaultBinCodeToBeFilledSetupBOMLine(BomComp, ParentItem."No.", BomComp.Type::Resource, CompResource."No.");
@@ -1227,12 +1227,12 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // VERIFY : in the asm header created, the bin code is the one from location card.
         AsmHeader.SetRange("Document Type", AsmHeader."Document Type"::Order);
         AsmHeader.SetRange("Item No.", ParentItem."No.");
-        AsmHeader.FindLast;
+        AsmHeader.FindLast();
         Assert.AreEqual(FromAsmBin.Code, AsmHeader."Bin Code", 'Bin Code on header matches From Asm bin');
         // VERIFY : in the asm line created, the bin code is blank as this is a resource line
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
-        AsmLine.FindLast;
+        AsmLine.FindLast();
         Assert.AreEqual('', AsmLine."Bin Code", 'Bin Code on resource line matches blank');
     end;
 

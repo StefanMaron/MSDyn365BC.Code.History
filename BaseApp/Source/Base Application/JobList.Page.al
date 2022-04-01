@@ -177,7 +177,7 @@ page 89 "Job List"
                         begin
                             CurrPage.SetSelectionFilter(Job);
                             DefaultDimensionsMultiple.SetMultiRecord(Job, FieldNo("No."));
-                            DefaultDimensionsMultiple.RunModal;
+                            DefaultDimensionsMultiple.RunModal();
                         end;
                     }
                 }
@@ -208,7 +208,7 @@ page 89 "Job List"
                         JobInvoices: Page "Job Invoices";
                     begin
                         JobInvoices.SetPrJob(Rec);
-                        JobInvoices.RunModal;
+                        JobInvoices.RunModal();
                     end;
                 }
                 action("Co&mments")
@@ -543,7 +543,7 @@ page 89 "Job List"
                         CopyJob: Page "Copy Job";
                     begin
                         CopyJob.SetFromJob(Rec);
-                        CopyJob.RunModal;
+                        CopyJob.RunModal();
                     end;
                 }
                 action("Create Job &Sales Invoice")

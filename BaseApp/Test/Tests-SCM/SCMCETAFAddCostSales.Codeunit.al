@@ -26,7 +26,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM CETAF Add. Cost Sales");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
@@ -34,12 +34,12 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Add. Cost Sales");
 
         LibraryPatterns.SETNoSeries;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         isInitialized := true;
         Commit();
 
@@ -174,7 +174,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         Qty: Decimal;
         QtyPer: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup. Ship 2 orders.
         Day1 := WorkDate;
@@ -329,7 +329,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         Day1: Date;
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         SetAverageCostCalcTypeItem;
 
@@ -504,7 +504,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         Day1: Date;
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         SetAverageCostCalcTypeItem;
 
@@ -538,7 +538,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
                 begin
                     PurchInvLine.SetRange(Type, PurchaseLine.Type);
                     PurchInvLine.SetRange("No.", Item."No.");
-                    PurchInvLine.FindFirst;
+                    PurchInvLine.FindFirst();
 
                     LibraryPatterns.ASSIGNPurchChargeToPurchInvoiceLine(PurchaseHeader, PurchInvLine, Qty,
                       LibraryRandom.RandDec(100, 2));
@@ -546,7 +546,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
             PurchaseHeader."Document Type"::Order:
                 begin
                     PurchRcptLine.SetRange("Order No.", PurchaseHeader1."No.");
-                    PurchRcptLine.FindFirst;
+                    PurchRcptLine.FindFirst();
 
                     LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(PurchaseHeader, PurchRcptLine, Qty,
                       LibraryRandom.RandDec(100, 2));
@@ -575,7 +575,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
           CalculatePer::Item, false, false, true, CalculationBase::" ");
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Inventory Value (Revalued)",
           ItemJournalLine."Inventory Value (Calculated)" + LibraryRandom.RandDec(100, 2));
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);

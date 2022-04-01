@@ -40,7 +40,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CompanyConsolidationWizard: TestPage "Company Consolidation Wizard";
     begin
         // [GIVEN] Create a New company used for Business Unit
-        Initialize;
+        Initialize();
         NewCompanyName := CreateCompany;
 
         // [WHEN] New consolidated company and 1 business unit is created
@@ -65,7 +65,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CompanyConsolidationWizard: TestPage "Company Consolidation Wizard";
     begin
         // [GIVEN] Create a New company used for Business Unit
-        Initialize;
+        Initialize();
         NewCompanyName := CreateCompany;
         ConsolidatedCompanyName := CreateCompany;
         PopulateConsolidationAccounts;
@@ -91,7 +91,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CompanyConsolidationWizard: TestPage "Company Consolidation Wizard";
     begin
         // [GIVEN] Create a New company used for Business Unit
-        Initialize;
+        Initialize();
         NewCompanyName := CreateCompany;
         ConsolidatedCompanyName := CreateCompany;
         PopulateConsolidationAccounts;
@@ -108,7 +108,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CompanyConsolidationWizard: TestPage "Company Consolidation Wizard";
     begin
         // [GIVEN] An openend company creation wizard on the Basic information page
-        Initialize;
+        Initialize();
         CompanyConsolidationWizard.Trap;
         PAGE.Run(PAGE::"Company Consolidation Wizard");
         CompanyConsolidationWizard.ActionNext.Invoke; // Welcome
@@ -130,7 +130,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CompanyConsolidationWizard: TestPage "Company Consolidation Wizard";
     begin
         // [GIVEN] Create a New company used for Business Unit
-        Initialize;
+        Initialize();
 
         CompanyConsolidationWizard.Trap;
         PAGE.Run(PAGE::"Company Consolidation Wizard");
@@ -161,7 +161,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         // [FEATURE] [Reports]
         // [SCENARIO 372262] "G/L Account No." should be printed in "Consolidation - Test Database" report if related G/L Entry exists
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account = "X" with Consolidation Setup and posted G/L Entry
         CreateGLAccountWithConsolidationSetup(GLAccount);
         InsertGLEntry(GLAccount."No.");
@@ -185,7 +185,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         // [FEATURE] [Reports]
         // [SCENARIO 372262] "G/L Account No." should be printed in "Consolidation - Test Database" report if related G/L Entry exists
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account = "X" with Consolidation Setup and posted G/L Entry
         CreateGLAccountWithConsolidationSetup(GLAccount);
         InsertGLEntry(GLAccount."No.");
@@ -205,7 +205,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         // [FEATURE] [Reports]
         // [SCENARIO 372262] "G/L Account No." should be printed in "Consolidation - Test Database" report if related G/L Entry exists
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account = "X" with Consolidation Setup and posted G/L Entry
         CreateGLAccountWithConsolidationSetup(GLAccount);
         InsertGLEntry(GLAccount."No.");
@@ -225,7 +225,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         // [FEATURE] [Reports]
         // [SCENARIO 372262] "G/L Account No." should be printed in "Consolidation - Test Database" report if related G/L Entry exists
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account = "X" with Consolidation Setup and posted G/L Entry
         CreateGLAccountWithConsolidationSetup(GLAccount);
         InsertGLEntry(GLAccount."No.");
@@ -247,7 +247,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         // [FEATURE] [Reports]
         // [SCENARIO 372262] "G/L Account No." should be printed in "Consolidation - Test Database" report if related G/L Entry exists
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account = "X" with Consolidation Setup and posted G/L Entry
         CreateGLAccountWithConsolidationSetup(GLAccount);
 
@@ -280,7 +280,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         // [FEATURE] [Reports]
         // [SCENARIO 372262] "G/L Account No." should be printed in "Consolidation - Test Database" report if related G/L Entry exists
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account = "X" with Consolidation Setup and posted G/L Entry
         CreateGLAccountWithConsolidationSetup(GLAccount);
         InsertGLEntry(GLAccount."No.");
@@ -301,7 +301,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         // [FEATURE] [Reports]
         // [SCENARIO 372262] "G/L Account No." should be printed in "Consolidation - Test Database" report if related G/L Entry exists
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account = "X" with Consolidation Setup and posted G/L Entry
         CreateGLAccountWithConsolidationSetup(GLAccount);
         InsertGLEntry(GLAccount."No.");
@@ -323,7 +323,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         // [FEATURE] [Reports]
         // [SCENARIO 372262] "G/L Account No." should be printed in "Consolidation - Test Database" report if related G/L Entry exists
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account = "X" with Consolidation Setup and posted G/L Entry
         CreateGLAccountWithConsolidationSetup(GLAccount);
 
@@ -352,7 +352,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         // [FEATURE] [Business Unit] [UT]
         // [SCENARIO 298231] When Business Unit's "Currency Exchange Rate Table" is set to "Business Unit" Income and Balance Currency Factors are calculated from Business Unit's Currency table
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company 'New'
         NewCompanyName := CreateCompany;
@@ -399,7 +399,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         // [FEATURE] [Business Unit] [UT]
         // [SCENARIO 298231] When Business Unit's "Currency Exchange Rate Table" is set to "Local" Income and Balance Currency Factors are calculated from current Company Currency table
-        Initialize;
+        Initialize();
 
         // [GIVEN] Exchange rate for Currency
         ExchangeRateAmount := LibraryRandom.RandDec(10, 1);
@@ -424,9 +424,9 @@ codeunit 139317 "Company Consol. Wizard Tests"
             DeleteCompany(NewCompanyName);
         if ConsolidatedCompanyName <> '' then
             DeleteCompany(ConsolidatedCompanyName);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -557,7 +557,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     procedure DeleteCompany(CompanyName: Text[30])
     begin
         Company.SetRange(Name, CompanyName);
-        if Company.FindFirst then
+        if Company.FindFirst() then
             Company.Delete();
     end;
 
@@ -729,7 +729,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         Dimension.ChangeCompany(CompanyName);
         Dimension.SetRange(Code, DimensionCode);
-        if Dimension.FindFirst then begin
+        if Dimension.FindFirst() then begin
             Dimension."Consolidation Code" := 'TEST';
             Dimension.Modify();
         end;

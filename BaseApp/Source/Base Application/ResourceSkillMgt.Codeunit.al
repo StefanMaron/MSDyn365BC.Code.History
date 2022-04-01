@@ -401,7 +401,7 @@ codeunit 5931 "Resource Skill Mgt."
                     SetRange("No.", ServItem."No.");
                     SetRange("Skill Code", OldSkillCode);
                     SetRange("Assigned From", "Assigned From"::Item);
-                    if FindFirst then
+                    if FindFirst() then
                         if not ExistingResSkill2.Get(Type, "No.", ResSkill."Skill Code") then begin
                             Rename(Type, "No.", ResSkill."Skill Code");
                             "Source Type" := "Source Type"::Item;
@@ -436,7 +436,7 @@ codeunit 5931 "Resource Skill Mgt."
         with ResSkill do begin
             SetRange(Type, DestType);
             SetRange("No.", DestCode);
-            if FindFirst then begin
+            if FindFirst() then begin
                 case DestType of
                     Type::"Service Item Group":
                         DestTypeText := ServItemGroup.TableCaption;
@@ -455,15 +455,6 @@ codeunit 5931 "Resource Skill Mgt."
             end;
         end;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by AssignResSkillRelationWithUpdate().', '17.0')]
-    procedure AssignRelationWithUpdate(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20])
-    begin
-        AssignResSkillRelationWithUpdate(
-            "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(DestType), DestCode);
-    end;
-#endif
 
     procedure AssignResSkillRelationWithUpdate(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; DestType: Enum "Resource Skill Type"; DestCode: Code[20])
     var
@@ -563,15 +554,6 @@ codeunit 5931 "Resource Skill Mgt."
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by ChangeResSkillRelationWithItem().', '17.0')]
-    procedure ChangeRelationWithItem(SrcType: Integer; SrcCode: Code[20]; RelationType: Integer; DestCode: Code[20]; OriginalCode: Code[20]; ServItemGroupCode: Code[10]): Boolean
-    begin
-        ChangeResSkillRelationWithItem(
-            "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(RelationType), DestCode, OriginalCode, ServItemGroupCode);
-    end;
-#endif
-
     procedure ChangeResSkillRelationWithItem(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; RelationType: Enum "Resource Skill Type"; DestCode: Code[20]; OriginalCode: Code[20]; ServItemGroupCode: Code[10]): Boolean
     var
         Item: Record Item;
@@ -590,11 +572,11 @@ codeunit 5931 "Resource Skill Mgt."
                     SetRange(Type, Type::"Service Item");
                     SetRange("No.", SrcCode);
                     SetRange("Assigned From", "Assigned From"::Item);
-                    ResSkillCodesExistRelatedItem := FindFirst;
+                    ResSkillCodesExistRelatedItem := FindFirst();
                 end;
                 if ServItemGroupCode <> '' then begin
                     SetRange("Assigned From", "Assigned From"::"Service Item Group");
-                    ResSkillCodesExistRelatedSIG := FindFirst;
+                    ResSkillCodesExistRelatedSIG := FindFirst();
                 end;
                 if ResSkillCodesExistRelatedItem or ResSkillCodesExistRelatedSIG then begin
                     SelectedOption := RunOptionDialog(Text027, Text023, Text024, Text025);
@@ -612,13 +594,13 @@ codeunit 5931 "Resource Skill Mgt."
                         Reset;
                         SetRange(Type, Type::Item);
                         SetRange("No.", DestCode);
-                        ResSkillCodesItemExist := FindFirst;
+                        ResSkillCodesItemExist := FindFirst();
                         if not ResSkillCodesItemExist then
                             if Item.Get(DestCode) then
                                 if Item."Service Item Group" <> '' then begin
                                     SetRange(Type, Type::"Service Item Group");
                                     SetRange("No.", Item."Service Item Group");
-                                    ResSkillCodesItemExist := FindFirst;
+                                    ResSkillCodesItemExist := FindFirst();
                                 end;
                         if ResSkillCodesItemExist then
                             AssignWithUpdate := ConfirmManagement.GetResponseOrDefault(Text028, true);
@@ -643,15 +625,6 @@ codeunit 5931 "Resource Skill Mgt."
         exit(true);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by ChangeResSkillRelationWithGroup().', '17.0')]
-    procedure ChangeRelationWithGroup(SrcType: Integer; SrcCode: Code[20]; RelationType: Integer; DestCode: Code[20]; OriginalCode: Code[20]): Boolean
-    begin
-        ChangeResSkillRelationWithGroup(
-            "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(RelationType), DestCode, OriginalCode);
-    end;
-#endif
-
     procedure ChangeResSkillRelationWithGroup(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; RelationType: Enum "Resource Skill Type"; DestCode: Code[20]; OriginalCode: Code[20]): Boolean
     var
         ExistingResSkill: Record "Resource Skill";
@@ -666,7 +639,7 @@ codeunit 5931 "Resource Skill Mgt."
                     SetRange(Type, SrcType);
                     SetRange("No.", SrcCode);
                     SetRange("Assigned From", "Assigned From"::"Service Item Group");
-                    RelatedResSkillCodesExist := FindFirst;
+                    RelatedResSkillCodesExist := FindFirst();
                 end;
                 if RelatedResSkillCodesExist then begin
                     SelectedOption := RunOptionDialog(Text026, Text029, Text024, Text025);
@@ -858,15 +831,6 @@ codeunit 5931 "Resource Skill Mgt."
 
         exit(SelectedOption - 1);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by RevalidateResSkillRelation().', '17.0')]
-    procedure RevalidateRelation(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20]): Boolean
-    begin
-        RevalidateResSkillRelation(
-            "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(DestType), DestCode);
-    end;
-#endif
 
     procedure RevalidateResSkillRelation(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; DestType: Enum "Resource Skill Type"; DestCode: Code[20]): Boolean
     var

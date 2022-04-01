@@ -36,30 +36,32 @@ codeunit 9002 "Permission Manager"
         exit(AddUserToDefaultUserGroupsForCompany(UserSecurityID, CompanyName));
     end;
 
-    procedure AddUserToDefaultUserGroupsForCompany(UserSecurityID: Guid; Company: Text[30]) UserGroupsAdded: Boolean
+    procedure AddUserToDefaultUserGroupsForCompany(UserSecurityID: Guid; Company: Text[30]) PermissionsAdded: Boolean
     var
+        PlanConfiguration: Codeunit "Plan Configuration";
         UsersInPlans: Query "Users in Plans";
     begin
-        // Add the new user to all user groups of the plan
+        // If intelligent cloud is enabled, then assign the intelligent cloud user group
+        if IsIntelligentCloud then begin
+            AddUserToUserGroup(UserSecurityID, IntelligentCloudTok, Company);
+            PermissionsAdded := true;
+            exit;
+        end;
 
         // No plan is assigned to this user
         UsersInPlans.SetRange(User_Security_ID, UserSecurityID);
         if not UsersInPlans.Open() then begin
-            UserGroupsAdded := false;
-            exit;
-        end;
-
-        // If intelligent cloud is enabled, then assign the intelligent cloud user group
-        if IsIntelligentCloud then begin
-            AddUserToUserGroup(UserSecurityID, IntelligentCloudTok, Company);
-            UserGroupsAdded := true;
+            PermissionsAdded := false;
             exit;
         end;
 
         // There is at least a plan assigned (and probably only one)
         while UsersInPlans.Read() do
-            if AddUserToAllUserGroupsOfThePlanForCompany(UserSecurityID, UsersInPlans.Plan_ID, Company) then
-                UserGroupsAdded := true;
+            if PlanConfiguration.IsCustomized(UsersInPlans.Plan_ID) then
+                OnAssignCustomPermissionsToUser(UserSecurityID, UsersInPlans.Plan_ID, PermissionsAdded)
+            else
+                if AddUserToAllUserGroupsOfThePlanForCompany(UserSecurityID, UsersInPlans.Plan_ID, Company) then
+                    PermissionsAdded := true;
     end;
 
     local procedure AddUserToAllUserGroupsOfThePlanForCompany(UserSecurityID: Guid; PlanID: Guid; Company: Text[30]): Boolean
@@ -68,13 +70,14 @@ codeunit 9002 "Permission Manager"
     begin
         // Get all User Groups in plan
         UserGroupPlan.SetRange("Plan ID", PlanID);
-        if not UserGroupPlan.FindSet then
+        if not UserGroupPlan.FindSet() then
             exit(false); // nothing to add
 
         // Assign groups to the current user (if not assigned already)
         repeat
             AddUserToUserGroup(UserSecurityID, UserGroupPlan."User Group Code", Company);
         until UserGroupPlan.Next() = 0;
+
         exit(true);
     end;
 
@@ -299,7 +302,7 @@ codeunit 9002 "Permission Manager"
     begin
         InputText += PermissionSetId;
         Permission.SetRange("Role ID", PermissionSetId);
-        if Permission.FindSet then
+        if Permission.FindSet() then
             repeat
                 ObjectType := Permission."Object Type";
                 InputText += Format(ObjectType);
@@ -385,7 +388,7 @@ codeunit 9002 "Permission Manager"
             repeat
                 if not UserPermissions.IsSuper(User."User Security ID") and not IsNullGuid(User."User Security ID") then begin
                     AccessControl.SetRange("User Security ID", User."User Security ID");
-                    if AccessControl.FindSet then
+                    if AccessControl.FindSet() then
                         repeat
                             RemoveExistingPermissionsAndAddIntelligentCloud(AccessControl."User Security ID", AccessControl."Company Name");
                         until AccessControl.Next() = 0;
@@ -470,6 +473,11 @@ codeunit 9002 "Permission Manager"
             exit;
         if not UserPermissions.CanManageUsersOnTenant(CurrentUserSecurityId) then
             Error(CannotModifyOtherUsersErr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignCustomPermissionsToUser(UserSecurityID: Guid; PlanId: Guid; var PermissionsAssigned: Boolean)
+    begin
     end;
 }
 

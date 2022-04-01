@@ -22,7 +22,7 @@ codeunit 1302 "Customer Mgt."
             SetFilterForPostedDocs(CustLedgEntry, CustNo, "Document Type"::Invoice);
             SetRange(Open, false);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     case true of
                         "Closed at Date" > "Posting Date":
@@ -35,7 +35,7 @@ codeunit 1302 "Customer Mgt."
                         else begin
                                 CustLedgEntry2.SetCurrentKey("Closed by Entry No.");
                                 CustLedgEntry2.SetRange("Closed by Entry No.", "Entry No.");
-                                if CustLedgEntry2.FindFirst then
+                                if CustLedgEntry2.FindFirst() then
                                     UpdateDaysToPay(CustLedgEntry2."Posting Date" - "Posting Date", TotalDaysToPay, TotalNoOfInv);
                             end;
                     end;

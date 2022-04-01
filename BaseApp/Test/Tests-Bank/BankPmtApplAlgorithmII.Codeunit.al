@@ -39,7 +39,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         // [FEATURE] [CAMT] [Direct Debit]
         // [SCENARIO 282632] Match Direct Debit Collection Entry for CAMT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1".
         CreateAndPostSalesInvoice(
@@ -89,7 +89,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         // [FEATURE] [CAMT] [Direct Debit]
         // [SCENARIO 282632] Match Direct Debit Collection Entry in case of Vendor Ledger Entry has "Transaction ID" from Direct Debit Collection Entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened Vendor Ledger Entry with "Entry No." = "E1".
         CreateAndPostPurchaseInvoice(
@@ -135,7 +135,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         // [FEATURE] [CAMT] [Direct Debit]
         // [SCENARIO 282632] Match Direct Debit Collection Entry in case of Direct Debit Collection Status is Canceled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1".
         CreateAndPostSalesInvoice(
@@ -181,7 +181,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         // [FEATURE] [CAMT] [Direct Debit]
         // [SCENARIO 282632] Match Direct Debit Collection Entry in case of Direct Debit Collection Entry Status is Rejected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1".
         CreateAndPostSalesInvoice(
@@ -227,7 +227,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         // [FEATURE] [CAMT] [Direct Debit]
         // [SCENARIO 282632] Match Direct Debit Collection Entry in case of Customer Ledger Entry has "Transaction ID", that is different from the Direct Debit Collection Entry's one.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1".
         CreateAndPostSalesInvoice(
@@ -248,7 +248,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         CreateBankReconciliation(BankAccReconciliation, BankAccount."No.");
         CreateBankReconciliationLine(
           BankAccReconciliation, BankAccReconciliationLine,
-          GenJournalLine.Amount / 2, '', '', LibraryUtility.GenerateGUID);
+          GenJournalLine.Amount / 2, '', '', LibraryUtility.GenerateGUID());
 
         // [WHEN] Run matching procedure.
         RunMatch(BankAccReconciliation, TempBankStatementMatchingBuffer, true);
@@ -274,7 +274,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         // [FEATURE] [CAMT] [Direct Debit]
         // [SCENARIO 282632] Match Direct Debit Collection Entry in case of closed Customer Ledger Entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1", Amount = "A1", "Document No." = "D1".
         // [GIVEN] Closed Customer Ledger Entry with "Entry No." = "E2".
@@ -332,7 +332,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         // [FEATURE] [CAMT] [Direct Debit]
         // [SCENARIO 282632] Match Direct Debit Collection Entry in case of Customer Ledger Entry "Posting Date" is greater than "Transaction Date" of Reconciliation Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1", Amount = "A1", "Document No." = "D1", "Posting Date" = 01.01.20.
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E2", "Posting Date" = 02.01.20 .
@@ -389,7 +389,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         // [FEATURE] [CAMT] [Direct Debit]
         // [SCENARIO 282632] Match Direct Debit Collection Entry in case of ApplyEntry parameter of "Match Bank Payments" codeunit is false.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened Customer Ledger Entry with Amount = "A1", "Document No." = "D1".
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E2".
@@ -445,7 +445,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         // [FEATURE] [CAMT] [Direct Debit]
         // [SCENARIO 282632] Match Direct Debit Collection Entry in case of two DD Collect. Entries have the same "Transaction ID".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two opened Customer Ledger Entries with "Entry No." = "E1","E2", Amount = "A1","A2", "Document No." = "D1","D2".
         CreateAndPostSalesInvoice(
@@ -573,7 +573,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         DataExchLineDef.SetFilter(Namespace, GetNamespace05302);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         exit(DataExchLineDef."Data Exch. Def Code");
     end;
 
@@ -659,7 +659,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         DirectDebitCollection.Init();
         DirectDebitCollection."No." := LibraryUtility.GetNewRecNo(DirectDebitCollection, DirectDebitCollection.FieldNo("No."));
-        DirectDebitCollection.Identifier := LibraryUtility.GenerateGUID;
+        DirectDebitCollection.Identifier := LibraryUtility.GenerateGUID();
         DirectDebitCollection.Status := DDCollectionStatus;
         DirectDebitCollection."To Bank Account No." := BankAccountNo;
         DirectDebitCollection.Insert();
@@ -703,7 +703,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
         MatchBankPayments.SetApplyEntries(ApplyEntries);
         MatchBankPayments.Run(BankAccReconciliationLine);
 

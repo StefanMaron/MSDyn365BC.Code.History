@@ -54,7 +54,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ProductionOrder: Record "Production Order";
     begin
         // [GIVEN] Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(Item, ChildItem, ChildItem."Replenishment System"::"Prod. Order");
 
         // [GIVEN] Create and Refresh Released Production Order.
@@ -78,7 +78,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         // [GIVEN] Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(Item, ChildItem, ChildItem."Replenishment System"::"Prod. Order");
 
         // [GIVEN] Create and Refresh Released Production Order.
@@ -106,7 +106,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         SalesLine: Record "Sales Line";
     begin
         // [GIVEN] Create Lot for Lot Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
 
         // [GIVEN] Create Purchase Order with Planning Flexibility - None.
@@ -136,7 +136,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         EndDate: Date;
     begin
         // [GIVEN] Create Maximum Quantity Item. Create Stockkeeping Unit. Update Inventory With Location.
-        Initialize;
+        Initialize();
         CreateStockkeepingUnitForMaximumQtyItem(Item, ItemVariant, LocationBlue.Code);
         UpdateInventoryWithLocation(Item."No.", LocationBlue.Code);
 
@@ -165,7 +165,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         PlanningWorksheet: TestPage "Planning Worksheet";
     begin
         // [GIVEN] Create Lot for Lot Item. Create Production Forecast.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate);
 
@@ -195,7 +195,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ForecastDate: Date;
     begin
         // [GIVEN] Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS,MRP Calculation of Manufacturing Setup - FALSE.
         CreateLotForLotItemSetup(Item, ChildItem, ChildItem."Replenishment System"::Purchase);
 
@@ -230,7 +230,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ProductionOrder: Record "Production Order";
     begin
         // [GIVEN] Create Lot for Lot tem. Create Lot for Lot Item and Stockkeeping Unit setup.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::"Prod. Order");
         CreateItemSKUSetupWithTransfer(Item."No.", LocationSilver.Code, LocationBlue.Code);
 
@@ -259,7 +259,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         OldCombinedMPSMRPCalculation: Boolean;
     begin
         // [GIVEN] Create Lot for Lot Item. Create Production Forecast.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS,MRP Calculation of Manufacturing Setup - FALSE.
         CreateLotForLotItem(Item, Item."Replenishment System"::"Prod. Order");
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate);
@@ -289,7 +289,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         SalesLine: Record "Sales Line";
     begin
         // [GIVEN] Create Lot for Lot Item Setup. Create Stockkeeping Unit setup for Child Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(Item, ChildItem, ChildItem."Replenishment System"::Purchase);
         CreateItemSKUSetupWithTransfer(ChildItem."No.", LocationSilver.Code, LocationBlue.Code);
 
@@ -314,7 +314,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         SalesLine: Record "Sales Line";
     begin
         // [GIVEN] Create Lot for Lot Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
 
         // [GIVEN] Create and Post Purchase Order.
@@ -344,7 +344,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         // [GIVEN] Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(Item, ChildItem, ChildItem."Replenishment System"::"Prod. Order");
 
         // [GIVEN] Create and Refresh Released Production Order. Create and Post Output Journal.
@@ -372,7 +372,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         TransferLine: Record "Transfer Line";
     begin
         // [GIVEN] Create Order Item. Create Transfer Order.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
         CreateTransferOrder(TransferLine, Item."No.", LocationSilver.Code, LocationBlue.Code);
 
@@ -396,7 +396,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         EndDate: Date;
     begin
         // [GIVEN] Create Maximum Quantity Item.
-        Initialize;
+        Initialize();
         CreateMaximumQtyItem(Item, LibraryRandom.RandDec(50, 2) + 200);  // Large Quantity required for Maximum Inventory.
 
         // [GIVEN] Create and Post Sales Order With Quantity to Ship less than Sales Line Quantity.
@@ -430,7 +430,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         EndDate: Date;
     begin
         // [GIVEN] Create Fixed Reorder Quantity Item.
-        Initialize;
+        Initialize();
         CreateFRQItem(Item);
 
         // [GIVEN] Create and Post Sales Order With Quantity to Ship less than Sales Line Quantity.
@@ -468,7 +468,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         // [SCENARIO Sicily 6770] Item Tracking on a Special Order (Sales Order) should not disappear if Calculate Plan is executed on the Req. Worksheet
 
-        Initialize;
+        Initialize();
         // [GIVEN] prepare an item with item tracking (SN), reordering policy = lot-for-lot and 'Include Inventory' = Yes
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
         Item.Validate("Include Inventory", true);
@@ -509,7 +509,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     [Scope('OnPrem')]
     procedure CalcRegenPlanForMultipleSKUWithTransferReplenishmentSystem()
     begin
-        Initialize;
+        Initialize();
         CalcRegenPlanForSKUWithTransferReplenishmentSystem(true); // TRUE indicates creating 2 SKU
     end;
 
@@ -517,7 +517,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     [Scope('OnPrem')]
     procedure CalcRegenPlanForSingleSKUWithTransferReplenishmentSystem()
     begin
-        Initialize;
+        Initialize();
         CalcRegenPlanForSKUWithTransferReplenishmentSystem(false); // FALSE indicates creating 1 SKU
     end;
 
@@ -533,7 +533,7 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         // [GIVEN] Create Lot for Lot item. Create a Transfer Order from Location Blue to Silver.
         // [GIVEN] Calculate Plan for Planning Worksheet without Location filter. A Cancel Req. Line for the transfer order will be generated
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::"Prod. Order");
         CreateTransferOrder(TransferLine, Item."No.", LocationBlue.Code, LocationSilver.Code);
         CalculateRegenPlanForPlanningWorksheet(Item);
@@ -562,7 +562,7 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         // [GIVEN] Create Lot for Lot item. Create a Transfer Order from Location Blue to Silver.
         // [GIVEN] Calculate Plan for Requisition Worksheet without Location filter. A Cancel Req. Line for the transfer order will be generated
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
         CreateTransferOrder(TransferLine, Item."No.", LocationBlue.Code, LocationSilver.Code);
         CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate, WorkDate + LibraryRandom.RandInt(20));
@@ -591,7 +591,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [GIVEN] Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
         // [GIVEN] Create and Refresh Released Production Order.
         // [GIVEN] Calculate Regenerative Change Plan for Planning Worksheet for Child Item and Carry Out Action Message.
-        Initialize;
+        Initialize();
         CreateOrderItemSetup(Item, ChildItem);
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2));
         CalculateRegenPlanForPlanningWorksheet(ChildItem);
@@ -625,7 +625,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateSpecialOrder(SalesHeader, SalesLine, Item, Location.Code, '', 1, WorkDate, LibraryRandom.RandDec(10, 2));
 
         LibraryVariableStorage.Enqueue(ControlOptions::Sale);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         SalesLine.OpenItemTrackingLines();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -658,7 +658,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [FEATURE] [Production]
         // [SCENARIO 272789] Requisition planning suggests to cancel excessive production order that has "Unlimited" planning flexibility when another order with flexibility "None" exists
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two items "PROD" and "COMP" with "Prod. Order" replenishment system and "Lot-for-Lot" reordering policy. "COMP" is a BOM component for "PROD" item
         CreateLotForLotItemSetup(ProdItem, ComponentItem, ComponentItem."Replenishment System"::"Prod. Order");
@@ -670,7 +670,7 @@ codeunit 137075 "SCM Planning Order Tracking"
           ProductionOrder[1], ProdItem."No.", LibraryRandom.RandIntInRange(50, 100),
           LeadTimeManagement.PlannedDueDate(ProdItem."No.", '', '', WorkDate, '', 2));
         ProdOrderComponent.SetRange("Item No.", ComponentItem."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
 
         // [GIVEN] Poduction order "P2" for 20 pcs of item "COMP" without lot tracking
         CreateAndRefreshFirmPlannedProductionOrderWithDueDate(
@@ -680,11 +680,11 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateAndRefreshFirmPlannedProductionOrderWithDueDate(
           ProductionOrder[3], ComponentItem."No.", ProdOrderComponent."Expected Quantity", ProductionOrder[1]."Starting Date");
 
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(ProdOrderComponent."Expected Quantity");
         ProdOrderLine.SetRange("Item No.", ComponentItem."No.");
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder[3]."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.OpenItemTrackingLines();
 
         // [WHEN] Calculate regenerative plan for the component item "COMP"
@@ -712,7 +712,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         PostedSalesShipmentNo: Code[20];
     begin
         // [SCENARIO 348770] Order Tracking page should show no entries for Posted Sales Shipment with Item tracking
-        Initialize;
+        Initialize();
         MockReservationEntries;
 
         // [GIVEN] Item "I" with Serial No. Item tracking
@@ -773,7 +773,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         PostedPurchaseReceiptNo: Code[20];
     begin
         // [SCENARIO 348770] Order Tracking page should show correct entries for Posted Purchase Receipt with Item tracking
-        Initialize;
+        Initialize();
         MockReservationEntries;
 
         // [GIVEN] Item "I" with Serial No. Item tracking
@@ -815,7 +815,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Order Tracking");
         RequisitionLine.DeleteAll();
         ReservationEntry.DeleteAll();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         LibraryApplicationArea.EnableEssentialSetup;
 
@@ -824,10 +824,10 @@ codeunit 137075 "SCM Planning Order Tracking"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning Order Tracking");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
         ItemJournalSetup;
         OutputJournalSetup;
         ConsumptionJournalSetup;
@@ -844,7 +844,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         with RequisitionLine do begin
             FilterRequisitionLine(RequisitionLine, No, LocationCode);
-            FindFirst;
+            FindFirst();
             Validate("Accept Action Message", true);
             Modify(true);
             LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
@@ -1033,18 +1033,18 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Option)
+    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Enum "Req. Worksheet Template Type")
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
     end;
 
     local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure CalcRegenPlanForPlanWkshWithMultipleItems(ItemNo: Code[20]; ItemNo2: Code[20]; StartDate: Date; EndDate: Date)
@@ -1077,7 +1077,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure CreateAndPostOutputJournal(ProductionOrderNo: Code[20])
@@ -1102,7 +1102,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ProdOrderComponent.SetRange(Status, Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; ActionMessage: Enum "Action Message Type"; No: Code[20]; LocationCode: Code[10]): Boolean
@@ -1291,7 +1291,7 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionLine."Journal Batch Name");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure UpdateTransferLinePlanningFlexibilityNone(TransferLine: Record "Transfer Line")
@@ -1304,7 +1304,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         PlanningComponent.SetRange("Worksheet Template Name", WorksheetTemplateName);
         PlanningComponent.SetRange("Worksheet Batch Name", WorksheetBatchName);
-        PlanningComponent.FindFirst;
+        PlanningComponent.FindFirst();
     end;
 
     local procedure PostPurchaseDocument(var PurchaseLine: Record "Purchase Line")
@@ -1330,7 +1330,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         CreateOutputJournal(ItemJournalLine, ItemNo, ProductionOrderNo);
         ItemJournalLine.Validate("Output Quantity", OutputQuantity);
         ItemJournalLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
@@ -1365,7 +1365,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         TransferRoute.SetRange("Transfer-to Code", TransferTo);
 
         // If Transfer Not Found then Create it.
-        if not TransferRoute.FindFirst then
+        if not TransferRoute.FindFirst() then
             LibraryWarehouse.CreateTransferRoute(TransferRoute, TransferFrom, TransferTo);
     end;
 
@@ -1412,7 +1412,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         SelectPlanningComponent(PlanningComponent, RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name");
         OrderTracking.Trap;
         OrderTracking2.SetPlanningComponent(PlanningComponent);
-        OrderTracking2.Run;
+        OrderTracking2.Run();
         OrderTracking."Untracked Quantity".AssertEquals(PlanningComponent."Expected Quantity");
         OrderTracking."Total Quantity".AssertEquals(PlanningComponent."Expected Quantity");
     end;
@@ -1443,7 +1443,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         OrderTracking.Trap;
         OrderTracking2.SetReqLine(RequisitionLine);
-        OrderTracking2.Run;
+        OrderTracking2.Run();
         OrderTracking."Untracked Quantity".AssertEquals(UntrackedQuantity);
         OrderTracking."Total Quantity".AssertEquals(TotalQuantity);
         if LineQty then
@@ -1510,7 +1510,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ItemNo: Code[20];
         ReservationEntryNo: Integer;
     begin
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         ReservationEntryNo := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
         InsertReservationEntry(ReservationEntryNo, ItemNo, 3, true);
         InsertReservationEntry(ReservationEntryNo, ItemNo, -3, false);

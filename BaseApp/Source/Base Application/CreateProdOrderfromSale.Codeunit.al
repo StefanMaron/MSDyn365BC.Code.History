@@ -78,7 +78,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
                 ProdOrderLine.SetRange(Status, ProdOrder.Status);
                 ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
 
-                if ProdOrderLine.FindFirst then begin
+                if ProdOrderLine.FindFirst() then begin
                     ProdOrderRowID :=
                       ItemTrackingMgt.ComposeRowID(
                         DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(),

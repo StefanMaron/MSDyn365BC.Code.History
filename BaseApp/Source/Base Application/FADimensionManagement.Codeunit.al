@@ -81,7 +81,7 @@ codeunit 5674 FADimensionManagement
             if Find('-') then
                 repeat
                     TempSelectedDim.SetRange("Dimension Code", "Dimension Code");
-                    if TempSelectedDim.FindFirst then begin
+                    if TempSelectedDim.FindFirst() then begin
                         if Type = 0 then begin
                             TempSelectedDim2."Dimension Code" := "Dimension Code";
                             TempSelectedDim2."New Dimension Value Code" := "Dimension Value Code";
@@ -105,7 +105,7 @@ codeunit 5674 FADimensionManagement
         if TempSelectedDim2.Find('-') then
             repeat
                 TempSelectedDim3.SetRange("Dimension Code", TempSelectedDim2."Dimension Code");
-                if not TempSelectedDim3.FindFirst then
+                if not TempSelectedDim3.FindFirst() then
                     exit(false);
                 if TempSelectedDim2."New Dimension Value Code" <> TempSelectedDim3."New Dimension Value Code" then
                     exit(false);

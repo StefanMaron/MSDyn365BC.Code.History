@@ -20,7 +20,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
             exit;
 
         LibraryERM.SetMaxVATDifferenceAllowed(1);
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         Commit();
         Initialized := true
     end;
@@ -31,7 +31,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('>');
         InitJnlLine(GenJnlLine);
@@ -54,7 +54,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('=');
         InitJnlLine(GenJnlLine);
@@ -74,7 +74,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('<');
         InitJnlLine(GenJnlLine);
@@ -97,7 +97,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
         VATEntry: Record "VAT Entry";
         GenJnlPost: Codeunit "Gen. Jnl.-Post Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('>');
         InitJnlLine(GenJnlLine);
@@ -135,7 +135,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
         VATEntry: Record "VAT Entry";
         GenJnlPost: Codeunit "Gen. Jnl.-Post Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('=');
         InitJnlLine(GenJnlLine);
@@ -173,7 +173,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
         VATEntry: Record "VAT Entry";
         GenJnlPost: Codeunit "Gen. Jnl.-Post Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('<');
         InitJnlLine(GenJnlLine);

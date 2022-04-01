@@ -92,15 +92,11 @@ page 5495 "Sales Order Entity"
                     var
                         Contact: Record Contact;
                         Customer: Record Customer;
-                        GraphIntContact: Codeunit "Graph Int. - Contact";
                     begin
                         RegisterFieldSet(FieldNo("Contact Graph Id"));
 
                         if "Contact Graph Id" = '' then
                             Error(ContactIdHasToHaveValueErr);
-
-                        if not GraphIntContact.FindOrCreateCustomerFromGraphContactSafe("Contact Graph Id", Customer, Contact) then
-                            exit;
 
                         UpdateCustomerFromGraphContactId(Customer);
 
@@ -502,7 +498,7 @@ page 5495 "Sales Order Entity"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);
@@ -567,7 +563,7 @@ page 5495 "Sales Order Entity"
         if not UpdateCustomer then begin
             TempFieldBuffer.Reset();
             TempFieldBuffer.SetRange("Field ID", FieldNo("Customer Id"));
-            UpdateCustomer := not TempFieldBuffer.FindFirst;
+            UpdateCustomer := not TempFieldBuffer.FindFirst();
             TempFieldBuffer.Reset();
         end;
 

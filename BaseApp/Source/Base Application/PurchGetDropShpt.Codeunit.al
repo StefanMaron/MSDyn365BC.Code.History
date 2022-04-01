@@ -59,7 +59,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
 
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
             PurchLine.SetRange("Document No.", "No.");
-            if PurchLine.FindLast then
+            if PurchLine.FindLast() then
                 NextLineNo := PurchLine."Line No." + 10000
             else
                 NextLineNo := 10000;
@@ -109,7 +109,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                             TransferExtendedText.InsertPurchExtText(PurchLine);
                             PurchLine2.SetRange("Document Type", "Document Type");
                             PurchLine2.SetRange("Document No.", "No.");
-                            if PurchLine2.FindLast then
+                            if PurchLine2.FindLast() then
                                 NextLineNo := PurchLine2."Line No.";
                             NextLineNo := NextLineNo + 10000;
                         end;
@@ -126,6 +126,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
             Modify; // Only version check
             SalesHeader.Modify(); // Only version check
         end;
+        OnAfterCode(PurchHeader, SalesHeader);
     end;
 
     local procedure CheckSalesLineQtyPerUnitOfMeasure()
@@ -242,6 +243,11 @@ codeunit 76 "Purch.-Get Drop Shpt."
             exit(true);
         end;
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

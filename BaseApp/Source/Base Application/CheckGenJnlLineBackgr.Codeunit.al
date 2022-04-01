@@ -69,15 +69,18 @@ codeunit 9081 "Check Gen. Jnl. Line. Backgr."
         OnAfterCheckGenJnlLine(GenJnlLine, TempErrorMessage);
     end;
 
+    [ErrorBehavior(ErrorBehavior::Collect)]
     local procedure RunGenJnlCheckLineCodeunit(GenJnlLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message" temporary)
     var
         TempLineErrorMessage: Record "Error Message" temporary;
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        ErrorMessageMgt: Codeunit "Error Message Management";
     begin
         GenJnlCheckLine.SetLogErrorMode(true);
 
         if GenJnlCheckLine.Run(GenJnlLine) then begin
             GenJnlCheckLine.GetErrors(TempLineErrorMessage);
+            ErrorMessageMgt.CollectErrors(TempLineErrorMessage);
             CopyErrorsToBuffer(TempLineErrorMessage, TempErrorMessage);
         end else begin
             InsertTempLineErrorMessage(

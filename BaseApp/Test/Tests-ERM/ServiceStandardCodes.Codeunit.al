@@ -44,7 +44,7 @@ codeunit 136119 "Service Standard Codes"
         // Test that it is possible to create a new Standard Service Code with the Standard Service Lines attached and rename it.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create a new Standard Service Code with Standard Service Lines of all Type. Rename the Standard Service Code.
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
@@ -63,7 +63,7 @@ codeunit 136119 "Service Standard Codes"
         // 3. Verify: Standard Service Code and related Standard Service Lines are renamed.
         Assert.IsFalse(StandardServiceCode.Get(OldStandardServiceCode), StrSubstNo(StdServiceCodeMustNotExist, OldStandardServiceCode));
         StandardServiceLine.SetRange("Standard Service Code", NewStandardServiceCode);
-        StandardServiceLine.FindFirst;
+        StandardServiceLine.FindFirst();
     end;
 
     [Test]
@@ -102,7 +102,7 @@ codeunit 136119 "Service Standard Codes"
         StandardServiceLine: Record "Standard Service Line";
     begin
         // 1. Setup: Create a new Standard Service Code with Standard Service Lines for all type.
-        Initialize;
+        Initialize();
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
         CreateStdServiceLineItem(StandardServiceCode.Code);
         CreateStdServiceLineResource(StandardServiceCode.Code);
@@ -139,7 +139,7 @@ codeunit 136119 "Service Standard Codes"
         // with type blank.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create a new Standard Service Code and Standard Service Line with Type blank.
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
@@ -176,7 +176,7 @@ codeunit 136119 "Service Standard Codes"
         StandardServiceLine: Record "Standard Service Line";
     begin
         // 1. Setup: Create a new Standard Service Code with Standard Service Line of type G/L Account.
-        Initialize;
+        Initialize();
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
         CreateStdServiceLineGL(StandardServiceLine, StandardServiceCode.Code);
 
@@ -233,7 +233,7 @@ codeunit 136119 "Service Standard Codes"
         // Test that it is not possible to enter, change value in the Amount Excl. VAT field for Standard Service Line with type Cost.
 
         // 1. Setup: Create a new Standard Service Code with Standard Service Line with type.
-        Initialize;
+        Initialize();
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
 
         if Type = Type::Item then
@@ -267,7 +267,7 @@ codeunit 136119 "Service Standard Codes"
         // Test that deleting a Standard Service Code, the Standard Service Lines attached are deleted as well.
 
         // 1. Setup: Create a new Standard Service Code with Standard Service Lines for all Types.
-        Initialize;
+        Initialize();
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
         CreateStdServiceLineItem(StandardServiceCode.Code);
         CreateStdServiceLineResource(StandardServiceCode.Code);
@@ -300,7 +300,7 @@ codeunit 136119 "Service Standard Codes"
         // Test that it is possible to assign Standard Service Codes to a Service Item Group.
 
         // 1. Setup: Create a new Standard Service Code with Standard Service Lines for all Types.
-        Initialize;
+        Initialize();
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
         CreateStdServiceLineItem(StandardServiceCode.Code);
         CreateStdServiceLineResource(StandardServiceCode.Code);
@@ -337,7 +337,7 @@ codeunit 136119 "Service Standard Codes"
         // Test that it is possible to assign Empty Standard Service Codes to a Service Item Group.
 
         // 1. Setup: Create a new empty Standard Service Code.
-        Initialize;
+        Initialize();
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
 
         // 2. Exercise: Create a new Service Item Group and assign the Standard Service Code.
@@ -381,7 +381,7 @@ codeunit 136119 "Service Standard Codes"
         // Service Lines attached to any existing Standard Service Code.
 
         // 1. Setup: Create a new Service Item Group. Create Service Order with Service item line for the Service Item Group Code.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
         ServiceItemGroupCode2 := ServiceItemGroup.Code;
@@ -428,7 +428,7 @@ codeunit 136119 "Service Standard Codes"
         // service lines attached to any existing Standard Service Code.
 
         // 1. Setup: Create a new Service Item Group. Create Service Order with Service item line for the Service Item Group Code.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
         ServiceItemGroupCode2 := ServiceItemGroup.Code;
@@ -463,7 +463,7 @@ codeunit 136119 "Service Standard Codes"
         // function it is possible to insert standard service lines attached to any existing Standard Service Code.
 
         // 1. Setup: Create a new Service Order. Create a new Service Item Group.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         ServiceItemGroupCode2 := ServiceItemGroup.Code;
@@ -497,7 +497,7 @@ codeunit 136119 "Service Standard Codes"
 
         // 1. Setup: Create a new Service Item Group. Create Service Order with Service item line for the Service Item Group Code.
         // Create a new Standard Service Code.
-        Initialize;
+        Initialize();
         PrepareGetStdCodeScenario(ServiceHeader, ServiceItemLine, StandardServiceCode);
 
         // 2. Exercise: Update the Service Line with Contract No., Warranty, Fault Reason Code, Fault Area Code, Symptom Code
@@ -526,7 +526,7 @@ codeunit 136119 "Service Standard Codes"
 
         // 1. Setup: Create New Service Item Group, Create a new Service Order with Service Item Line for the Service Item Group.
         // Create a new Standard Service Code.
-        Initialize;
+        Initialize();
         PrepareGetStdCodeScenario(ServiceHeader, ServiceItemLine, StandardServiceCode);
 
         // 2. Exercise: Update Currency on Service Header.
@@ -554,7 +554,7 @@ codeunit 136119 "Service Standard Codes"
 
         // 1. Setup: Create New Service Item Group, Create a new Service Order with Service Item Line for the Service Item Group.
         // Run Get Std. Service Codes on the Service Order for the new Standard Service Code.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
 
@@ -673,7 +673,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         // 1. Setup: Create New Service Item Group, Create a new Service Document with Service Item Line as per parameter
         // Create a new Standard Service Code.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         ServiceItemGroupCode2 := ServiceItemGroup.Code;
@@ -712,7 +712,7 @@ codeunit 136119 "Service Standard Codes"
         // for the Standard Service Code.
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
 
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         ServiceItemGroupCode2 := ServiceItemGroup.Code;
@@ -753,7 +753,7 @@ codeunit 136119 "Service Standard Codes"
 
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::"Credit Memo");
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
 
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         ServiceItemGroupCode2 := ServiceItemGroup.Code;
@@ -850,7 +850,7 @@ codeunit 136119 "Service Standard Codes"
         CreateAndSignServiceContract(ServiceContractHeader);
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
 
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         ServiceItemGroupCode2 := ServiceItemGroup.Code;
@@ -900,7 +900,7 @@ codeunit 136119 "Service Standard Codes"
 
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::"Credit Memo");
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
 
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         ServiceItemGroupCode2 := ServiceItemGroup.Code;
@@ -930,7 +930,7 @@ codeunit 136119 "Service Standard Codes"
         // Check that Standard Service Code still exists after deleting a related Standard Service Item Group Code.
 
         // 1. Setup: Create Service Item Group, Standard Service Code and group them using Standard Service Item Group.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
         LibraryService.CreateStandardServiceItemGr(StandardServiceItemGrCode, ServiceItemGroup.Code, StandardServiceCode.Code);
@@ -952,7 +952,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 277472] Standart Service Line must be deleted after deleting a related Standard Service Item Gr. Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Standard Service Item Gr. Code "SIGR1" and "SIGR2"
         // [GIVEN] Two Standard Service Line "SSL1" and "SSL2" for "SIGR1" and "SIGR2" respectively
@@ -987,7 +987,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         // [FEATURE] [UT] [Item] [Non-Inventory]
         // [SCENARIO 318744] Validate No. in Standard Service Line with Non-inventory type Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Non-Inventory type
         LibraryInventory.CreateNonInventoryTypeItem(Item);
@@ -1014,11 +1014,11 @@ codeunit 136119 "Service Standard Codes"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Standard Codes");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountsInServiceContractAccountGroups;
         LibraryERMCountryData.UpdateAccountInServiceCosts;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryService.SetupServiceMgtNoSeries();
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Standard Codes");
@@ -1030,7 +1030,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
         ServiceCrMemoLine.FindSet();
         repeat
@@ -1044,7 +1044,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.FindSet();
         repeat
@@ -1060,7 +1060,7 @@ codeunit 136119 "Service Standard Codes"
         SignServContractDoc: Codeunit SignServContractDoc;
     begin
         // Create Service Item, Service Contract Header, Service Contract Line. Sign and Invoice the Service Contract.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1086,7 +1086,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceContractLine: Record "Service Contract Line";
     begin
         ServiceContractLine.SetRange("Contract No.", ContractNo);
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         LibraryService.CreateContractLineCreditMemo(ServiceContractLine, true);
     end;
 
@@ -1312,9 +1312,9 @@ codeunit 136119 "Service Standard Codes"
     begin
         // Update the Service Line with Contract No., Warranty, Fault Reason Code, Fault Area Code, Symptom Code Fault Code and
         // Resolution Code.
-        FaultReasonCode.FindFirst;
-        FaultCode.FindFirst;
-        ResolutionCode.FindFirst;
+        FaultReasonCode.FindFirst();
+        FaultCode.FindFirst();
+        ResolutionCode.FindFirst();
         ServiceItemLine.Validate(Warranty, true);
         ServiceItemLine.Validate("Fault Reason Code", FaultReasonCode.Code);
         ServiceItemLine.Validate("Fault Area Code", FaultCode."Fault Area Code");
@@ -1354,7 +1354,7 @@ codeunit 136119 "Service Standard Codes"
         GLEntry: Record "G/L Entry";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
         GLEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         GLEntry.FindSet();
@@ -1371,7 +1371,7 @@ codeunit 136119 "Service Standard Codes"
         GLEntry: Record "G/L Entry";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         GLEntry.FindSet();
@@ -1387,7 +1387,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
 
         VerifyServiceLedgerEntry(ServiceHeader."Document Type", ServiceCrMemoHeader."No.", ServiceHeader."Customer No.");
         VerifyCustomerLedgerEntry(ServiceHeader."Document Type", ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Posting Date");
@@ -1403,7 +1403,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
 
         VerifyServiceLedgerEntry(ServiceHeader."Document Type", ServiceInvoiceHeader."No.", ServiceHeader."Customer No.");
         VerifyCustomerLedgerEntry(ServiceHeader."Document Type", ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Posting Date");
@@ -1448,13 +1448,13 @@ codeunit 136119 "Service Standard Codes"
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
         ServiceCrMemoLine.SetRange(Type, ServiceCrMemoLine.Type::Resource);
-        ServiceCrMemoLine.FindFirst;
+        ServiceCrMemoLine.FindFirst();
         ResLedgerEntry.SetRange("Document No.", ServiceCrMemoLine."Document No.");
         ResLedgerEntry.SetRange("Entry Type", ResLedgerEntry."Entry Type"::Sale);
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField(Quantity, ServiceCrMemoLine.Quantity);
         ResLedgerEntry.TestField("Order Type", ResLedgerEntry."Order Type"::Service);
         ResLedgerEntry.TestField("Order No.", PreAssignedNo);
@@ -1468,12 +1468,12 @@ codeunit 136119 "Service Standard Codes"
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Resource);
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ResLedgerEntry.SetRange("Document No.", ServiceInvoiceLine."Document No.");
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField(Quantity, -ServiceInvoiceLine.Quantity);
         ResLedgerEntry.TestField("Order Type", ResLedgerEntry."Order Type"::Service);
         ResLedgerEntry.TestField("Order No.", PreAssignedNo);
@@ -1500,7 +1500,7 @@ codeunit 136119 "Service Standard Codes"
         // field Type and No. of the relevant Service Line.
         FindServiceLine(ServiceLine, ServiceLine."Document Type"::Order, DocumentNo);
         ServiceInvoiceHeader.SetRange("Order No.", ServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", ServiceLine."Line No.");
             ServiceInvoiceLine.TestField(Type, ServiceLine.Type);
@@ -1532,7 +1532,7 @@ codeunit 136119 "Service Standard Codes"
         repeat
             ServiceLine.SetRange(Type, StandardServiceLine.Type);
             ServiceLine.SetRange("No.", StandardServiceLine."No.");
-            ServiceLine.FindFirst;
+            ServiceLine.FindFirst();
             ServiceLine.TestField(Quantity, StandardServiceLine.Quantity);
         until StandardServiceLine.Next = 0;
     end;
@@ -1548,7 +1548,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
-            ServiceShipmentLine.FindFirst;
+            ServiceShipmentLine.FindFirst();
             ServiceShipmentLine.TestField(Type, ServiceLine.Type);
             ServiceShipmentLine.TestField("No.", ServiceLine."No.");
         until ServiceLine.Next = 0;
@@ -1571,7 +1571,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("Posting Date", PostingDate);
     end;
 

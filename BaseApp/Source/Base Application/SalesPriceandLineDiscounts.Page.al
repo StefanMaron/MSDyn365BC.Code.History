@@ -187,12 +187,7 @@ page 1345 "Sales Price and Line Discounts"
                 var
                     SalesPrice: Record "Sales Price";
                 begin
-                    if not Find() then
-                        exit;
-                    SalesPrice.SetCurrentKey("Sales Type", "Sales Code", "Item No.");
-                    SalesPrice.SetRange("Sales Type", "Sales Type");
-                    SalesPrice.SetRange("Sales Code", "Sales Code");
-                    SalesPrice.SetRange("Item No.", Code);
+                    SetSalesPriceFilters(SalesPrice);
                     Page.Run(Page::"Sales Prices", SalesPrice);
                 end;
             }
@@ -210,13 +205,7 @@ page 1345 "Sales Price and Line Discounts"
                 var
                     SalesLineDiscount: Record "Sales Line Discount";
                 begin
-                    if not Find() then
-                        exit;
-                    SalesLineDiscount.SetCurrentKey("Sales Type", "Sales Code", Type, Code);
-                    SalesLineDiscount.SetRange("Sales Type", "Sales Type");
-                    SalesLineDiscount.SetRange("Sales Code", "Sales Code");
-                    SalesLineDiscount.SetRange(Type, Type);
-                    SalesLineDiscount.SetRange(Code, Code);
+                    SetSalesLineDiscountFilters(SalesLineDiscount);
                     Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
                 end;
             }
@@ -298,6 +287,43 @@ page 1345 "Sales Price and Line Discounts"
     local procedure GetLoadedPriceGroup(): Code[20]
     begin
         exit(loadedPriceGroup)
+    end;
+
+    local procedure SetSalesPriceFilters(var SalesPrice: Record "Sales Price")
+    begin
+        SalesPrice.SetCurrentKey("Sales Type", "Sales Code", "Item No.");
+        if Rec.Find() then begin
+            SalesPrice.SetRange("Sales Type", Rec."Sales Type");
+            SalesPrice.SetRange("Sales Code", Rec."Sales Code");
+            SalesPrice.SetRange("Item No.", Rec.Code);
+        end else begin
+            if loadedCustNo <> '' then begin
+                SalesPrice.SetRange("Sales Type", Rec."Sales Type"::Customer);
+                SalesPrice.SetRange("Sales Code", loadedCustNo);
+            end;
+            if loadedItemNo <> '' then
+                SalesPrice.SetRange("Item No.", loadedItemNo);
+        end;
+    end;
+
+    local procedure SetSalesLineDiscountFilters(var SalesLineDiscount: Record "Sales Line Discount")
+    begin
+        SalesLineDiscount.SetCurrentKey("Sales Type", "Sales Code", Type, Code);
+        if Rec.Find() then begin
+            SalesLineDiscount.SetRange("Sales Type", Rec."Sales Type");
+            SalesLineDiscount.SetRange("Sales Code", Rec."Sales Code");
+            SalesLineDiscount.SetRange(Type, Rec.Type);
+            SalesLineDiscount.SetRange(Code, Rec.Code);
+        end else begin
+            if loadedCustNo <> '' then begin
+                SalesLineDiscount.SetRange("Sales Type", Rec."Sales Type"::Customer);
+                SalesLineDiscount.SetRange("Sales Code", loadedCustNo);
+            end;
+            if loadedItemNo <> '' then begin
+                SalesLineDiscount.SetRange(Type, Rec.Type::Item);
+                SalesLineDiscount.SetRange(Code, loadedItemNo);
+            end;
+        end;
     end;
 
     procedure RunUpdatePriceIncludesVatAndPrices(IncludesVat: Boolean)

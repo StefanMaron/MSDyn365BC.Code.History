@@ -46,8 +46,8 @@ codeunit 137005 "SCM WMS regressions"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM WMS regressions");
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         WarehouseSetup.Get();
         WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         WarehouseSetup.Modify(true);
@@ -84,7 +84,7 @@ codeunit 137005 "SCM WMS regressions"
         ProdBOMLine.SetRange("Version Code", '');
         ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
         ProdBOMLine.SetRange("No.", ChildItem."No.");
-        if not ProdBOMLine.FindFirst then
+        if not ProdBOMLine.FindFirst() then
             LibraryManufacturing.CreateProductionBOMLine(ProdBOMHeader, ProdBOMLine, '', ProdBOMLine.Type::Item, ChildItem."No.", QuantityPer)
         else begin
             ProdBOMLine.Validate("Quantity per", QuantityPer);
@@ -126,7 +126,7 @@ codeunit 137005 "SCM WMS regressions"
         // [FEATURE] [Warehouse] [Pick] [Production Order]
         // This is implementation for Scenario 1, bug 40394 from "Navision Corsica" database
 
-        Initialize;
+        Initialize();
 
         // Step 1 - Create item hiercarchy: BOM with hierachy: PARENT and CHILD
         // Add a new UOM to child item = KG
@@ -139,7 +139,7 @@ codeunit 137005 "SCM WMS regressions"
         // Step 3 - Add 1000 PCS of child item into inventory by posting item journal into created location
         LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
           ChildItem."No.", 1000);
@@ -198,7 +198,7 @@ codeunit 137005 "SCM WMS regressions"
         // [FEATURE] [Warehouse] [Put-Away] [Production Order] [UOM]
         // This is implementation for Scenario 2, bug 40394 from "Navision Corsica" database
 
-        Initialize;
+        Initialize();
 
         // SCENARIO 2
 
@@ -261,7 +261,7 @@ codeunit 137005 "SCM WMS regressions"
         // [FEATURE] [Production] [Routing] [Production Order Routing Line]
         // [SCENARIO 376980] Put-away from production order output cannot be posted if the source prod. order's routing has setup errors
 
-        Initialize;
+        Initialize();
 
         CreatePickPutAwayLocation(Location);
 
@@ -280,8 +280,8 @@ codeunit 137005 "SCM WMS regressions"
 
         // [GIVEN] Update the last production routing line: set "Next Operation No." to a non-existing operation no.
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
-        ProdOrderRoutingLine."Next Operation No." := LibraryUtility.GenerateGUID;
+        ProdOrderRoutingLine.FindFirst();
+        ProdOrderRoutingLine."Next Operation No." := LibraryUtility.GenerateGUID();
         ProdOrderRoutingLine.Modify();
 
         // [WHEN] Create and post put-away from production order
@@ -307,7 +307,7 @@ codeunit 137005 "SCM WMS regressions"
     begin
         // [FEATURE] [Production] [Routing] [Production Order Routing Line]
         // [SCENARIO 376980] Put-away from production order should be posted if the terminating operation in the routing is the first operaton in the list
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a parallel production routing "R" with 2 operatioins "1" and "2"
         CreatePickPutAwayLocation(Location);
@@ -379,7 +379,7 @@ codeunit 137005 "SCM WMS regressions"
         // [FEATURE] [Production] [Routing] [Production Order Routing Line]
         // [SCENARIO 291617] Prod Order. Routing Line checks that a termination process exists
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location created
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -399,8 +399,8 @@ codeunit 137005 "SCM WMS regressions"
 
         // [WHEN] Update the last production routing line: set "Next Operation No." to a non-existing operation no.
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
-        asserterror ProdOrderRoutingLine.Validate("Next Operation No.", LibraryUtility.GenerateGUID);
+        ProdOrderRoutingLine.FindFirst();
+        asserterror ProdOrderRoutingLine.Validate("Next Operation No.", LibraryUtility.GenerateGUID());
 
         // [THEN] Error: production order routing has no termination operation
         Assert.ExpectedError(NoTerminationProcessesErr);
@@ -486,7 +486,7 @@ codeunit 137005 "SCM WMS regressions"
 
         ProdOrderRoutingLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
 
         ItemJournalLine.Validate("Operation No.", ProdOrderRoutingLine."Operation No.");
         ItemJournalLine.Validate("Output Quantity", ProductionOrder.Quantity);
@@ -563,7 +563,7 @@ codeunit 137005 "SCM WMS regressions"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderStatus);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivity(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
@@ -571,7 +571,7 @@ codeunit 137005 "SCM WMS regressions"
         with WarehouseActivityHeader do begin
             SetRange("Source Document", SourceDocument);
             SetRange("Source No.", SourceNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 

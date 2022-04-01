@@ -162,7 +162,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2604401247 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Microsoft 365 Connector - Objects</source>
-          <target state="translated">Courriel connecteur Microsoft 365 - Objets</target>
+          <target state="translated">Courriel connecteur Microsoft 365 - Objets</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email Conn. - Objects - Property Caption</note>
         </trans-unit>

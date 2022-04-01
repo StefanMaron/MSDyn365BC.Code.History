@@ -531,14 +531,14 @@ page 6560 "Document Line Tracking"
                 begin
                     with SalesLine do
                         if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst;
+                            FindFirst();
                             AssignLineFields(
                               Format("Document Type"), "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                             exit;
                         end;
                     with SalesLineArchive do
                         if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst;
+                            FindFirst();
                             AssignLineFields(
                               Format("Document Type"), "Document No.", ArchivedTxt, Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                         end;
@@ -547,14 +547,14 @@ page 6560 "Document Line Tracking"
                 begin
                     with BlanketSalesOrderLine do
                         if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst;
+                            FindFirst();
                             AssignLineFields(
                               Format("Document Type"), "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                             exit;
                         end;
                     with BlanketSalesOrderLineArchive do
                         if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst;
+                            FindFirst();
                             AssignLineFields(
                               Format("Document Type"), "Document No.", ArchivedTxt, Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                         end;
@@ -563,14 +563,14 @@ page 6560 "Document Line Tracking"
                 begin
                     with PurchLine do
                         if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst;
+                            FindFirst();
                             AssignLineFields(
                               Format("Document Type"), "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                             exit;
                         end;
                     with PurchLineArchive do
                         if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst;
+                            FindFirst();
                             AssignLineFields(
                               Format("Document Type"), "Document No.", ArchivedTxt, Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                         end;
@@ -579,14 +579,14 @@ page 6560 "Document Line Tracking"
                 begin
                     with BlanketPurchOrderLine do
                         if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst;
+                            FindFirst();
                             AssignLineFields(
                               Format("Document Type"), "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                             exit;
                         end;
                     with BlanketPurchOrderLineArchive do
                         if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst;
+                            FindFirst();
                             AssignLineFields(
                               Format("Document Type"), "Document No.", ArchivedTxt, Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                         end;
@@ -594,63 +594,63 @@ page 6560 "Document Line Tracking"
             SourceDocType::SalesShipment:
                 with SalesShptLine do begin
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst;
+                        FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
                 end;
             SourceDocType::PurchaseReceipt:
                 with PurchRcptLine do begin
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst;
+                        FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
                 end;
             SourceDocType::SalesInvoice:
                 with SalesInvLine do begin
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst;
+                        FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
                 end;
             SourceDocType::PurchaseInvoice:
                 with PurchInvLine do begin
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst;
+                        FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
                 end;
             SourceDocType::ReturnShipment:
                 with ReturnShipmentLine do begin
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst;
+                        FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
                 end;
             SourceDocType::PurchaseCreditMemo:
                 with PurchCrMemoLine do begin
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst;
+                        FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
                 end;
             SourceDocType::SalesReturnOrder:
                 with SalesLine do begin
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst;
+                        FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
                 end;
             SourceDocType::ReturnReceipt:
                 with ReturnReceiptLine do begin
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst;
+                        FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
                 end;
             SourceDocType::SalesCreditMemo:
                 with SalesCrMemoLine do begin
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst;
+                        FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
                 end;

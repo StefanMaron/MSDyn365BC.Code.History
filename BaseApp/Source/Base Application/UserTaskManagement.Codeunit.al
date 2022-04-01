@@ -93,7 +93,7 @@ codeunit 1174 "User Task Management"
         // Example - If user belongs to 'A' and 'C' user tasks groups this function will return 'A|C' as filter text.
         UserTaskGroupMember.Reset();
         UserTaskGroupMember.SetRange("User Security ID", UserSecurityId);
-        if UserTaskGroupMember.FindSet then begin
+        if UserTaskGroupMember.FindSet() then begin
             repeat
                 FilterTxt := FilterTxt + UserTaskGroupMember."User Task Group Code" + '|';
             until UserTaskGroupMember.Next() = 0;

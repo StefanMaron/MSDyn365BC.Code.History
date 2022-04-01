@@ -167,11 +167,11 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ConfigPackageField: Record "Config. Package Field";
     begin
         ConfigPackageTable.SetRange("Package Code", PackageCode);
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 ConfigPackageField.SetRange("Package Code", PackageCode);
                 ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
-                if ConfigPackageField.FindSet then
+                if ConfigPackageField.FindSet() then
                     repeat
                         if not ConfigPackageField."Primary Key" then begin
                             ConfigPackageField.Validate("Validate Field", ValidateFields);
@@ -230,7 +230,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ConfigPackage: Record "Config. Package";
         ResourcePriceCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         GeneratePackageWithFieldFillingDependency(ConfigPackage, 1, 0, ResourcePriceCode, false);
 
@@ -247,7 +247,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ConfigPackage: Record "Config. Package";
         ResourcePriceCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         GeneratePackageWithFieldFillingDependency(ConfigPackage, 0, 1, ResourcePriceCode, false);
 
@@ -264,7 +264,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ConfigPackage: Record "Config. Package";
         ResourcePriceCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         GeneratePackageWithFieldFillingDependency(ConfigPackage, 1, 0, ResourcePriceCode, false);
 
@@ -281,7 +281,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ResourcePrice: Record "Resource Price";
         ResourcePriceCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         GeneratePackageWithFieldFillingDependency(ConfigPackage, 0, 1, ResourcePriceCode, false);
 
@@ -300,7 +300,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         CustPostingGroupCode: Code[20];
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         GenerateSimplePackage(false, false, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
 
@@ -323,7 +323,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         CustPostingGroupCode: Code[20];
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         GenerateSimplePackage(true, false, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
 
@@ -346,7 +346,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         CustPostingGroupCode: Code[20];
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         GenerateSimplePackage(false, true, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
 
@@ -373,7 +373,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         CustPostingGroupCode: Code[20];
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         GenerateSimplePackage(false, false, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
 
@@ -392,7 +392,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         CustPostingGroupCode: Code[20];
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         GenerateSimplePackage(true, false, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
 
@@ -413,7 +413,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     begin
         // Verify that ValidatePackage works correctly when a record being validated exists in DB
 
-        Initialize;
+        Initialize();
 
         GeneratePackageWithFieldFillingDependency(ConfigPackage, 0, 1, ResourcePriceCode, true);
 
@@ -437,7 +437,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     begin
         // Verify that a package error is created for every invalid fata entry when a single package line contains more than one error
 
-        Initialize;
+        Initialize();
 
         // The package is created with one error in data
         GenerateSimplePackage(
@@ -479,7 +479,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     begin
         // Verify that a package error is deleted when the invalid record is corrected
 
-        Initialize;
+        Initialize();
 
         GenerateSimplePackage(
           true,// Generate package with invalid G/L Account code
@@ -539,7 +539,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     begin
         // Verify that a package error can be corrected from "Config. Package Records" page
 
-        Initialize;
+        Initialize();
 
         GenerateSimplePackage(
           true,// Generate package with invalid G/L Account code
@@ -675,7 +675,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     begin
         // Create Config. Package Record (Gen. Jnl Line with Currency)
         // Check no package errors exist after Package Application
-        Initialize;
+        Initialize();
 
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(
             WorkDate - LibraryRandom.RandInt(365),
@@ -773,7 +773,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         // [SCENARIO 375680] Field included in primary key should have higher Processing Order in configuration package
 
         // [GIVEN] Configuration package
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreatePackage(ConfigPackage);
 
         // [WHEN] Add table "Sales Price" in configuration package
@@ -835,7 +835,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ODataEdmType: Record "OData Edm Type";
     begin
         ODataEdmType.Init();
-        ODataEdmType.Key := LibraryUtility.GenerateGUID;
+        ODataEdmType.Key := LibraryUtility.GenerateGUID();
         ODataEdmType.Insert();
     end;
 
@@ -851,7 +851,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     begin
         // [FEATURE] [API Setup] [Integration Record]
         // [SCENARIO 269852] RS engine taking into account API setup configuration "enabled" setting
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryRapidStart.CreatePackageDataForField(
           ConfigPackage, ConfigPackageTable, DATABASE::Customer, Customer.FieldNo("No."), Customer."No.", 1);

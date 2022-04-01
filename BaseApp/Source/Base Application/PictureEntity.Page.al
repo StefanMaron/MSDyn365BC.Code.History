@@ -1,4 +1,4 @@
-#if not CLEAN18
+#if not CLEAN20
 page 5468 "Picture Entity"
 {
     Caption = 'Picture Entity';

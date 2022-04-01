@@ -260,7 +260,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [FEATURE] [Job Queue Error Handler]
         // [GIVEN] An Error "Err" happens
         BindSubscription(LibraryJobQueue);
-        ExpectedErrorMessage := LibraryUtility.GenerateGUID;
+        ExpectedErrorMessage := LibraryUtility.GenerateGUID();
         asserterror Error(ExpectedErrorMessage);
 
         // [GIVEN] Job Queue Entry "A", where Status "In Process"
@@ -279,7 +279,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [THEN] Job Queue Entry "A" got Status "Error", "Error Message" is "Err"
         // [THEN] A new Log entry added, where Status "Error", "Error Message" is "Err"
         JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
-        JobQueueLogEntry.FindLast;
+        JobQueueLogEntry.FindLast();
         VerifyErrorInJobQueueEntryAndLog(JobQueueEntry, JobQueueLogEntry, ExpectedErrorMessage);
         UnbindSubscription(LibraryJobQueue);
     end;
@@ -295,7 +295,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [FEATURE] [Job Queue Error Handler]
         // [GIVEN] An Error "Err" happens
         BindSubscription(LibraryJobQueue);
-        ExpectedErrorMessage := LibraryUtility.GenerateGUID;
+        ExpectedErrorMessage := LibraryUtility.GenerateGUID();
         asserterror Error(ExpectedErrorMessage);
         // [GIVEN] Job Queue Entry "A", where Status "In Process"
         JobQueueEntry.Init();
@@ -331,7 +331,7 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Job Queue Log Entry]
         // [GIVEN] The last error was "Err"
-        ExpectedErrorMessage := LibraryUtility.GenerateGUID;
+        ExpectedErrorMessage := LibraryUtility.GenerateGUID();
         asserterror Error(ExpectedErrorMessage);
         // [GIVEN] Job Queue Entry "A", where Status "In Process"
         JobQueueEntry.Init();
@@ -454,7 +454,7 @@ codeunit 139018 "Job Queue Entry Tests"
         ExpectedErrorMessage: Text;
     begin
         // [FEATURE] [Job Queue Log Entry]
-        ExpectedErrorMessage := LibraryUtility.GenerateGUID;
+        ExpectedErrorMessage := LibraryUtility.GenerateGUID();
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry."Error Message" := CopyStr(ExpectedErrorMessage, 1, 2048);
         LibraryVariableStorage.Enqueue(ExpectedErrorMessage);
@@ -471,7 +471,7 @@ codeunit 139018 "Job Queue Entry Tests"
         ExpectedErrorMessage: Text;
     begin
         // [FEATURE] [Job Queue Log Entry]
-        ExpectedErrorMessage := LibraryUtility.GenerateGUID;
+        ExpectedErrorMessage := LibraryUtility.GenerateGUID();
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry.SetErrorCallStack(ExpectedErrorMessage);
         JobQueueLogEntry.Insert();

@@ -136,7 +136,7 @@ report 1700 "Deferral Summary - G/L"
                 if PrintOnlyOnePerPage and (PreviousAccount <> WorkingAccount) then begin
                     PostedDeferralHeaderPage.Reset();
                     PostedDeferralHeaderPage.SetRange("Account No.", "Account No.");
-                    if PostedDeferralHeaderPage.FindFirst then
+                    if PostedDeferralHeaderPage.FindFirst() then
                         PageGroupNo := PageGroupNo + 1;
                 end;
             end;

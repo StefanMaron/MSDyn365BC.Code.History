@@ -126,7 +126,7 @@ page 2105 "O365 Monthly Customer Listpart"
         if not O365SalesStatistics.GenerateMonthlyCustomers(Month, Customer) then
             exit;
 
-        if not Customer.FindSet then
+        if not Customer.FindSet() then
             exit;
         StartOfMonthDate := DMY2Date(1, CurrentMonth, Date2DMY(WorkDate, 3));
         Evaluate(CurrentMonthDateFormula, '<CM>');

@@ -132,7 +132,7 @@ page 5099 Tasks
                     Clear(MatrixForm);
                     MatrixForm.Load(MatrixColumnCaptions, MatrixRecords, TableOption, ColumnDateFilters, OutputOption, FilterSalesPerson,
                       FilterTeam, FilterCampaign, FilterContact, StatusFilter, IncludeClosed, PriorityFilter);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

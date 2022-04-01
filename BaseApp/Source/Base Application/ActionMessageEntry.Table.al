@@ -172,7 +172,7 @@ table 99000849 "Action Message Entry"
                 FirstDate := DMY2Date(31, 12, 9999);
                 ActionMessageEntry.FilterToReservEntry(ReservEntry);
                 ReservEntry.SetRange(Binding, ReservEntry.Binding::"Order-to-Order");
-                if ReservEntry.FindSet then
+                if ReservEntry.FindSet() then
                     repeat
                         if ReservEntry2.Get(ReservEntry."Entry No.", false) then
                             if (ReservEntry2."Source Type" = DATABASE::"Prod. Order Component") and

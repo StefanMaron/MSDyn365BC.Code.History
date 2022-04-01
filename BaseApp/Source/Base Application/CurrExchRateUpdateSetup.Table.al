@@ -206,8 +206,8 @@ table 1650 "Curr. Exch. Rate Update Setup"
         DummyRecId: RecordID;
     begin
         if Enabled then begin
-            JobQueueEntry.ScheduleRecurrentJobQueueEntryWtihFrequency(JobQueueEntry."Object Type to Run"::Codeunit,
-              CODEUNIT::"Update Currency Exchange Rates", DummyRecId, 24 * 60, 3, 3600);
+            JobQueueEntry.ScheduleRecurrentJobQueueEntryWithFrequency(JobQueueEntry."Object Type to Run"::Codeunit,
+              CODEUNIT::"Update Currency Exchange Rates", DummyRecId, 24 * 60, 3, 3600, 0T);
             JobQueueEntry.Description := StrSubstNo(JobQueueEntryDescriptionTxt, GetDescription());
             JobQueueEntry.Modify();
             if Confirm(DailyUpdateQst) then
@@ -226,7 +226,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchLineDef.SetRange("Parent Code", '');
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
 
         if DataExchLineDef."Data Line Tag" = '' then
             Error(MissingDataLineTagErr, DataExchFieldMappingBuf.FieldCaption(Source), DataExchangeLineDefNameTxt);
@@ -244,7 +244,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Update Currency Exchange Rates");
-        if JobQueueEntry.FindFirst then
+        if JobQueueEntry.FindFirst() then
             PAGE.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
     end;
 

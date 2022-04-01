@@ -77,7 +77,7 @@ table 5815 "Inventory Period Entry"
             ItemReg.SetFilter("From Entry No.", '<=%1', "Entry No.");
             ItemReg.SetFilter("To Entry No.", '>=%1', "Entry No.");
         end;
-        if ItemReg.FindFirst then begin
+        if ItemReg.FindFirst() then begin
             InvtPeriodEntry.SetFilter("Closing Item Register No.", '>=%1', ItemReg."No.");
             InvtPeriodEntry.ModifyAll("Closing Item Register No.", 0);
         end;

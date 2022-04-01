@@ -371,7 +371,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
 
         ReservEntry2.Copy(ReservationEntry);
 
-        if not ReservEntry2.FindFirst then
+        if not ReservEntry2.FindFirst() then
             exit(false);
 
         if ReservEntry2."Quantity (Base)" < 0 then

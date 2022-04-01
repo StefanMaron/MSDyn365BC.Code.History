@@ -50,7 +50,7 @@ page 563 "G/L Entries Dimension Overview"
                         MatrixForm.SetTempGLEntry(TempGLEntry)
                     else
                         MatrixForm.SetTableView(Rec);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

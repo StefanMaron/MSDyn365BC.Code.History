@@ -78,7 +78,7 @@ page 1390 "Generic Chart"
                 begin
                     SelectedChartDefinition.SetRange(Enabled, true);
                     if SelectedChartDefinition.Next(-1) = 0 then
-                        if not SelectedChartDefinition.FindLast then
+                        if not SelectedChartDefinition.FindLast() then
                             exit;
                     InitializeSelectedChart;
                 end;
@@ -94,7 +94,7 @@ page 1390 "Generic Chart"
                 begin
                     SelectedChartDefinition.SetRange(Enabled, true);
                     if SelectedChartDefinition.Next() = 0 then
-                        if not SelectedChartDefinition.FindFirst then
+                        if not SelectedChartDefinition.FindFirst() then
                             exit;
                     InitializeSelectedChart;
                 end;

@@ -50,7 +50,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         // [WHEN] Page is opened
         PowerBIReportSelectionTestPage.Trap;
         PowerBIReportSelection.SetContext(LibraryPowerBIServiceMgt.GetContext);
-        PowerBIReportSelection.Run;
+        PowerBIReportSelection.Run();
 
         // [THEN] Page opens successfully with correct data loaded
         PowerBIReportSelectionTestPage.First;
@@ -75,7 +75,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
 
         // [WHEN] Page is opened
         PowerBIReportSelectionTestPage.Trap;
-        PowerBIReportSelectionPage.Run;
+        PowerBIReportSelectionPage.Run();
 
         // [THEN] Page opens with filtered results
         Assert.AreEqual('@*2*', PowerBIReportSelectionTestPage.FILTER.GetFilter(ReportName),
@@ -107,7 +107,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
 
         // [THEN] Row with correct values is added to Report Configuration table
         Assert.AreEqual(1, PowerBIReportConfiguration.Count, 'Configuration table should have the new row.');
-        PowerBIReportConfiguration.FindFirst;
+        PowerBIReportConfiguration.FindFirst();
         PowerBIReportConfiguration.TestField("Report ID", ReportId);
         PowerBIReportConfiguration.TestField("User Security ID", UserSecurityId);
     end;
@@ -169,7 +169,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
 
         PowerBIReportSelectionPage.SetContext(Context2);
         PowerBIReportSelectionTestPage.Trap;
-        PowerBIReportSelectionPage.Run;
+        PowerBIReportSelectionPage.Run();
 
         // [WHEN] User enables a report and saves
         PowerBIReportSelectionTestPage.Last;
@@ -199,7 +199,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         // [GIVEN] Page is open
         PowerBIReportSelectionTestPage.Trap;
         PowerBIReportSelection.SetContext(LibraryPowerBIServiceMgt.GetContext);
-        PowerBIReportSelection.Run;
+        PowerBIReportSelection.Run();
 
         // [WHEN] User focuses an enabled row
         PowerBIReportSelectionTestPage.First;
@@ -267,7 +267,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         // [GIVEN] Page is open
         PowerBIReportSelectionTestPage.Trap;
         PowerBIReportSelection.SetContext(LibraryPowerBIServiceMgt.GetContext);
-        PowerBIReportSelection.Run;
+        PowerBIReportSelection.Run();
 
         // [WHEN] User clicks Disable button on an enabled row
         PowerBIReportSelectionTestPage.First;

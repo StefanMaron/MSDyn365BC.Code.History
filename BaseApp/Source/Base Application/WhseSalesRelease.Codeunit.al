@@ -128,7 +128,7 @@ codeunit 5771 "Whse.-Sales Release"
             SalesLine2.Copy(SalesLine);
             SalesLine2.SetRange("Location Code", SalesLine."Location Code");
             SalesLine2.SetRange("Unit of Measure Code", '');
-            if SalesLine2.FindFirst then
+            if SalesLine2.FindFirst() then
                 SalesLine2.TestField("Unit of Measure Code");
 
             WarehouseRequest.Type := WhseType;

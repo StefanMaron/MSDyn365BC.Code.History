@@ -103,7 +103,7 @@ table 467 "Workflow Webhook Entry"
         WorkflowWebhookEntry.SetRange(Response, WorkflowWebhookEntry.Response::Pending);
 
         if not IsApprovalAdmin then begin
-            if WorkflowWebhookEntry.FindSet then
+            if WorkflowWebhookEntry.FindSet() then
                 repeat
                     if WorkflowWebhookEntry."Initiated By User ID" = UserId then
                         WorkflowWebhookEntry.Mark(true)

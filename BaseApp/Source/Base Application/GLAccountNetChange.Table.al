@@ -8,6 +8,8 @@ table 269 "G/L Account Net Change"
     ObsoleteReason = 'This table will be marked as temporary. Please ensure you do not store any data in the table.';
 #endif
     Caption = 'G/L Account Net Change';
+    ReplicateData = false;
+
     fields
     {
         field(1; "No."; Code[20])

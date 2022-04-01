@@ -98,7 +98,7 @@ page 5482 "Journal Entity"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        if not GenJournalLine.FindFirst then
+        if not GenJournalLine.FindFirst() then
             Error(ThereIsNothingToPostErr);
 
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", GenJournalLine);

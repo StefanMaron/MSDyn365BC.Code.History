@@ -80,7 +80,7 @@ codeunit 134316 "Workflow UI Tests"
         // Setup
         SelectedEventDesc := '';
         // Exercise
-        WorkflowPage.OpenNew;
+        WorkflowPage.OpenNew();
         WorkflowPage.Code.SetValue('Test');
         WorkflowPage.Description.SetValue('Description');
         WorkflowPage.WorkflowSubpage."Event Description".Lookup;
@@ -192,7 +192,7 @@ codeunit 134316 "Workflow UI Tests"
 
         Assert.IsFalse(WorkflowRule.IsEmpty, 'Rule is not created');
         Assert.IsTrue(WorkflowRule.Count = 1, 'More than one rule is created');
-        WorkflowRule.FindFirst;
+        WorkflowRule.FindFirst();
         WorkflowRule.TestField("Table ID", DATABASE::Customer);
         WorkflowRule.TestField("Field No.", Customer.FieldNo("Credit Limit (LCY)"));
         WorkflowRule.TestField(Operator, WorkflowRule.Operator::Increased);
@@ -376,7 +376,7 @@ codeunit 134316 "Workflow UI Tests"
         Clear(InputField);
         InputField.SetRange(TableNo, DATABASE::Customer);
         InputField.SetRange("No.", Customer.FieldNo(Amount));
-        InputField.FindFirst;
+        InputField.FindFirst();
 
         // Execute - Page handler will lookup the field caption
         WorkflowPage.OpenEdit;
@@ -422,7 +422,7 @@ codeunit 134316 "Workflow UI Tests"
         Clear(InputField);
         InputField.SetRange(TableNo, DATABASE::Customer);
         InputField.SetRange("No.", Customer.FieldNo("Shipment Method Code"));
-        InputField.FindFirst;
+        InputField.FindFirst();
         InputField."Field Caption" := CopyStr(InputField."Field Caption", 1, 2);
 
         // Execute - Page handler will enter partial field caption
@@ -701,7 +701,7 @@ codeunit 134316 "Workflow UI Tests"
         OldValue1 := LibraryRandom.RandDec(1000, 2);
         OldValue2 := LibraryRandom.RandDec(1000, 2);
 
-        Customer.FindFirst;
+        Customer.FindFirst();
         CreateApprovalEntry(ApprovalEntry, Customer.RecordId, UserId, WorkflowInstanceId);
         CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
           Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue1, 0, 9), WorkflowInstanceId);
@@ -752,7 +752,7 @@ codeunit 134316 "Workflow UI Tests"
         // [THEN] The Change factbox is empty.
         WorkflowInstanceId := CreateGuid;
 
-        Customer.FindFirst;
+        Customer.FindFirst();
         CreateApprovalEntry(ApprovalEntry, Customer.RecordId, UserId, WorkflowInstanceId);
 
         RequeststoApprove.OpenView;
@@ -979,7 +979,7 @@ codeunit 134316 "Workflow UI Tests"
     begin
         // [SCENARIO] Entering a "Notification User ID" option works for CreateNotificationEntry response.
         // [GIVEN] The non-windows user: 'NAV Test User' set as the approval user
-        UserName := LibraryUtility.GenerateGUID;
+        UserName := LibraryUtility.GenerateGUID();
         LibraryPermissions.CreateUser(User, UserName, false);
         LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserName, '');
         // [GIVEN] A workflow with the CreateNotificationEntry response.
@@ -1034,7 +1034,7 @@ codeunit 134316 "Workflow UI Tests"
     begin
         // [SCENARIO] Entering a "Notify Sender" option works for CreateNotificationEntry response.
         // [GIVEN] The non-windows user: 'NAV Test User' set as the approval user
-        UserName := LibraryUtility.GenerateGUID;
+        UserName := LibraryUtility.GenerateGUID();
         LibraryPermissions.CreateUser(User, UserName, false);
         LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserName, '');
         // [GIVEN] A workflow with the CreateNotificationEntry response.
@@ -1135,7 +1135,7 @@ codeunit 134316 "Workflow UI Tests"
         // Setup
         LibraryWorkflow.CopyWorkflow(Workflow, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         Workflow.CreateInstance(WorkflowStepInstance);
-        WorkflowStepInstance.FindFirst;
+        WorkflowStepInstance.FindFirst();
 
         // Excercise
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
@@ -1530,7 +1530,7 @@ codeunit 134316 "Workflow UI Tests"
         // [SCENARIO 287176] Fields "Amount", "Amount (LCY)" and "Currency Code" are visible on Page "Requests To Approve" in Foundation setup
 
         // [GIVEN] Foundation Application Area Setup Enabled
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open Page "Requests to Approve"
         RequeststoApprove.OpenView;
@@ -1592,7 +1592,7 @@ codeunit 134316 "Workflow UI Tests"
         // [SCENARIO 287176] Fields "Amount", "Amount (LCY)" and "Currency Code" are not found on Page "Approval Request Entries" in Foundation setup
 
         // [GIVEN] Foundation Application Area Setup Enabled
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open Page "Approval Request Entries"
         ApprovalRequestEntries.OpenView;

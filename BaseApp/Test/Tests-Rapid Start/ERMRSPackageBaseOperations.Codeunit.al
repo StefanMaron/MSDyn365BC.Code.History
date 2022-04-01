@@ -51,7 +51,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] package clears related data when it is deleted.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Related Tables
         CreatePackageDataPairWithPKRelation(ConfigPackage);
@@ -73,7 +73,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         ConfigPackage2: Record "Config. Package";
         PackageCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithPKRelation(ConfigPackage1);
         CreatePackageDataPairWithPKRelation(ConfigPackage2);
@@ -94,7 +94,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] package renamed related data when it is renamed
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Related Tables
         CreatePackageDataPairWithPKRelation(ConfigPackage);
@@ -120,7 +120,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] for parameter: Selected tables
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate WS Lines and Package
         LibraryRapidStart.CreateConfigLine(ConfigLine, ConfigLine."Line Type"::Table, DATABASE::Customer, '', '', false);
@@ -134,7 +134,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // 4. Verify only one record with table Customer created (no waste records)
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
         Assert.IsTrue(ConfigPackageTable.Count = 1, ReportGetTablesOneRecord);
-        ConfigPackageTable.FindFirst;
+        ConfigPackageTable.FindFirst();
         Assert.IsTrue(ConfigPackageTable."Table ID" = DATABASE::Customer, ReportGetTablesExpectedTable);
     end;
 
@@ -150,7 +150,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] for parameter: With Data Only
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate WS Lines and Package
         LibraryRapidStart.CreateConfigLine(ConfigLine, ConfigLine."Line Type"::Table, DATABASE::Customer, '', '', false);
@@ -164,7 +164,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // 4. Verify only one record with table Customer created (no waste records)
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
         Assert.IsTrue(ConfigPackageTable.Count = 1, ReportGetTablesOneRecord);
-        ConfigPackageTable.FindFirst;
+        ConfigPackageTable.FindFirst();
         Assert.IsTrue(ConfigPackageTable."Table ID" = DATABASE::Customer, ReportGetTablesExpectedTable);
     end;
 
@@ -179,7 +179,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] it is possible to add tables which are not listed in the config. worksheet
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Table Customer
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -364,14 +364,14 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] package's table can be deleted (with related tables)
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Related Tables
         CreatePackageDataPairWithPKRelation(ConfigPackage);
 
         // 3. Delete Package Table
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
-        ConfigPackageTable.FindFirst;
+        ConfigPackageTable.FindFirst();
         TableID := ConfigPackageTable."Table ID";
         ConfigPackageTable.Delete(true);
 
@@ -390,7 +390,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] package's table can be "renamed" - table id is changed
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Table Customer
         CreatePackageForTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
@@ -413,7 +413,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] package can be copied without data to the new package
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Related Tables
         CreatePackageDataPairWithPKRelation(ConfigPackage);
@@ -437,7 +437,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] package can be copied with data to the new package
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Related Tables
         CreatePackageDataPairWithPKRelation(ConfigPackage);
@@ -462,7 +462,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] package cannot be copied to the existent package
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Destination Package and Package with Table Customer
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -489,7 +489,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] Include Field is true for all fields
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Table VAT Posting Setup
         CreatePackageForTable(ConfigPackage, ConfigPackageTable, DATABASE::"VAT Posting Setup");
@@ -514,7 +514,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] Validate Field is true for fields by default
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Table Item
         CreatePackageForTable(ConfigPackage, ConfigPackageTable, DATABASE::Item);
@@ -535,7 +535,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] Validate Field is false for fields with exception
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Table VAT Posting Setup
         CreatePackageForTable(ConfigPackage, ConfigPackageTable, DATABASE::"VAT Posting Setup");
@@ -557,7 +557,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] Check default value of Processing Order, first numbering of key fields.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Table Item Vendor
         CreatePackageForTable(ConfigPackage, ConfigPackageTable, DATABASE::"Item Vendor");
@@ -584,7 +584,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] Check default value of Field Name.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Table Customer
         TableID := DATABASE::Customer;
@@ -592,7 +592,7 @@ codeunit 136610 "ERM RS Package Base Operations"
 
         // 3. Verify Field Name is correct
         Field.SetRange(TableNo, TableID);
-        Field.FindFirst;
+        Field.FindFirst();
         ConfigPackageField.Get(ConfigPackage.Code, TableID, Field."No.");
 
         Assert.AreEqual(Field.FieldName, ConfigPackageField."Field Name", Fields_WrongFieldName);
@@ -612,7 +612,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] Check default value of Relation Table ID.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Table Customer
         TableID := DATABASE::Customer;
@@ -621,7 +621,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // 3. Verify Related Table ID is correct
         Field.SetRange(TableNo, TableID);
         Field.SetRange("No.", Customer.FieldNo("Territory Code"));
-        Field.FindFirst;
+        Field.FindFirst();
         ConfigPackageField.Get(ConfigPackage.Code, TableID, Field."No.");
 
         Assert.AreEqual(Field.RelationTableNo, ConfigPackageField."Relation Table ID", Fields_WrongRelationTableNo);
@@ -639,7 +639,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO] Check default value of Dimension field.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Generate Package With Table Customer
         TableID := DATABASE::Customer;
@@ -648,7 +648,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // 3. Verify Related Table ID is correct
         ConfigPackageField.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageField.SetRange("Table ID", TableID);
-        ConfigPackageField.FindFirst;
+        ConfigPackageField.FindFirst();
         Assert.IsFalse(ConfigPackageField.Dimension, Fields_WrongDimensionField);
     end;
 
@@ -664,7 +664,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO] Package table fields for dimensions are inserted if "Dimensions as Columns" set to 'Yes'.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Generate Package With Table Customer, where
         TableID := DATABASE::Customer;
@@ -714,7 +714,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 371799] UpdateConfigLinePackageData processes Config. Line with Line No. of maximum int value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Line with "Line No." = 2147483647 (maximum int value)
         LineNo := 2147483647;
@@ -748,7 +748,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 371799] UpdateConfigLinePackageData processes Config. Package Data with Value of maximum int value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Line with Line No = 50000
         LineNo := LibraryUtility.GetNewRecNo(ConfigLine, ConfigLine.FieldNo("Line No."));
@@ -828,7 +828,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO 217909] "Config. XML Exchange".ImportPackageXMLDocument is preparing data for applying package when XML contains the first record with no data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Exported XML file with empty table "Customer Price Group"
         CustomerPriceGroup.DeleteAll();
@@ -894,7 +894,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217835] If field of table has 2 or more related tables then "Config. Package Management"."IsFieldMultiRelation" for that field return TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Field with multi related tables (Table 27 (Item), Field 5425 (Sales Unit of Measure))
         FindFieldWithMultiRelation(TableRelationsMetadata);
@@ -916,7 +916,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217835] If field of table has 1 or nothing related tables then "Config. Package Management"."IsFieldMultiRelation" for that field return FALSE
-        Initialize;
+        Initialize();
 
         Assert.IsFalse(
           ConfigPackageManagement.IsFieldMultiRelation(DATABASE::Item, Item.FieldNo("No.")), 'Result of IsMultiRelation should be FALSE.');
@@ -932,7 +932,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217835] If field of table has 2 or more related tables then "Config. Package Field"."GetRelationTablesID" for that field return a list of related tables
-        Initialize;
+        Initialize();
 
         // [GIVEN] Field with multi related tables (Table "Item Journal Line", Field "Source No.")
         // [GIVEN] Related tables: Customer, Vendor, Item.
@@ -959,7 +959,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217835] If field of table has 1 related tables then "Config. Package Field"."GetRelationTablesID" for that field return a ID of related table
-        Initialize;
+        Initialize();
 
         ConfigPackageField."Table ID" := DATABASE::Item;
 
@@ -989,7 +989,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217835] If field of table hasn't related tables then "Config. Package Field"."GetRelationTablesID" for that field return empty string
-        Initialize;
+        Initialize();
 
         ConfigPackageField."Table ID" := DATABASE::Item;
         ConfigPackageField."Field ID" := Item.FieldNo(Type);
@@ -1115,7 +1115,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM RS Package Base Operations");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryRapidStart.CleanUp('');
         if isInitialized then
             exit;
@@ -1261,7 +1261,7 @@ codeunit 136610 "ERM RS Package Base Operations"
           LibraryUtility.GenerateRandomCode(CustomerPriceGroup.FieldNo(Code), DATABASE::"Customer Price Group");
         CustomerPriceGroup."VAT Bus. Posting Gr. (Price)" :=
           LibraryUtility.GenerateRandomCode(CustomerPriceGroup.FieldNo("VAT Bus. Posting Gr. (Price)"), DATABASE::"Customer Price Group");
-        CustomerPriceGroup.Description := LibraryUtility.GenerateGUID;
+        CustomerPriceGroup.Description := LibraryUtility.GenerateGUID();
     end;
 
     local procedure VerifyRelatedRecordCount(PackageCode: Code[20]; TableID: Integer; MustBeEmpty: Boolean)
@@ -1340,7 +1340,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     local procedure VerifyFieldProcessingOrder(var ConfigPackageField: Record "Config. Package Field"; var ProcessingOrder: Integer; KeyField: Boolean)
     begin
         ConfigPackageField.SetRange("Primary Key", KeyField);
-        ConfigPackageField.FindFirst;
+        ConfigPackageField.FindFirst();
         repeat
             ProcessingOrder += 1;
             Assert.AreEqual(
@@ -1357,7 +1357,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         Commit();  // Commit required to avoid test failure.
         LibraryVariableStorage.Enqueue(WithDataOnly);
         GetPackageTables.Set(PackageCode);
-        GetPackageTables.Run;
+        GetPackageTables.Run();
     end;
 
     local procedure CopyPackage_Report_Run(var ConfigPackage: Record "Config. Package"; NewPackageCode: Code[20]; WithDataOnly: Boolean)
@@ -1368,7 +1368,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         LibraryVariableStorage.Enqueue(NewPackageCode);
         LibraryVariableStorage.Enqueue(WithDataOnly);
         CopyPackage.Set(ConfigPackage);
-        CopyPackage.Run;
+        CopyPackage.Run();
     end;
 
     local procedure CreatePackageForTable(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; TableId: Integer)
@@ -1393,12 +1393,12 @@ codeunit 136610 "ERM RS Package Base Operations"
         "Field": Record "Field";
     begin
         LibraryRapidStart.CreatePackage(ConfigPackage);
-        Field.FindFirst;
+        Field.FindFirst();
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable[1], ConfigPackage.Code, Field.TableNo);
         Field.SetRange(TableNo, Field.TableNo + 1, 10000);
-        Field.FindFirst;
+        Field.FindFirst();
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable[2], ConfigPackage.Code, Field.TableNo);
-        Field.FindLast;
+        Field.FindLast();
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable[3], ConfigPackage.Code, Field.TableNo);
         Commit();
     end;
@@ -1410,7 +1410,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         LibraryRapidStart.CreatePackage(ConfigPackage);
         for I := 1 to 8 do begin
-            Field.FindFirst;
+            Field.FindFirst();
             LibraryRapidStart.CreatePackageTable(ConfigPackageTable[I], ConfigPackage.Code, Field.TableNo);
             Field.SetRange(TableNo, Field.TableNo + 1, 10000);
         end;
@@ -1450,7 +1450,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         Field.SetRange(TableNo, 1, 99000999);
         Field.SetFilter(RelationTableNo, '>=%1', 2000000006);
-        Field.FindFirst;
+        Field.FindFirst();
 
         TableID := Field.TableNo;
         ReleatedTableID := Field.RelationTableNo;
@@ -1460,7 +1460,7 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         TableRelationsMetadata.SetRange("Related Field No.", 2);
         TableRelationsMetadata.SetRange("Condition Field No.", 1);
-        TableRelationsMetadata.FindFirst;
+        TableRelationsMetadata.FindFirst();
     end;
 
     local procedure VerifyConfigPackageData(CustomerPriceGroup: Record "Customer Price Group"; ConfigPackageCode: Code[20]; TableID: Integer)

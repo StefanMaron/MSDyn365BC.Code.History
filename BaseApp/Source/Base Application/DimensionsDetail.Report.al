@@ -730,7 +730,7 @@ report 28 "Dimensions - Detail"
         end;
     end;
 
-    local procedure Iteration(var FindFirst: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]): Boolean
+    local procedure Iteration(var FindFirstRec: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]): Boolean
     var
         SearchResult: Boolean;
     begin
@@ -739,7 +739,7 @@ report 28 "Dimensions - Detail"
                 begin
                     TempGLAcc.Reset();
                     TempGLAcc.SetFilter("No.", IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempGLAcc.Find('-')
                     else
                         if TempGLAcc.Get(IterationDimValCode) then
@@ -753,7 +753,7 @@ report 28 "Dimensions - Detail"
                 begin
                     TempBusUnit.Reset();
                     TempBusUnit.SetFilter(Code, IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempBusUnit.Find('-')
                     else
                         if TempBusUnit.Get(IterationDimValCode) then
@@ -770,7 +770,7 @@ report 28 "Dimensions - Detail"
                     TempDimVal.Reset();
                     TempDimVal.SetRange("Dimension Code", IterationDimCode);
                     TempDimVal.SetFilter(Code, IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempDimVal.Find('-')
                     else
                         if TempDimVal.Get(IterationDimCode, IterationDimValCode) then
@@ -785,7 +785,7 @@ report 28 "Dimensions - Detail"
             IterationDimValCode := '';
             IterationDimValName := '';
         end;
-        FindFirst := false;
+        FindFirstRec := false;
         exit(SearchResult);
     end;
 

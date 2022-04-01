@@ -17,6 +17,7 @@ codeunit 139400 "Permissions Test"
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryPlainTextFile: Codeunit "Library - Plain Text File";
         Assert: Codeunit Assert;
+        BaseAppID: Codeunit "BaseApp ID";
         PermissionSetBasicTxt: Label 'D365 BASIC';
         PermissionSetFinancialReportsTxt: Label 'D365 FINANCIAL REP.';
         PermissionSetJournalsEditTxt: Label 'D365 JOURNALS, EDIT';
@@ -147,16 +148,11 @@ codeunit 139400 "Permissions Test"
         // [GIVEN] Plan Office365
         PlanID := AzureADPlanTestLibrary.CreatePlan(PlanOffice365Txt);
 
-        // [GIVEN] Permission sets: Journals-Edit, Journals-Post, Financial Reports. All included in Plan Office365
-        LibraryPermissions.AddPermissionSetToPlan(PermissionSetJournalsEditTxt, PlanID);
-        LibraryPermissions.AddPermissionSetToPlan(PermissionSetJournalsPostTxt, PlanID);
-        LibraryPermissions.AddPermissionSetToPlan(PermissionSetFinancialReportsTxt, PlanID);
-
         // [GIVEN] User Group Finance, containing permission sets Journals-Edit, Journals-Post
         LibraryPermissions.CreateUserGroupWithCode(UserGroupFinanceTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionSetJournalsEditTxt);
+        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetJournalsEditTxt);
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupFinanceTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionSetJournalsPostTxt);
+        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetJournalsPostTxt);
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupFinanceTxt);
 
         // [WHEN] Accountant is added to Office365
@@ -179,18 +175,16 @@ codeunit 139400 "Permissions Test"
         // [GIVEN] Permission sets: Basic, JournalsEdit
         // [GIVEN] Plans: Dummy, Office365
         PlanIDDummy := AzureADPlanTestLibrary.CreatePlan(PlanSmallBusinessTxt);
-        LibraryPermissions.AddPermissionSetToPlan(PermissionSetBasicTxt, PlanIDDummy);
         PlanIDOffice365 := AzureADPlanTestLibrary.CreatePlan(PlanOffice365Txt);
-        LibraryPermissions.AddPermissionSetToPlan(PermissionSetBasicTxt, PlanIDOffice365);
-        LibraryPermissions.AddPermissionSetToPlan(PermissionSetJournalsEditTxt, PlanIDOffice365);
+
         // [GIVEN] User groups: Accountant, Finance
         LibraryPermissions.CreateUserGroupWithCode(UserGroupAccountantTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionSetBasicTxt);
+        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetBasicTxt);
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupAccountantTxt);
         LibraryPermissions.CreateUserGroupWithCode(UserGroupFinanceTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionSetBasicTxt);
+        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetBasicTxt);
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupFinanceTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionSetJournalsEditTxt);
+        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetJournalsEditTxt);
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupFinanceTxt);
         // [GIVEN] Accountant in plan Dummy
         LibraryPermissions.AddUserGroupToPlan(UserGroupAccountantTxt, PlanIDDummy);
@@ -519,81 +513,6 @@ codeunit 139400 "Permissions Test"
         Assert.IsTrue(AssemblyCommentLine.ReadPermission, 'AssemblyCommentLine does not have read permission');
     end;
 
-#if not CLEAN17
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure ExportUserGroupsWithFilters()
-    var
-        UserGroupSet: array[3] of Record "User Group";
-        UserGroup: Record "User Group";
-        FileManagement: Codeunit "File Management";
-        FileName: Text;
-        ServerFileName: Text;
-    begin
-        // [SCENARIO 229591] User Groups Export now takes into account the Filters set for User Groups.
-        // [GIVEN] 3 User Groups "UG1", "UG2" and "UG3".
-        LibraryPermissions.CreateUserGroup(UserGroupSet[1], LibraryUtility.GenerateGUID());
-        LibraryPermissions.CreateUserGroup(UserGroupSet[2], LibraryUtility.GenerateGUID());
-        LibraryPermissions.CreateUserGroup(UserGroupSet[3], LibraryUtility.GenerateGUID());
-
-        // [GIVEN] A filter applied for UserGroup table to show "UG1" and "UG2" only.
-        UserGroup.SetFilter(Code, '%1|%2', UserGroupSet[1].Code, UserGroupSet[2].Code);
-
-        // [WHEN] Export of the User Group is invoked for UserGroup record.
-        FileName := UserGroup.ExportUserGroups(FileManagement.ClientTempFileName('xml'));
-        ServerFileName := FileManagement.ServerTempFileName('xml');
-        FileManagement.CopyClientFile(FileName, ServerFileName, true);
-
-        // [THEN] Exported file contains only "UG1" and "UG2" User Groups.
-        VerifyExportedUserGroupsWithFilters(UserGroupSet, ServerFileName);
-
-        TearDown();
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandlerSimple')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure ExportImportUserGroups()
-    var
-        UserGroup: Record "User Group";
-        UserGroupImport: Record "User Group";
-        AllProfile: Record "All Profile";
-        FileManagement: Codeunit "File Management";
-        FileName: Text;
-        ServerFileName: Text;
-    begin
-        // [SCENARIO 263678] User Groups export / import takes into account field "Default Profile ID"
-        // [GIVEN] User Group "G" with "Default Profile ID" = "Profile A"
-        LibraryPermissions.CreateUserGroup(UserGroup, LibraryUtility.GenerateGUID());
-        AllProfile.FindFirst();
-        UserGroup."Default Profile ID" := AllProfile."Profile ID";
-        UserGroup.Modify();
-
-        // [GIVEN] "G" exported to file "F"
-        // [GIVEN] "G" deleted
-        UserGroup.SetRecFilter();
-
-        FileName := UserGroup.ExportUserGroups(FileManagement.ClientTempFileName('xml'));
-        ServerFileName := FileManagement.ServerTempFileName('xml');
-        FileManagement.CopyClientFile(FileName, ServerFileName, true);
-
-        UserGroup.Delete();
-
-        // [WHEN] Import user groups from file "F"
-        UserGroupImport.ImportUserGroups(ServerFileName);
-
-        // [THEN] "G" restored with "Default Profile ID" = "Profile A"
-        UserGroupImport.Get(UserGroup.Code);
-        UserGroupImport.TestField("Default Profile ID", UserGroup."Default Profile ID");
-
-        TearDown();
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure FillPermissionSetBufferWhenFiltered()
@@ -621,92 +540,6 @@ codeunit 139400 "Permissions Test"
         // [THEN] The number of entries in unfiltered Permission Set Buffer remains unchanged
         Assert.RecordCount(TempPermissionSetBuffer, RecordCountBeforeFiltered);
     end;
-
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('MessageHandlerSimple')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    [Obsolete('CopyClientFile will always throw an error.', '17.3')]
-    procedure ExportImportUserGroupsWithTennantPermission()
-    var
-        UserGroup: Record "User Group";
-        UserGroupImport: Record "User Group";
-        TenantPermissionSet: Record "Tenant Permission Set";
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        FileManagement: Codeunit "File Management";
-        FileName: Text;
-        ServerFileName: Text;
-    begin
-        // [SCENARIO 294966] User Groups import restores 'User-defined' Permission Sets
-        // [GIVEN] User Group "G" and one Permission Set with Scope = Tenant
-        LibraryPermissions.CreateUserGroup(UserGroup, LibraryUtility.GenerateGUID());
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID(), CreateGuid());
-        AddTenantPermissionSetToUserGroup(TenantPermissionSet, UserGroup.Code);
-
-        // [GIVEN] "G" exported to file "F"
-        // [GIVEN] "G" deleted
-        UserGroup.SetRecFilter();
-
-        FileName := UserGroup.ExportUserGroups(FileManagement.ClientTempFileName('xml'));
-        ServerFileName := FileManagement.ServerTempFileName('xml');
-        FileManagement.CopyClientFile(FileName, ServerFileName, true);
-
-        UserGroup.Delete();
-
-        // [WHEN] Import user groups from file "F"
-        UserGroupImport.ImportUserGroups(ServerFileName);
-
-        // [THEN] Permission Set is restored
-        UserGroupPermissionSet.SetRange("Role ID", TenantPermissionSet."Role ID");
-        UserGroupPermissionSet.SetRange("User Group Code", UserGroup.Code);
-        Assert.RecordIsNotEmpty(UserGroupPermissionSet);
-
-        TearDown();
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandlerSimple')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    [Obsolete('CopyClientFile will always throw an error.', '17.3')]
-    procedure ExportImportUserGroupsWithSystemPermission()
-    var
-        UserGroup: Record "User Group";
-        UserGroupImport: Record "User Group";
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        FileManagement: Codeunit "File Management";
-        FileName: Text;
-        ServerFileName: Text;
-    begin
-        // [SCENARIO 294966] User Groups import restores 'System' Permission Sets
-        // [GIVEN] User Group "G"and one Permission Set with Scope = System
-        LibraryPermissions.CreateUserGroup(UserGroup, LibraryUtility.GenerateGUID());
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionSetBasicTxt);
-        LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroup.Code);
-
-        // [GIVEN] "G" exported to file "F"
-        // [GIVEN] "G" deleted
-        UserGroup.SetRecFilter();
-
-        FileName := UserGroup.ExportUserGroups(FileManagement.ClientTempFileName('xml'));
-        ServerFileName := FileManagement.ServerTempFileName('xml');
-        FileManagement.CopyClientFile(FileName, ServerFileName, true);
-
-        UserGroup.Delete();
-
-        // [WHEN] Import user groups from file "F"
-        UserGroupImport.ImportUserGroups(ServerFileName);
-
-        // [THEN] Permission Set is restored
-        UserGroupPermissionSet.SetRange("Role ID", PermissionSetBasicTxt);
-        UserGroupPermissionSet.SetRange("User Group Code", UserGroup.Code);
-        Assert.RecordIsNotEmpty(UserGroupPermissionSet);
-
-        TearDown();
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -891,7 +724,7 @@ codeunit 139400 "Permissions Test"
         // [GIVEN] "Aggregate Permission Set" marked according to "Permission Set"
         PermissionSet.FindSet();
         repeat
-            if AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionSet."Role ID") then
+            if AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSet."Role ID") then
                 AggregatePermissionSet.Mark(true);
         until PermissionSet.Next() = 0;
         AggregatePermissionSet.MarkedOnly(true);
@@ -1005,7 +838,7 @@ codeunit 139400 "Permissions Test"
         RecRef.Delete();
     end;
 
-    [Test]
+    //[Test] ignore 426467
     [HandlerFunctions('SendResolveNotificationHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure TestResolvePermissionNotificationAction()

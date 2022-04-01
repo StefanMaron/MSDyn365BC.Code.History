@@ -143,11 +143,13 @@ codeunit 137140 "SCM Inventory Documents"
         // Execute
         CreateInvtDocumentWithLine(
           InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Receipt, Location.Code, SalespersonPurchaser.Code);
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
         LibraryInventory.PostInvtDocument(InvtDocumentHeader);
 
         // Verify
-        ItemReceiptHeader.SetRange("Location Code", Location.Code);
-        ItemReceiptHeader.FindFirst();
+        ItemReceiptHeader.Get(InvtDocumentHeader."Posting No.");
+        ItemReceiptHeader.TestField("Location Code", Location.Code);
         Assert.AreEqual(SalespersonPurchaser.Code, ItemReceiptHeader."Purchaser Code", 'Purchaser code should be same');
         VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, ItemReceiptHeader."Dimension Set ID");
         ItemReceiptLine.SetRange("Document No.", ItemReceiptHeader."No.");
@@ -178,11 +180,13 @@ codeunit 137140 "SCM Inventory Documents"
         // Execute
         CreateInvtDocumentWithLine(
           InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Shipment, Location.Code, SalespersonPurchaser.Code);
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
         LibraryInventory.PostInvtDocument(InvtDocumentHeader);
 
         // Verify
-        InvtShipmentHeader.SetRange("Location Code", Location.Code);
-        InvtShipmentHeader.FindFirst();
+        InvtShipmentHeader.Get(InvtDocumentHeader."Posting No.");
+        InvtShipmentHeader.TestField("Location Code", Location.Code);
         Assert.AreEqual(SalespersonPurchaser.Code, InvtShipmentHeader."Salesperson Code", 'Salesperson code should be same');
         VerifyDimensionCode(DimensionValue."Dimension Code", DimensionValue.Code, InvtShipmentHeader."Dimension Set ID");
         InvtShipmentLine.SetRange("Document No.", InvtShipmentHeader."No.");
@@ -252,7 +256,7 @@ codeunit 137140 "SCM Inventory Documents"
         // [FEATURE] [Location] [Warehouse] [Direct Transfer]
         // [SCENARIO 253751] Direct transfer from location with outbound warehouse handling should be posted without warehouse shipment
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two locations: "A" with "Require Shipment" enabled, and "B" without warehouse setup
         LibraryInventory.CreateItem(Item);
@@ -442,7 +446,7 @@ codeunit 137140 "SCM Inventory Documents"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
@@ -485,7 +489,7 @@ codeunit 137140 "SCM Inventory Documents"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
@@ -527,7 +531,7 @@ codeunit 137140 "SCM Inventory Documents"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
@@ -568,7 +572,7 @@ codeunit 137140 "SCM Inventory Documents"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
         NonBaseQtyPerUOM := 3;
         BaseQtyPerUOM := 1;
@@ -606,7 +610,7 @@ codeunit 137140 "SCM Inventory Documents"
         BaseQtyPerUOM: Decimal;
         QtyRoundingPrecision: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
         NonBaseQtyPerUOM := 6;
         BaseQtyPerUOM := 1;
@@ -764,7 +768,6 @@ codeunit 137140 "SCM Inventory Documents"
         Item: Record Item;
         LocationReceipt: Record Location;
         LocationPutAwayAndPick: Record Location;
-        InvtReceiptHeader: Record "Invt. Receipt Header";
     begin
         // [SCENARIO] It is possible to use a location with require receipt for inventory receipt document but 
         // not for directed put-away and pick.
@@ -798,7 +801,6 @@ codeunit 137140 "SCM Inventory Documents"
         Item: Record Item;
         LocationShipment: Record Location;
         LocationPutAwayAndPick: Record Location;
-        InvtReceiptHeader: Record "Invt. Receipt Header";
     begin
         // [SCENARIO] It is possible to use a location with require receipt for inventory shipment document but 
         // not for directed put-away and pick.
@@ -1014,21 +1016,6 @@ codeunit 137140 "SCM Inventory Documents"
         DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
         DimensionSetEntry.FindFirst();
         Assert.AreEqual(DimensionValueCode, DimensionSetEntry."Dimension Value Code", 'Dimension values should be equal');
-    end;
-
-    local procedure VerifyGLEntrySource(LocationCode: Code[10]; AcquisitionCostAccountNo: Code[20]; FixedAssetNo: Code[20])
-    var
-        InvtShipmentHeader: Record "Invt. Shipment Header";
-        GLEntry: Record "G/L Entry";
-    begin
-        InvtShipmentHeader.SetRange("Location Code", LocationCode);
-        InvtShipmentHeader.FindFirst();
-
-        GLEntry.SetRange("G/L Account No.", AcquisitionCostAccountNo);
-        GLEntry.SetRange("Document No.", InvtShipmentHeader."No.");
-        GLEntry.FindFirst();
-        GLEntry.TestField("Source Type", GLEntry."Source Type"::"Fixed Asset");
-        GLEntry.TestField("Source No.", FixedAssetNo);
     end;
 
     local procedure VerifyItemInventory(var Item: Record Item; LocationCode: Code[10]; ExpectedQty: Decimal)

@@ -61,6 +61,20 @@ page 9023 "Accounting Services RC"
                 RunObject = Page "Item List";
                 ToolTip = 'View or edit detailed information for the products that you trade in. The item card can be of type Inventory or Service to specify if the item is a physical unit or a labor time unit. Here you also define if items in inventory or on incoming orders are automatically reserved for outbound documents and whether order tracking links are created between demand and supply to reflect planning actions.';
             }
+            separator(History)
+            {
+                Caption = 'History';
+                IsHeader = true;
+            }
+            action("Navi&gate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                RunObject = Page Navigate;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+            }
             action("Posted Sales Invoices")
             {
                 ApplicationArea = Basic, Suite;

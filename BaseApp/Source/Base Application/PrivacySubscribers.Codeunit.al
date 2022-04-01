@@ -10,7 +10,6 @@ codeunit 1755 "Privacy Subscribers"
         VendorFilterTxt: Label 'WHERE(Partner Type=FILTER(Person))', Locked = true;
         ContactFilterTxt: Label 'WHERE(Type=FILTER(Person))', Locked = true;
         ResourceFilterTxt: Label 'WHERE(Type=FILTER(Person))', Locked = true;
-        DataSubjectBlockedMsg: Label 'This data subject is already marked as blocked due to privacy. You can export the related data.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classification Mgt.", 'OnCreateEvaluationData', '', false, false)]
     local procedure CreateEvaluationData()
@@ -74,7 +73,7 @@ codeunit 1755 "Privacy Subscribers"
             Field.SetRange(Class, Field.Class::Normal);
             GetEnabledSensitiveFields(Field);
 
-            if Field.FindSet then begin
+            if Field.FindSet() then begin
                 repeat
                     if not DataSensitivity.Get(CompanyName, Field.TableNo, Field."No.") then
                         DataClassificationMgt.InsertDataSensitivityForField(Field.TableNo, Field."No.",

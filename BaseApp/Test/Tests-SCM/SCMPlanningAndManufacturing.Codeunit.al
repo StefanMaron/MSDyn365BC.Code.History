@@ -54,7 +54,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ExpectedReceiptDate: Date;
     begin
         // Setup: Create Initial Setup for Planning.
-        Initialize;
+        Initialize();
         CreateInitialSetupForPlanning(LocationBlue, Vendor, Item, '');  // Use Blank for Base Calendar.
 
         // Exercise.
@@ -79,7 +79,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ExpectedReceiptDate: Date;
     begin
         // Setup: Create Initial Setup for Planning with Base Calendar.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         CreateInitialSetupForPlanningWithBaseCalendar(Location, Vendor, Item);
 
@@ -106,7 +106,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         PlannedReceiptDate: Date;
     begin
         // Setup: Create Initial Setup for Planning.
-        Initialize;
+        Initialize();
         CreateInitialSetupForPlanning(LocationBlue, Vendor, Item, '');  // Use Blank for Base Calendar.
 
         // Exercise.
@@ -131,7 +131,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         PlannedReceiptDate: Date;
     begin
         // Setup: Create Initial Setup for Planning with Base Calendar.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         CreateInitialSetupForPlanningWithBaseCalendar(Location, Vendor, Item);
 
@@ -158,7 +158,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         OrderDate: Date;
     begin
         // Setup: Create Initial Setup for Planning.
-        Initialize;
+        Initialize();
         CreateInitialSetupForPlanning(LocationBlue, Vendor, Item, '');  // Use Blank for Base Calendar.
 
         // Exercise.
@@ -185,7 +185,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ExpectedReceiptDate: Date;
     begin
         // Setup: Create Initial Setup for Planning with Base Calendar.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         CreateInitialSetupForPlanningWithBaseCalendar(Location, Vendor, Item);
 
@@ -216,7 +216,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         PlannedReceiptDate: Date;
     begin
         // Setup: Create Initial Setup for Planning.
-        Initialize;
+        Initialize();
         CreateInitialSetupForPlanning(LocationBlue, Vendor, Item, '');  // Use Blank for Base Calendar.
 
         // Exercise.
@@ -243,7 +243,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ExpectedReceiptDate: Date;
     begin
         // Setup: Create Initial Setup for Planning with Base Calendar.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         CreateInitialSetupForPlanningWithBaseCalendar(Location, Vendor, Item);
 
@@ -270,7 +270,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Item: Record Item;
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // Exercise.
@@ -286,7 +286,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure CalcRegenPlanWithPurchaseReplenishmentSystem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetActionMessagesWithPurchaseReplenishmentSystem(false, false);  // Use BeforeIllegalActionMessage and AfterIllegalActionMessage as False.
     end;
 
@@ -296,7 +296,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure ErrorIllegalMessageRelationOnGetActionMessages()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetActionMessagesWithPurchaseReplenishmentSystem(true, false);  // Use BeforeIllegalActionMessage as True and AfterIllegalActionMessage as False.
     end;
 
@@ -306,7 +306,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure GetActionMessagesAfterIllegalActionMessage()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetActionMessagesWithPurchaseReplenishmentSystem(true, true);  // Use BeforeIllegalActionMessage and AfterIllegalActionMessage as True.
     end;
 
@@ -353,7 +353,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure CalcRegenPlanWithProdOrderReplenishmentSystem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetActionMessagesWithProdOrderReplenishmentSystem(false, false);  // Use CarryOutActionMessage and UpdateQuantity as False.
     end;
 
@@ -363,7 +363,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure CarryOutActionMsgWithProdOrderReplenishmentSystem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetActionMessagesWithProdOrderReplenishmentSystem(true, false);  // Use CarryOutActionMessage as True and UpdateQuantity as False.
     end;
 
@@ -373,7 +373,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure GetActionMessagesWithUpdatedQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetActionMessagesWithProdOrderReplenishmentSystem(true, true);  // Use CarryOutActionMessage and UpdateQuantity as True.
     end;
 
@@ -422,7 +422,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure OutputJournalAfterExplodeRouting()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         FinishedRoutingStatusAfterPostOutputJournal(false, false, false);  // Use PostOutputJournal, Finished and UpdateRoutingStatus as False.
     end;
 
@@ -431,7 +431,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure PostUnfinishedOutputAfterDeleteOutputJournalLine()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         FinishedRoutingStatusAfterPostOutputJournal(true, false, false);  // Use PostOutputJournal as True. Use Finished and UpdateRoutingStatus as False.
     end;
 
@@ -440,7 +440,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure PostFinishedOutputAfterDeleteOutputJournalLine()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         FinishedRoutingStatusAfterPostOutputJournal(true, true, false);  // Use PostOutputJournal and Finished as True. Use UpdateRoutingStatus as False.
     end;
 
@@ -450,7 +450,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure FinishedRoutingStatusAfterPostUnfinishedOutput()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         FinishedRoutingStatusAfterPostOutputJournal(true, false, true);  // Use PostOutputJournal and UpdateRoutingStatus as True. Use Finished as False.
     end;
 
@@ -527,7 +527,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LotNo: Code[50];
     begin
         // Setup: Create Item with Routing.
-        Initialize;
+        Initialize();
         CreateItemWithRouting(Item, RoutingLine, RoutingLine2, CreateLotItemTrackingCode, true);  // Use True for with Machine Center.
 
         // Exercise.
@@ -543,7 +543,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure OutputJournalForMultipleExplodeRoutingUsingLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostOutputJournalUsingLotForMultipleExplodeRouting(false);  // Use False for Post Output.
     end;
 
@@ -553,7 +553,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure PostOutputJournalForMultipleExplodeRoutingUsingLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostOutputJournalUsingLotForMultipleExplodeRouting(true);  // Use True for Post Output.
     end;
 
@@ -594,7 +594,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure ProductionOrderCapacityNeedWithoutWaitTime()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProdOrderCapacityNeedAfterRefreshReleasedProdOrder(false);  // Use False for without Wait Time.
     end;
 
@@ -603,7 +603,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     procedure ProductionOrderCapacityNeedWithWaitTime()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProdOrderCapacityNeedAfterRefreshReleasedProdOrder(true);  // Use True for with Wait Time.
     end;
 
@@ -659,7 +659,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with zero "Run Time" calculates the same value "Starting Date Time" = "Ending Date Time"
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] Run Time of routing "R" is zero
@@ -696,7 +696,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100) with positive "Run Time" calculates the same values of "Starting Date Time" and "Ending Date Time"
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] Run Time of routing "R" is positive
@@ -733,7 +733,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with zero "Run Time" and absence of Work Center in the beginning of the day calculates the same value "Starting Date Time" = "Ending Date Time"
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the beginning of the day one day before "SO"."Shipment Date"
@@ -768,7 +768,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100) with zero "Run Time" and absence of Work Center in the beginning of the day with overlapping with non-working hours
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the beginning of the day one day before "SO"."Shipment Date". Absence of "W" starts before the beginning of workday and ends in the middle of the workday
@@ -804,7 +804,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with zero "Run Time" and absence of Work Center in the middle of the day calculates the same value "Starting Date Time" = "Ending Date Time"
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the middle of the day one day before "SO"."Shipment Date". Absence of "W" starts and ends in the middle of workday
@@ -840,7 +840,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with zero "Run Time" and absence of Work Center in the ending of the day calculates the same value "Starting Date Time" = "Ending Date Time"
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the ending of the day one day before "SO"."Shipment Date". Absence of "W" starts in the middle of the workday and ends with the ending of the workday
@@ -875,7 +875,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100) with zero "Run Time" and absence of Work Center in the ending of the day with overlapping with non-working hours ca
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the ending of the day one day before "SO"."Shipment Date". Absence of "W" starts in the middle of the workday and ends after the ending of the workday
@@ -911,7 +911,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with zero "Run Time" and absence of Work Center the whole day calculates the same value "Starting Date Time" = "Ending Date Time"
         // [FEATURE] [SCM] [Planning] [Manufacturing] [Capacity]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent the whole day one day before "SO"."Shipment Date". Absence of "W" starts with the beginning of the workday and ends with the ending of the workday
@@ -946,7 +946,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100) with zero "Run Time" and absence of Work Center the whole day with overlapping with non-working hours calculates th
         // [FEATURE] [SCM] [Planning] [Manufacturing] [Capacity]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent the whole day one day before "SO"."Shipment Date". Absence of "W" starts before the beginning of the workday and ends after the ending of the workday
@@ -982,7 +982,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with positive "Run Time" and absence of Work Center in the beginning of the day calculates the same values of "Starting Date Time"
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the beginning of the day one day before "SO"."Shipment Date"
@@ -1019,7 +1019,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with positive "Run Time" and absence of Work Center in the beginning of the day with overlapping with non-working hours
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the beginning of the day one day before "SO"."Shipment Date". Absence of "W" starts before the beginning of workday and ends in the middle of the workday
@@ -1056,7 +1056,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with positive "Run Time" and absence of Work Center in the middle of the day calculates the same values of "Starting Date Time"
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the middle of the day one day before "SO"."Shipment Date". Absence of "W" starts and ends in the middle of workday
@@ -1093,7 +1093,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with positive "Run Time" and absence of Work Center in the ending of the day calculates the same values of "Starting Date Time"
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the ending of the day one day before "SO"."Shipment Date". Absence of "W" starts in the middle of the workday and ends with the ending of the workday
@@ -1130,7 +1130,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with positive "Run Time" and absence of Work Center in the ending of the day with overlapping with non-working hours
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent in the ending of the day one day before "SO"."Shipment Date". Absence of "W" starts in the middle of the workday and ends after the ending of the workday
@@ -1167,7 +1167,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with positive "Run Time" and absence of Work Center the whole day calculates the same values of "Starting Date Time"
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent the whole day one day before "SO"."Shipment Date". Absence of "W" starts with the beginning of the workday and ends with the ending of the workday
@@ -1204,7 +1204,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 202772] Backward and Forward planning of "Routing Line" with and without Constrained Resource ("Critical Load %" = 100)
         // [SCENARIO] with positive "Run Time" and absence of Work Center the whole day with overlapping with non-working hours calculate
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Constrained Resource] [Schedule]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Center "W" and Sales Order "SO" of Item "I" with Routing "R" as demand for capacity of "W"
         // [GIVEN] "W" is absent the whole day one day before "SO"."Shipment Date". Absence of "W" starts before the beginning of the workday and ends after the ending of the workday
@@ -1242,7 +1242,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [SCENARIO 203921] For "Send-Ahead Quantity" the results of calculating of fields "Starting Date-Time" and "Ending Date-Time" by regenerative plan
         // [SCENARIO] for production order must correspond to the ones of the refreshing of production order.
         // [FEATURE] [Planning] [Manufacturing] [Capacity] [Send-Ahead Quantity]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Manufacturing Item "I" with serial routing with 4 lines L1, L2, L3, L4: L2 and L3 have "Send-Ahead Quantity" > 1.
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
@@ -1266,7 +1266,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         TempProdOrderRoutingLine.FindSet();
         repeat
             PlanningRoutingLine.SetRange("Operation No.", TempProdOrderRoutingLine."Operation No.");
-            PlanningRoutingLine.FindFirst;
+            PlanningRoutingLine.FindFirst();
             PlanningRoutingLine.TestField("Starting Date-Time", TempProdOrderRoutingLine."Starting Date-Time");
             PlanningRoutingLine.TestField("Ending Date-Time", TempProdOrderRoutingLine."Ending Date-Time");
         until TempProdOrderRoutingLine.Next = 0;
@@ -1352,7 +1352,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [FEATURE] [Production BOM] [Scrap] [UT]
         // [SCENARIO 218724] Scrap % in production BOM line should be copied from the component item when the item No. is validated
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with scrap % = "X"
         LibraryInventory.CreateItem(Item);
@@ -1383,7 +1383,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [FEATURE] [Planning] [Routing Version]
         // [SCENARIO 226948] From- and To- production bin codes are transferred from "Work Center" of active version of routing to "Prod. Order Routing Line" when planning for "Sales Order" at the same location as "Work Center"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lication "L" with bin mandatory
         // [GIVEN] Two work center "W1" and "W2" at "L" with specified From- and To- production bin codes
@@ -1419,7 +1419,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [FEATURE] [Planning] [Routing Version]
         // [SCENARIO 226948] From- and To- production bin codes are transferred from "Work Center" of active version of routing to "Prod. Order Routing Line" when planning for Sales Order with blank location
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lication "L" with bin mandatory
         // [GIVEN] Two work center "W1" and "W2" at "L" with specified From- and To- production bin codes
@@ -1452,7 +1452,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [FEATURE] [Planning] [Routing Version]
         // [SCENARIO 226948] From- and To- production bin codes are transferred from "Work Center" of active version of routing to "Prod. Order Routing Line" when planning for Item reorder point
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lication "L" with bin mandatory
         // [GIVEN] Two work center "W1" and "W2" at "L" with specified From- and To- production bin codes
@@ -1485,7 +1485,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [FEATURE] [Planning] [Production] [Sales] [Order-to-Order Binding]
         // [SCENARIO 300468] When a user reduces quantity on sales line bound to a prod. order as order-to-order, and runs planning, the program suggests reducing the production order accordingly.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production item set up for "Maximum Qty." reordering policy, "Maximum Inventory" = 16, "Order Multiple" = 4.
         // [GIVEN] "Order Multiple" setting being greater than 1 is crucial for the test.
@@ -1535,7 +1535,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [FEATURE] [Planning] [Production] [Sales] [Order-to-Order Binding]
         // [SCENARIO 300468] When a user reduces quantity on sales line bound to a prod. order as order-to-order, and runs planning with "Respect Planning Parameters" setting turned on, the program suggests reducing the production order accordingly.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production item set up for "Maximum Qty." reordering policy, "Maximum Inventory" = 16, "Order Multiple" = 4.
         // [GIVEN] "Order Multiple" setting being greater than 1 is crucial for the test.
@@ -1588,7 +1588,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [FEATURE] [Planning]
         // [SCENARIO 230817] When an error occurs on regenerative plan calculation for some item this doesn't cause influence the calculation of other items.
-        Initialize;
+        Initialize();
 
         OrderMultipleQuantity := LibraryRandom.RandIntInRange(3, 5) * 100;
         Quantity[1] := LibraryRandom.RandIntInRange(3, 5) * 1000 + LibraryRandom.RandInt(OrderMultipleQuantity);
@@ -1640,7 +1640,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         // [FEATURE] [Planning] [Reordering Policy] [Production Order] [Prod. Order Component]
         // [SCENARIO 328536] Prod. order components that belong to different prod. order lines in one production order are planned separately for item with Reordering Policy = Order.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
         NoOfLines := LibraryRandom.RandIntInRange(2, 5);
 
@@ -1756,7 +1756,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         PlanningRoutingLine: Record "Planning Routing Line";
     begin
         // [FEATURE] [Planning] [Planning Routing Line]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Manufacturing Item "I" with serial routing with 4 lines L1, L2, L3, L4.
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
@@ -2041,8 +2041,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning And Manufacturing");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         LibraryApplicationArea.EnablePremiumSetup;
 
@@ -2050,11 +2050,11 @@ codeunit 137080 "SCM Planning And Manufacturing"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning And Manufacturing");
-        NoSeriesSetup;
+        NoSeriesSetup();
         OutputJournalSetup;
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
 
@@ -2070,7 +2070,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProductionForecastEntry: Record "Production Forecast Entry";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateItemWithReplenishmentSystem(Item, ReplenishmentSystem);
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
@@ -2098,7 +2098,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RequisitionLine: Record "Requisition Line";
         ItemInventory: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateItemWithReplenishmentSystem(Item, ReplenishmentSystem);
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
@@ -2148,7 +2148,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
     local procedure AddLotItemTrackingToOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order") LotNo: Code[50]
     begin
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);  // Enqueue for ItemTrackingLinesPageHandler.
         FindOutputJournalLine(ItemJournalLine, ProductionOrder, '', ItemJournalLine.Type, '');
         ItemJournalLine.OpenItemTrackingLines(false);
@@ -2309,7 +2309,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::"Req.");
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
         RequisitionLine.Validate("No.", ItemNo);
@@ -2339,7 +2339,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         until ProdOrderRoutingLine.Next = 0;
 
         ProdOrderLine.SetRange("Item No.", Item."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.Delete(true);
     end;
 
@@ -2484,7 +2484,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         WorkCenter: Record "Work Center";
     begin
         LibraryInventory.CreateItem(Item);
-        WorkCenter.FindFirst;
+        WorkCenter.FindFirst();
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(
           RoutingHeader, RoutingLine, '',
@@ -2494,7 +2494,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
           RoutingLine.Type::"Work Center", WorkCenter."No.");  // Use Blank for Version Code.
         if WithMachineCenter then begin
             MachineCenter.SetRange("Work Center No.", WorkCenter."No.");
-            MachineCenter.FindFirst;
+            MachineCenter.FindFirst();
             LibraryManufacturing.CreateRoutingLine(
               RoutingHeader, RoutingLine2, '',
               CopyStr(
@@ -2591,7 +2591,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
 
         ShopCalendarWorkingDays.SetRange("Shop Calendar Code", WorkCenter."Shop Calendar Code");
-        ShopCalendarWorkingDays.FindFirst;
+        ShopCalendarWorkingDays.FindFirst();
     end;
 
     local procedure CreateWorkCenterAbsence(WorkCenter: Record "Work Center"; AbsenceDate: Date; AbsenceFromTime: Time; AbsenceToTime: Time; CalendarFromDate: Date; CalendarToDate: Date)
@@ -2809,7 +2809,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ItemJournalLine.SetRange("Operation No.", OperationNo);
         ItemJournalLine.SetRange(Type, Type);
         ItemJournalLine.SetRange("No.", No);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure FindProdOrderCapacityNeed(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; RoutingLine: Record "Routing Line"; ProductionOrderNo: Code[20]; TimeType: Enum "Routing Time Type")
@@ -2819,7 +2819,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderCapacityNeed.SetRange(Type, RoutingLine.Type);
         ProdOrderCapacityNeed.SetRange("No.", RoutingLine."No.");
         ProdOrderCapacityNeed.SetRange("Time Type", TimeType);
-        ProdOrderCapacityNeed.FindFirst;
+        ProdOrderCapacityNeed.FindFirst();
     end;
 
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20]; ItemNo: Code[20])
@@ -2833,27 +2833,27 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderRoutingLine.SetRange("Operation No.", OperationNo);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     begin
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; Type: Enum "Production Order Status"; No: Code[20])
     begin
         ProductionOrder.SetRange("Source Type", Type);
         ProductionOrder.SetRange("Source No.", No);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
     local procedure GetDefaultSafetyLeadTime(): Code[10]
@@ -2879,13 +2879,13 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, ItemNo);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);  // Enqueue for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(PostJournalLinesConfirm);  // Enqueue for ConfirmHandler.
         LibraryVariableStorage.Enqueue(JournalLinesSuccessfullyPosted);  // Enqueue for MessageHandler.
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");  // Posting is performing on ProductionJournalPageHandler with Lot Item Tracking.
     end;
 
@@ -2993,7 +2993,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
         ItemLedgerEntry.SetRange("Item No.", ProductionOrder."Source No.");
         ItemLedgerEntry.SetRange("Lot No.", LotNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField(Quantity, ProductionOrder.Quantity);
     end;
 
@@ -3017,7 +3017,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProductionOrder: Record "Production Order";
     begin
         ProductionOrder.SetRange("Source No.", SalesLine."No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         ProductionOrder.TestField("Location Code", SalesLine."Location Code");
         ProductionOrder.TestField(Quantity, SalesLine.Quantity);
     end;
@@ -3068,7 +3068,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ReservationEntry: Record "Reservation Entry";
     begin
         FilterReservationEntry(ReservationEntry, ProductionOrder."Source No.", LotNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Quantity (Base)", ProductionOrder.Quantity);
     end;
 

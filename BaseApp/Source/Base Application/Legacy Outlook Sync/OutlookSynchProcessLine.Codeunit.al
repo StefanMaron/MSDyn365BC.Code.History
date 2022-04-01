@@ -293,7 +293,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                                                             Error(Text010, FldRef.Caption, OSynchField."Outlook Object", OSynchEntity.Code);
                                                 until OSynchFilter.Next() = 0;
                                         end else
-                                            if OSynchFilter.FindFirst then begin
+                                            if OSynchFilter.FindFirst() then begin
                                                 FldRef := SynchRecRef.Field(OSynchFilter."Master Table Field No.");
                                                 RelatedFldRef := RelatedRecRef.Field(OSynchFilter."Field No.");
                                                 if ElementNo = 0 then
@@ -317,7 +317,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                                                 OSynchOptionCorrel.SetRange("Element No.", OSynchField."Element No.");
                                                 OSynchOptionCorrel.SetRange("Field Line No.", OSynchField."Line No.");
                                                 OSynchOptionCorrel.SetRange("Enumeration No.", OLOptionValue);
-                                                if OSynchOptionCorrel.FindFirst then begin
+                                                if OSynchOptionCorrel.FindFirst() then begin
                                                     if not
                                                        OSynchTypeConversion.EvaluateTextToFieldRef(
                                                          Format(OSynchOptionCorrel."Option No."),
@@ -400,7 +400,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                     OSynchEntity1.Get(OSynchDependency."Depend. Synch. Entity Code");
                     OSynchFilter.Reset();
                     OSynchFilter.SetRange("Record GUID", OSynchEntity1."Record GUID");
-                    if OSynchFilter.FindFirst then
+                    if OSynchFilter.FindFirst() then
                         TempDependentRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter, NullRecRef));
 
                     if TempDependentRecRef.Find('-') then begin
@@ -622,7 +622,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
                 OCollectionName := XMLTextReader.GetCurrentNodeAttribute(ChildIterator, 'Name');
                 OSynchEntityElement.SetRange("Outlook Collection", OCollectionName);
-                if OSynchEntityElement.FindFirst then begin
+                if OSynchEntityElement.FindFirst() then begin
                     if XMLTextReader.GetAllCurrentChildNodes(ChildIterator, ElementIterator) > 0 then
                         repeat
                             ChildTagName := XMLTextReader.GetName(ElementIterator);
@@ -779,14 +779,14 @@ codeunit 5305 "Outlook Synch. Process Line"
             OSynchLink.Reset();
             OSynchLink.SetRange("User ID", OSynchUserSetup."User ID");
             OSynchLink.SetRange("Outlook Entry ID Hash", EntryIDHash);
-            OSynchLink.FindFirst;
+            OSynchLink.FindFirst();
 
             DependentRecRef.Get(OSynchLink."Record ID");
             Evaluate(RecID, Format(DependentRecRef.RecordId));
 
             OSynchFilter.Reset();
             OSynchFilter.SetRange("Record GUID", OSynchEntityElementIn."Record GUID");
-            OSynchFilter.FindFirst;
+            OSynchFilter.FindFirst();
 
             CollectionRecRef.Open(OSynchEntityElementIn."Table No.");
             CollectionRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter, EntityRecRef));
@@ -819,7 +819,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                     OSynchEntity1.Get(OSynchDependency."Depend. Synch. Entity Code");
                     OSynchFilter.Reset();
                     OSynchFilter.SetRange("Record GUID", OSynchEntity1."Record GUID");
-                    if OSynchFilter.FindFirst then
+                    if OSynchFilter.FindFirst() then
                         TempDependentRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter, NullRecRef));
 
                     if TempDependentRecRef.Find('-') then
@@ -1171,7 +1171,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
             ErrorConflictBuffer.Reset();
             ErrorConflictBuffer.SetRange("Outlook Entry ID Hash", DependentEntityIDHash);
-            if ErrorConflictBuffer.FindFirst then
+            if ErrorConflictBuffer.FindFirst() then
                 Error(
                   Text008,
                   OSynchEntityElementIn."Synch. Entity Code",
@@ -1180,7 +1180,7 @@ codeunit 5305 "Outlook Synch. Process Line"
             OSynchLink.Reset();
             OSynchLink.SetRange("User ID", OSynchUserSetup."User ID");
             OSynchLink.SetRange("Outlook Entry ID Hash", DependentEntityIDHash);
-            if not OSynchLink.FindFirst then
+            if not OSynchLink.FindFirst() then
                 Error(
                   Text008,
                   OSynchEntityElementIn."Synch. Entity Code",
@@ -1204,7 +1204,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                 OSynchEntity1.Get(OSynchDependency."Depend. Synch. Entity Code");
                 OSynchFilter.Reset();
                 OSynchFilter.SetRange("Record GUID", OSynchEntity1."Record GUID");
-                if OSynchFilter.FindFirst then
+                if OSynchFilter.FindFirst() then
                     TempDependentRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter, NullRecRef));
 
                 if TempDependentRecRef.Find('-') then
@@ -1300,7 +1300,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
         if OSynchLink."Synchronization Date" >= LastSynchTime then begin
             ChangeLogEntry.SetFilter("Date and Time", '>=%1', LastSynchTime);
-            if not ChangeLogEntry.FindLast then
+            if not ChangeLogEntry.FindLast() then
                 exit;
 
             if ChangeLogEntry."Date and Time" <= OSynchLink."Synchronization Date" then
@@ -1310,7 +1310,7 @@ codeunit 5305 "Outlook Synch. Process Line"
         end else
             ChangeLogEntry.SetFilter("Date and Time", '>=%1', LastSynchTime);
 
-        if not ChangeLogEntry.FindFirst then
+        if not ChangeLogEntry.FindFirst() then
             exit;
 
         IsConflict := IsConflictDetected(ChangeLogEntry, SynchRecRef, RecID.TableNo);
@@ -1356,7 +1356,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
         if OSynchLink."Synchronization Date" >= LastSynchTime then begin
             ChangeLogEntry.SetFilter("Date and Time", '>=%1', LastSynchTime);
-            if not ChangeLogEntry.FindLast then
+            if not ChangeLogEntry.FindLast() then
                 exit;
             if ChangeLogEntry."Date and Time" <= OSynchLink."Synchronization Date" then
                 exit;
@@ -1373,7 +1373,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                 repeat
                     Evaluate(RecID, Format(CollectionRecRef.RecordId));
                     FilterChangeLog(RecID, ChangeLogEntry);
-                    if ChangeLogEntry.FindFirst then begin
+                    if ChangeLogEntry.FindFirst() then begin
                         OSynchField.Reset();
                         OSynchField.SetRange("Synch. Entity Code", OSynchEntityElementIn."Synch. Entity Code");
                         OSynchField.SetRange("Element No.", OSynchEntityElementIn."Element No.");
@@ -1413,10 +1413,10 @@ codeunit 5305 "Outlook Synch. Process Line"
                 CollectionRecRef.Init();
                 ChangeLogEntry.SetRange("Primary Key", TempChangeLogEntry."Primary Key");
                 ChangeLogEntry.SetRange("Primary Key Field 1 Value", TempChangeLogEntry."Primary Key Field 1 Value");
-                if ChangeLogEntry.FindSet then
+                if ChangeLogEntry.FindSet() then
                     repeat
                         OSynchFilter.SetRange("Field No.", ChangeLogEntry."Field No.");
-                        if OSynchFilter.FindFirst then begin
+                        if OSynchFilter.FindFirst() then begin
                             CollectionFieldRef := CollectionRecRef.Field(ChangeLogEntry."Field No.");
                             if not
                                OSynchTypeConversion.EvaluateTextToFieldRef(
@@ -1464,7 +1464,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
         OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", OSynchEntityElement1."Record GUID");
-        if OSynchFilter.FindFirst then begin
+        if OSynchFilter.FindFirst() then begin
             CollectionElementRecRef.Open(OSynchEntityElement1."Table No.");
             CollectionElementRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter, EntityRecRef));
             if CollectionElementRecRef.Find('-') then
@@ -1517,7 +1517,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
                                 TempOSynchFilter.Reset();
                                 TempOSynchFilter.SetRange("Field No.", OSynchFilter."Master Table Field No.");
-                                if not TempOSynchFilter.FindFirst then
+                                if not TempOSynchFilter.FindFirst() then
                                     OSynchSetupMgt.CreateFilterCondition(
                                       TempOSynchFilter,
                                       OSynchFilter."Master Table No.",
@@ -1531,7 +1531,7 @@ codeunit 5305 "Outlook Synch. Process Line"
             until OSynchField.Next() = 0;
 
         TempOSynchFilter.Reset();
-        if TempOSynchFilter.FindFirst then begin
+        if TempOSynchFilter.FindFirst() then begin
             TempCollectionElementRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(TempOSynchFilter, NullRecRef));
 
             if TempCollectionElementRecRef.Find('-') then
@@ -1615,7 +1615,7 @@ codeunit 5305 "Outlook Synch. Process Line"
         FieldRef: FieldRef;
         Counter: Integer;
     begin
-        OSynchFilter.FindFirst;
+        OSynchFilter.FindFirst();
 
         RecRef.Open(OSynchFilter."Table No.", true);
         KeyRef := RecRef.KeyIndex(1);
@@ -1623,7 +1623,7 @@ codeunit 5305 "Outlook Synch. Process Line"
         for Counter := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(Counter);
             OSynchFilter.SetRange("Field No.", FieldRef.Number);
-            if not OSynchFilter.FindFirst then
+            if not OSynchFilter.FindFirst() then
                 exit(false);
         end;
 

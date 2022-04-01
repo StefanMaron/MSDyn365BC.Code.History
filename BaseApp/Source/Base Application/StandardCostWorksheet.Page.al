@@ -261,7 +261,7 @@ page 5841 "Standard Cost Worksheet"
                         Item.SetRange("Replenishment System", Item."Replenishment System"::Purchase);
                         SuggItemStdCost.SetTableView(Item);
                         SuggItemStdCost.SetCopyToWksh(CurrWkshName);
-                        SuggItemStdCost.RunModal;
+                        SuggItemStdCost.RunModal();
                     end;
                 }
                 action("Suggest &Capacity Standard Cost")
@@ -279,7 +279,7 @@ page 5841 "Standard Cost Worksheet"
                         SuggWorkMachCtrStdWksh: Report "Suggest Capacity Standard Cost";
                     begin
                         SuggWorkMachCtrStdWksh.SetCopyToWksh(CurrWkshName);
-                        SuggWorkMachCtrStdWksh.RunModal;
+                        SuggWorkMachCtrStdWksh.RunModal();
                     end;
                 }
                 action("Copy Standard Cost Worksheet")
@@ -295,7 +295,7 @@ page 5841 "Standard Cost Worksheet"
                         CopyStdCostWksh: Report "Copy Standard Cost Worksheet";
                     begin
                         CopyStdCostWksh.SetCopyToWksh(CurrWkshName);
-                        CopyStdCostWksh.RunModal;
+                        CopyStdCostWksh.RunModal();
                     end;
                 }
                 action("Roll Up Standard Cost")
@@ -317,7 +317,7 @@ page 5841 "Standard Cost Worksheet"
                         Item.SetRange("Costing Method", Item."Costing Method"::Standard);
                         RollUpStdCost.SetTableView(Item);
                         RollUpStdCost.SetStdCostWksh(CurrWkshName);
-                        RollUpStdCost.RunModal;
+                        RollUpStdCost.RunModal();
                     end;
                 }
                 action("&Implement Standard Cost Changes")
@@ -336,7 +336,7 @@ page 5841 "Standard Cost Worksheet"
                     begin
                         Clear(ImplStdCostChg);
                         ImplStdCostChg.SetStdCostWksh(CurrWkshName);
-                        ImplStdCostChg.RunModal;
+                        ImplStdCostChg.RunModal();
                     end;
                 }
             }
@@ -356,7 +356,7 @@ page 5841 "Standard Cost Worksheet"
             CurrWkshName := "Standard Cost Worksheet Name";
 
         if not StdCostWkshName.Get(CurrWkshName) then
-            if not StdCostWkshName.FindFirst then begin
+            if not StdCostWkshName.FindFirst() then begin
                 StdCostWkshName.Name := DefaultNameTxt;
                 StdCostWkshName.Description := DefaultNameTxt;
                 StdCostWkshName.Insert();

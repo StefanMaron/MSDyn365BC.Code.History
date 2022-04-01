@@ -202,15 +202,5 @@ table 7323 "Posted Whse. Shipment Line"
     fieldgroups
     {
     }
-
-#if not CLEAN17
-    [Obsolete('Reference SetSourceFilterForPostedWhseShptLine function from codeunit Whse. Management instead', '17.0')]
-    procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
-    var
-        WhseManagement: Codeunit "Whse. Management";
-    begin
-        WhseManagement.SetSourceFilterForPostedWhseShptLine(Rec, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
-    end;
-#endif
 }
 

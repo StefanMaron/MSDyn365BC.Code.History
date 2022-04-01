@@ -33,7 +33,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check that no Reminder Lines exists for a Document that is not Overdue.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostSalesInvoice(Customer);
 
         // Exercise: Make payment for the Invoice and Create Reminder for the Customer.
@@ -51,7 +51,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         // Check that No Reminder Lines exists for a Document that is created before Grace Period End.
 
-        Initialize;
+        Initialize();
         FirstLevelReminderWithNoLines('<-1D>');
     end;
 
@@ -61,7 +61,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         // Check that no Reminder Lines exists after Suggesting Lines on the Grace Period.
 
-        Initialize;
+        Initialize();
         FirstLevelReminderWithNoLines('<0D>');
     end;
 
@@ -92,7 +92,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check the Amount and Additional Fee on Reminder Lines After the Grace Period End.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostSalesInvoice(Customer);
 
         // Create Reminder and Verify Additional Fee and Amount on Reminder Lines.
@@ -109,7 +109,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check the Amount and Additional Fee on Reminder Lines With a Negative Amount.
 
         // Setup: Create and Post Sales Invoice and then Create and Post Credit Memo.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostSalesInvoice(Customer);
         CreateAndPostSalesCreditMemo(Customer."No.", Customer."Reminder Terms Code");
 
@@ -129,7 +129,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check that no Reminder Lines exists after Suggesting Lines on Second Reminder with First Level Grace Period.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndIssueFirstReminder(Customer, ReminderLevel);
 
         // Calculate Reminder Date based on Sales Header Due Date and First Grace Period End.
@@ -149,7 +149,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check that no Reminder Lines exists after Suggesting Lines on Second Reminder with Second Level Grace Period.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndIssueFirstReminder(Customer, ReminderLevel);
 
         // Calculate Reminder Date based on Sales Header Due Date and First Grace Period End.
@@ -172,7 +172,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // SecondLevelReminder(NextLevelGracePeriod::"Both Periods");
 
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndIssueFirstReminder(Customer, ReminderLevel);
 
         // Calculate Reminder Date based on Sales Header Due Date and First Grace Period End.
@@ -194,7 +194,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check that no Reminder Lines exists after Suggesting Lines on a Date after First Level Grace Period and First Reminder Due Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndIssueFirstReminder(Customer, ReminderLevel);
 
         // Calculate Reminder Date based on Sales Header Due Date and First Grace Period End.
@@ -216,7 +216,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check that no Reminder Lines exists after Suggesting Lines on a Date after Second Level Grace Period and First Reminder Due Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndIssueFirstReminder(Customer, ReminderLevel);
 
         // Calculate Reminder Date based on Sales Header Due Date and First Grace Period End.
@@ -239,7 +239,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check that no Reminder Lines exists after Suggesting Lines on a Date after Second Level Grace Period and First Reminder Due Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndIssueFirstReminder(Customer, ReminderLevel);
 
         // Calculate Reminder Date based on Sales Header Due Date and First Grace Period End.
@@ -267,7 +267,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check that no Reminder Lines exists after Suggesting Lines on Third Level Grace Period.
 
         // Setup:
-        Initialize;
+        Initialize();
         CreateThirdLevelReminder(ReminderNo, '<0D>');
 
         // Verify:
@@ -284,7 +284,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Check the Amount and Additional Fee on Reminder Lines after Third Level Grace Period Starts.
 
         // Setup:
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateThirdLevelReminder(ReminderNo, '<1D>');
 
         // Verify: Verify Amount and Additional Fee on Reminder Lines.
@@ -328,7 +328,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         ReminderDate2: Date;
     begin
         // Setup: Add Due Date Calculation on Reminder Levels.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostSalesInvoice(Customer);
         AddDueDateCalcOnReminderLevel(Customer."Reminder Terms Code");
 
@@ -360,7 +360,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         ReminderNo: Code[20];
     begin
         // Setup: Create a Customer. Create Multiple Sales Invoices with newly created Item and a Random Quantity. Post the Sales Invoices.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Create Multiple Sales Invoices using Random and Post them.
@@ -392,7 +392,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Create and Verify the Reminder Lines.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostSalesInvoice(Customer);
 
         // Exercise: Create Reminder for the Customer and calculating Reminder Date using LibraryRandom.
@@ -404,7 +404,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
 
         // Verify: Check Whether Lines are created in Reminder Line and verify a field.
         ReminderLevel.SetRange("Reminder Terms Code", Customer."Reminder Terms Code");
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
         VerifyReminderLine(ReminderNo, ReminderLevel."Additional Fee (LCY)");
     end;
 
@@ -417,7 +417,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // [SCENARIO 243869] Check that no Overdue Entry exist while Suggesting Reminder Line and Entries With Overdue Amount Field is set to TRUE.
 
         // Create and suggest Reminder when Include Entries with Overdue Amount = TRUE.
-        Initialize;
+        Initialize();
         ReminderNo := RemindersWithOverdueEntries(true);
 
         // Verify: Verify that the Invoice that is Not Due is not appearing in the Reminder Lines.
@@ -433,7 +433,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // [SCENARIO 243869] Check that not Overdue Entry exist while Suggesting Reminder Line and Entries With Overdue Amount Field is set to FALSE.
 
         // Create and suggest Reminder when Include Entries with Overdue Amount = FALSE.
-        Initialize;
+        Initialize();
         ReminderNo := RemindersWithOverdueEntries(false);
 
         // Verify: Verify that the Invoice that is Not Due is also appearing in the Reminder Lines.
@@ -469,7 +469,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         // [SCENARIO 375725] Reminder Line should not be created when Due Date plus Grace Period is more then Reminder Date and "Only Entries with Overdue Amounts" = TRUE
 
-        Initialize;
+        Initialize();
         // [GIVEN] Customer with Reminder Code and Grace Period = 20 days
         CreateCustomer(Customer);
 
@@ -498,7 +498,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         // [SCENARIO 379031] Reminder Line should be created when Due Date plus Grace Period is more then Reminder Date and "Only Entries with Overdue Amounts" = FALSE
 
-        Initialize;
+        Initialize();
         // [GIVEN] Customer with Reminder Code and Grace Period = 20 days
         CreateCustomer(Customer);
 
@@ -527,7 +527,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         ReminderNo: Code[20];
     begin
         // [SCENARIO 379271] Reminder Line should be created when Invoice Due Date is the Reminder Date and "Only Entries with Overdue Amounts" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Reminder Code and Grace Period = 20 days and Payment Terms = 20 days
         CreateCustomerWithPaymentTerms(Customer);
@@ -560,7 +560,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         PostedInvoiceNo: Code[20];
     begin
         // [SCENARIO 379583] Reminder Line should be created when Due Date plus Grace Period and "Only Entries with Overdue Amounts" = TRUE with document type = Payment of Refund
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Reminder Code and Grace Period = 20 days
         CreateCustomer(Customer);
@@ -591,7 +591,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // [FEATURE] [Reminder Level]
         // [SCENARIO 261120] Two reminder lines are suggested for two invoices with different reminder levels (level 1 for one invoice and level 3 for other)
         // [SCENARIO 261120] after two issued reminders
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder Terms with 3 Levels: 13D, 13D, 30D
         LibraryERM.CreateReminderTerms(ReminderTerms);
@@ -734,9 +734,9 @@ codeunit 134376 "ERM Reminders - Grace Period"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reminders - Grace Period");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reminders - Grace Period");
@@ -760,7 +760,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         DateDifference: DateFormula;
     begin
         ReminderLevel.SetRange("Reminder Terms Code", ReminderTermsCode);
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
         Evaluate(DateDifference, Period);
         ReminderDate := CalcDate(DateDifference, CalcDate(ReminderLevel."Grace Period", GetSalesInvoiceDueDate(PostedInvoiceNo)));
     end;
@@ -1049,7 +1049,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         CreateGeneralJournalLine(GenJournalLine, CustomerNo, CustLedgerEntry.Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
@@ -1078,7 +1078,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Additional Fee");
         ReminderLine.SetFilter(Type, '<>''''');
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
         Assert.AreEqual(
           ReminderLevel."Additional Fee (LCY)", ReminderLine.Amount,
           StrSubstNo(AmountErr, ReminderLine.FieldCaption(Amount), ReminderLevel."Additional Fee (LCY)",
@@ -1128,7 +1128,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Reminder Line");
         ReminderLine.SetRange("Document Type", ReminderLine."Document Type"::Invoice);
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
         SalesInvoiceHeader.Get(DocumentNo);
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         Assert.AreNearlyEqual(
@@ -1172,7 +1172,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange(Type, ReminderLine.Type::"G/L Account");
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
         ReminderLine.TestField(Amount, Amount);
     end;
 
@@ -1200,7 +1200,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         with ReminderLine do begin
             FilterReminderLine(ReminderLine, ReminderNo, InvoiceNo, "Line Type"::"Reminder Line", "Document Type"::Invoice);
-            FindFirst;
+            FindFirst();
             TestField("No. of Reminders", ExpectedLevel);
         end;
     end;
@@ -1214,13 +1214,13 @@ codeunit 134376 "ERM Reminders - Grace Period"
         Assert.RecordCount(ReminderLine, LinesCount);
     end;
 
-    local procedure VerifyReminderLineDocument(ReminderLine: Record "Reminder Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyReminderLineDocument(ReminderLine: Record "Reminder Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         ReminderLine.TestField("Document Type", DocumentType);
         ReminderLine.TestField("Document No.", DocumentNo);
     end;
 
-    local procedure VerifyReminderLineAppliesToDoc(ReminderLine: Record "Reminder Line"; AppliesToDocType: Option; AppliesToDocNo: Code[20]; AmountValue: Decimal)
+    local procedure VerifyReminderLineAppliesToDoc(ReminderLine: Record "Reminder Line"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; AmountValue: Decimal)
     begin
         ReminderLine.TestField("Applies-to Document Type", AppliesToDocType);
         ReminderLine.TestField("Applies-to Document No.", AppliesToDocNo);

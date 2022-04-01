@@ -132,6 +132,22 @@ page 6327 "Power BI Embed Setup Wizard"
                         ShowCaption = false;
                         Caption = '';
                     }
+                    label("Para2.1.4")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'This feature utilizes Microsoft Power BI. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Power BI may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Power BI to learn more.';
+                    }
+                    field("Para2.1.5"; PrivacyStatementTxt)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        ShowCaption = false;
+
+                        trigger OnDrillDown()
+                        begin
+                            Hyperlink('https://go.microsoft.com/fwlink/?linkid=831305');
+                        end;
+                    }
                     label("Para2.1.3")
                     {
                         ApplicationArea = Basic, Suite;
@@ -296,6 +312,7 @@ page 6327 "Power BI Embed Setup Wizard"
         WizardOpenedForContextTxt: Label 'Power BI Wizard opened for context: %1.', Locked = true;
         LearnMoreAzureAppTxt: Label 'Learn more about registering an Azure AD application';
         PowerBIHomePageTxt: Label 'Go to Power BI home page';
+        PrivacyStatementTxt: Label 'Your privacy is important to us. To learn more read our Privacy Statement.';
 
     local procedure SetStep(NewStep: Option)
     begin

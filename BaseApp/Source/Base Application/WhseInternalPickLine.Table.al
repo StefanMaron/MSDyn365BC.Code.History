@@ -521,7 +521,7 @@ table 7334 "Whse. Internal Pick Line"
 
         OnOpenItemTrackingLinesOnBeforeSetSource(Rec, WhseWorksheetLine);
         WhseItemTrackingLines.SetSource(WhseWorksheetLine, DATABASE::"Whse. Internal Pick Line");
-        WhseItemTrackingLines.RunModal;
+        WhseItemTrackingLines.RunModal();
         Clear(WhseItemTrackingLines);
     end;
 
@@ -615,7 +615,7 @@ table 7334 "Whse. Internal Pick Line"
         WhseInternalPickLine: Record "Whse. Internal Pick Line";
     begin
         WhseInternalPickLine.SetRange("No.", WhseInternalPickHeader."No.");
-        if WhseInternalPickLine.FindLast then
+        if WhseInternalPickLine.FindLast() then
             exit(WhseInternalPickLine."Line No.");
         exit(0);
     end;
@@ -675,7 +675,7 @@ table 7334 "Whse. Internal Pick Line"
         WhseInternalPickLine.SetRecFilter;
         WhseInternalPickLine.SetRange("Line No.");
         WhseInternalPickLine.SetCurrentKey("No.", "Sorting Sequence No.");
-        if WhseInternalPickLine.FindLast then
+        if WhseInternalPickLine.FindLast() then
             exit(WhseInternalPickLine."Sorting Sequence No.");
         exit(0);
     end;

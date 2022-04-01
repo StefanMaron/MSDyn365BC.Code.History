@@ -115,7 +115,7 @@ page 5131 Opportunities
                         OptionStatusFilter, CloseOppFilter, SuccesChanceFilter, ProbabilityFilter, CompleteFilter, EstValFilter,
                         CaldCurrValFilter, SalesCycleFilter, CycleStageFilter, Periods);
 
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

@@ -209,7 +209,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentUploadCount, 'Service should have tried uploading the report.');
         Assert.AreEqual(0, PowerBIReportUploads.Count, 'Failure should not add any records to table 6307.');
         PowerBIServiceStatusSetup.Reset();
-        PowerBIServiceStatusSetup.FindFirst;
+        PowerBIServiceStatusSetup.FindFirst();
         Assert.AreEqual(OutageDateTime, PowerBIServiceStatusSetup."Retry After", 'Service failure should update table 6309.');
         Assert.IsFalse(PowerBIServiceMgt.IsPBIServiceAvailable,
           'Service should be marked as unavailable when retry time is in the future.');
@@ -449,7 +449,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         Assert.IsTrue(PowerBIReportUploads."Should Retry", 'Service failure should leave the report as still retryable.');
 
         PowerBIServiceStatusSetup.Reset();
-        PowerBIServiceStatusSetup.FindFirst;
+        PowerBIServiceStatusSetup.FindFirst();
         Assert.AreEqual(OutageDateTime, PowerBIServiceStatusSetup."Retry After", 'Service failure should update table 6309.');
         Assert.IsFalse(PowerBIServiceMgt.IsPBIServiceAvailable,
           'Service should be marked as unavailable when retry time is in the future.');
@@ -838,7 +838,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
     begin
         PowerBIReportSpinnerPartTestPage.Trap;
         PowerBIReportSpinnerPart.SetContext(Context);
-        PowerBIReportSpinnerPart.Run;
+        PowerBIReportSpinnerPart.Run();
     end;
 
     [HandlerFunctions('SetupWizardPageHandler')]
@@ -852,7 +852,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         PowerBIReportFactBoxTestPage.Trap;
         PowerBIReportFactBox.InitFactBox(Context, Context, IsVisible);
         PowerBIReportFactBox.SetFactBoxVisibility(IsVisible); // hidden by default so set to true to show factbox
-        PowerBIReportFactBox.Run;
+        PowerBIReportFactBox.Run();
     end;
 
 #if not CLEAN19
@@ -862,7 +862,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
     begin
         PowerBIReportSelectionTestPage.Trap;
         PowerBIReportSelection.SetContext(Context);
-        PowerBIReportSelection.RunModal;
+        PowerBIReportSelection.RunModal();
     end;
 #endif
 
@@ -933,7 +933,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         PowerBIUserConfiguration.Reset();
         Assert.AreEqual(1, PowerBIUserConfiguration.Count, 'There must be only one selected report');
-        PowerBIUserConfiguration.FindFirst;
+        PowerBIUserConfiguration.FindFirst();
         Assert.AreEqual(Id1, PowerBIUserConfiguration."Selected Report ID", 'Wrong report is selected');
 
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'There must be only one report deployed');
@@ -1014,7 +1014,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         PowerBIUserConfiguration.Reset();
         Assert.AreEqual(1, PowerBIUserConfiguration.Count, 'There must be only one selected report');
-        PowerBIUserConfiguration.FindFirst;
+        PowerBIUserConfiguration.FindFirst();
         Assert.AreEqual(Id2, PowerBIUserConfiguration."Selected Report ID", 'Wrong report is selected');
     end;
 
@@ -1024,7 +1024,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
     [Scope('OnPrem')]
     procedure SelectionPageHandler(var PowerBIReportSelection: Page "Power BI Report Selection"; var Response: Action)
     begin
-        PowerBIReportSelection.Run;
+        PowerBIReportSelection.Run();
     end;
 #endif
 

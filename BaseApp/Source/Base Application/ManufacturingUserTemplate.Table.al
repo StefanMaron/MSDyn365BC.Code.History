@@ -21,32 +21,24 @@ table 5525 "Manufacturing User Template"
                 UserSelection.ValidateUserName("User ID");
             end;
         }
-        field(2; "Create Purchase Order"; Option)
+        field(2; "Create Purchase Order"; Enum "Planning Create Purchase Order")
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Create Purchase Order';
-            OptionCaption = ' ,Make Purch. Orders,Make Purch. Orders & Print,Copy to Req. Wksh';
-            OptionMembers = " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh";
         }
-        field(3; "Create Production Order"; Option)
+        field(3; "Create Production Order"; Enum "Planning Create Prod. Order")
         {
             Caption = 'Create Production Order';
-            OptionCaption = ' ,Planned,Firm Planned,Firm Planned & Print,Copy to Req. Wksh';
-            OptionMembers = " ",Planned,"Firm Planned","Firm Planned & Print","Copy to Req. Wksh";
         }
-        field(4; "Create Transfer Order"; Option)
+        field(4; "Create Transfer Order"; Enum "Planning Create Transfer Order")
         {
             AccessByPermission = TableData "Transfer Header" = R;
             Caption = 'Create Transfer Order';
-            OptionCaption = ' ,Make Trans. Orders,Make Trans. Order & Print,Copy to Req. Wksh';
-            OptionMembers = " ","Make Trans. Orders","Make Trans. Order & Print","Copy to Req. Wksh";
         }
-        field(5; "Create Assembly Order"; Option)
+        field(5; "Create Assembly Order"; Enum "Planning Create Assembly Order")
         {
             AccessByPermission = TableData "BOM Component" = R;
             Caption = 'Create Assembly Order';
-            OptionCaption = ' ,Make Assembly Orders,Make Assembly Orders & Print';
-            OptionMembers = " ","Make Assembly Orders","Make Assembly Orders & Print";
         }
         field(11; "Purchase Req. Wksh. Template"; Code[10])
         {

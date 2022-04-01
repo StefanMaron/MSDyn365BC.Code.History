@@ -28,7 +28,7 @@ codeunit 138041 "O365 Company Information"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         CompanyInformationPage: TestPage "Company Information";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // delete company bank account
         if BankAccount.Get(CompanyBankAccountTxt) then
@@ -40,7 +40,7 @@ codeunit 138041 "O365 Company Information"
         end;
 
         // fill out bank account information in Company Information page
-        BankAccPostingGroup.FindLast;
+        BankAccPostingGroup.FindLast();
 
         with CompanyInformationPage do begin
             OpenEdit;
@@ -102,7 +102,7 @@ codeunit 138041 "O365 Company Information"
 
         CompanyInformation.OpenEdit;
 
-        NewCompanyName := LibraryUtility.GenerateGUID;
+        NewCompanyName := LibraryUtility.GenerateGUID();
         CompanyInformation.Name.SetValue(NewCompanyName);
         CompanyInformation.Close;
 

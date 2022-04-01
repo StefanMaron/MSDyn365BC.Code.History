@@ -25,7 +25,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
         OutlookSynchSetupDefaults: Codeunit "Outlook Synch. Setup Defaults";
         MyEntityCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         MyEntityCode := 'RESETTEST';
         if OutlookSynchEntity.Get(MyEntityCode) then
@@ -50,7 +50,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
         OutlookSynchField: Record "Outlook Synch. Field";
         OutlookSynchSetupDefaults: Codeunit "Outlook Synch. Setup Defaults";
     begin
-        Initialize;
+        Initialize();
 
         OutlookSynchEntity.DeleteAll(true);
         OutlookSynchFilter.DeleteAll(true);
@@ -76,7 +76,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 180152] Delete "Outlook Synch. Entity"
-        Initialize;
+        Initialize();
         // [GIVEN] Outlook Synch. Entity with related entries
         MockOSynchEntityWithRelatedEntries(OutlookSynchEntity);
         // [WHEN] Delete Outlook Synch. Entity
@@ -94,7 +94,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 180152] Delete "Outlook Synch. Entity" with related "Outlook Synch. User Setup"
-        Initialize;
+        Initialize();
         // [GIVEN] Outlook Synch. Entity
         MockOSynchEntity(OutlookSynchEntity);
         // [GIVEN] Outlook Synch. User Setup
@@ -189,7 +189,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
     begin
         CreateFilterCompareDocument(Document);
         FieldRecordRef.Open(5303);
-        FieldRecordRef.FindFirst;
+        FieldRecordRef.FindFirst();
         Assert.AreEqual(
           Document.SelectNodes('/Workbook/Worksheet/Table/Row[position()>1]').Count, FieldRecordRef.Count,
           'One or more rows are missing from the test definition');
@@ -223,7 +223,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
     begin
         CreateFieldCompareDocument(Document);
         FieldRecordRef.Open(5304);
-        FieldRecordRef.FindFirst;
+        FieldRecordRef.FindFirst();
         Assert.AreEqual(
           Document.SelectNodes('/Workbook/Worksheet/Table/Row[position()>1]').Count, FieldRecordRef.Count,
           'One or more rows are missing from the test definition');

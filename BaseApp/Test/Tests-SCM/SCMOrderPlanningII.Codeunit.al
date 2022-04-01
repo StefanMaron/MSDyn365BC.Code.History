@@ -58,7 +58,7 @@ codeunit 137087 "SCM Order Planning - II"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create Sales Order planning setup,Create new item, and change Item on sales line after calculate order planning.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateSalesOrderPlanningSetup(SalesHeader, Item, '', LibraryRandom.RandDec(10, 2));
         CreateItem(Item2, Item2."Replenishment System"::Purchase, '', '');
@@ -88,7 +88,7 @@ codeunit 137087 "SCM Order Planning - II"
         ShipmentDate: Date;
     begin
         // Setup: Create Sales Order planning setup, and change Shipment Date on sales line after calculate order planning.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateSalesOrderPlanningSetup(SalesHeader, Item, '', LibraryRandom.RandDec(10, 2));
         ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate);
@@ -119,7 +119,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity2: Decimal;
     begin
         // Setup: Create Sales Order planning setup, and change Quantity on sales line after calculate order planning.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateSalesOrderPlanningSetup(SalesHeader, Item, '', Quantity);
@@ -149,7 +149,7 @@ codeunit 137087 "SCM Order Planning - II"
         Item: Record Item;
     begin
         // Setup: Create Sales Order planning setup, and change Location on sales line after calculate order planning.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateSalesOrderPlanningSetup(SalesHeader, Item, LocationRed.Code, LibraryRandom.RandDec(10, 2));
 
@@ -178,7 +178,7 @@ codeunit 137087 "SCM Order Planning - II"
         Item: Record Item;
     begin
         // Setup: Create Sales Order planning setup, and change Unit Of Measure Code on sales line after calculate order planning.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateSalesOrderPlanningSetup(SalesHeader, Item, '', LibraryRandom.RandDec(10, 2));
 
@@ -203,7 +203,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         PlanningMultipleSalesOrder(Item."Replenishment System"::Purchase, true);
     end;
 
@@ -213,7 +213,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         PlanningMultipleSalesOrder(Item."Replenishment System"::"Prod. Order", false);
     end;
 
@@ -228,7 +228,7 @@ codeunit 137087 "SCM Order Planning - II"
         SalesHeader3: Record "Sales Header";
     begin
         // Setup : Create Two Item with Replenishment System and create Multiple Sales Order with Status.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, ReplenishmentSystem, '', '');
         CreateItem(Item2, ReplenishmentSystem, '', '');
@@ -266,7 +266,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         // Setup : Create Manufacturing Item Setup with child Item without inventory and Replenishment System Production,
         // Create Negative Sales Return.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateManufacturingSetup(ParentItem, ChildItem, ChildItem.Reserve::Optional);
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -298,7 +298,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         // Setup : Create Manufacturing Item Setup with child Item without inventory and Replenishment System Production,
         // Create Negative Sales Return, and run Order Planning.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateManufacturingSetup(ParentItem, ChildItem, ChildItem.Reserve::Optional);
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -330,7 +330,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup : Create Two Item with Replenishment System Production Order and create Open Sales Order and Released Sales Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", '', '');
@@ -362,7 +362,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup : Create Two Item with Replenishment System Production Order and create Sales Order with Multiple Sales Line and Location.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", '', '');
@@ -392,7 +392,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         ChangeReplenishmentSalesOrder(Item."Replenishment System"::Purchase, Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -403,7 +403,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         ChangeReplenishmentSalesOrder(Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase);
     end;
 
@@ -417,7 +417,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup : Create Item , Sales Order , Calculate Planning and Change the Replenishment System.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, ReplenishmentSystem, '', '');
@@ -452,7 +452,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup : Create Item with inventory on location, Sale order and Calculate Plan.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
@@ -484,7 +484,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup : Create Item with inventory on location, Sale order and Calculate Plan and Open Order Planning Page in edit mode.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
@@ -515,7 +515,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup : Create Item with inventory on location, Sale order and Calculate Plan and Open Order Planning Page in edit mode and  Click On Assist edit of Available to transfer from order planning page for Get Alternative Supply Page.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
@@ -549,7 +549,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ProductionOrder: Record "Production Order";
     begin
-        Initialize;
+        Initialize();
         PlanningForProduction(ProductionOrder.Status::Released);
     end;
 
@@ -559,7 +559,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ProductionOrder: Record "Production Order";
     begin
-        Initialize;
+        Initialize();
         PlanningForProduction(ProductionOrder.Status::Planned);
     end;
 
@@ -590,7 +590,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
-        Initialize;
+        Initialize();
         PlanningForProdMakeOrderActiveLine(ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
     end;
 
@@ -601,11 +601,11 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
-        Initialize;
+        Initialize();
         PlanningForProdMakeOrderActiveLine(ManufacturingUserTemplate."Create Production Order"::Planned);
     end;
 
-    local procedure PlanningForProdMakeOrderActiveLine(CreateProductionOrder: Option)
+    local procedure PlanningForProdMakeOrderActiveLine(CreateProductionOrder: Enum "Planning Create Prod. Order")
     var
         ProductionOrder: Record "Production Order";
         ParentItem: Record Item;
@@ -614,7 +614,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         // Setup : Create Manufacturing Item Setup with child Item without inventory, Create Release Production Order
         // and run Order Planning.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, ChildItem.Reserve::Optional);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", LocationBlue.Code, LibraryRandom.RandDec(10, 2) + 10);
@@ -634,7 +634,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ProductionOrder: Record "Production Order";
     begin
-        Initialize;
+        Initialize();
         PlanningForProdChangeRepl(ProductionOrder.Status::Planned)
     end;
 
@@ -645,7 +645,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ProductionOrder: Record "Production Order";
     begin
-        Initialize;
+        Initialize();
         PlanningForProdChangeRepl(ProductionOrder.Status::"Firm Planned")
     end;
 
@@ -659,7 +659,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         // Setup : Create Manufacturing Item Setup with child Item without inventory, Create Production Order
         // and run Order Planning and Change Replisment System To Transfer.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, ChildItem.Reserve::Optional);
         CreateAndRefreshProdOrder(ProductionOrder, Status, ParentItem."No.", LocationBlue.Code, LibraryRandom.RandDec(10, 2) + 10);
         UpdateChildItemInventory(ProdOrderComponent, ChildItem."No.", ProductionOrder."No.", LocationBlue2.Code);
@@ -682,7 +682,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ChildItem: Record Item;
     begin
-        Initialize;
+        Initialize();
         ReserveProductionPlanning(ChildItem.Reserve::Never, true);
     end;
 
@@ -692,7 +692,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ChildItem: Record Item;
     begin
-        Initialize;
+        Initialize();
         ReserveProductionPlanning(ChildItem.Reserve::Always, false);
     end;
 
@@ -703,7 +703,7 @@ codeunit 137087 "SCM Order Planning - II"
         ChildItem: Record Item;
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, ReserveOnItem);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationBlue.Code, LibraryRandom.RandDec(10, 2) +
@@ -728,7 +728,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ChildItem: Record Item;
     begin
-        Initialize;
+        Initialize();
         ReserveProdPlanMakeOrder(ChildItem.Reserve::Always);
     end;
 
@@ -739,7 +739,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ChildItem: Record Item;
     begin
-        Initialize;
+        Initialize();
         ReserveProdPlanMakeOrder(ChildItem.Reserve::Never);
     end;
 
@@ -753,7 +753,7 @@ codeunit 137087 "SCM Order Planning - II"
         ReservationEntry: Record "Reservation Entry";
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, ReserveOnItem);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationBlue.Code, LibraryRandom.RandDec(10, 2) +
@@ -770,7 +770,7 @@ codeunit 137087 "SCM Order Planning - II"
             FindProdOrderComponent(ProdOrderComponent, ProductionOrder."No.", ChildItem."No.");
             ReservationEntry.SetRange("Item No.", ChildItem."No.");
             ReservationEntry.SetRange("Source Type", DATABASE::"Purchase Line");
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
             Assert.AreEqual(
               ProdOrderComponent."Remaining Quantity", ReservationEntry.Quantity,
               StrSubstNo(
@@ -779,7 +779,7 @@ codeunit 137087 "SCM Order Planning - II"
         end else begin
             // Verify : Check That Reservation Entry Not Created after Make Supply Order.
             ReservationEntry.SetRange("Item No.", ChildItem."No.");
-            asserterror ReservationEntry.FindFirst;
+            asserterror ReservationEntry.FindFirst();
         end;
     end;
 
@@ -789,7 +789,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ProductionOrder: Record "Production Order";
     begin
-        Initialize;
+        Initialize();
         DimensionOnOrderPlanning(ProductionOrder.Status::Planned);
     end;
 
@@ -799,7 +799,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ProductionOrder: Record "Production Order";
     begin
-        Initialize;
+        Initialize();
         DimensionOnOrderPlanning(ProductionOrder.Status::"Firm Planned");
     end;
 
@@ -809,7 +809,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         ProductionOrder: Record "Production Order";
     begin
-        Initialize;
+        Initialize();
         DimensionOnOrderPlanning(ProductionOrder.Status::Released);
     end;
 
@@ -848,7 +848,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
 
@@ -878,7 +878,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
         VendorCurrencyCode := UpdateItemWithVendor(Item);
@@ -908,7 +908,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
 
@@ -939,7 +939,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         // [FEATURE] [Drop Shipment] [Order Planning] [Reservation]
         // [SCENARIO 231925] Sales order that is set for drop shipment after it is planned by Order Planning functionality, is not reserved from resulting requisition worksheet.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
 
         // [GIVEN] Item with Reserve option = "Always".
@@ -985,7 +985,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantity: Decimal;
     begin
         // Setup: Create two Items.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
         CreateItem(Item2, Item."Replenishment System"::Purchase, '', '');
@@ -1021,7 +1021,7 @@ codeunit 137087 "SCM Order Planning - II"
         // [SCENARIO 134557] Item is reserved in supply Req. Worksheet when "Reserve" = "Always" and Req. Worksheet is created from Order Planning.
 
         // [GIVEN] Item "I" with "Replenishment System" = "Purchase", "Reserve" = "Always"
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
         UpdateItem(Item, Item.Reserve::Always);
@@ -1048,7 +1048,7 @@ codeunit 137087 "SCM Order Planning - II"
         Quantities: array[2] of Decimal;
     begin
         // Setup : Create Item with inventory on location, Sale order and Calculate Plan.
-        Initialize;
+        Initialize();
         Quantities[1] := 10 * LibraryRandom.RandDec(10, 2);
         Quantities[2] := 10 * LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
@@ -1074,7 +1074,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         // [FEATURE] [Order Planning] [Item Translation]
         // [SCENARIO 375674] Field "Description" of Requisition Line should be taken from Item Translation during Order Planning
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" with Language Code = "C"
         LibraryPurchase.CreateVendor(Vendor);
@@ -1096,7 +1096,7 @@ codeunit 137087 "SCM Order Planning - II"
 
         // [THEN] Requisition Line is created with Description = "D"
         RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Description, ItemTranslationDescription);
     end;
 
@@ -1112,7 +1112,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         // [FEATURE] [Order Planning] [Job] [Item] [Item Type]
         // [SCENARIO 260178] Service item is not involved in order plan calculation.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" and item with type Service "SI"
         LibraryInventory.CreateItem(Item[1]);
@@ -1151,7 +1151,7 @@ codeunit 137087 "SCM Order Planning - II"
         // [FEATURE] [Service Order] [Warehouse Shipment]
         // [SCENARIO 254701] After unsuccessful attempt of Whse. Shpmt it must be impossible to post a Service Order the shipment was derived from.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Location with a bin
         CreateLocationWithBin(Location, Bin, true, false, false, true, true);
@@ -1219,7 +1219,7 @@ codeunit 137087 "SCM Order Planning - II"
         // [FEATURE] [Service Order] [Warehouse]
         // [SCENARIO 258679] When posting a service order with 2 lines - one requiring warehouse shipment, the other not - the line without whse. shipment is posted and creates warehouse entry.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item
         LibraryInventory.CreateItem(Item);
@@ -1242,7 +1242,7 @@ codeunit 137087 "SCM Order Planning - II"
         // [GIVEN] Create another Service Line with SILVER Location
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         CreateServiceLine(
           ServiceLineSilver, ServiceHeader, ServiceItemLine, Item."No.", SilverLocation.Code, LibraryRandom.RandIntInRange(1, 10));
 
@@ -1258,7 +1258,7 @@ codeunit 137087 "SCM Order Planning - II"
         WarehouseEntry.SetRange("Source Line No.", ServiceLineSilver."Line No.");
 
         // [THEN] Whse. Line derived from Serevice Line which was shipped from SILVER is there, no errors occur.
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
     end;
 
     [Test]
@@ -1274,7 +1274,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         // [FEATURE] [Order Planning] [Transfer]
         // [SCENARIO 328253] Quantity Available For Transfer on Order Planning page shows quantity can be transferred from another location with previously planned transfers.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandIntInRange(50, 100);
 
         // [GIVEN] Item with 100 pcs stored on location "Blue".
@@ -1314,11 +1314,11 @@ codeunit 137087 "SCM Order Planning - II"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Order Planning - II");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         CreateLocationSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Order Planning - II");
@@ -1353,7 +1353,7 @@ codeunit 137087 "SCM Order Planning - II"
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("Replenishment System", OldReplenishmentSystem);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Replenishment System", NewReplenishmentSystem);
         RequisitionLine.Validate("Vendor No.", VendorNo);
         RequisitionLine.Modify(true);
@@ -1364,7 +1364,7 @@ codeunit 137087 "SCM Order Planning - II"
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("Replenishment System", OldReplenishmentSystem);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Replenishment System", NewReplenishmentSystem);
         RequisitionLine.Validate("Supply From", SupplyFrom);
         RequisitionLine.Validate("Transfer Shipment Date", RequisitionLine."Order Date");
@@ -1497,7 +1497,7 @@ codeunit 137087 "SCM Order Planning - II"
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
         ManufacturingUserTemplate.SetRange("User ID", UserId);
-        if ManufacturingUserTemplate.FindFirst then
+        if ManufacturingUserTemplate.FindFirst() then
             ManufacturingUserTemplate.Delete(true);
     end;
 
@@ -1740,7 +1740,7 @@ codeunit 137087 "SCM Order Planning - II"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -1751,7 +1751,7 @@ codeunit 137087 "SCM Order Planning - II"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; DemandOrderNo: Code[20]; No: Code[20]; LocationCode: Code[10])
@@ -1760,17 +1760,17 @@ codeunit 137087 "SCM Order Planning - II"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20]; ItemNo: Code[20])
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
-    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Option)
+    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
     begin
         if not ManufacturingUserTemplate.Get(UserId) then
             LibraryPlanning.CreateManufUserTemplate(
@@ -1784,13 +1784,13 @@ codeunit 137087 "SCM Order Planning - II"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         MakeSupplyOrders(
           RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
           ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
     end;
 
-    local procedure MakeSupplyOrdersActiveLine(DemandOrderNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; CreateProductionOrder: Option)
+    local procedure MakeSupplyOrdersActiveLine(DemandOrderNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; CreateProductionOrder: Enum "Planning Create Prod. Order")
     var
         ManufacturingUserTemplate: Record "Manufacturing User Template";
         RequisitionLine: Record "Requisition Line";
@@ -1798,11 +1798,11 @@ codeunit 137087 "SCM Order Planning - II"
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange("No.", ItemNo);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         MakeSupplyOrders(RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Line", CreateProductionOrder);
     end;
 
-    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Option)
+    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
     var
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
@@ -1828,7 +1828,7 @@ codeunit 137087 "SCM Order Planning - II"
         WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Service Line");
         WarehouseShipmentLine.SetRange("Source Subtype", 1); // 1 - ServiceLine."Document Type"::Order (option #1)
         WarehouseShipmentLine.SetRange("Source No.", ServiceHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.Validate("Bin Code", Bin.Code);
         WarehouseShipmentLine.Modify(true);
 
@@ -1905,7 +1905,7 @@ codeunit 137087 "SCM Order Planning - II"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure UpdateItemWithVendor(var Item: Record Item): Code[10]
@@ -1918,11 +1918,11 @@ codeunit 137087 "SCM Order Planning - II"
         exit(Vendor."Currency Code");
     end;
 
-    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Option)
+    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Enum "Req. Worksheet Template Type")
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
     end;
 
     local procedure SelectManufacturingUserTemplateForRequisition(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option)
@@ -1945,7 +1945,7 @@ codeunit 137087 "SCM Order Planning - II"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         MakeSupplyOrders(
           RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
           ManufacturingUserTemplate."Create Purchase Order"::"Make Purch. Orders");
@@ -1958,7 +1958,7 @@ codeunit 137087 "SCM Order Planning - II"
         SelectManufacturingUserTemplateForRequisition(
           ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Line");
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         LibraryPlanning.MakeSupplyOrders(ManufacturingUserTemplate, RequisitionLine);
     end;
 
@@ -1969,7 +1969,7 @@ codeunit 137087 "SCM Order Planning - II"
         Vendor.Modify(true);
     end;
 
-    local procedure GetManufacturingUserTemplateForRequisition(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreatePurchaseOrder: Option)
+    local procedure GetManufacturingUserTemplateForRequisition(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreatePurchaseOrder: Enum "Planning Create Purchase Order")
     begin
         if not ManufacturingUserTemplate.Get(UserId) then
             LibraryPlanning.CreateManufUserTemplate(
@@ -1996,7 +1996,7 @@ codeunit 137087 "SCM Order Planning - II"
                         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
                         FindRequisitionLine(RequisitionLine, SalesLine."Document No.", SalesLine."No.", SalesLine."Location Code");
                         RequisitionLine.SetRange("Location Code", SalesLine."Location Code");
-                        RequisitionLine.FindFirst;
+                        RequisitionLine.FindFirst();
                         ExpectedOutstandingQuantity := CalculateExpectedQuantity(SalesHeader."Document Type", SalesLine."Outstanding Quantity");
                         RequisitionLine.TestField("Demand Quantity", ExpectedOutstandingQuantity);
                         RequisitionLine.TestField(Status, SalesHeader.Status);
@@ -2036,7 +2036,7 @@ codeunit 137087 "SCM Order Planning - II"
                 Item."Replenishment System"::Purchase:
                     begin
                         PurchaseLine.SetRange("No.", ProdOrderComponent."Item No.");
-                        PurchaseLine.FindFirst;
+                        PurchaseLine.FindFirst();
                         PurchaseLine.TestField("Buy-from Vendor No.", Item."Vendor No.");
                         PurchaseLine.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
                         PurchaseLine.TestField("Location Code", ProdOrderComponent."Location Code");
@@ -2044,7 +2044,7 @@ codeunit 137087 "SCM Order Planning - II"
                 Item."Replenishment System"::"Prod. Order":
                     begin
                         ProductionOrder.SetRange("Source No.", Item."No.");
-                        ProductionOrder.FindFirst;
+                        ProductionOrder.FindFirst();
                         ProductionOrder.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
                         ProductionOrder.TestField("Location Code", ProdOrderComponent."Location Code");
                     end;
@@ -2060,11 +2060,11 @@ codeunit 137087 "SCM Order Planning - II"
         SalesLine.SetRange("Document No.", SalesOrderNo);
         SalesLine.SetRange("No.", ItemNo);
         SalesLine.SetRange("Location Code", LocationCode);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         PurchaseLine.SetRange("No.", SalesLine."No.");
         PurchaseLine.SetRange("Location Code", LocationCode);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField(Quantity, SalesLine."Outstanding Quantity");
     end;
 
@@ -2075,9 +2075,9 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         SalesLine.SetRange("Document No.", SalesOrderNo);
         SalesLine.SetRange("No.", ItemNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         PurchaseLine.SetRange("No.", SalesLine."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField(Quantity, -SalesLine."Outstanding Quantity");
     end;
 
@@ -2087,7 +2087,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", ItemNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         ProductionOrder.TestField(Quantity, Quantity);
         ProductionOrder.TestField("Location Code", LocationCode);
     end;
@@ -2104,7 +2104,7 @@ codeunit 137087 "SCM Order Planning - II"
         TransferLine: Record "Transfer Line";
     begin
         TransferLine.SetRange("Item No.", ItemNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.TestField(Quantity, ExpectedQuantity);
     end;
 
@@ -2114,7 +2114,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry.TestField("Dimension Value Code", DimensionValueCode);
     end;
 
@@ -2124,7 +2124,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         RequisitionLine.SetRange("Worksheet Template Name", WorksheetTemplateName);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, Quantity);
         RequisitionLine.TestField("Location Code", LocationCode);
     end;
@@ -2149,7 +2149,7 @@ codeunit 137087 "SCM Order Planning - II"
             SetRange("Source Type", DATABASE::"Service Line");
             SetRange("Source Subtype", ServiceHeaderType);
             SetRange("Source ID", ServiceHeaderNo);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, Qty);
         end;
     end;

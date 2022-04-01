@@ -27,7 +27,7 @@ codeunit 134034 "ERM Cust Date Compress Manual"
     begin
         // Check that entry Posted outside the Date Compression Period is not present in Compressed Customer Ledger Entries after
         // Running Date Compression by Week. Take One Week Difference between Entries.
-        Initialize;
+        Initialize();
         CustomerDateCompression(DateComprRegister."Period Length"::Week, '<1W>');
     end;
 
@@ -39,7 +39,7 @@ codeunit 134034 "ERM Cust Date Compress Manual"
     begin
         // Check that entry Posted outside the Date Compression Period is not present in Compressed Customer Ledger Entries after
         // Running Date Compression by Month. Take One Month Difference between Entries.
-        Initialize;
+        Initialize();
         CustomerDateCompression(DateComprRegister."Period Length"::Month, '<1M>');
     end;
 
@@ -78,9 +78,9 @@ codeunit 134034 "ERM Cust Date Compress Manual"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Cust Date Compress Manual");
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         IsInitialized := true;
         Commit();
@@ -131,15 +131,20 @@ codeunit 134034 "ERM Cust Date Compress Manual"
     local procedure DateCompressForCustomer(GenJournalLine: Record "Gen. Journal Line"; StartingDate: Date; PeriodLength: Option)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressCustomerLedger: Report "Date Compress Customer Ledger";
     begin
         // Run the Date Compress Customer Ledger Report. Take End Date a Day before Last Posted Entry's Posting Date.
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         DateCompressCustomerLedger.SetTableView(CustLedgerEntry);
+        DateComprRetainFields."Retain Document No." := false;
+        DateComprRetainFields."Retain Sell-to Customer No." := false;
+        DateComprRetainFields."Retain Salesperson Code" := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;
         DateCompressCustomerLedger.InitializeRequest(
-          StartingDate, CalcDate('<-1D>', GenJournalLine."Posting Date"), PeriodLength, '', false, false, false, '');
+            StartingDate, CalcDate('<-1D>', GenJournalLine."Posting Date"), PeriodLength, '', DateComprRetainFields, '', false);
         DateCompressCustomerLedger.UseRequestPage(false);
-        DateCompressCustomerLedger.Run;
+        DateCompressCustomerLedger.Run();
     end;
 
     local procedure VerifyCustomerLedgerEntry(LastPostingDate: Date)
@@ -147,7 +152,7 @@ codeunit 134034 "ERM Cust Date Compress Manual"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         CustLedgerEntry.FindSet();
         repeat

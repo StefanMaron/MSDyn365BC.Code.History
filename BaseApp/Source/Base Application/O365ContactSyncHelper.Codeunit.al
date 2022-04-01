@@ -83,14 +83,14 @@ codeunit 6702 "O365 Contact Sync. Helper"
         LocalExchangeContact: Record "Exchange Contact";
         found: Boolean;
     begin
-        if Contact.FindSet then begin
+        if Contact.FindSet() then begin
             Session.LogMessage('0000ACO', StrSubstNo(LocalCountTelemetryTxt, Contact.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
 
             repeat
                 found := false;
                 TempContact.Reset();
                 TempContact.SetRange("E-Mail", Contact."E-Mail");
-                if TempContact.FindFirst then begin
+                if TempContact.FindFirst() then begin
                     found := true;
                     TempContact.Delete();
                 end;
@@ -108,7 +108,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
                         Clear(LocalExchangeContact);
                         LocalExchangeContact.Init();
                         LocalExchangeContact.SetFilter(EMailAddress1, '=%1', Contact."E-Mail");
-                        if LocalExchangeContact.FindFirst then
+                        if LocalExchangeContact.FindFirst() then
                             O365SyncManagement.LogActivityFailed(ExchangeSync.RecordId, ExchangeSync."User ID",
                               CreateExchangeContactTxt, ExchangeContact.EMailAddress1)
                         else
@@ -355,7 +355,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
     begin
         LocalContact.SetRange("Company Name", ExchangeContactCompanyName);
         LocalContact.SetRange(Type, LocalContact.Type::Company);
-        if LocalContact.FindFirst then
+        if LocalContact.FindFirst() then
             if LocalContact."Company Name" <> NavContact."Company Name" then
                 NavContact.Validate("Company No.", LocalContact."No.");
     end;
@@ -382,7 +382,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
         LocalCountryRegion: Record "Country/Region";
     begin
         LocalCountryRegion.SetRange(Name, Country);
-        if LocalCountryRegion.FindFirst then
+        if LocalCountryRegion.FindFirst() then
             NavContact.Validate("Country/Region Code", LocalCountryRegion.Code)
         else
             Error(CountryRegionNotFoundErr);

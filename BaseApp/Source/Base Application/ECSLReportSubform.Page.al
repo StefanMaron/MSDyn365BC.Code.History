@@ -67,12 +67,12 @@ page 322 "ECSL Report Subform"
                     ECSLVATReportLine: Record "ECSL VAT Report Line";
                 begin
                     CurrPage.SetSelectionFilter(ECSLVATReportLine);
-                    if ECSLVATReportLine.FindFirst then;
+                    if ECSLVATReportLine.FindFirst() then;
                     if ECSLVATReportLine."Line No." = 0 then
                         exit;
                     ECSLVATReportLineRelation.SetRange("ECSL Line No.", ECSLVATReportLine."Line No.");
                     ECSLVATReportLineRelation.SetRange("ECSL Report No.", ECSLVATReportLine."Report No.");
-                    if not ECSLVATReportLineRelation.FindSet then
+                    if not ECSLVATReportLineRelation.FindSet() then
                         exit;
 
                     repeat

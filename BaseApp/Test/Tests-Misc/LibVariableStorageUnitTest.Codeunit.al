@@ -24,7 +24,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         Value: Variant;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
 
         // Setup
         EnqueueElements(LibraryVariableStorage.MaxLength);
@@ -44,7 +44,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
     procedure DequeueMultipleElements()
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
 
         // Setup
         EnqueueElements(LibraryVariableStorage.MaxLength);
@@ -63,7 +63,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         Value: Variant;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(100));
@@ -80,7 +80,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
     procedure EnqueueMoreThanExpected()
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
 
         // Setup
         EnqueueElements(LibraryVariableStorage.MaxLength);
@@ -97,7 +97,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
     procedure EnqueueMultipleElements()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         EnqueueElements(LibraryVariableStorage.MaxLength);
@@ -111,7 +111,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
     procedure EnqueueSingleElement()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(100));
@@ -127,7 +127,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         NoOfDequeuedElements: Integer;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
 
         // Setup
         EnqueueElements(LibraryVariableStorage.MaxLength);
@@ -158,7 +158,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         SecondValue: Integer;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
 
         // Setup
         FirstValue := LibraryRandom.RandInt(100);
@@ -179,7 +179,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure DequeueElements(NoOfElements: Integer)

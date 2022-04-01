@@ -54,7 +54,7 @@ codeunit 1250 "Match General Journal Lines"
         CustLedgerEntry.SetRange("Applies-to ID", '');
         CustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
         OnFindMatchingCustEntriesOnAfterCustLedgerEntrySetFilters(CustLedgerEntry, TempBankStatementMatchingBuffer, TempGenJournalLine);
-        if CustLedgerEntry.FindSet then
+        if CustLedgerEntry.FindSet() then
             repeat
                 FindMatchingCustEntry(TempBankStatementMatchingBuffer, CustLedgerEntry, TempGenJournalLine);
             until CustLedgerEntry.Next() = 0;
@@ -66,7 +66,7 @@ codeunit 1250 "Match General Journal Lines"
         Score: Integer;
     begin
         Customer.Get(CustLedgerEntry."Customer No.");
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 Score := GetMatchScore(GenJournalLine, CustLedgerEntry."Document No.", Customer."No.", CustLedgerEntry."External Document No.",
                     Customer.Name, CustLedgerEntry."Remaining Amt. (LCY)", 1, CustLedgerEntry."Posting Date");
@@ -87,7 +87,7 @@ codeunit 1250 "Match General Journal Lines"
         VendorLedgerEntry.SetRange("Applies-to ID", '');
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
         OnFindMatchingVendorEntriesOnAfterSetVendorLedgerEntryFilters(VendorLedgerEntry, TempBankStatementMatchingBuffer, TempGenJournalLine);
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 FindMatchingVendorEntry(TempBankStatementMatchingBuffer, VendorLedgerEntry, TempGenJournalLine);
             until VendorLedgerEntry.Next() = 0;
@@ -99,7 +99,7 @@ codeunit 1250 "Match General Journal Lines"
         Score: Integer;
     begin
         Vendor.Get(VendorLedgerEntry."Vendor No.");
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 Score := GetMatchScore(GenJournalLine, VendorLedgerEntry."Document No.", Vendor."No.",
                     VendorLedgerEntry."External Document No.", Vendor.Name, VendorLedgerEntry."Remaining Amt. (LCY)", -1,
@@ -159,12 +159,12 @@ codeunit 1250 "Match General Journal Lines"
     begin
         Description := RecordMatchMgt.Trim(Description);
         TextToAccMapping.SetFilter("Mapping Text", '%1', '@' + Description);
-        if TextToAccMapping.FindFirst then
+        if TextToAccMapping.FindFirst() then
             exit(true);
 
         TextToAccMapping.Reset();
         MaxNearness := 0;
-        if TextToAccMapping.FindSet then
+        if TextToAccMapping.FindSet() then
             repeat
                 if Description = RecordMatchMgt.Trim(TextToAccMapping."Mapping Text") then
                     exit(true);
@@ -198,7 +198,7 @@ codeunit 1250 "Match General Journal Lines"
             SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
             SetFilter("Line No.", '>%1', GenJournalLine."Line No.");
-            if FindFirst then
+            if FindFirst() then
                 exit(GenJournalLine."Line No." + ("Line No." - GenJournalLine."Line No.") div 2);
         end;
 
@@ -213,7 +213,7 @@ codeunit 1250 "Match General Journal Lines"
         TempBankStatementMatchingBuffer.SetCurrentKey(Quality);
         TempBankStatementMatchingBuffer.Ascending(false);
 
-        if TempBankStatementMatchingBuffer.FindSet then
+        if TempBankStatementMatchingBuffer.FindSet() then
             repeat
                 GenJournalLine.Get(GenJournalBatch."Journal Template Name",
                   GenJournalBatch.Name, TempBankStatementMatchingBuffer."Line No.");
@@ -319,7 +319,7 @@ codeunit 1250 "Match General Journal Lines"
         GenJournalLine.SetFilter("Document Type", '%1|%2',
           GenJournalLine."Document Type"::" ",
           GenJournalLine."Document Type"::Payment);
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 TempGenJournalLine := GenJournalLine;
                 TempGenJournalLine.Insert();

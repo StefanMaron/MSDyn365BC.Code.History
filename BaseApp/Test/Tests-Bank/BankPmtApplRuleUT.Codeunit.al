@@ -46,7 +46,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        Initialize;
+        Initialize();
 
         InsertRule(BankPmtApplRule, AnyConfidence);
 
@@ -61,7 +61,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Score: Integer;
     begin
-        Initialize;
+        Initialize();
 
         InsertRule(BankPmtApplRule, AnyConfidence);
         Score := BankPmtApplRule.Score;
@@ -79,7 +79,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         BankPmtApplRule2: Record "Bank Pmt. Appl. Rule";
     begin
-        Initialize;
+        Initialize();
 
         InsertRule(BankPmtApplRule, AnyConfidence);
         InsertRule(BankPmtApplRule2, BankPmtApplRule."Match Confidence");
@@ -94,7 +94,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        Initialize;
+        Initialize();
         InsertRule(BankPmtApplRule, AnyConfidence);
 
         asserterror BankPmtApplRule.Validate(Priority, MinPriority - 1);
@@ -107,7 +107,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        Initialize;
+        Initialize();
         InsertRule(BankPmtApplRule, AnyConfidence);
 
         asserterror BankPmtApplRule.Validate(Priority, MaxPriority + 1);
@@ -121,7 +121,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         PriorityToSet: Integer;
     begin
-        Initialize;
+        Initialize();
         BankPmtApplRule.Init();
         PriorityToSet := LibraryRandom.RandIntInRange(MinPriority, MaxPriority);
 
@@ -138,7 +138,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         I: Integer;
         PreviousScore: Integer;
     begin
-        Initialize;
+        Initialize();
         PreviousScore := 0;
         for I := 0 to MatchConfidenceOptionsCount - 1 do begin
             InsertRule(BankPmtApplRule, I);
@@ -160,7 +160,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         ParameterBankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
         InsertRule(BankPmtApplRule, AnyConfidence);
         BankPmtApplRule.Validate("Doc. No./Ext. Doc. No. Matched", BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes);
         BankPmtApplRule.Modify(true);
@@ -182,7 +182,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         ParameterBankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
         ParameterBankPmtApplRule.Validate(
           "Doc. No./Ext. Doc. No. Matched", ParameterBankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No);
 
@@ -202,7 +202,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertRule(BankPmtApplRule, AnyConfidence);
@@ -235,7 +235,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::High);
@@ -278,7 +278,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::High);
@@ -319,7 +319,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::High);
@@ -360,7 +360,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::High);
@@ -401,7 +401,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::High);
@@ -442,7 +442,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::High);
         BankPmtApplRule.Validate("Doc. No./Ext. Doc. No. Matched", BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes);
         BankPmtApplRule.Modify(true);
@@ -483,7 +483,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        Initialize;
+        Initialize();
         asserterror BankPmtApplRule.LoadRules;
 
         Assert.ExpectedError('Programming error: The LoadRules function can only be called from temporary records');
@@ -497,7 +497,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         BankPmtApplRule2: Record "Bank Pmt. Appl. Rule";
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::High);
@@ -532,7 +532,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        Initialize;
+        Initialize();
 
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::Medium);
         BankPmtApplRule.Rename(BankPmtApplRule."Match Confidence"::Medium, 1);
@@ -551,7 +551,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::High);
@@ -581,7 +581,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         MatchScore: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::High);
@@ -609,7 +609,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
         // [SCENARIO 274504] Inserting line raises error if priority is invalid
-        Initialize;
+        Initialize();
 
         asserterror InsertRuleWithPriority(BankPmtApplRule, AnyConfidence, MinPriority - 1);
         Assert.ExpectedError(StrSubstNo('The %1 you entered is invalid', BankPmtApplRule.FieldCaption(Priority)));

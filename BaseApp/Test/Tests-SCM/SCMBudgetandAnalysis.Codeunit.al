@@ -36,7 +36,7 @@ codeunit 137403 "SCM Budget and Analysis"
         // [SCENARIO] Check that Analysis Lines can be renumbered.
 
         // [GIVEN] Create Analysis Line Template and three Analysis Lines for that template.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableSalesAnalysisSetup;
         LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, AnalysisLineTemplate."Analysis Area"::Sales);
         CreateAnalysisLine(AnalysisLineTemplate.Name);
@@ -64,7 +64,7 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisLineTemplate: Record "Analysis Line Template";
     begin
         // Test to validate Name on Analysis Lines page invoked by Sales Analysis Line Templates.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableSalesAnalysisSetup;
         CreateAnalysisLineTemplateAndOpenAnalysisLines(AnalysisLineTemplate."Analysis Area"::Sales);
     end;
@@ -77,7 +77,7 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisLineTemplate: Record "Analysis Line Template";
     begin
         // Test to validate Name on Analysis Lines page invoked by Purchase Analysis Line Templates.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnablePurchaseAnalysisSetup;
         CreateAnalysisLineTemplateAndOpenAnalysisLines(AnalysisLineTemplate."Analysis Area"::Purchase);
     end;
@@ -90,7 +90,7 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisLineTemplate: Record "Analysis Line Template";
     begin
         // Test to validate Name on Analysis Lines page invoked by Inventory Analysis Line Templates.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableInventoryAnalysisSetup;
         CreateAnalysisLineTemplateAndOpenAnalysisLines(AnalysisLineTemplate."Analysis Area"::Inventory);
     end;
@@ -120,7 +120,7 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         // Test to validate Name on Analysis Columns page invoked by Sales Analysis Column Templates.
-        Initialize;
+        Initialize();
         CreateAnalysisColumnTemplateAndOpenAnalysisColumns(AnalysisColumnTemplate."Analysis Area"::Sales);
     end;
 
@@ -132,7 +132,7 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         // Test to validate Name on Analysis Columns page invoked by Purchase Analysis Column Templates.
-        Initialize;
+        Initialize();
         CreateAnalysisColumnTemplateAndOpenAnalysisColumns(AnalysisColumnTemplate."Analysis Area"::Purchase);
     end;
 
@@ -144,7 +144,7 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         // Test to validate Name on Analysis Columns page invoked by Inventory Analysis Column Templates.
-        Initialize;
+        Initialize();
         CreateAnalysisColumnTemplateAndOpenAnalysisColumns(AnalysisColumnTemplate."Analysis Area"::Inventory);
     end;
 
@@ -177,8 +177,8 @@ codeunit 137403 "SCM Budget and Analysis"
         // [SCENARIO 363540] Item Ledger Entry Type Filter field on Analysis Type Page stores a text option value if was set in text form
 
         // [GIVEN] Analysis Type Page where "Item Ledger Entry Type Filter" is blank
-        AnalysisTypes.OpenNew;
-        AnalysisTypes.Code.SetValue(LibraryUtility.GenerateGUID);
+        AnalysisTypes.OpenNew();
+        AnalysisTypes.Code.SetValue(LibraryUtility.GenerateGUID());
         AnalysisTypes."Value Type".SetValue(AnalysisType."Value Type"::"Cost Amount");
 
         // [WHEN] Set "Item Ledger Entry Type Filter" to "Assembly Output" in text form
@@ -200,8 +200,8 @@ codeunit 137403 "SCM Budget and Analysis"
         // [SCENARIO 363540] Value Entry Type Filter field on Analysis Type Page stores a text option value if was set in text form
 
         // [GIVEN] Analysis Type Page where "Item Ledger Entry Type Filter" is blank
-        AnalysisTypes.OpenNew;
-        AnalysisTypes.Code.SetValue(LibraryUtility.GenerateGUID);
+        AnalysisTypes.OpenNew();
+        AnalysisTypes.Code.SetValue(LibraryUtility.GenerateGUID());
         AnalysisTypes."Value Type".SetValue(AnalysisType."Value Type"::"Cost Amount");
 
         // [WHEN] Set "Value Entry Type Filter" to "Direct Cost" in text form
@@ -224,8 +224,8 @@ codeunit 137403 "SCM Budget and Analysis"
         // [SCENARIO 363540] Item Ledger Entry Type Filter field on Analysis Type Page stores a text option value if was set in numeric form
 
         // [GIVEN] Analysis Type Page where "Item Ledger Entry Type Filter" is blank
-        AnalysisTypes.OpenNew;
-        AnalysisTypes.Code.SetValue(LibraryUtility.GenerateGUID);
+        AnalysisTypes.OpenNew();
+        AnalysisTypes.Code.SetValue(LibraryUtility.GenerateGUID());
         AnalysisTypes."Value Type".SetValue(AnalysisType."Value Type"::"Cost Amount");
 
         // [WHEN] Set "Item Ledger Entry Type Filter" to '9' (numeric value for "Assembly Output")
@@ -248,8 +248,8 @@ codeunit 137403 "SCM Budget and Analysis"
         // [SCENARIO 363540] Value Entry Type Filter field on Analysis Type Page stores a text option value if was set in numeric form
 
         // [GIVEN] Analysis Type Page where "Item Ledger Entry Type Filter" is blank
-        AnalysisTypes.OpenNew;
-        AnalysisTypes.Code.SetValue(LibraryUtility.GenerateGUID);
+        AnalysisTypes.OpenNew();
+        AnalysisTypes.Code.SetValue(LibraryUtility.GenerateGUID());
         AnalysisTypes."Value Type".SetValue(AnalysisType."Value Type"::"Cost Amount");
 
         // [WHEN] Set "Value Entry Type Filter" to '0' (numeric value for "Direct Cost")
@@ -310,7 +310,7 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisColumnTemplates: TestPage "Analysis Column Templates";
     begin
         // [SCENARIO 395017] Analysis Column line "Show" field default value can be reselected
-        Initialize;
+        Initialize();
 
         // [GIVEN] Analysis Column line with "Show" = Always set as default
         LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, AnalysisColumnTemplate."Analysis Area"::Sales);
@@ -336,7 +336,7 @@ codeunit 137403 "SCM Budget and Analysis"
         Clear(AnalysisColumnTemplateName);
         Clear(AnalysisLineTemplateName);
         Clear(NewRowNo);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -369,7 +369,7 @@ codeunit 137403 "SCM Budget and Analysis"
         Clear(RenumberAnalysisLines);
         AnalysisLine.SetRange("Analysis Line Template Name", AnalysisLineTemplateName);
         RenumberAnalysisLines.Init(AnalysisLine);
-        RenumberAnalysisLines.Run;
+        RenumberAnalysisLines.Run();
     end;
 
     local procedure VerifyRowNoInAnalysisLines(AnalysisLineTemplateName: Code[20])

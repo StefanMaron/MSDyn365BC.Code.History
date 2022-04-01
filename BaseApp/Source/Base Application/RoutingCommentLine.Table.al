@@ -62,7 +62,7 @@ table 99000775 "Routing Comment Line"
         RoutingCommentLine.SetRange("Version Code", "Version Code");
         RoutingCommentLine.SetRange("Operation No.", "Operation No.");
         RoutingCommentLine.SetRange(Date, WorkDate);
-        if not RoutingCommentLine.FindFirst then
+        if not RoutingCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, RoutingCommentLine);

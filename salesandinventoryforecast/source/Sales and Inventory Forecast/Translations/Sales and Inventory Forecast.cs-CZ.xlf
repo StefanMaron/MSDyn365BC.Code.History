@@ -258,7 +258,7 @@
         <trans-unit id="Codeunit 2836764293 - NamedType 1168217811" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We're updating the inventory forecast for item #1</source>
           <target state="translated">Aktualizujeme prognózu zásob pro zboží #1</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">#1 = an Item No.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType UpdateDialogTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3420482273 - NamedType 2614170639" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
@@ -805,6 +805,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 3276313895</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 122279174 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SalesAndInventoryForecast - Edit</source>
+          <target state="translated">SalesAndInventoryForecast - Upravit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SalesForecast - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2248664108 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SalesAndInventoryForecast - Objects</source>
+          <target state="translated">SalesAndInventoryForecast - Objekty</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SalesForecast - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1805333520 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SalesAndInventoryForecast - Read</source>
+          <target state="translated">SalesAndInventoryForecast - Číst</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SalesForecast - Read - Property Caption</note>
         </trans-unit>
       </group>
     </body>

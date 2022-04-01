@@ -75,7 +75,7 @@ page 1392 "Help And Chart Wrapper"
                 begin
                     SelectedChartDefinition.SetRange(Enabled, true);
                     if SelectedChartDefinition.Next(-1) = 0 then
-                        if not SelectedChartDefinition.FindLast then
+                        if not SelectedChartDefinition.FindLast() then
                             exit;
                     InitializeSelectedChart;
                 end;
@@ -91,7 +91,7 @@ page 1392 "Help And Chart Wrapper"
                 begin
                     SelectedChartDefinition.SetRange(Enabled, true);
                     if SelectedChartDefinition.Next() = 0 then
-                        if not SelectedChartDefinition.FindFirst then
+                        if not SelectedChartDefinition.FindFirst() then
                             exit;
                     InitializeSelectedChart;
                 end;
@@ -228,16 +228,13 @@ page 1392 "Help And Chart Wrapper"
         SelectedChartDefinition: Record "Chart Definition";
         BusinessChartBuffer: Record "Business Chart Buffer";
         ChartManagement: Codeunit "Chart Management";
-        ClientTypeManagement: Codeunit "Client Type Management";
         StatusText: Text;
         Period: Option " ",Next,Previous;
         [InDataSet]
         PreviousNextActionEnabled: Boolean;
         NoDescriptionMsg: Label 'A description was not specified for this chart.';
         IsChartAddInReady: Boolean;
-        RefreshPageMsg: Label 'Refresh the page for the change to take effect.';
         IsSaaS: Boolean;
-        SignInAgainMsg: Label 'Sign out and sign in for the change to take effect.';
 
     local procedure InitializeSelectedChart()
     begin

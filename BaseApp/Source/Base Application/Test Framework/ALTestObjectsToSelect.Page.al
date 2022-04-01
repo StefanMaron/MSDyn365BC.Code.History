@@ -34,7 +34,7 @@ page 130409 "AL Test Objects To Select"
 
                     trigger OnDrillDown()
                     begin
-                        if CALTestCoverageMap.FindFirst then
+                        if CALTestCoverageMap.FindFirst() then
                             PAGE.RunModal(0, CALTestCoverageMap);
                     end;
                 }
@@ -63,7 +63,7 @@ page 130409 "AL Test Objects To Select"
 
     local procedure CountTestCodeunits(): Integer
     begin
-        if CALTestCoverageMap.FindFirst then begin
+        if CALTestCoverageMap.FindFirst() then begin
             CALTestCoverageMap.CalcFields("Hit by Test Codeunits");
             exit(CALTestCoverageMap."Hit by Test Codeunits");
         end;

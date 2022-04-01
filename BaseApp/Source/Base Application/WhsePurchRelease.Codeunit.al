@@ -102,7 +102,7 @@ codeunit 5772 "Whse.-Purch. Release"
             PurchLine2.Copy(PurchLine);
             PurchLine2.SetRange("Location Code", PurchLine."Location Code");
             PurchLine2.SetRange("Unit of Measure Code", '');
-            if PurchLine2.FindFirst then
+            if PurchLine2.FindFirst() then
                 PurchLine2.TestField("Unit of Measure Code");
 
             WhseRqst.Type := WhseType;

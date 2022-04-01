@@ -596,7 +596,7 @@ codeunit 130502 "Library - Item Tracking"
 
         CalcWhseAdjmnt.SetTableView(TmpItem);
         CalcWhseAdjmnt.UseRequestPage(false);
-        CalcWhseAdjmnt.RunModal;
+        CalcWhseAdjmnt.RunModal();
     end;
 
     local procedure ItemTracking(var ReservEntry: Record "Reservation Entry"; RecRef: RecordRef; ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
@@ -847,7 +847,7 @@ codeunit 130502 "Library - Item Tracking"
             Error(Text002, ItemTrackingSetup."Serial No.", QtyBase);
         Clear(ReservEntry);
         with ReservEntry do begin
-            if FindLast then
+            if FindLast() then
                 LastEntryNo := "Entry No." + 1
             else
                 LastEntryNo := 1;

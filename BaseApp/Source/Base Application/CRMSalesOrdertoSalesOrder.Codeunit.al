@@ -456,7 +456,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMAnnotation.SetRange(ObjectId, CRMSalesorder.SalesOrderId);
         CRMAnnotation.SetRange(IsDocument, false);
         CRMAnnotation.SetRange(FileSize, 0);
-        if CRMAnnotation.FindSet then begin
+        if CRMAnnotation.FindSet() then begin
             repeat
                 CreateNote(SalesHeader, CRMAnnotation, RecordLink);
                 CRMAnnotationCoupling.CoupleRecordLinkToCRMAnnotation(RecordLink, CRMAnnotation);
@@ -500,7 +500,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMSalesorderdetail.SetCurrentKey(SequenceNumber);
         CRMSalesorderdetail.Ascending(true);
 
-        if CRMSalesorderdetail.FindSet then begin
+        if CRMSalesorderdetail.FindSet() then begin
             repeat
                 InitializeSalesOrderLine(CRMSalesorderdetail, SalesHeader, SalesLine);
                 OnCreateSalesOrderLinesOnBeforeSalesLineInsert(SalesLine, CRMSalesorderdetail);

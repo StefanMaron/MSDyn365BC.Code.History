@@ -126,7 +126,8 @@ page 99000890 "Machine Center Load Lines"
         PeriodType: Enum "Analysis Period Type";
         AmountType: Enum "Analysis Amount Type";
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by procedure SetLines()', '20.0')]
     procedure Set(var NewMachineCenter: Record "Machine Center"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         SetLines(

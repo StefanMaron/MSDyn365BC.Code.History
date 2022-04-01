@@ -30,6 +30,11 @@ page 115 "G/L Posting Preview"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Related Entries';
                     ToolTip = 'Specifies the name of the table where the Navigate facility has found entries with the selected document number and/or posting date.';
+
+                    trigger OnDrillDown()
+                    begin
+                        PostingPreviewEventHandler.ShowEntries(Rec."Table ID");
+                    end;
                 }
                 field("No. of Records"; "No. of Records")
                 {
@@ -40,7 +45,7 @@ page 115 "G/L Posting Preview"
 
                     trigger OnDrillDown()
                     begin
-                        PostingPreviewEventHandler.ShowEntries("Table ID");
+                        PostingPreviewEventHandler.ShowEntries(Rec."Table ID");
                     end;
                 }
             }
@@ -79,7 +84,7 @@ page 115 "G/L Posting Preview"
     procedure Set(var TempDocumentEntry: Record "Document Entry" temporary; NewPostingPreviewEventHandler: Codeunit "Posting Preview Event Handler")
     begin
         PostingPreviewEventHandler := NewPostingPreviewEventHandler;
-        if TempDocumentEntry.FindSet then
+        if TempDocumentEntry.FindSet() then
             repeat
                 Rec := TempDocumentEntry;
                 Insert;

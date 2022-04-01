@@ -560,7 +560,7 @@ page 9281 "Misc. Articles Overview Matrix"
         MiscArticleInformation.SetRange("Employee No.", "No.");
         MiscArticleInformation.SetRange("Misc. Article Code",
           MatrixRecords[MATRIX_ColumnOrdinal].Code);
-        HasInfo := MiscArticleInformation.FindFirst;
+        HasInfo := MiscArticleInformation.FindFirst();
         MiscArticleInformation.SetRange("Employee No.");
         MiscArticleInformation.SetRange("Misc. Article Code");
         MATRIX_CellData[MATRIX_ColumnOrdinal] := HasInfo;

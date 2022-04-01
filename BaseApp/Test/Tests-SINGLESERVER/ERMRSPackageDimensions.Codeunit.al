@@ -39,7 +39,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         LastDimSetID: Integer;
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         // Test apply of data with dimensions
         HideDialog;
         CreatePackageAndFields(ConfigPackage, ConfigPackageTable);
@@ -54,7 +54,7 @@ codeunit 136604 "ERM RS Package Dimensions"
 
         // 3. Apply data
         LastDimSetID := 0;
-        if DimSetEntry.FindLast then
+        if DimSetEntry.FindLast() then
             LastDimSetID := DimSetEntry."Dimension Set ID";
 
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
@@ -88,7 +88,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         DimNumber: Integer;
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         // Test apply of data with dimensions
         HideDialog;
 
@@ -131,8 +131,8 @@ codeunit 136604 "ERM RS Package Dimensions"
         DimensionValue: Record "Dimension Value";
         NewDimSetID: Integer;
     begin
-        Initialize;
-        DimensionSetEntry.FindLast;
+        Initialize();
+        DimensionSetEntry.FindLast();
         NewDimSetID := DimensionSetEntry."Dimension Set ID" + 1;
         LibraryDim.FindDimension(Dimension);
 
@@ -142,7 +142,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         DimensionSetEntry.Insert();
 
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
 
         CreatePackageAndFields(ConfigPackage, ConfigPackageTable);
         CreateDimSetEntryPackageData(NewDimSetID, Dimension.Code, DimensionValue.Code, 0, ConfigPackage.Code);
@@ -165,7 +165,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         GenJnlLine: Record "Gen. Journal Line";
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         // Verify that there is no need to define "Dimension Set ID" field for package without dimensions
 
         HideDialog;
@@ -195,7 +195,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         LineNo: Integer;
         DimSetID: Integer;
     begin
-        Initialize;
+        Initialize();
         // Verify that default dimensions are inherited from the G/L Account if "Dimension Set ID" from package is zero.
 
         HideDialog;
@@ -228,7 +228,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         // [FEATURE] [Data Template]
         // [SCENARIO 215383] Dimensions are assigned from Data Template when applying package
 
-        Initialize;
+        Initialize();
         // [GIVEN] Customer
         LibrarySales.CreateCustomer(Customer);
 
@@ -331,7 +331,7 @@ codeunit 136604 "ERM RS Package Dimensions"
     local procedure CreateGenJnlBatchPackageData(var GenJnlTemplate: Record "Gen. Journal Template"; var GenJnlBatch: Record "Gen. Journal Batch")
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::General);
-        GenJnlTemplate.FindFirst;
+        GenJnlTemplate.FindFirst();
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
     end;
 

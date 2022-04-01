@@ -6,6 +6,7 @@ codeunit 2151 "O365 Sales Email Management"
     end;
 
     var
+#if not CLEAN20        
         CannotOpenFileErr: Label 'Opening the file failed because of the following error: \%1.', Comment = '%1 - Error Message';
         CannotFindDocumentErr: Label 'The Document %1 cannot be found.', Comment = '%1 - Error Message';
         MetaViewportStartTxt: Label '<meta name="viewport"', Locked = true;
@@ -14,6 +15,7 @@ codeunit 2151 "O365 Sales Email Management"
         HeadTagTxt: Label 'head', Locked = true;
         StartTagTxt: Label '<', Locked = true;
         EndTagTxt: Label '>', Locked = true;
+#endif
         TestInvoiceTxt: Label 'Test Invoice';
 
     [Scope('OnPrem')]
@@ -69,7 +71,7 @@ codeunit 2151 "O365 Sales Email Management"
             TempReportSelections.GetPdfReportForCust(
               Attachment, ReportUsage,
               DocumentRecordVariant, CustomerNo);
-            
+
             DocumentMailing.GetAttachmentFileName(
               AttachmentName, DocumentNo, DocumentName, ReportUsage.AsInteger());
             Attachment.CreateInStream(InStream);
@@ -169,6 +171,8 @@ codeunit 2151 "O365 Sales Email Management"
         exit(SalesInvoiceHeader.GetDefaultEmailDocumentName);
     end;
 
+#if not CLEAN20
+    [Obsolete('These objects will be removed', '20.0')]
     [Scope('OnPrem')]
     procedure NativeAPISaveEmailBodyText(DocumentId: Guid)
     var
@@ -187,6 +191,7 @@ codeunit 2151 "O365 Sales Email Management"
             DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Body.AsInteger(), BodyText);
     end;
 
+    [Obsolete('These objects will be removed', '20.0')]
     [Scope('OnPrem')]
     procedure NativeAPIGetEmailParametersFromId(DocumentId: Guid; var DocumentNo: Code[20]; var CustomerNo: Code[20]; var EmailAddress: Text[250]; var EmailSubject: Text[250]; var EmailBody: Text; var ReportUsage: Integer; var BodyText: Text)
     var
@@ -224,7 +229,7 @@ codeunit 2151 "O365 Sales Email Management"
             end
         else begin
             SalesInvoiceHeader.GetBySystemId(DocumentId);
-            if not SalesInvoiceHeader.FindFirst then
+            if not SalesInvoiceHeader.FindFirst() then
                 Error(CannotFindDocumentErr, DocumentId);
             Cancelled := IsSalesInvoiceHeaderCancelled(SalesInvoiceHeader);
             if not Cancelled then begin
@@ -318,15 +323,19 @@ codeunit 2151 "O365 Sales Email Management"
         if PosMeta > 0 then
             EmailBody := CopyStr(EmailBody, PosHtml, PosMeta - PosHtml + 1) + MetaViewportFullTxt + CopyStr(EmailBody, PosMeta + 1);
     end;
+#endif
 
     procedure GetBodyTextEncoding(): TextEncoding
     begin
         exit(TEXTENCODING::UTF8);
     end;
 
+#if not CLEAN20
+    [Obsolete('These objects will be removed', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsSalesInvoiceHeaderCancelled(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

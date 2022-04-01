@@ -36,7 +36,7 @@ codeunit 139006 "Test My Settings"
         ProfileVar: Variant;
     begin
         // [WHEN] The user changes the Role Center in "My Settings" window, and chooses OK
-        Initialize;
+        Initialize();
 
         MySettings.OpenEdit;
         MySettings.UserRoleCenter.AssistEdit;
@@ -477,6 +477,7 @@ codeunit 139006 "Test My Settings"
         MyNotifications.Modify();
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableRoleCentersHandler(var AvailableRoleCenters: TestPage "Available Roles")
@@ -490,7 +491,7 @@ codeunit 139006 "Test My Settings"
         LibraryVariableStorage.Enqueue(AllProfile);
         AvailableRoleCenters.OK().Invoke();
     end;
-
+#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableRoleCentersHandlerBlankProfileIsHidden(var Roles: TestPage Roles)

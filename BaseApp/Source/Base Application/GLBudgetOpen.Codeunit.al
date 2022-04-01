@@ -8,11 +8,11 @@ codeunit 7 "GLBudget-Open"
             SearchForName := true
         else begin
             GLBudgetName.SetFilter(Name, GetFilter("Budget Filter"));
-            SearchForName := not GLBudgetName.FindFirst;
+            SearchForName := not GLBudgetName.FindFirst();
             GLBudgetName.SetRange(Name);
         end;
         if SearchForName then begin
-            if not GLBudgetName.FindFirst then begin
+            if not GLBudgetName.FindFirst() then begin
                 GLBudgetName.Init();
                 GLBudgetName.Name := Text000;
                 GLBudgetName.Description := Text001;

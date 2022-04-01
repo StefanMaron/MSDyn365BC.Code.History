@@ -401,7 +401,7 @@ codeunit 405 "Graph Mail"
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure OnAfterOpenCompany()
     var
         GraphMailSetup: Record "Graph Mail Setup";

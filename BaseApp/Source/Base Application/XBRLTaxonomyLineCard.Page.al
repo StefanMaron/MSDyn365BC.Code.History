@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 584 "XBRL Taxonomy Line Card"
 {
     Caption = 'XBRL Taxonomy Line Card';
@@ -5,6 +6,9 @@ page 584 "XBRL Taxonomy Line Card"
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "XBRL Taxonomy Line";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -149,3 +153,5 @@ page 584 "XBRL Taxonomy Line Card"
     }
 }
 
+
+#endif

@@ -999,7 +999,7 @@ codeunit 137409 "Analysis Reports Chart"
         // [WHEN] Open Analysis Report Chart Matrix on created Analysis Report Chart Setup
         AnalysisReportChartMatrix.SetFilters(AnalysisReportChartSetup);
         AnalysisReportChartMatrixTestPage.Trap;
-        AnalysisReportChartMatrix.Run;
+        AnalysisReportChartMatrix.Run();
 
         // [THEN] Last matrix column shows 12th Analysis Column
         Assert.AreEqual(Format(MaxNumberOfMatrixColumns), AnalysisReportChartMatrixTestPage.Column12.Caption, IncorrectColumnsErr);
@@ -1022,8 +1022,8 @@ codeunit 137409 "Analysis Reports Chart"
 #else
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
 #endif
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Analysis Reports Chart");
@@ -1442,10 +1442,10 @@ codeunit 137409 "Analysis Reports Chart"
     begin
         PostingDate := StartingDate;
 
-        if ItemLedgerEntry.FindLast then
+        if ItemLedgerEntry.FindLast() then
             ItemLedgerEntryNo := ItemLedgerEntry."Entry No.";
 
-        if ValueEntry.FindLast then
+        if ValueEntry.FindLast() then
             ValueEntryNo := ValueEntry."Entry No.";
 
         repeat
@@ -1523,14 +1523,14 @@ codeunit 137409 "Analysis Reports Chart"
                             begin
                                 BusinessChartBuffer."Drill-Down Measure Index" := LibraryRandom.RandIntInRange(1, NoOfLines) *
                                   NoOfColumns - 1;
-                                AnalysisColumn.FindLast;
+                                AnalysisColumn.FindLast();
                             end;
                         TestDrillDownType::RowFormula:
                             begin
                                 BusinessChartBuffer."Drill-Down Measure Index" :=
                                   (NoOfLines - 1) * NoOfColumns + LibraryRandom.RandIntInRange(0, NoOfColumns - 2);
-                                AnalysisLine.FindLast;
-                                AnalysisColumn.FindFirst;
+                                AnalysisLine.FindLast();
+                                AnalysisColumn.FindFirst();
                             end;
                         TestDrillDownType::Data:
                             begin

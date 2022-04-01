@@ -63,7 +63,7 @@ codeunit 1754 "Data Classif. Import/Export"
         TableNo: Integer;
         FieldNo: Integer;
     begin
-        if TempExcelBuffer.FindLast then;
+        if TempExcelBuffer.FindLast() then;
 
         NumberOfRows := TempExcelBuffer."Row No.";
         NumberOfColumns := TempExcelBuffer."Column No.";
@@ -143,7 +143,7 @@ codeunit 1754 "Data Classif. Import/Export"
         ShouldOpenFile: Boolean;
     begin
         DataSensitivity.SetRange("Company Name", CompanyName);
-        if not DataSensitivity.FindFirst then
+        if not DataSensitivity.FindFirst() then
             DataClassificationMgt.PopulateDataSensitivityTable;
 
         CreateExcelSheet(TempExcelBuffer, DataSensitivity);
@@ -184,7 +184,7 @@ codeunit 1754 "Data Classif. Import/Export"
 
     local procedure CreateExcelSheetRows(var TempExcelBuffer: Record "Excel Buffer" temporary; var DataSensitivity: Record "Data Sensitivity")
     begin
-        if DataSensitivity.FindSet then
+        if DataSensitivity.FindSet() then
             repeat
                 DataSensitivity.CalcFields("Table Caption");
                 DataSensitivity.CalcFields("Field Caption");

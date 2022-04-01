@@ -60,7 +60,7 @@ page 742 "VAT Report Statement Subform"
     procedure SelectFirst()
     begin
         if Count > 0 then
-            FindFirst;
+            FindFirst();
     end;
 }
 

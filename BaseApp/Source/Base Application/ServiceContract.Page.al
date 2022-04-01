@@ -1106,7 +1106,7 @@ page 6050 "Service Contract"
                     begin
                         Clear(ChangeCustomerinContract);
                         ChangeCustomerinContract.SetRecord("Contract No.");
-                        ChangeCustomerinContract.RunModal;
+                        ChangeCustomerinContract.RunModal();
                     end;
                 }
                 action("Copy &Document...")
@@ -1123,7 +1123,7 @@ page 6050 "Service Contract"
                         CheckRequiredFields;
                         Clear(CopyServDoc);
                         CopyServDoc.SetServContractHeader(Rec);
-                        CopyServDoc.RunModal;
+                        CopyServDoc.RunModal();
                     end;
                 }
                 action("&File Contract")
@@ -1329,7 +1329,7 @@ page 6050 "Service Contract"
     begin
         Clear(ContractLineSelection);
         ContractLineSelection.SetSelection("Customer No.", "Ship-to Code", "Contract Type", "Contract No.");
-        ContractLineSelection.RunModal;
+        ContractLineSelection.RunModal();
         CurrPage.Update(false);
     end;
 

@@ -9,6 +9,7 @@ codeunit 137306 "SCM Costing Reports"
     end;
 
     var
+        LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryRandom: Codeunit "Library - Random";
@@ -28,7 +29,7 @@ codeunit 137306 "SCM Costing Reports"
     [Scope('OnPrem')]
     procedure AutoCostPostFalseAndAdjustCost()
     begin
-        Initialize;
+        Initialize();
         AdjustCostItemEntries(false, false);  // Automatic Cost Posting, Expected Cost Posting To GL.
     end;
 
@@ -37,7 +38,7 @@ codeunit 137306 "SCM Costing Reports"
     [Scope('OnPrem')]
     procedure AutoCostPostTrueAndAdjustCost()
     begin
-        Initialize;
+        Initialize();
         AdjustCostItemEntries(true, true);    // Automatic Cost Posting - TRUE, Expected Cost Posting To GL will be TRUE later.
     end;
 
@@ -55,7 +56,7 @@ codeunit 137306 "SCM Costing Reports"
         // [FEATURE] [Item Age Composition - Value]
         // [SCENARIO 381639] For an item with "Average" costing method, report "Item Age Composition - Value" should calculate average cost amount in each period separately
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with "Average" costing method
         CreateItem(Item, Item."Costing Method"::Average);
@@ -96,7 +97,7 @@ codeunit 137306 "SCM Costing Reports"
         // [FEATURE] [Item Age Composition - Value]
         // [SCENARIO 381639] For an item with "Average" costing method, report "Item Age Composition - Value" should valuate inventory by average cost amount
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with "Average" costing method
         CreateItem(Item, Item."Costing Method"::Average);
@@ -144,7 +145,7 @@ codeunit 137306 "SCM Costing Reports"
     begin
         // [FEATURE] [Item Age Composition - Value]
         // [SCENARIO 231532]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "A" with average costing method, item "F" with FIFO costing method.
         CreateItem(Item[1], Item[1]."Costing Method"::Average);
@@ -267,19 +268,21 @@ codeunit 137306 "SCM Costing Reports"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Costing Reports");
         // Lazy Setup.
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Reports");
 
-        NoSeriesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        NoSeriesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();
@@ -365,7 +368,7 @@ codeunit 137306 "SCM Costing Reports"
     begin
         LibrarySales.SetOrderNoSeriesInSetup;
         LibraryPurchase.SetOrderNoSeriesInSetup;
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
     end;
 
     local procedure UpdateExpectedCostOnInvSetup(ExpectedCostPostingToGL: Boolean)
@@ -499,14 +502,14 @@ codeunit 137306 "SCM Costing Reports"
     begin
         InventoryPostingSetup.SetRange("Location Code", '');
         InventoryPostingSetup.SetRange("Invt. Posting Group Code", InventoryPostingGroup);
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
     end;
 
     local procedure FindPurchaseReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseOrderNo: Code[20]; ItemNo: Code[20])
     begin
         PurchRcptLine.SetRange("Order No.", PurchaseOrderNo);
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure PostItemJournalLine(ItemJnlTemplateName: Code[10]; ItemJnlBatchName: Code[10]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal; UnitAmount: Decimal; PostingDate: Date)

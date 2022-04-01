@@ -423,8 +423,12 @@ page 9219 "Purch. Budget Overview Matrix"
     end;
 
     local procedure DrillDown(OnlyLines: Boolean; ValueType: Enum "Item Analysis Value Type")
+    var
+        ValueTypeOpt: Option;
     begin
-        OnBeforeDrillDown(Rec, OnlyLines, ValueType);
+        ValueTypeOpt := ValueType.AsInteger();
+        OnBeforeDrillDown(Rec, OnlyLines, ValueTypeOpt);
+        ValueType := "Item Analysis Value Type".FromInteger(ValueTypeOpt);
 
         ItemBudgetManagement.DrillDownBudgetAmount(
           ItemBudgetName, ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,

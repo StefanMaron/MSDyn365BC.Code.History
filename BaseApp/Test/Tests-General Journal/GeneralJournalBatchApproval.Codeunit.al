@@ -46,7 +46,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Click the Preview-Post action
         // [THEN] Message indicates all journal lines are post-ready
 
-        Initialize;
+        Initialize();
         GLPostingPreview.OpenEdit();
 
         // Setup
@@ -85,7 +85,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [THEN] Message warns user about a pending approval
         // Blocking mechanism is not implemented yet
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -125,7 +125,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [THEN] Message warns user about a pending approval
         // Blocking mechanism is not implemented yet
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -162,7 +162,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Click the Send Approval Request action
         // [THEN] Approval request is self-approved.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -193,7 +193,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Click the Send Approval Request action
         // [THEN] Approval request is self-approved.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -228,7 +228,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Delete the batch.
         // [THEN] The approval requests are canceled
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -281,7 +281,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Delete the batch.
         // [THEN] The approval requests are canceled and then the approval entries are deleted.
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -331,7 +331,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Rename the batch.
         // [THEN] The approval requests are changed to point to the new record.
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -375,7 +375,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Click the Send Approval Request action.
         // [THEN] Message pops up that the batch is not balanced.
 
-        Initialize;
+        Initialize();
         CreateDirectApprovalEnabledWorkflow(Workflow);
 
         // Setup
@@ -406,7 +406,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Select batch on the STRMENU dialog
         // [THEN] Empty page pops up
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -440,7 +440,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Select batch on the STRMENU dialog
         // [THEN] Page displays the journal batch approval entries
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -477,7 +477,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [THEN] Message warns user about approvals needed.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
@@ -511,7 +511,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [THEN] The general journal batch can be posted.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
@@ -545,7 +545,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Raising the check event when exporting.
         // [THEN] An error is raised.
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -579,7 +579,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Workflow  is disabled and Workflow Step Instances are deleted
         // [THEN] All restrictions are removed
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -618,7 +618,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] The Workflow Step Instance are deleted but the Workflow is enabled
         // [THEN] Record restrictions are not removed
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -663,7 +663,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Allow Payment Export is not allowed
         // [THEN] Restriction is not checked when raising the check event.
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -696,7 +696,7 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Batch workflow status factbox becomes visible when the batch is sent for approval on General Journal Page
-        Initialize;
+        Initialize();
         GenJournalTemplate.DeleteAll();
 
         // [GIVEN] Journal batch with one or more journal lines
@@ -734,7 +734,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [FEATURE] [UI]
         // [SCENARIO 209814] Batch workflow status factbox becomes not visible when the batch is cancel for approval on General Journal Page
 
-        Initialize;
+        Initialize();
         GenJournalTemplate.DeleteAll();
 
         // [GIVEN] Journal batch with one or more journal lines
@@ -768,7 +768,7 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         // [SCENARIO 379666] General Journal Batch is auto approved for Approval Administrator
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup user with empty "Approver ID" and "Approval Admin" is TRUE.
         SetupApprovalAdministrator;
@@ -800,7 +800,7 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         // [FEATURE] [Journal]
         // [SCENARIO 225990] Approval request is sent to only single First Qualified Approver from journal in case of Sales/Purchaser Person setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Approval setup with users "A" and "B" where "B" is the First Qualified Approver for "A", and "B"."Sales/Purchaser Code" = "X"
         // [GIVEN] Approval workflow wher "Approver Type" = "Salesperson/Purchaser"
@@ -839,7 +839,7 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 225990] Approval request is sent to only single First Qualified Approver from sales order in case of Sales/Purchaser Person setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Approval setup with users "A" and "B" where "B" is the First Qualified Approver for "A", and "B"."Sales/Purchaser Code" = "X"
         // [GIVEN] Approval workflow wher "Approver Type" = "Salesperson/Purchaser"
@@ -882,7 +882,7 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 225990] Approval request is sent to only single First Qualified Approver from purchase order in case of Sales/Purchaser Person setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Approval setup with users "A" and "B" where "B" is the First Qualified Approver for "A", and "B"."Sales/Purchaser Code" = "X"
         // [GIVEN] Approval workflow wher "Approver Type" = "Salesperson/Purchaser"
@@ -917,8 +917,8 @@ codeunit 134321 "General Journal Batch Approval"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"General Journal Batch Approval");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
 
         Workflow.ModifyAll(Enabled, false, true);
         UserSetup.DeleteAll();
@@ -1051,7 +1051,7 @@ codeunit 134321 "General Journal Batch Approval"
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         WorkflowStepArgument.Get(WorkflowStep.Argument);
     end;
@@ -1062,7 +1062,7 @@ codeunit 134321 "General Journal Batch Approval"
         GenJnlPost: Codeunit "Gen. Jnl.-Post";
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJnlPost.Preview(GenJournalLine);
     end;
 
@@ -1071,7 +1071,7 @@ codeunit 134321 "General Journal Batch Approval"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1080,7 +1080,7 @@ codeunit 134321 "General Journal Batch Approval"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", GenJournalLine);
     end;
 
@@ -1090,7 +1090,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         ApprovalsMgmt.TrySendJournalBatchApprovalRequest(GenJournalLine);
     end;
 
@@ -1100,7 +1100,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         ApprovalsMgmt.TryCancelJournalBatchApprovalRequest(GenJournalLine);
     end;
 
@@ -1110,7 +1110,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         ApprovalsMgmt.TrySendJournalLineApprovalRequests(GenJournalLine);
     end;
 
@@ -1120,7 +1120,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         ApprovalsMgmt.ShowJournalApprovalEntries(GenJournalLine);
     end;
 
@@ -1136,7 +1136,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         ApprovalsMgmt.ApproveGenJournalLineRequest(GenJournalLine);
     end;
 

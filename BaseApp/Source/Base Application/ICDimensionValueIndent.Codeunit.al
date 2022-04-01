@@ -31,7 +31,7 @@ codeunit 429 "IC Dimension Value-Indent"
         if NoOfDimVals = 0 then
             NoOfDimVals := 1;
         with ICDimVal do
-            if FindSet then
+            if FindSet() then
                 repeat
                     Progress := Progress + 1;
                     Window.Update(1, 10000 * Progress div NoOfDimVals);

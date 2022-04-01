@@ -154,7 +154,7 @@ codeunit 28 "Error Message Management"
         ErrorMessage.FilterGroup(2);
         ErrorMessage.SetRange("Register ID", RegisterID);
         ErrorMessage.FilterGroup(0);
-        if ErrorMessage.FindSet then begin
+        if ErrorMessage.FindSet() then begin
             repeat
                 TempErrorMessage := ErrorMessage;
                 TempErrorMessage.Insert();
@@ -180,7 +180,7 @@ codeunit 28 "Error Message Management"
     begin
         Field.SetRange(TableNo, TableNo);
         Field.SetRange(FieldName, FieldName);
-        if Field.FindFirst then
+        if Field.FindFirst() then
             exit(Field."No.");
     end;
 
@@ -378,6 +378,25 @@ codeunit 28 "Error Message Management"
             FldRef.FieldError(ErrorMessage);
     end;
 
+    procedure CollectErrors(var TempLineErrorMessage: Record "Error Message" temporary)
+    var
+        ErrorList: list of [ErrorInfo];
+        ErrInfo: ErrorInfo;
+    begin
+        if HasCollectedErrors() then begin
+            ErrorList := GetCollectedErrors(true);
+            foreach ErrInfo in ErrorList do begin
+                TempLineErrorMessage.Init();
+                TempLineErrorMessage.ID := TempLineErrorMessage.ID + 1;
+                TempLineErrorMessage.Description := copystr(ErrInfo.Message, 1, MaxStrLen(TempLineErrorMessage.Description));
+                TempLineErrorMessage.Validate("Context Record ID", ErrInfo.RecordId);
+                TempLineErrorMessage."Context Field Number" := ErrInfo.FieldNo;
+                TempLineErrorMessage.SetErrorCallStack(ErrInfo.Callstack);
+                TempLineErrorMessage.Insert();
+            end;
+        end;
+    end;
+
     procedure LogLastError()
     begin
         OnLogLastError();
@@ -486,7 +505,10 @@ codeunit 28 "Error Message Management"
         ContextRecordIDText: Text;
         ContextFieldNumberText: Text;
         ContextTableNumberText: Text;
+        AdditionalInfo: Text;
+        SupportURL: Text;
         DuplicateText: Text;
+        CallStack: Text;
         NextID: Integer;
         JObject: JsonObject;
     begin
@@ -500,6 +522,9 @@ codeunit 28 "Error Message Management"
             ContextFieldNumberText := GetJsonKeyValue(JObject, 'ContextFieldNumber');
             ContextTableNumberText := GetJsonKeyValue(JObject, 'ContextTableNumber');
             DuplicateText := GetJsonKeyValue(JObject, 'Duplicate');
+            AdditionalInfo := GetJsonKeyValue(JObject, 'AdditionalInfo');
+            SupportURL := GetJsonKeyValue(JObject, 'SupportURL');
+            CallStack := GetJsonKeyValue(JObject, 'CallStack');
 
             NextID := TempErrorMessage.FindLastID() + 1;
             TempErrorMessage.Init();
@@ -512,6 +537,9 @@ codeunit 28 "Error Message Management"
             Evaluate(TempErrorMessage."Context Table Number", ContextTableNumberText);
             Evaluate(TempErrorMessage.Duplicate, DuplicateText);
             TempErrorMessage.Description := CopyStr(Description, 1, MaxStrLen(TempErrorMessage.Description));
+            TempErrorMessage."Additional Information" := CopyStr(AdditionalInfo, 1, MaxStrLen(TempErrorMessage."Additional Information"));
+            TempErrorMessage."Support Url" := CopyStr(SupportURL, 1, MaxStrLen(TempErrorMessage."Support Url"));
+            TempErrorMessage.SetErrorCallStack(CallStack);
             TempErrorMessage.Insert();
         end;
     end;
@@ -524,7 +552,7 @@ codeunit 28 "Error Message Management"
             exit(JToken.AsValue().AsText());
     end;
 
-    procedure ErrorMessage2JSON(ErrorMessage: Record "Error Message") JSON: Text
+    procedure ErrorMessage2JSON(var ErrorMessage: Record "Error Message") JSON: Text
     var
         JObject: JsonObject;
     begin
@@ -535,8 +563,22 @@ codeunit 28 "Error Message Management"
         JObject.Add('ContextRecordId', format(ErrorMessage."Context Record ID"));
         JObject.Add('ContextFieldNumber', ErrorMessage."Context Field Number");
         JObject.Add('ContextTableNumber', ErrorMessage."Context Table Number");
+        JObject.Add('AdditionalInfo', ErrorMessage."Additional Information");
+        JObject.Add('SupportURL', ErrorMessage."Support Url");
+        JObject.Add('CallStack', ErrorMessage.GetErrorCallStack());
         JObject.Add('Duplicate', ErrorMessage.Duplicate);
         JObject.WriteTo(JSON);
+    end;
+
+    procedure PackErrorMessagesToResults(var TempErrorMessage: Record "Error Message" temporary; var Results: Dictionary of [Text, Text])
+    var
+        JSON: Text;
+    begin
+        if TempErrorMessage.FindSet() then
+            repeat
+                JSON := ErrorMessage2JSON(TempErrorMessage);
+                Results.Add(Format(TempErrorMessage.ID), JSON);
+            until TempErrorMessage.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

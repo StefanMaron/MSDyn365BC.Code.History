@@ -127,7 +127,7 @@ table 1060 "Payment Service Setup"
         LoadSet(TempPaymentServiceSetup, SetID);
         TempPaymentServiceSetup.SetRange(Available, true);
 
-        if not TempPaymentServiceSetup.FindFirst then
+        if not TempPaymentServiceSetup.FindFirst() then
             exit;
 
         repeat
@@ -151,7 +151,7 @@ table 1060 "Payment Service Setup"
         TempPaymentServiceSetup.SetRange("Always Include on Documents", true);
         TempPaymentServiceSetup.SetRange(Enabled, true);
 
-        if not TempPaymentServiceSetup.FindFirst then
+        if not TempPaymentServiceSetup.FindFirst() then
             exit(false);
 
         TransferToRecordSetBuffer(TempPaymentServiceSetup, TempRecordSetBuffer);
@@ -172,7 +172,7 @@ table 1060 "Payment Service Setup"
 
             // If user has setup the service then just select that one
             if TempPaymentServiceSetup.Count = 1 then begin
-                TempPaymentServiceSetup.FindFirst;
+                TempPaymentServiceSetup.FindFirst();
                 SetID := SaveSet(TempPaymentServiceSetup);
                 exit(true);
             end;
@@ -188,7 +188,7 @@ table 1060 "Payment Service Setup"
             exit(false);
 
         TempPaymentServiceSetup.SetRange(Available, true);
-        if TempPaymentServiceSetup.FindFirst then
+        if TempPaymentServiceSetup.FindFirst() then
             SetID := SaveSet(TempPaymentServiceSetup)
         else
             Clear(SetID);
@@ -209,7 +209,7 @@ table 1060 "Payment Service Setup"
     var
         CurrentKey: Integer;
     begin
-        TempPaymentServiceSetup.FindFirst;
+        TempPaymentServiceSetup.FindFirst();
 
         repeat
             CurrentKey := TempRecordSetBuffer.No;
@@ -234,19 +234,19 @@ table 1060 "Payment Service Setup"
         TempRecordSetBuffer: Record "Record Set Buffer" temporary;
         RecordSetManagement: Codeunit "Record Set Management";
     begin
-        if not TempPaymentServiceSetup.FindFirst then
+        if not TempPaymentServiceSetup.FindFirst() then
             exit;
 
         RecordSetManagement.GetSet(TempRecordSetBuffer, SetID);
 
-        if not TempRecordSetBuffer.FindFirst then begin
+        if not TempRecordSetBuffer.FindFirst() then begin
             TempPaymentServiceSetup.ModifyAll(Available, false);
             exit;
         end;
 
         repeat
             TempRecordSetBuffer.SetRange("Value RecordID", TempPaymentServiceSetup."Setup Record ID");
-            if TempRecordSetBuffer.FindFirst then begin
+            if TempRecordSetBuffer.FindFirst() then begin
                 TempPaymentServiceSetup.Available := true;
                 TempPaymentServiceSetup.Modify();
             end;
@@ -266,7 +266,7 @@ table 1060 "Payment Service Setup"
         LoadSet(TempPaymentServiceSetup, SetID);
 
         TempPaymentServiceSetup.SetRange(Available, true);
-        if not TempPaymentServiceSetup.FindSet then
+        if not TempPaymentServiceSetup.FindSet() then
             exit;
 
         Clear(SelectedPaymentServices);
@@ -341,12 +341,12 @@ table 1060 "Payment Service Setup"
             exit(false);
 
         OnRegisterPaymentServiceProviders(TempPaymentServiceSetupProviders);
-        if not TempPaymentServiceSetupProviders.FindFirst then
+        if not TempPaymentServiceSetupProviders.FindFirst() then
             exit(false);
 
         // Check if there are payment services that are not enabled
         OnRegisterPaymentServices(TempNotEnabledPaymentServiceSetupProviders);
-        DefinedPaymentServiceExist := TempNotEnabledPaymentServiceSetupProviders.FindFirst;
+        DefinedPaymentServiceExist := TempNotEnabledPaymentServiceSetupProviders.FindFirst();
 
         if DefinedPaymentServiceExist then begin
             SelectedOption := StrMenu(CreateOrUpdateOptionQst, 1, SetupExistingServicesOrCreateNewQst);
@@ -389,7 +389,7 @@ table 1060 "Payment Service Setup"
                 exit(false);
             1:
                 begin
-                    TempPaymentServiceSetupProviders.FindFirst;
+                    TempPaymentServiceSetupProviders.FindFirst();
                     OnCreatePaymentService(TempPaymentServiceSetupProviders);
                     exit(true);
                 end;

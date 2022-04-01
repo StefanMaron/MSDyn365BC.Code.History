@@ -43,7 +43,7 @@ codeunit 138912 "O365 Excel Import Tests"
         ImportedRecordsQty: Integer;
     begin
         // [SCENARIO 197382] Customers are created during the Excel data import
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data with N customers, mock Excel fields mapping
         CustomersQty := LibraryRandom.RandIntInRange(5, 10);
@@ -77,7 +77,7 @@ codeunit 138912 "O365 Excel Import Tests"
         ImportedRecordsQty: Integer;
     begin
         // [SCENARIO 197382] Items are created during the Excel data import
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data with N items, mock Excel fields mapping
         ItemsQty := LibraryRandom.RandIntInRange(5, 10);
@@ -107,7 +107,7 @@ codeunit 138912 "O365 Excel Import Tests"
         O365ExcelImportMgt: Codeunit "O365 Excel Import Management";
     begin
         // [SCENARIO 197382] Automapping works if field name = column header name
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock headers Excel row for customer table with header Name
         AddValueToExcelBuffer(TempExcelBuffer, 1, 1, 'Name');
@@ -133,7 +133,7 @@ codeunit 138912 "O365 Excel Import Tests"
         O365ExcelImportMgt: Codeunit "O365 Excel Import Management";
     begin
         // [SCENARIO 197382] Automapping works when column header name in lowercase
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock headers Excel row for customer table with header Name
         AddValueToExcelBuffer(TempExcelBuffer, 1, 1, 'name');
@@ -159,7 +159,7 @@ codeunit 138912 "O365 Excel Import Tests"
         O365ExcelImportMgt: Codeunit "O365 Excel Import Management";
     begin
         // [SCENARIO 197382] Automapping works when column header name in uppercase
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock headers Excel row for customer table with header Name
         AddValueToExcelBuffer(TempExcelBuffer, 1, 1, 'NAME');
@@ -182,7 +182,7 @@ codeunit 138912 "O365 Excel Import Tests"
         TestPageO365ImportFromExcelWizard: TestPage "O365 Import from Excel Wizard";
     begin
         // [SCENARIO 197382] Buttons Next and Finish are disabled on the first step when Excel file is not loaded
-        Initialize;
+        Initialize();
 
         // [GIVEN] Wizard page opened
         // [WHEN] Excel file is not loaded
@@ -204,16 +204,16 @@ codeunit 138912 "O365 Excel Import Tests"
         TestPageO365ImportFromExcelWizard: TestPage "O365 Import from Excel Wizard";
     begin
         // [SCENARIO 197382] Buttons Next and Finish are disabled on the second step when Start Row No. = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data
-        AddValueToExcelBuffer(TempExcelBuffer, 1, 1, LibraryUtility.GenerateGUID);
+        AddValueToExcelBuffer(TempExcelBuffer, 1, 1, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Wizard page opened
         // [GIVEN] Mock Excel file loaded
         TestPageO365ImportFromExcelWizard.Trap;
-        O365ImportFromExcelWizard.SetParameters(TempExcelBuffer, LibraryUtility.GenerateGUID);
-        O365ImportFromExcelWizard.Run;
+        O365ImportFromExcelWizard.SetParameters(TempExcelBuffer, LibraryUtility.GenerateGUID());
+        O365ImportFromExcelWizard.Run();
 
         // [WHEN] Button Next is being pressed
         TestPageO365ImportFromExcelWizard.ActionNext.Invoke;
@@ -235,10 +235,10 @@ codeunit 138912 "O365 Excel Import Tests"
         TestPageO365ImportFromExcelWizard: TestPage "O365 Import from Excel Wizard";
     begin
         // [SCENARIO 197382] Buttons Next and Finish are disabled on the third step when mapping is not set
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data
-        AddValueToExcelBuffer(TempExcelBuffer, 1, 1, LibraryUtility.GenerateGUID);
+        AddValueToExcelBuffer(TempExcelBuffer, 1, 1, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Wizard page opened
         // [GIVEN] Mock Excel file loaded
@@ -267,7 +267,7 @@ codeunit 138912 "O365 Excel Import Tests"
         TestPageO365ImportFromExcelWizard: TestPage "O365 Import from Excel Wizard";
     begin
         // [SCENARIO 197382] Mapped column on step 3 is displayed in the preview page on step 4
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data with customer CUST
         CreateCustomer(TempCustomer);
@@ -308,7 +308,7 @@ codeunit 138912 "O365 Excel Import Tests"
         TestPageO365ImportFromExcelWizard: TestPage "O365 Import from Excel Wizard";
     begin
         // [SCENARIO 197382] E2E scenario: import customer using page actions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data for customer with name CUST
         CreateCustomer(TempCustomer);
@@ -349,7 +349,7 @@ codeunit 138912 "O365 Excel Import Tests"
         TestPageO365ImportFromExcelWizard: TestPage "O365 Import from Excel Wizard";
     begin
         // [SCENARIO 197382] When user maps field to the column which has been already mapped then prevous mapping cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data for customer with name CUST
         CreateCustomer(TempCustomer);
@@ -391,7 +391,7 @@ codeunit 138912 "O365 Excel Import Tests"
         StartRowNo: Integer;
     begin
         // [SCENARIO 197382] Import procedure uses customer's template for created customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data with customers, mock Excel fields mapping
         CreateCustomer(TempExpectedCustomer);
@@ -417,7 +417,7 @@ codeunit 138912 "O365 Excel Import Tests"
         StartRowNo: Integer;
     begin
         // [SCENARIO 197382] Import procedure uses item's template for created Items
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data with iems, mock Excel fields mapping
         CreateItem(TempExpectedItem);
@@ -441,10 +441,10 @@ codeunit 138912 "O365 Excel Import Tests"
         ExcelSheetName: Text[250];
     begin
         // [SCENARIO 197382] When user tries to import empty sheet wizard shows message "There is no data in the Excel sheet XXX"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock empty Excel Buffer data
-        ExcelSheetName := LibraryUtility.GenerateGUID;
+        ExcelSheetName := LibraryUtility.GenerateGUID();
         // [GIVEN] Run import customers wizard
         RunImportCustomersWizardPageForSpecialSheet(TestPageO365ImportFromExcelWizard, TempExcelBuffer, ExcelSheetName);
 
@@ -466,7 +466,7 @@ codeunit 138912 "O365 Excel Import Tests"
         i: Integer;
     begin
         // [SCENARIO 197382] Wizard shows error when user tries to specify the Start row number greater than max existing one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data for N customers
         MaxRowNo := LibraryRandom.RandIntInRange(5, 10);
@@ -500,7 +500,7 @@ codeunit 138912 "O365 Excel Import Tests"
         i: Integer;
     begin
         // [SCENARIO 197382] Wizard shows error when user tries to specify the Excel column number greater than max existing one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data for customers with maximum column number of Excel data = N
         for i := 1 to LibraryRandom.RandIntInRange(5, 10) do begin
@@ -540,7 +540,7 @@ codeunit 138912 "O365 Excel Import Tests"
         StartRowNo: Integer;
     begin
         // [SCENARIO 199856] Wizard shows error "XXX is not a valid decimal" when user tries to import items with Unit Price which cannot be converted to decimal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Excel Buffer data with one item, mock Excel fields mapping
         CreateItem(TempItem);
@@ -549,7 +549,7 @@ codeunit 138912 "O365 Excel Import Tests"
 
         // [GIVEN] Mock Excel Buffer Unit Price with text value
         TempExcelBuffer.Get(1, 2);
-        TempExcelBuffer."Cell Value as Text" := LibraryUtility.GenerateGUID;
+        TempExcelBuffer."Cell Value as Text" := LibraryUtility.GenerateGUID();
         TempExcelBuffer.Modify();
 
         // [WHEN] Import items is being run
@@ -561,7 +561,7 @@ codeunit 138912 "O365 Excel Import Tests"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -706,19 +706,19 @@ codeunit 138912 "O365 Excel Import Tests"
         ConfigTemplateHeader."Table ID" := DATABASE::Customer;
         ConfigTemplateHeader.Insert();
 
-        if CustomerPostingGroup.FindFirst then
+        if CustomerPostingGroup.FindFirst() then
             CreateTemplateLine(
               ConfigTemplateHeader,
               DummyCustomer.FieldNo("Customer Posting Group"),
               CustomerPostingGroup.Code);
 
-        if PaymentTerms.FindFirst then
+        if PaymentTerms.FindFirst() then
             CreateTemplateLine(
               ConfigTemplateHeader,
               DummyCustomer.FieldNo("Payment Terms Code"),
               PaymentTerms.Code);
 
-        if FinanceChargeTerms.FindFirst then
+        if FinanceChargeTerms.FindFirst() then
             CreateTemplateLine(
               ConfigTemplateHeader,
               DummyCustomer.FieldNo("Fin. Charge Terms Code"),
@@ -738,7 +738,7 @@ codeunit 138912 "O365 Excel Import Tests"
         ConfigTemplateHeader."Table ID" := DATABASE::Item;
         ConfigTemplateHeader.Insert();
 
-        if InventoryPostingGroup.FindFirst then
+        if InventoryPostingGroup.FindFirst() then
             CreateTemplateLine(
               ConfigTemplateHeader,
               DummyItem.FieldNo("Inventory Posting Group"),
@@ -753,7 +753,7 @@ codeunit 138912 "O365 Excel Import Tests"
         NextLineNo: Integer;
     begin
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        if ConfigTemplateLine.FindLast then;
+        if ConfigTemplateLine.FindLast() then;
         NextLineNo := ConfigTemplateLine."Line No." + 10000;
 
         ConfigTemplateLine.Init();
@@ -777,13 +777,13 @@ codeunit 138912 "O365 Excel Import Tests"
     local procedure GetMaxExcelBufferColumnNo(var ExcelBuffer: Record "Excel Buffer"): Integer
     begin
         ExcelBuffer.SetRange("Row No.", 1);
-        if ExcelBuffer.FindLast then;
+        if ExcelBuffer.FindLast() then;
         exit(ExcelBuffer."Column No.");
     end;
 
     local procedure RunImportCustomersWizardPage(var TestPageO365ImportFromExcelWizard: TestPage "O365 Import from Excel Wizard"; var ExcelBuffer: Record "Excel Buffer")
     begin
-        RunImportCustomersWizardPageForSpecialSheet(TestPageO365ImportFromExcelWizard, ExcelBuffer, LibraryUtility.GenerateGUID);
+        RunImportCustomersWizardPageForSpecialSheet(TestPageO365ImportFromExcelWizard, ExcelBuffer, LibraryUtility.GenerateGUID());
     end;
 
     local procedure RunImportCustomersWizardPageForSpecialSheet(var TestPageO365ImportFromExcelWizard: TestPage "O365 Import from Excel Wizard"; var ExcelBuffer: Record "Excel Buffer"; ExcelSheetName: Text[250])
@@ -793,12 +793,12 @@ codeunit 138912 "O365 Excel Import Tests"
         TestPageO365ImportFromExcelWizard.Trap;
         O365ImportFromExcelWizard.PrepareCustomerImportData;
         O365ImportFromExcelWizard.SetParameters(ExcelBuffer, ExcelSheetName);
-        O365ImportFromExcelWizard.Run;
+        O365ImportFromExcelWizard.Run();
     end;
 
     local procedure VerifyImportedCustomers(var ExpectedCustomer: Record Customer)
     begin
-        if ExpectedCustomer.FindSet then
+        if ExpectedCustomer.FindSet() then
             repeat
                 VerifyImportedCustomer(ExpectedCustomer);
             until ExpectedCustomer.Next = 0;
@@ -832,7 +832,7 @@ codeunit 138912 "O365 Excel Import Tests"
     var
         Item: Record Item;
     begin
-        if ExpectedItem.FindSet then
+        if ExpectedItem.FindSet() then
             repeat
                 Item.SetRange(Description, ExpectedItem.Description);
                 Assert.IsTrue(Item.FindFirst, ItemNotFoundErr);
@@ -856,7 +856,7 @@ codeunit 138912 "O365 Excel Import Tests"
         FieldRef: FieldRef;
     begin
         Customer.SetRange(Name, ExpectedCustomer.Name);
-        Customer.FindFirst;
+        Customer.FindFirst();
         RecRef.GetTable(Customer);
 
         ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Customer Template");
@@ -878,7 +878,7 @@ codeunit 138912 "O365 Excel Import Tests"
         FieldRef: FieldRef;
     begin
         Item.SetRange(Description, ExpectedItem.Description);
-        Item.FindFirst;
+        Item.FindFirst();
         RecRef.GetTable(Item);
 
         ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Item Template");

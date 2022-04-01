@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2866 "Native - VAT Setup"
 {
     Caption = 'Native - VAT Setup';
@@ -80,4 +81,4 @@ page 2866 "Native - VAT Setup"
             DeleteAll();
     end;
 }
-
+#endif

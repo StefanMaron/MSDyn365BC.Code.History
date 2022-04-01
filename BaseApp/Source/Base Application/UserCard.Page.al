@@ -5,6 +5,7 @@ page 9807 "User Card"
     DelayedInsert = true;
     PageType = Card;
     SourceTable = User;
+    Permissions = tabledata "User Property" = m;
     AboutTitle = 'About user account details';
     AboutText = 'Here, you manage an individual user''s account information. You choose the permissions that a user has by assigning permission sets and user groups. You can view the user''s license information, but you cannot change it.';
 
@@ -76,6 +77,20 @@ page 9807 "User Card"
                     Caption = 'Contact Email';
                     ToolTip = 'Specifies the user''s email address.';
                 }
+                field("User Telemetry ID"; TelemetryUserID)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Telemetry ID';
+                    ToolTip = 'Specifies a telemetry ID which can be used for troubleshooting purposes.';
+                    Editable = false;
+                    Importance = Additional;
+                    AssistEdit = true;
+
+                    trigger OnAssistEdit()
+                    begin
+                        EditUserTelemetryId();
+                    end;
+                }
                 group("Office 365 Authentication")
                 {
                     Caption = 'Microsoft 365', Comment = '{Locked="Microsoft 365"}';
@@ -133,6 +148,7 @@ page 9807 "User Card"
                 group("Web Service Access")
                 {
                     Caption = 'Web Service';
+                    Visible = IsWebServiceAccesskeyAllowed;
                     field(WebServiceID; WebServiceID)
                     {
                         ApplicationArea = Basic, Suite;
@@ -247,7 +263,7 @@ page 9807 "User Card"
                 Caption = 'User Permission Sets';
                 SubPageLink = "User Security ID" = field("User Security ID");
                 AboutTitle = 'Assigning permissions';
-                AboutText = 'You add or remove permissions by updating the lines here. If you leave the Company field blank on a line, the assignment applies to all companies.';
+                AboutText = 'You add or remove permissions by updating the lines here. If you leave the **Company** field blank on a line, the assignment applies to all companies.';
 
             }
             part(Plans; "User Plans FactBox")
@@ -396,7 +412,6 @@ page 9807 "User Card"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this user.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -411,6 +426,7 @@ page 9807 "User Card"
 
     trigger OnAfterGetRecord()
     var
+        UserProperty: Record "User Property";
         UserPermissions: Codeunit "User Permissions";
         EnvironmentInformation: Codeunit "Environment Information";
     begin
@@ -435,9 +451,17 @@ page 9807 "User Card"
             WebServiceID := IdentityManagement.GetWebServicesKey(Rec."User Security ID");
             Session.LogSecurityAudit(ReadWebServiceKeyTxt, SecurityOperationResult::Success, StrSubstNo(ReadWebServiceKeyForUserTxt, "User Name"), AuditCategory::KeyManagement);
         end;
-
-        AllowChangeWebServiceAccessKey := (UserSecurityId() = Rec."User Security ID") or UserPermissions.CanManageUsersOnTenant(UserSecurityId());
-        AllowCreateWebServiceAccessKey := (not EnvironmentInformation.IsSaaS()) or (not IsUserDelegated(Rec."User Security ID"));
+        if IsWebServiceAccesskeyAllowed then begin
+            AllowChangeWebServiceAccessKey := (UserSecurityId() = Rec."User Security ID") or UserPermissions.CanManageUsersOnTenant(UserSecurityId());
+            AllowCreateWebServiceAccessKey := (not EnvironmentInformation.IsSaaS()) or (not IsUserDelegated(Rec."User Security ID"));
+        end else begin
+            AllowChangeWebServiceAccessKey := false;
+            AllowCreateWebServiceAccessKey := false;
+        end;
+        if UserProperty.Get(Rec."User Security ID") then
+            TelemetryUserID := UserProperty."Telemetry User ID"
+        else
+            Clear(TelemetryUserID);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -468,6 +492,7 @@ page 9807 "User Card"
         "Change Password" := false;
         WebServiceID := '';
         Clear(WebServiceExpiryDate);
+        Clear(TelemetryUserID);
     end;
 
     trigger OnOpenPage()
@@ -475,17 +500,21 @@ page 9807 "User Card"
         MyNotification: Record "My Notifications";
         EnvironmentInfo: Codeunit "Environment Information";
         UserManagement: Codeunit "User Management";
-        EmailFeature: Codeunit "Email Feature";
     begin
         IsSaaS := EnvironmentInfo.IsSaaS;
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
+        if not IsSaaS then
+            IsWebServiceAccesskeyAllowed := true
+        else
+            IsWebServiceAccesskeyAllowed := SetWebServiceAccressKey();
+
         HideExternalUsers;
 
         OnPremAskFirstUserToCreateSuper;
-
-        Usermanagement.BasicAuthDepricationNotificationDefault(true);
-        if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
-            UserManagement.BasicAuthDepricationNotificationShow(BasicAuthDepricationNotification);
+        if AllowChangeWebServiceAccessKey then begin
+            Usermanagement.BasicAuthDepricationNotificationDefault(true);
+            if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
+                UserManagement.BasicAuthDepricationNotificationShow(BasicAuthDepricationNotification);
+        end;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -497,7 +526,6 @@ page 9807 "User Card"
     var
         UserSecID: Record User;
         IdentityManagement: Codeunit "Identity Management";
-        ClientTypeManagement: Codeunit "Client Type Management";
         BasicAuthDepricationNotification: Notification;
         WindowsUserName: Text[208];
         Text001Err: Label 'The account %1 is not a valid Windows account.', Comment = 'USERID';
@@ -506,6 +534,7 @@ page 9807 "User Card"
         Password: Text[80];
         ACSStatus: Option Disabled,Pending,Registered,Unknown;
         WebServiceID: Text[80];
+        TelemetryUserID: Guid;
         Confirm001Qst: Label 'The current Web Service Access Key will not be valid after editing. All clients that use it have to be updated. Do you want to continue?';
         WebServiceExpiryDate: DateTime;
         Confirm002Qst: Label 'You have not completed all necessary fields for the Credential Type that this client is currently using. The user will not be able to log in unless you provide a value in the %1 field. Are you sure that you want to close the window?', Comment = 'USERID';
@@ -517,6 +546,7 @@ page 9807 "User Card"
         Confirm004Qst: Label 'The user will not be able to sign in because no authentication data was provided. Are you sure that you want to close the page?';
         ConfirmRemoveExchangeIdentifierQst: Label 'If you delete the Exchange Identifier Mapping, the user will no longer automatically be signed in when they use Exchange applications.\Do you want to continue?';
         IsSaaS: Boolean;
+        IsWebServiceAccesskeyAllowed: Boolean;
         ApplicationID: Text;
         CannotManageUsersQst: Label 'You cannot add or delete users on this page. Administrators can manage users in the Microsoft 365 admin center.\\Do you want to go there now?';
         [InDataSet]
@@ -530,7 +560,6 @@ page 9807 "User Card"
         ReadWebServiceKeyForUserTxt: Label 'Read web service key for user %1', Locked = true;
         NewWebSeriveKeyTxt: label 'New web service key', Locked = true;
         NewWebSeriveKeyForUserTxt: Label 'New web service key was created for user %1', Locked = true;
-        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure ValidateSid()
     var
@@ -648,12 +677,36 @@ page 9807 "User Card"
             CurrPage.Update();
     end;
 
+    local procedure SetUserTelemetryId(newGuid: guid)
+    var
+        UserProperty: Record "User Property";
+    begin
+        UserProperty.Get(Rec."User Security ID");
+        UserProperty."Telemetry User ID" := newGuid;
+        UserProperty.Modify();
+        CurrPage.Update();
+    end;
+
+    local procedure EditUserTelemetryId()
+    var
+        ZeroGUID: Guid;
+        MenuTextMsg: Label 'Set field to null GUID, Set field to random GUID';
+        SelectionTextMsg: Label 'Choose one of the following options:';
+    begin
+        case StrMenu(MenuTextMsg, 2, SelectionTextMsg) of
+            1:
+                SetUserTelemetryId(ZeroGUID);
+            2:
+                SetUserTelemetryId(CreateGUID());
+        end;
+    end;
+
     procedure DeleteUserIsAllowed(User: Record User): Boolean
     var
         UserLoginTimeTracker: Codeunit "User Login Time Tracker";
     begin
         // check if the user ever has logged in. If the user hasn't, it's ok to delete the user.
-        exit(UserLoginTimeTracker.IsFirstLogin(user."User Security ID"));
+        exit(not UserLoginTimeTracker.UserLoggedInEnvironment(user."User Security ID"));
     end;
 
     procedure ManageUsersIsAllowed(): Boolean
@@ -684,7 +737,7 @@ page 9807 "User Card"
 
         OriginalFilterGroup := FilterGroup;
         FilterGroup := 2;
-        SetFilter("License Type", '<>%1', "License Type"::"External User");
+        SetFilter("License Type", '<>%1&<>%2', "License Type"::"External User", "License Type"::Application);
         FilterGroup := OriginalFilterGroup;
     end;
 
@@ -719,6 +772,13 @@ page 9807 "User Card"
 
         if Confirm(CreateFirstUserQst, true, UserId) then
             Codeunit.Run(Codeunit::"Users - Create Super User");
+    end;
+
+    procedure SetWebServiceAccressKey(): Boolean;
+    var
+        NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
+    begin
+        exit(NavTenantSettingsHelper.IsWSKeyAllowed())
     end;
 
     [NonDebuggable]

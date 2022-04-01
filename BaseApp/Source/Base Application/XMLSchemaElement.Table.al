@@ -164,7 +164,7 @@ table 9610 "XML Schema Element"
     begin
         XMLSchemaElement.SetRange("XML Schema Code", "XML Schema Code");
         XMLSchemaElement.SetRange("Parent ID", ID);
-        if XMLSchemaElement.FindSet then
+        if XMLSchemaElement.FindSet() then
             repeat
                 XMLSchemaElement.Selected := XMLSchemaElement.Selected or (XMLSchemaElement.MinOccurs > 0);
                 XMLSchemaElement.Modify();

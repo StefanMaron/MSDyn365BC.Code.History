@@ -53,7 +53,7 @@ table 842 "Cash Flow Account Comment"
     begin
         CFAccountComment.SetRange("Table Name", "Table Name");
         CFAccountComment.SetRange("No.", "No.");
-        if not CFAccountComment.FindFirst then
+        if not CFAccountComment.FindFirst() then
             Date := WorkDate;
     end;
 }

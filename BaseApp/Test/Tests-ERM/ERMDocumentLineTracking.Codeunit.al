@@ -289,7 +289,7 @@ codeunit 134347 "ERM Document Line Tracking"
         // [THEN] "Archived Sales Order Lines", "Posted Sales Shipment Lines", "Posted Sales Invoice Lines"
         LibraryVariableStorage.AssertEmpty;
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -320,7 +320,7 @@ codeunit 134347 "ERM Document Line Tracking"
         // [THEN] "Archived Sales Order Lines", "Posted Sales Shipment Lines", "Posted Sales Invoice Lines"
         LibraryVariableStorage.AssertEmpty;
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -350,7 +350,7 @@ codeunit 134347 "ERM Document Line Tracking"
         // [THEN] "Archived Sales Order Lines", "Posted Sales Shipment Lines", "Posted Sales Invoice Lines"
         LibraryVariableStorage.AssertEmpty;
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -380,7 +380,7 @@ codeunit 134347 "ERM Document Line Tracking"
         // [THEN] "Archived Sales Order Lines", "Posted Sales Shipment Lines", "Posted Sales Invoice Lines"
         LibraryVariableStorage.AssertEmpty;
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -602,112 +602,112 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         PurchaseLine[1].SetRange("Document No.", DocumentNo);
         PurchaseLine[1].SetRange("Document Type", DocumentType);
-        PurchaseLine[1].FindFirst;
+        PurchaseLine[1].FindFirst();
 
         PurchaseLine[2].SetRange("Document No.", DocumentNo);
         PurchaseLine[2].SetRange("Document Type", DocumentType);
-        PurchaseLine[2].FindLast;
+        PurchaseLine[2].FindLast();
     end;
 
     local procedure FindFirstLastPurchaseReceiptLines(DocumentNo: Code[20]; var PurchRcptLine: array[2] of Record "Purch. Rcpt. Line")
     begin
         PurchRcptLine[1].SetRange("Order No.", DocumentNo);
-        PurchRcptLine[1].FindFirst;
+        PurchRcptLine[1].FindFirst();
 
         PurchRcptLine[2].SetRange("Order No.", DocumentNo);
-        PurchRcptLine[2].FindLast;
+        PurchRcptLine[2].FindLast();
     end;
 
     local procedure FindFirstLastPurchaseInvoiceLines(DocumentNo: Code[20]; var PurchInvLine: array[2] of Record "Purch. Inv. Line")
     begin
         PurchInvLine[1].SetRange("Document No.", DocumentNo);
-        PurchInvLine[1].FindFirst;
+        PurchInvLine[1].FindFirst();
 
         PurchInvLine[2].SetRange("Document No.", DocumentNo);
-        PurchInvLine[2].FindLast;
+        PurchInvLine[2].FindLast();
     end;
 
     local procedure FindFirstLastPurchaseInvoiceLinesFromOrderNo(DocumentNo: Code[20]; var PurchInvLine: array[2] of Record "Purch. Inv. Line")
     begin
         PurchInvLine[1].SetRange("Order No.", DocumentNo);
-        PurchInvLine[1].FindFirst;
+        PurchInvLine[1].FindFirst();
 
         PurchInvLine[2].SetRange("Order No.", DocumentNo);
-        PurchInvLine[2].FindLast;
+        PurchInvLine[2].FindLast();
     end;
 
     local procedure FindFirstLastPurchaseReturnShipmentLines(DocumentNo: Code[20]; var ReturnShipmentLine: array[2] of Record "Return Shipment Line")
     begin
         ReturnShipmentLine[1].SetRange("Return Order No.", DocumentNo);
-        ReturnShipmentLine[1].FindFirst;
+        ReturnShipmentLine[1].FindFirst();
 
         ReturnShipmentLine[2].SetRange("Return Order No.", DocumentNo);
-        ReturnShipmentLine[2].FindLast;
+        ReturnShipmentLine[2].FindLast();
     end;
 
     local procedure FindFirstLastPurchaseCreditMemoLines(DocumentNo: Code[20]; var PurchCrMemoLine: array[2] of Record "Purch. Cr. Memo Line")
     begin
         PurchCrMemoLine[1].SetRange("Order No.", DocumentNo);
-        PurchCrMemoLine[1].FindFirst;
+        PurchCrMemoLine[1].FindFirst();
 
         PurchCrMemoLine[2].SetRange("Order No.", DocumentNo);
-        PurchCrMemoLine[2].FindLast;
+        PurchCrMemoLine[2].FindLast();
     end;
 
     local procedure FindFirstLastSalesLines(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; var SalesLine: array[2] of Record "Sales Line")
     begin
         SalesLine[1].SetRange("Document No.", DocumentNo);
         SalesLine[1].SetRange("Document Type", DocumentType);
-        SalesLine[1].FindFirst;
+        SalesLine[1].FindFirst();
 
         SalesLine[2].SetRange("Document No.", DocumentNo);
         SalesLine[2].SetRange("Document Type", DocumentType);
-        SalesLine[2].FindLast;
+        SalesLine[2].FindLast();
     end;
 
     local procedure FindFirstLastSalesInvoiceLines(DocumentNo: Code[20]; var SalesInvoiceLine: array[2] of Record "Sales Invoice Line")
     begin
         SalesInvoiceLine[1].SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine[1].FindFirst;
+        SalesInvoiceLine[1].FindFirst();
 
         SalesInvoiceLine[2].SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine[2].FindLast;
+        SalesInvoiceLine[2].FindLast();
     end;
 
     local procedure FindFirstLastSalesInvoiceLinesFromOrderNo(DocumentNo: Code[20]; var SalesInvoiceLine: array[2] of Record "Sales Invoice Line")
     begin
         SalesInvoiceLine[1].SetRange("Order No.", DocumentNo);
-        SalesInvoiceLine[1].FindFirst;
+        SalesInvoiceLine[1].FindFirst();
 
         SalesInvoiceLine[2].SetRange("Order No.", DocumentNo);
-        SalesInvoiceLine[2].FindLast;
+        SalesInvoiceLine[2].FindLast();
     end;
 
     local procedure FindFirstLastSalesShipmentLines(DocumentNo: Code[20]; var SalesShipmentLine: array[2] of Record "Sales Shipment Line")
     begin
         SalesShipmentLine[1].SetRange("Order No.", DocumentNo);
-        SalesShipmentLine[1].FindFirst;
+        SalesShipmentLine[1].FindFirst();
 
         SalesShipmentLine[2].SetRange("Order No.", DocumentNo);
-        SalesShipmentLine[2].FindLast;
+        SalesShipmentLine[2].FindLast();
     end;
 
     local procedure FindFirstLastSalesReturnReceiptLines(DocumentNo: Code[20]; var ReturnReceiptLine: array[2] of Record "Return Receipt Line")
     begin
         ReturnReceiptLine[1].SetRange("Return Order No.", DocumentNo);
-        ReturnReceiptLine[1].FindFirst;
+        ReturnReceiptLine[1].FindFirst();
 
         ReturnReceiptLine[2].SetRange("Return Order No.", DocumentNo);
-        ReturnReceiptLine[2].FindLast;
+        ReturnReceiptLine[2].FindLast();
     end;
 
     local procedure FindFirstLastSalesCreditMemoLines(DocumentNo: Code[20]; var SalesCrMemoLine: array[2] of Record "Sales Cr.Memo Line")
     begin
         SalesCrMemoLine[1].SetRange("Order No.", DocumentNo);
-        SalesCrMemoLine[1].FindFirst;
+        SalesCrMemoLine[1].FindFirst();
 
         SalesCrMemoLine[2].SetRange("Order No.", DocumentNo);
-        SalesCrMemoLine[2].FindLast;
+        SalesCrMemoLine[2].FindLast();
     end;
 
     local procedure ReducePurchaseOrderLinesForPartialPosting(var PurchaseLine: array[2] of Record "Purchase Line"; VerifyDocument: Option)
@@ -777,7 +777,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.",
                   "Order No.", "Order Line No.");
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -792,7 +792,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.",
                   "Order No.", "Order Line No.");
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -807,7 +807,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.",
                   "Order No.", "Order Line No.");
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -821,7 +821,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.",
                   "Order No.", "Order Line No.");
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -834,7 +834,7 @@ codeunit 134347 "ERM Document Line Tracking"
             with ReturnShipmentLine[Index] do begin
                 EnqueueLineValues(VerifyDocument, "Line No.", "No.", Quantity, Description, "Unit of Measure Code");
                 DocumentLineTracking.SetDoc(VerifyDocument, "Document No.", "Line No.", "Return Order No.", "Return Order Line No.", '', 0);
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -849,7 +849,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.",
                   "Order No.", "Order Line No.");
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -863,7 +863,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 EnqueueLineValues(VerifyDocument, "Line No.", "No.", Quantity, Description, "Unit of Measure Code");
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", '', 0);
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -878,7 +878,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.",
                   "Order No.", "Order Line No.");
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -893,7 +893,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.",
                   "Order No.", "Order Line No.");
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -907,7 +907,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.",
                   "Order No.", "Order Line No.");
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -921,7 +921,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 EnqueueLineValues(VerifyDocument, "Line No.", "No.", Quantity, Description, "Unit of Measure Code");
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Return Order No.", "Return Order Line No.", '', 0);
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 
@@ -936,7 +936,7 @@ codeunit 134347 "ERM Document Line Tracking"
                 DocumentLineTracking.SetDoc(
                   VerifyDocument, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.",
                   "Order No.", "Order Line No.");
-                DocumentLineTracking.Run;
+                DocumentLineTracking.Run();
             end;
     end;
 

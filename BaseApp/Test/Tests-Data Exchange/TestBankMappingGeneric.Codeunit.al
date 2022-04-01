@@ -38,7 +38,7 @@ codeunit 132541 "Test Bank Mapping Generic"
     begin
         // Setup file definition
         AllObj.SetRange("Object Type", AllObj."Object Type"::XMLport);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
         TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), 'Just a Test Mapping',
@@ -184,7 +184,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         ProcessDataExchColumnMapping(DataExch, RecRef);
 
         // Verify
-        TestDataExchDestTable.FindFirst;
+        TestDataExchDestTable.FindFirst();
         RecRef.GetTable(TestDataExchDestTable);
         Assert.AreEqual('ABCDEFGHIJKLMNOPQRSTUVWXYZ abc', RecRef.Field(2).Value, 'The values were not concatenated as expected');
     end;
@@ -232,7 +232,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         ProcessDataExchColumnMapping(DataExch, RecRef);
 
         // Verify
-        TestDataExchDestTable.FindFirst;
+        TestDataExchDestTable.FindFirst();
         RecRef.GetTable(TestDataExchDestTable);
         Assert.AreEqual('Instance1Line1 Instance2Line1', RecRef.Field(2).Value, 'The values were not concatenated as expected');
         RecRef.Next;
@@ -282,7 +282,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         ProcessDataExchColumnMapping(DataExch, RecRef);
 
         // Verify
-        TestDataExchDestTable.FindFirst;
+        TestDataExchDestTable.FindFirst();
         RecRef.GetTable(TestDataExchDestTable);
         Assert.AreEqual('L1C1Inst1 L1C1Inst2', RecRef.Field(2).Value, 'The values were not trimmed as expected');
         RecRef.Next;
@@ -337,7 +337,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         ProcessDataExchColumnMapping(DataExch, RecRef);
 
         // Verify
-        TestDataExchDestTable.FindFirst;
+        TestDataExchDestTable.FindFirst();
         RecRef.GetTable(TestDataExchDestTable);
         Assert.AreEqual('Text1', RecRef.Field(2).Value, '');
         Assert.AreEqual('', Format(RecRef.Field(3).Value), '');
@@ -393,7 +393,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         ProcessDataExchColumnMapping(DataExch, RecRef);
 
         // Verify
-        TestDataExchDestTable.FindFirst;
+        TestDataExchDestTable.FindFirst();
         RecRef.GetTable(TestDataExchDestTable);
         Assert.AreEqual(-123, RecRef.Field(4).Value, '');
         RecRef.Next;
@@ -443,7 +443,7 @@ codeunit 132541 "Test Bank Mapping Generic"
 
         // Verify
         Customer.SetRange(Name, CustName);
-        Customer.FindFirst;
+        Customer.FindFirst();
     end;
 
     [Test]
@@ -619,7 +619,7 @@ codeunit 132541 "Test Bank Mapping Generic"
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
 
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
-        DataExchLineDef."Data Line Tag" := LibraryUtility.GenerateGUID;
+        DataExchLineDef."Data Line Tag" := LibraryUtility.GenerateGUID();
         DataExchLineDef.Modify();
 
         DataExchColumnDef.InsertRec(DataExchDef.Code, '', 1, 'Amount', true, DataExchColumnDef."Data Type"::Decimal, '', 'en-US', '');
@@ -644,7 +644,7 @@ codeunit 132541 "Test Bank Mapping Generic"
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
 
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
-        DataExchLineDef."Data Line Tag" := LibraryUtility.GenerateGUID;
+        DataExchLineDef."Data Line Tag" := LibraryUtility.GenerateGUID();
         DataExchLineDef.Modify();
 
         DataExchColumnDef.InsertRec(DataExchDef.Code, '', 1, 'Amount', true, DataExchColumnDef."Data Type"::Decimal, '', 'en-US', '');
@@ -671,7 +671,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         DataExchDef.Modify();
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, '', 1, 'Amount', true, DataExchColumnDef."Data Type"::Decimal, '', 'en-US', '');
-        DataExchColumnDef.Path := LibraryUtility.GenerateGUID;
+        DataExchColumnDef.Path := LibraryUtility.GenerateGUID();
         DataExchColumnDef.Modify();
 
         // Verify.
@@ -692,7 +692,7 @@ codeunit 132541 "Test Bank Mapping Generic"
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, '', 1, 'Amount', true, DataExchColumnDef."Data Type"::Decimal, '', 'en-US', '');
-        DataExchColumnDef.Path := LibraryUtility.GenerateGUID;
+        DataExchColumnDef.Path := LibraryUtility.GenerateGUID();
         DataExchColumnDef.Modify();
 
         // Verify.
@@ -722,7 +722,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         // [SCENARIO 379670] Field mapping should work for fields with Option type
 
         AllObj.SetRange("Object Type", AllObj."Object Type"::XMLport);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), LibraryUTUtility.GetNewCode10,
           DataExchDef.Type::"Generic Import", AllObj."Object ID", 0, '', '');
@@ -782,7 +782,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         ProcessDataExchColumnMapping(DataExch, RecRef);
 
         // Verify
-        TestDataExchDestTable.FindFirst;
+        TestDataExchDestTable.FindFirst();
         RecRef.GetTable(TestDataExchDestTable);
         Assert.AreEqual(ExpectedValue, RecRef.Field(FieldNo).Value, '');
     end;
@@ -841,8 +841,8 @@ codeunit 132541 "Test Bank Mapping Generic"
     var
         LineNo: Integer;
     begin
-        ExpectedTestDataExchDestTable.FindFirst;
-        ActualTestDataExchDestTable.FindFirst;
+        ExpectedTestDataExchDestTable.FindFirst();
+        ActualTestDataExchDestTable.FindFirst();
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedTestDataExchDestTable, ActualTestDataExchDestTable, StrSubstNo(TableErrorMsg, Msg, LineNo));
@@ -891,7 +891,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         ProcessDataExch: Codeunit "Process Data Exch.";
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         ProcessDataExch.ProcessColumnMapping(DataExch, DataExchLineDef, RecRef);
     end;
 }

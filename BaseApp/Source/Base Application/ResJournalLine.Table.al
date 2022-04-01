@@ -39,10 +39,7 @@ table 207 "Res. Journal Line"
             trigger OnValidate()
             begin
                 if "Resource No." = '' then begin
-                    CreateDim(
-                      DATABASE::Resource, "Resource No.",
-                      DATABASE::"Resource Group", "Resource Group No.",
-                      DATABASE::Job, "Job No.");
+                    CreateDimFromDefaultDim(Rec.FieldNo("Resource No."));
                     exit;
                 end;
 
@@ -62,10 +59,7 @@ table 207 "Res. Journal Line"
                     if "Time Sheet No." = '' then
                         Res.TestField("Use Time Sheet", false);
 
-                CreateDim(
-                  DATABASE::Resource, "Resource No.",
-                  DATABASE::"Resource Group", "Resource Group No.",
-                  DATABASE::Job, "Job No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Resource No."));
             end;
         }
         field(7; "Resource Group No."; Code[20])
@@ -76,10 +70,7 @@ table 207 "Res. Journal Line"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Resource Group", "Resource Group No.",
-                  DATABASE::Resource, "Resource No.",
-                  DATABASE::Job, "Job No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Resource Group No."));
             end;
         }
         field(8; Description; Text[100])
@@ -125,10 +116,7 @@ table 207 "Res. Journal Line"
             begin
                 FindResPrice(FieldNo("Job No."));
 
-                CreateDim(
-                  DATABASE::Job, "Job No.",
-                  DATABASE::Resource, "Resource No.",
-                  DATABASE::"Resource Group", "Resource Group No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
             end;
         }
         field(11; "Unit of Measure Code"; Code[10])
@@ -192,7 +180,7 @@ table 207 "Res. Journal Line"
             trigger OnValidate()
             begin
                 TestField(Quantity);
-                GetGLSetup;
+                GetGLSetup();
                 "Unit Cost" := Round("Total Cost" / Quantity, GLSetup."Unit-Amount Rounding Precision");
             end;
         }
@@ -215,7 +203,7 @@ table 207 "Res. Journal Line"
             trigger OnValidate()
             begin
                 TestField(Quantity);
-                GetGLSetup;
+                GetGLSetup();
                 "Unit Price" := Round("Total Price" / Quantity, GLSetup."Unit-Amount Rounding Precision");
             end;
         }
@@ -466,7 +454,7 @@ table 207 "Res. Journal Line"
         ResJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         ResJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         ResJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if ResJnlLine.FindFirst then begin
+        if ResJnlLine.FindFirst() then begin
             "Posting Date" := LastResJnlLine."Posting Date";
             "Document Date" := LastResJnlLine."Posting Date";
             "Document No." := LastResJnlLine."Document No.";
@@ -486,6 +474,8 @@ table 207 "Res. Journal Line"
         OnAfterSetUpNewLine(Rec, LastResJnlLine);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
     var
         TableID: array[10] of Integer;
@@ -506,6 +496,24 @@ table 207 "Res. Journal Line"
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+#if not CLEAN20
+        RunEventOnAfterCreateDim(DefaultDimSource);
+#endif
+        OnAfterCreateDimProcedure(Rec, CurrFieldNo, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -706,7 +714,7 @@ table 207 "Res. Journal Line"
             if TemplateFilter <> '' then
                 ResJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
             ResJournalBatch.SetFilter(Name, BatchFilter);
-            ResJournalBatch.FindFirst;
+            ResJournalBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
@@ -719,6 +727,26 @@ table 207 "Res. Journal Line"
         "Reason Code" := PurchaseHeader."Reason Code";
 
         OnAfterCopyResJnlLineFromPurchaseHeader(PurchaseHeader, Rec);
+    end;
+
+    procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ResJournalErrorsMgt: Codeunit "Res. Journal Errors Mgt.";
+    begin
+        if ShowAllLinesEnabled then begin
+            MarkedOnly(false);
+            ShowAllLinesEnabled := false;
+        end else begin
+            ResJournalErrorsMgt.GetErrorMessages(TempErrorMessage);
+            if TempErrorMessage.FindSet() then
+                repeat
+                    if Rec.Get(TempErrorMessage."Context Record ID") then
+                        Rec.Mark(true)
+                until TempErrorMessage.Next() = 0;
+            MarkedOnly(true);
+            ShowAllLinesEnabled := true;
+        end;
     end;
 
     procedure CopyFrom(PurchaseLine: Record "Purchase Line")
@@ -742,6 +770,72 @@ table 207 "Res. Journal Line"
         "Total Price" := PurchaseLine.Amount;
 
         OnAfterCopyResJnlLineFromPurchaseLine(PurchaseLine, Rec);
+    end;
+
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Resource, Rec."Resource No.", FieldNo = Rec.FieldNo("Resource No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Resource Group", Rec."Resource Group No.", FieldNo = Rec.FieldNo("Resource Group No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FieldNo = Rec.FieldNo("Job No."));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Res. Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Res. Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Res. Journal Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDim(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var ResJournalLine: Record "Res. Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimProcedure(var ResJournalLine: Record "Res. Journal Line"; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
 #if not CLEAN19
@@ -786,15 +880,19 @@ table 207 "Res. Journal Line"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ResJournalLine: Record "Res. Journal Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var ResJournalLine: Record "Res. Journal Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var ResJournalLine: Record "Res. Journal Line"; LastResJournalLine: Record "Res. Journal Line")

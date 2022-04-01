@@ -220,10 +220,10 @@ page 6667 "Return Receipt Lines"
         TempReturnRcptLine.Reset();
         TempReturnRcptLine.CopyFilters(Rec);
         TempReturnRcptLine.SetRange("Document No.", DocNo);
-        if not TempReturnRcptLine.FindFirst then begin
+        if not TempReturnRcptLine.FindFirst() then begin
             ReturnRcptLine.CopyFilters(Rec);
             ReturnRcptLine.SetRange("Document No.", DocNo);
-            ReturnRcptLine.FindFirst;
+            ReturnRcptLine.FindFirst();
             TempReturnRcptLine := ReturnRcptLine;
             TempReturnRcptLine.Insert();
         end;
@@ -235,7 +235,7 @@ page 6667 "Return Receipt Lines"
     begin
         FromReturnRcptLine.Copy(Rec);
         CurrPage.SetSelectionFilter(FromReturnRcptLine);
-        if FromReturnRcptLine.FindFirst then
+        if FromReturnRcptLine.FindFirst() then
             // CETAF start
             if AssignmentType = AssignmentType::Sale then begin
                 ItemChargeAssgntSales."Unit Cost" := UnitCost;

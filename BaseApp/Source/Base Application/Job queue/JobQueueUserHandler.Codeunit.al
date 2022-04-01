@@ -52,7 +52,7 @@ codeunit 455 "Job Queue User Handler"
         exit(User.IsEmpty);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure RescheduleJobQueueEntriesOnCompanyOpen()
     var
         JobQueueEntry: Record "Job Queue Entry";

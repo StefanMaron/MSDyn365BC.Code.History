@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 9841 "Permission Set Lookup"
 {
     Caption = 'Permission Set Lookup';
@@ -7,6 +8,9 @@ page 9841 "Permission Set Lookup"
     ModifyAllowed = false;
     PageType = List;
     SourceTable = "Aggregate Permission Set";
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+    ObsoleteReason = 'Use page Lookup Permission Set from System Application';
 
     layout
     {
@@ -56,4 +60,4 @@ page 9841 "Permission Set Lookup"
         CurrSelectedRecord := SelectedRecord;
     end;
 }
-
+#endif

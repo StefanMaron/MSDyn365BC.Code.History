@@ -691,7 +691,7 @@ page 7158 "Sales Analysis by Dimensions"
           DateFilter, BudgetFilter, InternalDateFilter);
         SalesAnalysisByDimMatrix.LoadCodeRange(MATRIX_CodeRange);
 
-        SalesAnalysisByDimMatrix.RunModal;
+        SalesAnalysisByDimMatrix.RunModal();
     end;
 
     procedure SetCurrentAnalysisViewCode(NewAnalysisViewCode: Code[10])

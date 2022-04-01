@@ -30,11 +30,11 @@ codeunit 134917 "ERM Revert VAT On Payment"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Revert VAT On Payment");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Revert VAT On Payment");
@@ -58,7 +58,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
         // Test invoice in foreign currency for Customer that allow payment discount.
 
         // 1. Setup: Create Payment Terms and Currency. Create and post General Journal Line.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         CreatePaymentTerms(PaymentTerms);
 
@@ -114,7 +114,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
         // Test invoice in foreign currency for Vendor that allow payment discount.
 
         // 1. Setup: Create Payment Terms and Currency. Create and post General Journal Line.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         CreatePaymentTerms(PaymentTerms);
 
@@ -235,7 +235,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
         GeneralLedgerSetup.Get();
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
         Assert.AreNearlyEqual(
           Amount, CustLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -257,7 +257,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
         GeneralLedgerSetup.Get();
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
         Assert.AreNearlyEqual(
           Amount, VendorLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",

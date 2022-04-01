@@ -259,7 +259,7 @@ page 2124 "O365 Item Basket Part"
         OrgSalesLine.FilterGroup(0);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 TempO365ItemBasketEntry.Init();
                 TempO365ItemBasketEntry."Item No." := SalesLine."No.";
@@ -293,7 +293,7 @@ page 2124 "O365 Item Basket Part"
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := 0;
         SalesLine.SetHideValidationDialog(true);
-        if TempO365ItemBasketEntry.FindSet then
+        if TempO365ItemBasketEntry.FindSet() then
             repeat
                 SalesLine.Init();
                 SalesLine."Line No." += 10000;

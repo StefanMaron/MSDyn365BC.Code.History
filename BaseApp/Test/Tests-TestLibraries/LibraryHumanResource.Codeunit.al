@@ -55,12 +55,12 @@ codeunit 131901 "Library - Human Resource"
         EmployeePostingGroup: Record "Employee Posting Group";
     begin
         CreateEmployee(Employee);
-        Employee."Bank Account No." := LibraryUtility.GenerateGUID;
-        Employee.IBAN := LibraryUtility.GenerateGUID;
-        Employee."SWIFT Code" := LibraryUtility.GenerateGUID;
-        Employee."Bank Branch No." := LibraryUtility.GenerateGUID;
+        Employee."Bank Account No." := LibraryUtility.GenerateGUID();
+        Employee.IBAN := LibraryUtility.GenerateGUID();
+        Employee."SWIFT Code" := LibraryUtility.GenerateGUID();
+        Employee."Bank Branch No." := LibraryUtility.GenerateGUID();
         EmployeePostingGroup.Init();
-        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
+        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID());
         EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
         EmployeePostingGroup.Insert(true);
         Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);

@@ -140,7 +140,7 @@ codeunit 133769 "Daily Report Tests"
         // [SCENARIO] Validate Customer Ledger Entry - OnAfterGetRecord trigger of Report ID - 2501 Day Book Cust. Ledger Entry.
 
         // Setup: Create Customer Ledger Entry and VAT Entry.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
         CreateCustomerLedgerEntry(CustLedgerEntry, false);  // Print Customer Ledger Details, Print G/L Entry Details - FALSE on DayBookCustLedgerEntryRequestPageHandler.
         CreateVATEntry(VATEntry, CustLedgerEntry."Transaction No.", VATEntry.Type::" ", LibraryRandom.RandDec(10, 2), '', '', '');
@@ -175,7 +175,7 @@ codeunit 133769 "Daily Report Tests"
         // [SCENARIO] Validate G/L Entry - OnAfterGetRecord trigger of Report ID - 2501 Day Book Cust. Ledger Entry.
 
         // Setup: Create Customer Ledger Entry, VAT Entry and Detailed Customer Ledger Entry.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
         CreateCustomerLedgerEntry(CustLedgerEntry, true);  // Print Customer Ledger Details, Print G/L Entry Details - TRUE on DayBookCustLedgerEntryRequestPageHandler.
         CreateVATEntry(VATEntry, CustLedgerEntry."Transaction No.", VATEntry.Type::" ", LibraryRandom.RandDec(10, 2), '', '', '');
@@ -209,7 +209,7 @@ codeunit 133769 "Daily Report Tests"
         // [SCENARIO] Validate Vendor Ledger Entry - OnAfterGetRecord trigger of Report ID - 10535 Day Book Vendor Ledger Entry.
 
         // Setup: Create Vendor Ledger Entry and VAT Entry.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
         CreateVendorLedgerEntry(VendorLedgerEntry, '', LibraryUTUtility.GetNewCode, false, 0, VendorLedgerEntry."Document Type"::Invoice);  // Print Vender Ledger Details - FALSE on DayBookVendorLedgerEntryRequestPageHandler and using 0 for Amount to Apply.
         CreateVATEntry(VATEntry, VendorLedgerEntry."Transaction No.", VATEntry.Type::" ", LibraryRandom.RandDec(10, 2), '', '', '');
@@ -244,7 +244,7 @@ codeunit 133769 "Daily Report Tests"
         // [SCENARIO] Validate G/L Entry - OnAfterGetRecord trigger of Report ID - 2502 Day Book Vendor Ledger Entry.
 
         // Setup: Create Vendor Ledger Entry, VAT Entry and Detailed Vendor Ledger Entry.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
         CreateVendorLedgerEntry(VendorLedgerEntry, '', LibraryUTUtility.GetNewCode, true, 0, VendorLedgerEntry."Document Type"::Invoice);  // Print Vender Ledger Details - TRUE on DayBookVendorLedgerEntryRequestPageHandler and using 0 for Amount to Apply.
         CreateVATEntry(VATEntry, VendorLedgerEntry."Transaction No.", VATEntry.Type::" ", LibraryRandom.RandDec(10, 2), '', '', '');
@@ -425,7 +425,7 @@ codeunit 133769 "Daily Report Tests"
         VATEntry: Record "VAT Entry";
     begin
         // Setup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
         CreateVATEntry(VATEntry, 0, Type, LibraryRandom.RandDec(10, 2), '', '', BillToPayToNo);  // Taken random for Base and blank for VATProdPostingGroup and VATBusPostingGroup.
         LibraryVariableStorage.Enqueue(VATEntry."Document No.");  // Enqueue for DayBookVATEntryRequestPageHandler.
@@ -467,7 +467,7 @@ codeunit 133769 "Daily Report Tests"
         GLEntry: Record "G/L Entry";
     begin
         CreateGLEntry(GLEntry);
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Customer No." := CreateCustomer;
@@ -490,7 +490,7 @@ codeunit 133769 "Daily Report Tests"
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
         DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::"Realized Loss";
@@ -613,7 +613,7 @@ codeunit 133769 "Daily Report Tests"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
         GLEntry."Document No." := LibraryUTUtility.GetNewCode;
@@ -676,7 +676,7 @@ codeunit 133769 "Daily Report Tests"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetCurrentKey("Transaction No.");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Transaction No." + 1);
     end;
 

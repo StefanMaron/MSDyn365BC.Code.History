@@ -644,7 +644,7 @@ table 7302 "Bin Content"
 
         NoITGiven := not SNGiven and not LNGiven;
         if SNGiven or NoITGiven then
-            if SerialNoInfo.FindSet then
+            if SerialNoInfo.FindSet() then
                 repeat
                     SetRange("Serial No. Filter", SerialNoInfo."Serial No.");
                     CalcFields("Quantity (Base)");
@@ -653,7 +653,7 @@ table 7302 "Bin Content"
                 until SerialNoInfo.Next() = 0;
 
         if LNGiven or NoITGiven then
-            if LotNoInfo.FindSet then
+            if LotNoInfo.FindSet() then
                 repeat
                     SetRange("Lot No. Filter", LotNoInfo."Lot No.");
                     CalcFields("Quantity (Base)");
@@ -662,9 +662,9 @@ table 7302 "Bin Content"
                 until LotNoInfo.Next() = 0;
 
         if (SNGiven and LNGiven) or NoITGiven then
-            if SerialNoInfo.FindSet then
+            if SerialNoInfo.FindSet() then
                 repeat
-                    if LotNoInfo.FindSet then
+                    if LotNoInfo.FindSet() then
                         repeat
                             SetRange("Serial No. Filter", SerialNoInfo."Serial No.");
                             SetRange("Lot No. Filter", LotNoInfo."Lot No.");
@@ -884,7 +884,7 @@ table 7302 "Bin Content"
         BinContent.SetRange("Variant Code", VariantCode);
         BinContentLookup.SetTableView(BinContent);
         BinContentLookup.Initialize(LocationCode);
-        BinContentLookup.RunModal;
+        BinContentLookup.RunModal();
         Clear(BinContentLookup);
     end;
 
@@ -1042,8 +1042,15 @@ table 7302 "Bin Content"
           WhseJnlLine."Qty. (Absolute, Base)");
     end;
 
-    procedure CalcQtyUOM(): Decimal
+    procedure CalcQtyUOM() Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcQtyUOM(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GetItem("Item No.");
         CalcFields("Quantity (Base)");
         if Item."No." <> '' then
@@ -1103,7 +1110,7 @@ table 7302 "Bin Content"
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.SetFilter(Filter);
 
-        if RecRef.FindFirst then begin
+        if RecRef.FindFirst() then begin
             if TableId > 0 then
                 CustomDetails := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, TableId);
 
@@ -1153,7 +1160,7 @@ table 7302 "Bin Content"
             WhseItemTrackingLine.SetRange("Variant Code", "Variant Code");
             WhseItemTrackingLine.SetTrackingFilterFromBinContent(Rec);
             WhseItemTrackingLine.SetRange("Source Type", DATABASE::"Warehouse Journal Line");
-            if WarehouseJournalLine.FindSet then
+            if WarehouseJournalLine.FindSet() then
                 repeat
                     WhseItemTrackingLine.SetRange("Source ID", WarehouseJournalLine."Journal Batch Name");
                     WhseItemTrackingLine.SetRange("Source Batch Name", WarehouseJournalLine."Journal Template Name");
@@ -1409,6 +1416,11 @@ table 7302 "Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateBinCode(var BinContent: Record "Bin Content"; xBinContent: Record "Bin Content"; Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyUOM(var BinContent: Record "Bin Content"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

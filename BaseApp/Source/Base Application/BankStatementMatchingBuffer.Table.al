@@ -102,7 +102,7 @@ table 1250 "Bank Statement Matching Buffer"
         SetRange("Entry No.", -1);
         SetRange("One to Many Match", true);
 
-        if not FindFirst then begin
+        if not FindFirst() then begin
             "Line No." := LineNo;
             "Account Type" := AccountType;
             "Account No." := TempLedgerEntryMatchingBuffer."Account No.";

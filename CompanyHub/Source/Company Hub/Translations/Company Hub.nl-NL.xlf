@@ -171,6 +171,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Enviroments - Blocked Style - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1480219922 - Field 1768934958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Environment Name</source>
+          <target state="translated">Omgevingsnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Environment Name - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1663794414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Group Code</source>
           <target state="translated">Groepscode</target>
@@ -848,6 +854,12 @@
           <target state="translated">Omgevingen - Stijl van geblokkeerd</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Enviroments - Blocked Style - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2821884881 - Field 1768934958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Environment Name</source>
+          <target state="translated">Omgevingsnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Environment Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1663794414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Group Code</source>

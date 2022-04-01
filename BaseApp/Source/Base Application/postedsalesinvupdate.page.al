@@ -48,6 +48,11 @@ page 1355 "Posted Sales Inv. - Update"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment of the sales invoice.';
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
             }
         }
     }
@@ -74,7 +79,8 @@ page 1355 "Posted Sales Inv. - Update"
     local procedure RecordChanged() IsChanged: Boolean
     begin
         IsChanged := ("Payment Method Code" <> xSalesInvoiceHeader."Payment Method Code") or
-          ("Payment Reference" <> xSalesInvoiceHeader."Payment Reference");
+          ("Payment Reference" <> xSalesInvoiceHeader."Payment Reference") or
+          ("Company Bank Account Code" <> xSalesInvoiceHeader."Company Bank Account Code");
 
         OnAfterRecordChanged(Rec, xSalesInvoiceHeader, IsChanged);
     end;

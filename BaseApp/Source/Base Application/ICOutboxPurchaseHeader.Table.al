@@ -170,7 +170,7 @@ table 428 "IC Outbox Purchase Header"
         ICOutboxPurchLine.SetRange("IC Partner Code", "IC Partner Code");
         ICOutboxPurchLine.SetRange("IC Transaction No.", "IC Transaction No.");
         ICOutboxPurchLine.SetRange("Transaction Source", "Transaction Source");
-        if ICOutboxPurchLine.FindFirst then
+        if ICOutboxPurchLine.FindFirst() then
             ICOutboxPurchLine.DeleteAll(true);
         ICDocDim.LockTable();
         DimMgt.DeleteICDocDim(

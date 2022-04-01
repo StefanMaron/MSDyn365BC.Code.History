@@ -70,33 +70,6 @@ page 411 "Graph Mail Setup"
                         end;
                     }
                 }
-                field(ShowSmtp; AdvancedSetupLbl)
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                    ShowCaption = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Email accounts are now configured via "Email Accounts" page from "System Application".';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        GraphMailSetup: Record "Graph Mail Setup";
-                        O365SetupEmail: Codeunit "O365 Setup Email";
-                    begin
-                        if PAGE.RunModal(PAGE::"BC O365 Email Setup Wizard") <> ACTION::LookupOK then
-                            exit;
-
-                        if O365SetupEmail.SMTPEmailIsSetUp then begin
-                            ClearRefreshCode;
-                            if LookupMode then
-                                if GraphMailSetup.Get then
-                                    GraphMailSetup.Delete();
-
-                            CurrPage.Close;
-                        end;
-                    end;
-                }
                 group(Control7)
                 {
                     ShowCaption = false;
@@ -183,7 +156,6 @@ page 411 "Graph Mail Setup"
         TokenAcquired: Boolean;
         SendTestMailLbl: Label 'Send a test email';
         SetupMyAccountLbl: Label 'Send from my email account';
-        AdvancedSetupLbl: Label 'Send from another email account';
         TestSuccessMsg: Label 'A test email was sent to %1.', Comment = '%1 = an email address';
         ClearSetupLbl: Label 'Do not send from this account';
         LookupMode: Boolean;

@@ -14,8 +14,10 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
 
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
+        GenJnlBatch: Record "Gen. Journal Batch";
         SourceCodeSetup: Record "Source Code Setup";
         TempErrorMessage: Record "Error Message" temporary;
+        GLSetup: Record "General Ledger Setup";
         FinChargeMemoSourceCode: Code[10];
         TotalAmount: Decimal;
         TotalAmountLCY: Decimal;
@@ -25,10 +27,20 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         UseSameDocumentNo: Boolean;
         UseSamePostingDate: Boolean;
         NewPostingDate: Date;
+        EmptyTemplateNameErr: Label 'Enter a Journal Template Name.';
+        EmptyBatchNameErr: Label 'Enter a Journal Batch Name.';
 
     local procedure CheckIssuedFinChargeMemo(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"): Boolean
     begin
         IssuedFinChargeMemoHeader.TestField(Canceled, false);
+
+        GLSetup.Get();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            if GenJnlBatch."Journal Template Name" = '' then
+                Error(EmptyTemplateNameErr);
+            if GenJnlBatch.Name = '' then
+                Error(EmptyBatchNameErr);
+        end;
 
         exit(CheckAppliedFinChargeMemoCustLedgerEntry(IssuedFinChargeMemoHeader));
     end;
@@ -56,7 +68,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
 
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoHeader."No.");
         IssuedFinChargeMemoLine.SetRange("Detailed Interest Rates Entry", false);
-        if IssuedFinChargeMemoLine.FindSet then
+        if IssuedFinChargeMemoLine.FindSet() then
             repeat
                 case IssuedFinChargeMemoLine.Type of
                     IssuedFinChargeMemoLine.Type::"Customer Ledger Entry":
@@ -98,7 +110,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         CustLedgerEntry.SetRange("Customer No.", IssuedFinChargeMemoHeader."Customer No.");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Finance Charge Memo");
         CustLedgerEntry.SetRange("Document No.", IssuedFinChargeMemoHeader."No.");
-        if CustLedgerEntry.FindFirst then begin
+        if CustLedgerEntry.FindFirst() then begin
             CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
             if CustLedgerEntry.Amount <> CustLedgerEntry."Remaining Amount" then begin
                 TempErrorMessage.LogMessage(
@@ -121,7 +133,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
     begin
         ReminderFinChargeEntry.SetRange("No.", IssuedFinChargeMemoLine."Finance Charge Memo No.");
         ReminderFinChargeEntry.SetRange("Customer Entry No.", IssuedFinChargeMemoLine."Entry No.");
-        if ReminderFinChargeEntry.FindFirst then begin
+        if ReminderFinChargeEntry.FindFirst() then begin
             ReminderFinChargeEntry.Canceled := true;
             ReminderFinChargeEntry.Modify();
         end;
@@ -191,6 +203,11 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
             "Source Code" := FinChargeMemoSourceCode;
             "System-Created Entry" := SystemCreatedEntry;
             "Salespers./Purch. Code" := '';
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                "Journal Template Name" := GenJnlBatch."Journal Template Name";
+                "Journal Batch Name" := GenJnlBatch.Name;
+            end;
         end;
 
         OnAfterInitGenJnlLine(GenJnlLine, IssuedFinChargeMemoHeader);
@@ -230,7 +247,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
     var
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
     begin
-        if TempGenJnlLine.FindSet then
+        if TempGenJnlLine.FindSet() then
             repeat
                 GenJnlPostLine.RunWithCheck(TempGenJnlLine);
             until TempGenJnlLine.Next() = 0;
@@ -244,6 +261,11 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         UseSamePostingDate := NewUseSamePostingDate;
         NewPostingDate := PostingDate;
         SkipShowNotification := NewSkipShowNotification;
+    end;
+
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    begin
+        GenJnlBatch := NewGenJnlBatch;
     end;
 
     local procedure SetIssuedFinChargeMemoCancelled(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; DocumentNo: Code[20])

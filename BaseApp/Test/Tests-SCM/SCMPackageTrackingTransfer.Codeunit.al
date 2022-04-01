@@ -1790,7 +1790,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Transfer);
         ItemJournalTemplate.SetRange(Recurring, false);
-        if not ItemJournalTemplate.FindFirst then begin
+        if not ItemJournalTemplate.FindFirst() then begin
             LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
             ItemJournalTemplate.Validate(Type, ItemJournalTemplate.Type::Transfer);
             ItemJournalTemplate.Modify(true);
@@ -1852,7 +1852,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         BinCon.SetFilter("Location Code", LocationCode);
         BinCon.SetFilter("Bin Code", BinCode);
         BinCon.SetFilter("Item No.", ItemNo);
-        BinCon.FindFirst;
+        BinCon.FindFirst();
         BinCon.CalcFields(Quantity);
         Assert.AreEqual(Qty, BinCon.Quantity, WrongInventoryErr);
     end;
@@ -1864,7 +1864,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ReservationEntry.Reset();
         ReservationEntry.SetFilter("Item No.", ItemNo);
         ReservationEntry.SetRange("Source Type", DATABASE::"Transfer Line");
-        ReservationEntry.FindLast;
+        ReservationEntry.FindLast();
         ReservationEntry.Validate("Package No.", PackageNo);
         ReservationEntry.Validate("New Package No.", NewPackageNo);
         ReservationEntry.Validate("Item Tracking", "Item Tracking Entry Type"::"Package No.");
@@ -1902,7 +1902,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ind: Code[20];
     begin
         NoSeries.SetRange(Description, Descr);
-        if NoSeries.FindFirst then begin
+        if NoSeries.FindFirst() then begin
             ind := NoSeries.Code;
             NoSeriesLine.SetRange("Series Code", ind);
             if (not NoSeriesLine.FindFirst) then begin

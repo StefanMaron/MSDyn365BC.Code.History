@@ -44,7 +44,7 @@ codeunit 9655 "Init. Server Printer Table"
 
         if PrinterName <> '' then // If no name specified, then find the first.
             TempPrinter.SetRange(ID, PrinterName);
-        if TempPrinter.FindFirst then begin
+        if TempPrinter.FindFirst() then begin
             PrinterName := TempPrinter.ID;
             exit(true);
         end;
@@ -52,7 +52,7 @@ codeunit 9655 "Init. Server Printer Table"
             exit(false);
 
         TempPrinter.SetFilter(ID, '%1', StrSubstNo('@*%1*', PrinterName));
-        if TempPrinter.FindFirst then begin
+        if TempPrinter.FindFirst() then begin
             PrinterName := TempPrinter.ID;
             exit(true);
         end;

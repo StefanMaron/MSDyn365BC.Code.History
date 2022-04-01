@@ -43,7 +43,7 @@ codeunit 5151 "Integration Service"
     begin
         Evaluate(RecID, RecIDIn);
         IntegrationRecord.SetRange("Record ID", RecID);
-        IntegrationRecord.FindFirst;
+        IntegrationRecord.FindFirst();
         IntegrationRecord.Rename(IntegrationID);
     end;
 
@@ -62,7 +62,7 @@ codeunit 5151 "Integration Service"
     begin
         Evaluate(RecID, RecIDIn);
         IntegrationRecord.SetRange("Record ID", RecID);
-        IntegrationRecord.FindFirst;
+        IntegrationRecord.FindFirst();
         exit(IntegrationRecord."Integration ID");
     end;
 

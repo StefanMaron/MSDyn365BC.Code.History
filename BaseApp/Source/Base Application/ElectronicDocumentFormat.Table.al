@@ -80,6 +80,89 @@ table 61 "Electronic Document Format"
         DataCompression: Codeunit "Data Compression";
 
     [Scope('OnPrem')]
+    procedure SendElectronically(var TempBlob: Codeunit "Temp Blob"; var ClientFileName: Text[250]; DocumentVariant: Variant; ElectronicFormat: Code[20])
+    var
+        RecordExportBuffer: Record "Record Export Buffer";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessage: Record "Error Message";
+        EntryTempBlob: Codeunit "Temp Blob";
+        RecRef: RecordRef;
+        EntryFileInStream: InStream;
+        ZipFileOutStream: OutStream;
+        DocumentUsage: Option "Sales Invoice","Sales Credit Memo";
+        StartID: Integer;
+        EndID: Integer;
+        IsMissingFileContent: Boolean;
+    begin
+        GetDocumentUsage(DocumentUsage, DocumentVariant);
+
+        if not Get(ElectronicFormat, DocumentUsage) then begin
+            Usage := "Electronic Document Format Usage".FromInteger(DocumentUsage);
+            Error(NonExistingDocumentFormatErr, ElectronicFormat, Format(Usage));
+        end;
+
+        RecRef.GetTable(DocumentVariant);
+
+        RecordExportBuffer.LockTable();
+        if RecRef.FindSet() then
+            repeat
+                Clear(RecordExportBuffer);
+                RecordExportBuffer.RecordID := RecRef.RecordId;
+                RecordExportBuffer.ClientFileName :=
+                  GetAttachmentFileName(RecRef, GetDocumentNo(RecRef), GetDocumentType(RecRef), 'xml');
+                RecordExportBuffer.ZipFileName :=
+                  GetAttachmentFileName(RecRef, GetDocumentNo(RecRef), GetDocumentType(RecRef), 'zip');
+                OnSendElectronicallyOnBeforeRecordExportBufferInsert(RecordExportBuffer, RecRef);
+                RecordExportBuffer.Insert(true);
+                if StartID = 0 then
+                    StartID := RecordExportBuffer.ID;
+                EndID := RecordExportBuffer.ID;
+            until RecRef.Next() = 0;
+
+        RecordExportBuffer.SetRange(ID, StartID, EndID);
+        if RecordExportBuffer.FindSet() then
+            repeat
+                ErrorMessage.SetContext(RecordExportBuffer);
+                ErrorMessage.ClearLog();
+
+                CODEUNIT.Run("Codeunit ID", RecordExportBuffer);
+
+                TempErrorMessage.CopyFromContext(RecordExportBuffer);
+                ErrorMessage.ClearLog(); // Clean up
+
+                if not RecordExportBuffer."File Content".HasValue() then
+                    IsMissingFileContent := true;
+            until RecordExportBuffer.Next() = 0;
+
+        // Display errors in case anything went wrong.
+        TempErrorMessage.ShowErrorMessages(true);
+        if IsMissingFileContent then
+            Error(ElectronicDocumentNotCreatedErr);
+
+        if RecordExportBuffer.Count > 1 then begin
+            TempBlob.CreateOutStream(ZipFileOutStream);
+            DataCompression.CreateZipArchive();
+            ClientFileName := CopyStr(RecordExportBuffer.ZipFileName, 1, 250);
+            RecordExportBuffer.FindSet();
+            repeat
+                RecordExportBuffer.GetFileContent(EntryTempBlob);
+                EntryTempBlob.CreateInStream(EntryFileInStream);
+                DataCompression.AddEntry(EntryFileInStream, RecordExportBuffer.ClientFileName);
+            until RecordExportBuffer.Next() = 0;
+            DataCompression.SaveZipArchive(ZipFileOutStream);
+            DataCompression.CloseZipArchive();
+        end else
+            if RecordExportBuffer.FindFirst() then begin
+                RecordExportBuffer.GetFileContent(TempBlob);
+                ClientFileName := RecordExportBuffer.ClientFileName;
+            end;
+
+        RecordExportBuffer.DeleteAll();
+    end;
+
+#if not CLEAN20
+    [Scope('OnPrem')]
+    [Obsolete('Replaced by SendElectronically with TempBlob parameter.', '20.0')]
     procedure SendElectronically(var ServerFilePath: Text[250]; var ClientFileName: Text[250]; DocumentVariant: Variant; ElectronicFormat: Code[20])
     var
         RecordExportBuffer: Record "Record Export Buffer";
@@ -106,14 +189,14 @@ table 61 "Electronic Document Format"
         RecRef.GetTable(DocumentVariant);
 
         RecordExportBuffer.LockTable();
-        if RecRef.FindSet then
+        if RecRef.FindSet() then
             repeat
                 Clear(RecordExportBuffer);
                 RecordExportBuffer.RecordID := RecRef.RecordId;
                 RecordExportBuffer.ClientFileName :=
-                  GetAttachmentFileName(GetDocumentNo(RecRef), GetDocumentType(RecRef), 'xml');
+                  GetAttachmentFileName(RecRef, GetDocumentNo(RecRef), GetDocumentType(RecRef), 'xml');
                 RecordExportBuffer.ZipFileName :=
-                  GetAttachmentFileName(GetDocumentNo(RecRef), GetDocumentType(RecRef), 'zip');
+                  GetAttachmentFileName(RecRef, GetDocumentNo(RecRef), GetDocumentType(RecRef), 'zip');
                 OnSendElectronicallyOnBeforeRecordExportBufferInsert(RecordExportBuffer, RecRef);
                 RecordExportBuffer.Insert(true);
                 if StartID = 0 then
@@ -122,7 +205,7 @@ table 61 "Electronic Document Format"
             until RecRef.Next() = 0;
 
         RecordExportBuffer.SetRange(ID, StartID, EndID);
-        if RecordExportBuffer.FindSet then
+        if RecordExportBuffer.FindSet() then
             repeat
                 ErrorMessage.SetContext(RecordExportBuffer);
                 ErrorMessage.ClearLog;
@@ -157,14 +240,14 @@ table 61 "Electronic Document Format"
             DataCompression.CloseZipArchive;
             ZipFile.Close;
         end else
-            if RecordExportBuffer.FindFirst then begin
+            if RecordExportBuffer.FindFirst() then begin
                 ServerFilePath := RecordExportBuffer.ServerFilePath;
                 ClientFileName := RecordExportBuffer.ClientFileName;
             end;
 
         RecordExportBuffer.DeleteAll();
     end;
-
+#endif
     procedure ValidateElectronicServiceDocument(ServiceHeader: Record "Service Header"; ElectronicFormat: Code[20])
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -195,13 +278,26 @@ table 61 "Electronic Document Format"
         CODEUNIT.Run(ElectronicDocumentFormat."Codeunit ID", Job);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by GetAttachmentFileName with RecordVariant parameter', '20.0')]
     procedure GetAttachmentFileName(DocumentNo: Code[20]; DocumentType: Text; Extension: Code[3]): Text[250]
     var
-        FileMgt: Codeunit "File Management";
+        RecordVariant: Variant;
     begin
-        exit(
-          CopyStr(
-            StrSubstNo('%1 - %2 %3.%4', FileMgt.StripNotsupportChrInFileName(CompanyName), DocumentType, DocumentNo, Extension), 1, 250));
+        exit(GetAttachmentFileName(RecordVariant, DocumentNo, DocumentType, Extension));
+    end;
+#endif
+    procedure GetAttachmentFileName(RecordVariant: Variant; DocumentNo: Code[20]; DocumentType: Text; Extension: Code[3]) FileName: Text[250]
+    var
+        FileMgt: Codeunit "File Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetAttachmentFileName(RecordVariant, DocumentNo, DocumentType, Extension, IsHandled, FileName);
+        if not IsHandled then
+            FileName :=
+                CopyStr(
+                    StrSubstNo('%1 - %2 %3.%4', FileMgt.StripNotsupportChrInFileName(CompanyName), DocumentType, DocumentNo, Extension), 1, 250);
     end;
 
     procedure GetDocumentUsage(var DocumentUsage: Option; DocumentVariant: Variant)
@@ -451,6 +547,11 @@ table 61 "Electronic Document Format"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendElectronicallyOnBeforeRecordExportBufferInsert(var RecordExportBuffer: Record "Record Export Buffer"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAttachmentFileName(RecordVariant: Variant; DocumentNo: Code[20]; DocumentType: Text; Extension: Code[3]; var IsHandled: Boolean; var FileName: Text[250])
     begin
     end;
 }

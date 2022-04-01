@@ -40,7 +40,6 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     procedure Copy(ProdOrder2: Record "Production Order"; Direction: Option Forward,Backward; VariantCode: Code[10]; LetDueDateDecrease: Boolean): Boolean
     var
-        SalesHeader: Record "Sales Header";
         ErrorOccured: Boolean;
         IsHandled: Boolean;
     begin
@@ -82,7 +81,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         FamilyLine.SetCurrentKey("Low-Level Code");
         FamilyLine.SetRange("Family No.", ProdOrder."Source No.");
 
-        if FamilyLine.FindSet then
+        if FamilyLine.FindSet() then
             repeat
                 if FamilyLine."Item No." <> '' then begin
                     InitProdOrderLine(FamilyLine."Item No.", '', ProdOrder."Location Code");
@@ -118,7 +117,7 @@ codeunit 99000787 "Create Prod. Order Lines"
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 SalesLine.CalcFields("Reserved Quantity");
                 if (SalesLine.Type = SalesLine.Type::Item) and
@@ -137,7 +136,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         OnCopyFromSalesOrderOnAfterSalesPlanLinesInsert(SalesHeader, SalesLine);
 
         SalesPlanLine.SetCurrentKey("Low-Level Code");
-        if SalesPlanLine.FindSet then
+        if SalesPlanLine.FindSet() then
             repeat
                 SalesLine.Get(SalesHeader."Document Type", SalesPlanLine."Sales Order No.", SalesPlanLine."Sales Order Line No.");
                 SalesLine.CalcFields("Reserved Quantity");
@@ -285,7 +284,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         IsHandled := false;
         OnBeforeInsertProdOrderLine(ProdOrderLine, ProdOrderLine3, InsertNew, IsHandled);
         if not IsHandled then
-            if (not InsertNew) and ProdOrderLine3.FindFirst then begin
+            if (not InsertNew) and ProdOrderLine3.FindFirst() then begin
                 CopyProdOrderCompToTemp(ProdOrderLine3);
                 ProdOrderLine3.Validate(Quantity, ProdOrderLine3.Quantity + ProdOrderLine.Quantity);
                 AdjustDateAndTime(ProdOrderLine3, ProdOrderLine."Due Date", ProdOrderLine."Ending Date", ProdOrderLine."Ending Time");
@@ -527,12 +526,12 @@ codeunit 99000787 "Create Prod. Order Lines"
         ProdOrderComp3.SetRange(Status, ProdOrderLine.Status);
         ProdOrderComp3.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderComp3.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-        if ProdOrderComp3.FindSet then
+        if ProdOrderComp3.FindSet() then
             repeat
                 ProdOrderLine3.CopyFilters(ProdOrderLine);
                 ProdOrderLine3.SetRange("Item No.", ProdOrderComp3."Item No.");
                 ProdOrderLine3.SetRange("Variant Code", ProdOrderComp3."Variant Code");
-                if ProdOrderLine3.FindFirst then begin
+                if ProdOrderLine3.FindFirst() then begin
                     ProdOrderComp3.CalcFields("Reserved Quantity");
                     TempOldProdOrderComp.Get(ProdOrderComp3.Status, ProdOrderComp3."Prod. Order No.",
                       ProdOrderComp3."Prod. Order Line No.", ProdOrderComp3."Line No.");
@@ -560,7 +559,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         ProdOrderComp2.SetRange(Status, ProdOrderLine3.Status);
         ProdOrderComp2.SetRange("Prod. Order No.", ProdOrderLine3."Prod. Order No.");
         ProdOrderComp2.SetRange("Prod. Order Line No.", ProdOrderLine3."Line No.");
-        if ProdOrderComp2.FindSet then
+        if ProdOrderComp2.FindSet() then
             repeat
                 TempOldProdOrderComp := ProdOrderComp2;
                 TempOldProdOrderComp.Insert();
@@ -730,11 +729,13 @@ codeunit 99000787 "Create Prod. Order Lines"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Event is never raised', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCopyOnProdOrderSourceTypeEnumExtension(var ProductionOrder: Record "Production Order")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsReplSystemProdOrder(SalesLine: Record "Sales Line"; var ReplanSystemProdOrder: Boolean; var IsHandled: Boolean);
     begin

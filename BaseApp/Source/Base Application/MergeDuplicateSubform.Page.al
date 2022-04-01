@@ -157,7 +157,7 @@ page 703 "Merge Duplicate Subform"
         FilterGroup(2);
         TempMergeDuplicatesLineBuffer.CopyFilter(Type, Type);
         FilterGroup(0);
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     local procedure SetStyle()

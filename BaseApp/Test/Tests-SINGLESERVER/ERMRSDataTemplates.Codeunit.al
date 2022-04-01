@@ -141,7 +141,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // 1. Setup: Create new Data Template Header, Data Template Line for Vendor Posting Group, Currency Code,
         // Gen. Bus. Posting Group. Create new Instance.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Vendor);
 
@@ -185,7 +185,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // 1. Setup: Create new Data Template Header, Data Template Line for Inventory Posting Group, Gen. Product Posting Group.
         // Create new Instance.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
 
@@ -222,7 +222,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test if a Master Record - Contact can be created using Standard Master Data Templates.
 
         // 1. Setup: Create new Data Template Header, Data Template Line for Currency Code. Create new Instance.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Contact);
 
@@ -255,7 +255,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // 1. Setup: Create new Data Template Header, Data Template Line for Customer Posting Group, Currency Code,
         // Gen. Bus. Posting Group. Create new Instance.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Customer);
 
@@ -298,7 +298,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates - many to one.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create new Data Template Header, Data Template Line for Customer Posting Group, Currency Code,
         // Gen. Bus. Posting Group.
@@ -338,7 +338,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates - one to one.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create new Data Template Header, Data Template Line for Post Code.
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
@@ -350,7 +350,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // 3. Verify: Check that the Master Data Template Line has been created.
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        ConfigTemplateLine.FindFirst;
+        ConfigTemplateLine.FindFirst();
         ConfigTemplateLine.TestField("Field ID", CompanyInformation.FieldNo("Post Code"));
         ConfigTemplateLine.TestField("Field Name", CompanyInformation.FieldName("Post Code"));
     end;
@@ -365,7 +365,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates - insert same Template on Template Line.
 
         // 1. Setup: Create new Data Template Header, Data Template Line.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
         LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
@@ -390,7 +390,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates- insert Template that contains fields that are already on Template Line.
 
         // 1. Setup: Create two Data Template Headers with Data Template Lines having same field.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeaderCode := ConfigTemplateHeader.Code;
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
@@ -428,7 +428,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates - insert template line which refers to the field.
 
         // 1. Setup: Create two Data Template Headers with field and template in the second one referse to this field
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeaderCode := ConfigTemplateHeader.Code;
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
@@ -466,7 +466,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates - insert field that exist in the related Template Line.
 
         // 1. Setup: Create two Data Template Headers with Data Template Lines having same field.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeaderCode := ConfigTemplateHeader.Code;
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
@@ -504,7 +504,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates - insert field that exist in the related Template Line.
 
         // 1. Setup: Create three Data Template Headers with field in the first one and reference/template in the others
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeaderCode[1] := ConfigTemplateHeader.Code;
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
@@ -548,7 +548,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates - insert two template lines that refers to the same field.
 
         // 1. Setup: Create two Data Template Headers with Data Template Lines having same field.
-        Initialize;
+        Initialize();
         for i := 1 to ArrayLen(ConfigTemplateHeaderCode) do begin
             LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
             ConfigTemplateHeaderCode[i] := ConfigTemplateHeader.Code;
@@ -583,7 +583,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates - insert a field that is already on Template Line.
 
         // 1. Setup: Create Data Template Header, Data Template Line.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
 
@@ -611,7 +611,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Test Creation and Maintenance of templates - Insert invalid Default value on Data Template Line.
 
         // 1. Setup: Create new Data Template Header.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Customer);
 
@@ -633,7 +633,7 @@ codeunit 136601 "ERM RS Data Templates"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // Option
-        Initialize;
+        Initialize();
         EvaluateValue(
           DATABASE::"General Ledger Setup", GLSetup.FieldNo("Local Address Format"),
           Format(GLSetup."Local Address Format"::"City+Post Code"));
@@ -689,7 +689,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Config. Template Line: Lookup Field Name
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Prepare Template Header and Line
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
@@ -698,7 +698,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // 3. Verify LookupField
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        ConfigTemplateLine.FindFirst;
+        ConfigTemplateLine.FindFirst();
         Assert.AreEqual(Customer.FieldName("Prices Including VAT"), ConfigTemplateLine."Field Name", IncorrectFieldName);
 
         // 4. Clear created data.
@@ -717,7 +717,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Config. Template Line: Lookup Template Code
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Prepare Template Header and Line
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
@@ -731,7 +731,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // 3. Verify LookupField
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        ConfigTemplateLine.FindFirst;
+        ConfigTemplateLine.FindFirst();
         ConfigTemplateLine.TestField("Template Code", FirstConfigTemplateHeader);
 
         // 4. Clear created data.
@@ -751,7 +751,7 @@ codeunit 136601 "ERM RS Data Templates"
         // Config. Template Header: Create Instance
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Prepare Template Header and Line
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
@@ -790,7 +790,7 @@ codeunit 136601 "ERM RS Data Templates"
         RecordFound: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Order := 1;
         SetupItemAndCreateTemplateSelectionRule(Item, ConfigTmplSelectionRules, Order);
@@ -817,7 +817,7 @@ codeunit 136601 "ERM RS Data Templates"
         RecordFound: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Order := 1;
         SetupItemAndCreateTemplateSelectionRule(Item, ConfigTmplSelectionRules, Order);
@@ -845,7 +845,7 @@ codeunit 136601 "ERM RS Data Templates"
         RecordFound: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         ConfigTmplSelectionRules.DeleteAll();
 
         Order := 1;
@@ -874,7 +874,7 @@ codeunit 136601 "ERM RS Data Templates"
         RecordFound: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Contact);
         ConfigTmplSelectionRules.DeleteAll();
         Contact.Init();
@@ -897,7 +897,7 @@ codeunit 136601 "ERM RS Data Templates"
         RecordFound: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         RecordFound := DummyConfigTmplSelectionRules.FindTemplateBasedOnRecordFields(RecordFound, ConfigTemplateHeader);
@@ -920,7 +920,7 @@ codeunit 136601 "ERM RS Data Templates"
         DifferentConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeader."Table ID" := DATABASE::Item;
@@ -956,7 +956,7 @@ codeunit 136601 "ERM RS Data Templates"
         Item: Record Item;
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
 
@@ -981,7 +981,7 @@ codeunit 136601 "ERM RS Data Templates"
         Item: Record Item;
         ConfigTemplateLine: Record "Config. Template Line";
     begin
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
         LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
@@ -1002,7 +1002,7 @@ codeunit 136601 "ERM RS Data Templates"
         InitialCustCount: Integer;
         ConfigTemplateCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         GenerateTemplateAndPackageForTableWithSeriesNo(ConfigPackage, ConfigTemplateCode);
 
         InitialCustCount := Customer.Count();
@@ -1021,7 +1021,7 @@ codeunit 136601 "ERM RS Data Templates"
         InitialCustCount: Integer;
         ConfigTemplateCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         GenerateTemplateAndPackageForTableWithSeriesNo(ConfigPackage, ConfigTemplateCode);
 
         InitialCustCount := Customer.Count();
@@ -1040,7 +1040,7 @@ codeunit 136601 "ERM RS Data Templates"
         RecRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        Initialize;
+        Initialize();
         CreateItemWithFIFOandILE(Item);
         RecRef.GetTable(Item);
         FieldRef := RecRef.Field(Item.FieldNo("Costing Method"));
@@ -1059,7 +1059,7 @@ codeunit 136601 "ERM RS Data Templates"
         RecRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        Initialize;
+        Initialize();
         CreateItemWithFIFOandILE(Item);
         RecRef.GetTable(Item);
         FieldRef := RecRef.Field(Item.FieldNo("Costing Method"));
@@ -1079,7 +1079,7 @@ codeunit 136601 "ERM RS Data Templates"
         WrongDefaultValue: Text[250];
     begin
         // [SCENARIO 205993] The "Default Value" field are validated and table relation is verified in Configuration Template Line against other Configuration Template Lines.
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
 
@@ -1109,7 +1109,7 @@ codeunit 136601 "ERM RS Data Templates"
           NoSeries.Code, false);
 
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        ConfigTemplateLine.FindLast;
+        ConfigTemplateLine.FindLast();
         Assert.AreEqual(NoSeries.Code, ConfigTemplateLine."Default Value", InvalidDefaultValueAfterValidationErr);
 
         // [WHEN] Set "Lot Nos." = "Ywrong" in Configuration Template Line[2]
@@ -1132,7 +1132,7 @@ codeunit 136601 "ERM RS Data Templates"
         Item: Record Item;
         NoSeries: Record "No. Series";
     begin
-        Initialize;
+        Initialize();
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
 
@@ -1144,7 +1144,7 @@ codeunit 136601 "ERM RS Data Templates"
             NoSeries.Code, false);
 
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        ConfigTemplateLine.FindFirst;
+        ConfigTemplateLine.FindFirst();
         Assert.AreEqual('', ConfigTemplateLine."Default Value", InvalidDefaultValueAfterErrorOnValidationErr);
     end;
 
@@ -1158,7 +1158,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is BOM Component with blank Item's "No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] BOM Component with blank Item's "No."
         LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItem(Item), BOMComponent.Type::Item, '', 1, '');
@@ -1182,7 +1182,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Purchase Order with blank Item's "No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -1211,7 +1211,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Sales Order with line with blank Item's "No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -1240,7 +1240,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Production Order with blank Item's "No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Order with Line with blank "No."
         LibraryManufacturing.CreateProductionOrder(
@@ -1267,7 +1267,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Prod Order Component with blank Item's "No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Order Component with blank "Item No."
         LibraryManufacturing.CreateProductionOrder(
@@ -1297,11 +1297,11 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Planning Component with blank "Item No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with Line with blank "Item No."
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
@@ -1329,7 +1329,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Transfer Line with blank "Item No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Header with Line with blank "No."
         LibraryWarehouse.CreateLocation(IntransitLocation);
@@ -1360,7 +1360,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Service Invoice Component with blank Item's "No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Invoice with Line with blank "No."
         LibraryService.CreateServiceHeader(
@@ -1389,7 +1389,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Production BOM with blank Item's "No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production BOM with Line with blank "No."
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, '');
@@ -1419,7 +1419,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Service Contract with line with blank Item's "No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract with Line with blank "No."
         LibraryService.CreateServiceContractHeader(
@@ -1445,7 +1445,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Assembly Header with blank "Item No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Header with blank "Item No."
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, LibraryInventory.CreateItemNo, '', 1, '');
@@ -1471,7 +1471,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Assembly Header with line with blank "Item No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Header with line with blank "Item No."
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, LibraryInventory.CreateItemNo, '', 1, '');
@@ -1497,7 +1497,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO 381095] If there is Job Planning Line with blank "Item No.", then User should be able to create Item Config. Template with "Service" Default Value for Item's "Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Planning Line with blank "Item No."
         LibraryTimeSheet.CreateJobPlanningLine(JobPlanningLine, '', '', '', WorkDate);
@@ -1520,7 +1520,7 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateLine: Record "Config. Template Line";
     begin
         // [SCENARIO 268381] An error appears if Mandatory is checked when Default Value is empty.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template Line with empty Default Value.
         CreateConfigTemplateLineWithDefaultValueAndMandatory(ConfigTemplateLine, '', false);
@@ -1539,7 +1539,7 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateLine: Record "Config. Template Line";
     begin
         // [SCENARIO 268381] Validation is passed if Mandatory is checked when Default Value is not empty.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template Line with Default Value.
         CreateConfigTemplateLineWithDefaultValueAndMandatory(
@@ -1559,7 +1559,7 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateLine: Record "Config. Template Line";
     begin
         // [SCENARIO 268381] An error appears if empty Default Value is set when Mandatory is checked.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template Line with checked Mandatory.
         CreateConfigTemplateLineWithDefaultValueAndMandatory(
@@ -1580,7 +1580,7 @@ codeunit 136601 "ERM RS Data Templates"
         NewDefaultValue: Text[250];
     begin
         // [SCENARIO 268381] Validation is passed if not empty Default Value is set when Mandatory is checked.
-        Initialize;
+        Initialize();
         NewDefaultValue := CopyStr(LibraryUtility.GenerateRandomXMLText(10), 1, 250);
 
         // [GIVEN] Configuration Template Line with checked Mandatory.
@@ -1603,7 +1603,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 220779] Copy master templates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration template CT1, with line
         CreateConfigTemplateHeaderAndLineForItem(FromConfigTemplateLine);
@@ -1627,7 +1627,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 220779] Copy master templates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration template CT1, with line
         CreateConfigTemplateHeaderAndLineForItem(FromConfigTemplateLine);
@@ -1659,7 +1659,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 287430] User is able to lookup "Standard Text" from Config. Template Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Template Header with "Sales Line" table
         // [GIVEN] Config. Template Line with "Type" field
@@ -1687,7 +1687,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 287430] User is able to lookup "G/L Account" from Config. Template Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Template Header with "Sales Line" table
         // [GIVEN] Config. Template Line with "Type" field
@@ -1715,7 +1715,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 287430] User is able to lookup "Item" from Config. Template Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Template Header with "Sales Line" table
         // [GIVEN] Config. Template Line with "Type" field
@@ -1743,7 +1743,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 287430] User is able to lookup "Resource" from Config. Template Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Template Header with "Sales Line" table
         // [GIVEN] Config. Template Line with "Type" field
@@ -1771,7 +1771,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 287430] User is able to lookup "Fixed Asset" from Config. Template Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Template Header with "Sales Line" table
         // [GIVEN] Config. Template Line with "Type" field
@@ -1799,7 +1799,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 287430] User is able to lookup "Item Charge" from Config. Template Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. Template Header with "Sales Line" table
         // [GIVEN] Config. Template Line with "Type" field
@@ -1851,13 +1851,13 @@ codeunit 136601 "ERM RS Data Templates"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM RS Data Templates");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         ConfigTmplSelectionRules.DeleteAll();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM RS Data Templates");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryRapidStart.SetAPIServicesEnabled(false);
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Data Templates");
@@ -2153,7 +2153,7 @@ codeunit 136601 "ERM RS Data Templates"
         LibraryVariableStorage.Dequeue(ConfigTemplateHeaderCode);
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
         ConfigTemplateHeader.SetFilter(Code, ConfigTemplateHeaderCode);
-        ConfigTemplateHeader.FindFirst;
+        ConfigTemplateHeader.FindFirst();
         ConfigTemplateList.GotoRecord(ConfigTemplateHeader);
         ConfigTemplateList.OK.Invoke;
     end;
@@ -2171,7 +2171,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         LibraryInventory.CreateItem(Item);
 
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         EntryNo := ItemLedgerEntry."Entry No.";
         Clear(ItemLedgerEntry);
         ItemLedgerEntry."Entry No." := EntryNo + 1;

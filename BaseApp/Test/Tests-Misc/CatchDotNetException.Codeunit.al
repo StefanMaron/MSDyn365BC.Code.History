@@ -30,7 +30,7 @@ codeunit 132567 "Catch DotNet Exception"
         Commit();
 
         // Exercise
-        ReadMasterDataFromCache.Run;
+        ReadMasterDataFromCache.Run();
         ReadMasterDataFromCache.GetTempBlob(TempBlob);
 
         // Pre-Verify

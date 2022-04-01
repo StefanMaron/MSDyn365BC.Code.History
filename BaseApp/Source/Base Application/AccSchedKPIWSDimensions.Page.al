@@ -122,7 +122,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
         ViewTxt: Text;
     begin
         ViewTxt := GetView();
-        Initialize;
+        Initialize();
         PrecalculateData;
         SetView(ViewTxt);
     end;
@@ -181,7 +181,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     local procedure InsertTempColumn(var TempColumnLayout: Record "Column Layout" temporary; ColumnType: Enum "Column Layout Type"; EntryType: Enum "Column Layout Entry Type"; LastYear: Boolean)
     begin
         with TempColumnLayout do begin
-            if FindLast then;
+            if FindLast() then;
             Init;
             "Line No." += 10000;
             "Column Type" := ColumnType;
@@ -244,7 +244,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
             InsertAccSchedulePeriod(TempAccSchedKPIBuffer, ForecastFromBudget);
         end;
         Reset;
-        FindFirst;
+        FindFirst();
     end;
 
     local procedure InsertAccSchedulePeriod(var TempAccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer" temporary; ForecastFromBudget: Boolean)
@@ -253,7 +253,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     begin
         with TempAccSchedKPIBuffer do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     AccScheduleLine.SetRange("Schedule Name", TempAccSchedKPIBuffer."Account Schedule Name");
                     AccScheduleLine.SetRange("Row No.", TempAccSchedKPIBuffer."KPI Code");
@@ -277,7 +277,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
             Copy(TempAccScheduleLine, true);
             SetRange("Schedule Name", AccSchedKPIBuffer."Account Schedule Name");
             SetRange("Row No.", AccSchedKPIBuffer."KPI Code");
-            FindFirst;
+            FindFirst();
         end;
 
         "Net Change Actual" :=

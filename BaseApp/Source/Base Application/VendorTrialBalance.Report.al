@@ -158,7 +158,7 @@ report 329 "Vendor - Trial Balance"
             SetRange("Date Filter", PeriodStartDate, PeriodEndDate);
             AccountingPeriod.SetRange("Starting Date", 0D, PeriodEndDate);
             AccountingPeriod.SetRange("New Fiscal Year", true);
-            if AccountingPeriod.FindLast then
+            if AccountingPeriod.FindLast() then
                 FiscalYearStartDate := AccountingPeriod."Starting Date"
             else
                 Error(Text000, AccountingPeriod.FieldCaption("Starting Date"), AccountingPeriod.TableCaption);

@@ -50,7 +50,7 @@ codeunit 134047 "ERM VAT Setup"
         // Check Error Message after entering wrong VAT Registration No. on Company.
 
         // Setup: Create new Country/Region. Create VAT Registration No. Format. Change Country/Region in Company Information.
-        Initialize;
+        Initialize();
         VATFormat := CreateCountryVATRegistration(CountryRegionCode);
         ModifyCompanyInformation(CompanyInformation, CountryRegionCode);
 
@@ -74,7 +74,7 @@ codeunit 134047 "ERM VAT Setup"
         // Check VAT Registration No. after entering valid VAT Registration No. on Company.
 
         // Setup: Create new Country/Region. Create VAT Registration No. Format. Change Country/Region in Company Information.
-        Initialize;
+        Initialize();
         CreateCountryVATRegistration(CountryRegionCode);
         CountryRegionCodeOld := ModifyCompanyInformation(CompanyInformation, CountryRegionCode);
         VATRegistrationNo := 'TEST.' + Format(100 + LibraryRandom.RandInt(899));  // Create Valid Random VAT Registration No.
@@ -107,7 +107,7 @@ codeunit 134047 "ERM VAT Setup"
 
         // Setup: Create new Country/Region. Create VAT Registration No. Format. Change Country/Region in Company Information.
         // Find a Customer and update its Country/Region Code.
-        Initialize;
+        Initialize();
         VATFormat := CreateCountryVATRegistration(CountryRegionCode);
         ModifyCompanyInformation(CompanyInformation, CountryRegionCode);
         LibrarySales.CreateCustomer(Customer);
@@ -134,7 +134,7 @@ codeunit 134047 "ERM VAT Setup"
         // Setup: Create new Country/Region. Create VAT Registration No. Format and update Company Information. Create a new Country
         // and multiple VAT Registration No. Formats for it. Create Customer and update the later created Country Code on it.
         // Take Random Values to create a Valid VAT Registration Code for Customer.
-        Initialize;
+        Initialize();
         CreateCountryWithMultipleVAT(CountryRegionCode);
         CreateAndUpdateCountryCustomer(Customer, CountryRegionCode);
         VATRegistrationNo := 'TEST1.' + Format(100 + LibraryRandom.RandInt(899)) + '.1';
@@ -168,7 +168,7 @@ codeunit 134047 "ERM VAT Setup"
         // Setup: Create new Country/Region. Create VAT Registration No. Format and update Company Information. Create a new Country
         // and multiple VAT Registration No. Formats for it. Find a Vendor and update the later created Country Code on it.
         // Take Random Values to create a Valid VAT Registration Code for Vendor.
-        Initialize;
+        Initialize();
         CreateCountryWithMultipleVAT(CountryRegionCode);
         LibraryPurchase.CreateVendor(Vendor);
         Vendor2.Get(Vendor."No.");
@@ -201,7 +201,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify Error Message for a new Vendor without Country Code after entering wrong VAT Registration No.
 
         // Setup: Create new Country/Region, VAT Registration No. Format. Modify Company Information and Create Vendor.
-        Initialize;
+        Initialize();
         VATFormat := CreateCountryVATRegistration(CountryRegionCode);
         ModifyCompanyInformation(CompanyInformation, CountryRegionCode);
         LibraryPurchase.CreateVendor(Vendor);
@@ -228,7 +228,7 @@ codeunit 134047 "ERM VAT Setup"
 
         // Setup: Create new Country/Region, VAT Registration No. Format. Modify Company Information and Create Contact.
         // Take Random Values to create a valid VAT Registration No.
-        Initialize;
+        Initialize();
         CreateCountryVATRegistration(CountryRegionCode);
         CountryRegionCodeOld := ModifyCompanyInformation(CompanyInformation, CountryRegionCode);
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -261,7 +261,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify Error Message for a Contact after entering wrong VAT Registration No.
 
         // Setup: Create new Country/Region, VAT Registration No. Format. Find a Contact and Update Country Code on it.
-        Initialize;
+        Initialize();
         VATFormat := CreateCountryVATRegistration(CountryRegionCode);
         LibraryMarketing.FindContact(Contact);
         UpdateCountryOnContact(Contact, CountryRegionCode);
@@ -284,7 +284,7 @@ codeunit 134047 "ERM VAT Setup"
         // Check Error Message after entering wrong VAT Registration No. on Company.
 
         // Setup: Create new Country/Region and VAT Registration No. Format.
-        Initialize;
+        Initialize();
         CreateCountryVATRegistration(CountryRegionCode);
 
         // Exercise: Delete Created Country Region.
@@ -307,7 +307,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify Message for VAT Registration No. after entering same VAT Registration No. on two Vendors.
 
         // Setup: Create Country, VAT Registration. Create Vendor with the newly created Country and VAT Registration.
-        Initialize;
+        Initialize();
         VATRegistrationNo := 'TEST.' + Format(100 + LibraryRandom.RandInt(899));
         CreateCountryVATRegistration(CountryRegionCode);
         CreateVendorWithCountryVAT(Vendor, CountryRegionCode, VATRegistrationNo);
@@ -340,7 +340,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify VAT Registration No. on Customer after entering same VAT Registration No. on a Vendor and on a Customer.
 
         // Setup: Create Country, VAT Registration Format. Update the same on Vendor.
-        Initialize;
+        Initialize();
         VATRegistrationNo := 'TEST.' + Format(100 + LibraryRandom.RandInt(899));
         CreateCountryVATRegistration(CountryRegionCode);
         CreateVendorWithCountryVAT(Vendor, CountryRegionCode, VATRegistrationNo);
@@ -372,7 +372,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify Message for VAT Registration No. after entering the same VAT Registration No. on two Customers.
 
         // Setup: Create Country, VAT Registration format, Create Customer and attach the Country and VAT Registration No.
-        Initialize;
+        Initialize();
         VATRegistrationNo := 'TEST.' + Format(100 + LibraryRandom.RandInt(899));
         CreateCountryVATRegistration(CountryRegionCode);
         CreateCustomerWithCountryVAT(Customer, CountryRegionCode, VATRegistrationNo);
@@ -406,7 +406,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify Message for VAT Registration No. after entering the same VAT Registration No. on more than two Customers.
 
         // Setup: Create Country and VAT Registration Format. Create Customers with same VAT Registration No.
-        Initialize;
+        Initialize();
         VATRegistrationNo := 'TEST.' + Format(100 + LibraryRandom.RandInt(899));
         CreateCountryVATRegistration(CountryRegionCode);
         CreateCustomerWithCountryVAT(Customer, CountryRegionCode, VATRegistrationNo);
@@ -443,7 +443,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify Message for VAT Registration No. after entering the same VAT Registration No. on Vendor, Customer and Contacts.
 
         // Setup: Create Country with VAT Registration, Vendor, Customer, Contact and update Country and VAT Registration No.
-        Initialize;
+        Initialize();
         VATRegistrationNo := 'TEST.' + Format(100 + LibraryRandom.RandInt(899));
         CreateCountryVATRegistration(CountryRegionCode);
         CreateVendorWithCountryVAT(Vendor, CountryRegionCode, VATRegistrationNo);
@@ -477,10 +477,10 @@ codeunit 134047 "ERM VAT Setup"
         // Check VAT Reg. No. Format Action is not enable when try to create new VAT Reg. No. Format for a blank Country/Region Code.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Open Country/Regions page with blank Country code.
-        CountriesRegions.OpenNew;
+        CountriesRegions.OpenNew();
 
         // Verify.
         Assert.IsFalse(
@@ -499,7 +499,7 @@ codeunit 134047 "ERM VAT Setup"
         // Check VAT Reg. No. Format is deleted after deleting Country/Region Code.
 
         // Setup: Create new Country/Region and Create VAT Registration No. Format for it.
-        Initialize;
+        Initialize();
         VATFormat := CreateCountryVATRegistration(CountryRegionCode);
 
         // Exercise: Delete Country/Region Code.
@@ -521,7 +521,7 @@ codeunit 134047 "ERM VAT Setup"
         // Copy VAT Posting Setup with all fields and Verify.
 
         // Setup: Create VAT Posting Setup.
-        Initialize;
+        Initialize();
         Selection := Selection::"All fields";
         VATetc := true;
         SalesAccounts := true;
@@ -547,7 +547,7 @@ codeunit 134047 "ERM VAT Setup"
         // Copy VAT Posting Setup with selected fields and Verify.
 
         // Setup: Create VAT Posting Setup.
-        Initialize;
+        Initialize();
         Selection := Selection::"Selected fields";
         VATetc := true;
         SalesAccounts := true;
@@ -576,7 +576,7 @@ codeunit 134047 "ERM VAT Setup"
         // Check that VAT Registration No. updated on General Journal Line after updating Balance Account No. with a Customer having VAT Registration No.
 
         // Setup: Find a Customer, Create General Journal Line for GL Account.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -607,7 +607,7 @@ codeunit 134047 "ERM VAT Setup"
         // Check that VAT Registration No. field is blank on General Journal Line after updating Balance Account with GL Account.
 
         // Setup: Create General Journal Line for GL Account.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         CreateGeneralJournalLine(
@@ -637,7 +637,7 @@ codeunit 134047 "ERM VAT Setup"
         // Check VAT Registration No. on General Journal Line with a Customer having VAT Registration No.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
 
@@ -664,7 +664,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify that Program Copy New Accounts in Vat Posting Setup Card through Copy Functionality.
 
         // Setup: Find And Create VAT Posting Setup.
-        Initialize;
+        Initialize();
         FindVATPostingSetupWithAccounts(VATPostingSetupWithAccounts);
         CreateVATPostingSetup(VATPostingSetup);
         LibraryVariableStorage.Enqueue(VATPostingSetupWithAccounts."VAT Bus. Posting Group");
@@ -689,7 +689,7 @@ codeunit 134047 "ERM VAT Setup"
         // Verify that program copy new values in General Posting Setup card through copy functionality.
 
         // Setup: Find And Create VAT Posting Setup.
-        Initialize;
+        Initialize();
         FindGenPostingSetupWithAccounts(GenPostingSetupWithAccounts);
         CreateGenPostingSetup(GenPostingSetup);
         LibraryVariableStorage.Enqueue(GenPostingSetupWithAccounts."Gen. Bus. Posting Group");
@@ -935,7 +935,7 @@ codeunit 134047 "ERM VAT Setup"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         ExecuteUIHandler;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Clear global variable.
         Selection := Selection::"All fields";
@@ -947,8 +947,8 @@ codeunit 134047 "ERM VAT Setup"
 
         if IsInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
     end;
@@ -958,7 +958,7 @@ codeunit 134047 "ERM VAT Setup"
     var
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
     begin
-        if not VATRegNoSrvConfig.FindFirst then begin
+        if not VATRegNoSrvConfig.FindFirst() then begin
             VATRegNoSrvConfig.Init();
             VATRegNoSrvConfig.Insert();
         end;
@@ -1075,7 +1075,7 @@ codeunit 134047 "ERM VAT Setup"
     begin
         with Contact do begin
             Init;
-            Validate("No.", LibraryUtility.GenerateGUID);
+            Validate("No.", LibraryUtility.GenerateGUID());
             Type := Type::Company;
             "Company No." := "No.";
             Validate("Country/Region Code", 'DK');

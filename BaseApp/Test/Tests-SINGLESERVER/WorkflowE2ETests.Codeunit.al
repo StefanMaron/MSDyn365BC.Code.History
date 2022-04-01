@@ -46,7 +46,7 @@ codeunit 134302 "Workflow E2E Tests"
         // [THEN] One workflow step is executed and the instance is not deleted.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryIncomingDocuments.InitIncomingDocuments;
 
         CreateWorkflow(Workflow);
@@ -94,7 +94,7 @@ codeunit 134302 "Workflow E2E Tests"
         // [THEN] The workflow step is executed and the instance is deleted.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryIncomingDocuments.InitIncomingDocuments;
 
         CreateWorkflow(Workflow);
@@ -149,7 +149,7 @@ codeunit 134302 "Workflow E2E Tests"
         // [THEN] Notificaiton Entry is created for Stan.
 
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupUsersForApproval(RequestorUserSetup, ApproverUserSetup);
         CreatePurchInvLoopbackWorkflow(Workflow);
         EnableWorkflow(Workflow.Code);
@@ -196,7 +196,7 @@ codeunit 134302 "Workflow E2E Tests"
         // [THEN] Notification Entry is not created for Stan.
 
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupUsersForApproval(RequestorUserSetup, ApproverUserSetup);
         RequestorUserSetup."Approver ID" := RequestorUserSetup."User ID";
         RequestorUserSetup.Modify();
@@ -245,7 +245,7 @@ codeunit 134302 "Workflow E2E Tests"
         // [THEN] Notification Entries are created for Stan only.
 
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupUsersForApproval(RequestorUserSetup, ApproverUserSetup);
         CreatePurchInvLoopbackWorkflow(Workflow);
         EnableWorkflow(Workflow.Code);
@@ -316,7 +316,7 @@ codeunit 134302 "Workflow E2E Tests"
         // #  [Auto-Post]
         // ===================================
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         SetupUsersForApproval(RequestorUserSetup, ApproverUserSetup);
@@ -388,7 +388,7 @@ codeunit 134302 "Workflow E2E Tests"
         // #  [Auto-Post]
         // ===================================
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         SetupUsersForApproval(RequestorUserSetup, ApproverUserSetup);
@@ -460,7 +460,7 @@ codeunit 134302 "Workflow E2E Tests"
         // #  [Auto-Post]
         // ===================================
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         SetupUsersForApproval(RequestorUserSetup, ApproverUserSetup);
@@ -532,7 +532,7 @@ codeunit 134302 "Workflow E2E Tests"
         // #  [Auto-Post]
         // ===================================
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         SetupUsersForApproval(RequestorUserSetup, ApproverUserSetup);
@@ -598,15 +598,13 @@ codeunit 134302 "Workflow E2E Tests"
         ConfigureEmail;
         WorkflowEventHandling.CreateEventsLibrary;
         WorkflowResponseHandling.CreateResponsesLibrary;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
     end;
 
     local procedure ConfigureEmail()
     var
         UserSetup: Record "User Setup";
     begin
-        LibraryWorkflow.SetUpSMTPEmailSetup;
-
         if not UserSetup.Get(UserId) then begin
             UserSetup."User ID" := UserId;
             UserSetup."E-Mail" := UserEmailAddressTxt;
@@ -679,7 +677,7 @@ codeunit 134302 "Workflow E2E Tests"
         NotificationEntry.SetRange(Type, Type);
         NotificationEntry.SetRange("Recipient User ID", UserID);
         NotificationEntry.SetRange("Created By", CreatedByUserID);
-        NotificationEntry.FindLast;
+        NotificationEntry.FindLast();
     end;
 
     local procedure IsEmailNotificationEntryCreated(UserID: Code[50]; Type: Integer; CreatedByUserID: Code[50]): Boolean
@@ -794,7 +792,7 @@ codeunit 134302 "Workflow E2E Tests"
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
         WorkflowStep.SetRange(Type, Type);
         WorkflowStep.SetRange("Function Name", FunctionName);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
     end;
 
     local procedure VerifyWorkflowStepInstance(WorkflowStep: Record "Workflow Step"; Status: Option)
@@ -805,7 +803,7 @@ codeunit 134302 "Workflow E2E Tests"
         WorkflowStepInstance.SetRange("Original Workflow Step ID", WorkflowStep.ID);
         WorkflowStepInstance.SetRange(Type, WorkflowStep.Type);
         WorkflowStepInstance.SetRange("Function Name", WorkflowStep."Function Name");
-        WorkflowStepInstance.FindFirst;
+        WorkflowStepInstance.FindFirst();
         Assert.AreEqual(1, WorkflowStepInstance.Count, WorkflowStepInstance.GetFilters);
         WorkflowStepInstance.TestField(Status, Status);
     end;
@@ -818,7 +816,7 @@ codeunit 134302 "Workflow E2E Tests"
         WorkflowStepInstanceArchive.SetRange("Original Workflow Step ID", WorkflowStep.ID);
         WorkflowStepInstanceArchive.SetRange(Type, WorkflowStep.Type);
         WorkflowStepInstanceArchive.SetRange("Function Name", WorkflowStep."Function Name");
-        WorkflowStepInstanceArchive.FindFirst;
+        WorkflowStepInstanceArchive.FindFirst();
         Assert.AreEqual(1, WorkflowStepInstanceArchive.Count, WorkflowStepInstanceArchive.GetFilters);
         WorkflowStepInstanceArchive.TestField(Status, Status);
     end;

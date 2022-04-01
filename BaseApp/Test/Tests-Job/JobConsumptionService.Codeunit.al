@@ -33,7 +33,7 @@ codeunit 136301 "Job Consumption Service"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Consumption Service");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySales.SetCreditWarningsToNoWarnings;
 
         Initialized := true;
@@ -70,7 +70,7 @@ codeunit 136301 "Job Consumption Service"
         TempServiceLine: Record "Service Line" temporary;
     begin
         // 1. Setup: Create a new Service Order with Job attached on Service Lines.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithJob(ServiceHeader, ConsumptionFactor);
 
         // 2. Exercise: Save the Service Lines in temporary table and post the Service Order as Ship and Consume.
@@ -97,13 +97,13 @@ codeunit 136301 "Job Consumption Service"
         // for Service Lines that have been posted to Jobs.
 
         // 1. Setup: Create a new Service Order with Job attached on Service Lines. Post the Service Order as Ship and Consume.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithJob(ServiceHeader, 1);
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
 
         // 2. Exercise: Find Service Shipment Lines and Undo Consumption.
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
         asserterror CODEUNIT.Run(CODEUNIT::"Undo Service Consumption Line", ServiceShipmentLine);
 
@@ -126,7 +126,7 @@ codeunit 136301 "Job Consumption Service"
         // for Service Line that has been posted to Jobs.
 
         // 1. Setup: Setup and post the Service Order as Ship and Consume. Create a new Job.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithJob(ServiceHeader, LibraryUtility.GenerateRandomFraction);
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
 
@@ -159,7 +159,7 @@ codeunit 136301 "Job Consumption Service"
         // for Service Line that has been posted to Jobs.
 
         // 1. Setup: Setup and post the Service Order as Ship and Consume. Create a new Job Task.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithJob(ServiceHeader, LibraryUtility.GenerateRandomFraction);
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
         GetServiceLines(ServiceHeader, ServiceLine);
@@ -187,7 +187,7 @@ codeunit 136301 "Job Consumption Service"
         // for Service Line that has been posted to Jobs.
 
         // 1. Setup: Setup and post the Service Order as Ship and Consume.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithJob(ServiceHeader, LibraryUtility.GenerateRandomFraction);
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
         GetServiceLines(ServiceHeader, ServiceLine);
@@ -212,7 +212,7 @@ codeunit 136301 "Job Consumption Service"
         // Test that it is impossible to specify Job No., assigned to a blocked job, on the Service Line.
 
         // 1. Setup: Create a new Job and set Blocked as All.
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         Job.Validate(Blocked, Job.Blocked::All);
         Job.Modify(true);
@@ -238,7 +238,7 @@ codeunit 136301 "Job Consumption Service"
 
         // 1. Setup: Create a new Service Order with a new Job attached on Service Lines. Create Service Lines for G/L Account. Create one
         // more new Job.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithJob(ServiceHeader, 1);
 
         LibraryJob.CreateJob(Job);
@@ -262,7 +262,7 @@ codeunit 136301 "Job Consumption Service"
         // Test that the Job Task No. field is validated correctly after the Job No. field value has been deleted.
 
         // 1. Setup: Create a new Service Order with Job attached on Service Lines. Create Service Lines for G/L Account.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithJob(ServiceHeader, 1);
 
         // 2. Exercise: Change the Job No. on Service Lines as blank.
@@ -289,7 +289,7 @@ codeunit 136301 "Job Consumption Service"
 
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToServiceLine: Record "Service Line")
     begin
-        if FromServiceLine.FindSet then
+        if FromServiceLine.FindSet() then
             repeat
                 ToServiceLine.Init();
                 ToServiceLine := FromServiceLine;
@@ -340,7 +340,7 @@ codeunit 136301 "Job Consumption Service"
         ConsumableNo := LibraryJob.FindConsumable(LibraryJob.Service2JobConsumableType(Type));
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, ConsumableNo);
 
-        ServiceLine.Validate(Description, Format(LibraryUtility.GenerateGUID));
+        ServiceLine.Validate(Description, Format(LibraryUtility.GenerateGUID()));
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
         ServiceLine.Validate("Location Code", '');
@@ -386,7 +386,7 @@ codeunit 136301 "Job Consumption Service"
                     Assert.Fail(StrSubstNo('Unsupported service document type: %1', "Document Type"))
             end;
         Assert.AreEqual(1, ServiceShipmentHeader.Count, '# service shipment headers.');
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
 
         // Use a job journal line to verify.
         with TempJobJournalLine do begin

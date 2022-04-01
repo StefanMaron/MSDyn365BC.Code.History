@@ -225,6 +225,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query Top Customer Headline - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 1162490710 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Essential Business Headlines - Edit</source>
+          <target state="translated">Titulares de negocios esenciales - Edición</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet EssentialHeadlines - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3285944604 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Essential Business Headlines - Objects</source>
+          <target state="translated">Titulares de negocios esenciales - Objetos</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet EssentialHeadlines - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1232288224 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Essential Business Headlines - Read</source>
+          <target state="translated">Titulares de negocios esenciales - Lectura</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet EssentialHeadlines - Read - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

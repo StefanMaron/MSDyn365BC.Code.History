@@ -22,7 +22,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Vendor after Posting Invoice with Random Amount, Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedVendorDocument(GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(50, 2));
     end;
 
@@ -34,7 +34,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Vendor after Posting Credit Memo with Random Amount, Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedVendorDocument(GenJournalLine."Document Type"::"Credit Memo", LibraryRandom.RandDec(50, 2));
     end;
 
@@ -46,7 +46,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Vendor after Posting Finance Charge Memo with Random Amount, Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedVendorDocument(GenJournalLine."Document Type"::"Finance Charge Memo", -LibraryRandom.RandDec(50, 2));
     end;
 
@@ -58,7 +58,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Vendor after Posting Reminder with Random Amount, Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedVendorDocument(GenJournalLine."Document Type"::Reminder, -LibraryRandom.RandDec(50, 2));
     end;
 
@@ -70,7 +70,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Balance of Vendor after Posting Refund with Random Amount, Reverse posted entry.
-        Initialize;
+        Initialize();
         ReverseBlockedVendorDocument(GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(50, 2));
     end;
 
@@ -87,7 +87,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         BlockVendorByOption(Vendor, Vendor.Blocked::Payment);
 
         // Exercise: Reverse the posted entries and clear Vendor Blocked field.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
         BlockVendorByOption(Vendor, Vendor.Blocked::" ");
@@ -106,7 +106,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse Blocked Vendor");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();

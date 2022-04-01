@@ -118,14 +118,14 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchaseLine.SetRange("Document Type", Rec."Document Type");
         PurchaseLine.SetRange("Recalculate Invoice Disc.", true);
 
-        if PurchaseLine.FindFirst then begin
+        if PurchaseLine.FindFirst() then begin
             ModifyTotalsPurchaseLine(PurchaseLine);
             exit;
         end;
 
         PurchaseLine.SetRange("Recalculate Invoice Disc.");
 
-        if not PurchaseLine.FindFirst then
+        if not PurchaseLine.FindFirst() then
             BlankTotals(Rec."Document No.", false);
     end;
 
@@ -373,7 +373,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
           PurchInvEntityAggregate.FieldNo("Ship-to County"),
           PurchInvEntityAggregate.FieldNo("Ship-to Post Code"),
           PurchInvEntityAggregate.FieldNo("Due Date"));
-        if TempFieldBuffer.FindSet then begin
+        if TempFieldBuffer.FindSet() then begin
             TransferFieldsWithValidate(TempFieldBuffer, PurchInvEntityAggregate, TargetRecordRef);
             TargetRecordRef.Modify(true);
         end;
@@ -625,7 +625,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
 
-        if not PurchaseLine.FindFirst then begin
+        if not PurchaseLine.FindFirst() then begin
             BlankTotals(PurchaseLine."Document No.", false);
             exit;
         end;
@@ -639,7 +639,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     begin
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
 
-        if not PurchInvLine.FindFirst then begin
+        if not PurchInvLine.FindFirst() then begin
             BlankTotals(PurchInvLine."Document No.", true);
             exit;
         end;
@@ -767,7 +767,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             exit;
 
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        if not PurchInvHeader.FindFirst then
+        if not PurchInvHeader.FindFirst() then
             exit;
 
         if PurchInvHeader."Draft Invoice SystemId" = PurchaseHeader.SystemId then
@@ -797,7 +797,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         DataTypeManagement.GetRecordRef(RecordVariant, SourceRecRef);
 
         TempFieldBuffer.Reset();
-        if not TempFieldBuffer.FindFirst then
+        if not TempFieldBuffer.FindFirst() then
             exit;
 
         repeat
@@ -821,7 +821,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchInvEntityAggregate."No.");
         PurchaseLine.SetRange("Recalculate Invoice Disc.", true);
-        if PurchaseLine.FindFirst then
+        if PurchaseLine.FindFirst() then
             CODEUNIT.Run(CODEUNIT::"Purch - Calc Disc. By Type", PurchaseLine);
 
         PurchInvEntityAggregate.Get(PurchInvEntityAggregate."No.", PurchInvEntityAggregate.Posted);
@@ -835,7 +835,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             Error(DocumentIDNotSpecifiedErr);
 
         PurchInvEntityAggregate.SetFilter(Id, DocumentIdFilter);
-        if not PurchInvEntityAggregate.FindFirst then
+        if not PurchInvEntityAggregate.FindFirst() then
             exit;
 
         if PurchInvEntityAggregate.Posted then
@@ -926,7 +926,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         if PurchInvLineAggregate."Line No." = 0 then begin
             LastUsedPurchaseLine.SetRange("Document No.", PurchInvEntityAggregate."No.");
             LastUsedPurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
-            if LastUsedPurchaseLine.FindLast then
+            if LastUsedPurchaseLine.FindLast() then
                 PurchInvLineAggregate."Line No." := LastUsedPurchaseLine."Line No." + 10000
             else
                 PurchInvLineAggregate."Line No." := 10000;
@@ -988,7 +988,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             if DocumentIDFilter = '' then
                 Error(DocumentIDNotSpecifiedErr);
             PurchInvEntityAggregate.SetFilter(Id, DocumentIDFilter);
-            if not PurchInvEntityAggregate.FindFirst then
+            if not PurchInvEntityAggregate.FindFirst() then
                 Error(DocumentDoesNotExistErr);
         end else begin
             PurchInvEntityAggregate.SetRange(Id, PurchInvLineAggregate."Document Id");

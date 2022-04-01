@@ -92,7 +92,7 @@ table 7134 "Item Budget Entry"
             begin
                 if "Global Dimension 1 Code" = '' then
                     exit;
-                GetGLSetup;
+                GetGLSetup();
                 ValidateDimValue(GLSetup."Global Dimension 1 Code", "Global Dimension 1 Code");
             end;
         }
@@ -106,7 +106,7 @@ table 7134 "Item Budget Entry"
             begin
                 if "Global Dimension 2 Code" = '' then
                     exit;
-                GetGLSetup;
+                GetGLSetup();
                 ValidateDimValue(GLSetup."Global Dimension 2 Code", "Global Dimension 2 Code");
             end;
         }
@@ -219,9 +219,9 @@ table 7134 "Item Budget Entry"
         CheckIfBlocked;
         TestField(Date);
 
-        GetGLSetup;
+        GetGLSetup();
         if ("Source No." = '') and ("Item No." = '') then begin
-            GetSalesSetup;
+            GetSalesSetup();
             GetInventorySetup;
 
             if not (CheckGroupDimFilled(SalesSetup."Customer Group Dimension Code") or
@@ -237,7 +237,7 @@ table 7134 "Item Budget Entry"
         if "Entry No." = 0 then
             "Entry No." := GetLastEntryNo() + 1;
 
-        GetGLSetup;
+        GetGLSetup();
         DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
         UpdateDimSet(TempDimSetEntry, GLSetup."Global Dimension 1 Code", "Global Dimension 1 Code");
         UpdateDimSet(TempDimSetEntry, GLSetup."Global Dimension 2 Code", "Global Dimension 2 Code");
@@ -253,7 +253,7 @@ table 7134 "Item Budget Entry"
     begin
         CheckIfBlocked;
         "User ID" := UserId;
-        GetGLSetup;
+        GetGLSetup();
 
         DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
         if "Global Dimension 1 Code" <> xRec."Global Dimension 1 Code" then
@@ -517,7 +517,7 @@ table 7134 "Item Budget Entry"
         if OldDimSetID = "Dimension Set ID" then
             exit;
 
-        GetGLSetup;
+        GetGLSetup();
         ItemBudgetName.Get("Analysis Area", "Budget Name");
 
         "Global Dimension 1 Code" := '';

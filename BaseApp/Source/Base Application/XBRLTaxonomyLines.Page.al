@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 583 "XBRL Taxonomy Lines"
 {
     Caption = 'XBRL Taxonomy Lines';
@@ -7,6 +8,9 @@ page 583 "XBRL Taxonomy Lines"
     SaveValues = true;
     SourceTable = "XBRL Taxonomy Line";
     SourceTableView = SORTING("XBRL Taxonomy Name", "Presentation Order");
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -65,7 +69,7 @@ page 583 "XBRL Taxonomy Lines"
                         XBRLTaxonomyLabels: Page "XBRL Taxonomy Labels";
                     begin
                         XBRLTaxonomyLabel.SetRange("XBRL Taxonomy Name", CurrentTaxonomy);
-                        if not XBRLTaxonomyLabel.FindFirst then
+                        if not XBRLTaxonomyLabel.FindFirst() then
                             Error(Text002, "XBRL Taxonomy Name");
                         XBRLTaxonomyLabel.SetRange(
                           "XBRL Taxonomy Line No.", XBRLTaxonomyLabel."XBRL Taxonomy Line No.");
@@ -355,7 +359,7 @@ page 583 "XBRL Taxonomy Lines"
                         XBRLCopySetup: Report "XBRL Copy Setup";
                     begin
                         XBRLCopySetup.SetCopyTo(CurrentTaxonomy);
-                        XBRLCopySetup.Run;
+                        XBRLCopySetup.Run();
                     end;
                 }
             }
@@ -381,23 +385,25 @@ page 583 "XBRL Taxonomy Lines"
     var
         XBRLTaxonomy: Record "XBRL Taxonomy";
         XBRLTaxonomyLabel: Record "XBRL Taxonomy Label";
+        XBRLDeprecationNotification: Codeunit "XBRL Deprecation Notification";
     begin
+        XBRLDeprecationNotification.Show();
         if GetFilter("XBRL Taxonomy Name") <> '' then
             CurrentTaxonomy := GetRangeMin("XBRL Taxonomy Name");
         if not XBRLTaxonomy.Get(CurrentTaxonomy) then
-            if not XBRLTaxonomy.FindFirst then
+            if not XBRLTaxonomy.FindFirst() then
                 XBRLTaxonomy.Init();
         CurrentTaxonomy := XBRLTaxonomy.Name;
 
         XBRLTaxonomyLabel.SetRange("XBRL Taxonomy Name", CurrentTaxonomy);
         if CurrentLang <> '' then
             XBRLTaxonomyLabel.SetRange("XML Language Identifier", CurrentLang);
-        if XBRLTaxonomyLabel.FindFirst then
+        if XBRLTaxonomyLabel.FindFirst() then
             CurrentLang := XBRLTaxonomyLabel."XML Language Identifier"
         else
             if CurrentLang <> '' then begin
                 XBRLTaxonomyLabel.SetRange("XML Language Identifier");
-                if XBRLTaxonomyLabel.FindFirst then
+                if XBRLTaxonomyLabel.FindFirst() then
                     CurrentLang := XBRLTaxonomyLabel."XML Language Identifier"
             end;
     end;
@@ -502,3 +508,5 @@ page 583 "XBRL Taxonomy Lines"
     end;
 }
 
+
+#endif

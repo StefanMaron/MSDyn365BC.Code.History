@@ -47,7 +47,7 @@ codeunit 137046 "SCM Order Planning - I"
         BOMQuantity: Decimal;
     begin
         // Setup : Create Manufacturing Item Setup, Create Production Order and consume less than required quantity
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         BOMQuantity := LibraryRandom.RandDec(10, 2);
         CreateManufacturingSetup(ParentItem, ChildItem, BOMQuantity, false);  // Child Item With Replenishment System Purchase.
@@ -80,7 +80,7 @@ codeunit 137046 "SCM Order Planning - I"
         BOMQuantity: Decimal;
     begin
         // Setup : Create Manufacturing Item Setup, Create Production Order and consume less than required quantity and run Order Planning.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         BOMQuantity := LibraryRandom.RandDec(10, 2);
         CreateManufacturingSetup(ParentItem, ChildItem, BOMQuantity, false);  // Child Item With Replenishment System Purchase.
@@ -113,7 +113,7 @@ codeunit 137046 "SCM Order Planning - I"
         BOMQuantity: Decimal;
     begin
         // Setup : Create Manufacturing Item Setup, Create Released Production Order and consume demand quantity.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         BOMQuantity := LibraryRandom.RandInt(10);
         CreateManufacturingSetup(ParentItem, ChildItem, BOMQuantity, false);  // Child Item With Replenishment System Purchase.
@@ -147,7 +147,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // [FEATURE] [Production]
         // [SCENARIO 378138] Finish Production Order Job should update "Routing No." of Inventory Adjmt Entry Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Order Line with "Routing No." blank
         Qty := LibraryRandom.RandDec(10, 2);
@@ -167,7 +167,7 @@ codeunit 137046 "SCM Order Planning - I"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // [THEN] Inventory Adjmt Entry Order has "Routing No." = "X"
-        InventoryAdjmtEntryOrder.FindLast;
+        InventoryAdjmtEntryOrder.FindLast();
         InventoryAdjmtEntryOrder.TestField("Routing No.", RoutingNo);
     end;
 
@@ -184,7 +184,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Setup : Create Manufacturing Item Setup with child Item without inventory, Create Release Production Order
         // and run Order Planning.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), false);
         CreateAndRefreshProdOrder(
@@ -213,7 +213,7 @@ codeunit 137046 "SCM Order Planning - I"
         Quantity: Decimal;
     begin
         // Setup : Create Sales Order with Quantity greater than inventory Quantity and ship the inventory quantity.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '', '');
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -244,7 +244,7 @@ codeunit 137046 "SCM Order Planning - I"
         Quantity: Decimal;
     begin
         // Setup : Create Sales Order with Quantity greater than inventory Quantity and ship the inventory quantity.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '', '');
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -275,7 +275,7 @@ codeunit 137046 "SCM Order Planning - I"
         Quantity: Decimal;
     begin
         // Setup : Create Sales Order with Quantity as Quantity on inventory and ship the inventory quantity.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '', '');
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -308,7 +308,7 @@ codeunit 137046 "SCM Order Planning - I"
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
         // Setup : Create Two Item, Locations and Multiple Sales Order for multiple Location on Line.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '', '');
         CreateItem(Item2, Item."Replenishment System"::Purchase, '', '', Item."Vendor No.");
@@ -342,7 +342,7 @@ codeunit 137046 "SCM Order Planning - I"
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
         // Setup : Create Two Item, Locations and Multiple Sales Order for multiple Location on Line And Make Supply Order For Active Line.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '', '');
         CreateItem(Item2, Item."Replenishment System"::Purchase, '', '', Item."Vendor No.");
@@ -375,7 +375,7 @@ codeunit 137046 "SCM Order Planning - I"
         Item2: Record Item;
     begin
         // Setup : Create Two Item, Locations and Multiple Sales Order for multiple Location on Line And Make Supply Order For Active Line.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '', '');
         CreateItem(Item2, Item."Replenishment System"::Purchase, '', '', Item."Vendor No.");
@@ -391,7 +391,7 @@ codeunit 137046 "SCM Order Planning - I"
 
         // Verify : Verify That No requisition Line created for sales order after create Make Supply Order for All Line.
         RequisitionLine.SetFilter("Demand Order No.", '%1|%2|%3', SalesHeader."No.", SalesHeader2."No.", SalesHeader3."No.");
-        asserterror RequisitionLine.FindFirst;
+        asserterror RequisitionLine.FindFirst();
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -409,7 +409,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Setup : Create Manufacturing Item Setup with child Item without inventory and Replenishment System Production,
         // Create Firm Planned Production Order and run Order Planning Production.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), true);
         CreateAndRefreshProdOrder(
@@ -425,7 +425,7 @@ codeunit 137046 "SCM Order Planning - I"
         // Verify : Verify That Replenishment System is not change after calculating plan for sales.
         RequisitionLine.SetRange("Demand Order No.", ProductionOrder."No.");
         RequisitionLine.SetRange("No.", ChildItem."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         Assert.AreEqual(
           RequisitionLine."Replenishment System"::Purchase, RequisitionLine."Replenishment System",
           StrSubstNo(ValidationError, RequisitionLine.FieldCaption("Replenishment System"),
@@ -450,7 +450,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Setup : Create Manufacturing Item Setup with child Item without inventory, Create Firm Planned Production Order
         // and run Order Planning Production And Change the Replenishment System.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), true);
         CreateAndRefreshProdOrder(
@@ -469,7 +469,7 @@ codeunit 137046 "SCM Order Planning - I"
         // Verify : Verify That Quantity on Purchase Line remain same after change Replenishment System on Requisition Line.
         PurchaseLine.SetRange("Buy-from Vendor No.", ParentItem."Vendor No.");
         PurchaseLine.SetRange("No.", ChildItem."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         Assert.AreEqual(
           RequisitionLine.Quantity, PurchaseLine.Quantity,
           StrSubstNo(ValidationError, RequisitionLine.FieldCaption(Quantity), PurchaseLine.Quantity, RequisitionLine.TableCaption));
@@ -492,7 +492,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Setup : Create Manufacturing Item Setup with child Item without inventory, Create Firm Planned Production Order
         // and run Order Planning Production, Change the Replenishment System and Make Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), true);
         CreateAndRefreshProdOrder(
@@ -532,7 +532,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Setup : Create Manufacturing Item Setup with child Item without inventory, Create Firm Planned Production Order
         // and run Order Planning Production, Change the Replenishment System and Make Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), true);
         CreateAndRefreshProdOrder(
@@ -565,7 +565,7 @@ codeunit 137046 "SCM Order Planning - I"
         PurchaseLine.SetRange("Buy-from Vendor No.", ParentItem."Vendor No.");
         PurchaseLine.SetRange("No.", ChildItem."No.");
         PurchaseLine.SetRange("Location Code", LocationBlue.Code);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         Assert.AreEqual(
           RequisitionLine.Quantity, PurchaseLine.Quantity,
           StrSubstNo(ValidationError, RequisitionLine.FieldCaption(Quantity), PurchaseLine.Quantity, RequisitionLine.TableCaption));
@@ -582,7 +582,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Check That Replenishment System is same as it define in Stock Keeping Unit for various Transfer Location after calculating plan
         // for Planned Production Order.
-        Initialize;
+        Initialize();
         CreateProdOrderWithItemVariant(ProductionOrder.Status::Planned, false);
     end;
 
@@ -595,7 +595,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Check That item and quantity is same as define on Replenishment System in Purchase Order, Production Order and Transfer Order
         // for Planned Production Order.
-        Initialize;
+        Initialize();
         CreateProdOrderWithItemVariant(ProductionOrder.Status::Planned, true);
     end;
 
@@ -607,7 +607,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Check That Replenishment System is same as it define in Stock Keeping Unit for various Transfer Location after calculating plan
         // for Firm Planned Production Order.
-        Initialize;
+        Initialize();
         CreateProdOrderWithItemVariant(ProductionOrder.Status::"Firm Planned", false);
     end;
 
@@ -620,7 +620,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Check That item and quantity is same as define on Replenishment System in Purchase Order, Production Order and Transfer Order
         // for Firm Planned Production Order.
-        Initialize;
+        Initialize();
         CreateProdOrderWithItemVariant(ProductionOrder.Status::"Firm Planned", true);
     end;
 
@@ -706,7 +706,7 @@ codeunit 137046 "SCM Order Planning - I"
         Quantity: Decimal;
     begin
         // Setup : Create Two Item, Locations and Sales Order With two line having Shipment Date.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '', '');
         CreateItem(Item2, Item."Replenishment System"::Purchase, '', '', Item."Vendor No.");
@@ -749,7 +749,7 @@ codeunit 137046 "SCM Order Planning - I"
         ShipmentDate3: Date;
     begin
         // Setup : Create Two Item, Locations and Multiple Sales Order for multiple Location on Line.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '', '');
         CreateItem(Item2, Item."Replenishment System"::Purchase, '', '', Item."Vendor No.");
@@ -942,7 +942,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // [FEATURE] [Special Order] [Requisition Worksheet] [Carry Out Action]
         // [SCENARIO 234009] Purchase Header "Sell-To Customer No." is blank for Special Order Purchasing
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order of Item "I" with Special Order Purchasing
         CreateItemWithVendorNo(Item);
@@ -978,7 +978,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // [FEATURE] [Drop Shipment] [Requisition Worksheet] [Carry Out Action]
         // [SCENARIO 234009] Purchase Header "Sell-To Customer No." is populated for Drop Shipment Purchasing
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "SO" of Item "I" with Drop Shipment Purchasing
         CreateItemWithVendorNo(Item);
@@ -1039,9 +1039,9 @@ codeunit 137046 "SCM Order Planning - I"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Order Planning - I");
 
         CreateLocationSetup;
-        NoSeriesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        NoSeriesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -1077,7 +1077,7 @@ codeunit 137046 "SCM Order Planning - I"
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("Replenishment System", OldReplenishmentSystem);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Replenishment System", NewReplenishmentSystem);
         RequisitionLine.Validate("Vendor No.", VendorNo);
         RequisitionLine.Modify(true);
@@ -1151,7 +1151,7 @@ codeunit 137046 "SCM Order Planning - I"
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Validate("Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision");
         if VendorNo = '' then
-            VendorNo := LibraryPurchase.CreateVendorNo;
+            VendorNo := LibraryPurchase.CreateVendorNo();
         Item.Validate("Vendor No.", VendorNo);
         Item.Validate("Routing No.", RoutingHeaderNo);
         Item.Validate("Production BOM No.", ProductionBOMNo);
@@ -1168,7 +1168,7 @@ codeunit 137046 "SCM Order Planning - I"
     local procedure MockItem(var Item: Record Item)
     begin
         with Item do begin
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Indirect Cost %" := LibraryRandom.RandDec(10, 2);
             "Overhead Rate" := LibraryRandom.RandDec(10, 2);
             Insert;
@@ -1178,7 +1178,7 @@ codeunit 137046 "SCM Order Planning - I"
     local procedure MockProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
     begin
         with ProdOrderLine do begin
-            "Prod. Order No." := LibraryUtility.GenerateGUID;
+            "Prod. Order No." := LibraryUtility.GenerateGUID();
             "Item No." := ItemNo;
             "Indirect Cost %" := LibraryRandom.RandDec(10, 2);
             "Overhead Rate" := LibraryRandom.RandDec(10, 2);
@@ -1259,7 +1259,7 @@ codeunit 137046 "SCM Order Planning - I"
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
         ManufacturingUserTemplate.SetRange("User ID", UserId);
-        if ManufacturingUserTemplate.FindFirst then
+        if ManufacturingUserTemplate.FindFirst() then
             ManufacturingUserTemplate.Delete(true);
     end;
 
@@ -1409,7 +1409,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
         RequisitionWkshName.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
@@ -1456,7 +1456,7 @@ codeunit 137046 "SCM Order Planning - I"
         RecRef.GetTable(InvtAdjmtEntryOrder);
         with InvtAdjmtEntryOrder do begin
             "Order Type" := "Order Type"::Production;
-            "Order No." := LibraryUtility.GenerateGUID;
+            "Order No." := LibraryUtility.GenerateGUID();
             "Order Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Order Line No."));
             "Item No." := ItemNo;
             "Cost is Adjusted" := false;
@@ -1499,7 +1499,7 @@ codeunit 137046 "SCM Order Planning - I"
         with ProdOrderLine do begin
             SetRange(Status, Status::Released);
             SetRange("Prod. Order No.", ProdOrdeNo);
-            FindFirst;
+            FindFirst();
             OldRoutingNo := "Routing No.";
             Validate("Routing No.", NewRoutingNo);
             Modify(true);
@@ -1511,7 +1511,7 @@ codeunit 137046 "SCM Order Planning - I"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -1522,7 +1522,7 @@ codeunit 137046 "SCM Order Planning - I"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindPurchaseOrderNo(): Code[20]
@@ -1547,7 +1547,7 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
     end;
 
@@ -1558,7 +1558,7 @@ codeunit 137046 "SCM Order Planning - I"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
     end;
 
-    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Option)
+    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
     begin
         if not ManufacturingUserTemplate.Get(UserId) then
             LibraryPlanning.CreateManufUserTemplate(
@@ -1572,7 +1572,7 @@ codeunit 137046 "SCM Order Planning - I"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         MakeSupplyOrders(
           RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
           ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
@@ -1588,7 +1588,7 @@ codeunit 137046 "SCM Order Planning - I"
           ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
     end;
 
-    local procedure MakeSupplyOrdersActiveLine(DemandOrderNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; CreateProductionOrder: Option)
+    local procedure MakeSupplyOrdersActiveLine(DemandOrderNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; CreateProductionOrder: Enum "Planning Create Prod. Order")
     var
         ManufacturingUserTemplate: Record "Manufacturing User Template";
         RequisitionLine: Record "Requisition Line";
@@ -1596,11 +1596,11 @@ codeunit 137046 "SCM Order Planning - I"
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange("No.", ItemNo);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         MakeSupplyOrders(RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Line", CreateProductionOrder);
     end;
 
-    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Option)
+    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
     var
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
@@ -1614,7 +1614,7 @@ codeunit 137046 "SCM Order Planning - I"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         ChangeManufUserTemplate(
           ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order", ReqWkshTemplateName, RequisitionWkshName);
         LibraryPlanning.MakeSupplyOrders(ManufacturingUserTemplate, RequisitionLine);
@@ -1664,7 +1664,7 @@ codeunit 137046 "SCM Order Planning - I"
         // Update Replenishment System on Stock Keeping Unit.
         StockkeepingUnit.SetRange("Item No.", Item."No.");
         StockkeepingUnit.SetRange("Location Code", Location.Code);
-        StockkeepingUnit.FindFirst;
+        StockkeepingUnit.FindFirst();
         StockkeepingUnit.Validate("Replenishment System", ReplenishmentSystem);
         StockkeepingUnit.Validate("Transfer-from Code", TransferFromCode);
         StockkeepingUnit.Modify(true);
@@ -1675,7 +1675,7 @@ codeunit 137046 "SCM Order Planning - I"
         // Update Replenishment System on Stock Keeping Unit.
         StockkeepingUnit.SetRange("Item No.", Item."No.");
         StockkeepingUnit.SetRange("Location Code", Location.Code);
-        StockkeepingUnit.FindFirst;
+        StockkeepingUnit.FindFirst();
         StockkeepingUnit.Validate("Replenishment System", ReplenishmentSystem);
         StockkeepingUnit.Validate("Vendor No.", VendorNo);
         StockkeepingUnit.Modify(true);
@@ -1711,7 +1711,7 @@ codeunit 137046 "SCM Order Planning - I"
                         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
                         FindRequisitionLine(RequisitionLine, SalesLine."Document No.", SalesLine."No.", SalesLine."Location Code");
                         RequisitionLine.SetRange("Location Code", SalesLine."Location Code");
-                        RequisitionLine.FindFirst;
+                        RequisitionLine.FindFirst();
                         ExpectedOutstandingQuantity := CalculateExpectedQuantity(SalesHeader."Document Type", SalesLine."Outstanding Quantity");
                         RequisitionLine.TestField("Demand Quantity", ExpectedOutstandingQuantity);
                         RequisitionLine.TestField(Status, SalesHeader.Status);
@@ -1751,7 +1751,7 @@ codeunit 137046 "SCM Order Planning - I"
                 Item."Replenishment System"::Purchase:
                     begin
                         PurchaseLine.SetRange("No.", ProdOrderComponent."Item No.");
-                        PurchaseLine.FindFirst;
+                        PurchaseLine.FindFirst();
                         PurchaseLine.TestField("Buy-from Vendor No.", Item."Vendor No.");
                         PurchaseLine.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
                         PurchaseLine.TestField("Location Code", ProdOrderComponent."Location Code");
@@ -1759,7 +1759,7 @@ codeunit 137046 "SCM Order Planning - I"
                 Item."Replenishment System"::"Prod. Order":
                     begin
                         ProductionOrder.SetRange("Source No.", Item."No.");
-                        ProductionOrder.FindFirst;
+                        ProductionOrder.FindFirst();
                         ProductionOrder.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
                         ProductionOrder.TestField("Location Code", ProdOrderComponent."Location Code");
                     end;
@@ -1782,11 +1782,11 @@ codeunit 137046 "SCM Order Planning - I"
         SalesLine.SetRange("Document No.", SalesOrderNo);
         SalesLine.SetRange("No.", ItemNo);
         SalesLine.SetRange("Location Code", LocationCode);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         PurchaseLine.SetRange("No.", SalesLine."No.");
         PurchaseLine.SetRange("Location Code", LocationCode);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField(Quantity, SalesLine."Outstanding Quantity");
     end;
 
@@ -1806,14 +1806,14 @@ codeunit 137046 "SCM Order Planning - I"
             StockkeepingUnit.SetRange("Location Code", ProdOrderComponent."Location Code");
             StockkeepingUnit.SetRange("Item No.", ProdOrderComponent."Item No.");
             StockkeepingUnit.SetRange("Variant Code", ProdOrderComponent."Variant Code");
-            StockkeepingUnit.FindFirst;
+            StockkeepingUnit.FindFirst();
             case StockkeepingUnit."Replenishment System" of
                 StockkeepingUnit."Replenishment System"::Purchase:
                     case VerifyOn of
                         VerifyOnGlobal::Orders:
                             begin
                                 PurchaseLine.SetRange("No.", ProdOrderComponent."Item No.");
-                                PurchaseLine.FindFirst;
+                                PurchaseLine.FindFirst();
                                 PurchaseLine.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
                                 PurchaseLine.TestField("Expected Receipt Date", ProdOrderComponent."Due Date");
                             end;
@@ -1832,7 +1832,7 @@ codeunit 137046 "SCM Order Planning - I"
                         VerifyOnGlobal::Orders:
                             begin
                                 ProductionOrder.SetRange("Source No.", ProdOrderComponent."Item No.");
-                                ProductionOrder.FindFirst;
+                                ProductionOrder.FindFirst();
                                 ProductionOrder.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
                             end;
                         VerifyOnGlobal::RequisitionLine:
@@ -1849,7 +1849,7 @@ codeunit 137046 "SCM Order Planning - I"
                         VerifyOnGlobal::Orders:
                             begin
                                 TransferLine.SetRange("Item No.", ProdOrderComponent."Item No.");
-                                TransferLine.FindFirst;
+                                TransferLine.FindFirst();
                                 TransferLine.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
                             end;
                         VerifyOnGlobal::RequisitionLine:
@@ -1869,7 +1869,7 @@ codeunit 137046 "SCM Order Planning - I"
     local procedure VerifyRequisitionWorksheet(var RequisitionLine: Record "Requisition Line"; No: Code[20]; ShipmentDate: Date; LocationCode: Code[10]; Quantity: Decimal)
     begin
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, Quantity);
         RequisitionLine.TestField("Location Code", LocationCode);
         RequisitionLine.TestField("Due Date", ShipmentDate);

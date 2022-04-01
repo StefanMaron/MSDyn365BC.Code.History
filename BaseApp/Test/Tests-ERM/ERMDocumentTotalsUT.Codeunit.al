@@ -45,7 +45,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
 
         CreateSalesDocument(SalesHeader, NumberOfLines);
@@ -87,7 +87,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
         CreateSalesDocument(SalesHeader, NumberOfLines);
         GetCurrentSalesLine(CurrentSalesLine, SalesHeader);
@@ -127,7 +127,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(11, 110);
         CreateSalesDocument(SalesHeader, NumberOfLines);
         GetCurrentSalesLine(CurrentSalesLine, SalesHeader);
@@ -158,7 +158,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
         CreateSalesDocument(SalesHeader, NumberOfLines);
         GetCurrentSalesLine(CurrentSalesLine, SalesHeader);
@@ -204,7 +204,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
         CreateSalesDocument(SalesHeader, NumberOfLines);
         GetCurrentSalesLine(CurrentSalesLine, SalesHeader);
@@ -243,7 +243,7 @@ codeunit 134395 "ERM Document Totals UT"
         ManualDiscountAllowed: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomerWithDiscount(Customer);
         CreateItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -278,7 +278,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
 
         CreatePurchaseDocument(PurchaseHeader, NumberOfLines);
@@ -360,7 +360,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(11, 110);
         CreatePurchaseDocument(PurchaseHeader, NumberOfLines);
         GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);
@@ -391,7 +391,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
         CreatePurchaseDocument(PurchaseHeader, NumberOfLines);
         GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);
@@ -437,7 +437,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
         CreatePurchaseDocument(PurchaseHeader, NumberOfLines);
         GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);
@@ -483,7 +483,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 377200] Vat Amount should be recalculated on Purchase Order if it is calculated after Refresh Message Enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Calculated Totals for Purchase Order "P1"
         CreatePurchaseDocument(PurchaseHeader, 1);
@@ -533,7 +533,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 377200] Vat Amount should be recalculated on Sales Order if it is calculated after Refresh Message Enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Calculated Totals for Sales Order "S1"
         CreateSalesDocument(SalesHeader, 1);
@@ -577,7 +577,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 254399] COD57 recalculates totals for changed sales document even if codeunit instance is cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order "O1" with "Amount" = 100 and "VAT Amount" = 10
         CreateSalesDocument(SalesHeader, 1);
@@ -627,7 +627,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [Purchases]
         // [SCENARIO 254399] COD57 recalculates totals for changed purchase document even if codeunit instance is cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order "O1" with "Amount" = 100 and "VAT Amount" = 10
         CreatePurchaseDocument(PurchaseHeader, 1);
@@ -672,7 +672,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [Rounding] [Line Discount] [Sales] [Order]
         // [SCENARIO 254486] Line amount to handle and document total amount = 16700 when sales order line's quantity = 10000, price = 28.68 and line discount = 270100
-        Initialize;
+        Initialize();
 
         ExpectedLineAmount := 16700;
         CreateSalesDocumentWithAmounts(SalesLine, SalesLine."Document Type"::Order, 10000, 28.68, 270100);
@@ -696,7 +696,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [Rounding] [Line Discount] [Purchase] [Order]
         // [SCENARIO 254486] Line amount to handle and document total amount = 16700 when purchase order line's quantity = 10000, price = 28.68 and line discount = 270100
-        Initialize;
+        Initialize();
 
         ExpectedLineAmount := 16700;
         CreatePurchaseDocumentWithAmounts(PurchaseLine, PurchaseLine."Document Type"::Order, 10000, 28.68, 270100);
@@ -720,7 +720,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [Rounding] [Line Discount] [Sales] [Invoice]
         // [SCENARIO 254486] Line amount to handle and document total amount = 16700 when sales invoice line's quantity = 10000, price = 28.68 and line discount = 270100
-        Initialize;
+        Initialize();
 
         ExpectedLineAmount := 16700;
         CreateSalesDocumentWithAmounts(SalesLine, SalesLine."Document Type"::Invoice, 10000, 28.68, 270100);
@@ -744,7 +744,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [Rounding] [Line Discount] [Purchase] [Invoice]
         // [SCENARIO 254486] Line amount to handle and document total amount = 16700 when purchase invoice line's quantity = 10000, price = 28.68 and line discount = 270100
-        Initialize;
+        Initialize();
 
         ExpectedLineAmount := 16700;
         CreatePurchaseDocumentWithAmounts(PurchaseLine, PurchaseLine."Document Type"::Order, 10000, 28.68, 270100);
@@ -766,7 +766,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [UI] [Rounding] [Line Discount] [Order] [Sales]
         // [SCENARIO 251202] Document totals shows VAT Amoount = 9.79 for document with line amounts = 50.45 and -1.47 when VAT = 20%  on sales order card
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('<');
         LibrarySales.SetInvoiceRounding(false);
@@ -789,7 +789,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [UI] [Rounding] [Line Discount] [Order] [Purchase]
         // [SCENARIO 251202] Document totals shows VAT Amoount = 9.79 for document with line amounts = 50.45 and -1.47 when VAT = 20%  on purchase order card
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('<');
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 20);
@@ -811,7 +811,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [UI] [Rounding] [Line Discount] [Invoice] [Sales]
         // [SCENARIO 251202] Document totals shows VAT Amoount = 9.79 for document with line amounts = 50.45 and -1.47 when VAT = 20%  on sales invoice card
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('<');
         LibrarySales.SetInvoiceRounding(false);
@@ -834,7 +834,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         // [FEATURE] [UI] [Rounding] [Line Discount] [Invoice] [Purchase]
         // [SCENARIO 251202] Document totals shows VAT Amoount = 9.79 for document with line amounts = 50.45 and -1.47 when VAT = 20%  on purchase invoice card
-        Initialize;
+        Initialize();
 
         LibraryERM.SetVATRoundingType('<');
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 20);
@@ -850,8 +850,8 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Document Totals UT");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
@@ -862,11 +862,11 @@ codeunit 134395 "ERM Document Totals UT"
         LibrarySales.SetCalcInvDiscount(false);
         LibrarySales.SetStockoutWarning(false);
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         isInitialized := true;
 
@@ -1018,14 +1018,14 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         CurrentSalesLine.SetRange("Document Type", SalesHeader."Document Type");
         CurrentSalesLine.SetRange("Document No.", SalesHeader."No.");
-        CurrentSalesLine.FindFirst;
+        CurrentSalesLine.FindFirst();
     end;
 
     local procedure GetCurrentPurchaseLine(var CurrentPurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
         CurrentPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         CurrentPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        CurrentPurchaseLine.FindFirst;
+        CurrentPurchaseLine.FindFirst();
     end;
 
     local procedure SalesCompareWithOrderStatistics(SalesHeader: Record "Sales Header")
@@ -1034,7 +1034,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal);
         LibraryVariableStorage.Enqueue(
           DoInvoiceRounding(SalesHeader."Currency Code", SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal));
@@ -1068,7 +1068,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal);
         LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal);
         LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal);

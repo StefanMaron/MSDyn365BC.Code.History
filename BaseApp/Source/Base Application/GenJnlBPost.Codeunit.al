@@ -48,7 +48,7 @@ codeunit 233 "Gen. Jnl.-B.Post"
                 GenJnlLine.SetRange("Journal Batch Name", Name);
                 if OrderByDocNoAndLineNo then
                     GenJnlLine.SetCurrentKey("Document No.", "Line No.");
-                if GenJnlLine.FindFirst then begin
+                if GenJnlLine.FindFirst() then begin
                     GeneralLedgerSetup.Get();
                     if GeneralLedgerSetup."Post with Job Queue" then begin
                         // Add job queue entry for each document no.

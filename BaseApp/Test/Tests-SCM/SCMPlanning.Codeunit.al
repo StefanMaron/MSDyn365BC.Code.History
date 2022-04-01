@@ -35,7 +35,7 @@ codeunit 137020 "SCM Planning"
 
     local procedure GlobalSetup()
     begin
-        NoSeriesSetup;
+        NoSeriesSetup();
 
         LocationSetup(LocationSilver, true);
         LocationSetup(LocationBlue, false);
@@ -275,11 +275,11 @@ codeunit 137020 "SCM Planning"
         VendorNo: Code[20];
     begin
         Clear(RequisitionLine);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         RequisitionLine.SetCurrentKey(Type, "No.", "Variant Code", "Location Code", "Starting Date");
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", Item."No.");
-        if RequisitionLine.FindSet then
+        if RequisitionLine.FindSet() then
             repeat
                 RequisitionLine.Validate("Vendor No.", VendorNo);
                 RequisitionLine.Validate("Accept Action Message", true);
@@ -387,7 +387,7 @@ codeunit 137020 "SCM Planning"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -404,7 +404,7 @@ codeunit 137020 "SCM Planning"
 
         // Carry out two lines
         RequisitionLine.SetFilter("No.", Item."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         Assert.AreEqual(2, RequisitionLine.Count,
           'Unexpected number of requisition lines after creating two demands and planning for lot-for-lot replenished item.');
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
@@ -420,7 +420,7 @@ codeunit 137020 "SCM Planning"
             ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
             Assert.AreEqual(1, ProdOrderLine.Count,
               'A single production order line per production order expected after carrying out.');
-            ProdOrderLine.FindFirst;
+            ProdOrderLine.FindFirst();
             Assert.AreEqual(Item."No.", ProdOrderLine."Item No.",
               'Wrong item no. on production order line after carrying out');
             Assert.AreEqual(100, ProdOrderLine.Quantity,
@@ -436,7 +436,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -461,7 +461,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -487,7 +487,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -513,7 +513,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -541,7 +541,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -567,7 +567,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -595,7 +595,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -622,7 +622,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -643,7 +643,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -671,7 +671,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -697,7 +697,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -723,7 +723,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -751,7 +751,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -776,7 +776,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -798,7 +798,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -827,7 +827,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -854,7 +854,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -881,7 +881,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -910,7 +910,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -936,7 +936,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -957,7 +957,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -986,7 +986,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1014,7 +1014,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1035,7 +1035,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1060,7 +1060,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1082,7 +1082,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1109,7 +1109,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1136,7 +1136,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1163,7 +1163,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1190,7 +1190,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1218,7 +1218,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1250,7 +1250,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1283,7 +1283,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1314,7 +1314,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1350,7 +1350,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1395,7 +1395,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1433,7 +1433,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1471,7 +1471,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1519,7 +1519,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1569,7 +1569,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1610,7 +1610,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1656,7 +1656,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1704,7 +1704,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1751,7 +1751,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1791,7 +1791,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1836,7 +1836,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1883,7 +1883,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1923,7 +1923,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1968,7 +1968,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2015,7 +2015,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2055,7 +2055,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2102,7 +2102,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2146,7 +2146,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2180,7 +2180,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2214,7 +2214,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2261,7 +2261,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2298,7 +2298,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2344,7 +2344,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2378,7 +2378,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2412,7 +2412,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2459,7 +2459,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2497,7 +2497,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2545,7 +2545,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2590,7 +2590,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2640,7 +2640,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2685,7 +2685,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2735,7 +2735,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2785,7 +2785,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2830,7 +2830,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2880,7 +2880,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2925,7 +2925,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2975,7 +2975,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3025,7 +3025,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3066,7 +3066,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3112,7 +3112,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3153,7 +3153,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3199,7 +3199,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3246,7 +3246,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3297,7 +3297,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3344,7 +3344,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3392,7 +3392,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3445,7 +3445,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3493,7 +3493,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3541,7 +3541,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3593,7 +3593,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3644,7 +3644,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3691,7 +3691,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3739,7 +3739,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3792,7 +3792,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3840,7 +3840,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3888,7 +3888,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3941,7 +3941,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3994,7 +3994,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -4047,7 +4047,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -4100,7 +4100,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -4148,7 +4148,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -4201,7 +4201,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -4251,7 +4251,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Overflow]
         // [SCENARIO 267949] The planning engine suggests canceling the supply that brings inventory above the overflow level.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Overflow level by default is equal to "Reorder Point" + "Minimum Order Quantity".
         SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
@@ -4296,7 +4296,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         MaxQtyItemSetup(Item, 0, 10, 0, '<0D>', 0, 4, '<0D>', 0);
@@ -4317,7 +4317,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         MaxQtyItemSetup(Item, 2000, 5000, 0, '<0D>', 0, 1000, '<0D>', 0);
@@ -4344,7 +4344,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         FixedReorderQtyItemSetup(Item, 40000, 40000, 0, '<0D>', 0, 0, '<0D>', 0);
@@ -4373,7 +4373,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         MaxQtyItemSetup(Item, 0, 250, 0, '<1M>', 0, 0, '<0D>', 0);
@@ -4412,7 +4412,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         MaxQtyItemSetup(Item, 10, 100, 0, '<1M>', 0, 0, '<0D>', 0);
@@ -4444,7 +4444,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         MaxQtyItemSetup(Item, 17, 25, 0, '<0D>', 0, 4, '<5D>', 0);
@@ -4471,7 +4471,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         MaxQtyItemSetup(Item, 50, 100, 0, '<0D>', 0, 20, '<0D>', 0);
@@ -4505,7 +4505,7 @@ codeunit 137020 "SCM Planning"
         SKUMethod: Option Location,Variant,"Location & Variant";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         MaxQtyItemSetup(Item, 0, 50, 0, '<5D>', 0, 0, '<3D>', 0);
@@ -4555,7 +4555,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         MaxQtyItemSetup(Item, 2, 3, 0, '<0D>', 0, 0, '<0D>', 0);
@@ -4585,7 +4585,7 @@ codeunit 137020 "SCM Planning"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         TestSetup;
         MaxQtyItemSetup(Item, 9, 10, 0, '<0D>', 0, 8, '<0D>', 0);
@@ -4615,7 +4615,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Planning] [Routing] [Worksheet] [UT]
         // [SCENARIO 260806] The caption of planning routing contains full descriptions of item and of requisition worksheet.
-        Initialize;
+        Initialize();
 
         MockRequisitionWkshNameWithDescription(
           RequisitionWkshName,
@@ -4652,7 +4652,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Planning] [Routing] [Worksheet] [UT]
         // [SCENARIO 260806] The caption of planning components contains full descriptions of item and of requisition worksheet.
-        Initialize;
+        Initialize();
 
         MockRequisitionWkshNameWithDescription(
           RequisitionWkshName,
@@ -4689,7 +4689,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [FEATURE] [Routing]
         // [SCENARIO 291617] "Next/Previous Operation No." are automatically relinked on deletion of Planning Routing Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Requisition Line with Routing Type "Serial"
         MockRequisitionWkshNameWithDescription(
@@ -4717,11 +4717,11 @@ codeunit 137020 "SCM Planning"
         PlanningRoutingLine.SetPreviousAndNext;
 
         // [THEN] "Next Operation No." = 30 on the first Prod. Order Routing Line
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         PlanningRoutingLine.TestField("Next Operation No.", OperationNo[3]);
 
         // [THEN] "Previous Operation No." = 10 on the last Prod. Order Routing Line
-        PlanningRoutingLine.FindLast;
+        PlanningRoutingLine.FindLast();
         PlanningRoutingLine.TestField("Previous Operation No.", OperationNo[1]);
     end;
 
@@ -4747,7 +4747,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [SCENARIO 314353] When Demand Shipment Dates are within the Lead Time Calculation in Sales Order and qtys do not cause inventory underflow
         // [SCENARIO 314353] Then no additional planning suggestions are generated after 1st one is carried out
-        Initialize;
+        Initialize();
         Evaluate(LeadTimeCalculation, '<20D>');
         ShipDate1 := WorkDate;
         ShipDate2 := CalcDate('<7D>', WorkDate);
@@ -4785,7 +4785,7 @@ codeunit 137020 "SCM Planning"
         RequisitionLine.CalcSums(Quantity);
         RequisitionLine.TestField(Quantity, MaxInventory + Qty1 + Qty2);
         RequisitionLine.ModifyAll("Accept Action Message", true);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
 
         // [WHEN] Calculate Regenerative Plan again
@@ -4804,7 +4804,7 @@ codeunit 137020 "SCM Planning"
     begin
         // [SCENARIO 324730] When Planning with Fixed Reorder Qty. and Reorder Quantity is zero in Item without SKU
         // [SCENARIO 324730] Then error message refers to Item No. when Stop and Show First Error is enabled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item 1000 had Reordering Policy = Fixed Reorder Qty. and Reorder Quantity = <zero>; Reorder Point = 20
         LibraryInventory.CreateItem(Item);
@@ -4881,7 +4881,7 @@ codeunit 137020 "SCM Planning"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         LibraryApplicationArea.EnableEssentialSetup;
 
@@ -4891,8 +4891,8 @@ codeunit 137020 "SCM Planning"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         GlobalSetup;
 
         Evaluate(DaysInMonthFormula, Format('<+%1D>', CalcDate('<1M>') - Today));
@@ -4915,7 +4915,7 @@ codeunit 137020 "SCM Planning"
         Item.SetRange("No.", Item."No.");
         CalculatePlanPlanWksh.SetTableView(Item);
         CalculatePlanPlanWksh.UseRequestPage(true);
-        CalculatePlanPlanWksh.Run;
+        CalculatePlanPlanWksh.Run();
     end;
 
     local procedure PlanningCaption(WorksheetBatchName: Code[10]; RequisitionWkshName: Record "Requisition Wksh. Name"; RequisitionLine: Record "Requisition Line"): Text

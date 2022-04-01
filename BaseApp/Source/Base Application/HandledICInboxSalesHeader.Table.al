@@ -152,7 +152,7 @@ table 438 "Handled IC Inbox Sales Header"
         ICHndlInboxSalesLine.SetRange("IC Partner Code", "IC Partner Code");
         ICHndlInboxSalesLine.SetRange("IC Transaction No.", "IC Transaction No.");
         ICHndlInboxSalesLine.SetRange("Transaction Source", "Transaction Source");
-        if ICHndlInboxSalesLine.FindFirst then
+        if ICHndlInboxSalesLine.FindFirst() then
             ICHndlInboxSalesLine.DeleteAll(true);
         DimMgt.DeleteICDocDim(
           DATABASE::"Handled IC Inbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);

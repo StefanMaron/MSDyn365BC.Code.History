@@ -102,6 +102,15 @@ page 8906 "Resource Manager Role Center"
                         Caption = 'Resource Ledger Entries';
                         RunObject = page "Resource Ledger Entries";
                     }
+                    action("Navi&gate")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Find entries...';
+                        Image = Navigate;
+                        RunObject = Page Navigate;
+                        ShortCutKey = 'Ctrl+Alt+Q';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                    }
                 }
                 group("Group4")
                 {

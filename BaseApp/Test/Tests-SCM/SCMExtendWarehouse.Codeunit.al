@@ -74,8 +74,8 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Extend Warehouse");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         GlobalSetup;
 
         IsInitialized := true;
@@ -87,7 +87,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         WarehouseEmployee: Record "Warehouse Employee";
     begin
-        NoSeriesSetup;
+        NoSeriesSetup();
 
         // Journals setup
         ItemJournalSetup;
@@ -262,7 +262,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // Choose any unit of measure
         UnitOfMeasure.Init();
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasure.Code);
 
         // Create component lines in the BOM
@@ -412,7 +412,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseShipmentHeader.Init();
         WarehouseShipmentHeader.SetCurrentKey("Location Code");
         WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
-        WarehouseShipmentHeader.FindLast;
+        WarehouseShipmentHeader.FindLast();
         SetBinOnWhseShipmentLines(WarehouseShipmentHeader, Bin);
         LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
     end;
@@ -424,7 +424,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader.Init();
         WarehouseActivityHeader.SetCurrentKey("Location Code");
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        WarehouseActivityHeader.FindLast;
+        WarehouseActivityHeader.FindLast();
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
@@ -436,7 +436,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader.Init();
         WarehouseActivityHeader.SetCurrentKey("Location Code");
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        WarehouseActivityHeader.FindLast;
+        WarehouseActivityHeader.FindLast();
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
@@ -620,7 +620,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderComponent.FindLast;
+        ProdOrderComponent.FindLast();
 
         ProdOrderComponent.Init();
         ProdOrderComponent."Line No." += 10000;
@@ -678,7 +678,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Prod. Consumption");
         WarehouseActivityLine.SetRange("Action Type", ActionType);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
         WarehouseActivityLine.Modify(true);
     end;
@@ -692,7 +692,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader.SetRange("Source No.", ProductionOrder."No.");
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
         WarehouseActivityHeader.SetRange(Type, ActivityType);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         WarehouseActivityHeader.Delete(true);
     end;
 
@@ -725,7 +725,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityLine.SetRange("Source No.", ProductionOrder."No.");
         WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Prod. Consumption");
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
         WarehouseActivityLine.Modify(true);
         WarehouseActivityLine.SplitLine(WarehouseActivityLine);
@@ -742,7 +742,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityLine.SetRange("Source No.", ProductionOrder."No.");
         WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Prod. Consumption");
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindLast;
+        WarehouseActivityLine.FindLast();
         WarehouseActivityLine.Delete(true);
     end;
 
@@ -753,7 +753,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseActivityHeader.SetCurrentKey("Source Document", "Source No.", "Location Code");
         WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Prod. Consumption");
         WarehouseActivityHeader.SetRange("Source No.", ProductionOrder."No.");
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
     end;
 
@@ -775,7 +775,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
         WhseActivityHdr.SetRange(Type, ActivityType);
-        WhseActivityHdr.FindLast;
+        WhseActivityHdr.FindLast();
     end;
 
     local procedure GetLastActvHdrCreatedWithSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type"; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[30])
@@ -785,7 +785,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityHdr.SetRange(Type, ActivityType);
         WhseActivityHdr.SetRange("Source Document", SourceDoc);
         WhseActivityHdr.SetRange("Source No.", SourceNo);
-        WhseActivityHdr.FindLast;
+        WhseActivityHdr.FindLast();
     end;
 
     local procedure AssertActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type"; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; NoOfLines: Integer; Message: Text[30])
@@ -831,7 +831,7 @@ codeunit 137030 "SCM Extend Warehouse"
         with WhseActivityLine do begin
             SetRange("Activity Type", WhseActivityHdr.Type);
             SetRange("No.", WhseActivityHdr."No.");
-            FindFirst;
+            FindFirst();
             TestField(Quantity, Qty);
         end;
     end;
@@ -841,7 +841,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
         WhseActivityHdr.SetRange(Type, ActivityType);
-        WhseActivityHdr.FindLast;
+        WhseActivityHdr.FindLast();
         Assert.IsTrue(WhseActivityHdr.Count > 0, 'There are no ' + Message + ' within the filter: ' +
           WhseActivityHdr.GetFilters);
     end;
@@ -1148,7 +1148,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC1TC11(Location);
@@ -1199,7 +1199,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 0, 2);
         SC3TC31GetBinContent(Location);
@@ -1213,7 +1213,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 0, 2);
         SC3TC31GetBinContent(Location);
@@ -1261,7 +1261,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 0, 3);
         SC3TC32GetBinContent(Location);
@@ -1275,7 +1275,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 0, 3);
         SC3TC32GetBinContent(Location);
@@ -1330,7 +1330,7 @@ codeunit 137030 "SCM Extend Warehouse"
         InternalMovementHeader: Record "Internal Movement Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1355,7 +1355,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 0, 2);
         SC3TC37Register(Location);
@@ -1369,7 +1369,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 0, 2);
         SC3TC37Register(Location);
@@ -1427,7 +1427,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 0, 2);
         SC3TC38NotInTheBin(Location);
@@ -1441,7 +1441,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 0, 2);
         SC3TC38NotInTheBin(Location);
@@ -1488,7 +1488,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 0, 2);
         SC3TC39InternalMovManual(Location);
@@ -1502,7 +1502,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 0, 2);
         SC3TC39InternalMovManual(Location);
@@ -1557,7 +1557,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 0, 2);
         SC3TC310IntlMovManual2Lines(Location);
@@ -1571,7 +1571,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 0, 2);
         SC3TC310IntlMovManual2Lines(Location);
@@ -1624,7 +1624,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC3TC313(Location);
@@ -1688,7 +1688,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, false, false, 6, 4);
         SC3TC314(Location);
@@ -1701,7 +1701,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, false, 6, 4);
         SC3TC314(Location);
@@ -1732,7 +1732,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // [SCENARIO 313841] When create Inventory Movement from Internal Movement with two lines and 2nd line has zero Qty
         // [SCENARIO 313841] then Inventory Movement is created from the 1st line, Internal Movement has only 2nd line
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC3TC315(Location);
@@ -1749,7 +1749,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // [SCENARIO 313841] When create Inventory Movement from Internal Movement with two lines and 2nd line has zero Qty
         // [SCENARIO 313841] then Inventory Movement is created from the 1st line, Internal Movement has only 2nd line
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC3TC315(Location);
@@ -1790,7 +1790,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Change the From Bin Code in the second line to a bin that does not contain item TEST
         InternalMovementLine.SetRange("No.", InternalMovementHeader."No.");
         InternalMovementLine.SetRange("From Bin Code", SecondBin.Code);
-        InternalMovementLine.FindFirst;
+        InternalMovementLine.FindFirst();
         InternalMovementLine.Validate("From Bin Code", ThirdBin.Code); // Quantity becomes <zero> in the line
         InternalMovementLine.Modify(true);
 
@@ -1823,7 +1823,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // [SCENARIO 313841] When create Inventory Movement from Internal Movement with two lines and 2nd line has wrong From-Bin
         // [SCENARIO 313841] then Inventory Movement is created from the 1st line, Internal Movement has only 2nd line
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC3TC316(Location);
@@ -1840,7 +1840,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // [SCENARIO 313841] When create Inventory Movement from Internal Movement with two lines and 2nd line has wrong From-Bin
         // [SCENARIO 313841] then Inventory Movement is created from the 1st line, Internal Movement has only 2nd line
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC3TC316(Location);
@@ -1879,7 +1879,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Change the From Bin Code in the second line to same bin as first line- check Quantity field is changed to 0.
         InternalMovementLine.SetRange("No.", InternalMovementHeader."No.");
         InternalMovementLine.SetRange("From Bin Code", SecondBin.Code);
-        InternalMovementLine.FindFirst;
+        InternalMovementLine.FindFirst();
         InternalMovementLine.Validate("From Bin Code", FirstBin.Code);
         InternalMovementLine.Modify(true);
         Assert.AreEqual(0, InternalMovementLine.Quantity, 'Quantity not zeroed out.');
@@ -1913,7 +1913,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC3TC317(Location);
@@ -1926,7 +1926,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC3TC317(Location);
@@ -1970,7 +1970,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC3TC318(Location);
@@ -1984,7 +1984,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC3TC318(Location);
@@ -2052,7 +2052,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC41(Location);
@@ -2096,7 +2096,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC42(Location);
@@ -2140,7 +2140,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC43(Location);
@@ -2182,7 +2182,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC44(Location);
@@ -2227,7 +2227,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC45(Location);
@@ -2275,7 +2275,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC46(Location);
@@ -2323,7 +2323,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC47(Location);
@@ -2379,7 +2379,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC48(Location);
@@ -2436,7 +2436,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC49(Location);
@@ -2493,7 +2493,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC410(Location);
@@ -2538,7 +2538,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC411(Location);
@@ -2610,7 +2610,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC412(Location);
@@ -2670,7 +2670,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC413(Location);
@@ -2744,7 +2744,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC414(Location);
@@ -2828,7 +2828,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC415(Location);
@@ -2903,7 +2903,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC416(Location);
@@ -2968,7 +2968,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC417(Location);
@@ -3012,7 +3012,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC418(Location);
@@ -3060,7 +3060,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC419(Location);
@@ -3131,7 +3131,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC420(Location);
@@ -3209,7 +3209,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC421(Location);
@@ -3293,7 +3293,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC422(Location);
@@ -3370,7 +3370,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC425(Location);
@@ -3416,7 +3416,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC426(Location);
@@ -3485,7 +3485,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC427(Location);
@@ -3567,7 +3567,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC428(Location);
@@ -3622,7 +3622,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC429(Location);
@@ -3708,7 +3708,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC430(Location);
@@ -3802,7 +3802,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC431(Location);
@@ -3896,7 +3896,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC432(Location);
@@ -3990,7 +3990,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC433(Location);
@@ -4084,7 +4084,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC434(Location);
@@ -4184,7 +4184,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC4TC435(Location);
@@ -4230,7 +4230,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC71DedicatedBinMCPriorit(Location);
@@ -4241,7 +4241,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC71White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC71DedicatedBinMCPriorit(LocationWhite);
     end;
@@ -4292,7 +4292,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC72DedicatedBinWCPriorit(Location);
@@ -4303,7 +4303,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC72White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC72DedicatedBinWCPriorit(LocationWhite);
     end;
@@ -4354,7 +4354,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC73DedicatedBinLCPriorit(Location);
@@ -4365,7 +4365,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC73White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC73DedicatedBinLCPriorit(LocationWhite);
     end;
@@ -4415,7 +4415,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure HeaderBinCodePriorityWhite()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         HeaderBinCodePriority(LocationWhite);
     end;
@@ -4427,7 +4427,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 8);
         HeaderBinCodePriority(Location);
@@ -4480,7 +4480,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure BinCodeOutputJournalHeaderWhite()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BinCodeOutputJournalHeader(LocationWhite);
     end;
@@ -4492,7 +4492,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 8);
         BinCodeOutputJournalHeader(Location);
@@ -4537,7 +4537,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure BinCodeOutputJournalLocationWhite()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BinCodeOutputJournalLocation(LocationWhite);
     end;
@@ -4549,7 +4549,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 8);
         BinCodeOutputJournalLocation(Location);
@@ -4596,7 +4596,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 8);
         SC7TC74DedicatedBinBCPriorit(Location);
@@ -4660,7 +4660,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC75DedicatedBinEmptPriorit(Location);
@@ -4671,7 +4671,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC75White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC75DedicatedBinEmptPriorit(LocationWhite);
     end;
@@ -4723,7 +4723,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC77DedicatedBinBackward(Location);
@@ -4734,7 +4734,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC77White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC77DedicatedBinBackward(LocationWhite);
     end;
@@ -4789,7 +4789,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC78DedicatedBinForward(Location);
@@ -4848,7 +4848,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC79DedicatedBinPForward(Location);
@@ -4907,7 +4907,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC710DedicatedBinPBackward(Location);
@@ -4918,7 +4918,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC710White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC710DedicatedBinPBackward(LocationWhite);
     end;
@@ -4982,7 +4982,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC711DedicatedBinNoChange(Location);
@@ -4994,7 +4994,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC711White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC711DedicatedBinNoChange(LocationWhite);
     end;
@@ -5081,7 +5081,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC712DedicatedBinRfhRouting(Location);
@@ -5093,7 +5093,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC712White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC712DedicatedBinRfhRouting(LocationWhite);
     end;
@@ -5167,7 +5167,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC713DedicatedBinRfhComp(Location);
@@ -5178,7 +5178,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC713White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC713DedicatedBinRfhComp(LocationWhite);
     end;
@@ -5252,7 +5252,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC715DedicatedBinDiffLoc(Location);
@@ -5263,7 +5263,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC715White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC715DedicatedBinDiffLoc(LocationWhite);
     end;
@@ -5327,7 +5327,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC716DedicatedBinCompAtLoc(Location);
@@ -5338,7 +5338,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC716White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC716DedicatedBinCompAtLoc(LocationWhite);
     end;
@@ -5412,7 +5412,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC717DedicatedBinChgLocComp(Location);
@@ -5423,7 +5423,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC717White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC717DedicatedBinChgLocComp(LocationWhite);
     end;
@@ -5507,7 +5507,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC718DedicatedBinChgLocComp(Location);
@@ -5518,7 +5518,7 @@ codeunit 137030 "SCM Extend Warehouse"
     procedure SC7TC718White()
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         SC7TC718DedicatedBinChgLocComp(LocationWhite);
     end;
@@ -5605,7 +5605,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, false, true, true, true, 6, 4);
         SC7TC719DedicatedInvtMovm(Location);
@@ -5675,7 +5675,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC7TC721DedicatedWhsePick(Location);
@@ -5751,7 +5751,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC81InvtPick(Location);
@@ -5795,7 +5795,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC8TC81WhsePick(Location);
@@ -5862,7 +5862,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC82InvtPick(Location);
@@ -5904,7 +5904,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC8TC82WhsePick(Location);
@@ -5953,7 +5953,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         // [FEATURE] [Internal Movement] [Inventory Movement] [Reservation] [Bin]
         // [SCENARIO 202492] Inventory Movement could be created from Internal Movement if quantity in a bin is reserved.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" set up for mandatory bin.
         // [GIVEN] Item "I" with inventory in bin "B1" in location "L".
@@ -6015,7 +6015,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC84InvtPick(Location);
@@ -6086,7 +6086,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC8TC84WhsePick(Location);
@@ -6154,7 +6154,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC85InvtPick(Location);
@@ -6195,7 +6195,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC8TC85WhsePick(Location);
@@ -6236,7 +6236,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC86InvtPick(Location);
@@ -6304,7 +6304,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC87InvtPick(Location);
@@ -6369,7 +6369,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC88InvtPick(Location);
@@ -6422,7 +6422,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC89InvtPick(Location);
@@ -6484,7 +6484,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC810InvtPick(Location);
@@ -6552,7 +6552,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC811InvtPick(Location);
@@ -6623,7 +6623,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC812InvtPick(Location);
@@ -6662,7 +6662,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC813InvtPick(Location);
@@ -6714,7 +6714,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC814InvtPick(Location);
@@ -6796,7 +6796,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC8TC814WhsePick(Location);
@@ -6870,7 +6870,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC815InvtPick(Location);
@@ -6922,7 +6922,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, true, true, true, true, true, 6, 4);
         SC8TC815WhsePick(Location);
@@ -6992,7 +6992,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // [SCENARIO 314511] Internal Movement from Dedicated Bin B10 to non-dedicated Bin B2 is registered, Invt. Pick from Bin B2
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC816InvtPick(Location);
@@ -7061,7 +7061,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC817InvtPick(Location);
@@ -7126,7 +7126,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LocationSetup(Location, false, false, false, true, true, 6, 4);
         SC8TC818InvtPick(Location);
@@ -7196,7 +7196,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Verify the Quantity on recreated Inventory Pick Line after deleting the partially posted Inventory Pick.
 
         // Setup: Create Production Item. Create Location. Add Inventory for the Child Item.
-        Initialize;
+        Initialize();
         TestSetup;
         Quantity := LibraryRandom.RandInt(10);
         ParentItem.Init();
@@ -7321,7 +7321,7 @@ codeunit 137030 "SCM Extend Warehouse"
         RoutingLink.Insert(true);
 
         RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
-        RoutingLine.FindLast;
+        RoutingLine.FindLast();
 
         RoutingLine.Validate("Routing Link Code", RoutingLink.Code);
         RoutingLine.Modify(true);
@@ -7334,7 +7334,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ProductionBOMHeader.Modify(true);
 
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
-        ProductionBOMLine.FindLast;
+        ProductionBOMLine.FindLast();
         ProductionBOMLine.Validate("Routing Link Code", RoutingLink.Code);
         ProductionBOMLine.Modify(true);
 
@@ -7352,7 +7352,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ItemSetup(Item[1], Item[1]."Replenishment System"::"Prod. Order", Item[1]."Flushing Method"::Manual);
 
         UnitOfMeasure.Init();
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasure.Code);
 
         // Create component lines in the BOM
@@ -7388,7 +7388,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ProductionBOMHeader.Modify(true);
 
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
-        ProductionBOMLine.FindLast;
+        ProductionBOMLine.FindLast();
         RoutingLink.Get(ProductionBOMLine."Routing Link Code");
 
         // add a new line to Production BOM with Routing Link code
@@ -7403,7 +7403,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Flushing Method of Work center
         RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
-        RoutingLine.FindLast;
+        RoutingLine.FindLast();
         WorkCenter.Get(RoutingLine."No.");
         WorkCenter.Validate("Flushing Method", FlushingMethodOfWorkCenter);
         WorkCenter.Modify(true);

@@ -34,20 +34,20 @@ codeunit 137009 "SCM Availability by Event"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Availability by Event");
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Availability by Event");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
 
@@ -65,7 +65,7 @@ codeunit 137009 "SCM Availability by Event"
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -91,7 +91,7 @@ codeunit 137009 "SCM Availability by Event"
         ItemVariant: Record "Item Variant";
         ItemVariant2: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
 
         // Create an item with 2 variants
         LibraryInventory.CreateItem(Item);
@@ -132,7 +132,7 @@ codeunit 137009 "SCM Availability by Event"
         ItemVariant: Record "Item Variant";
         ItemVariant2: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
 
         // Create an item with 2 variants
         LibraryInventory.CreateItem(Item);
@@ -188,7 +188,7 @@ codeunit 137009 "SCM Availability by Event"
         TempInvtPageData: Record "Inventory Page Data" temporary;
     begin
         // [SCENARIO 361672] "Reserved Receipt" in Item Availability by Event is equal to Purchase Line qty. when sales order is reserved against purch. order
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
 
@@ -224,7 +224,7 @@ codeunit 137009 "SCM Availability by Event"
         Quantity: Integer;
     begin
         // [SCENARIO 361672] "Reserved Requirement" in Item Availability by Event is equal to negative Purchase Return qty. when return is reserved against inventory
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
 
@@ -261,7 +261,7 @@ codeunit 137009 "SCM Availability by Event"
     begin
         // [FEATURE] [Transfer] [Reservation]
         // [SCENARIO 213103] Shipped and reserved quantity on transfer line should be included in Reserved Receipt in Item Availability by Event.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Locations "L1", "L2" and an in-transit location.
         CreateLocationsForTransfer(FromLocation, ToLocation, InTransitLocation);
@@ -312,7 +312,7 @@ codeunit 137009 "SCM Availability by Event"
     begin
         // [FEATURE] [Sales Order] [Availability] [Available - Sales Lines] [Notification]
         // [SCENARIO 279806] Availability notification must be called when Location Code is changed through Item Availability by Location page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create an Item
         LibraryInventory.CreateItem(Item);
@@ -351,7 +351,7 @@ codeunit 137009 "SCM Availability by Event"
     begin
         // [FEATURE] [Sales Order] [Availability] [Available - Sales Lines] [Notification]
         // [SCENARIO 279806] Availability notification must be called when Variant Code is changed through Item Availability by Variant page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create an Item with an Item Variant
         LibraryInventory.CreateItem(Item);
@@ -385,7 +385,7 @@ codeunit 137009 "SCM Availability by Event"
     begin
         // [FEATURE] [Item Availability] [Prod. Order Component] [Manufacturing]
         // [SCENARIO 382414] Prod. order components of Firm Planned production orders should be shown on drilling down Gross Requirements value on Item Available by Periods page.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Item "I" which is a Prod. Order Component in Firm Planned production order. "Remaining Quantity" = "X".
@@ -428,7 +428,7 @@ codeunit 137009 "SCM Availability by Event"
     begin
         // [FEATURE] [Demand Forecast] [Assembly]
         // [SCENARIO 328549] Assembly demand nets forecast on item availability by event page.
-        Initialize;
+        Initialize();
         QtyForecast := LibraryRandom.RandIntInRange(100, 200);
         QtyAsm := LibraryRandom.RandIntInRange(10, 20);
 
@@ -582,7 +582,7 @@ codeunit 137009 "SCM Availability by Event"
     begin
         InvtPageData.SetRange(Level, 1);
         InvtPageData.SetRange(Type, DataType);
-        InvtPageData.FindFirst;
+        InvtPageData.FindFirst();
     end;
 
     local procedure MockProdOrderComponent(ItemNo: Code[20]; Qty: Decimal)

@@ -1,4 +1,4 @@
-﻿codeunit 230 GenJnlManagement
+codeunit 230 GenJnlManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -192,7 +192,7 @@
     begin
         GenJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not GenJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
-            if not GenJnlBatch.FindFirst then begin
+            if not GenJnlBatch.FindFirst() then begin
                 GenJnlBatch.Init();
                 GenJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 GenJnlBatch.SetupNewBatch;
@@ -245,7 +245,7 @@
         JournalUserPreferences.Reset();
         JournalUserPreferences.SetFilter("User ID", '%1', UserSecurityId);
         JournalUserPreferences.SetFilter("Page ID", '%1', PageIdToSet);
-        if JournalUserPreferences.FindFirst then begin
+        if JournalUserPreferences.FindFirst() then begin
             JournalUserPreferences."Is Simple View" := SetToSimpleMode;
             JournalUserPreferences.Modify();
         end else begin
@@ -266,7 +266,7 @@
         JournalUserPreferences.Reset();
         JournalUserPreferences.SetFilter("User ID", '%1', UserSecurityId);
         JournalUserPreferences.SetFilter("Page ID", '%1', PageIdToCheck);
-        if JournalUserPreferences.FindFirst then
+        if JournalUserPreferences.FindFirst() then
             exit(JournalUserPreferences."Is Simple View");
         exit(false);
     end;
@@ -278,7 +278,7 @@
         JournalUserPreferences.Reset();
         JournalUserPreferences.SetFilter("User ID", '%1', UserSecurityId);
         JournalUserPreferences.SetFilter("Page ID", '%1', PageIdToCheck);
-        if JournalUserPreferences.FindFirst then
+        if JournalUserPreferences.FindFirst() then
             exit(JournalUserPreferences."Journal Batch Name");
         exit('');
     end;
@@ -290,7 +290,7 @@
         JournalUserPreferences.Reset();
         JournalUserPreferences.SetFilter("User ID", '%1', UserSecurityId);
         JournalUserPreferences.SetFilter("Page ID", '%1', PageIdToCheck);
-        if JournalUserPreferences.FindFirst then begin
+        if JournalUserPreferences.FindFirst() then begin
             JournalUserPreferences."Journal Batch Name" := GenJnlBatch;
             JournalUserPreferences.Modify();
         end;
@@ -311,6 +311,20 @@
             CurrentJnlBatchName := GenJnlBatch.Name;
             SetName(CurrentJnlBatchName, GenJnlLine);
         end;
+    end;
+
+    procedure SetJnlBatchName(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+    begin
+        GenJnlLine.TestField("Journal Template Name");
+        GenJnlBatch.FilterGroup(2);
+        GenJnlBatch.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJnlBatch."Journal Template Name" := GenJnlLine."Journal Template Name";
+        GenJnlBatch.FilterGroup(0);
+        GenJnlBatch.Name := GenJnlLine."Journal Batch Name";
+        if PAGE.RunModal(0, GenJnlBatch) = ACTION::LookupOK then
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
     end;
 
     procedure GetAccounts(var GenJnlLine: Record "Gen. Journal Line"; var AccName: Text[100]; var BalAccName: Text[100])
@@ -481,7 +495,7 @@
                     Commit();
                 end;
             1:
-                GenJnlTemplate.FindFirst;
+                GenJnlTemplate.FindFirst();
             else
                 TemplateSelected := PAGE.RunModal(0, GenJnlTemplate) = ACTION::LookupOK;
         end;

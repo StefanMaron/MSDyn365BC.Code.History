@@ -67,7 +67,7 @@ codeunit 5901 ServLoanerManagement
             LoanerEntry.SetRange("Document No.", ServItemLine."Document No.");
             LoanerEntry.SetRange("Loaner No.", ServItemLine."Loaner No.");
             LoanerEntry.SetRange(Lent, true);
-            if LoanerEntry.FindFirst then begin
+            if LoanerEntry.FindFirst() then begin
                 LoanerEntry."Date Received" := WorkDate;
                 LoanerEntry."Time Received" := Time;
                 LoanerEntry.Lent := false;
@@ -107,7 +107,7 @@ codeunit 5901 ServLoanerManagement
         LoanerEntry.SetRange("Document No.", ServShptHeader."Order No.");
         LoanerEntry.SetRange("Loaner No.", ServShipmentItemLine."Loaner No.");
         LoanerEntry.SetRange(Lent, true);
-        if LoanerEntry.FindFirst then begin
+        if LoanerEntry.FindFirst() then begin
             LoanerEntry."Date Received" := WorkDate;
             LoanerEntry."Time Received" := Time;
             LoanerEntry.Lent := false;
@@ -173,7 +173,7 @@ codeunit 5901 ServLoanerManagement
                     ServShptHeader.Reset();
                     ServShptHeader.SetCurrentKey("Order No.");
                     ServShptHeader.SetRange("Order No.", LoanerEntry."Document No.");
-                    if ServShptHeader.FindLast then begin
+                    if ServShptHeader.FindLast() then begin
                         ServShptItemLine.Get(ServShptHeader."No.", LoanerEntry."Service Item Line No.");
                         ReceiveLoanerShipment(ServShptItemLine);
                     end else

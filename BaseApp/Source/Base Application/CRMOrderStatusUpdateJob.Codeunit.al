@@ -119,7 +119,7 @@ codeunit 5352 "CRM Order Status Update Job"
         TempCRMPostBuffer: Record "CRM Post Buffer" temporary;
     begin
         CRMPostBuffer.SetRange("Table ID", DATABASE::"Sales Header");
-        if not CRMPostBuffer.FindSet then
+        if not CRMPostBuffer.FindSet() then
             exit;
 
         repeat
@@ -127,7 +127,7 @@ codeunit 5352 "CRM Order Status Update Job"
             TempCRMPostBuffer.Insert();
         until CRMPostBuffer.Next() = 0;
 
-        if TempCRMPostBuffer.FindSet then
+        if TempCRMPostBuffer.FindSet() then
             repeat
                 CreatedPosts += ProcessCRMPostBufferEntry(TempCRMPostBuffer);
             until TempCRMPostBuffer.Next() = 0;

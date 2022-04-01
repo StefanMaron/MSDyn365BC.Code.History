@@ -68,7 +68,7 @@ codeunit 135800 "User List Tests"
         If User.FindFirst() then
             exit;
 
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := UserName;
         UserCardPage.Close;
         Commit();

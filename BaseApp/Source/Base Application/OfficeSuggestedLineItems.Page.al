@@ -68,7 +68,7 @@ page 1637 "Office Suggested Line Items"
                         begin
                             if "Line No." = 0 then begin
                                 TempOfficeSuggestedLineItem.Copy(Rec, true);
-                                if TempOfficeSuggestedLineItem.FindLast then
+                                if TempOfficeSuggestedLineItem.FindLast() then
                                     "Line No." := TempOfficeSuggestedLineItem."Line No." + 1000;
                             end;
                         end;
@@ -106,7 +106,7 @@ page 1637 "Office Suggested Line Items"
 
     trigger OnOpenPage()
     begin
-        if FindLast then
+        if FindLast() then
             LastLineNo := "Line No.";
     end;
 

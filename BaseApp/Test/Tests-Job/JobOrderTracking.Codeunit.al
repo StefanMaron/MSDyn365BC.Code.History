@@ -37,9 +37,9 @@ codeunit 136308 "Job Order Tracking"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Order Tracking");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -59,7 +59,7 @@ codeunit 136308 "Job Order Tracking"
 
         // 1. Setup: Create Item with Order Tracking Policy Tracking Only, Purchase Header with Document Type Order, Purchase Line, Job,
         // Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         PurchaseOrderWithTracking(PurchaseLine, Item."Order Tracking Policy"::"Tracking Only");
         CreateJobPlanningLine(JobPlanningLine);
         ModifyJobPlanningLine(
@@ -92,7 +92,7 @@ codeunit 136308 "Job Order Tracking"
 
         // 1. Setup: Create Item with Order Tracking Policy Tracking Only, Purchase Header with Document Type Order, Purchase Line, Job,
         // Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         PurchaseOrderWithTracking(PurchaseLine, Item."Order Tracking Policy"::"Tracking Only");
         CreateJobPlanningLine(JobPlanningLine);
         ModifyJobPlanningLine(
@@ -125,7 +125,7 @@ codeunit 136308 "Job Order Tracking"
 
         // 1. Setup: Create Item with Order Tracking Policy None, Purchase Header with Document Type Order, Purchase Line, Job,
         // Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         PurchaseOrderWithTracking(PurchaseLine, Item."Order Tracking Policy"::None);
         CreateJobPlanningLine(JobPlanningLine);
         ModifyJobPlanningLine(
@@ -158,7 +158,7 @@ codeunit 136308 "Job Order Tracking"
 
         // 1. Setup: Create Item with Order Tracking Policy Tracking Only, Purchase Header with Document Type Order, Purchase Line,
         // Location, Job, Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         PurchaseOrderWithTracking(PurchaseLine, Item."Order Tracking Policy"::"Tracking Only");
         LibraryWarehouse.CreateLocation(Location);
         CreateJobPlanningLine(JobPlanningLine);
@@ -188,7 +188,7 @@ codeunit 136308 "Job Order Tracking"
         // Check that Dates have no effect on the Order Promising page.
 
         // 1. Setup: Create Job Planning Line.
-        Initialize;
+        Initialize();
         OrderPromisingOnJobPlanningLine(JobPlanningLine);
 
         // 2. Exercise.
@@ -207,7 +207,7 @@ codeunit 136308 "Job Order Tracking"
         // Check that Dates on Order Promising page.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         OrderPromisingOnJobPlanningLine(JobPlanningLine);
 
         // 2. Exercise.
@@ -226,7 +226,7 @@ codeunit 136308 "Job Order Tracking"
         // Check that Dates are same on the Order Promising page as in JobPlanningLine's Planning Date.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
-        Initialize;
+        Initialize();
         OrderPromisingOnJobPlanningLine(JobPlanningLine);
 
         // 2. Exercise.
@@ -242,7 +242,7 @@ codeunit 136308 "Job Order Tracking"
     begin
         // Check that Dates have no effect on the Order Promising page for Available To Promise with lesser Quantity on Job Planning Line than Purchase Order.
 
-        Initialize;
+        Initialize();
         CreatePlanningLineWithExpectedDate(LibraryRandom.RandInt(10));  // Used Random value for Quantity.
 
         // 3. Verify: Verify that dates are same as in JobPlanningLine. Verification done in 'AvailableToPromisePageHandler'.
@@ -255,7 +255,7 @@ codeunit 136308 "Job Order Tracking"
     begin
         // Check that Dates have no effect on the Order Promising page for Accept with lesser Quantity on Job Planning Line than Purchase Order.
 
-        Initialize;
+        Initialize();
         CreatePlanningLineWithExpectedDate(LibraryRandom.RandInt(10));  // Used Random value for Quantity.
 
         // 3. Verify: Verify that date are same as in JobPlanningLine. Verification done in 'AcceptPageHandler'.
@@ -268,7 +268,7 @@ codeunit 136308 "Job Order Tracking"
     begin
         // Check that Dates on the Order Promising page for Available To Promise with greater Quantity on Job Planning Line than Purchase Order.
 
-        Initialize;
+        Initialize();
         CreatePlanningLineWithExpectedDate(LibraryRandom.RandInt(10) + 1000);  // Added here 1000 because Planning Line need greater Quantity than Purchase Line. Used Random value for Quantity.
 
         // 3. Verify: Verify that dates are same as in JobPlanningLine. Verification done in 'AvailableToPromisePageHandler'.
@@ -281,7 +281,7 @@ codeunit 136308 "Job Order Tracking"
     begin
         // Check that Dates on the Order Promising page for Accept with greater Quantity on Job Planning Line than Purchase Order.
 
-        Initialize;
+        Initialize();
         CreatePlanningLineWithExpectedDate(LibraryRandom.RandInt(10) + 1000);  // Added here 1000 because Planning Line need greater Quantity than Purchase Line. Used Random value for Quantity.
 
         // 3. Verify: Verify that dates are same as in JobPlanningLine. Verification done in 'AcceptPageHandler'.
@@ -299,7 +299,7 @@ codeunit 136308 "Job Order Tracking"
         // Check Quantity on Order Planning Worksheet for Job after running Calculate Plan.
 
         // Setup: Create Job Planning Line with Item having Zero inventory.
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine);
         ModifyJobPlanningLine(
           JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate,
@@ -325,7 +325,7 @@ codeunit 136308 "Job Order Tracking"
         // Check Creation of Purchase Order after doing Make Order for Job Demand from Order Planning.
 
         // Setup: Create Job Planning Line with Item having Zero inventory. Run Calculate Plan from Order Planning Worksheet.
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine);
         ModifyJobPlanningLine(
           JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate, LibraryJob.FindLocation(Location));
@@ -405,7 +405,7 @@ codeunit 136308 "Job Order Tracking"
         Location: Record Location;
     begin
         // 1. Setup: Create Job, Job Task and Job Planning Line.
-        Location.FindFirst;
+        Location.FindFirst();
         CreatePlanningLineWithPurchaseOrder(JobPlanningLine, Location.Code, Quantity);
         ExpectedDate := JobPlanningLine."Planning Date";  // Assign in global variable.
 
@@ -427,7 +427,7 @@ codeunit 136308 "Job Order Tracking"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option)
@@ -447,7 +447,7 @@ codeunit 136308 "Job Order Tracking"
         LibraryPlanning: Codeunit "Library - Planning";
     begin
         RequisitionLine.SetRange("Demand Order No.", JobNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         GetManufacturingUserTemplate(ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order");
         LibraryPlanning.MakeSupplyOrders(ManufacturingUserTemplate, RequisitionLine);
     end;
@@ -499,11 +499,11 @@ codeunit 136308 "Job Order Tracking"
         JobPlanningLine: Record "Job Planning Line";
     begin
         JobPlanningLine.SetRange("Job No.", JobNo);
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         Item.Get(JobPlanningLine."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", JobPlanningLine."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Buy-from Vendor No.", Item."Vendor No.");
         PurchaseLine.TestField("Location Code", JobPlanningLine."Location Code");
         PurchaseLine.TestField(Quantity, JobPlanningLine.Quantity);
@@ -516,7 +516,7 @@ codeunit 136308 "Job Order Tracking"
         RequisitionLine: Record "Requisition Line";
     begin
         JobPlanningLine.SetRange("Job No.", JobNo);
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         FindRequisitionLine(RequisitionLine, JobPlanningLine."Job No.", JobPlanningLine."No.", JobPlanningLine."Location Code");
         RequisitionLine.TestField("Due Date", JobPlanningLine."Planning Date");
         RequisitionLine.TestField(Quantity, JobPlanningLine.Quantity);

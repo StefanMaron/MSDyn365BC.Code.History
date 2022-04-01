@@ -52,23 +52,9 @@ page 2132 "O365 Invoice Send Settings"
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        EmailFeature: Codeunit "Email Feature";
-        GraphMail: Codeunit "Graph Mail";
-        O365SetupEmail: Codeunit "O365 Setup Email";
-        IsSMTPAvailable: Boolean;
     begin
         if Title = EmailAccountTitleTxt then begin
-            if EmailFeature.IsEnabled() then
-                IsSMTPAvailable := false
-            else
-                IsSMTPAvailable := O365SetupEmail.SMTPEmailIsSetUp;
-
-            if (IsSMTPAvailable and (not GraphMail.IsEnabled)) or (not GraphMail.HasConfiguration) then
-                "Page ID" := PAGE::"O365 Email Account Settings"
-            else
-                "Page ID" := PAGE::"Graph Mail Setup";
-
+            "Page ID" := PAGE::"Graph Mail Setup";
             Description := GetEmailAccountDescription;
         end;
     end;
@@ -89,22 +75,8 @@ page 2132 "O365 Invoice Send Settings"
         QuoteEmailMessageDescriptionTxt: Label 'Change your default email message for estimates';
 
     local procedure InsertMenuItems()
-    var
-        EmailFeature: Codeunit "Email Feature";
-        O365SetupEmail: Codeunit "O365 Setup Email";
-        GraphMail: Codeunit "Graph Mail";
-        IsSMTPAvailable: Boolean;
     begin
-        if EmailFeature.IsEnabled() then
-            IsSMTPAvailable := false
-        else
-            IsSMTPAvailable := O365SetupEmail.SMTPEmailIsSetUp;
-
-        if (IsSMTPAvailable and (not GraphMail.IsEnabled)) or (not GraphMail.HasConfiguration) then
-            InsertPageMenuItem(PAGE::"O365 Email Account Settings", EmailAccountTitleTxt, GetEmailAccountDescription)
-        else
-            InsertPageMenuItem(PAGE::"Graph Mail Setup", EmailAccountTitleTxt, GetEmailAccountDescription);
-
+        InsertPageMenuItem(PAGE::"Graph Mail Setup", EmailAccountTitleTxt, GetEmailAccountDescription);
         InsertPageMenuItem(PAGE::"O365 Email CC and BCC Settings", CCAndBCCTitleTxt, CCAndBCCDescriptionTxt);
         InsertPageMenuItem(PAGE::"O365 Default Invoice Email Msg", InvoiceEmailMessageTxt, InvoiceEmailMessageDescriptionTxt);
         InsertPageMenuItem(PAGE::"O365 Default Quote Email Msg", QuoteEmailMessageTxt, QuoteEmailMessageDescriptionTxt);
@@ -114,25 +86,16 @@ page 2132 "O365 Invoice Send Settings"
     var
         EmailAccount: Record "Email Account";
         GraphMailSetup: Record "Graph Mail Setup";
-        SMTPMailSetup: Record "SMTP Mail Setup";
         EmailScenario: Codeunit "Email Scenario";
-        O365SetupEmail: Codeunit "O365 Setup Email";
-        EmailFeature: Codeunit "Email Feature";
         GraphMail: Codeunit "Graph Mail";
     begin
-        if EmailFeature.IsEnabled() then
-            if EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount) then
-                exit(CopyStr(EmailAccount."Email Address", 1, MaxStrLen(Description)));
+        if EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount) then
+            exit(CopyStr(EmailAccount."Email Address", 1, MaxStrLen(Description)));
 
         if GraphMail.IsEnabled and GraphMail.HasConfiguration then
             if GraphMailSetup.Get then
                 if GraphMailSetup."Sender Email" <> '' then
                     exit(CopyStr(GraphMailSetup."Sender Email", 1, MaxStrLen(Description)));
-
-        if O365SetupEmail.SMTPEmailIsSetUp then
-            if SMTPMailSetup.GetSetup then
-                if SMTPMailSetup."User ID" <> '' then
-                    exit(CopyStr(SMTPMailSetup."User ID", 1, MaxStrLen(Description)));
 
         exit(EmailAccountDescriptionTxt);
     end;

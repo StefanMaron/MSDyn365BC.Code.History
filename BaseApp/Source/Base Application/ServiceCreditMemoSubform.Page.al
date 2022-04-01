@@ -449,12 +449,46 @@ page 5936 "Service Credit Memo Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
                         OpenItemTrackingLines();
+                    end;
+                }
+            }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of service lines that have issues before you post the document.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all sales service, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
             }
@@ -485,13 +519,18 @@ page 5936 "Service Credit Memo Subform"
     end;
 
     trigger OnOpenPage()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         SetDimensionsVisibility;
+        BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
     end;
 
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

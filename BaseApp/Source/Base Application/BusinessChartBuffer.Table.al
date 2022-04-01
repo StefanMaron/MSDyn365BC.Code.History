@@ -26,6 +26,14 @@ table 485 "Business Chart Buffer"
         {
             Caption = 'XML';
             DataClassification = SystemMetadata;
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
+            ObsoleteReason = 'Use codeunit Temp Blob instead.';
         }
         field(5; "Drill-Down X Index"; Integer)
         {
@@ -75,106 +83,89 @@ table 485 "Business Chart Buffer"
 
     trigger OnInsert()
     begin
-        Error(Text002, TableCaption);
+        Error(CannotInsertErr, TableCaption);
     end;
 
     var
         TempBusChartMapToColumn: Record "Business Chart Map" temporary;
-        TempBusChartMapToMeasure: Record "Business Chart Map" temporary;
-        dotNetChartData: DotNet BusinessChartData;
-        dotNetDataTable: DotNet DataTable;
-        IsInitialized: Boolean;
-        Text001: Label 'Data Type must be Integer or Decimal for Measure %1.';
-        Text002: Label 'You cannot insert into table %1.';
-        Text003: Label 'You cannot add more than %1 measures.';
+        BusinessChart: Codeunit "Business Chart";
+        CurrentMeasure: Integer;
+        CannotInsertErr: Label 'You cannot insert into table %1.';
+        MeasureLimitErr: Label 'You cannot add more than %1 measures.';
 
-    procedure Initialize()
-    var
-        dotNetCultureInfo: DotNet CultureInfo;
+    local procedure GetDataType(Type: Option): Enum "Business Chart Data Type"
     begin
-        if not IsInitialized then begin
-            dotNetDataTable := dotNetDataTable.DataTable('DataTable');
-            dotNetCultureInfo := dotNetCultureInfo.CultureInfo(WindowsLanguage);
-            dotNetDataTable.Locale := dotNetCultureInfo.InvariantCulture;
-
-            dotNetChartData := dotNetChartData.BusinessChartData;
-            IsInitialized := true;
+        case Type of
+            "Data Type"::DateTime:
+                exit(Enum::"Business Chart Data Type"::DateTime);
+            "Data Type"::Decimal:
+                exit(Enum::"Business Chart Data Type"::Decimal);
+            "Data Type"::Integer:
+                exit(Enum::"Business Chart Data Type"::Integer);
+            "Data Type"::String:
+                exit(Enum::"Business Chart Data Type"::String);
         end;
-        dotNetDataTable.Clear;
-        dotNetDataTable.Columns.Clear;
-        dotNetChartData.ClearMeasures;
-        ClearMap(TempBusChartMapToColumn);
-        ClearMap(TempBusChartMapToMeasure);
     end;
 
-    local procedure ClearMap(var BusChartMap: Record "Business Chart Map")
+    procedure Initialize()
     begin
-        BusChartMap.Reset();
-        BusChartMap.DeleteAll();
+        BusinessChart.Initialize();
+        TempBusChartMapToColumn.Reset();
+        TempBusChartMapToColumn.DeleteAll();
     end;
 
     procedure SetChartCondensed(Condensed: Boolean)
     begin
-        dotNetChartData.ShowChartCondensed := Condensed;
+        BusinessChart.SetShowChartCondensed(Condensed);
     end;
 
     procedure SetXAxis(Caption: Text; Type: Option)
     begin
-        AddDataColumn(Caption, Type);
-        dotNetChartData.XDimension := Caption;
+        BusinessChart.SetXDimension(Caption, GetDataType(Type));
     end;
 
     procedure SetPeriodXAxis()
     var
-        DataType: Option;
+        DataType: Enum "Business Chart Data Type";
     begin
         if "Period Length" = "Period Length"::Day then
-            DataType := "Data Type"::DateTime
+            DataType := DataType::DateTime
         else
-            DataType := "Data Type"::String;
-        SetXAxis(Format("Period Length"), DataType);
+            DataType := DataType::String;
+        BusinessChart.SetXDimension(Format("Period Length"), DataType);
     end;
 
     procedure GetXCaption(): Text
     begin
-        exit(dotNetChartData.XDimension);
+        exit(BusinessChart.GetXDimension());
     end;
 
     procedure AddMeasure(Caption: Text; Value: Variant; ValueType: Option; ChartType: Integer)
-    var
-        DotNetChartType: DotNet DataMeasureType;
     begin
         "Data Type" := ValueType;
-        if not ("Data Type" in ["Data Type"::Integer, "Data Type"::Decimal]) then
-            Error(Text001, Caption);
-        AddDataColumn(Caption, ValueType);
-        DotNetChartType := ChartType;
-        dotNetChartData.AddMeasure(Caption, DotNetChartType);
-        TempBusChartMapToMeasure.Add(
-          CopyStr(Caption, 1, MaxStrLen(TempBusChartMapToMeasure.Name)), Value);
+        BusinessChart.AddMeasure(Caption, Value, GetDataType(ValueType), Enum::"Business Chart Type".FromInteger(ChartType));
     end;
 
     procedure AddDecimalMeasure(Caption: Text; Value: Variant; ChartType: Enum "Business Chart Type")
     begin
-        AddMeasure(Caption, Value, "Data Type"::Decimal, ChartType.AsInteger());
+        "Data Type" := "Data Type"::Decimal;
+        BusinessChart.AddMeasure(Caption, Value, Enum::"Business Chart Data Type"::Decimal, ChartType);
     end;
 
     procedure AddIntegerMeasure(Caption: Text; Value: Variant; ChartType: Enum "Business Chart Type")
     begin
-        AddMeasure(Caption, Value, "Data Type"::Integer, ChartType.AsInteger());
+        "Data Type" := "Data Type"::Integer;
+        BusinessChart.AddMeasure(Caption, Value, Enum::"Business Chart Data Type"::Integer, ChartType);
     end;
 
     procedure GetMaxNumberOfMeasures(): Integer
-    var
-        MaximumNumberOfColoursInChart: Integer;
     begin
-        MaximumNumberOfColoursInChart := 6;
-        exit(MaximumNumberOfColoursInChart);
+        exit(BusinessChart.GetMaxNumberOfMeasures());
     end;
 
     procedure RaiseErrorMaxNumberOfMeasuresExceeded()
     begin
-        Error(Text003, GetMaxNumberOfMeasures);
+        Error(MeasureLimitErr, GetMaxNumberOfMeasures());
     end;
 
     procedure AddColumn(Value: Variant)
@@ -211,13 +202,9 @@ table 485 "Business Chart Buffer"
             AddColumnWithCaption(Value, Caption);
     end;
 
-    local procedure AddColumnWithCaption(Value: Variant; Caption: Text)
-    var
-        dotNetDataRow: DotNet DataRow;
+    protected procedure AddColumnWithCaption(Value: Variant; Caption: Text)
     begin
-        dotNetDataRow := dotNetDataTable.NewRow;
-        dotNetDataRow.Item(GetXCaption, Caption);
-        dotNetDataTable.Rows.Add(dotNetDataRow);
+        BusinessChart.AddDataRowWithXDimension(Caption);
         TempBusChartMapToColumn.Add(Caption, Value);
     end;
 
@@ -227,59 +214,52 @@ table 485 "Business Chart Buffer"
             Value := CreateDateTime(Value, 120000T);
     end;
 
-    local procedure AddDataColumn(Caption: Text; ValueType: Option)
-    var
-        dotNetDataColumn: DotNet DataColumn;
-        dotNetSystemType: DotNet Type;
+    protected procedure AddDataColumn(Caption: Text; ValueType: Option)
     begin
-        dotNetDataColumn := dotNetDataColumn.DataColumn(Caption);
-        dotNetDataColumn.Caption := Caption;
-        dotNetDataColumn.ColumnName(Caption);
-        dotNetDataColumn.DataType(dotNetSystemType.GetType(GetSystemTypeName(ValueType)));
-        dotNetDataTable.Columns.Add(dotNetDataColumn);
-    end;
-
-    local procedure GetSystemTypeName(Type: Option): Text
-    begin
-        case Type of
-            "Data Type"::String:
-                exit('System.String');
-            "Data Type"::Integer:
-                exit('System.Int32');
-            "Data Type"::Decimal:
-                exit('System.Decimal');
-            "Data Type"::DateTime:
-                exit('System.DateTime');
-        end;
+        BusinessChart.AddDataColumn(Caption, GetDataType(ValueType));
     end;
 
     procedure SetValue(MeasureName: Text; XAxisIndex: Integer; Value: Variant)
-    var
-        dotNetDataRow: DotNet DataRow;
     begin
-        dotNetDataRow := dotNetDataTable.Rows.Item(XAxisIndex);
-        dotNetDataRow.Item(MeasureName, Value);
+        BusinessChart.SetValue(MeasureName, XAxisIndex, Value);
     end;
 
     procedure SetValueByIndex(MeasureIndex: Integer; XAxisIndex: Integer; Value: Variant)
-    var
-        dotNetDataRow: DotNet DataRow;
     begin
-        dotNetDataRow := dotNetDataTable.Rows.Item(XAxisIndex);
-        dotNetDataRow.Item(TempBusChartMapToMeasure.GetName(MeasureIndex), Value);
+        BusinessChart.SetValue(MeasureIndex, XAxisIndex, Value);
     end;
 
     procedure FindFirstMeasure(var BusChartMap: Record "Business Chart Map") Result: Boolean
+    var
+        Name: Text;
+        ValueString: Text;
     begin
-        TempBusChartMapToMeasure.Reset();
-        Result := TempBusChartMapToMeasure.FindSet();
-        BusChartMap := TempBusChartMapToMeasure;
+        if BusinessChart.GetMeasureNameToValueMap().Keys().Count() = 0 then
+            exit(false);
+
+        CurrentMeasure := 0;
+        BusChartMap.Index := 0;
+        Name := BusinessChart.GetMeasureNameToValueMap().Keys().Get(1);
+        ValueString := BusinessChart.GetMeasureNameToValueMap().Values().Get(1);
+        BusChartMap.Name := CopyStr(Name, 1, MaxStrLen(BusChartMap.Name));
+        BusChartMap."Value String" := CopyStr(ValueString, 1, MaxStrLen(BusChartMap."Value String"));
+        exit(true);
     end;
 
     procedure NextMeasure(var BusChartMap: Record "Business Chart Map") Result: Boolean
+    var
+        Name: Text;
+        ValueString: Text;
     begin
-        Result := TempBusChartMapToMeasure.Next <> 0;
-        BusChartMap := TempBusChartMapToMeasure;
+        CurrentMeasure += 1;
+        Result := BusinessChart.GetMeasureNameToValueMap().Count() > CurrentMeasure;
+        if Result then begin
+            BusChartMap.Index := CurrentMeasure;
+            Name := BusinessChart.GetMeasureNameToValueMap().Keys().Get(CurrentMeasure + 1);
+            ValueString := BusinessChart.GetMeasureNameToValueMap().Values().Get(CurrentMeasure + 1);
+            BusChartMap.Name := CopyStr(Name, 1, MaxStrLen(BusChartMap.Name));
+            BusChartMap."Value String" := CopyStr(ValueString, 1, MaxStrLen(BusChartMap."Value String"));
+        end
     end;
 
     procedure FindFirstColumn(var BusChartMap: Record "Business Chart Map") Result: Boolean
@@ -294,7 +274,7 @@ table 485 "Business Chart Buffer"
         MidColumnIndex: Integer;
     begin
         TempBusChartMapToColumn.Reset();
-        TempBusChartMapToColumn.FindLast;
+        TempBusChartMapToColumn.FindLast();
         MidColumnIndex := -Round(TempBusChartMapToColumn.Count div 2);
         Result := MidColumnIndex = TempBusChartMapToColumn.Next(MidColumnIndex);
         BusChartMap := TempBusChartMapToColumn;
@@ -307,11 +287,8 @@ table 485 "Business Chart Buffer"
     end;
 
     procedure GetValue(MeasureName: Text; XAxisIndex: Integer; var Value: Variant)
-    var
-        dotNetDataRow: DotNet DataRow;
     begin
-        dotNetDataRow := dotNetDataTable.Rows.Item(XAxisIndex);
-        Value := dotNetDataRow.Item(MeasureName);
+        BusinessChart.GetValue(MeasureName, XAxisIndex, Value);
     end;
 
     procedure GetXValue(XAxisIndex: Integer; var Value: Variant)
@@ -332,24 +309,32 @@ table 485 "Business Chart Buffer"
     end;
 
     procedure GetMeasureValueString(MeasureIndex: Integer): Text
+    var
+        MeasureValues: List of [Text];
     begin
-        exit(TempBusChartMapToMeasure.GetValueString(MeasureIndex));
+        MeasureValues := BusinessChart.GetMeasureNameToValueMap().Values();
+        exit(MeasureValues.Get(MeasureIndex + 1));
     end;
 
     procedure GetMeasureName(MeasureIndex: Integer): Text
+    var
+        MeasureNames: List of [Text];
     begin
-        exit(TempBusChartMapToMeasure.GetName(MeasureIndex));
+        MeasureNames := BusinessChart.GetMeasureNameToValueMap().Keys();
+        exit(MeasureNames.Get(MeasureIndex + 1));
     end;
 
     procedure GetCurrMeasureValueString(): Text
+    var
+        MeasureValues: List of [Text];
     begin
-        exit(TempBusChartMapToMeasure.GetValueString("Drill-Down Measure Index"));
+        MeasureValues := BusinessChart.GetMeasureNameToValueMap().Values();
+        exit(MeasureValues.Get("Drill-Down Measure Index" + 1));
     end;
 
     procedure Update(dotNetChartAddIn: DotNet BusinessChartAddIn)
     begin
-        dotNetChartData.DataTable := dotNetDataTable;
-        dotNetChartAddIn.Update(dotNetChartData);
+        BusinessChart.Update(dotNetChartAddIn);
     end;
 
     [Scope('OnPrem')]
@@ -372,28 +357,7 @@ table 485 "Business Chart Buffer"
 
     procedure IsXAxisDateTime(): Boolean
     begin
-        exit(Format(dotNetDataTable.Columns.Item(0).DataType) = 'System.DateTime')
-    end;
-
-    [Scope('OnPrem')]
-    procedure WriteToXML(var XMLDoc: DotNet XmlDocument)
-    var
-        XMLElement: DotNet XmlElement;
-        OutStream: OutStream;
-        InStream: InStream;
-        XMLLine: Text[80];
-        XMLText: Text;
-    begin
-        XML.CreateOutStream(OutStream);
-        dotNetDataTable.WriteXml(OutStream);
-        XML.CreateInStream(InStream);
-        while not InStream.EOS do begin
-            InStream.ReadText(XMLLine);
-            XMLText := XMLText + XMLLine;
-        end;
-        XMLElement := XMLDoc.CreateElement('DataTable', 'test', '');
-        XMLElement.InnerXml(XMLText);
-        XMLDoc.AppendChild(XMLElement);
+        exit(BusinessChart.GetXDimensionDataType() = Enum::"Business Chart Data Type"::DateTime)
     end;
 
     procedure CalcFromDate(Date: Date): Date
@@ -538,7 +502,7 @@ table 485 "Business Chart Buffer"
 
     procedure SetDrillDownIndexesByCoordinate(MeasureName: Text[249]; XValueString: Text[249]; YValue: Decimal)
     begin
-        "Drill-Down Measure Index" := TempBusChartMapToMeasure.GetIndex(MeasureName);
+        "Drill-Down Measure Index" := BusinessChart.GetMeasureNameToValueMap().Keys().IndexOf(MeasureName) - 1;
 
         if IsXAxisDateTime then
             XValueString := GetDateString(XValueString);

@@ -604,7 +604,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
           MatrixColumnDateFilters[Column]."Period End");
         ResGrAvailOverview.SetTableView(ResGr);
         ResGrAvailOverview.SetRecord(ResGr);
-        ResGrAvailOverview.RunModal;
+        ResGrAvailOverview.RunModal();
     end;
 
     procedure SetVisible()

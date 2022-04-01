@@ -21,9 +21,8 @@ codeunit 134215 "WFWH Purch. Document Approval"
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         UserCannotCancelErr: Label 'User %1 does not have the permission necessary to cancel the item.', Comment = '%1 = NAV USERID';
-        UserCannotContinueErr: Label 'User %1 does not have the permission necessary to continue the item.', Comment = '%1 = NAV USERID';
-        UserCannotRejectErr: Label 'User %1 does not have the permission necessary to reject the item.', Comment = '%1 = NAV USERID';
-        BogusUserIdTxt: Label 'Contoso';
+        UserCannotActErr: Label 'User %1 cannot act on this step. Make sure the user who created the webhook (%2) is the same who is trying to act.', Comment = '%1, %2 = two distinct NAV user IDs, for example "MEGANB" and "WILLIAMC"';
+        BogusUserIdTxt: Label 'CONTOSO';
         RecordIsRestrictedErr: Label 'You cannot use %1 for this action.', Comment = '%1=Record Id';
         LibraryJobQueue: Codeunit "Library - Job Queue";
         MockOnFindTaskSchedulerAllowed: Codeunit MockOnFindTaskSchedulerAllowed;
@@ -40,9 +39,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WFWH Purch. Document Approval");
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         UserSetup.DeleteAll();
         WorkflowWebhookEntry.DeleteAll();
@@ -71,7 +70,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The user will get an error that an unapproved purchase order cannot be released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -99,7 +98,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The user will get an error that an unapproved purchase order cannot be released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrderAndSendForApproval(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -129,7 +128,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The user will get an error that an unapproved purchase order cannot be reopened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -160,7 +159,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The user will get an error that an unapproved purchase order cannot be posted.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -221,7 +220,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The purchase order is cancelled and opened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -252,7 +251,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The purchase order is approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -284,7 +283,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The purchase order is rejected and opened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -317,7 +316,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The purchase order is not cancelled.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -351,7 +350,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The purchase order is not continued.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(BogusUserIdTxt);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -363,7 +362,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.SystemId));
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(UserCannotContinueErr, UserId));
+        Assert.ExpectedError(StrSubstNo(UserCannotActErr, UserId, BogusUserIdTxt));
         VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
     end;
@@ -384,7 +383,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The purchase order is not rejected.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(BogusUserIdTxt);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -396,7 +395,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.SystemId));
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(UserCannotRejectErr, UserId));
+        Assert.ExpectedError(StrSubstNo(UserCannotActErr, UserId, BogusUserIdTxt));
         VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
     end;
@@ -415,7 +414,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] The exisiting approval requests are deleted and the purchase order is also deleted.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -443,7 +442,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Purchase Order Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order record exists, with a Flow approval request already open.
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -469,7 +468,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrderList: TestPage "Purchase Order List";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Purchase Order List page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order record exists, with a Flow approval request already open.
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -495,7 +494,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Purchase Invoice Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice record exists, with a Flow approval request already open.
         CreatePurchaseInvoice(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -521,7 +520,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseInvoices: TestPage "Purchase Invoices";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Purchase Invoice List page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice record exists, with a Flow approval request already open.
         CreatePurchaseInvoice(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -547,7 +546,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Purchase Credit Memo Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo record exists, with a Flow approval request already open.
         CreatePurchaseCreditMemo(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -573,7 +572,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseCreditMemos: TestPage "Purchase Credit Memos";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Purchase Credit Memo List page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo record exists, with a Flow approval request already open.
         CreatePurchaseCreditMemo(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -600,7 +599,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Purchase Order Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order record exists, with a Flow approval request already open.
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -612,7 +611,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrder.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -628,7 +627,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrderList: TestPage "Purchase Order List";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Purchase Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order record exists, with a Flow approval request already open.
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -640,7 +639,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrderList.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -656,7 +655,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Purchase Invoice Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice record exists, with a Flow approval request already open.
         CreatePurchaseInvoice(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -668,7 +667,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseInvoice.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -684,7 +683,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseInvoices: TestPage "Purchase Invoices";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Purchase Invoice List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice record exists, with a Flow approval request already open.
         CreatePurchaseInvoice(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -696,7 +695,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseInvoices.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -712,7 +711,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Purchase Credit Memo Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo record exists, with a Flow approval request already open.
         CreatePurchaseCreditMemo(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -724,7 +723,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseCreditMemo.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -740,7 +739,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseCreditMemos: TestPage "Purchase Credit Memos";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Purchase Credit Memo List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo record exists, with a Flow approval request already open.
         CreatePurchaseCreditMemo(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -752,7 +751,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseCreditMemos.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -767,7 +766,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         WorkflowWebhookEntry."Initiated By User ID" := InitiatedByUserID;
         WorkflowWebhookEntry.Modify();
@@ -830,7 +829,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         exit(WorkflowWebhookEntry."Workflow Step Instance ID");
     end;
@@ -874,7 +873,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
     local procedure VerifyPurchaseDocumentStatus(PurchaseHeader: Record "Purchase Header"; Status: Enum "Purchase Document Status")
     begin
         PurchaseHeader.SetRecFilter;
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.TestField(Status, Status);
     end;
 
@@ -885,7 +884,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         WorkflowWebhookEntry.TestField(Response, ResponseArgument);
     end;

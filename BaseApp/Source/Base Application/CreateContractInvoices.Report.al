@@ -88,7 +88,7 @@ report 6030 "Create Contract Invoices"
                     Clear(ContractInvoicingTest);
                     ContractInvoicingTest.InitVariables(PostingDate, InvoiceToDate);
                     ContractInvoicingTest.SetTableView("Service Contract Header");
-                    ContractInvoicingTest.RunModal;
+                    ContractInvoicingTest.RunModal();
                     CurrReport.Break();
                 end;
 

@@ -40,7 +40,7 @@ codeunit 1331 "Trial Balance Cache Mgt."
         end;
 
         Index := 1;
-        if TrialBalanceCache.FindSet then
+        if TrialBalanceCache.FindSet() then
             repeat
                 DescriptionsArr[Index] := TrialBalanceCache.Description;
                 ValuesArr[Index, 1] := TrialBalanceCache."Period 1 Amount";

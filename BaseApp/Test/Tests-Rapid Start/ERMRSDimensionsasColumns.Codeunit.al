@@ -89,272 +89,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Assert.ExpectedError(StrSubstNo(CannotUseDimensionsAsColumnsErr, ConfigPackageTable."Table ID"));
     end;
 
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('ConfirmAddDimTablesHandlerYes')]
-    [Scope('OnPrem')]
-    [Obsolete('CreateAndExportBasicPackage will always throw an error.', '17.3')]
-    procedure VerifyDimExportToExcelAsColumns()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        Dimension: Record Dimension;
-        Customer: Record Customer;
-        FileName: Text[1024];
-    begin
-        Initialize();
-        CreateAndExportBasicPackage(ConfigPackage, ConfigPackageTable, Customer, FileName);
-        LibraryReportValidation.OpenExcelFile;
-
-        Dimension.FindSet();
-        repeat
-            Assert.IsTrue(
-              LibraryReportValidation.CheckIfValueExists(
-                StrSubstNo(ExportedDimensionCap, Dimension."Code Caption", Dimension.TableCaption)), IncorrectDimensionsAsColumnsErr);
-        until Dimension.Next = 0;
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmAddDimTablesHandlerYes')]
-    [Scope('OnPrem')]
-    [Obsolete('CreateAndExportBasicPackage will always throw an error.', '17.3')]
-    procedure VerifyDefaultDimExportToExcel()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        DefaultDimension: Record "Default Dimension";
-        Customer: Record Customer;
-        FileName: Text[1024];
-    begin
-        Initialize();
-        CreateAndExportBasicPackage(ConfigPackage, ConfigPackageTable, Customer, FileName);
-
-        SetDefaultDimFilter(DefaultDimension, DATABASE::Customer, Customer."No.");
-        repeat
-            Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(DefaultDimension."Dimension Value Code"),
-              IncorrectDefaultDimensionsErr);
-        until DefaultDimension.Next = 0;
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('CreateAndExportBasicPackage will always throw an error.', '17.3')]
-    procedure VerifyDefaultDimImportFromExcel()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        Customer: Record Customer;
-        ConfigPackageData: Record "Config. Package Data";
-        DefaultDimension: Record "Default Dimension";
-        FileName: Text[1024];
-    begin
-        Initialize();
-        // [GIVEN] Customer 'X' with Default Dimensions
-        // [GIVEN] Export the package 'A', where Table is 'Customer', "Dimensions as Columns" is 'Yes'
-        CreateAndExportBasicPackage(ConfigPackage, ConfigPackageTable, Customer, FileName);
-        // [WHEN] Import from Excel
-        ImportPackageFromExcel(FileName);
-
-        // [THEN] Package 'A', where data contains Defaul Dimensions for Customer
-        SetDefaultDimFilter(DefaultDimension, DATABASE::Customer, Customer."No.");
-        SetPackageDataFieldFilterByDefaultDimValueCode(ConfigPackageData, ConfigPackage.Code);
-        repeat
-            ConfigPackageData.SetRange(Value, DefaultDimension."Dimension Value Code");
-            Assert.IsTrue(ConfigPackageData.FindSet, IncorrectDefaultDimensionsImportErr);
-        until DefaultDimension.Next = 0;
-    end;
-
-    [Test]
-    [HandlerFunctions('ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
-    procedure VerifyDimImportFromExcelAsNewPackage()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        ConfigPackageField: Record "Config. Package Field";
-        GenJournalLine: Record "Gen. Journal Line";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalTemplate: Record "Gen. Journal Template";
-        ConfigPackageData: Record "Config. Package Data";
-        DimensionValue: Record "Dimension Value";
-        DimensionSetEntry: Record "Dimension Set Entry";
-        DimensionSetTreeNode: Record "Dimension Set Tree Node";
-        TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
-        DimMgt: Codeunit DimensionManagement;
-        FileName: Text[1024];
-        ExpectedDimSetID: Integer;
-    begin
-        Initialize();
-        // [GIVEN] Gen. Journal Line, where Dimenson 'PROJECT' is 'TOYOTA'
-        ExpectedDimSetID := CreateDimSet(DimensionValue);
-        GenJournalLine.DeleteAll();
-        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 1.23);
-        GenJournalLine.Validate("Dimension Set ID", ExpectedDimSetID);
-        GenJournalLine.Modify(true);
-        // [GIVEN] Package 'A', where Table is 'Gen. Journal Line', "Dimensions as Columns" is 'Yes'
-        CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::"Gen. Journal Line");
-        SetDimensionAsColumns(ConfigPackageTable);
-        // [GIVEN] Field "Dimension Set ID" is excluded
-        ConfigPackageField.Get(
-          ConfigPackageTable."Package Code", ConfigPackageTable."Table ID", GenJournalLine.FieldNo("Dimension Set ID"));
-        ConfigPackageField.Validate("Include Field", false);
-        ConfigPackageField.Modify(true);
-
-        // [GIVEN] Export the package 'A'
-        ExportPackageToExcel(ConfigPackageTable, FileName);
-
-        // [GIVEN] Dimension Set Entry is removed
-        DimensionSetEntry.SetRange("Dimension Set ID", ExpectedDimSetID);
-        DimensionSetEntry.DeleteAll();
-        DimensionSetTreeNode.SetRange("Dimension Set ID", ExpectedDimSetID);
-        DimensionSetTreeNode.DeleteAll();
-        // [GIVEN] Gen. Journal Line is removed
-        GenJournalLine.DeleteAll();
-        // [GIVEN] The package 'A' is removed
-        ConfigPackage.Delete(true);
-
-        // [WHEN] Import from Excel
-        ImportPackageFromExcel(FileName);
-
-        // [THEN] Package Field "Dimension Set ID" , where "Include Field" is 'Yes'
-        ConfigPackageField.Get(
-          ConfigPackageTable."Package Code", ConfigPackageTable."Table ID", GenJournalLine.FieldNo("Dimension Set ID"));
-        ConfigPackageField.TestField("Include Field", true);
-        // [THEN] Package 'A', where data contains dimension value 'TOYOTA'
-        ConfigPackageData.SetRange("Package Code", ConfigPackage.Code);
-        ConfigPackageData.SetRange("Table ID", DATABASE::"Gen. Journal Line");
-        ConfigPackageData.SetRange(Value, DimensionValue.Code);
-        ConfigPackageData.FindFirst;
-        // [THEN] Package 'A' includes the Field, where "Dimension" is 'Yes', "Field Name" is 'PROJECT'
-        ConfigPackageField.Get(ConfigPackage.Code, DATABASE::"Gen. Journal Line", ConfigPackageData."Field ID");
-        ConfigPackageField.TestField(Dimension);
-        ConfigPackageField.TestField("Field Name", DimensionValue."Dimension Code");
-
-        // [WHEN] Apply Package 'A'
-        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
-
-        // [THEN] Gen. Journal Line, where "Dimension Set ID" is filled and includes Dimenson 'PROJECT' as 'TOYOTA'
-        GenJournalLine.Find;
-        GenJournalLine.TestField("Dimension Set ID");
-        DimMgt.GetDimensionSet(TempDimensionSetEntry, GenJournalLine."Dimension Set ID");
-        Assert.RecordCount(TempDimensionSetEntry, 1);
-        TempDimensionSetEntry.FindFirst;
-        TempDimensionSetEntry.TestField("Dimension Code", DimensionValue."Dimension Code");
-        TempDimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
-    end;
-
-    [Test]
-    [HandlerFunctions('ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
-    procedure VerifyDimImportFromExcelIntoPackageWihtoutDimensions()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        ConfigPackageField: Record "Config. Package Field";
-        GenJournalLine: Record "Gen. Journal Line";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalTemplate: Record "Gen. Journal Template";
-        ConfigPackageData: Record "Config. Package Data";
-        DimensionValue: Record "Dimension Value";
-        FileName: Text[1024];
-        ExpectedDimSetID: Integer;
-    begin
-        Initialize();
-        // [GIVEN] Gen. Journal Line, where Dimenson 'PROJECT' is 'TOYOTA'
-        ExpectedDimSetID := CreateDimSet(DimensionValue);
-        GenJournalLine.DeleteAll();
-        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 1.23);
-        GenJournalLine.Validate("Dimension Set ID", ExpectedDimSetID);
-        GenJournalLine.Modify(true);
-        // [GIVEN] Package 'A', where Table is 'Gen. Journal Line', "Dimensions as Columns" is 'Yes'
-        CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::"Gen. Journal Line");
-        SetDimensionAsColumns(ConfigPackageTable);
-        // [GIVEN] Field "Dimension Set ID" is excluded
-        ConfigPackageField.Get(
-          ConfigPackageTable."Package Code", ConfigPackageTable."Table ID", GenJournalLine.FieldNo("Dimension Set ID"));
-        ConfigPackageField.Validate("Include Field", false);
-        ConfigPackageField.Modify(true);
-        // [GIVEN] Export the package 'A'
-        ExportPackageToExcel(ConfigPackageTable, FileName);
-
-        // [GIVEN] Gen. Journal Line is removed
-        GenJournalLine.DeleteAll();
-        // [GIVEN] Package 'A', where Table is 'Gen. Journal Line', "Dimensions as Columns" is 'No'
-        DisableDimensionAsColumns(ConfigPackageTable);
-
-        // [WHEN] Import from Excel
-        ImportPackageFromExcel(FileName);
-
-        // [THEN] Package 'A', where is no data containing dimension value 'TOYOTA'
-        ConfigPackageData.SetRange("Package Code", ConfigPackage.Code);
-        ConfigPackageData.SetRange("Table ID", DATABASE::"Gen. Journal Line");
-        ConfigPackageData.SetRange(Value, DimensionValue.Code);
-        Assert.IsFalse(ConfigPackageData.FindFirst, 'Dim data should not be imported');
-
-        // [WHEN] Apply Package 'A'
-        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
-
-        // [THEN] Gen. Journal Line, where Dimensons are <blank>
-        GenJournalLine.Find;
-        GenJournalLine.TestField("Dimension Set ID", 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('ExportImportAndApplyPackageWithNewDimension will always throw an error.', '17.3')]
-    procedure DimensionsOnApply_PackageWithNewDimensions_DimensionRecordsCreated()
-    var
-        Customer: Record Customer;
-        ConfigPackageError: Record "Config. Package Error";
-        DefaultDimension: Record "Default Dimension";
-        Dimension: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-        ConfigPackageCode: Code[20];
-    begin
-        Initialize();
-        // [WHEN] Import and apply the package, where "Dimensions as Columns" is 'Yes', exported to Excel
-        ConfigPackageCode := ExportImportAndApplyPackageWithNewDimension(Customer, false);
-
-        // [THEN] Dimension, DimensionValue, and Default Dimension for Customer are created.
-        SetDefaultDimFilter(DefaultDimension, DATABASE::Customer, Customer."No.");
-        DimensionValue.SetRange("Dimension Code", DefaultDimension."Dimension Code");
-        Assert.RecordCount(DimensionValue, 1);
-        Assert.IsTrue(Dimension.Get(DefaultDimension."Dimension Code"), NewDimensionNotCreatedErr);
-        // [THEN] No errors happened on apply
-        ConfigPackageError.Init();
-        ConfigPackageError.SetRange("Table ID", DATABASE::"Dimension Value");
-        ConfigPackageError.SetRange("Package Code", ConfigPackageCode);
-        Assert.RecordIsEmpty(ConfigPackageError);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('ExportImportAndApplyPackageWithNewDimension will always throw an error.', '17.3')]
-    procedure DimensionsValueOnApply_PackageWithDimensionValueIdField_PackageErrorCreated()
-    var
-        Customer: Record Customer;
-    begin
-        Initialize();
-        ExportImportAndApplyPackageWithNewDimension(Customer, true);
-
-        Assert.IsTrue(
-          PackageErrorsContainsErrorWithSubstring(DATABASE::"Dimension Value", AutoincrementMsg), DimensionValueIdNotExistsErr);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes')]
     [Scope('OnPrem')]
@@ -387,145 +121,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
 
         Assert.AreEqual(1, ConfigPackageTable.Count, IncorrectNumberOfTablesErr);
     end;
-
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
-    procedure DimensionSet_ExportWithDimensionColumn()
-    var
-        SalesHeader: Record "Sales Header";
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        Dimension: Record Dimension;
-        DimensionSetEntry: Record "Dimension Set Entry";
-        FileName: Text;
-        DimensionColumnCaption: Text[250];
-    begin
-        // Export table with Dimension Set: Verify Dimension Set exported as values in appropriate Dimension columns
-        Initialize();
-
-        CreateBasicPackageForDimSet(ConfigPackage, ConfigPackageTable, SalesHeader, DATABASE::"Sales Header");
-        SetDimensionAsColumns(ConfigPackageTable);
-
-        ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
-        ExportPackageToExcel(ConfigPackageTable, FileName);
-        LibraryReportValidation.OpenExcelFile;
-
-        DimensionSetEntry.SetRange("Dimension Set ID", SalesHeader."Dimension Set ID");
-        Dimension.FindSet();
-        repeat
-            DimensionColumnCaption := StrSubstNo(ExportedDimensionCap, Dimension."Code Caption", Dimension.TableCaption);
-            DimensionSetEntry.SetRange("Dimension Code", Dimension.Code);
-            LibraryReportValidation.SetColumn(DimensionColumnCaption);
-            if DimensionSetEntry.FindFirst then begin
-                LibraryReportValidation.SetRange(DimensionColumnCaption, DimensionSetEntry."Dimension Value Code");
-                Assert.AreEqual(DimensionSetEntry."Dimension Value Code", LibraryReportValidation.GetValue, IncorrectDimensionsAsColumnsErr);
-            end;
-        until Dimension.Next = 0;
-    end;
-
-    [Test]
-    [HandlerFunctions('ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('PrepareAndImportPackageForDimSet will always throw an error.', '17.3')]
-    procedure DimensionSet_ImportWithExistingDimension()
-    var
-        DimensionSetEntry: Record "Dimension Set Entry";
-        ConfigPackageCode: Code[20];
-        OldDimValue: Code[20];
-        LastDimensionSetID: Integer;
-        DimensionSetID: Integer;
-        TableID: Integer;
-    begin
-        // Verify Dimension Set imported with existing dimension created with correct values.
-        Initialize();
-
-        TableID := DATABASE::"Sales Header";
-        PrepareAndImportPackageForDimSet(
-          DimensionSetEntry, ConfigPackageCode, OldDimValue, LastDimensionSetID, DimensionSetID, TableID, false);
-
-        VerifyImportForDimensionSet(DimensionSetEntry, ConfigPackageCode, LastDimensionSetID, DimensionSetID, TableID);
-
-        RestoreDimSetEntry(DimensionSetEntry, OldDimValue);
-    end;
-
-    [Test]
-    [HandlerFunctions('ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('PrepareAndImportPackageForDimSet will always throw an error.', '17.3')]
-    procedure DimensionSet_ImportWithNonExistingDimension()
-    var
-        DimensionSetEntry: Record "Dimension Set Entry";
-        ConfigPackageCode: Code[20];
-        OldDimValue: Code[20];
-        LastDimensionSetID: Integer;
-        DimensionSetID: Integer;
-        TableID: Integer;
-    begin
-        // Verify Dimension Set is not created and config package error has been added.
-        Initialize();
-
-        TableID := DATABASE::"Sales Header";
-        PrepareAndImportPackageForDimSet(
-          DimensionSetEntry, ConfigPackageCode, OldDimValue, LastDimensionSetID, DimensionSetID, TableID, true);
-
-        VerifyImportErrorWithNonExistingDimension(DimensionSetEntry, TableID);
-
-        RestoreDimSetEntry(DimensionSetEntry, OldDimValue);
-    end;
-
-    [Test]
-    [HandlerFunctions('ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
-    procedure DimensionSet_ImportAndApply()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        DimensionSetEntry: Record "Dimension Set Entry";
-        DimensionValue: Record "Dimension Value";
-        SalesHeader: Record "Sales Header";
-        OldDimValCode: Code[20];
-        SalesHeaderNo: Code[20];
-        SalesHeaderDocType: Enum "Sales Document Type";
-        FileName: Text;
-        OldManualNos: Boolean;
-    begin
-        // Verify Dimension Set applied correctly.
-        Initialize();
-
-        CreateBasicPackageForDimSet(ConfigPackage, ConfigPackageTable, SalesHeader, DATABASE::"Sales Header");
-        ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
-        SetDimensionAsColumns(ConfigPackageTable);
-
-        DimensionSetEntry.SetRange("Dimension Set ID", SalesHeader."Dimension Set ID");
-        DimensionSetEntry.FindFirst;
-        OldDimValCode := DimensionSetEntry."Dimension Value Code";
-        ModifyDimensionSetWithNewValue(DimensionSetEntry, DimensionValue);
-        ExportPackageToExcel(ConfigPackageTable, FileName);
-        RestoreDimensionSetWithOldValue(DimensionSetEntry, DimensionValue, OldDimValCode, false);
-
-        SalesHeaderNo := SalesHeader."No.";
-        SalesHeaderDocType := SalesHeader."Document Type";
-
-        OldManualNos := SetupManualNos(SalesHeader."No. Series", true);
-
-        SalesHeader.Delete(true);
-
-        ImportPackageFromExcel(FileName);
-
-        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
-
-        // Verify Dimension Set ID in sales header is equal to ID in last created Dimension SetID
-        SalesHeader.Get(SalesHeaderDocType, SalesHeaderNo);
-        DimensionSetEntry.Reset();
-        DimensionSetEntry.FindLast;
-        Assert.AreEqual(DimensionSetEntry."Dimension Set ID", SalesHeader."Dimension Set ID", IncorrectDimensionSetIDErr);
-
-        SetupManualNos(SalesHeader."No. Series", OldManualNos);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes')]
@@ -595,104 +190,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
 
         SetupManualNos(SalesHeader."No. Series", OldManualNos);
     end;
-
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('ImportPackageFromExcel will always throw an error.', '17.3')]
-    procedure ImportExcelTemplateToConfigPackageWithDimAsColumnsTwice()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        GLAccount: Record "G/L Account";
-        ConfigLine: Record "Config. Line";
-        DefaultDimension: array[2] of Record "Default Dimension";
-        ConfigPackageManagement: Codeunit "Config. Package Management";
-        ConfigExcelExchange: Codeunit "Config. Excel Exchange";
-        FileManagement: Codeunit "File Management";
-        FileName: Text;
-        Index: Integer;
-    begin
-        // [FEATURE] [Excel]
-        // [SCENARIO 377912] It should be possible to import same Excel Template to Configuration Package with "Dimensions As Columns" twice
-
-        // [GIVEN] Config. Package "CP" with basic setup
-        Initialize();
-        CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
-        // [GIVEN] G/L Account "X" with two default dimensions "D[1]" and "D[2]"
-        GLAccount.DeleteAll();
-        LibraryERM.CreateGLAccount(GLAccount);
-        // [GIVEN] Default Dimensions Code: "AREA", Value: "10" and Code: "PROJECT", Value:"TOYOTA" assigned to "X"
-        CreateDefaultDimForGLAccount(GLAccount."No.", DefaultDimension[1]);
-        // [GIVEN] "D[2]".Code = "DCODE2" and "D[2]".Value = "DVALUE2"
-        CreateDefaultDimForGLAccount(GLAccount."No.", DefaultDimension[2]);
-
-        // [GIVEN] "CP" assigned to Config. Line "CL" where "CL"."Table ID" = 15 (DATABASE::"G/L Account"), "Dimensions As Columns" = Yes
-        LibraryRapidStart.CreateConfigLine(
-          ConfigLine, ConfigLine."Line Type"::Table, DATABASE::"G/L Account", '', ConfigPackage.Code, false);
-        FindConfigLineByTable(ConfigLine, DATABASE::"G/L Account");
-        ConfigPackageManagement.AssignPackage(ConfigLine, ConfigPackage.Code);
-        SetDimensionAsColumnsAtConfigLine(ConfigLine);
-
-        // [GIVEN] "CP" exported and imported as Excel Template
-        ConfigExcelExchange.SetHideDialog(true);
-        FileName := ConfigExcelExchange.ExportExcelFromConfig(ConfigLine);
-        FileName := FileManagement.UploadFile('', FileName);
-        ImportPackageFromExcel(FileName);
-
-        // [WHEN] Import "CP" as Excel Template second time
-        ImportPackageFromExcel(FileName);
-
-        // [THEN] "Config. Package Data" has value "AREA" for "Field ID" = 3 and "Rec No" = 1
-        // [THEN] "Config. Package Data" has value "10" for "Field ID" = 4 and "Rec No" = 1
-        // [THEN] "Config. Package Data" has value "PROJECT" for "Field ID" = 3 and "Rec No" = 2
-        // [THEN] "Config. Package Data" has value "TOYOTA" for "Field ID" = 4 and "Rec No" = 2
-        for Index := 1 to ArrayLen(DefaultDimension) do begin
-            Assert.AreEqual(
-              DefaultDimension[Index]."Dimension Code",
-              GetConfigPackageDataValue(ConfigPackage.Code, DATABASE::"Default Dimension", Index, 3),
-              IncorrectDefaultDimensionsImportErr);
-            Assert.AreEqual(
-              DefaultDimension[Index]."Dimension Value Code",
-              GetConfigPackageDataValue(ConfigPackage.Code, DATABASE::"Default Dimension", Index, 4),
-              IncorrectDefaultDimensionsImportErr);
-        end;
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('CreateAndExportBasicPackageWithManualPayment will always throw an error.', '17.3')]
-    procedure VerifyDefaultDimManualPaymentImportFromExcel()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        CashFlowManualExpense: Record "Cash Flow Manual Expense";
-        ConfigPackageData: Record "Config. Package Data";
-        DefaultDimension: Record "Default Dimension";
-        FileName: Text;
-    begin
-        // [FEATURE] [Excel]
-        // [SCENARIO 322992] It should be possible to import a package with table containing Primary Key field of Field No = 2
-
-        Initialize();
-        // [GIVEN] Manual Payment with Default Dimension "DefDim"
-        CreateManualPaymentWithDefaultDimension(CashFlowManualExpense, DefaultDimension);
-        // [GIVEN] Export the package "A", where Table is 'CashFlowManualExpense', "Dimensions as Columns" is 'Yes'
-        CreateAndExportBasicPackageWithManualPayment(ConfigPackage, ConfigPackageTable, CashFlowManualExpense, FileName);
-
-        // [WHEN] Import from Excel
-        ImportPackageFromExcel(FileName);
-
-        // [THEN] Package "A", where data contains Default Dimension "DefDim" for CashFlowManualExpense
-        SetDefaultDimFilter(DefaultDimension, DATABASE::"Cash Flow Manual Expense", CashFlowManualExpense.Code);
-        SetPackageDataFieldFilterByDefaultDimValueCode(ConfigPackageData, ConfigPackage.Code);
-
-        ConfigPackageData.SetRange(Value, DefaultDimension."Dimension Value Code");
-        Assert.IsTrue(ConfigPackageData.FindSet, IncorrectDefaultDimensionsImportErr);
-    end;
-#endif
 
     local procedure Initialize()
     var
@@ -800,53 +297,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageData.FindSet();
     end;
 
-#if not CLEAN17
-    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
-    local procedure ExportPackageToExcel(var ConfigPackageTable: Record "Config. Package Table"; var FileName: Text)
-    var
-        ConfigExcelExchange: Codeunit "Config. Excel Exchange";
-        FileManagement: Codeunit "File Management";
-    begin
-        ConfigExcelExchange.SetHideDialog(true);
-        ConfigExcelExchange.ExportExcel(FileName, ConfigPackageTable, true, false); // Returns FileName on the client
-        FileName := FileManagement.UploadFileSilent(FileName);
-        LibraryReportValidation.SetFullFileName(FileName);
-    end;
-
-    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
-    local procedure ImportPackageFromExcel(ClientFileName: Text)
-    var
-        TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
-        ConfigExcelExchange: Codeunit "Config. Excel Exchange";
-    begin
-        FileManagement.BLOBImportFromServerFile(TempBlob, FileManagement.UploadFileSilent(ClientFileName));
-        ConfigExcelExchange.ImportExcel(TempBlob);
-    end;
-
-    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
-    local procedure CreateAndExportBasicPackage(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; var Customer: Record Customer; var FileName: Text)
-    begin
-        CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
-        SetPackageFilterByCustomer(Customer, ConfigPackage.Code);
-        SetDimensionAsColumns(ConfigPackageTable);
-        ExportPackageToExcel(ConfigPackageTable, FileName);
-    end;
-
-    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
-    local procedure CreateAndExportBasicPackageWithManualPayment(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; var CashFlowManualExpense: Record "Cash Flow Manual Expense"; var FileName: Text)
-    var
-        ConfigPackageFilter: Record "Config. Package Filter";
-    begin
-        CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::"Cash Flow Manual Expense");
-        ConfigPackageMgt.InsertPackageFilter(
-          ConfigPackageFilter, ConfigPackage.Code, DATABASE::"Cash Flow Manual Expense", 0,
-          CashFlowManualExpense.FieldNo(Code), CashFlowManualExpense.Code);
-        SetDimensionAsColumns(ConfigPackageTable);
-        ExportPackageToExcel(ConfigPackageTable, FileName);
-    end;
-#endif
-
     local procedure CreatePackageExcludingDimSetIDField(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; var SalesHeader: Record "Sales Header")
     var
         Customer: Record Customer;
@@ -895,38 +345,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
           CashFlowManualExpense.Code, Dimension.Code, DimensionValue.Code);
     end;
 
-#if not CLEAN17
-    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
-    local procedure PrepareAndImportPackageForDimSet(var DimensionSetEntry: Record "Dimension Set Entry"; var ConfigPackageCode: Code[20]; var OldDimValue: Code[20]; var LastDimensionSetID: Integer; var DimensionSetID: Integer; TableID: Integer; DeleteDimension: Boolean)
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        DimensionValue: Record "Dimension Value";
-        SalesHeader: Record "Sales Header";
-        FileName: Text[1024];
-    begin
-        CreateBasicPackageForDimSet(ConfigPackage, ConfigPackageTable, SalesHeader, TableID);
-
-        ConfigPackageCode := ConfigPackage.Code;
-        SetDimensionAsColumns(ConfigPackageTable);
-        DimensionSetID := SalesHeader."Dimension Set ID";
-
-        // Save Dimension Set ID value
-        DimensionSetEntry.FindLast;
-        LastDimensionSetID := DimensionSetEntry."Dimension Set ID";
-
-        // Change dimension values and import package
-        DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindFirst;
-        OldDimValue := DimensionSetEntry."Dimension Value Code";
-        ModifyDimensionSetWithNewValue(DimensionSetEntry, DimensionValue);
-        ExportPackageToExcel(ConfigPackageTable, FileName);
-        if DeleteDimension then
-            DimensionValue.Delete();
-        ImportPackageFromExcel(FileName);
-    end;
-#endif
-
     local procedure SetPackageFilterForTable(ConfigPackageCode: Code[20]; TableID: Integer; FieldID: Integer; FieldFilter: Text[250])
     var
         ConfigPackageFilter: Record "Config. Package Filter";
@@ -956,7 +374,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     begin
         // Verify Dimension Set created
         DimensionSetEntry.Reset();
-        DimensionSetEntry.FindLast;
+        DimensionSetEntry.FindLast();
         Assert.IsTrue(LastDimensionSetID < DimensionSetEntry."Dimension Set ID", DimensionSetIsNotCreatedErr);
 
         // Verify Dimensions is equal to exported values
@@ -970,10 +388,10 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     begin
         ConfigPackageData.SetRange("Package Code", PackageCode);
         ConfigPackageData.SetRange("Table ID", TableID);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         repeat
             ConfigPackageData.SetRange(Value, DimensionSetEntry."Dimension Value Code");
-            if ConfigPackageData.FindSet then
+            if ConfigPackageData.FindSet() then
                 repeat
                     Assert.IsFalse(
                       DimensionSetEntry.IsEmpty, StrSubstNo(DimensionValueCodeIsNotFoundErr, DimensionSetEntry."Dimension Value Code"));
@@ -1056,50 +474,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryDimension.CreateDefaultDimension(
           DefaultDimension, DATABASE::Customer, Customer."No.", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
-
-#if not CLEAN17
-    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
-    local procedure ExportImportAndApplyPackageWithNewDimension(var Customer: Record Customer; AddDimValueIdField: Boolean): Code[20]
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        DefaultDimension: Record "Default Dimension";
-        DimensionValue: Record "Dimension Value";
-        ConfigPackageFilter: Record "Config. Package Filter";
-        ConfigPackageField: Record "Config. Package Field";
-        ConfigPackageMgt: Codeunit "Config. Package Management";
-        FileName: Text[1024];
-    begin
-        CreateNewCustomerAndNewLinkedDimension(Customer, DefaultDimension, DimensionValue);
-
-        CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
-        SetDimensionAsColumns(ConfigPackageTable);
-        ConfigPackageMgt.InsertPackageFilter(
-          ConfigPackageFilter, ConfigPackage.Code, DATABASE::Customer, 0, Customer.FieldNo("No."), Customer."No.");
-
-        if AddDimValueIdField then
-            ConfigPackageMgt.InsertPackageField(
-              ConfigPackageField,
-              ConfigPackage.Code,
-              DATABASE::"Dimension Value",
-              DimensionValue.FieldNo("Dimension Value ID"),
-              DimensionValue.FieldName("Dimension Value ID"),
-              DimensionValue.FieldCaption("Dimension Value ID"),
-              true, true, false, false);
-
-        ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
-        ExportPackageToExcel(ConfigPackageTable, FileName);
-
-        DefaultDimension.Delete();
-        DimensionValue.Delete();
-
-        ImportPackageFromExcel(FileName);
-
-        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
-
-        exit(ConfigPackage.Code);
-    end;
-#endif
 
     local procedure PackageErrorsContainsErrorWithSubstring(TableId: Integer; Substring: Text[250]): Boolean
     var
@@ -1221,7 +595,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigLine.SetRange("Table ID", TableId);
         ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Table);
 
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         ConfigLine.SetRecFilter;
     end;
 
@@ -1239,7 +613,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     begin
         DefaultDimension.SetRange("Table ID", SourceTableID);
         DefaultDimension.SetRange("No.", SourceNo);
-        DefaultDimension.FindFirst;
+        DefaultDimension.FindFirst();
 
         LibraryDimension.FindDimensionValue(DimVal, DefaultDimension."Dimension Code");
     end;
@@ -1266,7 +640,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
 
     local procedure RestoreDimSetEntry(var DimensionSetEntry: Record "Dimension Set Entry"; OldDimValue: Code[20])
     begin
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry."Dimension Value Code" := OldDimValue;
         DimensionSetEntry.Modify();
     end;

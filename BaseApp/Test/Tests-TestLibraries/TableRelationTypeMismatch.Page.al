@@ -79,7 +79,7 @@ page 130100 "Table Relation Type Mismatch"
             end;
         until TempField.Next = 0;
         Reset;
-        FindFirst;
+        FindFirst();
     end;
 }
 

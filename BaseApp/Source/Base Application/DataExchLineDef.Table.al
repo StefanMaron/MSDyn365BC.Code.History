@@ -121,7 +121,7 @@ table 1227 "Data Exch. Line Def"
             DataExchFieldMapping.SetRange("Table ID", TableId);
             DataExchFieldMapping.SetRange("Field ID", FieldId);
         end;
-        if DataExchFieldMapping.FindFirst then
+        if DataExchFieldMapping.FindFirst() then
             exit(DataExchFieldMapping.GetPath);
         exit('');
     end;

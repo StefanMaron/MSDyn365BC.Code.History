@@ -40,14 +40,14 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] The user creates an invoice and enters an address
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
         LibraryVariableStorage.Enqueue(Addr1);
         LibraryVariableStorage.Enqueue(PostCode);
         LibraryVariableStorage.Enqueue(City);
         O365SalesInvoice.FullAddress.AssistEdit;
         SalesHeader.SetRange("Sell-to Customer Name", Customer.Name);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         O365SalesInvoice.SaveForLater.Invoke;
 
         // [THEN] The customer address is updated
@@ -92,14 +92,14 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] The user creates an invoice and enters an address
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
         LibraryVariableStorage.Enqueue(Addr1);
         LibraryVariableStorage.Enqueue(PostCode);
         LibraryVariableStorage.Enqueue(City);
         O365SalesInvoice.FullAddress.AssistEdit;
         SalesHeader.SetRange("Sell-to Customer Name", Customer.Name);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         O365SalesInvoice.SaveForLater.Invoke;
 
         // [THEN] The customer address is not updated
@@ -126,7 +126,7 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         PostCode: Record "Post Code";
     begin
         PostCode.SetRange(Code, NewPostCode);
-        if PostCode.FindFirst then
+        if PostCode.FindFirst() then
             PostCode.DeleteAll();
         PostCode.Init();
         PostCode.Validate(Code, NewPostCode);

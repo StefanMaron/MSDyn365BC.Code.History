@@ -36,7 +36,9 @@ permissionset 7071 "Recievables - Edit"
                   tabledata "Item Variant" = R,
                   tabledata "Job Ledger Entry" = R,
                   tabledata "Line Fee Note on Report Hist." = R,
+#if not CLEAN20
                   tabledata "Native - Payment" = RImd,
+#endif
                   tabledata "Reminder Comment Line" = RIMD,
                   tabledata "Reminder Header" = RIMD,
                   tabledata "Reminder Level" = R,

@@ -165,7 +165,7 @@ report 5910 "Service Profit (Serv. Orders)"
                 LastOrderNo := "Order No.";
                 ServLedgerEntry.SetRange("Service Order No.", "Order No.");
 
-                if not ServLedgerEntry.FindFirst then
+                if not ServLedgerEntry.FindFirst() then
                     CurrReport.Skip();
             end;
         }

@@ -1,4 +1,4 @@
-﻿codeunit 905 "Assembly Line Management"
+codeunit 905 "Assembly Line Management"
 {
     Permissions = TableData "Assembly Line" = rimd;
 
@@ -612,9 +612,9 @@
                 if ReplaceLinesFromBOM then
                     case TempNewAsmLine.Type of
                         TempNewAsmLine.Type::Item:
-                            TempNewAsmLine.CreateDim(DATABASE::Item, TempNewAsmLine."No.", NewHeaderSetID);
+                            TempNewAsmLine.CreateDimFromDefaultDim(NewHeaderSetID);
                         TempNewAsmLine.Type::Resource:
-                            TempNewAsmLine.CreateDim(DATABASE::Resource, TempNewAsmLine."No.", NewHeaderSetID);
+                            TempNewAsmLine.CreateDimFromDefaultDim(NewHeaderSetID);
                     end
                 else begin
                     if UpdateDimension then

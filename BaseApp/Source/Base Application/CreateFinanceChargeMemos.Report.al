@@ -39,7 +39,7 @@ report 191 "Create Finance Charge Memos"
             begin
                 Window.Close;
                 MarkedOnly := true;
-                if FindFirst then
+                if FindFirst() then
                     if ConfirmManagement.GetResponse(Text003, true) then
                         PAGE.RunModal(0, Customer);
             end;

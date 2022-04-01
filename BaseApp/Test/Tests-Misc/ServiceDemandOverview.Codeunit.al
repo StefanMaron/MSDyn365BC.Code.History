@@ -48,9 +48,9 @@ codeunit 136131 "Service Demand Overview"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Demand Overview");
 
         // Setup demonstration data
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         // Set the Stockout warning to checked in receivables setup
         IsInitialized := true;
         Commit();
@@ -75,7 +75,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Sales demand, start date filter, no end date. Set start date = W - 5. All supply and demand should be shown. The quantity sum should be 4.
-        Initialize;
+        Initialize();
         FirstPurchaseQuantity := LibraryRandom.RandIntInRange(3, 12);
         SecondPurchaseQuantity := LibraryRandom.RandIntInRange(3, 7);
         FirstSaleQuantity := FirstPurchaseQuantity - 2;
@@ -122,7 +122,7 @@ codeunit 136131 "Service Demand Overview"
         // [FEATURE] [Sales]
         // [SCENARIO] Sales demand, Supply on workdate, Demand on workdate, workdate + 1, workdate + 2. Start date and end date are both before supply and demand.
 
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(100);
         SaleQuantity := PurchaseQuantity;
 
@@ -163,7 +163,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Sales] [Service] [Job]
         // [SCENARIO] The demand overview page should contain one line of each category.
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandIntInRange(11, 15);
         SaleQuantity := LibraryRandom.RandInt(3);
         JobQuantity := LibraryRandom.RandInt(7);
@@ -199,7 +199,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Sales] [Service] [Job]
         // [SCENARO] When running demand overview for the unused item, no lines should be shown.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(12);
 
         // [GIVEN] Create demand of types job, sales, service for item 1.
@@ -231,7 +231,7 @@ codeunit 136131 "Service Demand Overview"
         // [FEATURE] [Sales] [Service] [Job]
         // [SCENARO] When running demand overview without location limitation, all lines should be shown. When running demand overview for a location without supply or demand, no lines should be shown.
 
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(12);
 
         // [GIVEN] Create demand of types job, sales, service for item in location A.
@@ -264,7 +264,7 @@ codeunit 136131 "Service Demand Overview"
         // [FEATURE] [Sales] [Service] [Job]
         // [SCENARIO] When running demand overview without variant filter or for variant 1, all lines should be shown. When running demand overview for another variant, no lines should be shown.
 
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(12);
 
         // [GIVEN] Create Supply and Demand to Variant no. 1
@@ -303,7 +303,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Service]
         // [SCENARIO] Service demand, start date filter, no end date. Set start date = W - 5. All supply and demand should be shown. The quantity sum should be 4.
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandIntInRange(2, 10);
         ServiceQuantity := LibraryRandom.RandInt(PurchaseQuantity - 1);
 
@@ -335,7 +335,7 @@ codeunit 136131 "Service Demand Overview"
         // [SCENARIO] Check Planning Lines for Sevice and Job Demand using Reordering Policy as Order after running Calculate Regenerative Plan.
 
         // [GIVEN] Create Item with Reordering Policy as Order, Create demand for Service and Job.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Reordering Policy"::Order);
         CreateJobDemand(Item."No.", Quantity);
@@ -360,7 +360,7 @@ codeunit 136131 "Service Demand Overview"
         // [SCENARIO] Check Planning Lines Reservation for Sevice and Job Demand using Reordering Policy as Order after running Calculate Regenerative Plan.
 
         // [GIVEN] Create Item with Reordering Policy as Order, Create demand for Service and Job, Calculate Regenerative Plan. Using Random Date for Order Date.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No.";  // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -388,7 +388,7 @@ codeunit 136131 "Service Demand Overview"
         // [SCENARIO] Check Available Job Planning Lines and Reservation Entries from Reservation using Reordering Policy as Order after running Calculate Regenerative Plan.
 
         // [GIVEN] Create Item with Reordering Policy as Order, Create demand for Service and Job, Calculate Regenerative Plan. Using Random Date for Order Date.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -415,7 +415,7 @@ codeunit 136131 "Service Demand Overview"
         // [FEATURE] [Available - Job Planning Lines] [Job] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Job Planning Lines" page when demand is Job Planning Line, and supply - Purchase Order
 
-        Initialize;
+        Initialize();
         // [GIVEN] Job planning line and purchase order for the same item "I" with quantity "X"
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
@@ -443,7 +443,7 @@ codeunit 136131 "Service Demand Overview"
         // [SCENARIO] Item can be reserved from "Available - Service Lines" page when demand is Service Line, and supply - Purchase Order
 
         // [GIVEN] Create Item with Reordering Policy as Order, Create demand for Service and Job, Calculate Regenerative Plan. Using Random Date for Order Date.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -470,7 +470,7 @@ codeunit 136131 "Service Demand Overview"
         // [SCENARIO] Cancel reservation from "Available - Job Planning Lines" page
 
         // [GIVEN] Create Item "I" and job demand for this item
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -500,7 +500,7 @@ codeunit 136131 "Service Demand Overview"
         // [SCENARIO] Cancel reservation from "Available - Service Lines" page
 
         // [GIVEN] Create Item "I" and service demand for this item
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -529,7 +529,7 @@ codeunit 136131 "Service Demand Overview"
         // [FEATURE] [Available - Service Lines] [Service] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Service Lines" page when demand is Service Line, and supply - Purchase Order
 
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -553,7 +553,7 @@ codeunit 136131 "Service Demand Overview"
         // [FEATURE] [Available - ServiceLines] [Service] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Service Lines" page when demand is Service Line, and supply - Sales Return Order
 
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -578,7 +578,7 @@ codeunit 136131 "Service Demand Overview"
         // [FEATURE] [Available - Sales Lines] [Sales] [Service] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Sales Lines" page when demand is Service Line, and supply - Sales Return Order
 
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -602,7 +602,7 @@ codeunit 136131 "Service Demand Overview"
         // [FEATURE] [Available - Job Planning Lines] [Job] [Sales Return] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Job Planning Lines" page when demand is Job Planning Line, and supply - Sales Return Order
 
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -626,13 +626,13 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Sales Lines] [Job] [Sales Return] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Sales Lines" page when demand is Job Planning Line, and supply - Sales Return Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
 
         JobPlanningLine.SetRange("Job No.", CreateJobDemand(Item."No.", OriginalQuantity));
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
 
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate);
@@ -651,7 +651,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Purchase Lines] [Service] [Purchase] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Purchase Lines" page when demand is Service Line, and supply - Purchase Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -675,13 +675,13 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Purchase Lines] [Job] [Purchase] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Purchase Lines" page when demand is Job Planning Line, and supply - Purchase Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
 
         JobPlanningLine.SetRange("Job No.", CreateJobDemand(Item."No.", OriginalQuantity));
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
@@ -699,7 +699,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Service Lines] [Service] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Service Lines" page when demand is Sercice Line, and supply - Production Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -722,7 +722,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Job Planning Lines] [Job] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Job Planning Lines" page when demand is Job Planning Line, and supply - Production Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -745,7 +745,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Prod. Order Lines] [Production] [Service] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Lines" page when demand is Service Line, and supply - Production Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -767,12 +767,12 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Prod. Order Lines] [Production] [Job] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Lines" page when demand is Job Planning Line, and supply - Production Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
         JobPlanningLine.SetRange("Job No.", CreateJobDemand(Item."No.", OriginalQuantity));
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
 
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", OriginalQuantity);
 
@@ -791,7 +791,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Service Lines] [Service] [Transfer] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Service Lines" page when demand is Service Line, and supply - Transfer Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -816,7 +816,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Job Planning Lines] [Job] [Transfer] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Job Planning Lines" page when demand is Job Planning Line, and supply - Transfer Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -844,7 +844,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Transfer Lines] [Service] [Transfer] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Transfer Lines" page when demand is Service Line, and supply - Transfer Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -873,7 +873,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Transfer Lines] [Job] [Transfer] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Transfer Lines" page when demand is Job Planning Line, and supply - Transfer Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -883,7 +883,7 @@ codeunit 136131 "Service Demand Overview"
         LibraryWarehouse.CreateLocation(ToLocation);
 
         JobPlanningLine.SetRange("Job No.", CreateJobDemandAtBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate));
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
 
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", OriginalQuantity);
 
@@ -900,7 +900,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Service Lines] [Service] [Assembly] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Service Lines" page when demand is Service Line, and supply - Assembly Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -920,7 +920,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Job Planning Lines] [Job] [Assembly] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Job Planning Lines" page when demand is Job Planning Line, and supply - Assembly Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -941,7 +941,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Assembly Lines] [Service] [Assembly] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Assembly Lines" page when demand is Service Line, and supply - Assembly Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -964,13 +964,13 @@ codeunit 136131 "Service Demand Overview"
     begin
         // [FEATURE] [Available - Assembly Lines] [Job] [Assembly] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Assembly Lines" page when demand is Job Planning Line, and supply - Assembly Order
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
 
         JobPlanningLine.SetRange("Job No.", CreateJobDemand(Item."No.", OriginalQuantity));
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', OriginalQuantity, '');
         JobPlanningLine.ShowReservation();
@@ -989,7 +989,7 @@ codeunit 136131 "Service Demand Overview"
         // [SCENARIO] Drill down "Current Reserve Quantity" in "Available - Job Planning Lines" shows correct reserved quantity
 
         // [GIVEN] Create item "I" with job planning demand and purchase supply, quantity = "X". Autoreserve supply
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -1018,7 +1018,7 @@ codeunit 136131 "Service Demand Overview"
         // [SCENARIO] Drill down "Current Reserve Quantity" in "Available - Job Planning Lines" shows correct reserved quantity
 
         // [GIVEN] Create item "I" with service demand and purchase supply, quantity = "X". Autoreserve supply
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order);
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
@@ -1322,7 +1322,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindServiceItem(var ServiceItem: Record "Service Item")
@@ -1331,7 +1331,7 @@ codeunit 136131 "Service Demand Overview"
         Customer: Record Customer;
     begin
         Clear(ServiceItem);
-        if ServiceItem.FindFirst then
+        if ServiceItem.FindFirst() then
             repeat
                 Customer.Get(ServiceItem."Customer No.");
                 Item.Get(ServiceItem."Item No.");
@@ -1345,7 +1345,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure GetReceiptDate(PurchaseHeaderNo: Code[20]): Date
@@ -1355,7 +1355,7 @@ codeunit 136131 "Service Demand Overview"
         // Method returns the expected receipt date from a purchase order.
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeaderNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         if PurchaseLine.Count > 0 then
             exit(PurchaseLine."Expected Receipt Date");
         Error(ReceiptDateDocumentError, PurchaseHeaderNo);
@@ -1368,7 +1368,7 @@ codeunit 136131 "Service Demand Overview"
         // Method returns the shipment date from a sales order.
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesHeaderNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         if SalesLine.Count > 0 then
             exit(SalesLine."Shipment Date");
         Error(ShipmentDateDocumentError, SalesHeaderNo);

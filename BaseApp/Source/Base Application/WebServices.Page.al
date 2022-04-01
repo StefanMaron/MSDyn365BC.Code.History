@@ -162,9 +162,14 @@ page 810 "Web Services"
     trigger OnOpenPage()
     var
         WebService: Record "Web Service";
+        MyNotification: Record "My Notifications";
+        WebserviceNotificationMgt: Codeunit "Webservice Notification Mgt.";
     begin
         if WebService.WritePermission() then
             IsWebServiceWriteable := true;
+        WebserviceNotificationMgt.WebServiceAPINotificationDefault(true);
+        if MyNotification.IsEnabled(WebserviceNotificationMgt.WebServiceAPINotificationId()) then
+            WebserviceNotificationMgt.WebServiceAPINotificationShow(WebServcieAPINotification);
 
         Reload();
     end;
@@ -172,6 +177,7 @@ page 810 "Web Services"
     var
         EnvironmentInformation: Codeunit "Environment Information";
         WebServiceManagement: Codeunit "Web Service Management";
+        WebServcieAPINotification: Notification;
         ClientType: Enum "Client Type";
         IsWebServiceWriteable: Boolean;
         IsSaas: Boolean;

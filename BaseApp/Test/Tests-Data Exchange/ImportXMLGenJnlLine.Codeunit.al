@@ -35,7 +35,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         OutStream: OutStream;
         Encoding: DotNet Encoding;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -65,7 +65,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         OutStream: OutStream;
         Encoding: DotNet Encoding;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -98,7 +98,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         OutStream: OutStream;
         Encoding: DotNet Encoding;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -111,7 +111,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         // Exercise
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
-        BankAcc.IBAN := LibraryUtility.GenerateGUID;
+        BankAcc.IBAN := LibraryUtility.GenerateGUID();
         BankAcc.Modify();
         GenJnlLineTemplate.ImportBankStatement;
 
@@ -129,7 +129,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         OutStream: OutStream;
         Encoding: DotNet Encoding;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -166,7 +166,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         Encoding: DotNet Encoding;
         FileCurrencyCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -198,7 +198,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         Encoding: DotNet Encoding;
         FileCurrencyCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -228,7 +228,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         OutStream: OutStream;
         Encoding: DotNet Encoding;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -258,7 +258,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         OutStream: OutStream;
         Encoding: DotNet Encoding;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -271,7 +271,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         // Exercise
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
-        BankAcc.IBAN := LibraryUtility.GenerateGUID;
+        BankAcc.IBAN := LibraryUtility.GenerateGUID();
         BankAcc.Modify();
         asserterror GenJnlLineTemplate.ImportBankStatement;
 
@@ -290,7 +290,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         OutStream: OutStream;
         Encoding: DotNet Encoding;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -322,7 +322,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         OutStream: OutStream;
         Encoding: DotNet Encoding;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -361,7 +361,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         LineNo: Integer;
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         TempBlobOEM.CreateOutStream(OutStream);
@@ -379,7 +379,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         GenJnlLineTemplate.ImportBankStatement;
         DataExch.SetRange("Data Exch. Def Code", 'SEPA CAMT');
-        DataExch.FindLast;
+        DataExch.FindLast();
         EntryNo := DataExch."Entry No.";
         GenJnlLineTemplate.Find;
 
@@ -398,7 +398,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupGenJnlLineForImport(GenJnlLine);
@@ -420,7 +420,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         GenJnlLine: Record "Gen. Journal Line";
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupGenJnlLineForImport(GenJnlLine);
@@ -445,7 +445,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         GenJnlLine: Record "Gen. Journal Line";
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupGenJnlLineForImport(GenJnlLine);
@@ -471,7 +471,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         GLAccount: Record "G/L Account";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupGenJnlLineForImport(GenJnlLine);
@@ -482,7 +482,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         GenJnlLine.ModifyAll("Account No.", GLAccount."No.");
-        GenJnlLine.ModifyAll(Description, LibraryUtility.GenerateGUID);
+        GenJnlLine.ModifyAll(Description, LibraryUtility.GenerateGUID());
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Verify.
@@ -497,7 +497,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         GenJnlLine: Record "Gen. Journal Line";
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupGenJnlLineForImport(GenJnlLine);
@@ -510,7 +510,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         GenJnlLine.ModifyAll("Account No.", GLAccount."No.");
-        GenJnlLine.ModifyAll(Description, LibraryUtility.GenerateGUID);
+        GenJnlLine.ModifyAll(Description, LibraryUtility.GenerateGUID());
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Verify.
@@ -526,7 +526,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         CurrTxt := 'EUR';
         IBANTxt := '15415024154';
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERM.SetLCYCode(CurrTxt);
         Commit();
 
@@ -865,7 +865,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         DataExchDef.Modify();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         DataExchLineDef.Namespace := NamespaceTxt;
         DataExchLineDef.Modify();
     end;
@@ -905,7 +905,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         LibraryERM.CreateGeneralJnlLine(GenJnlLineTemplate, GenJnlTemplate.Name,
           GenJnlBatch.Name, GenJnlLineTemplate."Document Type"::Payment, GenJnlLineTemplate."Account Type"::"G/L Account", '', 0);
         GenJnlLineTemplate.Validate("External Document No.", ''); // External Doc. No. is ignored. The user has to specify a value.
-        GenJnlLineTemplate.Description := LibraryUtility.GenerateGUID;
+        GenJnlLineTemplate.Description := LibraryUtility.GenerateGUID();
         GenJnlLineTemplate.Modify(true);
         GenJnlLineTemplate.Delete(true); // The template needs to removed to not skew when comparing testresults.
 
@@ -989,7 +989,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         DocNo: Code[20];
     begin
         DataExch.SetRange("Data Exch. Def Code", 'SEPA CAMT');
-        DataExch.FindLast;
+        DataExch.FindLast();
         EntryNo := DataExch."Entry No.";
         GenJnlLineTemplate.Find;
         LineNo := GenJnlLineTemplate."Line No.";
@@ -1004,8 +1004,8 @@ codeunit 132549 "Import XML Gen Jnl Line"
     var
         LineNo: Integer;
     begin
-        TempExpectedGenJnlLine.FindFirst;
-        ActualGenJnlLine.FindFirst;
+        TempExpectedGenJnlLine.FindFirst();
+        ActualGenJnlLine.FindFirst();
         repeat
             LineNo += 1;
             AreEqualRecords(TempExpectedGenJnlLine, ActualGenJnlLine, Msg + 'Line:' + Format(LineNo) + ' ');
@@ -1047,7 +1047,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         DataExch: Record "Data Exch.";
     begin
         DataExch.SetRange("Data Exch. Def Code", 'SEPA CAMT');
-        DataExch.FindLast;
+        DataExch.FindLast();
         exit(DataExch."Entry No.");
     end;
 

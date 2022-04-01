@@ -1,0 +1,895 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="ru-RU" original="_Exclude_Email Logging Using Graph API">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 3925836548 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Logging using Graph API</source>
+          <target state="translated">Регистрация электронной почты с использованием API Graph</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3925836548 - Field 3879241928 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client Id</source>
+          <target state="translated">ИД клиента</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Field Client Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3925836548 - Field 4106039276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client Secret Key</source>
+          <target state="translated">Ключ секрета клиента</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Field Client Secret Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3925836548 - Field 3495016871 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Consent Given</source>
+          <target state="translated">Согласие предоставлено</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Field Consent Given - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3925836548 - Field 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <target state="translated">Адрес электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Field Email Address - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3925836548 - Field 2228666639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Batch Size</source>
+          <target state="translated">Размер пакета электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Field Email Batch Size - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3925836548 - Field 2891538263 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Включено</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Field Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3925836548 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Первичный ключ</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3925836548 - Field 618784563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Redirect URL</source>
+          <target state="translated">URL-адрес перенаправления</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Field Redirect URL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 400223042 - NamedType 454739994" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DELETE request failed with status code %1.</source>
+          <target state="translated">Сбой запроса DELETE с кодом состояния %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Http status code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Client - NamedType FailedDeleteRequestErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 400223042 - NamedType 101472083" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GET request failed with status code %1.</source>
+          <target state="translated">Сбой запроса GET с кодом состояния %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Http status code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Client - NamedType FailedGetRequestErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 400223042 - NamedType 1741489945" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>POST request failed with status code %1.</source>
+          <target state="translated">Сбой запроса POST с кодом состояния %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Http status code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Client - NamedType FailedPostRequestErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 400223042 - NamedType 1430696441" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Request failed with status code %1.</source>
+          <target state="translated">Сбой запроса с кодом состояния %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Http status code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Client - NamedType FailedRequestErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 400223042 - NamedType 2164095947" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We cannot connect to the shared mailbox in Office 365.\\This might be because the Exchange user does not have a valid license for Office 365.</source>
+          <target state="translated">Не удается подключиться к общему почтовому ящику в Office 365.\\Это может быть связано с тем, что у пользователя Exchange нет действительной лицензии на Office 365.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Client - NamedType TheMailboxIsNotValidErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2165751579 - NamedType 192532729" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check connection</source>
+          <target state="translated">Проверить подключение</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Helper - NamedType ContextCheckConnectionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2165751579 - NamedType 3966901435" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get messages</source>
+          <target state="translated">Получить сообщения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Helper - NamedType ContextGetMessagesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2165751579 - NamedType 3791449231" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email logging is not enabled.</source>
+          <target state="translated">Регистрация электронной почты не включена.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Helper - NamedType DisabledErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2165751579 - NamedType 520866582" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must provide an email address.</source>
+          <target state="translated">Необходимо указать адрес электронной почты.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Helper - NamedType EmptyEmailAddressErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2165751579 - NamedType 2355372627" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email logging is not set up.</source>
+          <target state="translated">Регистрация электронной почты не настроена.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Helper - NamedType SetupNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 419282697 - NamedType 2295013642" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Archiving email message</source>
+          <target state="translated">Архивация сообщения электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextArchiveMessageTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 419282697 - NamedType 3447063239" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deleting email message</source>
+          <target state="translated">Удаление сообщения электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextDeleteMessageTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 419282697 - NamedType 3966901435" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get email messages</source>
+          <target state="translated">Получить сообщения электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextGetMessagesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 419282697 - NamedType 3996821955" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Log interaction</source>
+          <target state="translated">Регистрировать взаимодействия</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextLogInteractionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 419282697 - NamedType 1146285529" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process email message</source>
+          <target state="translated">Обработать сообщение электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextProcessMessageTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 419282697 - NamedType 1539061738" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validate setup</source>
+          <target state="translated">Проверить конфигурацию</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextValidateSetupTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 419282697 - NamedType 1458334003" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The message has not been logged. %1</source>
+          <target state="translated">Сообщение не зарегистрировано. %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 - exception message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType MessageNotLoggedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 419282697 - NamedType 292613421" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is no link to the email because the email could not be moved to the Archive folder.</source>
+          <target state="translated">Ссылки на сообщение электронной почты нет, так как его не удалось переместить в папку "Архив".</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType NoLinkAttachmentMessageTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 419282697 - NamedType 3802208139" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is no link to the email because the email could not be moved.</source>
+          <target state="translated">Ссылки на сообщение электронной почты нет, так как его не удалось переместить.</target>
+          <note from="Developer" annotates="general" priority="2">Max 80 chars</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType NoLinkCommentMessageTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 1595950268" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot extract the tenant ID from the access token.</source>
+          <target state="translated">Не удается извлечь ИД арендатора из маркера доступа.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType CannotExtractTenantIdErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 3452571438" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Email Logging Using the Microsoft Graph API feature is not enabled.</source>
+          <target state="translated">Функция "Регистрация электронной почты с использованием Microsoft Graph API" не включена.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingDisabledErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 719120474" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Log email interactions between salespeople and contacts.</source>
+          <target state="translated">Регистрация взаимодействий по электронной почте между менеджерами по продажам и контактами.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingJobDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 1228041154" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Track email exchanges between your sales team and your customers and prospects, and then turn the emails into actionable opportunities.</source>
+          <target state="translated">Отслеживание обмена сообщениями электронной почты между группой продаж и клиентами или потенциальными клиентами, а также их преобразование в возможности.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingSetupDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 1892638790" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up email logging</source>
+          <target state="translated">Настройка регистрации электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingSetupShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 4210870252" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up the Email Logging Using the Microsoft Graph API feature.</source>
+          <target state="translated">Настройка функции "Регистрация электронной почты с использованием Microsoft Graph API" не включена.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingSetupTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 520866582" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email address is empty.</source>
+          <target state="translated">Адрес электронной почты пуст.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmptyEmailAddressErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 33623699" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Email Logging Using the Microsoft Graph API feature is not enabled.</source>
+          <target state="translated">Функция "Регистрация электронной почты с использованием Microsoft Graph API" не включена.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType FeatureDisabledErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 1164843116" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your license does not allow you to schedule the email logging task or register interaction log entries. To view details about your permissions, see the Effective Permissions page.</source>
+          <target state="translated">Ваша лицензия не позволяет запланировать задачу регистрации электронной почты или регистрировать записи журнала взаимодействия. Для просмотра сведений о ваших разрешениях перейдите на страницу "Действующие разрешения".</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType NoPermissionsForJobErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 2274573483" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No permissions.</source>
+          <target state="translated">Разрешений нет.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType NoPermissionsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2120671752 - NamedType 2543942014" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must specify a size for the email batch.</source>
+          <target state="translated">Необходимо указать размер пакета электронной почты.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType ZeroEmailBatchSizeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3366432307 - NamedType 1632511380" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not get an access token.</source>
+          <target state="translated">Не удалось получить маркер доступа.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging OAuth Client - NamedType CouldNotGetAccessTokenErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3366432307 - NamedType 2982938511" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The client ID is not specified.</source>
+          <target state="translated">ИД клиента не указан.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging OAuth Client - NamedType MissingClientIdErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3366432307 - NamedType 365681226" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The client secret is not specified.</source>
+          <target state="translated">Секрет клиента не указан.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging OAuth Client - NamedType MissingClientSecretErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3366432307 - NamedType 2400741151" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication using the client ID and secret for email logging is not enabled.</source>
+          <target state="translated">Проверка подлинности с использованием ИД и секрета клиента для регистрации электронной почты не включена.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging OAuth Client - NamedType ThirdPartyAppOnlyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1641602404 - NamedType 1427565258" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email logging done through public folders in Exchange Online will be disabled and the corresponding job queue entry will be deleted. Administrators can then set up email logging to use a shared mailbox in Exchange.</source>
+          <target state="translated">Регистрация электронной почты, осуществляемая через общие папки в Exchange Online, будет отключена, и соответствующая операция очереди работ будет удалена. После этого администратор сможет настроить регистрацию электронной почты для использования общего почтового ящика в Exchange.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Email Log. Using Graph - NamedType DescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Logging</source>
+          <target state="translated">Регистрация электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - NamedType 2970173640" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the shared mailbox.</source>
+          <target state="translated">Не удалось получить доступ к общему почтовому ящику.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType CannotAccessMailboxErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - NamedType 4171123882" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This clears the settings in your email logging setup. Do you want to continue?</source>
+          <target state="translated">Значения параметров конфигурации регистрации электронной почты будут сброшены. Продолжить?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType ClearSetupTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - NamedType 1063437616" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This setup page can only be used when the Email Logging Using the Microsoft Graph API feature is enabled. You can enable the feature on the Feature Management page.</source>
+          <target state="translated">Эту страницу настройки можно использовать, только когда включена функция "Регистрация электронной почты с использованием Microsoft Graph API". Включить эту функцию можно на странице "Управление функциями".</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType FeautureNotEnabledErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - NamedType 3536538717" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must sign in with an administrator account for Exchange Online and give consent to the application that will be used to connect to the shared mailbox. Do you want to continue?</source>
+          <target state="translated">Вы должны войти в систему под учетной записью администратора Exchange Online и предоставить согласие приложению, которое будет использоваться для подключения к общему почтовому ящику. Продолжить?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType GiveConsentTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - NamedType 486941607" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The setup for email logging is ready to use.</source>
+          <target state="translated">Конфигурация регистрации электронной почты готова к использованию.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType SetupValidatedTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - NamedType 1079936952" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must sign in with an Exchange Online account that the scheduled job will use to connect to the shared mailbox and process emails. Do you want to continue?</source>
+          <target state="translated">Вы должны войти в систему под учетной записью Exchange Online, которую запланированная работа будет использовать для подключения к общему почтовому ящику и обработки сообщений электронной почты. Продолжить?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType SignInTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - NamedType 3295561406" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The token was successfully renewed.</source>
+          <target state="translated">Срок действия маркера успешно продлен.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType SucceedRenewTokenTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 1856812681 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General</source>
+          <target state="translated">Общие сведения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control GeneralSection - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 90141998 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the email address of the shared mailbox in Exchange Online that was created for email logging. The shared mailbox must be in the same tenant as Business Central.</source>
+          <target state="translated">Определяет адрес электронной почты общего почтового ящика в Exchange Online, созданного для регистрации электронной почты. Общий почтовый ящик должен находиться в том же арендаторе, что и Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Email Address - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shared Mailbox Email</source>
+          <target state="translated">Адрес общего почтового ящика</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Email Address - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 2228666639 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of email messages that the job queue entry for email logging will get from Exchange Online in one run. By balancing this number with how often the job queue entry runs you can fine tune the process. If a message is not logged in the current run it will be in the next one.</source>
+          <target state="translated">Определяет количество сообщений электронной почты, которые операция очереди работ для регистрации электронной почты будет получать из Exchange Online за один прогон. Балансирование этого количества с периодичностью запуска операции очереди работ позволяет оптимизировать процесс. Если сообщение не зарегистрировано в текущем прогоне, оно будет зарегистрировано в следующем.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Email Batch Size - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 2228666639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Batch Size</source>
+          <target state="translated">Размер пакета электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Email Batch Size - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 2891538263 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether email logging is enabled.</source>
+          <target state="translated">Определяет, включена ли регистрация электронной почты.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Enabled - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 2891538263 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Включено</target>
+          <note from="Developer" annotates="general" priority="2">Name of the toggle that shows whether email logging is enabled.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 3879241928 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID of the Azure Active Directory application that will be used to connect to Exchange Online.</source>
+          <target state="translated">Определяет идентификатор приложения Azure Active Directory, которое будет использоваться для подключения к Exchange Online.</target>
+          <note from="Developer" annotates="general" priority="2">Exchange Online and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Client Id - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 3879241928 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client ID</source>
+          <target state="translated">ИД клиента</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Client Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 4106039276 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the Azure Active Directory application secret that will be used to connect to Exchange Online.</source>
+          <target state="translated">Определяет секрет приложения Azure Active Directory, которое будет использоваться для подключения к Exchange Online.</target>
+          <note from="Developer" annotates="general" priority="2">Exchange Online and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Client Secret Key - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 4106039276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client Secret</source>
+          <target state="translated">Секрет клиента</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Client Secret Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 618784563 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the redirect URL of the Azure Active Directory application that will be used to connect to Exchange Online.</source>
+          <target state="translated">Определяет URL-адрес перенаправления приложения Azure Active Directory, которое будет использоваться для подключения к Exchange Online.</target>
+          <note from="Developer" annotates="general" priority="2">Exchange Online and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Redirect URL - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Control 618784563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Redirect URL</source>
+          <target state="translated">URL-адрес перенаправления</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Redirect URL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 2678035379 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the status and any errors that occurred while processing email messages and creating interaction log entries.</source>
+          <target state="translated">Просмотр статуса и ошибок, которые произошли при обработке сообщений электронной почты и создании операций журнала взаимодействий.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action ActivityLog - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 2678035379 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Activity Log</source>
+          <target state="translated">Журнал действий</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action ActivityLog - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 841712208 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Turn data encryption on or off. Data encryption helps make sure that unauthorized users cannot read business data.</source>
+          <target state="translated">Включение или отключение шифрования данных. Шифрование данных защищает вас от несанкционированного чтения бизнес-данных другими пользователями.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action EncryptionManagement - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 841712208 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Encryption Management</source>
+          <target state="translated">Управление шифрованием</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action EncryptionManagement - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 2990248934 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the job queue entry that processes email messages and creates interaction log entries.</source>
+          <target state="translated">Просмотр операции очереди работ, которая обрабатывает сообщения электронной почты и создает операции журнала взаимодействий.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action Job Queue Entry - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 2990248934 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Job Queue Entry</source>
+          <target state="translated">Операция очереди работ</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action Job Queue Entry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 920975707 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assisted Setup</source>
+          <target state="translated">Мастер настройки</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action AssistedSetup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 920975707 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assisted Setup</source>
+          <target state="translated">Мастер настройки</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action AssistedSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 807937578 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Clear all settings for email logging.</source>
+          <target state="translated">Сброс всех параметров регистрации электронной почты.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action ClearSetup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 807937578 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Clear Setup</source>
+          <target state="translated">Очистить конфигурацию</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action ClearSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 1339347432 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recreate the job queue entry that processes email messages and creates interaction log entries.</source>
+          <target state="translated">Повторное создание операции очереди работ, которая обрабатывает сообщения электронной почты и создает операции журнала взаимодействий.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action RecreateJob - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 1339347432 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recreate Job</source>
+          <target state="translated">Создать работу заново</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action RecreateJob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 22890876 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Renew the token for connecting to the shared mailbox. You must sign in with an Exchange Online account that the scheduled job will use to connect to the shared mailbox and process emails. Use this to change the user, or if the token has expired.</source>
+          <target state="translated">Продление срока действия маркера для подключения к общему почтовому ящику. Вы должны войти в систему под учетной записью Exchange Online, которую запланированная работа будет использовать для подключения к общему почтовому ящику и обработки сообщений электронной почты. Эту функцию следует использовать для смены пользователя или если срок действия маркера истек.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action RenewToken - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 22890876 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Renew Token</source>
+          <target state="translated">Продлить маркер</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action RenewToken - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 2570329715 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validate the settings for email logging.</source>
+          <target state="translated">Проверка параметров регистрации электронной почты.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action ValidateSetup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3925836548 - Action 2570329715 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validate Setup</source>
+          <target state="translated">Проверить конфигурацию</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action ValidateSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set Up Email Logging</source>
+          <target state="translated">Настройка регистрации электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 1873691371" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify client ID and secret</source>
+          <target state="translated">Укажите ИД и секрет клиента</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType ClientCredentialsLinkTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 3175115564" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client ID and secret are required to connect to the shared mailbox.</source>
+          <target state="translated">Для подключения к общему почтовому ящику требуются его ИД и секрет клиента.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType ClientCredentialsRequiredTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 230713431" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Interaction Template Setup</source>
+          <target state="translated">Конфигурация шаблона взаимодействия</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType InteractionTemplateSetupLinkTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 3769904544" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Interaction Template Setup needs to be configured.</source>
+          <target state="translated">Необходимо настроить конфигурацию шаблона взаимодействия.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType InvalidInteractionTemplateSetupTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 4212992191" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The connection test was not successful.</source>
+          <target state="translated">Проверка подключения завершилась ошибкой.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType InvalidMailboxTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 2937150220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn how to set up a shared mailbox for email logging</source>
+          <target state="translated">Как настроить общий почтовый ящик для регистрации электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType LearnHowToSetupMailboxForEmailLoggingTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 1147111024" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email logging is not set up. \\Are you sure that you want to exit?</source>
+          <target state="translated">Регистрация электронной почты не настроена. \\Вы действительно хотите выйти?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType NotSetUpQst</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 3910883965" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Feature Management</source>
+          <target state="translated">Открыть страницу "Управление функциями"</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType OpenFeatureManagementTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 2071660008" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sign in and give consent</source>
+          <target state="translated">Войти и предоставить согласие</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType SignInAndGiveConsentLinkTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 623484020" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client ID and secret are specified and will be used to connect to the shared mailbox.</source>
+          <target state="translated">ИД и секрет клиента указаны и будут использоваться для подключения к общему почтовому ящику.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType SpecifiedCustomClientCredentialsTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 1246708985" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The user is signed in.</source>
+          <target state="translated">Вход пользователя в систему выполнен.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType SuccesfullyLoggedInTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 2938257072" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not sign in the user.</source>
+          <target state="translated">Не удалось выполнить вход пользователя в систему.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType UnsuccesfullyLoggedInTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 1476358086" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check connection to the specified mailbox</source>
+          <target state="translated">Проверить подключение к указанному почтовому ящику</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType ValidateMailboxLinkTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 82472981" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Interaction Template Setup is correctly configured.</source>
+          <target state="translated">Конфигурация шаблона взаимодействия настроена правильно.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType ValidInteractionTemplateSetupTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - NamedType 4234345518" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The connection test was successful.</source>
+          <target state="translated">Проверка подключения успешно пройдена.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType ValidMailboxTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 4292707144 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control FeatureNotEnabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2762510287 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the Feature Management page.</source>
+          <target state="translated">Открытие страницы "Управление функциями".</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control EnableFeature - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2226295909 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Email Logging Using the Microsoft Graph API feature is not enabled. To continue, open the Feature Management page and enable the feature.</source>
+          <target state="translated">Функция "Регистрация электронной почты с использованием Microsoft Graph API" не включена. Для продолжения откройте страницу "Управление функциями" и включите эту функцию.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control FeatureHeader - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2916936581 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Step1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1403432667 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Welcome to Email Logging Setup</source>
+          <target state="translated">Вас приветствует мастер настройки регистрации электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Welcome to Email Logging Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 700962840 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This guide will help you set up email logging using the Microsoft Graph API to connect to a shared mailbox.</source>
+          <target state="translated">Этот мастер поможет вам настроить регистрацию электронной почты с использованием API Microsoft Graph для подключения к общему почтовому ящику.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Control3 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 700962840 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Control3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 3889445925 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To learn more about how to set up shared mailboxes and rules so that your organization can track email communication between sales people and external contacts, choose the link below.</source>
+          <target state="translated">Чтобы больше узнать о том, как настроить общие почтовые ящики и правила для отслеживания переписки по электронной почте между менеджерами по продажам и внешними контактами, перейдите по ссылке ниже.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Control4 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 3889445925 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Control4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 3104144983 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The settings in Exchange Online are complete.</source>
+          <target state="translated">Параметры в Exchange Online полностью настроены.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ManualSetupDone - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 3104144983 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manual setup done</source>
+          <target state="translated">Ручная настройка завершена</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ManualSetupDone - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2279239964 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the ID and secret of the Azure Active Directory application that will be used to connect to the shared mailbox.</source>
+          <target state="translated">Укажите ИД и секрет приложения Azure Active Directory, которое будет использоваться для подключения к общему почтовому ящику.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Step2 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 4271350140 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indicates that the client ID and secret are required to connect to the shared mailbox.</source>
+          <target state="translated">Указывает, что для подключения к общему почтовому ящику требуются ИД и секрет клиента.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ClientCredentialsRequired - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1996076276 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indicates that the client credentials are specified and will be used to connect to the shared mailbox.</source>
+          <target state="translated">Указывает, что учетные данные клиента указаны и будут использоваться для подключения к общему почтовому ящику.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control SpecifiedCustomClientCredentials - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1996076276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client ID and secret are specified and will be used to connect to the shared mailbox</source>
+          <target state="translated">ИД и секрет клиента указаны и будут использоваться для подключения к общему почтовому ящику.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control SpecifiedCustomClientCredentials - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1641543347 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sign in with an administrator account for Exchange Online and give consent to the application that will be used to connect to the shared mailbox.</source>
+          <target state="translated">Войдите в систему под учетной записью администратора Exchange Online и предоставьте согласие приложению, которое будет использоваться для подключения к общему почтовому ящику.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Step3 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 3287227344 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indicates that the Exchange Online administrator is not signed in.</source>
+          <target state="translated">Указывает, что администратор Exchange Online не вошел в систему.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control UnsuccesfullyLoggedIn - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 629422449 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the Exchange administrator has logged in successfully.</source>
+          <target state="translated">Указывает, удалось ли администратору Exchange войти в систему.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control SuccesfullyLoggedIn - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 3370469328 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Consent given</source>
+          <target state="translated">Согласие предоставлено</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control AppConsentGiven - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 3370469328 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Consent given</source>
+          <target state="translated">Согласие предоставлено</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control AppConsentGiven - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1003846730 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Provide the email address of the shared mailbox that is configured for email logging. The shared mailbox must be in the same tenant as Business Central.</source>
+          <target state="translated">Укажите адрес электронной почты общего почтового ящика, настроенного для регистрации электронной почты. Общий почтовый ящик должен находиться в том же арендаторе, что и Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Step4 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 357018923 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter the number of email messages that the job queue entry for email logging will get from Exchange Online in one run. By balancing this number with how often the job queue entry runs you can fine tune the process. If a message is not logged in the current run it will be in the next one.</source>
+          <target state="translated">Введите количество сообщений электронной почты, которые операция очереди работ для регистрации электронной почты будет получать из Exchange Online за один прогон. Балансирование этого количества с периодичностью запуска операции очереди работ позволяет оптимизировать процесс. Если сообщение не зарегистрировано в текущем прогоне, оно будет зарегистрировано в следующем.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control AdvancedHeader - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2269421455 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of email messages that the job queue entry for email logging will get from Exchange Online in one run. By balancing this number with how often the job queue entry runs you can fine tune the process. If a message is not logged in the current run it will be in the next one.</source>
+          <target state="translated">Определяет количество сообщений электронной почты, которые операция очереди работ для регистрации электронной почты будет получать из Exchange Online за один прогон. Балансирование этого количества с периодичностью запуска операции очереди работ позволяет оптимизировать процесс. Если сообщение не зарегистрировано в текущем прогоне, оно будет зарегистрировано в следующем.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control EmailBatchSize - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2269421455 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Batch Size</source>
+          <target state="translated">Размер пакета электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control EmailBatchSize - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 90141998 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the email address of the shared mailbox. The shared mailbox must be in the same tenant as Business Central.</source>
+          <target state="translated">Определяет адрес электронной почты общего почтового ящика. Общий почтовый ящик должен находиться в том же арендаторе, что и Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Email Address - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shared Mailbox Email</source>
+          <target state="translated">Адрес общего почтового ящика</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Email Address - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1264306775 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The connection test was not successful.</source>
+          <target state="translated">Проверка подключения завершилась ошибкой.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control InvalidMailbox - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 3181495097 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Click the link below to test the connection to the shared mailbox.</source>
+          <target state="translated">Щелкните ссылку ниже, чтобы проверить подключение к общему почтовому ящику.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ValidateMailboxFirstPartyApp - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1830144250 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Click the link below to test the connection to the shared mailbox. You will need to sign in with an Exchange Online account that the scheduled job will use to connect to the shared mailbox and process emails.</source>
+          <target state="translated">Щелкните ссылку ниже, чтобы проверить подключение к общему почтовому ящику. Потребуется войти в систему под учетной записью Exchange Online, которую запланированная работа будет использовать для подключения к общему почтовому ящику и обработки сообщений электронной почты.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ValidateMailboxThirdPartyApp - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 4209013774 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The connection test was successful.</source>
+          <target state="translated">Проверка подключения успешно пройдена.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ValidMailbox - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 366150113 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Step5 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 799911313 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>When you choose Finish, the following will be created:</source>
+          <target state="translated">При нажатии кнопки "Готово" будет создано следующее:</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control FinalStepDesc - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 799911313 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>That's it!</source>
+          <target state="translated">Вот и все!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control FinalStepDesc - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1611996399 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create Email Logging Job Queue</source>
+          <target state="translated">Создать очередь работ регистрации электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control CreateEmailLoggingJobQueue - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1611996399 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create Email Logging Job Queue</source>
+          <target state="translated">Создать очередь работ регистрации электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control CreateEmailLoggingJobQueue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 1133024549 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Logging requires correctly configured Interaction Template Setup.</source>
+          <target state="translated">Для регистрации электронной почты необходим правильно настроенный шаблон взаимодействия.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control InvalidInteractionTemplateSetupGroup - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2304772256 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indicates that Interaction Template Setup needs to be configurred.</source>
+          <target state="translated">Указывает, что необходимо настроить конфигурацию шаблона взаимодействия.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control InvalidInteractionTemplateSetup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2304772256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Interaction Template Setup needs to be configurred.</source>
+          <target state="translated">Необходимо настроить конфигурацию шаблона взаимодействия.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control InvalidInteractionTemplateSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 468223293 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indicates that Interaction Template Setup is correctly configurred.</source>
+          <target state="translated">Указывает, что конфигурация шаблона взаимодействия настроена правильно.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ValidInteractionTemplateSetup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 468223293 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Interaction Template Setup is correctly configurred.</source>
+          <target state="translated">Конфигурация шаблона взаимодействия настроена правильно.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ValidInteractionTemplateSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Action 1773164308 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Advanced</source>
+          <target state="translated">Расширенное</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Action ActionAdvanced - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Action 2438272767 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">Назад</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Action ActionBack - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Action 2438272767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">Назад</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Action ActionBack - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Action 3259912055 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finish</source>
+          <target state="translated">Готово</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Action ActionFinish - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Action 3259912055 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finish</source>
+          <target state="translated">Готово</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Action ActionFinish - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Action 914282563 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Далее</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Action ActionNext - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Action 914282563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Далее</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Action ActionNext - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Action 2743144084 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Simple</source>
+          <target state="translated">Простое</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Action ActionSimple - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 34130476 - NamedType 685980417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature requires that you are using Microsoft Exchange Online. By enabling this feature, you consent to sharing some of your organization's data in Office 365 with Business Central. Business Central will access details about email messages in the shared mailbox that your administrator created for email logging. The details include the message’s IDs, whether it is a draft, the dates and times it was sent and received, the text from the Subject line, a link to the message in Exchange Online, and the email addresses of the sender and the recipients on the To and Cc lines.\\Business Central will store only the IDs, dates, subject, and weblink. We do not store the content of the messages, but there is a link that will open the email message in Outlook Online.\\Do you want to continue?</source>
+          <target state="translated">Эта функция требует использования Microsoft Exchange Online. Включая эту функцию, вы даете разрешение на передачу некоторых данных вашей организации в Office 365 в Business Central. Business Central получит доступ к информации о сообщениях электронной почты в общем почтовом ящике, созданном вашим администратором для регистрации электронной почты. Эта информация включает в себя идентификаторы сообщения, является ли оно черновиком, даты и время его отправки и получения, текст из поля "Тема", ссылку на сообщение в Exchange Online, а также адреса электронной почты отправителя и получателей в полях "Кому" и "Копия".\В Business Central будут храниться только идентификаторы, даты, тема и ссылка. Содержимое сообщений не хранится, однако по ссылке можно будет открыть сообщение в Outlook Online.\\ Продолжить?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 34130476</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 1985928904 - Field 1454496815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Internet Message Checksum</source>
+          <target state="translated">Контрольная сумма интернет-сообщения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1159403147</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 1985928904 - Field 3069553751 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Internet Message ID</source>
+          <target state="translated">ИД интернет-сообщения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1159403147</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

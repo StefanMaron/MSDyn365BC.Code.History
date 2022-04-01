@@ -111,8 +111,8 @@ codeunit 134631 "Graph Collect Mgt Customer"
     var
         CountryRegion: Record "Country/Region";
     begin
-        Customer.FindFirst;
-        CountryRegion.FindLast;
+        Customer.FindFirst();
+        CountryRegion.FindLast();
         Customer.Address := RandomCode10;
         Customer."Address 2" := RandomCode10;
         Customer.City := RandomCode10;
@@ -123,7 +123,7 @@ codeunit 134631 "Graph Collect Mgt Customer"
 
     local procedure RandomCode10(): Code[10]
     begin
-        exit(LibraryUtility.GenerateGUID);
+        exit(LibraryUtility.GenerateGUID());
     end;
 
     local procedure VerifyMatchingPostalAddress(ActualJSON: Text; Customer: Record Customer)

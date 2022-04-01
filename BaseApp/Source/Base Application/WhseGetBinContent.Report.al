@@ -128,16 +128,18 @@ report 7391 "Whse. Get Bin Content"
         InternalMovementHeader: Record "Internal Movement Header";
         InternalMovementLine: Record "Internal Movement Line";
         UOMMgt: Codeunit "Unit of Measure Management";
-        QtyToEmptyBase: Decimal;
-        ReportInitialized: Boolean;
         Text001: Label 'Report must be initialized.';
-        DestinationType2: Option MovementWorksheet,WhseInternalPutawayHeader,ItemJournalLine,TransferHeader,InternalMovementHeader;
         PostingDate: Date;
         DocNo: Code[20];
         [InDataSet]
         PostingDateEditable: Boolean;
         [InDataSet]
         DocNoEditable: Boolean;
+
+    protected var
+        DestinationType2: Option MovementWorksheet,WhseInternalPutawayHeader,ItemJournalLine,TransferHeader,InternalMovementHeader;
+        QtyToEmptyBase: Decimal;
+        ReportInitialized: Boolean;
 
     procedure InitializeReport(WhseWorksheetLine2: Record "Whse. Worksheet Line"; WhseInternalPutawayHeader2: Record "Whse. Internal Put-away Header"; DestinationType: Option)
     begin
@@ -167,7 +169,7 @@ report 7391 "Whse. Get Bin Content"
         ItemJournalLine := ItemJournalLine2;
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine2."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine2."Journal Batch Name");
-        if ItemJournalLine.FindLast then;
+        if ItemJournalLine.FindLast() then;
 
         PostingDate := ItemJournalLine2."Posting Date";
         DocNo := ItemJournalLine2."Document No.";
@@ -180,7 +182,7 @@ report 7391 "Whse. Get Bin Content"
     begin
         TransferLine.Reset();
         TransferLine.SetRange("Document No.", TransferHeader2."No.");
-        if not TransferLine.FindLast then begin
+        if not TransferLine.FindLast() then begin
             TransferLine.Init();
             TransferLine."Document No." := TransferHeader2."No.";
         end;
@@ -195,7 +197,7 @@ report 7391 "Whse. Get Bin Content"
     begin
         InternalMovementLine.Reset();
         InternalMovementLine.SetRange("No.", InternalMovementHeader2."No.");
-        if not InternalMovementLine.FindLast then begin
+        if not InternalMovementLine.FindLast() then begin
             InternalMovementLine.Init();
             InternalMovementLine."No." := InternalMovementHeader2."No.";
         end;

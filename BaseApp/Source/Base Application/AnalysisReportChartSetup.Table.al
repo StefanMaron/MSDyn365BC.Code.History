@@ -242,7 +242,7 @@ table 770 "Analysis Report Chart Setup"
         AnalysisReportChartLine.DeleteAll();
 
         AnalysisReportChartLine.Reset();
-        if TempAnalysisReportChartLine.FindSet then
+        if TempAnalysisReportChartLine.FindSet() then
             repeat
                 AnalysisReportChartLine := TempAnalysisReportChartLine;
                 AnalysisReportChartLine.Insert();
@@ -274,9 +274,9 @@ table 770 "Analysis Report Chart Setup"
         case "Base X-Axis on" of
             "Base X-Axis on"::Period:
                 begin
-                    if AnalysisColumn.FindSet then
+                    if AnalysisColumn.FindSet() then
                         repeat
-                            if AnalysisLine.FindSet then
+                            if AnalysisLine.FindSet() then
                                 repeat
                                     InsertLineIntoTemp(TempAnalysisReportChartLine, AnalysisLine, AnalysisColumn);
                                 until AnalysisLine.Next() = 0;
@@ -285,12 +285,12 @@ table 770 "Analysis Report Chart Setup"
             "Base X-Axis on"::Line,
             "Base X-Axis on"::Column:
                 begin
-                    if AnalysisLine.FindSet then
+                    if AnalysisLine.FindSet() then
                         repeat
                             InsertLineIntoTemp(TempAnalysisReportChartLine, AnalysisLine, AnalysisColumn);
                         until AnalysisLine.Next() = 0;
                     Clear(AnalysisLine);
-                    if AnalysisColumn.FindSet then
+                    if AnalysisColumn.FindSet() then
                         repeat
                             InsertLineIntoTemp(TempAnalysisReportChartLine, AnalysisLine, AnalysisColumn);
                         until AnalysisColumn.Next() = 0;
@@ -376,7 +376,7 @@ table 770 "Analysis Report Chart Setup"
         NumOfMeasuresToBeSet := MaxNumMeasures - AnalysisReportChartLine.Count();
         if NumOfMeasuresToBeSet > 0 then begin
             AnalysisReportChartLine.SetRange("Chart Type", AnalysisReportChartLine."Chart Type"::" ");
-            if AnalysisReportChartLine.FindSet then
+            if AnalysisReportChartLine.FindSet() then
                 repeat
                     AnalysisReportChartLine."Chart Type" := AnalysisReportChartLine.GetDefaultChartType;
                     AnalysisReportChartLine.Modify();

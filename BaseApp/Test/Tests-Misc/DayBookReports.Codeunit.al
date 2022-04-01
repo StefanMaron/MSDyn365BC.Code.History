@@ -29,14 +29,14 @@ codeunit 139351 "Day Book Reports"
         // [FEATURE] [Report] [Sales] [Day Book]
         // [SCENARIO 254499] "Day Book Cust. Ledger Entry" report shows payment discount amounts on "Discount Given" and "Actual Amount" columns
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer ledger entry with "Pmt. Disc. Given (LCY)" = 50 and "Amount (LCY)" = 1000 for customer "C"
         MockCustomerLedgerEntry(CustLedgerEntry);
         MockVATEntry(VATEntry, CustLedgerEntry."Transaction No.");
         MockDetailedCustomerLedgerEntry(CustLedgerEntry."Entry No.", CustLedgerEntry."Transaction No.");
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");
         LibraryVariableStorage.Enqueue(true); // Print details
@@ -82,14 +82,14 @@ codeunit 139351 "Day Book Reports"
         // [FEATURE] [Report] [Purchases] [Day Book]
         // [SCENARIO 254499] "Day Book Venfor Ledger Entry" report shows payment discount amounts on "Discount Rcd." and "Actual Amount" columns
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor ledger entry with "Pmt. Disc. Rcd.(LCY)" = 50 and "Amount (LCY)" = 1000 for vendor "V"
         MockVendorLedgerEntry(VendorLedgerEntry);
         MockVATEntry(VATEntry, VendorLedgerEntry."Transaction No.");
         MockDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", VendorLedgerEntry."Transaction No.");
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Vendor No.");
         LibraryVariableStorage.Enqueue(true); // Print details
@@ -123,7 +123,7 @@ codeunit 139351 "Day Book Reports"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure MockCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -174,7 +174,7 @@ codeunit 139351 "Day Book Reports"
         Customer: Record Customer;
     begin
         Customer.Init();
-        Customer."No." := LibraryUtility.GenerateGUID;
+        Customer."No." := LibraryUtility.GenerateGUID();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -229,7 +229,7 @@ codeunit 139351 "Day Book Reports"
         Vendor: Record Vendor;
     begin
         Vendor.Init();
-        Vendor."No." := LibraryUtility.GenerateGUID;
+        Vendor."No." := LibraryUtility.GenerateGUID();
         Vendor.Insert();
         exit(Vendor."No.");
     end;

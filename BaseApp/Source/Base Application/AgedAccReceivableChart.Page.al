@@ -61,6 +61,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Day;
+                    Clear(UpdatedCustomerNo);
                     UpdatePage();
                 end;
             }
@@ -74,6 +75,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Week;
+                    Clear(UpdatedCustomerNo);
                     UpdatePage();
                 end;
             }
@@ -87,6 +89,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Month;
+                    Clear(UpdatedCustomerNo);
                     UpdatePage();
                 end;
             }
@@ -100,6 +103,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Quarter;
+                    Clear(UpdatedCustomerNo);
                     UpdatePage();
                 end;
             }
@@ -113,6 +117,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Year;
+                    Clear(UpdatedCustomerNo);
                     UpdatePage();
                 end;
             }
@@ -126,6 +131,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::None;
+                    Clear(UpdatedCustomerNo);
                     UpdatePage();
                 end;
             }

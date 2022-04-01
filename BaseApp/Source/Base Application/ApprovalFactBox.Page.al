@@ -82,10 +82,10 @@ page 9092 "Approval FactBox"
         FilterGroup(2);
         SetRange("Record ID to Approve", SourceRecordID);
         ApprovalEntry.Copy(Rec);
-        if ApprovalEntry.FindFirst then
+        if ApprovalEntry.FindFirst() then
             SetFilter("Approver ID", '<>%1', ApprovalEntry."Sender ID");
         FilterGroup(0);
-        if FindLast then;
+        if FindLast() then;
         CurrPage.Update(false);
     end;
 }

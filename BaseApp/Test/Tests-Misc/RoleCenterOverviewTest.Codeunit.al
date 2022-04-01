@@ -107,7 +107,7 @@ codeunit 134680 "Role Center Overview Test"
         // [Scenario] Role Center Overview Enabled is not available on Suite
 
         // [GIVEN] Essential experience in ON
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] My Settings page is opened
         MySettings.OpenEdit;

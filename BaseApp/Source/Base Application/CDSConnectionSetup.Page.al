@@ -6,7 +6,7 @@ page 7200 "CDS Connection Setup"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    PromotedActionCategories = 'New,Connection,Integration,Encryption,Advanced,Synchronization,Upgrade,Cloud Migration';
+    PromotedActionCategories = 'New,Connection,Integration,Encryption,Virtual Tables,Synchronization,Upgrade,Cloud Migration';
     ShowFilter = false;
     SourceTable = "CDS Connection Setup";
     UsageCategory = Administration;
@@ -106,7 +106,6 @@ page 7200 "CDS Connection Setup"
                     ApplicationArea = Suite;
                     AssistEdit = true;
                     Caption = 'SDK Version';
-                    Visible = not SoftwareAsAService;
                     Editable = false;
                     Enabled = IsEditable;
                     ToolTip = 'Specifies the software development kit version that is used to connect to the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
@@ -122,8 +121,8 @@ page 7200 "CDS Connection Setup"
                 field("Is Enabled"; "Is Enabled")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Enabled', Comment = 'Name of the check box that shows whether the connection to the Dataverse environment is enabled.';
-                    ToolTip = 'Specifies whether the connection to the Dataverse environment is enabled. When you select this check box, you will be prompted to sign-in with an administrator user account and give consent to the app registration that will be used to connect to Dataverse. The account will be used one time to install and configure components that the integration requires.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                    Caption = 'Enable Synchronization', Comment = 'Name of the check box that shows whether data synchronization with the Dataverse environment is enabled.';
+                    ToolTip = 'Specifies whether data synchronization with the Dataverse environment is enabled. When you select this check box, you will be prompted to sign-in with an administrator user account and give consent to the app registration that will be used to connect to Dataverse. The account will be used one time to install and configure components that the integration requires.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     var
@@ -146,6 +145,27 @@ page 7200 "CDS Connection Setup"
                             end else
                                 Session.LogMessage('0000DRG', CDSConnDisabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         end;
+                    end;
+                }
+                field("Business Events Enabled"; BusinessEventsEnabled)
+                {
+                    ApplicationArea = Suite;
+                    Enabled = BusinessEventsSupported;
+                    Caption = 'Enable Business Events', Comment = 'Name of the check box that shows whether business events that Business Central sends to the Dataverse environment are enabled.';
+                    ToolTip = 'Specifies whether Business Central sends business events to a Dataverse environment. If you enable business events, you might be prompted to sign-in with an administrator user account and give consent to the app registration that will be used to connect to Dataverse. The account will be used one time to set up the connection from Dataverse to Business Central.', Comment = 'Business Central and Dataverse are the names of Microsoft Services and should not be translated.';
+
+                    trigger OnValidate()
+                    begin
+                        if BusinessEventsEnabled then begin
+                            CDSIntegrationImpl.SetupVirtualTables(Rec, Rec."Virtual Tables Config Id");
+                            Rec."Business Events Enabled" := true;
+                        end else begin
+                            Rec."Business Events Enabled" := false;
+                            Clear(Rec."Virtual Tables Config Id");
+                        end;
+                        IsConfigIdSpecified := not IsNullGuid(Rec."Virtual Tables Config Id");
+                        RefreshStatuses := true;
+                        CurrPage.Update(true);
                     end;
                 }
             }
@@ -307,7 +327,7 @@ page 7200 "CDS Connection Setup"
                 Image = Setup;
                 Promoted = true;
                 PromotedCategory = Process;
-                Enabled = IsEditable;
+                Enabled = (not "Is Enabled") or (not BusinessEventsEnabled);
                 ToolTip = 'Start the Dataverse Connection Setup guide.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
@@ -552,7 +572,7 @@ page 7200 "CDS Connection Setup"
                 Image = Setup;
                 Promoted = true;
                 PromotedCategory = Report;
-                Enabled = IsEditable;
+                Enabled = not "Is Enabled";
                 ToolTip = 'Redeploy and reconfigure the base integration solution.';
 
                 trigger OnAction()
@@ -711,6 +731,73 @@ page 7200 "CDS Connection Setup"
                     Page.Run(Page::"Integration Table Mapping List");
                 end;
             }
+            action("Virtual Tables App")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Virtual Tables App';
+                Image = Setup;
+                Promoted = true;
+                PromotedCategory = Category5;
+                Enabled = BusinessEventsSupported;
+                ToolTip = 'Go to Microsoft AppSource to get the Business Central Virtual Tables app. The app will let you create virtual tables for Business Central data in Dataverse';
+
+                trigger OnAction()
+                begin
+                    Hyperlink(CDSIntegrationImpl.GetVirtualTablesAppSourceLink());
+                end;
+            }
+            action("Virtual Tables Config")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Virtual Tables Config';
+                Image = Setup;
+                Promoted = true;
+                PromotedCategory = Category5;
+                Enabled = BusinessEventsSupported and IsConfigIdSpecified;
+                ToolTip = 'View configuration settings for virtual tables.';
+
+                trigger OnAction()
+                begin
+                    Page.RunModal(Page::"CRM BC Virtual Table Config.");
+                end;
+            }
+            action("Available Virtual Tables")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Available Virtual Tables';
+                Image = Setup;
+                Promoted = true;
+                PromotedCategory = Category5;
+                Enabled = BusinessEventsSupported and IsConfigIdSpecified;
+                ToolTip = 'View the virtual tables in your Dataverse environment. You can specify which tables are visible.';
+
+                trigger OnAction()
+                var
+                    EntityListUrl: Text;
+                begin
+                    EntityListUrl := CDSIntegrationImpl.GetCRMEntityListUrl(Rec, VirtualTableEntityNameTxt);
+                    Hyperlink(EntityListUrl);
+                end;
+            }
+            action("Virtual Tables AAD app")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Virtual Tables AAD App';
+                Image = Setup;
+                Promoted = true;
+                PromotedCategory = Category5;
+                Enabled = BusinessEventsSupported;
+                ToolTip = 'Open the Azure Active Directory Application page to view settings for the application registration for the Business Central Virtual Table app. The application registration is required for using Business Central virtual tables in your Dataverse environment.';
+
+                trigger OnAction()
+                var
+                    AADApplication: Record "AAD Application";
+                    AADApplicationSetup: Codeunit "AAD Application Setup";
+                begin
+                    AADApplication.Get(AADApplicationSetup.GetD365BCForVEAppId());
+                    Page.RunModal(Page::"AAD Application Card", AADApplication);
+                end;
+            }
         }
     }
 
@@ -730,6 +817,7 @@ page 7200 "CDS Connection Setup"
         SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
         if SoftwareAsAService then
             CDSIntegrationImpl.RegisterAssistedSetup();
+        BusinessEventsSupported := CDSIntegrationImpl.GetBusinessEventsSupported();
         SolutionKey := CDSIntegrationImpl.GetBaseSolutionUniqueName();
         SolutionName := CDSIntegrationImpl.GetBaseSolutionDisplayName();
         DefaultBusinessUnitName := CDSIntegrationImpl.GetDefaultBusinessUnitName();
@@ -775,6 +863,8 @@ page 7200 "CDS Connection Setup"
                     CDSIntegrationImpl.SendConnectionDisabledNotification("Disable Reason");
             end;
         end;
+        BusinessEventsEnabled := Rec."Business Events Enabled";
+        IsConfigIdSpecified := not IsNullGuid(Rec."Virtual Tables Config Id");
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -795,6 +885,7 @@ page 7200 "CDS Connection Setup"
         ClientSecret: Text;
         SetCoupledFlagsActionEnabled: Boolean;
         JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
+        VirtualTableEntityNameTxt: Label 'mserp_businesscentralentity', Locked = true;
         ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Dataverse. All customizations to mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?';
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Dataverse Connection Setup)';
@@ -832,6 +923,9 @@ page 7200 "CDS Connection Setup"
         IsUserNamePasswordVisible: Boolean;
         IsClientIdClientSecretVisible: Boolean;
         SoftwareAsAService: Boolean;
+        BusinessEventsSupported: Boolean;
+        BusinessEventsEnabled: Boolean;
+        IsConfigIdSpecified: Boolean;
         CDSVersion: Text;
         CDSVersionStatus: Boolean;
         SolutionVersion: Text;
@@ -895,7 +989,9 @@ page 7200 "CDS Connection Setup"
 
     local procedure UpdateEnableFlags()
     begin
-        IsEditable := not "Is Enabled";
+        BusinessEventsEnabled := Rec."Business Events Enabled";
+        IsEditable := (not "Is Enabled") and (not BusinessEventsEnabled);
+        IsConfigIdSpecified := not IsNullGuid(Rec."Virtual Tables Config Id");
     end;
 
     local procedure SetVisibilityFlags()
@@ -915,6 +1011,8 @@ page 7200 "CDS Connection Setup"
         else
             if not "Connection String".Contains(Office365AuthTxt) then
                 IsUserNamePasswordVisible := false;
+
+        IsConfigIdSpecified := not IsNullGuid(Rec."Virtual Tables Config Id");
     end;
 
     local procedure InitializeDefaultProxyVersion()

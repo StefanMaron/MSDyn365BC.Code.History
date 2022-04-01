@@ -16,6 +16,7 @@ report 1393 "Cancel Issued Reminders"
                 CancelIssuedReminder: Codeunit "Cancel Issued Reminder";
             begin
                 CancelIssuedReminder.SetParameters(UseSameDocumentNo, UseSamePostingDate, NewPostingDate, NoOfRecords > 1);
+                CancelIssuedReminder.SetGenJnlBatch(GenJnlBatch);
                 if CancelIssuedReminder.Run("Issued Reminder Header") then begin
                     if CancelIssuedReminder.GetErrorMessages(TempErrorMessage) then
                         AddIssuedReminderToErrorBuffer;
@@ -82,6 +83,42 @@ report 1393 "Cancel Issued Reminders"
                     Enabled = NewPostingDateEnabled;
                     ToolTip = 'Specifies the new posting date for corrective ledger entries.';
                 }
+                field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Journal Template Name';
+                    TableRelation = "Gen. Journal Template";
+                    ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                    Visible = IsJournalTemplNameVisible;
+
+                    trigger OnValidate()
+                    begin
+                        GenJnlLineReq."Journal Batch Name" := '';
+                    end;
+                }
+                field(JnlBatchName; GenJnlLineReq."Journal Batch Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Journal Batch Name';
+                    Lookup = true;
+                    ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                    Visible = IsJournalTemplNameVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        GenJnlManagement: Codeunit GenJnlManagement;
+                    begin
+                        GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                            GenJnlLineReq.TestField("Journal Template Name");
+                            GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                        end;
+                    end;
+                }
             }
         }
 
@@ -93,7 +130,10 @@ report 1393 "Cancel Issued Reminders"
         begin
             UseSameDocumentNo := true;
             UseSamePostingDate := true;
-            SetEnabled;
+            SetEnabled();
+
+            GLSetup.Get();
+            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         end;
     }
 
@@ -103,6 +143,9 @@ report 1393 "Cancel Issued Reminders"
 
     var
         TempIssuedReminderHeader: Record "Issued Reminder Header" temporary;
+        GenJnlLineReq: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GLSetup: Record "General Ledger Setup";
         NoOfRecords: Integer;
         NothingToCancelErr: Label 'There is nothing to cancel.';
         UseSameDocumentNo: Boolean;
@@ -110,6 +153,8 @@ report 1393 "Cancel Issued Reminders"
         NewPostingDate: Date;
         [InDataSet]
         NewPostingDateEnabled: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
         SpecifyPostingDateErr: Label 'You must specify a posting date.';
         ShowNotCancelledRemindersQst: Label 'One or more of the selected issued reminders could not be canceled.\\Do you want to see a list of the issued reminders that were not canceled?';
 

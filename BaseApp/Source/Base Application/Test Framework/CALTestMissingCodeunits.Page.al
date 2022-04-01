@@ -42,7 +42,7 @@ page 130404 "CAL Test Missing Codeunits"
 
                 trigger OnAction()
                 begin
-                    if FindFirst then
+                    if FindFirst() then
                         CALTestMgt.AddMissingTestCodeunits(Rec, CurrentTestSuite);
                 end;
             }

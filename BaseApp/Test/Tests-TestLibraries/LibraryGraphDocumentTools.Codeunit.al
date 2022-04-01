@@ -32,7 +32,7 @@ codeunit 130619 "Library - Graph Document Tools"
         if IsInitialized then
             exit;
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         LibrarySales.SetStockoutWarning(false);
 
         // Disable warning on closing Order
@@ -649,7 +649,7 @@ codeunit 130619 "Library - Graph Document Tools"
 
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange("Direct Posting", true);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineGLAccount, PurchaseHeader, PurchaseLineGLAccount.Type::"G/L Account", GLAccount."No.", 1);
     end;
@@ -888,32 +888,6 @@ codeunit 130619 "Library - Graph Document Tools"
 
         Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, 'itemId', ItemId), 'Could not find itemId');
         Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, 'accountId', AccountId), 'Could not find accountId');
-    end;
-
-    [Scope('OnPrem')]
-    procedure CreateContactWithGraphId(var Contact: Record Contact; var GraphIntegrationRecord: Record "Graph Integration Record")
-    var
-        IntegrationRecord: Record "Integration Record";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        LibrarySales: Codeunit "Library - Sales";
-        IntegrationManagement: Codeunit "Integration Management";
-        ContactRecRef: RecordRef;
-    begin
-        if not SalespersonPurchaser.FindFirst then
-            LibrarySales.CreateSalesperson(SalespersonPurchaser);
-
-        LibraryMarketing.CreatePersonContact(Contact);
-
-        ContactRecRef.GetTable(Contact);
-        IntegrationManagement.InsertUpdateIntegrationRecord(ContactRecRef, CurrentDateTime);
-
-        IntegrationRecord.SetRange("Record ID", Contact.RecordId);
-        IntegrationRecord.FindFirst;
-
-        GraphIntegrationRecord.Init();
-        GraphIntegrationRecord."Graph ID" := LibraryUtility.GenerateGUID;
-        GraphIntegrationRecord."Integration ID" := IntegrationRecord."Integration ID";
-        GraphIntegrationRecord.Insert();
     end;
 
 #if not CLEAN18

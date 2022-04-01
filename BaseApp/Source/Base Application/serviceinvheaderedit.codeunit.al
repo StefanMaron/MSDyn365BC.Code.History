@@ -12,6 +12,7 @@ codeunit 1412 "Service Inv. Header - Edit"
         ServiceInvoiceHeader.Find();
         ServiceInvoiceHeader."Payment Method Code" := "Payment Method Code";
         ServiceInvoiceHeader."Payment Reference" := "Payment Reference";
+        ServiceInvoiceHeader."Company Bank Account Code" := "Company Bank Account Code";
         ServiceInvoiceHeader.TestField("No.", "No.");
         ServiceInvoiceHeader.Modify();
         Rec := ServiceInvoiceHeader;

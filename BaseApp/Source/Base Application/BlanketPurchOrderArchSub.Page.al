@@ -23,17 +23,6 @@ page 6624 "Blanket Purch. Order Arch.Sub."
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the archived purchase order.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -472,7 +461,7 @@ page 6624 "Blanket Purch. Order Arch.Sub."
     begin
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(3, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", '', 0);
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.RunModal();
     end;
 
     local procedure SetDimensionsVisibility()

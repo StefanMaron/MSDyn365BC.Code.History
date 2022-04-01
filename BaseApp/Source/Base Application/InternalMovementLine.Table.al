@@ -128,7 +128,7 @@ table 7347 "Internal Movement Line"
                     UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 if CurrFieldNo = FieldNo(Quantity) then
-                    CheckBinContentQty;
+                    CheckBinContentQty();
 
                 if not xRec.IsEmpty() then
                     if not CheckQtyItemTrackingLines then
@@ -307,7 +307,7 @@ table 7347 "Internal Movement Line"
         "Due Date" := InternalMovementHeader."Due Date";
     end;
 
-    local procedure CheckBinContentQty()
+    protected procedure CheckBinContentQty()
     var
         BinContent: Record "Bin Content";
         InternalMovementLine: Record "Internal Movement Line";
@@ -458,7 +458,7 @@ table 7347 "Internal Movement Line"
           "Location Code", "Item No.", "Variant Code", "Qty. (Base)", "Qty. (Base)", "Qty. per Unit of Measure");
 
         WhseItemTrackingLinesForm.SetSource(WhseWorksheetLine, DATABASE::"Internal Movement Line");
-        WhseItemTrackingLinesForm.RunModal;
+        WhseItemTrackingLinesForm.RunModal();
     end;
 
     local procedure CheckQtyItemTrackingLines(): Boolean
@@ -553,7 +553,7 @@ table 7347 "Internal Movement Line"
         InternalMovementLine: Record "Internal Movement Line";
     begin
         InternalMovementLine.SetRange("No.", InternalMovementHeader."No.");
-        if InternalMovementLine.FindLast then
+        if InternalMovementLine.FindLast() then
             exit(InternalMovementLine."Line No.");
 
         exit(0);
@@ -614,7 +614,7 @@ table 7347 "Internal Movement Line"
         InternalMovementLine.SetRecFilter;
         InternalMovementLine.SetRange("Line No.");
         InternalMovementLine.SetCurrentKey("No.", "Sorting Sequence No.");
-        if InternalMovementLine.FindLast then
+        if InternalMovementLine.FindLast() then
             exit(InternalMovementLine."Sorting Sequence No.");
 
         exit(0);

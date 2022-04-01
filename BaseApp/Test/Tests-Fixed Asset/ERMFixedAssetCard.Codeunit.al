@@ -39,7 +39,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
         // [WHEN] Fixed Asset Card filled out and closed
-        FixedAssetCard.OpenNew;
+        FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         FixedAssetCard.Close;
@@ -55,7 +55,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.Close;
 
         // [THEN] "FA"."FA Posting Group" = FASubClass."Default FA Posting Group"
-        FixedAsset.FindFirst;
+        FixedAsset.FindFirst();
         FixedAsset.TestField("FA Posting Group", FAPostingGroup.Code);
     end;
 
@@ -136,13 +136,13 @@ codeunit 134456 "ERM Fixed Asset Card"
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
         // [WHEN] Fixed Asset Card filed out and closed
-        FixedAssetCard.OpenNew;
+        FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         FixedAssetCard.Close;
 
         // [WHEN] Fixed Asset Card filed out with asset 2 and record is moved to first asset
-        FixedAssetCard.OpenNew;
+        FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         FixedAssetCard.FAPostingGroup.SetValue(FAPostingGroup2.Code);
@@ -174,7 +174,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
         // [WHEN] Fixed Asset create with 2 books
-        FixedAssetCard.OpenNew;
+        FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         FixedAssetCard.AddMoreDeprBooks.DrillDown;
@@ -209,7 +209,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
         // [WHEN] Fixed Asset is created
-        FixedAssetCard.OpenNew;
+        FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
 
         // [THEN] AddMoreDeprBooks is not visible until at least one book is created
@@ -243,7 +243,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclassWithFAClass2Parrent, FAClass2.Code, '');
 
         // [GIVEN] FAClass1.Code set
-        FixedAssetCard.OpenNew;
+        FixedAssetCard.OpenNew();
         FixedAssetCard."FA Class Code".Value := FAClass1.Code;
         LibraryVariableStorage.Enqueue(FASubclassWithNoClass.Code);
         LibraryVariableStorage.Enqueue(FASubclassWithFAClass1Parrent.Code);
@@ -360,7 +360,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
         // [GIVEN] Fixed Asset is created from Card
-        FixedAssetCard.OpenNew;
+        FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
 

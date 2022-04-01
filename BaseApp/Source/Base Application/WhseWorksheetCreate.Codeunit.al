@@ -196,6 +196,57 @@ codeunit 7311 "Whse. Worksheet-Create"
             exit(true);
     end;
 
+    internal procedure FromJobPlanningLine(WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; var JobPlanningLine: Record "Job Planning Line"): Boolean
+    var
+        Bin: Record Bin;
+        WhseWkshLine: Record "Whse. Worksheet Line";
+        Job: Record Job;
+    begin
+        if WhseWkshLineForJobPlanLineExists(WhseWkshLine, JobPlanningLine) then
+            exit;
+
+        FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, JobPlanningLine."Location Code");
+
+        WhseWkshLine.Init();
+        WhseWkshLine.SetHideValidationDialog(true);
+        WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
+        WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Job;
+        WhseWkshLine."Whse. Document No." := JobPlanningLine."Job No.";
+        WhseWkshLine."Whse. Document Line No." := JobPlanningLine."Job Contract Entry No.";
+        WhseWkshLine."Source Type" := DATABASE::Job;
+        WhseWkshLine."Source Subtype" := 0;
+        WhseWkshLine."Source No." := JobPlanningLine."Job No.";
+        WhseWkshLine."Source Line No." := JobPlanningLine."Job Contract Entry No.";
+        WhseWkshLine."Source Subline No." := JobPlanningLine."Line No.";
+        WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
+        WhseWkshLine."Location Code" := JobPlanningLine."Location Code";
+        WhseWkshLine."Item No." := JobPlanningLine."No.";
+        WhseWkshLine."Variant Code" := JobPlanningLine."Variant Code";
+        WhseWkshLine."Unit of Measure Code" := JobPlanningLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per Unit of Measure" := JobPlanningLine."Qty. per Unit of Measure";
+        WhseWkshLine.Description := JobPlanningLine.Description;
+        WhseWkshLine."Due Date" := JobPlanningLine."Planning Due Date";
+
+        Job.SetLoadFields("Sell-to Customer No.");
+        Job.Get(JobPlanningLine."Job No.");
+        WhseWkshLine."Destination No." := Job."Sell-to Customer No.";
+        WhseWkshLine."Destination Type" := WhseWkshLine."Destination Type"::Customer;
+
+        JobPlanningLine.CalcFields("Pick Qty.", "Pick Qty. (Base)");
+        WhseWkshLine."Qty. Handled" := JobPlanningLine."Qty. Picked" + JobPlanningLine."Pick Qty.";
+        WhseWkshLine."Qty. Handled (Base)" := JobPlanningLine."Qty. Picked (Base)" + JobPlanningLine."Pick Qty. (Base)";
+        WhseWkshLine.Validate(Quantity, JobPlanningLine.Quantity);
+
+        WhseWkshLine."To Bin Code" := JobPlanningLine."Bin Code";
+        if (JobPlanningLine."Location Code" <> '') and (JobPlanningLine."Bin Code" <> '') then begin
+            Bin.Get(JobPlanningLine."Location Code", JobPlanningLine."Bin Code");
+            WhseWkshLine."To Zone Code" := Bin."Zone Code";
+        end;
+
+        if CreateWhseWkshLine(WhseWkshLine) then
+            exit(true);
+    end;
+
     procedure FromAssemblyLineInATOWhseShpt(WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; AssemblyLine: Record "Assembly Line"; WhseShptLine: Record "Warehouse Shipment Line"): Boolean
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
@@ -223,6 +274,17 @@ codeunit 7311 "Whse. Worksheet-Create"
         WhseWkshLine.SetRange("Source Line No.", AssemblyLine."Line No.");
         WhseWkshLine.SetRange("Source Subline No.", 0);
         exit(not WhseWkshLine.IsEmpty);
+    end;
+
+    local procedure WhseWkshLineForJobPlanLineExists(var WhseWkshLine: Record "Whse. Worksheet Line"; var JobPlanningLine: Record "Job Planning Line"): Boolean
+    begin
+        WhseWkshLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
+        WhseWkshLine.SetRange("Source Type", DATABASE::Job);
+        WhseWkshLine.SetRange("Source Subtype", 0);
+        WhseWkshLine.SetRange("Source No.", JobPlanningLine."Job No.");
+        WhseWkshLine.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WhseWkshLine.SetRange("Source Subline No.", JobPlanningLine."Line No.");
+        exit(not WhseWkshLine.IsEmpty());
     end;
 
     local procedure TransferAllButWhseDocDetailsFromAssemblyLine(var WhseWkshLine: Record "Whse. Worksheet Line"; AssemblyLine: Record "Assembly Line")
@@ -398,7 +460,7 @@ codeunit 7311 "Whse. Worksheet-Create"
         WhseWkshLine.SetRange(Name, WkshName);
         WhseWkshLine.SetRange("Location Code", LocationCode);
         WhseWkshLine.LockTable();
-        if WhseWkshLine.FindLast then;
+        if WhseWkshLine.FindLast() then;
     end;
 
     local procedure AdjustQtyToHandle(var WhseWkshLine: Record "Whse. Worksheet Line")

@@ -67,6 +67,10 @@ table 45 "G/L Register"
         {
             Caption = 'Creation Time';
         }
+        field(12; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
     }
 
     keys
@@ -109,7 +113,7 @@ table 45 "G/L Register"
         "From Entry No." := FromEntryNo;
         "From VAT Entry No." := FromVATEntryNo;
         "Journal Batch Name" := BatchName;
-        Clear(TemplateName);
+        "Journal Templ. Name" := TemplateName;
     end;
 
 

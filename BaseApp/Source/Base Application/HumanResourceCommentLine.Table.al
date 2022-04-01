@@ -75,7 +75,7 @@ table 5208 "Human Resource Comment Line"
         HumanResCommentLine.SetRecFilter;
         HumanResCommentLine.SetRange("Line No.");
         HumanResCommentLine.SetRange(Date, WorkDate);
-        if not HumanResCommentLine.FindFirst then
+        if not HumanResCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, HumanResCommentLine);

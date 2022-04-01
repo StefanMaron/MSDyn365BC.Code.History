@@ -101,7 +101,7 @@ page 592 "Change Log Setup"
                         ChangeLogSetupList: Page "Change Log Setup (Table) List";
                     begin
                         ChangeLogSetupList.SetSource;
-                        ChangeLogSetupList.RunModal;
+                        ChangeLogSetupList.RunModal();
                         ChangeLogSettingsUpdated := ChangeLogSetupList.IsChangeLogSettingsUpdated();
                     end;
                 }

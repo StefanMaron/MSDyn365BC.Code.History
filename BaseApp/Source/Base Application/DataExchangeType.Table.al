@@ -44,7 +44,7 @@ table 1213 "Data Exchange Type"
     begin
         Reset;
         SetRange("Entity Type", Type);
-        if not FindFirst then
+        if not FindFirst() then
             exit('');
 
         exit(Code);

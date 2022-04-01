@@ -1,4 +1,4 @@
-codeunit 5894 "Inventory Adjustment Handler"
+﻿codeunit 5894 "Inventory Adjustment Handler"
 {
     var
         Item: Record Item;

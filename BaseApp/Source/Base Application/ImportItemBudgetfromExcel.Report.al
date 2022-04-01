@@ -52,7 +52,7 @@ report 7131 "Import Item Budget from Excel"
                 end;
 
                 ItemBudgetEntry.Reset();
-                if ItemBudgetEntry.FindLast then
+                if ItemBudgetEntry.FindLast() then
                     EntryNo := ItemBudgetEntry."Entry No." + 1
                 else
                     EntryNo := 1;
@@ -267,8 +267,8 @@ report 7131 "Import Item Budget from Excel"
         TotalRecNo: Integer;
         HeaderRowNo: Integer;
         SourceTypeFilter: Enum "Analysis Source Type";
-        LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
-        ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
+        LineDimOption: Enum "Item Budget Dimension Type";
+        ColumnDimOption: Enum "Item Budget Dimension Type";
     begin
         Window.Open(Text016 + '@1@@@@@@@@@@@@@@@@@@@@@@@@@\');
         TotalRecNo := ExcelBuf.Count();
@@ -430,7 +430,7 @@ report 7131 "Import Item Budget from Excel"
                                 if SourceTypeFilter <> SourceTypeFilter::" " then
                                     ItemBudgetBuf."Source Type" := SourceTypeFilter
                                 else
-                                    ItemBudgetBuf."Source Type" := "Analysis Source Type".FromInteger(LineDimOption);
+                                    ItemBudgetBuf."Source Type" := "Analysis Source Type".FromInteger(LineDimOption.AsInteger());
                                 ItemBudgetBuf."Source No." := SourceNoFilter;
                                 ItemBudgetBuf."Location Code" := LocationFilter;
                                 ItemBudgetBuf."Global Dimension 1 Code" := GlobalDim1Filter;
@@ -457,7 +457,7 @@ report 7131 "Import Item Budget from Excel"
         Window.Close;
     end;
 
-    local procedure ExchangeFiltersWithDimValue(CurrLineDimValue: Code[20]; CurrColumnDimValue: Code[20]; LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3"; ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3"; var DateFilter: Text[30]; var ItemFilter: Code[20]; var LocationFilter: Code[10]; var GlobalDim1Filter: Code[20]; var GlobalDim2Filter: Code[20]; var BudgetDim1Filter: Code[20]; var BudgetDim2Filter: Code[20]; var BudgetDim3Filter: Code[20]; var SourceNoFilter: Code[20]; var SourceTypeFilter: Enum "Analysis Source Type")
+    local procedure ExchangeFiltersWithDimValue(CurrLineDimValue: Code[20]; CurrColumnDimValue: Code[20]; LineDimOption: Enum "Item Budget Dimension Type"; ColumnDimOption: Enum "Item Budget Dimension Type"; var DateFilter: Text[30]; var ItemFilter: Code[20]; var LocationFilter: Code[10]; var GlobalDim1Filter: Code[20]; var GlobalDim2Filter: Code[20]; var BudgetDim1Filter: Code[20]; var BudgetDim2Filter: Code[20]; var BudgetDim3Filter: Code[20]; var SourceNoFilter: Code[20]; var SourceTypeFilter: Enum "Analysis Source Type")
     begin
         case LineDimOption of
             LineDimOption::Item:
@@ -573,7 +573,7 @@ report 7131 "Import Item Budget from Excel"
                     end;
             end;
 
-        GetGLSetup;
+        GetGLSetup();
         if GlobalDim1Filter <> '' then begin
             DimValue.SetFilter(Code, GlobalDim1Filter);
             GlobalDim1Filter := DimValue.GetRangeMin(Code);
@@ -615,7 +615,7 @@ report 7131 "Import Item Budget from Excel"
     var
         Dim: Record Dimension;
     begin
-        GetGLSetup;
+        GetGLSetup();
         case DimNo of
             1:
                 if Dim.Get(GLSetup."Global Dimension 1 Code") then

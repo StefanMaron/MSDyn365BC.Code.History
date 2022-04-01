@@ -213,16 +213,10 @@ page 504 "Available - Item Ledg. Entries"
     end;
 
     var
-        ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        SourceRecRef: RecordRef;
-        QtyReserved: Decimal;
         NewQtyReserved: Decimal;
-        TotalAvailQty: Decimal;
-        MaxQtyToReserve: Decimal;
-        MaxQtyDefined: Boolean;
         CaptionText: Text;
         [InDataSet]
         PackageTrackingVisible: Boolean;
@@ -233,7 +227,13 @@ page 504 "Available - Item Ledg. Entries"
         CannotReserveFromSpecialOrderErr: Label 'You cannot reserve from this item ledger entry because the associated special sales order %1 has not been posted yet.', Comment = '%1: Sales Order No.';
 
     protected var
+        ReservEntry: Record "Reservation Entry";
+        SourceRecRef: RecordRef;
         QtyToReserve: Decimal;
+        QtyReserved: Decimal;
+        TotalAvailQty: Decimal;
+        MaxQtyToReserve: Decimal;
+        MaxQtyDefined: Boolean;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var

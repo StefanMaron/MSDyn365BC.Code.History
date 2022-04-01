@@ -281,7 +281,7 @@ table 1109 "Cost Budget Entry"
         CostType: Record "Cost Type";
     begin
         CostType.SetFilter("No.", CostTypeFilter);
-        if CostType.FindFirst then
+        if CostType.FindFirst() then
             exit(CostType."No.");
         exit('')
     end;
@@ -304,7 +304,7 @@ table 1109 "Cost Budget Entry"
 
         Period.SetRange("Period Type", Period."Period Type"::Date);
         Period.SetFilter("Period Start", DateFilter);
-        if Period.FindFirst then
+        if Period.FindFirst() then
             exit(Period."Period Start");
         exit(0D)
     end;
@@ -314,7 +314,7 @@ table 1109 "Cost Budget Entry"
         CostCenter: Record "Cost Center";
     begin
         CostCenter.SetFilter(Code, CostCenterFilter);
-        if CostCenter.FindFirst then
+        if CostCenter.FindFirst() then
             exit(CostCenter.Code);
         exit('')
     end;
@@ -324,7 +324,7 @@ table 1109 "Cost Budget Entry"
         CostObject: Record "Cost Object";
     begin
         CostObject.SetFilter(Code, CostObjectFilter);
-        if CostObject.FindFirst then
+        if CostObject.FindFirst() then
             exit(CostObject.Code);
         exit('')
     end;

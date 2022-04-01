@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="da-DK" original="Email - SMTP API">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 270637162 - NamedType 3430817766" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please connect to a server first.</source>
+          <target state="translated">Opret forbindelse til en server først.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MailKit Client - NamedType ServerNotConnectedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4121103001 - NamedType 1846709916" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No extension provided the OAuth 2.0 authentication.</source>
+          <target state="translated">Ingen udvidelse leverede OAuth 2.0-godkendelsen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Auth - NamedType NoOAuth2ProviderErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1512706315 - NamedType 4026580400" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The address %1 could not be parsed correctly.</source>
+          <target state="translated">Adressen %1 kunne ikke parses korrekt.</target>
+          <note from="Developer" annotates="general" priority="2">%1=The email address</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message Impl - NamedType EmailParseFailureErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1512706315 - NamedType 2104307454" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The From address %1 could not be parsed correctly.</source>
+          <target state="translated">Fra-adressen %1 kunne ikke parses korrekt.</target>
+          <note from="Developer" annotates="general" priority="2">%1=The email address</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message Impl - NamedType FromEmailParseFailureErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1512706315 - NamedType 3863949532" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The name or address has changed.</source>
+          <target state="translated">Navnet eller adressen er ændret.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message Impl - NamedType FromNameOrEmailHasChangedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1512706315 - NamedType 3677629754" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not add recipient %1.</source>
+          <target state="translated">Modtageren %1 kunne ikke tilføjes.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = email address</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message Impl - NamedType RecipientErr</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3506008068 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email - SMTP API - Objects</source>
+          <target state="translated">Mail – SMTP API – Objekter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email - SMTP API - Objects - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

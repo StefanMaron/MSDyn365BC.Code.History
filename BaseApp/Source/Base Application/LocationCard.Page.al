@@ -469,6 +469,18 @@ page 5703 "Location Card"
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'Set up links between inventory posting groups, inventory locations, and general ledger accounts to define where transactions for inventory items are recorded in the general ledger.';
                 }
+                action("Warehouse Employees")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Warehouse Employees';
+                    Image = WarehouseSetup;
+                    Promoted = true;
+                    PromotedOnly = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Warehouse Employees";
+                    RunPageLink = "Location Code" = FIELD(Code);
+                    ToolTip = 'View the warehouse employees that exist in the system.';
+                }
                 action("Online Map")
                 {
                     ApplicationArea = Location;
@@ -483,6 +495,20 @@ page 5703 "Location Card"
                     begin
                         Rec.DisplayMap();
                     end;
+                }
+                action(Dimensions)
+                {
+                    ApplicationArea = Dimensions;
+                    Caption = 'Dimensions';
+                    Image = Dimensions;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
+                    RunObject = Page "Default Dimensions";
+                    RunPageLink = "Table ID" = const(14),
+                                  "No." = field(Code);
+                    ShortCutKey = 'Alt+D';
+                    ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
                 }
             }
         }
@@ -559,10 +585,6 @@ page 5703 "Location Card"
         [InDataSet]
         FromProductionBinCodeEnable: Boolean;
         [InDataSet]
-        ReceiptBinCodeEnable: Boolean;
-        [InDataSet]
-        ShipmentBinCodeEnable: Boolean;
-        [InDataSet]
         AdjustmentBinCodeEnable: Boolean;
         [InDataSet]
         ToAssemblyBinCodeEnable: Boolean;
@@ -575,8 +597,6 @@ page 5703 "Location Card"
         CrossDockBinCodeEnable: Boolean;
         [InDataSet]
         DirectedPutawayandPickEnable: Boolean;
-        [InDataSet]
-        UseADCSEnable: Boolean;
         [InDataSet]
         DefaultBinSelectionEnable: Boolean;
         [InDataSet]
@@ -596,6 +616,14 @@ page 5703 "Location Card"
         [InDataSet]
         EditInTransit: Boolean;
         ShowMapLbl: Label 'Show on Map';
+
+    protected var
+        [InDataSet]
+        ReceiptBinCodeEnable: Boolean;
+        [InDataSet]
+        ShipmentBinCodeEnable: Boolean;
+        [InDataSet]
+        UseADCSEnable: Boolean;
 
     procedure UpdateEnabled()
     begin

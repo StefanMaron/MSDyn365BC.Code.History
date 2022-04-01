@@ -1,4 +1,4 @@
-﻿table 90 "BOM Component"
+table 90 "BOM Component"
 {
     Caption = 'BOM Component';
     DrillDownPageID = "Assembly BOM";
@@ -163,7 +163,7 @@
                     BOMComp.SetRange("Parent Item No.", "Parent Item No.");
                     BOMComp.SetRange(Type, BOMComp.Type::Item);
                     BOMComp.SetRange("Line No.", "Installed in Line No.");
-                    BOMComp.FindFirst;
+                    BOMComp.FindFirst();
                     BOMComp.TestField("Quantity per", 1);
                     "Installed in Item No." := BOMComp."No.";
                 end else
@@ -199,7 +199,7 @@
                     BOMComp.SetRange("Parent Item No.", "Parent Item No.");
                     BOMComp.SetRange(Type, BOMComp.Type::Item);
                     BOMComp.SetRange("No.", "Installed in Item No.");
-                    BOMComp.FindFirst;
+                    BOMComp.FindFirst();
                 end;
 
                 Validate("Installed in Line No.", BOMComp."Line No.");
@@ -271,7 +271,7 @@
             BOMComp.SetCurrentKey(Type, "No.");
             BOMComp.SetRange(Type, Type::Item);
             BOMComp.SetRange("No.", "Parent Item No.");
-            if BOMComp.FindSet then
+            if BOMComp.FindSet() then
                 repeat
                     BOMComp.ValidateAgainstRecursion(ItemNo);
                 until BOMComp.Next() = 0

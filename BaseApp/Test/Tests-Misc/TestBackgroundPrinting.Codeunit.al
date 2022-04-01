@@ -23,7 +23,7 @@ codeunit 139030 "Test Background Printing"
         JobQueueEntryCard: TestPage "Job Queue Entry Card";
     begin
         JobQueueEntry.Init();
-        JobQueueEntryCard.OpenNew;
+        JobQueueEntryCard.OpenNew();
         JobQueueEntryCard."Object Type to Run".SetValue(JobQueueEntry."Object Type to Run"::Report);
         JobQueueEntryCard."Object ID to Run".SetValue(REPORT::"Detail Trial Balance");
         Commit();
@@ -62,7 +62,7 @@ codeunit 139030 "Test Background Printing"
         Assert.ExpectedError(ScheduleActionNotFoundErr);
         // [THEN] Exists one Job Queue Entry, where ID = 'X'
         Assert.AreEqual(1, JobQueueEntry.Count, 'Should be just one Job Queue Entry');
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         Assert.AreEqual(ExpectedID, JobQueueEntry.ID, 'Job ID should not be changed.');
     end;
 
@@ -88,7 +88,7 @@ codeunit 139030 "Test Background Printing"
 
         // [THEN] The job queue entry, where "Run in User Session" is 'Yes', "Recurring Job" is 'No'
         Assert.RecordCount(JobQueueEntry, 1);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         JobQueueEntry.TestField("Run in User Session");
         JobQueueEntry.TestField("Recurring Job", false);
         JobQueueEntry.TestField("Object Type to Run", JobQueueEntry."Object Type to Run"::Report);
@@ -134,7 +134,7 @@ codeunit 139030 "Test Background Printing"
 
         // [THEN] The job queue entry, where "Next Run Date Formula" is '<1M+CM>',"Recurring Job" is 'Yes', "Run in User Session" is 'No'.
         Assert.RecordCount(JobQueueEntry, 1);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         JobQueueEntry.TestField("Recurring Job");
         JobQueueEntry.TestField("Run in User Session", false);
         JobQueueEntry.TestField("Next Run Date Formula", DateFormula);
@@ -249,7 +249,7 @@ codeunit 139030 "Test Background Printing"
         Commit();
         CODEUNIT.Run(CODEUNIT::"Job Queue Start Codeunit", JobQueueEntry);
 
-        ReportInbox.FindLast;
+        ReportInbox.FindLast();
         Assert.AreEqual(NoOfReports + 1, ReportInbox.Count, '');
         Assert.AreEqual(REPORT::"Detail Trial Balance", ReportInbox."Report ID", '');
         Assert.AreEqual(ReportInbox."Output Type"::Excel, ReportInbox."Output Type", '');

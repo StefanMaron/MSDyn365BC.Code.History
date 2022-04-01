@@ -67,7 +67,7 @@ table 906 "Assembly Comment Line"
         AssemblyCommentLine.SetRange("Document Line No.", "Document Line No.");
         AssemblyCommentLine.SetRange("Line No.", "Line No.");
         AssemblyCommentLine.SetRange(Date, WorkDate);
-        if not AssemblyCommentLine.FindFirst then
+        if not AssemblyCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, AssemblyCommentLine);

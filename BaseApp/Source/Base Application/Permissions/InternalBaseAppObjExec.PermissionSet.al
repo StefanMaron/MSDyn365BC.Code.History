@@ -6,6 +6,10 @@ permissionset 23 "Internal BaseApp Obj. - Exec"
 
     permissions = Table "CDS Coupled Business Unit" = X,
                   Table "CDS Environment" = X,
+                  Table "CRM BC Virtual Table Config." = X,
+                  Table "CRM Freight Terms" = X,
+                  Table "CRM Payment Terms" = X,
+                  Table "CRM Shipping Method" = X,
                   Table "Email Item" = X,
                   Table "OData Initialized Status" = X,
                   Table "Permission Conflicts" = X,
@@ -20,6 +24,7 @@ permissionset 23 "Internal BaseApp Obj. - Exec"
                   Codeunit "Contact Business Relation" = X,
                   Codeunit "Data Admin. Page Notification" = X,
                   Codeunit "Email Address Lookup Subs" = X,
+                  codeunit "Emit Database Wait Statistics" = X,
                   Codeunit "Environment Cleanup Subs" = X,
                   Codeunit "Lookup State Manager" = X,
                   Codeunit "Map Email Source" = X,
@@ -29,26 +34,23 @@ permissionset 23 "Internal BaseApp Obj. - Exec"
                   Codeunit "Reten. Pol. Upgrade - BaseApp" = X,
                   Codeunit "Retention Policy JQ" = X,
                   Codeunit "Retention Policy Scheduler" = X,
-                  Codeunit "SMTP Mail Internals" = X,
                   Codeunit "Advanced Settings Ext. Impl." = X,
                   Codeunit "Azure AI Usage Impl." = X,
                   Codeunit "BOM Tree Impl." = X,
                   Codeunit "BOM Tree Node" = X,
                   Codeunit "BOM Tree Node Dictionary Impl." = X,
                   Codeunit "BOM Tree Nodes Bucket" = X,
-#if not CLEAN17
-                  Codeunit "Open Mail Setup Page" = X,
-#endif
                   Codeunit "Global Admin Notifier" = X,
                   Codeunit "Intrastat File Writer" = X,
                   Codeunit "Job Queue Start Report" = X,
                   codeunit "Monitored Field Notification" = X,
-#if not CLEAN19
                   Codeunit "Scheduled Tasks" = X,
+#if not CLEAN19
                   Codeunit "SmartList Designer Impl" = X,
                   Codeunit "SmartList Mgmt" = X,
-                  Codeunit "Query Navigation Builder" = X;
-#else
-                  Codeunit "Scheduled Tasks" = X;
+                  Codeunit "Query Navigation Builder" = X,
 #endif
+                  Query CalcRsvQtyOnPicksShipsWithIT = X,
+                  Query "Calculate Actual Material Cost" = X,
+                  Query "Sales by Cust. Grp. Chart Mgt." = X;
 }

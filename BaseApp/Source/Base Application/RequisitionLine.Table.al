@@ -64,7 +64,7 @@ table 246 "Requisition Line"
                 DeleteRelations;
 
                 if "No." = '' then begin
-                    CreateDim(DimMgt.TypeToTableID3(Type.AsInteger()), "No.", DATABASE::Vendor, "Vendor No.");
+                    CreateDimFromDefaultDim();
                     Init();
                     Type := xRec.Type;
                     exit;
@@ -94,7 +94,7 @@ table 246 "Requisition Line"
                     else
                         Validate("Unit of Measure Code", Item."Base Unit of Measure");
 
-                CreateDim(DimMgt.TypeToTableID3(Type.AsInteger()), "No.", DATABASE::Vendor, "Vendor No.");
+                CreateDimFromDefaultDim();
             end;
         }
         field(6; Description; Text[100])
@@ -222,7 +222,7 @@ table 246 "Requisition Line"
                 end;
                 "Supply From" := "Vendor No.";
 
-                UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type.AsInteger()), "No.");
+                UpdateDim();
             end;
         }
         field(10; "Direct Unit Cost"; Decimal)
@@ -328,6 +328,7 @@ table 246 "Requisition Line"
                         "Vendor Item No." := ItemVend."Vendor Item No.";
                 end;
                 GetDirectCost(FieldNo("Location Code"));
+                CreateDimFromDefaultDim();
             end;
         }
         field(18; "Recurring Method"; Option)
@@ -1355,7 +1356,9 @@ table 246 "Requisition Line"
         {
             Caption = 'Ref. Order No.';
             Editable = false;
+#pragma warning disable AL0603
             TableRelation = IF ("Ref. Order Type" = CONST("Prod. Order")) "Production Order"."No." WHERE(Status = FIELD("Ref. Order Status"))
+#pragma warning restore AL0603
             ELSE
             IF ("Ref. Order Type" = CONST(Purchase)) "Purchase Header"."No." WHERE("Document Type" = CONST(Order))
             ELSE
@@ -1644,7 +1647,7 @@ table 246 "Requisition Line"
             Rec2 := Rec;
             Rec2.SetRecFilter;
             Rec2.SetRange("Line No.");
-            if Rec2.FindLast then
+            if Rec2.FindLast() then
                 "Line No." := Rec2."Line No." + 10000;
         end;
 
@@ -1857,7 +1860,7 @@ table 246 "Requisition Line"
             ItemVend.SetRange("Vendor No.", "Vendor No.");
             if "Variant Code" <> '' then
                 ItemVend.SetRange("Variant Code", "Variant Code");
-            if not ItemVend.FindLast then begin
+            if not ItemVend.FindLast() then begin
                 ItemVend."Item No." := "No.";
                 ItemVend."Variant Code" := "Variant Code";
                 ItemVend."Vendor No." := "Vendor No.";
@@ -1961,11 +1964,14 @@ table 246 "Requisition Line"
         BlockReservation := SetBlock;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodeSetup.Get();
         TableID[1] := Type1;
@@ -1973,12 +1979,37 @@ table 246 "Requisition Line"
         TableID[2] := Type2;
         No[2] := No2;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        if "Ref. Order No." <> '' then
+            GetDimFromRefOrderLine(true);
+
+        OnAfterCreateDim(Rec, xRec);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
@@ -1988,6 +2019,8 @@ table 246 "Requisition Line"
         OnAfterCreateDim(Rec, xRec);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by UpdateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure UpdateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20])
     var
         SalesLine: Record "Sales Line";
@@ -1995,6 +2028,31 @@ table 246 "Requisition Line"
         DimSetIDArr: array[10] of Integer;
     begin
         CreateDim(Type1, No1, Type2, No2);
+        if "Demand Type" <> DATABASE::"Sales Line" then
+            exit;
+        SalesLine.Get("Demand Subtype", "Demand Order No.", "Demand Line No.");
+        DimSetIDArr[2] := SalesLine."Dimension Set ID";
+        DimSetIDArr[1] := "Dimension Set ID";
+        DimSetIDArr[1] := DimManagement.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        Validate("Dimension Set ID", DimSetIDArr[1]);
+    end;
+#endif
+
+    local procedure UpdateDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        UpdateDim(DefaultDimSource);
+    end;
+
+    procedure UpdateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SalesLine: Record "Sales Line";
+        DimManagement: Codeunit DimensionManagement;
+        DimSetIDArr: array[10] of Integer;
+    begin
+        CreateDim(DefaultDimSource);
         if "Demand Type" <> DATABASE::"Sales Line" then
             exit;
         SalesLine.Get("Demand Subtype", "Demand Order No.", "Demand Line No.");
@@ -2282,7 +2340,7 @@ table 246 "Requisition Line"
         GetActionMsgReport: Report "Get Action Messages";
     begin
         GetActionMsgReport.SetTemplAndWorksheet("Worksheet Template Name", "Journal Batch Name");
-        GetActionMsgReport.RunModal;
+        GetActionMsgReport.RunModal();
     end;
 
     procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
@@ -2872,7 +2930,7 @@ table 246 "Requisition Line"
         "Action Message" := ReqLine."Action Message"::New;
         "User ID" := UserId;
 
-        UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type.AsInteger()), "No.");
+        UpdateDim();
 
         OnAfterTransferFromUnplannedDemand(Rec, UnplannedDemand);
     end;
@@ -3003,9 +3061,9 @@ table 246 "Requisition Line"
                     SeriesDate := WorkDate;
 
                 NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, SeriesDate);
-                if not NoSeriesLine.FindFirst then begin
+                if not NoSeriesLine.FindFirst() then begin
                     NoSeriesLine.SetRange("Starting Date");
-                    if NoSeriesLine.FindFirst then begin
+                    if NoSeriesLine.FindFirst() then begin
                         TempPlanningErrorLog.SetError(
                           StrSubstNo(Text039, NoSeriesCode, SeriesDate), DATABASE::"No. Series", NoSeries.GetPosition);
                         exit;
@@ -3191,7 +3249,7 @@ table 246 "Requisition Line"
         UntrackedPlngElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
         UntrackedPlngElement.SetRange("Item No.", "No.");
         UntrackedPlngElement.SetRange("Source Type", DATABASE::"Production Forecast Entry");
-        if UntrackedPlngElement.FindFirst then begin
+        if UntrackedPlngElement.FindFirst() then begin
             ForecastName := CopyStr(UntrackedPlngElement."Source ID", 1, 10);
             exit(true);
         end;
@@ -3219,7 +3277,7 @@ table 246 "Requisition Line"
 
         ItemAvailByTimeline.SetItem(Item);
         ItemAvailByTimeline.SetWorksheet(ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name");
-        ItemAvailByTimeline.Run;
+        ItemAvailByTimeline.Run();
     end;
 
     procedure GetOriginalQtyBase(): Decimal
@@ -3559,6 +3617,70 @@ table 246 "Requisition Line"
         exit('0');
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.ReqLineTypeToTableID(Rec.Type), Rec."No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, Rec."Vendor No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Requisition Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Requisition Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Requisition Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item)
     begin
@@ -3569,11 +3691,13 @@ table 246 "Requisition Line"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var RequisitionLine: Record "Requisition Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteMultiLevel(var RequisitionLine: Record "Requisition Line")
     begin

@@ -1,4 +1,4 @@
-﻿report 1001 "Inventory Valuation"
+report 1001 "Inventory Valuation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventoryValuation.rdlc';
@@ -246,7 +246,7 @@
 
                 ValueEntry.SetRange("Posting Date", StartDate, EndDate);
                 ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Transfer);
-                if ValueEntry.FindSet then
+                if ValueEntry.FindSet() then
                     repeat
                         if true in [ValueEntry."Valued Quantity" < 0, not GetOutboundItemEntry(ValueEntry."Item Ledger Entry No.")] then
                             AssignAmounts(ValueEntry, DecreaseInvoicedValue, DecreaseInvoicedQty, DecreaseExpectedValue, DecreaseExpectedQty, -1)
@@ -400,7 +400,7 @@
     begin
         ItemApplnEntry.SetCurrentKey("Item Ledger Entry No.");
         ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        if not ItemApplnEntry.FindFirst then
+        if not ItemApplnEntry.FindFirst() then
             exit(true);
 
         ItemLedgEntry.SetRange("Item No.", Item."No.");

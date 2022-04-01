@@ -166,7 +166,6 @@ report 708 "Inventory Order Details"
     var
         Text000: Label 'Sales Order Line: %1';
         CurrExchRate: Record "Currency Exchange Rate";
-        SalesHeader: Record "Sales Header";
         BackOrderQty: Decimal;
         ItemFilter: Text;
         SalesLineFilter: Text;
@@ -179,5 +178,8 @@ report 708 "Inventory Order Details"
         SalesLineInvDiscAmtCaptLbl: Label 'Invoice Discount Amount';
         SalesLineOutstngAmtCaptLbl: Label 'Amount on Order Inclusive VAT';
         TotalCaptionLbl: Label 'Total';
+
+    protected var
+        SalesHeader: Record "Sales Header";
 }
 

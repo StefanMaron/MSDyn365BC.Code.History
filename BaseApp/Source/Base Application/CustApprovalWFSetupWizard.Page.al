@@ -281,7 +281,6 @@ page 1813 "Cust. Approval WF Setup Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         GuidedExperience: Codeunit "Guided Experience";
-        Info: ModuleInfo;
     begin
         if CloseAction = ACTION::OK then
             if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"Cust. Approval WF Setup Wizard") then
@@ -408,12 +407,12 @@ page 1813 "Cust. Approval WF Setup Wizard"
         if Workflow.Get(WorkflowCode) then begin
             WorkflowStep.SetRange("Workflow Code", WorkflowCode);
             WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ShowMessageCode);
-            if WorkflowStep.FindFirst then begin
+            if WorkflowStep.FindFirst() then begin
                 WorkflowStepArgument.Get(WorkflowStep.Argument);
                 "Custom Message" := WorkflowStepArgument.Message;
             end;
             WorkflowRule.SetRange("Workflow Code", WorkflowCode);
-            if WorkflowRule.FindFirst then begin
+            if WorkflowRule.FindFirst() then begin
                 Field := WorkflowRule."Field No.";
                 "Field Operator" := WorkflowRule.Operator;
             end;

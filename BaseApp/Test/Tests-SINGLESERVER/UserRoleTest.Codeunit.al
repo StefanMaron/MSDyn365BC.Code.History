@@ -41,6 +41,7 @@ codeunit 132900 UserRoleTest
         IndirectTxt: Label 'Indirect';
         IsInitialized: Boolean;
         SUPERPermissionErr: Label 'There should be at least one enabled ''SUPER'' user.';
+        LibrarySingleServer: Codeunit "Library - Single Server";
 
     [Test]
     [HandlerFunctions('ConfirmHandlerNo')]
@@ -52,7 +53,7 @@ codeunit 132900 UserRoleTest
         Index: Integer;
     begin
         // Test function property TransactionModel = AutoRollback
-        Initialize;
+        Initialize();
         UserCount := LibraryRandom.RandIntInRange(ArrayLen(UserName) / 2, ArrayLen(UserName));
 
         for Index := 1 to UserCount do begin
@@ -72,11 +73,11 @@ codeunit 132900 UserRoleTest
     begin
         // Test function property TransactionModel = AutoRollback
         // Bug Sicily 6812
-        Initialize;
+        Initialize();
         RandomUserName := SelectRandomADUser;
         AddUserHelper(RandomUserName);
         TestValidateUserHelper(RandomUserName);
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".SetValue('');
         Assert.AreEqual('', UserCardPage."User Name".Value, '');
         UserCardPage.Close;
@@ -89,7 +90,7 @@ codeunit 132900 UserRoleTest
     procedure AddUserWithLicenseTypeTest()
     begin
         // Test function property TransactionModel = AutoRollback
-        Initialize;
+        Initialize();
         AddUserHelper(UserName[1]);
         TestValidateUserWithLicenseTypeHelper(UserName[1], Format(UserTable."License Type"::"Full User"));
 
@@ -108,8 +109,8 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        Initialize;
-        UserCardPage.OpenNew;
+        Initialize();
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := 'Test User';
         UserCardPage."Authentication Email".Value := 'test@email.com';
         UserCardPage.OK.Invoke;
@@ -123,9 +124,9 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        Initialize;
+        Initialize();
         AddUserHelper(SelectRandomADUser);
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := 'Test User';
         UserCardPage.OK.Invoke;
     end;
@@ -138,9 +139,9 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        Initialize;
+        Initialize();
         AddUserHelper(SelectRandomADUser);
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := 'Test User';
         UserCardPage."Authentication Email".Value := 'test@email.com';
         UserCardPage.OK.Invoke;
@@ -155,7 +156,7 @@ codeunit 132900 UserRoleTest
         UserCardPage: TestPage "User Card";
     begin
         // test function property TransactionModel = AutoRollback
-        Initialize;
+        Initialize();
         AddUserHelper(UserName[1]);
         UserCardPage.OpenEdit;
 
@@ -176,7 +177,7 @@ codeunit 132900 UserRoleTest
         UserCardPage: TestPage "User Card";
     begin
         // test function property TransactionModel = AutoRollback
-        Initialize;
+        Initialize();
         AddUserHelper(UserName[1]);
         UserCardPage.OpenEdit;
 
@@ -197,7 +198,7 @@ codeunit 132900 UserRoleTest
     begin
         // Test function property TransactionModel = AutoRollback
         // Doesn't work can not invoke the delete button on a page - workaround implemented - deleting the record directly in the table
-        Initialize;
+        Initialize();
         AddUserHelper(UserName[2]);
         UserCardPage.OpenEdit;
         UserCardPage.FindFirstField("User Name", UserName[2]);
@@ -229,7 +230,7 @@ codeunit 132900 UserRoleTest
     begin
         // Test function property TransactionModel = AutoRollback
         // Current domain
-        Initialize;
+        Initialize();
         AddUserHelper(UpperCase(GetShortName(UserName[1])));
         TestValidateUserHelper(UserName[1]);
         // Forrest domain
@@ -246,7 +247,7 @@ codeunit 132900 UserRoleTest
         UserCardPage: TestPage "User Card";
     begin
         // Test function property TransactionModel = AutoRollback
-        Initialize;
+        Initialize();
         AddUserHelper(UserName[1]);
         UserCardPage.OpenEdit;
         UserCardPage.FindFirstField("User Name", UserName[1]);
@@ -261,8 +262,8 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        Initialize;
-        UserCardPage.OpenNew;
+        Initialize();
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := SelectRandomADUser;
         UserCardPage.Permissions.PermissionSet.SetValue('SUPER');
         UserCardPage.Permissions.Next;
@@ -282,19 +283,17 @@ codeunit 132900 UserRoleTest
     [Scope('OnPrem')]
     procedure AddPermissionSetDuplicateRoleID()
     var
-        PermissionSet: Record "Permission Set";
         TenantPermissionSet: Record "Tenant Permission Set";
         UserCardPage: TestPage "User Card";
         NullGUID: Guid;
     begin
         // Init: Add two permission sets, one at system level, one at tenant level.
-        Initialize;
-        UserCardPage.OpenNew;
+        //       See: TestSet.PermissionSet.al
+        Initialize();
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := SelectRandomADUser;
 
-        //LibraryPermissions.CreatePermissionSet(PermissionSet, 'TESTSET');
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET', CreateGuid());
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET', NullGUID);
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET', LibrarySingleServer.GetAppIdGuid());
 
         // Exercise: Adding the role ID should trigger a validation error
         UserCardPage.Permissions.First;
@@ -305,25 +304,24 @@ codeunit 132900 UserRoleTest
         UserCardPage.OK.Invoke;
     end;
 
-    [Test]
+    //[Test]ignore 426467
     [HandlerFunctions('SystemPermissionSetLookupHandlerTestSet2,ConfirmHandlerNo')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure AddPermissionSetDuplicateRoleIDLookup()
     var
         AccessControl: Record "Access Control";
-        //PermissionSet: Record "Permission Set";
         TenantPermissionSet: Record "Tenant Permission Set";
         UserCardPage: TestPage "User Card";
         NullGUID: Guid;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET3', NullGUID);
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET3', CreateGuid());
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET3', LibrarySingleServer.GetAppIdGuid());
 
         // Init
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := SelectRandomADUser;
 
         // Use the lookup to select both, this should succeed
@@ -331,7 +329,7 @@ codeunit 132900 UserRoleTest
         UserCardPage.Permissions.First;
         UserCardPage.Permissions.PermissionSet.Lookup;
 
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET2', CreateGuid());
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET2', LibrarySingleServer.GetTestLibraryAppIdGuid());
         UserCardPage.Permissions.Next;
         UserCardPage.Permissions.PermissionSet.Lookup;
 
@@ -358,8 +356,8 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        Initialize;
-        UserCardPage.OpenNew;
+        Initialize();
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := SelectRandomADUser;
         UserCardPage.Permissions.PermissionSet.SetValue('SUPER');
 
@@ -377,7 +375,7 @@ codeunit 132900 UserRoleTest
         UserCardPage: TestPage "User Card";
     begin
         // TODO FIX THE DIALOG ERROR HANDLING WHEN SETTING 'SUPER'
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := SelectRandomADUser;
         asserterror UserCardPage.Permissions.PermissionSet.SetValue('AdfLL');
         if 1 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount then begin
@@ -409,8 +407,8 @@ codeunit 132900 UserRoleTest
         Name: Text;
         Steps: Integer;
     begin
-        Initialize;
-        LibraryVariableStorage.Clear;
+        Initialize();
+        LibraryVariableStorage.Clear();
         NewRoleId := 'NEWROLE';
 
         Assert.IsFalse(TenantPermissionSet.Get(ZeroGUID, NewRoleId), '''NEWROLE'' Permission Set already exists.');
@@ -468,7 +466,7 @@ codeunit 132900 UserRoleTest
     begin
         // [FEATURE] [UT]
         // [SCENARIO 265197] User is able to delete user permissionset SUPER defined for company if it has one defined for all companies
-        Initialize;
+        Initialize();
 
         User.DeleteAll(true);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -500,7 +498,7 @@ codeunit 132900 UserRoleTest
     begin
         // [FEATURE] [UT]
         // [SCENARIO 265197] User is not able to delete user permissionset SUPER defined for all companies
-        Initialize;
+        Initialize();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         User.DeleteAll(true);
@@ -531,10 +529,10 @@ codeunit 132900 UserRoleTest
         // Test function property TransactionModel = AutoRollback
 
         // Create a full user
-        Initialize;
+        Initialize();
         AddUserHelper(UserName[1]);
         User.SetRange("User Name", UserName[1]);
-        User.FindFirst;
+        User.FindFirst();
 
         // Setting Application ID, sets the License Type to External User
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -578,7 +576,7 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := NewUserName;
         UserCardPage.Close;
     end;
@@ -587,7 +585,7 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := NewUserName;
         UserCardPage."License Type".Value := LicenseType;
         UserCardPage.OK.Invoke;
@@ -613,7 +611,7 @@ codeunit 132900 UserRoleTest
     var
         User: Record User;
     begin
-        User.FindFirst;
+        User.FindFirst();
         AccessControl."User Security ID" := User."User Security ID";
         AccessControl."Company Name" := CompanyName;
         AccessControl."Role ID" := 'SUPER';
@@ -624,7 +622,7 @@ codeunit 132900 UserRoleTest
     var
         User: Record User;
     begin
-        User.FindFirst;
+        User.FindFirst();
         AccessControl.SetRange("User Security ID", User."User Security ID");
         AccessControl.SetFilter("Company Name", '=%1', CompanyNameFilter);
         exit(AccessControl.FindFirst);
@@ -712,7 +710,7 @@ codeunit 132900 UserRoleTest
         WindowLoginTab: Record User;
     begin
         WindowLoginTab.SetFilter("User Name", ExpectedUserName);
-        if not WindowLoginTab.FindFirst then
+        if not WindowLoginTab.FindFirst() then
             Error(UserNotFound001Err, ExpectedUserName)
     end;
 
@@ -721,7 +719,7 @@ codeunit 132900 UserRoleTest
         WindowLoginTab: Record User;
     begin
         WindowLoginTab.SetFilter("User Name", ExpectedUserName);
-        if not WindowLoginTab.FindFirst then
+        if not WindowLoginTab.FindFirst() then
             Error(UserNotFound001Err, ExpectedUserName);
         if Format(WindowLoginTab."License Type") <> LicenseType then
             Error(LicenseTypeIsWrongErr, LicenseType, Format(WindowLoginTab."License Type"));
@@ -939,10 +937,10 @@ codeunit 132900 UserRoleTest
     local procedure DeleteUser(UserName: Text)
     begin
         UserTable.SetFilter("User Name", UserName);
-        if UserTable.FindFirst then
+        if UserTable.FindFirst() then
             if UserTable.State = 0 then begin
                 UserPersonalization.SetRange("User ID", UserTable.GetFilter("User Name"));
-                if UserPersonalization.FindFirst then
+                if UserPersonalization.FindFirst() then
                     UserPersonalization.Delete();
                 UserTable.State := 1;
             end;
@@ -951,11 +949,11 @@ codeunit 132900 UserRoleTest
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure SystemPermissionSetLookupHandlerTestSet2(var PermissionSetLookup: TestPage "Permission Set Lookup")
+    procedure SystemPermissionSetLookupHandlerTestSet2(var LookupPermissionSet: TestPage "Lookup Permission Set")
     begin
-        PermissionSetLookup.FindFirstField("Role ID", 'TESTSET2');
-        if not PermissionSetLookup.FindNextField("Role ID", 'TESTSET2') then; // Go to the second one if it exists.
-        PermissionSetLookup.OK.Invoke;
+        LookupPermissionSet.FindFirstField("Role ID", 'TESTSET2');
+        if not LookupPermissionSet.FindNextField("Role ID", 'TESTSET2') then; // Go to the second one if it exists.
+        LookupPermissionSet.OK.Invoke;
     end;
 
     [ConfirmHandler]

@@ -89,7 +89,7 @@ table 2117 "O365 Posted Coupon Claim"
     procedure GetAppliedClaimsForSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header") CouponCodes: Text
     begin
         SetRange("Sales Invoice No.", SalesInvoiceHeader."No.");
-        if not FindSet then
+        if not FindSet() then
             exit;
 
         CouponCodes := Code;

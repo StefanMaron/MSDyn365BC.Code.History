@@ -8,7 +8,7 @@ codeunit 1805 "Import Config. Package Files"
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         UserPersonalization: Record "User Personalization";
-        LogInManagement: Codeunit LogInManagement;
+        CompanyInitialize: Codeunit "Company-Initialize";
         CurrentLanguageID: Integer;
     begin
         AssistedCompanySetupStatus.Get(CompanyName);
@@ -23,8 +23,10 @@ codeunit 1805 "Import Config. Package Files"
             if not TrySetGlobalLanguage("Language ID") then
                 Error(InvalidLanguageIDErr, "Language ID");
 
-        LogInManagement.InitializeCompany;
+        CompanyInitialize.InitializeCompany();
         ImportConfigurationPackageFiles(Rec);
+
+        OnAfterImportConfigurationPackage();
 
         GlobalLanguage(CurrentLanguageID);
     end;
@@ -58,7 +60,7 @@ codeunit 1805 "Import Config. Package Files"
         AssistedCompanySetupStatus.Get(CompanyName);
 
         ConfigurationPackageFile.SetCurrentKey("Processing Order");
-        if ConfigurationPackageFile.FindSet then begin
+        if ConfigurationPackageFile.FindSet() then begin
             repeat
                 MessageText := StrSubstNo(ImportStartedMsg, ConfigurationPackageFile.Code, CompanyName);
                 InitVirtualJobQueueEntry(JobQueueEntry, AssistedCompanySetupStatus."Task ID");
@@ -203,6 +205,11 @@ codeunit 1805 "Import Config. Package Files"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterImportConfigurationFile(var ConfigurationPackageFile: Record "Configuration Package File")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterImportConfigurationPackage()
     begin
     end;
 }

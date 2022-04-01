@@ -32,7 +32,7 @@ codeunit 138027 "O365 Aged Accounts"
         StartDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Create Customer Ledger Entries
         StartDate := CreateStartDate;
@@ -50,7 +50,7 @@ codeunit 138027 "O365 Aged Accounts"
         Assert.AreEqual(14, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
 
         AmountSum := 0;
-        if TempEntryNoAmountBuffer.FindSet then
+        if TempEntryNoAmountBuffer.FindSet() then
             repeat
                 AmountSum := AmountSum + TempEntryNoAmountBuffer.Amount;
 
@@ -86,7 +86,7 @@ codeunit 138027 "O365 Aged Accounts"
         StartDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Create Customer Ledger Entries
         StartDate := CreateStartDate;
@@ -104,7 +104,7 @@ codeunit 138027 "O365 Aged Accounts"
         Assert.AreEqual(14, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
 
         AmountSum := 0;
-        if TempEntryNoAmountBuffer.FindSet then
+        if TempEntryNoAmountBuffer.FindSet() then
             repeat
                 AmountSum := AmountSum + TempEntryNoAmountBuffer.Amount;
 
@@ -140,7 +140,7 @@ codeunit 138027 "O365 Aged Accounts"
         StartDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Create Customer Ledger Entries
         StartDate := CreateStartDate;
@@ -158,7 +158,7 @@ codeunit 138027 "O365 Aged Accounts"
         Assert.AreEqual(7, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
 
         AmountSum := 0;
-        if TempEntryNoAmountBuffer.FindSet then
+        if TempEntryNoAmountBuffer.FindSet() then
             repeat
                 AmountSum := AmountSum + TempEntryNoAmountBuffer.Amount;
 
@@ -194,7 +194,7 @@ codeunit 138027 "O365 Aged Accounts"
         StartDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead);
 
         // Create Customer Ledger Entries
@@ -226,7 +226,7 @@ codeunit 138027 "O365 Aged Accounts"
         StartDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead);
 
         // Create Customer Ledger Entries
@@ -258,7 +258,7 @@ codeunit 138027 "O365 Aged Accounts"
         StartDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead);
 
         // Create Customer Ledger Entries
@@ -290,7 +290,7 @@ codeunit 138027 "O365 Aged Accounts"
         NoOfEntriesPerPeriod: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         StartDate := WorkDate;
 
@@ -312,7 +312,7 @@ codeunit 138027 "O365 Aged Accounts"
         // Verify Data Points for Customer Posting Group
         TempEntryNoAmountBuffer.SetRange("Business Unit Code", CustGroupCode);
         Assert.AreEqual(14, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
-        if TempEntryNoAmountBuffer.FindSet then
+        if TempEntryNoAmountBuffer.FindSet() then
             repeat
                 Assert.AreEqual(
                   NoOfEntriesPerPeriod * StartAmount * (TempEntryNoAmountBuffer."Entry No." + 1),
@@ -334,7 +334,7 @@ codeunit 138027 "O365 Aged Accounts"
         StartDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         StartDate := CreateStartDate;
         CustomerNo := CreateCustomer;
@@ -388,7 +388,7 @@ codeunit 138027 "O365 Aged Accounts"
         NoOfEntriesPerPeriod: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         StartDate := Today;
         // Create entries to exclude from verification
@@ -409,7 +409,7 @@ codeunit 138027 "O365 Aged Accounts"
         // Verify DrillDown for Customer Posting Group
         TempEntryNoAmountBuffer.SetRange("Business Unit Code", CustGroupCode);
         Assert.AreEqual(14, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
-        if TempEntryNoAmountBuffer.FindSet then
+        if TempEntryNoAmountBuffer.FindSet() then
             repeat
                 ExpectedRowCount := NoOfEntriesPerPeriod;
                 AgedAccReceivable.DrillDownCustLedgEntries(
@@ -427,7 +427,7 @@ codeunit 138027 "O365 Aged Accounts"
         Found: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         if BusinessChartUserSetup.Get(UserId, BusinessChartUserSetup."Object Type"::Page, GetAgedAccReceivableChartID) then
             BusinessChartUserSetup.Delete();
@@ -450,7 +450,7 @@ codeunit 138027 "O365 Aged Accounts"
         Found: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BusinessChartUserSetup."Period Length" := BusinessChartUserSetup."Period Length"::Year;
         BusinessChartUserSetup.SaveSetupPage(BusinessChartUserSetup, GetAgedAccReceivableChartID);
@@ -482,7 +482,7 @@ codeunit 138027 "O365 Aged Accounts"
         // counted from Due Date to Payment Date divided by total number of payed invoices.
         // A positive value is late payment, a negative value is early payment.
         // Setup
-        Initialize;
+        Initialize();
 
         CustomerNo := CreateCustomer;
 
@@ -535,7 +535,7 @@ codeunit 138027 "O365 Aged Accounts"
         // counted from Due Date to Payment Date divided by total number of payed invoices.
         // A positive value is late payment, a negative value is early payment.
         // Setup
-        Initialize;
+        Initialize();
 
         CustomerNo := CreateCustomer;
 
@@ -588,7 +588,7 @@ codeunit 138027 "O365 Aged Accounts"
         NoOfEntriesPerPeriod: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         StartDate := WorkDate;
         BusinessChartBuffer."Period Filter Start Date" := StartDate;
@@ -608,7 +608,7 @@ codeunit 138027 "O365 Aged Accounts"
         // Verify Data Points
         Assert.AreEqual(14, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
 
-        if TempEntryNoAmountBuffer.FindSet then
+        if TempEntryNoAmountBuffer.FindSet() then
             repeat
                 TempEntryNoAmountBuf2.Get('', TempEntryNoAmountBuffer."Entry No.");
 
@@ -632,7 +632,7 @@ codeunit 138027 "O365 Aged Accounts"
         CustPostingGroup: Record "Customer Posting Group";
     begin
         CustPostingGroup.Init();
-        CustPostingGroup.Code := LibraryUtility.GenerateGUID;
+        CustPostingGroup.Code := LibraryUtility.GenerateGUID();
         CustPostingGroup.Insert();
         exit(CustPostingGroup.Code);
     end;
@@ -952,7 +952,7 @@ codeunit 138027 "O365 Aged Accounts"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        if CustLedgerEntry.FindLast then
+        if CustLedgerEntry.FindLast() then
             exit(CustLedgerEntry."Entry No." + 1);
         exit(1);
     end;
@@ -961,7 +961,7 @@ codeunit 138027 "O365 Aged Accounts"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        if DetailedCustLedgEntry.FindLast then
+        if DetailedCustLedgEntry.FindLast() then
             exit(DetailedCustLedgEntry."Entry No." + 1);
         exit(1);
     end;
@@ -1002,7 +1002,7 @@ codeunit 138027 "O365 Aged Accounts"
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        if VendLedgerEntry.FindLast then
+        if VendLedgerEntry.FindLast() then
             exit(VendLedgerEntry."Entry No." + 1);
         exit(1);
     end;
@@ -1011,7 +1011,7 @@ codeunit 138027 "O365 Aged Accounts"
     var
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        if DetailedVendLedgEntry.FindLast then
+        if DetailedVendLedgEntry.FindLast() then
             exit(DetailedVendLedgEntry."Entry No." + 1);
         exit(1);
     end;
@@ -1049,7 +1049,7 @@ codeunit 138027 "O365 Aged Accounts"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Aged Accounts");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
         SetOfficeHostUnAvailable;

@@ -43,7 +43,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         ChartofCostTypes: TestPage "Chart of Cost Types";
     begin
         // [SCENARIO] Setup and use Cost Accounting as Business Manager
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Business Manager plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -82,7 +82,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         ChartofCostTypes: TestPage "Chart of Cost Types";
     begin
         // [SCENARIO] Setup and use Cost Accounting as Accountant
-        Initialize;
+        Initialize();
 
         // [GIVEN] The External Accountant plan
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
@@ -119,7 +119,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
     procedure UsingCostAccountingAsTeamMember()
     begin
         // [SCENARIO] Setup and use Cost Accounting as Team Member
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Team Member plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -158,7 +158,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         ChartofCostTypes: TestPage "Chart of Cost Types";
     begin
         // [SCENARIO] Setup and use Cost Accounting as Essential ISV Emb User
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Essential ISV Emb plan
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
@@ -195,7 +195,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
     procedure UsingCostAccountingAsTeamMemberISVEmb()
     begin
         // [SCENARIO] Setup and use Cost Accounting as Team Member ISV Emb
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Team Member ISV Emb plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -234,7 +234,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         ChartofCostTypes: TestPage "Chart of Cost Types";
     begin
         // [SCENARIO] Setup and use Cost Accounting as Device ISV Emb User
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Device ISV Emb plan
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
@@ -324,7 +324,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
     var
         CostTypeCard: TestPage "Cost Type Card";
     begin
-        CostTypeCard.OpenNew;
+        CostTypeCard.OpenNew();
         CostTypeCard."No.".SetValue(CostTypeNo);
         CostTypeCard.Name.SetValue(CostTypeName);
         CostTypeCard."G/L Account Range".SetValue(GLAccountRange);
@@ -355,7 +355,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
     var
         CostCenterCard: TestPage "Cost Center Card";
     begin
-        CostCenterCard.OpenNew;
+        CostCenterCard.OpenNew();
         CostCenterCard.Code.SetValue(Code);
         CostCenterCard.Name.SetValue(Name);
         CostCenterCard."Sorting Order".SetValue(SortingOrder);
@@ -378,7 +378,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
     var
         CostAllocation: TestPage "Cost Allocation";
     begin
-        CostAllocation.OpenNew;
+        CostAllocation.OpenNew();
         CostAllocation.ID.SetValue(Code);
         CostAllocation.Level.SetValue(Level);
         CostAllocation."Cost Center Code".SetValue(CostCenterCode);
@@ -450,7 +450,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         GLAccount.SetFilter("Gen. Posting Type", Format(GenPostingType));
         GLAccount.SetRange("Direct Posting", true);
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        if GLAccount.FindFirst then
+        if GLAccount.FindFirst() then
             exit(GLAccount."No.");
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");

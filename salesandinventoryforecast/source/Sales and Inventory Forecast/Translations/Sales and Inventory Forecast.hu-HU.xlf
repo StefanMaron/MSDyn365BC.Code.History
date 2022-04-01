@@ -214,7 +214,7 @@
         <trans-unit id="Codeunit 2836764293 - NamedType 1168217811" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We're updating the inventory forecast for item #1</source>
           <target state="translated">We're updating the inventory forecast for item #1</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">#1 = an Item No.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType UpdateDialogTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3420482273 - NamedType 2614170639" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">

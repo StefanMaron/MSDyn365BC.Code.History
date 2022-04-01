@@ -61,6 +61,8 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         ToManuallyApply: array[4] of Integer;
         ToPost: array[4] of Integer;
     begin
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         CustLedgEntry.ModifyAll(Open, false);
         VendLedgEntry.ModifyAll(Open, false);
 
@@ -104,7 +106,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         i: Integer;
         j: Integer;
     begin
-        Initialize;
+        Initialize();
 
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -267,7 +269,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         CustLedgEntry.SetRange("Customer No.", Cust."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
         CustLedgEntry.SetRange("Document No.", LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
 
         CustLedgEntry.CalcFields("Remaining Amount");
     end;
@@ -320,7 +322,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     begin
         LibraryERM.CreateGLAccount(GLAcc);
         with CustPostingGroup do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Payment Disc. Debit Acc." = '' then begin
                         Validate("Payment Disc. Debit Acc.", GLAcc."No.");
@@ -350,10 +352,10 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         if Initialized then
             exit;
         Initialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         UpdateCustPostingGrp;
         Commit();

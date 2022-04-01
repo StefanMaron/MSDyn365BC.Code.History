@@ -16,6 +16,8 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        isInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('EditDimensionSetEntriesPageHandler')]
@@ -30,7 +32,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the ShowDimension function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
         CreateDimension(DimensionSetEntry);
@@ -54,7 +56,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the ShowExpectPhysInvtTrackLines function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
         UpdateTrackingOnPhysInventoryOrderLine(ExpPhysInvtTracking, PhysInvtOrderLine."Document No.");
@@ -79,7 +81,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the ShowPhysInvtRecordLines function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
         CreatePhysInventoryRecording(PhysInvtRecordLine, PhysInvtOrderLine."Document No.");
@@ -101,7 +103,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the CalculateQtyExpected function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
         LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Item No.");  // Enqueue value for use in PhysInvtOrderSubformExpectedQtyHandler.
@@ -109,7 +111,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         // Exercise & Verify: Invoke CalculateQtyExpected function in Phys. Inventory Order Subform and verify correct values in PhysInvtOrderSubformExpectedQtyHandler.
         PhysicalInventoryOrderSubf.SetRecord(PhysInvtOrderLine);
         PhysicalInventoryOrderSubf.CalculateQtyExpected;
-        PhysicalInventoryOrderSubf.Run;  // Invokes PhysInvtOrderSubformExpectedQtyHandler.
+        PhysicalInventoryOrderSubf.Run();  // Invokes PhysInvtOrderSubformExpectedQtyHandler.
     end;
 
     [Test]
@@ -124,7 +126,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the ShowPhysInvtLedgerEntries function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
         CreatePhysInventoryLedgerEntry(PhysInventoryLedgerEntry, PhysInvtOrderLine."Document No.");
@@ -151,7 +153,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the ShowItemLedgerEntries function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
         CreateItemLedgerEntry(ItemLedgerEntry, PhysInvtOrderLine."Document No.");
@@ -178,7 +180,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the ShowBinContentItem function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
         CreateBinContent(PhysInvtOrderLine);
@@ -200,7 +202,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the ShowBinContentBin function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
         Location.Code := LibraryUTUtility.GetNewCode10;
@@ -230,7 +232,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the ShowItemTrackingLines(Which) function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         ShowItemTrackingLinesPhysInventoryOrderSubform(TrackingType::All);
     end;
 
@@ -244,7 +246,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [SCENARIO] validate the ShowItemTrackingLines(Which) function of Page - 5005352, Phys. Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         ShowItemTrackingLinesPhysInventoryOrderSubform(TrackingType::Negative);
     end;
 
@@ -325,7 +327,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         // [FEATURE] [Warehouse] [Item Tracking] [Expiration Date]
         // [SCENARIO 382436] Physical inventory order with two recording lines containing the same item with different lot nos. and expiration dates, should post entries with correct expiration dates
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with lot tracking and lot expiration date control
         CreateLocationWithBin(Bin);
@@ -382,18 +384,18 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [FEATURE] [Phys. Inventory Recording] [Shelf] [UT]
         // [SCENARIO 335399] "Shelf No." is copied from Phys. Inventory Order Line to Phys. Inventory Recording Line.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
         LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryInventory.CreateItemNo);
-        PhysInvtOrderLine."Shelf No." := LibraryUtility.GenerateGUID;
+        PhysInvtOrderLine."Shelf No." := LibraryUtility.GenerateGUID();
         PhysInvtOrderLine.Modify();
 
         MakePhysInvtRecording.InsertRecordingHeader(PhysInvtOrderHeader);
         MakePhysInvtRecording.InsertRecordingLine(PhysInvtOrderLine);
 
         PhysInvtRecordLine.SetRange("Item No.", PhysInvtOrderLine."Item No.");
-        PhysInvtRecordLine.FindFirst;
+        PhysInvtRecordLine.FindFirst();
         PhysInvtRecordLine.TestField("Shelf No.", PhysInvtOrderLine."Shelf No.");
     end;
 
@@ -411,17 +413,17 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [FEATURE] [Phys. Inventory Recording] [Shelf]
         // [SCENARIO 335399] "Shelf No." and "Use Item Tracking" are filled from SKU when you manually add phys. inventory recording line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with Shelf No. = "A".
         CreateItemWithLotExpirationTracking(Item);
-        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID());
         Item.Modify(true);
 
         // [GIVEN] Create SKU for item "I" on location "L". Set Shelf No. = "B" on the SKU.
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, Item."No.", '');
-        SKU.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        SKU.Validate("Shelf No.", LibraryUtility.GenerateGUID());
         SKU.Modify(true);
 
         // [GIVEN] Create phys. inventory order.
@@ -453,10 +455,10 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [FEATURE] [Shelf] [SKU] [UT]
         // [SCENARIO 335399] Shelf No. from a proper stockkeeping unit is picked on phys. inventory order line when you change item no., location code and variant code.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID());
         Item.Modify(true);
 
         CreateSKU(SKU[1], Item."No.");
@@ -492,10 +494,10 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [FEATURE] [Phys. Inventory Recording] [Shelf] [SKU] [UT]
         // [SCENARIO 335399] Shelf No. from a proper stockkeeping unit is picked on phys. inventory recording line when you change item no., location code and variant code.
-        Initialize;
+        Initialize();
 
         CreateItemWithLotExpirationTracking(Item);
-        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID());
         Item.Modify(true);
 
         CreateSKU(SKU[1], Item."No.");
@@ -533,7 +535,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         // [FEATURE] [Phys. Inventory Recording]
         // [SCENARIO 335399] "Use Item Tracking" field is editable on phys. inventory recording line.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
         LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryInventory.CreateItemNo);
@@ -548,7 +550,15 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Phys. Invt. Order Subform UT");
+        LibraryVariableStorage.Clear();
+        // Lazy Setup.
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Phys. Invt. Order Subform UT");
+
+        isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Phys. Invt. Order Subform UT");
     end;
 
     local procedure CreatePhysInventoryLedgerEntry(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; DocumentNo: Code[20])
@@ -639,7 +649,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, ItemNo, ItemVariant.Code);
-        SKU.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        SKU.Validate("Shelf No.", LibraryUtility.GenerateGUID());
         SKU.Modify(true);
     end;
 
@@ -652,7 +662,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
         DimensionValue.Insert();
         LibraryVariableStorage.Enqueue(DimensionValue.Code);  // Enqueue value for use in EditDimensionSetEntriesPageHandler.
-        DimensionSetEntry2.FindLast;
+        DimensionSetEntry2.FindLast();
         CreateDimensionSetEntry(DimensionSetEntry,
           DimensionSetEntry2."Dimension Set ID" + LibraryRandom.RandInt(10), DimensionSetEntry."Dimension Code", DimensionValue.Code);  // Should be greater than available Dimension Set ID.
     end;
@@ -741,7 +751,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     var
         PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry";
     begin
-        if PhysInventoryLedgerEntry.FindLast then
+        if PhysInventoryLedgerEntry.FindLast() then
             exit(PhysInventoryLedgerEntry."Entry No." + 1);
         exit(1);
     end;
@@ -750,7 +760,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        if ItemLedgerEntry.FindLast then
+        if ItemLedgerEntry.FindLast() then
             exit(ItemLedgerEntry."Entry No." + 1);
         exit(1);
     end;
@@ -759,7 +769,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        if ReservationEntry.FindLast then
+        if ReservationEntry.FindLast() then
             exit(ReservationEntry."Entry No." + 1);
         exit(1);
     end;
@@ -806,7 +816,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         PstdPhysInvtRecordLine.SetRange("Item No.", ItemNo);
         PstdPhysInvtRecordLine.SetRange("Lot No.", LotNo);
-        PstdPhysInvtRecordLine.FindFirst;
+        PstdPhysInvtRecordLine.FindFirst();
 
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Lot No.", LotNo);

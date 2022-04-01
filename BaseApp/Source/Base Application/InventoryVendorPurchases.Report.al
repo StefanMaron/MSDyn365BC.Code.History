@@ -141,7 +141,7 @@ report 714 "Inventory - Vendor Purchases"
     begin
         with ValueEntry do begin
             TempValueEntry.SetRange("Source No.", "Source No.");
-            if not TempValueEntry.FindSet then begin
+            if not TempValueEntry.FindSet() then begin
                 TempValueEntry.Init();
                 TempValueEntry := "Value Entry";
                 TempValueEntry.Insert();

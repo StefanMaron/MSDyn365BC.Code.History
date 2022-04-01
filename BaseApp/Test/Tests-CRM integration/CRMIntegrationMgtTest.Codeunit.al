@@ -45,7 +45,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [FEATURE] [CRM Integration Management]
         // [SCENARIO] ShowCRMEntityFromRecordID() asks the user to create missing customer coupling
         // [GIVEN] A customer not coupled to a CRM account
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::Customer, Customer.RecordId);
         ConfirmStartCouplingReply := false;
@@ -66,7 +66,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management]
         // [SCENARIO] ShowCRMEntityFromRecordID() starts coupling if not coupled
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         LibraryCRMIntegration.RegisterTestTableConnection;
 
@@ -87,7 +87,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management]
         // [SCENARIO] ShowCRMEntityFromRecordID() exits if coupling is cancelled
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         LibraryCRMIntegration.RegisterTestTableConnection;
 
@@ -109,7 +109,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Customer]
         // [SCENARIO] ShowCRMEntityFromRecordID() opens a hyperlink if coupled
-        Initialize;
+        Initialize();
 
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'host', true);
 
@@ -126,7 +126,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management]
         // [SCENARIO] ShowCRMEntityFromRecordID() starts coupling but throws an error if a table is not mapped
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.RegisterTestTableConnection;
 
         LibrarySales.CreateCustomer(Customer);
@@ -156,8 +156,8 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Customer]
         // [SCENARIO] CreateNewRecordsInCRM() creates a new record in CRM but skips the already coupled NAV record.
-        Initialize;
-        LibraryVariableStorage.Clear;
+        Initialize();
+        LibraryVariableStorage.Clear();
         SetupCRM;
 
         // [GIVEN] A valid CRM integration setup
@@ -866,7 +866,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [SCENARIO] GetNoOfCRMCases() returns a number of cases coupled to a CRM account
         // [GIVEN] A valid CRM integration setup
         // [GIVEN] A CRM customer having a number of related CRM cases
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibraryCRMIntegration.AddCRMCaseToCRMAccount(CRMAccount);
@@ -890,7 +890,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [SCENARIO] GetNoOfCRMOpportunities() returns a number of opportunities coupled to a CRM account
         // [GIVEN] A valid CRM integration setup
         // [GIVEN] A CRM customer having a number of related CRM opportunities
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibraryCRMIntegration.AddCRMOpportunityToCRMAccount(CRMAccount);
@@ -912,7 +912,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [SCENARIO] GetNoOfCRMQuotes() return a number of quotes coupled to a CRM account
         // [GIVEN] A valid CRM integration setup
         // [GIVEN] A CRM customer having a number of related CRM quotes
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibraryCRMIntegration.AddCRMQuoteToCRMAccount(CRMAccount);
@@ -931,7 +931,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Table Mapping] [Currency] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Currency"
         // [THEN] Mapped to "CRM Transactioncurrency", Direction is "To Integration Table",
@@ -950,7 +950,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Customer] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Customer"
         // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
@@ -971,7 +971,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Contact] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Contact"
         // [THEN] Mapped to "CRM Contact", Direction is "Bidirectional",
@@ -992,7 +992,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Customer] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Vendor"
         // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
@@ -1013,7 +1013,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Customer] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Item"
         // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
@@ -1034,7 +1034,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Customer] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Item"
         // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
@@ -1056,7 +1056,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Price List] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Customer Price Group"
         // [THEN] Mapped to "CRM Pricelevel", Direction is "To Integration Table",
@@ -1075,7 +1075,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Table Mapping] [Price List] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Sales Price"
         // [THEN] Mapped to "CRM Productpricelevel", Direction is "To Integration Table",
@@ -1100,13 +1100,13 @@ codeunit 139162 "CRM Integration Mgt Test"
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Price List Header"
         // [THEN] Mapped to "CRM Pricelevel", Direction is "To Integration Table",
-        // [THEN] "Table Filter" is "Price Type" is 'Sale', "Amount Type" is 'Price', "Allow Editing Defaults" is 'No' 
+        // [THEN] "Table Filter" is "Price Type" is 'Sale', "Amount Type" is 'Price', "Allow Editing Defaults" is 'Yes' 
         // [THEN] no "Integration Table Filter", "Synch. Only Coupled Records" is Yes
         CDSIntegrationMgt.GetCDSCompany(CDSCompany);
         ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field31=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::"Price List Header", DATABASE::"CRM Pricelevel", IntegrationTableMapping.Direction::ToIntegrationTable,
-          'VERSION(1) SORTING(Field1) WHERE(Field8=1(1),Field9=1(17),Field20=1(0))', ExpectedIntTableFilter, true);
+          'VERSION(1) SORTING(Field1) WHERE(Field8=1(1),Field9=1(17),Field20=1(1))', ExpectedIntTableFilter, true);
     end;
 
     [Test]
@@ -1190,7 +1190,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Invoice] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Sales Invoice Header"
         // [THEN] Mapped to "CRM Invoice", Direction is "To Integration Table",
@@ -1209,7 +1209,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Table Mapping] [Invoice] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Sales Invoice Line"
         // [THEN] Mapped to "CRM Invoicedetail", Direction is "To Integration Table",
@@ -1226,7 +1226,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Table Mapping] [Salesperson] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Salesperson/Purchaser"
         // [THEN] Mapped to "CRM Systemuser", Direction is "From Integration Table",
@@ -1243,7 +1243,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Table Mapping] [Unit Of Measure] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Unit Of Measure"
         // [THEN] Mapped to "CRM Uomschedule", Direction is "To Integration Table",
@@ -1262,7 +1262,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Opportunity] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Opportunity"
         // [THEN] Mapped to "CRM Opportunity", Direction is "Bidirectional",
@@ -1338,7 +1338,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ContactCard: TestPage "Contact Card";
     begin
         // [FEATURE] [CRM Integration Management] [Contact] [UI]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
 
         ContactCard.Trap;
@@ -1357,7 +1357,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         CurrencyCard: TestPage "Currency Card";
     begin
         // [FEATURE] [CRM Integration Management] [Currency] [UI]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
 
         CurrencyCard.Trap;
@@ -1376,7 +1376,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         CustomerCard: TestPage "Customer Card";
     begin
         // [FEATURE] [CRM Integration Management] [Customer] [UI]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
         CustomerCard.Trap;
@@ -1395,7 +1395,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         CustomerPriceGroups: TestPage "Customer Price Groups";
     begin
         // [FEATURE] [CRM Integration Management] [Price List] [UI]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCoupledPriceGroupAndPricelevel(CustomerPriceGroup, CRMPricelevel);
 
         CustomerPriceGroups.Trap;
@@ -1416,7 +1416,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ItemCard: TestPage "Item Card";
     begin
         // [FEATURE] [CRM Integration Management] [Item] [UI]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
 
         ItemCard.Trap;
@@ -1435,7 +1435,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ResourceCard: TestPage "Resource Card";
     begin
         // [FEATURE] [CRM Integration Management] [Resource] [UI]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
 
         ResourceCard.Trap;
@@ -1454,7 +1454,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         SalespersonPurchaserCard: TestPage "Salesperson/Purchaser Card";
     begin
         // [FEATURE] [CRM Integration Management] [Salesperson] [UI]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
 
         SalespersonPurchaserCard.Trap;
@@ -1476,7 +1476,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         UnitsOfMeasure: TestPage "Units of Measure";
     begin
         // [FEATURE] [CRM Integration Management] [Unit Of Measure] [UI]
-        Initialize;
+        Initialize();
         CRMUom.Name := 'BOX';
         LibraryCRMIntegration.CreateCoupledUnitOfMeasureAndUomSchedule(UnitOfMeasure, CRMUom, CRMUomschedule);
 
@@ -1507,7 +1507,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [FCY]
         // [SCENARIO 380219] Posted Sales Invoice in FCY can be coupled to CRM Invoice if the CRM Order exists.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM integration setup
         SetupCRM;
@@ -1542,7 +1542,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.VerifySyncJob(JobQueueEntryID, IntegrationTableMapping, IntegrationSynchJob);
         // [THEN] CRM Invoice is created, where TransactionCurrencyId is "USD"
         CRMInvoice.SetRange(InvoiceNumber, SalesInvHeader."No.");
-        CRMInvoice.FindFirst;
+        CRMInvoice.FindFirst();
         CRMInvoice.TestField(TransactionCurrencyId, CRMTransactioncurrency.TransactionCurrencyId);
         // [THEN] CRM Invoice Line is created, where TransactionCurrencyId is "USD"
         CRMInvoicedetail.SetRange(InvoiceId, CRMInvoice.InvoiceId);
@@ -1564,13 +1564,12 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [FCY]
         // [SCENARIO 380219] It is possible to couple CRM Sales Order in FCY to NAV
-        Initialize;
+        Initialize();
 
         SetupCRM;
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup."Is Enabled" := true;
-        CRMConnectionSetup."Is Enabled For User" := true;
         CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Sales Order with "Currency Code" = "USD"
@@ -1602,14 +1601,14 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [Invoice Line]
         // [SCENARIO 173456] Invoice Line's "Amount Incl. VAT" is copied to CRM Invoice Line's "Extended Amount"
-        Initialize;
+        Initialize();
         SetupCRM;
         // [GIVEN] Posted Sales Invoice generated in NAV, with one line,
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         CreatePostSalesInvoiceWithGLAccount(SalesInvHeader, Customer."No.", '');
         // [GIVEN] where Quantity = 4, Amount = 1000, "Amount Including VAT" = 1050
         SalesInvoiceLine.SetRange("Document No.", SalesInvHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         // [WHEN] Couple Posted Sales Invoice to CRM
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
@@ -1626,10 +1625,10 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.VerifySyncJob(JobQueueEntryID, IntegrationTableMapping, IntegrationSynchJob);
         // [THEN] CRM Invoice Line is created,
         CRMInvoice.SetRange(InvoiceNumber, SalesInvHeader."No.");
-        CRMInvoice.FindFirst;
+        CRMInvoice.FindFirst();
         CRMInvoicedetail.SetRange(InvoiceId, CRMInvoice.InvoiceId);
         CRMInvoicedetail.SetRange(LineItemNumber, SalesInvoiceLine."Line No.");
-        CRMInvoicedetail.FindFirst;
+        CRMInvoicedetail.FindFirst();
         // [THEN] where Quantity = 4, BaseAmount = 1000, ExtendedAmount = 1050, Tax = 50
         CRMInvoicedetail.TestField(Quantity, SalesInvoiceLine.Quantity);
         CRMInvoicedetail.TestField(BaseAmount, SalesInvoiceLine.Amount);
@@ -1647,7 +1646,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Item] [CRM Product]
         // [SCENARIO 175051] Blocking Item makes coupled CRM Product State 'Retired' if 'Blocked' filter is removed from integration table mapping
-        Initialize;
+        Initialize();
         SetupCRM;
 
         // [GIVEN] Coupled Item and CRM Product
@@ -1677,7 +1676,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Resource] [CRM Product]
         // [SCENARIO 175051] Blocking Resource makes coupled CRM Product State 'Retired' if 'Blocked' filter is removed from integration table mapping
-        Initialize;
+        Initialize();
         SetupCRM;
 
         // [GIVEN] Coupled Resource and CRM Product
@@ -1707,7 +1706,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Item] [CRM Product]
         // [SCENARIO 175051] Unblocking Item makes coupled CRM Product State 'Active'
-        Initialize;
+        Initialize();
         SetupCRM;
 
         // [GIVEN] Coupled Item and CRM Product, Item is blocked and Product State is 'Retired'
@@ -1739,7 +1738,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Resource] [CRM Product]
         // [SCENARIO 175051] Unblocking Resource makes coupled CRM Product State 'Active'
-        Initialize;
+        Initialize();
         SetupCRM;
 
         // [GIVEN] Coupled Resource and CRM Product, Resource is blocked and Product State is 'Retired'
@@ -1772,7 +1771,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Item] [CRM Product]
         // [SCENARIO 175051] Setting CRM Product State to 'Retired' makes coupled Item Blocked if 'Active' filter is removed from integration table mapping
-        Initialize;
+        Initialize();
         SetupCRM;
 
         // [GIVEN] Coupled Item and CRM Product, Item is not blocked and Product State is 'Active'
@@ -1805,7 +1804,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Resource] [CRM Product]
         // [SCENARIO 175051] Setting CRM Product State to 'Retired' makes coupled Resource Blocked if 'Active' filter is removed from integration table mapping
-        Initialize;
+        Initialize();
         SetupCRM;
 
         // [GIVEN] Coupled Resource and CRM Product, Resource is not blocked and Product State is 'Active'
@@ -1837,7 +1836,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Item] [CRM Product]
         // [SCENARIO 175051] Setting CRM Product State to 'Active' unblocks coupled Item
-        Initialize;
+        Initialize();
         SetupCRM;
 
         // [GIVEN] Coupled Item and CRM Product, Item is blocked and Product State is 'Retired'
@@ -1870,7 +1869,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Resource] [CRM Product]
         // [SCENARIO 175051] Setting CRM Product State to 'Active' unblocks coupled Resource
-        Initialize;
+        Initialize();
         SetupCRM;
 
         // [GIVEN] Coupled Resource and CRM Product, Resource is blocked and Product State is 'Retired'
@@ -1905,14 +1904,13 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Item] [CRM Product]
         // [SCENARIO 175051] Unable to sync CRM Salesorder to NAV if CRM Product is of 'Retired' state.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM integration setup
         SetupCRM;
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup."Is Enabled" := true;
-        CRMConnectionSetup."Is Enabled For User" := true;
         CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Salesorder with a line of CRM Product
@@ -1944,14 +1942,13 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Resource] [CRM Product]
         // [SCENARIO 175051] Unable to sync CRM Salesorder to NAV if CRM Product (resource) is of 'Retired' state.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM integration setup
         SetupCRM;
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup."Is Enabled" := true;
-        CRMConnectionSetup."Is Enabled For User" := true;
         CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Salesorder with a line of CRM Product (resource)
@@ -1987,7 +1984,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Item] [CRM Product]
         // [SCENARIO 175051] Unable to sync NAV Sales Invoice to CRM if it contains Item which is blocked.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM integration setup
         SetupCRM;
@@ -2031,7 +2028,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Resource] [CRM Product]
         // [SCENARIO 175051] Unable to sync NAV Sales Invoice to CRM if it contains Resource which is blocked.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM integration setup
         SetupCRM;
@@ -2075,7 +2072,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [FEATURE] [UI]
 
         // [SCENARIO 380575] Posted Sales Invoice couples to CRM when press "Create Invoice in Dynamics CRM" on page "Posted Sales Invoice"
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM integration setup
         SetupCRM;
@@ -2121,7 +2118,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         JobQueueEntryID: Guid;
     begin
         // [SCENARIO 380575] Two Posted Sales Invoices coupled to CRM
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM integration setup
         SetupCRM;
@@ -2136,11 +2133,11 @@ codeunit 139162 "CRM Integration Mgt Test"
 
         // [GIVEN] Marked the second and third invoice, while positioned on the first one
         SalesInvHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        SalesInvHeader.FindLast;
+        SalesInvHeader.FindLast();
         SalesInvHeader.Mark(true); // mark the third invoice
         SalesInvHeader.Next(-1);
         SalesInvHeader.Mark(true); // mark the second invoice
-        SalesInvHeader.FindFirst; // rec positioned on the first, that is out of marked invoices
+        SalesInvHeader.FindFirst(); // rec positioned on the first, that is out of marked invoices
         SalesInvHeader.SetRange("Sell-to Customer No.");
         SalesInvHeader.MarkedOnly(true);
 
@@ -2163,7 +2160,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [THEN] 2nd and 3rd Posted Sales invoices are coupled, the 1st one is not.
         SalesInvHeader.Reset();
         SalesInvHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
         SalesInvHeader.TestField("Coupled to CRM", false);
         SalesInvHeader.Next;
         SalesInvHeader.TestField("Coupled to CRM", true);
@@ -2177,7 +2174,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     procedure CheckOrEnableCRMConnectionNotEnabled()
     begin
         // [SCENARIO 204194] CRM Connection Setup Wizard page is shown if CRM setup is not enabled and user tries to access CRM items from NAV.
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'host', false);
         asserterror CRMIntegrationManagement.CheckOrEnableCRMConnection;
     end;
@@ -2205,7 +2202,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [FCY]
         // [SCENARIO 186713] It is possible to couple Posted Sales Invoice in FCY that was created in NAV to CRM
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM integration setup
         SetupCRM;
@@ -2254,7 +2251,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [FCY] [UT]
         // [SCENARIO 186713] New CRM pricelevel in currency could be created with CRMSynchHelper.CreateCRMPricelevelInCurrency
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCRMOrganization;
 
         // [GIVEN] Coupled Currency "USD"
@@ -2279,7 +2276,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [FCY] [UT]
         // [SCENARIO 186713] If currency is not mapped then function CRMSynchHelper.CreateCRMPricelevelInCurrency causes error
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCRMOrganization;
 
         // [GIVEN] Currency "USD" which is not coupled with CRM Transactioncurrency
@@ -2304,7 +2301,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [Inactivity Timeout Period]
         // [SCENARIO 266711] Inactivity Timeout Period has value on Reset Default CRM Setup Configuration
-        Initialize;
+        Initialize();
         // [WHEN] Reset Default CRM Setup Configuration
         ResetDefaultCRMSetupConfiguration;
 
@@ -2358,17 +2355,17 @@ codeunit 139162 "CRM Integration Mgt Test"
         if EnableUnitGroupMapping then
             LibraryCRMIntegration.EnableUnitGroupMapping();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         IsInitialized := true;
     end;
@@ -2386,7 +2383,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         with User do begin
             Init;
-            Validate("User Name", LibraryUtility.GenerateGUID);
+            Validate("User Name", LibraryUtility.GenerateGUID());
             Validate("License Type", "License Type"::"Full User");
             Validate("User Security ID", CreateGuid);
             Insert(true);
@@ -2440,7 +2437,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
         if CurrencyCode <> '' then
             SalesHeader.Validate("Currency Code", CurrencyCode);
-        SalesHeader.Validate("Your Reference", LibraryUtility.GenerateGUID);
+        SalesHeader.Validate("Your Reference", LibraryUtility.GenerateGUID());
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
@@ -2482,7 +2479,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         CRMIntegrationRecord.FindByRecordID(Currency.RecordId);
         CRMTransactioncurrency.Get(CRMIntegrationRecord."CRM ID");
         CRMPricelevel.SetRange(TransactionCurrencyId, CRMTransactioncurrency.TransactionCurrencyId);
-        CRMPricelevel.FindFirst;
+        CRMPricelevel.FindFirst();
     end;
 
     local procedure FindCRMProductpricelevelByItem(var CRMProductpricelevel: Record "CRM Productpricelevel"; Item: Record Item)
@@ -2493,7 +2490,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         CRMIntegrationRecord.FindByRecordID(Item.RecordId);
         CRMProduct.Get(CRMIntegrationRecord."CRM ID");
         CRMProductpricelevel.SetRange(ProductId, CRMProduct.ProductId);
-        CRMProductpricelevel.FindFirst;
+        CRMProductpricelevel.FindFirst();
     end;
 
     local procedure FindCRMUoMBySalesInvoicLineItem(var CRMUom: Record "CRM Uom"; InvoiceId: Guid; ProductId: Guid)
@@ -2502,7 +2499,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         CRMInvoicedetail.SetRange(InvoiceId, InvoiceId);
         CRMInvoicedetail.SetRange(ProductId, ProductId);
-        CRMInvoicedetail.FindFirst;
+        CRMInvoicedetail.FindFirst();
         CRMUom.Get(CRMInvoicedetail.UoMId);
     end;
 
@@ -2510,7 +2507,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
         SalesInvoiceLine.SetRange("No.", ItemNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     local procedure GetExchangeRate(CurrencyCode: Code[10]; ConversionDate: Date): Decimal
@@ -2590,7 +2587,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         with IntegrationTableMapping do begin
             SetRange("Table ID", TableID);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(IntegrationDirection, Direction, FieldName(Direction));
             Assert.AreEqual(IntegrationTableID, "Integration Table ID", FieldName("Integration Table ID"));
             Assert.AreEqual(TableFilter, GetTableFilter, FieldName("Table Filter"));
@@ -2620,7 +2617,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
         JobQueueEntry.SetRange("No. of Minutes between Runs", NoOfMinutesBetweenRuns);
         JobQueueEntry.SetRange(Description, JobDescription);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         Assert.AreEqual(ExpectedInactivityTimeoutPeriod, JobQueueEntry."Inactivity Timeout Period",
           'Inactivity time out period different from default.');
     end;

@@ -106,14 +106,14 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesLine.SetRange("Document Type", Rec."Document Type");
         SalesLine.SetRange("Recalculate Invoice Disc.", true);
 
-        if SalesLine.FindFirst then begin
+        if SalesLine.FindFirst() then begin
             ModifyTotalsSalesLine(SalesLine, true);
             exit;
         end;
 
         SalesLine.SetRange("Recalculate Invoice Disc.");
 
-        if not SalesLine.FindFirst then
+        if not SalesLine.FindFirst() then
             BlankTotals(Rec."Document No.");
     end;
 
@@ -210,7 +210,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        if SalesHeader.FindSet then
+        if SalesHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
             until SalesHeader.Next() = 0;
@@ -264,7 +264,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
     begin
         TempFieldBuffer.Reset();
         TempFieldBuffer.SetRange("Field ID", SalesQuoteEntityBuffer.FieldNo(Status));
-        if not TempFieldBuffer.FindFirst then
+        if not TempFieldBuffer.FindFirst() then
             exit;
 
         case SalesQuoteEntityBuffer.Status of
@@ -302,7 +302,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
 
-        if not SalesLine.FindFirst then begin
+        if not SalesLine.FindFirst() then begin
             BlankTotals(SalesLine."Document No.");
             exit;
         end;
@@ -413,7 +413,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
         SalesLine.SetRange("Document No.", SalesQuoteEntityBuffer."No.");
         SalesLine.SetRange("Recalculate Invoice Disc.", true);
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
 
         SalesQuoteEntityBuffer.Get(SalesQuoteEntityBuffer."No.");
@@ -427,7 +427,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
             Error(DocumentIDNotSpecifiedForLinesErr);
 
         SalesQuoteEntityBuffer.SetFilter(Id, DocumentIdFilter);
-        if not SalesQuoteEntityBuffer.FindFirst then
+        if not SalesQuoteEntityBuffer.FindFirst() then
             exit;
 
         LoadSalesLines(SalesInvoiceLineAggregate, SalesQuoteEntityBuffer);
@@ -484,7 +484,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         if SalesInvoiceLineAggregate."Line No." = 0 then begin
             LastUsedSalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
             LastUsedSalesLine.SetRange("Document No.", SalesQuoteEntityBuffer."No.");
-            if LastUsedSalesLine.FindLast then
+            if LastUsedSalesLine.FindLast() then
                 SalesInvoiceLineAggregate."Line No." := LastUsedSalesLine."Line No." + 10000
             else
                 SalesInvoiceLineAggregate."Line No." := 10000;
@@ -545,12 +545,11 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
         SalesLine: Record "Sales Line";
         TempAllFieldBuffer: Record "Field Buffer" temporary;
-        NativeEDMTypes: Codeunit "Native - EDM Types";
     begin
         VerifyCRUDIsPossibleForLine(TempNewSalesInvoiceLineAggregate, SalesQuoteEntityBuffer);
-        NativeEDMTypes.GetFieldSetBufferWithAllFieldsSet(TempAllFieldBuffer);
+        GetFieldSetBufferWithAllFieldsSet(TempAllFieldBuffer);
 
-        if not TempNewSalesInvoiceLineAggregate.FindFirst then begin
+        if not TempNewSalesInvoiceLineAggregate.FindFirst() then begin
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
             SalesLine.SetRange("Document No.", SalesQuoteEntityBuffer."No.");
             SalesLine.DeleteAll(true);
@@ -569,7 +568,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
             until TempCurrentSalesInvoiceLineAggregate.Next() = 0;
 
         // Update Lines
-        TempNewSalesInvoiceLineAggregate.FindFirst;
+        TempNewSalesInvoiceLineAggregate.FindFirst();
 
         repeat
             if not TempCurrentSalesInvoiceLineAggregate.Get(
@@ -583,6 +582,47 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesQuoteEntityBuffer.Get(SalesQuoteEntityBuffer."No.");
     end;
 
+    procedure GetFieldSetBufferWithAllFieldsSet(var TempFieldBuffer: Record "Field Buffer" temporary)
+    var
+        DummySalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Line No."), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo(Type), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Item Id"), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("No."), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo(Description), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Tax Id"), TempFieldBuffer);
+
+        if GeneralLedgerSetup.UseVat then
+            RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("VAT Prod. Posting Group"), TempFieldBuffer)
+        else
+            RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Tax Group Code"), TempFieldBuffer);
+
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo(Quantity), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Unit Price"), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Line Discount Calculation"), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Line Discount Value"), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Line Discount Amount"), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Line Discount %"), TempFieldBuffer);
+        RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Shipment Date"), TempFieldBuffer);
+    end;
+
+    local procedure RegisterFieldSet(FieldNo: Integer; var TempFieldBuffer: Record "Field Buffer" temporary)
+    var
+        LastOrderNo: Integer;
+    begin
+        LastOrderNo := 1;
+        if TempFieldBuffer.FindLast then
+            LastOrderNo := TempFieldBuffer.Order + 1;
+
+        Clear(TempFieldBuffer);
+        TempFieldBuffer.Order := LastOrderNo;
+        TempFieldBuffer."Table ID" := DATABASE::"Sales Invoice Line Aggregate";
+        TempFieldBuffer."Field ID" := FieldNo;
+        TempFieldBuffer.Insert();
+    end;
+
     local procedure VerifyCRUDIsPossibleForLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer")
     var
         SearchSalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
@@ -593,7 +633,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
             if DocumentIDFilter = '' then
                 Error(DocumentIDNotSpecifiedForLinesErr);
             SalesQuoteEntityBuffer.SetFilter(Id, DocumentIDFilter);
-            if not SalesQuoteEntityBuffer.FindFirst then
+            if not SalesQuoteEntityBuffer.FindFirst() then
                 Error(DocumentDoesNotExistErr);
         end else begin
             SalesQuoteEntityBuffer.SetRange(Id, SalesInvoiceLineAggregate."Document Id");

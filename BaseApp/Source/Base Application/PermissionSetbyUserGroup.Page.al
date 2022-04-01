@@ -351,7 +351,7 @@ page 9837 "Permission Set by User Group"
         Clear(UserGroupCodeArr);
         Clear(UserGroupHasPermissionSet);
         AllGroupsHavePermission := true;
-        if UserGroup.FindSet then
+        if UserGroup.FindSet() then
             repeat
                 i += 1;
                 if PermissionPagesMgt.IsInColumnsRange(i) then begin
@@ -382,7 +382,7 @@ page 9837 "Permission Set by User Group"
             SetUserGroupPermission(UserGroupCodeArr[ColumnNo], UserHasPermission);
             AllGroupsHavePermission := AllGroupsHavePermission and UserHasPermission;
         end else
-            if UserGroup.FindSet then
+            if UserGroup.FindSet() then
                 repeat
                     SetUserGroupPermission(UserGroup.Code, UserHasPermission);
                 until UserGroup.Next() = 0;

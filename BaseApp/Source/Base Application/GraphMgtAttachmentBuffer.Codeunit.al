@@ -45,7 +45,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             DocumentId := GetDocumentId(DocumentRecordRef);
 
         LoadLinkedAttachmentsToBuffer(TempAttachmentEntityBuffer, IncomingDocument, AttachmentIdFilter);
-        if TempAttachmentEntityBuffer.FindSet then
+        if TempAttachmentEntityBuffer.FindSet() then
             repeat
                 if GLEntryNo <> 0 then
                     TempAttachmentEntityBuffer."G/L Entry No." := GLEntryNo
@@ -274,7 +274,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         FindOrCreateIncomingDocument(DocumentRecordRef, IncomingDocument);
 
         LastUsedIncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if not LastUsedIncomingDocumentAttachment.FindLast then
+        if not LastUsedIncomingDocumentAttachment.FindLast() then
             LineNo := 10000
         else
             LineNo := LastUsedIncomingDocumentAttachment."Line No." + 10000;
@@ -513,7 +513,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             IncomingDocumentAttachment.Delete(true);
             AdditionalIncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
             AdditionalIncomingDocumentAttachment.SetFilter("Line No.", '<>%1', LineNo);
-            if AdditionalIncomingDocumentAttachment.FindFirst then begin
+            if AdditionalIncomingDocumentAttachment.FindFirst() then begin
                 AdditionalIncomingDocumentAttachment.Validate(Default, IsDefault);
                 AdditionalIncomingDocumentAttachment.Validate("Main Attachment", IsMain);
                 AdditionalIncomingDocumentAttachment.Modify(true);
@@ -522,7 +522,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
         IncomingDocumentAttachment.Reset();
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        if IncomingDocumentAttachment.FindFirst then
+        if IncomingDocumentAttachment.FindFirst() then
             exit;
 
         if IncomingDocument.Posted then begin
@@ -549,7 +549,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure DeleteUnusedAttachments(var TempOldAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempNewAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary)
     begin
-        if TempOldAttachmentEntityBuffer.FindSet then
+        if TempOldAttachmentEntityBuffer.FindSet() then
             repeat
                 if not TempNewAttachmentEntityBuffer.Get(TempOldAttachmentEntityBuffer.Id) then
                     PropagateDeleteAttachment(TempOldAttachmentEntityBuffer);
@@ -563,7 +563,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         AttachmentId: Guid;
         FileName: Text[250];
     begin
-        if TempNewAttachmentEntityBuffer.FindSet then
+        if TempNewAttachmentEntityBuffer.FindSet() then
             repeat
                 AttachmentId := TempNewAttachmentEntityBuffer.Id;
                 FileName := TempNewAttachmentEntityBuffer."File Name";
@@ -663,7 +663,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);
@@ -906,7 +906,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         DocumentRecordRef: RecordRef;
     begin
         IncomingDocumentAttachment.SetFilter(SystemId, AttachmentId);
-        if not IncomingDocumentAttachment.FindFirst then
+        if not IncomingDocumentAttachment.FindFirst() then
             exit(EmptyGuid);
 
         IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
@@ -992,7 +992,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
         if IsGeneralJournalLine(DocumentRecordRef) then begin
             GenJournalLine.SetRange(SystemId, DocumentId);
-            if not GenJournalLine.FindFirst then begin
+            if not GenJournalLine.FindFirst() then begin
                 ErrorMsg := DocumentDoesNotExistErr;
                 exit;
             end;
@@ -1012,7 +1012,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
         if IsSalesInvoice(DocumentRecordRef) then begin
             SalesInvoiceEntityAggregate.SetRange(Id, DocumentId);
-            if not SalesInvoiceEntityAggregate.FindFirst then begin
+            if not SalesInvoiceEntityAggregate.FindFirst() then begin
                 ErrorMsg := DocumentDoesNotExistErr;
                 exit;
             end;
@@ -1024,7 +1024,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
         if IsPurchaseInvoice(DocumentRecordRef) then begin
             PurchInvEntityAggregate.SetRange(Id, DocumentId);
-            if not PurchInvEntityAggregate.FindFirst then begin
+            if not PurchInvEntityAggregate.FindFirst() then begin
                 ErrorMsg := DocumentDoesNotExistErr;
                 exit;
             end;
@@ -1036,7 +1036,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
         if IsSalesQuote(DocumentRecordRef) then begin
             SalesQuoteEntityBuffer.SetRange(Id, DocumentId);
-            if not SalesQuoteEntityBuffer.FindFirst then begin
+            if not SalesQuoteEntityBuffer.FindFirst() then begin
                 ErrorMsg := DocumentDoesNotExistErr;
                 exit;
             end;
@@ -1126,20 +1126,20 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         Value := DummyGLEntryNo;
         if TypeHelper.Evaluate(Value, DocumentIdFilter, '', 'en-US') then begin
             GLEntry.SetFilter("Entry No.", DocumentIdFilter);
-            if GLEntry.FindFirst then begin
+            if GLEntry.FindFirst() then begin
                 DocumentRecordRef.GetTable(GLEntry);
                 exit;
             end;
         end;
 
         GenJournalLine.SetFilter(SystemId, DocumentIdFilter);
-        if GenJournalLine.FindFirst then begin
+        if GenJournalLine.FindFirst() then begin
             DocumentRecordRef.GetTable(GenJournalLine);
             exit;
         end;
 
         SalesHeader.SetFilter(SystemId, DocumentIdFilter);
-        if SalesHeader.FindFirst then begin
+        if SalesHeader.FindFirst() then begin
             DocumentRecordRef.GetTable(SalesHeader);
             exit;
         end;
@@ -1150,7 +1150,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         end;
 
         PurchaseHeader.SetFilter(SystemId, DocumentIdFilter);
-        if PurchaseHeader.FindFirst then begin
+        if PurchaseHeader.FindFirst() then begin
             DocumentRecordRef.GetTable(PurchaseHeader);
             exit;
         end;
@@ -1365,7 +1365,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         if LoadContent then
             IncomingDocumentAttachment.SetFilter(SystemId, AttachmentIdFilter);
 
-        if not IncomingDocumentAttachment.FindSet then
+        if not IncomingDocumentAttachment.FindSet() then
             exit;
 
         repeat
@@ -1390,7 +1390,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         if LoadContent then
             UnlinkedAttachment.SetFilter(Id, AttachmentIdFilter);
 
-        if not UnlinkedAttachment.FindSet then
+        if not UnlinkedAttachment.FindSet() then
             exit;
 
         repeat
@@ -1420,7 +1420,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             TempAttachmentEntityBuffer."Byte Size" := GetContentLength(TempBlob);
         end;
         TempFieldBuffer.SetRange("Field ID", TempAttachmentEntityBuffer.FieldNo("File Name"));
-        UpdateFileName := TempFieldBuffer.FindFirst;
+        UpdateFileName := TempFieldBuffer.FindFirst();
         if UpdateFileName then
             FileNameToNameAndExtension(TempAttachmentEntityBuffer."File Name", Name, Extension);
         AttachmentRecordRef.GetTable(IncomingDocumentAttachment);

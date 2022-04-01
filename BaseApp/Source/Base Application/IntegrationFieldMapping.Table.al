@@ -27,6 +27,43 @@ table 5336 "Integration Field Mapping"
             Caption = 'Direction';
             OptionCaption = 'Bidirectional,ToIntegrationTable,FromIntegrationTable';
             OptionMembers = Bidirectional,ToIntegrationTable,FromIntegrationTable;
+
+            trigger OnValidate()
+            var
+                "Field": Record "Field";
+                IntegrationTableMapping: Record "Integration Table Mapping";
+                CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
+                JobQueueEntry: Record "Job Queue Entry";
+                CRMIntegrationManagement: Codeunit "CRM Integration Management";
+            begin
+                if CRMIntegrationManagement.IsOptionMappingEnabled() then begin
+                    IntegrationTableMapping.Get("Integration Table Mapping Name");
+                    if IntegrationTableMapping."Int. Table UID Field Type" = Field.Type::Option then
+                        if Direction = Direction::Bidirectional then
+                            Error(OptionMappingCannotBeBidirectionalErr)
+                        else begin
+                            IntegrationTableMapping.Direction := Direction;
+                            IntegrationTableMapping.Modify();
+
+                            if CRMFullSynchReviewLine.Get("Integration Table Mapping Name") then
+                                if CRMFullSynchReviewLine.Direction <> Direction then begin
+                                    CRMFullSynchReviewLine.Direction := Direction;
+                                    CRMFullSynchReviewLine.Modify();
+                                end;
+
+                            if Direction = Direction::ToIntegrationTable then begin
+                                JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
+                                JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
+                                JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+                                if JobQueueEntry.FindFirst() then
+                                    if JobQueueEntry.Status = JobQueueEntry.Status::Ready then begin
+                                        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold with Inactivity Timeout";
+                                        JobQueueEntry.Modify();
+                                    end;
+                            end;
+                        end;
+                end;
+            end;
         }
         field(7; "Constant Value"; Text[100])
         {
@@ -117,6 +154,7 @@ table 5336 "Integration Field Mapping"
 
     var
         NotNullIsApplicableForGUIDErr: Label 'The Not Null value is applicable for GUID fields only.';
+        OptionMappingCannotBeBidirectionalErr: Label 'Option mappings can only synchronize from integration table or to integration table.';
 
     trigger OnInsert()
     begin

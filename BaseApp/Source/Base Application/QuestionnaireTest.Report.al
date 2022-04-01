@@ -154,7 +154,7 @@ report 5067 "Questionnaire - Test"
                 ProfileQuestnLine2.SetFilter("Line No.", '%1..', "Line No.");
             ProfileQuestnLine2.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
             ProfileQuestnLine2.SetRange(Type, Type::Answer);
-            if not ProfileQuestnLine2.FindFirst then
+            if not ProfileQuestnLine2.FindFirst() then
                 AddError(Text004);
         end;
     end;

@@ -25,7 +25,7 @@ page 5446 "Automation User Permission"
                         AggregatePermissionSet: Record "Aggregate Permission Set";
                     begin
                         AggregatePermissionSet.SetRange("Role ID", "Role ID");
-                        AggregatePermissionSet.FindFirst;
+                        AggregatePermissionSet.FindFirst();
 
                         if AggregatePermissionSet.Count > 1 then
                             Error(MultipleRoleIDErr, "Role ID");
@@ -78,7 +78,7 @@ page 5446 "Automation User Permission"
             UserSecurityIDFilter := GetFilter("User Security ID");
             if UserSecurityIDFilter = '' then
                 Error(UserIDNotSpecifiedForLinesErr);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             LinesLoaded := true;
         end;

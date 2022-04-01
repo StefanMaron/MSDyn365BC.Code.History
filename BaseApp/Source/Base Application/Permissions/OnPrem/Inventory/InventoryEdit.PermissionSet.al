@@ -115,7 +115,6 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Service Item Group" = R,
                   tabledata "Service Item Line" = r,
                   tabledata "Service Ledger Entry" = r,
-                  tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Special Equipment" = R,
                   tabledata "Standard Item Journal Line" = RM,
                   tabledata "Standard Purchase Line" = rm,

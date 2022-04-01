@@ -22,7 +22,7 @@ report 99001048 "Planning Availability"
                 else
                     TempForecastPlanningBuffer.SetRange("Document Type", TempForecastPlanningBuffer."Document Type"::"Production Forecast-Sales");
 
-                if TempForecastPlanningBuffer.FindFirst then begin
+                if TempForecastPlanningBuffer.FindFirst() then begin
                     TempForecastPlanningBuffer."Gross Requirement" += "Forecast Quantity";
                     TempForecastPlanningBuffer.Modify();
                 end else
@@ -143,7 +143,7 @@ report 99001048 "Planning Availability"
             begin
                 ReqLine2.SetRange("Ref. Order No.", "Document No.");
                 ReqLine2.SetRange("Ref. Line No.", "Line No.");
-                if ReqLine2.FindFirst then
+                if ReqLine2.FindFirst() then
                     CurrReport.Skip();
 
                 if Selection then begin
@@ -233,7 +233,7 @@ report 99001048 "Planning Availability"
                     ReqLine2.SetRange("Ref. Order Status", Status);
                     ReqLine2.SetRange("Ref. Order No.", "Prod. Order No.");
                     ReqLine2.SetRange("Ref. Line No.", "Line No.");
-                    if ReqLine2.FindFirst then
+                    if ReqLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if Selection then begin
@@ -331,7 +331,7 @@ report 99001048 "Planning Availability"
                     ReqLine2.SetRange("Ref. Order Status", Status);
                     ReqLine2.SetRange("Ref. Order No.", "Prod. Order No.");
                     ReqLine2.SetRange("Ref. Line No.", "Prod. Order Line No.");
-                    if ReqLine2.FindFirst then
+                    if ReqLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if Selection then begin
@@ -525,7 +525,7 @@ report 99001048 "Planning Availability"
             begin
                 TempForecastPlanningBuffer.Reset();
                 TempForecastPlanningBuffer.SetFilter("Gross Requirement", '>0');
-                if TempForecastPlanningBuffer.FindSet then
+                if TempForecastPlanningBuffer.FindSet() then
                     repeat
                         if Selection then begin
                             NewRecord;
@@ -663,7 +663,7 @@ report 99001048 "Planning Availability"
         TempForecastPlanningBuffer.SetRange("Item No.", ItemNo);
         TempForecastPlanningBuffer.SetFilter(Date, '..%1', Date);
         TempForecastPlanningBuffer.SetRange("Document Type", DocumentType);
-        if TempForecastPlanningBuffer.FindLast then begin
+        if TempForecastPlanningBuffer.FindLast() then begin
             TempForecastPlanningBuffer."Gross Requirement" -= Quantity;
             TempForecastPlanningBuffer.Modify();
         end;

@@ -33,7 +33,7 @@ codeunit 132220 "Library - Invoicing App"
           ItemPrice + ItemPrice * FindVATPercentage(BCO365SalesInvoice.Lines.VATProductPostingGroupDescription.Value));
 
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesInvoice."Sell-to Customer Name".Value);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         BCO365SalesInvoice.Close;
         exit(SalesHeader."No.");
@@ -44,8 +44,8 @@ codeunit 132220 "Library - Invoicing App"
     var
         BCO365SalesCustomerCard: TestPage "BC O365 Sales Customer Card";
     begin
-        BCO365SalesCustomerCard.OpenNew;
-        CustomerName := LibraryUtility.GenerateGUID;
+        BCO365SalesCustomerCard.OpenNew();
+        CustomerName := LibraryUtility.GenerateGUID();
         BCO365SalesCustomerCard.Name.Value(CustomerName);
         BCO365SalesCustomerCard.Close;
     end;
@@ -55,8 +55,8 @@ codeunit 132220 "Library - Invoicing App"
     var
         BCO365SalesCustomerCard: TestPage "BC O365 Sales Customer Card";
     begin
-        BCO365SalesCustomerCard.OpenNew;
-        CustomerName := LibraryUtility.GenerateGUID;
+        BCO365SalesCustomerCard.OpenNew();
+        CustomerName := LibraryUtility.GenerateGUID();
         BCO365SalesCustomerCard.Name.Value(CustomerName);
         BCO365SalesCustomerCard."E-Mail".Value('invoicing@microsoft.com');
         BCO365SalesCustomerCard.Close;
@@ -68,12 +68,12 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesCustomerCard: TestPage "BC O365 Sales Customer Card";
         CustomerName: Text;
     begin
-        BCO365SalesCustomerCard.OpenNew;
-        CustomerName := LibraryUtility.GenerateGUID;
+        BCO365SalesCustomerCard.OpenNew();
+        CustomerName := LibraryUtility.GenerateGUID();
         BCO365SalesCustomerCard.Name.Value(CustomerName);
         BCO365SalesCustomerCard.Close;
         Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
         Customer.Validate(Blocked, Customer.Blocked::All);
         Customer.Modify(true);
     end;
@@ -83,12 +83,12 @@ codeunit 132220 "Library - Invoicing App"
     var
         BCO365SalesCustomerCard: TestPage "BC O365 Sales Customer Card";
     begin
-        BCO365SalesCustomerCard.OpenNew;
-        CustomerName := LibraryUtility.GenerateGUID;
+        BCO365SalesCustomerCard.OpenNew();
+        CustomerName := LibraryUtility.GenerateGUID();
         BCO365SalesCustomerCard.Name.Value(CustomerName);
         BCO365SalesCustomerCard.Address.Value(LibraryUtility.GenerateRandomText(50));
         BCO365SalesCustomerCard."Address 2".Value(LibraryUtility.GenerateRandomText(50));
-        BCO365SalesCustomerCard.City.Value(LibraryUtility.GenerateGUID); // Cities ending with * might cause errors (e.g. text<*)
+        BCO365SalesCustomerCard.City.Value(LibraryUtility.GenerateGUID()); // Cities ending with * might cause errors (e.g. text<*)
         BCO365SalesCustomerCard."Post Code".Value(LibraryUtility.GenerateRandomText(20));
         BCO365SalesCustomerCard.County.Value(LibraryUtility.GenerateRandomText(30));
         BCO365SalesCustomerCard.CountryRegionCode.Value('DK');
@@ -109,7 +109,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesInvoice.Close;
 
         SalesHeader.SetRange("Quote No.", EstimateNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         InvoiceNo := SalesHeader."No.";
     end;
 
@@ -118,8 +118,8 @@ codeunit 132220 "Library - Invoicing App"
     var
         O365ItemCard: TestPage "O365 Item Card";
     begin
-        O365ItemCard.OpenNew;
-        ItemDescription := LibraryUtility.GenerateGUID;
+        O365ItemCard.OpenNew();
+        ItemDescription := LibraryUtility.GenerateGUID();
         O365ItemCard.Description.Value(ItemDescription);
         O365ItemCard.Close;
     end;
@@ -129,8 +129,8 @@ codeunit 132220 "Library - Invoicing App"
     var
         BCO365ItemCard: TestPage "BC O365 Item Card";
     begin
-        BCO365ItemCard.OpenNew;
-        ItemDescription := LibraryUtility.GenerateGUID;
+        BCO365ItemCard.OpenNew();
+        ItemDescription := LibraryUtility.GenerateGUID();
         BCO365ItemCard.Description.Value(ItemDescription);
         BCO365ItemCard.Close;
     end;
@@ -140,9 +140,9 @@ codeunit 132220 "Library - Invoicing App"
     var
         BCO365ItemCard: TestPage "BC O365 Item Card";
     begin
-        BCO365ItemCard.OpenNew;
+        BCO365ItemCard.OpenNew();
         BCO365ItemCard."Unit Price".Value(Format(LibraryRandom.RandDecInRange(100, 200, 2)));
-        ItemDescription := LibraryUtility.GenerateGUID;
+        ItemDescription := LibraryUtility.GenerateGUID();
         BCO365ItemCard.Description.Value(ItemDescription);
         BCO365ItemCard.Close;
     end;
@@ -153,14 +153,14 @@ codeunit 132220 "Library - Invoicing App"
         SalesHeader: Record "Sales Header";
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
     begin
-        BCO365SalesQuote.OpenNew;
+        BCO365SalesQuote.OpenNew();
         BCO365SalesQuote."Sell-to Customer Name".Value(CreateCustomerWithEmail);
 
         BCO365SalesQuote.Lines.Description.Value(CreateItem);
         BCO365SalesQuote.Lines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
 
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesQuote."Sell-to Customer Name".Value);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         BCO365SalesQuote.Close;
         EstimateNo := SalesHeader."No.";
@@ -198,7 +198,7 @@ codeunit 132220 "Library - Invoicing App"
         SalesHeader: Record "Sales Header";
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
     begin
-        BCO365SalesQuote.OpenNew;
+        BCO365SalesQuote.OpenNew();
         BCO365SalesQuote."Sell-to Customer Name".Value(LibraryUtility.GenerateRandomAlphabeticText(20, 1));
 
         BCO365SalesQuote.Lines.Description.Value(LibraryUtility.GenerateRandomAlphabeticText(20, 1));
@@ -206,7 +206,7 @@ codeunit 132220 "Library - Invoicing App"
 
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesQuote."Sell-to Customer Name".Value);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         BCO365SalesQuote.Close;
         EstimateNo := SalesHeader."No.";
@@ -218,7 +218,7 @@ codeunit 132220 "Library - Invoicing App"
         SalesHeader: Record "Sales Header";
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryUtility.GenerateRandomAlphabeticText(20, 1));
 
         BCO365SalesInvoice.Lines.Description.Value(LibraryUtility.GenerateRandomAlphabeticText(20, 1));
@@ -226,7 +226,7 @@ codeunit 132220 "Library - Invoicing App"
 
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesInvoice."Sell-to Customer Name".Value);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         BCO365SalesInvoice.Close;
         exit(SalesHeader."No.");
@@ -255,7 +255,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365PaymentInstrCard.OK.Invoke;
         O365PaymentInstructions.SetRange(Name, Name);
         O365PaymentInstructions.SetRange("Payment Instructions", PaymentInstructions);
-        O365PaymentInstructions.FindFirst;
+        O365PaymentInstructions.FindFirst();
         exit(O365PaymentInstructions.Id);
     end;
 
@@ -269,7 +269,7 @@ codeunit 132220 "Library - Invoicing App"
         O365PaymentInstructions.Get(PaymentInstructionsId);
         TestPageBCO365PaymentInstrCard.Trap;
         BCO365PaymentInstrCard.SetPaymentInstructionsOnPage(O365PaymentInstructions);
-        BCO365PaymentInstrCard.Run;
+        BCO365PaymentInstrCard.Run();
         if BCO365PaymentInstrCard.Caption = '' then; // Avoid precal bug
         TestPageBCO365PaymentInstrCard.NameControl.Value(Name);
         TestPageBCO365PaymentInstrCard.PaymentInstructionsControl.Value(PaymentInstructions);
@@ -308,7 +308,7 @@ codeunit 132220 "Library - Invoicing App"
         IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment."Incoming Document Entry No." := SalesHeader."Incoming Document Entry No.";
         ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, FileName);
-        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID;
+        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID();
         IncomingDocumentAttachment.Modify(true);
     end;
 
@@ -339,7 +339,7 @@ codeunit 132220 "Library - Invoicing App"
         IncomingDocumentAttachment."Document No." := SalesInvoiceHeader."No.";
         IncomingDocumentAttachment."Posting Date" := SalesInvoiceHeader."Posting Date";
         ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, FileName);
-        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID;
+        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID();
         IncomingDocumentAttachment.Modify(true);
     end;
 
@@ -362,7 +362,7 @@ codeunit 132220 "Library - Invoicing App"
         // Finds any file to attach that is big enough
         DirectoryPath := FileManagement.CombinePath(ApplicationPath, '../../App/Demotool/Pictures/');
         FileManagement.GetServerDirectoryFilesList(NameValueBuffer, DirectoryPath);
-        if NameValueBuffer.FindSet then
+        if NameValueBuffer.FindSet() then
             repeat
                 if NameValueBuffer.Name <> '' then begin
                     FileManagement.GetServerFileProperties(NameValueBuffer.Name, DummyDate, DummyTime, FileSize);
@@ -426,60 +426,6 @@ codeunit 132220 "Library - Invoicing App"
     end;
 
     [Scope('OnPrem')]
-    procedure SetupEmailTable()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-    begin
-        if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete();
-
-        SMTPMailSetup.Init();
-        SMTPMailSetup."SMTP Server" := 'smtp.office365.com';
-        SMTPMailSetup."User ID" := 'testuser@domain.com';
-        SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
-        SMTPMailSetup.SetPassword('TestPasssword');
-        SMTPMailSetup.Insert();
-    end;
-
-    [Scope('OnPrem')]
-    procedure SetupEmail()
-    var
-        O365EmailAccountSettings: TestPage "O365 Email Account Settings";
-        O365EmailSetupWizard: TestPage "O365 Email Setup Wizard";
-    begin
-        O365EmailAccountSettings.OpenEdit;
-        O365EmailSetupWizard.Trap;
-        O365EmailAccountSettings.AdvancedEmailSetupLbl.DrillDown;
-
-        with O365EmailSetupWizard do begin
-            "Email Provider".SetValue(EmailProvider::Other);
-            ActionNext.Invoke; // Enter credentials page
-            "SMTP Server".SetValue('localhost');
-            "SMTP Server Port".SetValue(8081);
-            "Secure Connection".SetValue(false);
-            "User ID".SetValue('testuser@domain.com');
-            Password.SetValue('TestPassword');
-            ActionNext.Invoke; // That's it page
-            ActionFinish.Invoke;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure SetupEmailFromBC()
-    var
-        BCO365Settings: TestPage "BC O365 Settings";
-    begin
-        BCO365Settings.OpenEdit;
-        BCO365Settings.SmtpMailPage."Email Provider".SetValue(EmailProvider::Other);
-        BCO365Settings.SmtpMailPage."SMTP Server".SetValue('localhost');
-        BCO365Settings.SmtpMailPage."SMTP Server Port".SetValue(8081);
-        BCO365Settings.SmtpMailPage."Secure Connection".SetValue(false);
-        BCO365Settings.SmtpMailPage.FromAccount.SetValue('testuser@domain.com');
-        BCO365Settings.SmtpMailPage.Password.SetValue('TestPassword');
-        BCO365Settings.Close;
-    end;
-
-    [Scope('OnPrem')]
     procedure SendInvoice(InvoiceNo: Code[20]) PostedInvoiceNo: Code[20]
     var
         SalesHeader: Record "Sales Header";
@@ -491,7 +437,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesInvoice.Post.Invoke;
 
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", InvoiceNo);
-        if SalesInvoiceHeader.FindFirst then
+        if SalesInvoiceHeader.FindFirst() then
             PostedInvoiceNo := SalesInvoiceHeader."No.";
     end;
 
@@ -526,7 +472,7 @@ codeunit 132220 "Library - Invoicing App"
         O365SalesQuote.OpenEdit;
         O365SalesQuote.GotoKey(SalesHeader."Document Type"::Quote, EstimateNo);
         O365SalesQuote.Post.Invoke;
-        if SalesInvoiceHeader.FindLast then
+        if SalesInvoiceHeader.FindLast() then
             exit(SalesInvoiceHeader."No.");
     end;
 
@@ -537,9 +483,9 @@ codeunit 132220 "Library - Invoicing App"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         VATProductPostingGroup.SetRange(Description, VATProductPostingGroupDescription);
-        VATProductPostingGroup.FindFirst;
+        VATProductPostingGroup.FindFirst();
         VATPostingSetup.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         exit(VATPostingSetup."VAT %" / 100);
     end;
 }

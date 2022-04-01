@@ -19,7 +19,7 @@ report 99001023 "Get Action Messages"
                     CurrReport.Skip();
                 ReqLineExtern.SetRange(Type, ReqLineExtern.Type::Item);
                 ReqLineExtern.SetRange("No.", "No.");
-                if ReqLineExtern.FindFirst then begin
+                if ReqLineExtern.FindFirst() then begin
                     TempItemInOtherWksh := Item;
                     TempItemInOtherWksh.Insert();
                     CurrReport.Skip();
@@ -73,7 +73,7 @@ report 99001023 "Get Action Messages"
 
             trigger OnPostDataItem()
             begin
-                if TempItemInOtherWksh.FindFirst then begin
+                if TempItemInOtherWksh.FindFirst() then begin
                     Window.Close;
                     if Confirm(Text002) then
                         PAGE.RunModal(0, TempItemInOtherWksh);

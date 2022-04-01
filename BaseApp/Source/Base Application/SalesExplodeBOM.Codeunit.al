@@ -33,7 +33,9 @@ codeunit 63 "Sales-Explode BOM"
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
 
         FromBOMComp.SetRange("Parent Item No.", "No.");
+#if not CLEAN20        
         OnAfterFromBOMCompSetFilters(FromBOMComp, Rec);
+#endif        
         OnRunOnBeforeCalcNoOfBOMComp(FromBOMComp, Rec);
         NoOfBOMComp := FromBOMComp.Count();
 
@@ -55,9 +57,11 @@ codeunit 63 "Sales-Explode BOM"
             ToSalesLine := Rec;
             FromBOMComp.SetRange(Type, FromBOMComp.Type::Item);
             FromBOMComp.SetFilter("No.", '<>%1', '');
+#if not CLEAN20            
             OnAfterFromBOMCompSetFilters(FromBOMComp, Rec);
+#endif            
             OnRunOnAfterFromBOMCompSetFilters(FromBOMComp, Rec);
-            if FromBOMComp.FindSet then
+            if FromBOMComp.FindSet() then
                 repeat
                     FromBOMComp.TestField(Type, FromBOMComp.Type::Item);
                     OnBeforeCopyFromBOMToSalesLine(ToSalesLine, FromBOMComp);
@@ -139,7 +143,7 @@ codeunit 63 "Sales-Explode BOM"
             if ToSalesLine.Find('>') then
                 if ToSalesLine."Attached to Line No." = "Line No." then begin
                     ToSalesLine.SetRange("Attached to Line No.", "Line No.");
-                    ToSalesLine.FindLast;
+                    ToSalesLine.FindLast();
                     ToSalesLine.SetRange("Attached to Line No.");
                     NextLineNo := ToSalesLine."Line No.";
                     InsertLinesBetween := ToSalesLine.Find('>');
@@ -244,11 +248,13 @@ codeunit 63 "Sales-Explode BOM"
 
         OnAfterExplodeBOMCompLines(SalesLine, Selection);
     end;
+#if not CLEAN20
     [Obsolete('Replaced with OnRunOnBeforeCalcNoOfBOMComp and OnRunOnAfterFromBOMCompSetFilters', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFromBOMCompSetFilters(var BOMComponent: Record "BOM Component"; SalesLine: Record "Sales Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterConfirmExplosion(var SalesLine: Record "Sales Line"; var Selection: Integer; var HideDialog: Boolean)

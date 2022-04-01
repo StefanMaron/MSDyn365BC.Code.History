@@ -18,9 +18,6 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
-        GLReg: Record "G/L Register";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJnlPostviaJobQueue: Codeunit "Gen. Jnl.-Post via Job Queue";
         GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
@@ -34,7 +31,6 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
     var
         ConfirmManagement: Codeunit "Confirm Management";
         HideDialog: Boolean;
-        IsHandled: Boolean;
         OrderByDocNoAndLineNo: Boolean;
     begin
         // If simple view is used then order gen. journal lines by doc no. and line no.
@@ -60,7 +56,7 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
                 GenJnlLine.SetRange("Journal Batch Name", Name);
                 if OrderByDocNoAndLineNo then
                     GenJnlLine.SetCurrentKey("Document No.", "Line No.");
-                if GenJnlLine.FindFirst then begin
+                if GenJnlLine.FindFirst() then begin
                     GeneralLedgerSetup.Get();
                     if GeneralLedgerSetup."Post & Print with Job Queue" then begin
                         // Add job queue entry for each document no.
@@ -111,11 +107,13 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Event is not raised from anywhere', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGLRegPostingReportPrint(var ReportID: Integer; ReqWindow: Boolean; SystemPrinter: Boolean; var GLRegister: Record "G/L Register"; var Handled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; var HideDialog: Boolean)
     begin

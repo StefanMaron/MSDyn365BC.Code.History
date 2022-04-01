@@ -771,44 +771,22 @@ table 5475 "Sales Invoice Entity Aggregate"
         if ("Order No." <> '') and IsNullGuid("Order Id") then
             UpdateOrderId;
 
+#if not CLEAN20
         UpdateGraphContactId;
+#endif        
         UpdateTaxAreaId;
     end;
 
+#if not CLEAN20
+    [Obsolete('The functionality that uses this was removed', '20.0')]
     procedure UpdateGraphContactId()
     var
         contactFound: Boolean;
     begin
-        if "Sell-to Contact No." = '' then
-            contactFound := UpdateContactIdFromCustomer;
-
         if not contactFound then
             Clear("Contact Graph Id");
     end;
-
-    local procedure UpdateContactIdFromCustomer(): Boolean
-    var
-        Customer: Record Customer;
-        Contact: Record Contact;
-        GraphIntContact: Codeunit "Graph Int. - Contact";
-        GraphID: Text[250];
-    begin
-        if IsNullGuid("Customer Id") then
-            exit(false);
-
-        if not GraphIntContact.IsUpdateContactIdEnabled() then
-            exit(false);
-
-        if not Customer.GetBySystemId("Customer Id") then
-            exit(false);
-
-        if not GraphIntContact.FindGraphContactIdFromCustomer(GraphID, Customer, Contact) then
-            exit(false);
-
-        "Contact Graph Id" := GraphID;
-
-        exit(true);
-    end;
+#endif
 
     local procedure UpdateTaxAreaId()
     var
@@ -818,7 +796,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         if IsUsingVAT then begin
             if "VAT Bus. Posting Group" <> '' then begin
                 VATBusinessPostingGroup.SetRange(Code, "VAT Bus. Posting Group");
-                if VATBusinessPostingGroup.FindFirst then begin
+                if VATBusinessPostingGroup.FindFirst() then begin
                     "Tax Area ID" := VATBusinessPostingGroup.SystemId;
                     exit;
                 end;
@@ -830,7 +808,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
         if "Tax Area Code" <> '' then begin
             TaxArea.SetRange(Code, "Tax Area Code");
-            if TaxArea.FindFirst then begin
+            if TaxArea.FindFirst() then begin
                 "Tax Area ID" := TaxArea.SystemId;
                 exit;
             end;

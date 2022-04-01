@@ -121,7 +121,11 @@ page 608 "IC Partner List"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedOnly = true;
+#if not CLEAN20
                 RunObject = Page "IC Setup";
+#else
+                RunObject = Page "Intercompany Setup";
+#endif
                 ToolTip = 'View or edit the intercompany setup for the current company.';
             }
         }
@@ -129,16 +133,20 @@ page 608 "IC Partner List"
 
     trigger OnOpenPage()
     var
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        CompanyInformation.Get();
-        if CompanyInformation."IC Partner Code" = '' then
+        ICSetup.Get();
+        if ICSetup."IC Partner Code" = '' then
             if ConfirmManagement.GetResponse(SetupICQst, true) then
+#if not CLEAN20
                 PAGE.RunModal(PAGE::"IC Setup");
+#else
+                Page.RunModal(Page::"Intercompany Setup");
+#endif
 
-        CompanyInformation.Find;
-        if CompanyInformation."IC Partner Code" = '' then
+        ICSetup.Find;
+        if ICSetup."IC Partner Code" = '' then
             Error('');
     end;
 

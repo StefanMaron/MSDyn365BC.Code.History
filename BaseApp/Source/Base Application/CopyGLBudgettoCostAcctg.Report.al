@@ -85,7 +85,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
                 LastCostBudgetEntryNo := NextEntryNo - 1;
 
                 CostBudgetRegister.LockTable();
-                if CostBudgetRegister.FindLast then
+                if CostBudgetRegister.FindLast() then
                     LastRegisterNo := CostBudgetRegister."No.";
 
                 CostBudgetRegister.Init();
@@ -124,7 +124,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
                 Window.Update(1, Count);
 
                 FirstCostBudgetEntryNo := NextEntryNo;
-                FindFirst;
+                FindFirst();
                 FirstGLBudgetEntryNo := "Entry No.";
             end;
         }

@@ -64,7 +64,7 @@ page 1528 "Workflow Status FactBox"
 
         DeleteAll();
         WorkflowStepInstance.SetRange("Record ID", WorkflowStepRecID);
-        if not WorkflowStepInstance.FindSet then
+        if not WorkflowStepInstance.FindSet() then
             exit(false);
 
         repeat

@@ -453,20 +453,6 @@ page 9239 "Sales Budget Overview Matrix"
           ValueType, OnlyLines);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by LoadMatrix()', '19.0')]
-    procedure Load(MatrixColumns1: array[32] of Text[80]; var MatrixRecords1: array[12] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; _CurrentBudgetName: Code[10]; _LineDimOption: Integer; _ColumnDimOption: Integer; _RoundingFactor: Integer; _ValueType: Integer; _PeriodType: Option)
-    begin
-        LoadMatrix(
-            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns, _CurrentBudgetName,
-            "Item Budget Dimension Type".FromInteger(_LineDimOption),
-            "Item Budget Dimension Type".FromInteger(_ColumnDimOption),
-            "Analysis Rounding Factor".FromInteger(_RoundingFactor),
-            "Item Analysis Value Type".FromInteger(_ValueType),
-            "Analysis Period Type".FromInteger(_PeriodType));
-    end;
-#endif
-
     procedure LoadMatrix(NewMatrixColumns: array[32] of Text[80]; var NewMatrixRecords: array[12] of Record "Dimension Code Buffer"; NewCurrentNoOfMatrixColumns: Integer; NewCurrentBudgetName: Code[10]; NewLineDimType: Enum "Item Budget Dimension Type"; NewColumnDimType: Enum "Item Budget Dimension Type"; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewValueType: Enum "Item Analysis Value Type"; NewPeriodType: Enum "Analysis Period Type")
     var
         i: Integer;

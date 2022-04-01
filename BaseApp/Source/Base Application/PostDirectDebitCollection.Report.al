@@ -191,7 +191,7 @@ report 1201 "Post Direct Debit Collection"
         GenJnlBatch.Get(GeneralJournalTemplateName, GeneralJournalBatchName);
         GenJnlLine.SetRange("Journal Template Name", GeneralJournalTemplateName);
         GenJnlLine.SetRange("Journal Batch Name", GeneralJournalBatchName);
-        if GenJnlLine.FindLast then;
+        if GenJnlLine.FindLast() then;
         LastLineNo := GenJnlLine."Line No.";
     end;
 

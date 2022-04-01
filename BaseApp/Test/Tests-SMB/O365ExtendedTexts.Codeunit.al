@@ -32,7 +32,7 @@ codeunit 138005 "O365 ExtendedTexts"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
 
@@ -41,7 +41,7 @@ codeunit 138005 "O365 ExtendedTexts"
         CreateExtendedTextLines(ExtendedTextHeader, NumberOfLines);
 
         Language.SetFilter(Code, '<>%1', ExtendedTextHeader."Language Code");
-        Language.FindFirst;
+        Language.FindFirst();
 
         ExtendedTextHeader.Rename(
           ExtendedTextHeader."Table Name",
@@ -64,7 +64,7 @@ codeunit 138005 "O365 ExtendedTexts"
         NumberOfLines: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
 
@@ -98,12 +98,12 @@ codeunit 138005 "O365 ExtendedTexts"
         Language: Record Language;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
 
         CreateAllLanguageCodesExtendedTextHeader(ExtendedTextHeader, EntendedTableNameTextType::Item, Item."No.");
-        Language.FindFirst;
+        Language.FindFirst();
         ExtendedTextHeader.Validate("Language Code", Language.Code);
         Assert.AreEqual(false, ExtendedTextHeader."All Language Codes", 'All Language codes should be removed once language is set');
     end;
@@ -116,7 +116,7 @@ codeunit 138005 "O365 ExtendedTexts"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
 
@@ -137,7 +137,7 @@ codeunit 138005 "O365 ExtendedTexts"
         // Thus their rules will have All Languages Codes = FALSE and Language Code = ''
         // This test case covers that this setup is still possible
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
         CreateAllLanguageCodesExtendedTextHeader(ExtendedTextHeader, EntendedTableNameTextType::Item, Item."No.");
@@ -158,7 +158,7 @@ codeunit 138005 "O365 ExtendedTexts"
         Language: Record Language;
     begin
         SetDefaultValuesToExtendedTextHeader(ExtendedTextHeader, TableName, No);
-        Language.FindFirst;
+        Language.FindFirst();
         ExtendedTextHeader.Validate("Language Code", Language.Code);
         ExtendedTextHeader.Insert(true);
     end;
@@ -230,10 +230,10 @@ codeunit 138005 "O365 ExtendedTexts"
         Language: Record Language;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item);
-        Language.FindFirst;
+        Language.FindFirst();
         CreateLanguageSpecificExtendedTextHeader(ExtendedTextHeader, EntendedTableNameTextType::Item, Item."No.");
         Assert.AreEqual(
           ExtendedTextHeader.GetCaption,
@@ -265,7 +265,7 @@ codeunit 138005 "O365 ExtendedTexts"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 ExtendedTexts");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;

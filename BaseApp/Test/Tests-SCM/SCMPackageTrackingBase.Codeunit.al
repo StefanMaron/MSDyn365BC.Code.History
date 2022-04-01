@@ -237,7 +237,7 @@ codeunit 137263 "SCM Tracking Package Base"
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.SetParameters("Sales Document Type From"::"Posted Invoice", FindLastPostedSalesInvoiceNo(Customer."No."), true, true);
         CopySalesDocument.UseRequestPage(false);
-        CopySalesDocument.Run;
+        CopySalesDocument.Run();
 
         FindFirstSalesLine(SalesLine, SalesHeader, Item."No.");
         for i := 1 to ArrayLen(Qty) do
@@ -277,7 +277,7 @@ codeunit 137263 "SCM Tracking Package Base"
         LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
 
         for i := 1 to ArrayLen(Qty) do begin
-            PackageNo[i] := LibraryUtility.GenerateGUID;
+            PackageNo[i] := LibraryUtility.GenerateGUID();
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
         end;
 
@@ -684,7 +684,7 @@ codeunit 137263 "SCM Tracking Package Base"
     var
         PackageNoInfo: Record "Package No. Information";
     begin
-        LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, ItemNo, LibraryUtility.GenerateGUID);
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, ItemNo, LibraryUtility.GenerateGUID());
         exit(PackageNoInfo."Package No.");
     end;
 

@@ -97,7 +97,7 @@ codeunit 6722 "Booking Manager Handler"
                 O365SyncManagement.SyncBookingCustomers(BookingSync);
 
         Item.SetRange(Description, BookingItem."Service Name");
-        if not Item.FindFirst then
+        if not Item.FindFirst() then
             O365SyncManagement.SyncBookingServices(BookingSync);
     end;
 }

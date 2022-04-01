@@ -98,7 +98,7 @@ codeunit 131002 "Library - Report Validation"
         if not FileOpened then
             OpenFile;
 
-        if ExcelBuffer.FindSet then
+        if ExcelBuffer.FindSet() then
             repeat
                 TempExcelBuffer.Init();
                 TempExcelBuffer."Row No." := ExcelBuffer."Row No.";
@@ -141,7 +141,7 @@ codeunit 131002 "Library - Report Validation"
         if not FileOpened then
             OpenFile;
 
-        if ExcelBuffer.FindSet then
+        if ExcelBuffer.FindSet() then
             repeat
                 TempExcelBuffer.Init();
                 TempExcelBuffer."Column No." := ExcelBuffer."Column No.";
@@ -180,7 +180,7 @@ codeunit 131002 "Library - Report Validation"
             exit(FixedColumnNo);
 
         FilterExcelBuffer(ExcelBuffer, ColumnCaption);
-        if ExcelBuffer.FindFirst then
+        if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Column No.");
         Error(StrSubstNo(ColumnNotFoundError, ColumnCaption));
     end;
@@ -196,7 +196,7 @@ codeunit 131002 "Library - Report Validation"
             exit(FixedColumnNo);
 
         ExcelBuffer.SetRange("Cell Value as Text", Value);
-        if ExcelBuffer.FindFirst then
+        if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Column No.");
         Error(StrSubstNo(ColumnNotFoundError, Value));
     end;
@@ -209,7 +209,7 @@ codeunit 131002 "Library - Report Validation"
             OpenFile;
 
         FilterExcelBuffer(ExcelBuffer, ColumnCaption);
-        if ExcelBuffer.FindFirst then
+        if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Row No.");
         Error(StrSubstNo(ColumnNotFoundError, ColumnCaption));
     end;
@@ -223,7 +223,7 @@ codeunit 131002 "Library - Report Validation"
 
         ExcelBuffer.SetRange("Column No.", ColumnNo);
         ExcelBuffer.SetRange("Cell Value as Text", ColumnValue);
-        if ExcelBuffer.FindFirst then
+        if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Row No.");
         Error(StrSubstNo(RowNotFoundForColumnValueError, ColumnNo, ColumnValue));
     end;
@@ -241,7 +241,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer.SetFilter("Row No.", FilterRowNo);
         ExcelBuffer.SetFilter("Column No.", FilterColumnNo);
         FilterExcelBuffer(ExcelBuffer, ColumnCaption);
-        if ExcelBuffer.FindFirst then
+        if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Column No.");
         Error(StrSubstNo(ColumnNotFoundError, ColumnCaption));
     end;
@@ -256,7 +256,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer.SetFilter("Row No.", FilterRowNo);
         ExcelBuffer.SetRange("Column No.", ColumnNo);
         ExcelBuffer.SetRange("Cell Value as Text", ColumnValue);
-        if ExcelBuffer.FindFirst then
+        if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Row No.");
         Error(StrSubstNo(RowNotFoundForColumnValueError, ColumnNo, ColumnValue));
     end;
@@ -276,9 +276,9 @@ codeunit 131002 "Library - Report Validation"
             ExcelBuffer.SetRange("Column No.", FindColumnNoFromColumnCaption(FilterColumnCaption));
             ExcelBuffer.SetRange("Cell Value as Text", FilterColumnValue);
         end;
-        if ExcelBuffer.FindFirst then begin
+        if ExcelBuffer.FindFirst() then begin
             ExcelBuffer2.SetRange("Row No.", ExcelBuffer."Row No.");
-            if ExcelBuffer2.FindSet then
+            if ExcelBuffer2.FindSet() then
                 repeat
                     RowValueSet[Counter] := ExcelBuffer2."Cell Value as Text";
                     Counter += 1;
@@ -306,9 +306,9 @@ codeunit 131002 "Library - Report Validation"
         end;
 
         ExcelBuffer.SetFilter("Row No.", '>%1', RowNumber);
-        if ExcelBuffer.FindFirst then begin
+        if ExcelBuffer.FindFirst() then begin
             ExcelBuffer2.SetRange("Row No.", ExcelBuffer."Row No.");
-            if ExcelBuffer2.FindSet then
+            if ExcelBuffer2.FindSet() then
                 repeat
                     RowValueSet[Counter] := ExcelBuffer2."Cell Value as Text";
                     Counter += 1;
@@ -352,7 +352,7 @@ codeunit 131002 "Library - Report Validation"
         Counter: Integer;
     begin
         Counter := 1;
-        if ExcelBuffer.FindSet then
+        if ExcelBuffer.FindSet() then
             repeat
                 if ExcelBuffer2.Get(ExcelBuffer."Row No.", ColumnNo) then
                     ColumnValueSet[Counter] := ExcelBuffer2."Cell Value as Text"
@@ -375,7 +375,7 @@ codeunit 131002 "Library - Report Validation"
         ColumnNo := 0;
         ExcelBuffer.SetRange("Cell Value as Text", Value);
         ExcelBuffer.SetRange(Comment, Format(WorksheetNo));
-        ExcelBuffer.FindFirst;
+        ExcelBuffer.FindFirst();
         RowNo := ExcelBuffer."Row No.";
         ColumnNo := ExcelBuffer."Column No.";
     end;
@@ -489,7 +489,7 @@ codeunit 131002 "Library - Report Validation"
 
         if WorksheetNo > 1 then begin
             ExcelBuffer.SetRange(Comment, Format(WorksheetNo - 1));
-            ExcelBuffer.FindLast;
+            ExcelBuffer.FindLast();
             if ExcelBuffer."Row No." > 0 then
                 RowId += ExcelBuffer."Row No.";
         end;
@@ -508,7 +508,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer.SetRange(xlColID, ColumnName);
         ExcelBuffer.SetRange(xlRowID, Format(RowNo));
         ExcelBuffer.SetRange(Comment, Format(WorksheetNo));
-        ExcelBuffer.FindFirst;
+        ExcelBuffer.FindFirst();
 
         exit(ExcelBuffer."Cell Value as Text");
     end;

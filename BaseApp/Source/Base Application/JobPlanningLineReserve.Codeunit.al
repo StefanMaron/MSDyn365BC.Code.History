@@ -444,7 +444,7 @@ codeunit 1032 "Job Planning Line-Reserve"
 
     local procedure MatchThisTable(TableID: Integer): Boolean
     begin
-        exit(TableID = 1003); // DATABASE::"Job Planning Line"
+        exit((TableID = database::"Job Planning Line") or (TableID = database::Job)); //for warehouse pick: DATABASE::Job
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnSetReservSource', '', false, false)]
@@ -463,7 +463,7 @@ codeunit 1032 "Job Planning Line-Reserve"
             Clear(AvailableJobPlanningLines);
             AvailableJobPlanningLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
             AvailableJobPlanningLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailableJobPlanningLines.RunModal;
+            AvailableJobPlanningLines.RunModal();
         end;
     end;
 
@@ -551,7 +551,7 @@ codeunit 1032 "Job Planning Line-Reserve"
     begin
         JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
         JobPlanningLine.SetRange("Job Contract Entry No.", ReservEntry."Source Ref. No.");
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         SourceRecRef.GetTable(JobPlanningLine);
         case ReturnOption of
             ReturnOption::"Net Qty. (Base)":
@@ -578,7 +578,7 @@ codeunit 1032 "Job Planning Line-Reserve"
 
         AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         JobPlanningLine.FilterLinesForReservation(CalcReservEntry, LineType, AvailabilityFilter, Positive);
-        if JobPlanningLine.FindSet then
+        if JobPlanningLine.FindSet() then
             repeat
                 JobPlanningLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= JobPlanningLine."Reserved Qty. (Base)";

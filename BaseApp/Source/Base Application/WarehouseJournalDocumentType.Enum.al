@@ -12,4 +12,5 @@ enum 5773 "Warehouse Journal Document Type"
     value(6; "Whse. Phys. Inventory") { Caption = 'Whse. Phys. Inventory'; }
     value(7; " ") { Caption = ' '; }
     value(8; "Assembly") { Caption = 'Assembly'; }
+    value(9; "Job") { Caption = 'Job'; }
 }

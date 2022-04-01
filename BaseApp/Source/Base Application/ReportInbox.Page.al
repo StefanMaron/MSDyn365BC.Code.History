@@ -17,21 +17,6 @@ page 680 "Report Inbox"
         {
             repeater(Group)
             {
-                field("User ID"; "User ID")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
-                }
-                field("Created Date-Time"; "Created Date-Time")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date and time that the scheduled report was processed from the job queue.';
-                }
-                field("Report ID"; "Report ID")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the object ID of the report.';
-                }
                 field("Report Name"; "Report Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -42,6 +27,21 @@ page 680 "Report Inbox"
                         ShowReport;
                         CurrPage.Update(false);
                     end;
+                }
+                field("Report ID"; "Report ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the object ID of the report.';
+                }
+                field("Created Date-Time"; "Created Date-Time")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the date and time that the scheduled report was processed from the job queue.';
+                }
+                field("User ID"; "User ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                 }
             }
         }
@@ -65,6 +65,22 @@ page 680 "Report Inbox"
                 trigger OnAction()
                 begin
                     Rec.OpenInOneDrive();
+                end;
+            }
+            action(ShareWithOneDrive)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Share';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
+                Image = Share;
+                Enabled = ShareOptionsEnabled;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = true;
+                Scope = Repeater;
+                trigger OnAction()
+                begin
+                    Rec.ShareWithOneDrive();
                 end;
             }
             action(Show)

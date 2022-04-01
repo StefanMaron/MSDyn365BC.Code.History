@@ -284,7 +284,7 @@ codeunit 132212 "Library - Patterns"
         ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
         ItemJournalLine.Validate("Item No.", ProdOrderLine."Item No.");
         RoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-        if RoutingLine.FindFirst then
+        if RoutingLine.FindFirst() then
             ItemJournalLine.Validate("Operation No.", RoutingLine."Operation No.");
         ItemJournalLine.Validate("Output Quantity", Qty);
         ItemJournalLine.Validate("Unit Cost", UnitCost);
@@ -425,7 +425,7 @@ codeunit 132212 "Library - Patterns"
     begin
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
 
-        WorkCenter.FindFirst;
+        WorkCenter.FindFirst();
         WorkCenter.Validate("Direct Unit Cost", DirectUnitCost);
         WorkCenter.Modify();
 
@@ -630,7 +630,7 @@ codeunit 132212 "Library - Patterns"
         MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, PostingDate, Qty, UnitCost);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Run Time", RunTime);
         ItemJournalLine.Modify();
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
@@ -1117,7 +1117,7 @@ codeunit 132212 "Library - Patterns"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         ReturnReceiptLine.SetFilter("No.", Item."No.");
-        ReturnReceiptLine.FindLast;
+        ReturnReceiptLine.FindLast();
     end;
 
     procedure GRPHSalesFromReturnReceipts(var Item: Record Item; var SalesLine: Record "Sales Line")
@@ -1134,7 +1134,7 @@ codeunit 132212 "Library - Patterns"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         TempItemLedgerEntry := ItemLedgerEntry;
         TempItemLedgerEntry.Insert();
     end;
@@ -1221,7 +1221,7 @@ codeunit 132212 "Library - Patterns"
         SalesHeader.Modify(true);
 
         SalesShipmentLine.SetRange("Order No.", FromSalesLine."Document No.");
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         CopyDocMgt.SetProperties(false, true, false, false, true, true, true);
         CopyDocMgt.CopySalesShptLinesToDoc(
           SalesHeader, SalesShipmentLine, LinesNotCopied, MissingExCostRevLink);
@@ -1232,7 +1232,7 @@ codeunit 132212 "Library - Patterns"
         SalesLineReturn.SetRange("Document No.", SalesHeader."No.");
         SalesLineReturn.SetRange(Type, SalesLineReturn.Type::Item);
         Assert.AreEqual(1, SalesLineReturn.Count, TXTUnexpectedLine);
-        SalesLineReturn.FindFirst;
+        SalesLineReturn.FindFirst();
     end;
 
     procedure CHECKCalcInvPost(Item: Record Item; ItemJnlBatch: Record "Item Journal Batch"; PostingDate: Date; CalculatePer: Option "Item Ledger Entry",Item; ByLocation: Boolean; ByVariant: Boolean; LocationFilter: Code[20]; VariantFilter: Code[20])
@@ -1250,11 +1250,11 @@ codeunit 132212 "Library - Patterns"
         Assert.AreEqual(TempRefItemJnlLine.Count, ItemJnlLine.Count, StrSubstNo(TXTLineCountMismatch, Item."No."));
 
         if CalculatePer = CalculatePer::Item then begin
-            if ItemJnlLine.FindSet then
+            if ItemJnlLine.FindSet() then
                 repeat
                     TempRefItemJnlLine.SetRange("Location Code", ItemJnlLine."Location Code");
                     TempRefItemJnlLine.SetRange("Variant Code", ItemJnlLine."Variant Code");
-                    TempRefItemJnlLine.FindFirst;
+                    TempRefItemJnlLine.FindFirst();
                     Assert.AreEqual(
                       TempRefItemJnlLine.Quantity, ItemJnlLine.Quantity,
                       StrSubstNo(TXTIncorrectEntry, TempRefItemJnlLine.FieldName(Quantity), ItemJnlLine."Line No."));
@@ -1262,10 +1262,10 @@ codeunit 132212 "Library - Patterns"
                       StrSubstNo(TXTIncorrectEntry, TempRefItemJnlLine.FieldName("Inventory Value (Calculated)"), ItemJnlLine."Line No."));
                 until ItemJnlLine.Next = 0;
         end else begin
-            if ItemJnlLine.FindSet then
+            if ItemJnlLine.FindSet() then
                 repeat
                     TempRefItemJnlLine.SetRange("Applies-to Entry", ItemJnlLine."Applies-to Entry");
-                    TempRefItemJnlLine.FindFirst;
+                    TempRefItemJnlLine.FindFirst();
                     Assert.AreEqual(
                       TempRefItemJnlLine."Location Code", ItemJnlLine."Location Code",
                       StrSubstNo(TXTIncorrectEntry, TempRefItemJnlLine.FieldName("Location Code"), ItemJnlLine."Applies-to Entry"));
@@ -1309,7 +1309,7 @@ codeunit 132212 "Library - Patterns"
             TempItemVariant.Code := '';
             TempItemVariant.Insert();
 
-            if ItemLedgerEntry.FindSet then
+            if ItemLedgerEntry.FindSet() then
                 repeat
                     TempItemLedgerEntry := ItemLedgerEntry;
                     TempItemLedgerEntry.Insert();
@@ -1343,7 +1343,7 @@ codeunit 132212 "Library - Patterns"
                     CreateRefJournalLinePerItem(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate, ByLocation, ByVariant);
             end;
         end else begin
-            if ItemLedgerEntry.FindSet then
+            if ItemLedgerEntry.FindSet() then
                 repeat
                     TempItemLedgerEntry := ItemLedgerEntry;
                     TempItemLedgerEntry.Insert();
@@ -1359,13 +1359,13 @@ codeunit 132212 "Library - Patterns"
         RefQuantity: Decimal;
         RefCostAmount: Decimal;
     begin
-        if TempItemLedgerEntry.FindSet then
+        if TempItemLedgerEntry.FindSet() then
             repeat
                 RefQuantity += TempItemLedgerEntry.Quantity;
                 RefCostAmount += CalculateCostAtDate(TempItemLedgerEntry."Entry No.", PostingDate);
                 ItemApplicationEntry.SetRange("Inbound Item Entry No.", TempItemLedgerEntry."Entry No.");
                 ItemApplicationEntry.SetFilter("Posting Date", '<=%1', PostingDate);
-                if ItemApplicationEntry.FindSet then
+                if ItemApplicationEntry.FindSet() then
                     repeat
                         if (ItemApplicationEntry."Outbound Item Entry No." <> 0) and (ItemApplicationEntry.Quantity < 0) then begin
                             OutboundItemLedgerEntry.Get(ItemApplicationEntry."Outbound Item Entry No.");
@@ -1394,7 +1394,7 @@ codeunit 132212 "Library - Patterns"
     var
         ItemApplicationEntry: Record "Item Application Entry";
     begin
-        if TempItemLedgerEntry.FindSet then
+        if TempItemLedgerEntry.FindSet() then
             repeat
                 TempItemLedgerEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
                 ItemApplicationEntry.SetRange("Inbound Item Entry No.", TempItemLedgerEntry."Entry No.");
@@ -1440,7 +1440,7 @@ codeunit 132212 "Library - Patterns"
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJnlBatch, ItemJnlBatch."Template Type"::Revaluation);
         LibraryInventory.MakeItemJournalLine(ItemJnlLine, ItemJnlBatch, Item, WorkDate, ItemJnlLine."Entry Type"::Purchase, 0);
-        TempItemLedgerEntry.FindFirst;
+        TempItemLedgerEntry.FindFirst();
         EntryNo := TempItemLedgerEntry."Entry No.";
         ItemJnlLine.Validate("Applies-to Entry", EntryNo);
         ItemJnlLine.Validate("Inventory Value (Revalued)", ItemJnlLine."Inventory Value (Revalued)" * Factor);
@@ -1471,7 +1471,7 @@ codeunit 132212 "Library - Patterns"
         CalculateInventoryValue.SetTableView(RevalueItem);
         CalculateInventoryValue.InitializeRequest(
           PostingDate, DocumentNo, true, CalculatePer, ByLocation, ByVariant, UpdStdCost, CalcBase, ShowDialog);
-        CalculateInventoryValue.RunModal;
+        CalculateInventoryValue.RunModal();
     end;
 
     procedure ModifyPostRevaluation(var ItemJnlBatch: Record "Item Journal Batch"; Factor: Decimal)
@@ -1480,7 +1480,7 @@ codeunit 132212 "Library - Patterns"
     begin
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlBatch.Name);
-        if ItemJnlLine.FindSet then
+        if ItemJnlLine.FindSet() then
             repeat
                 ItemJnlLine.Validate("Inventory Value (Revalued)",
                   Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
@@ -1495,7 +1495,7 @@ codeunit 132212 "Library - Patterns"
     begin
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlBatch.Name);
-        if ItemJnlLine.FindSet then
+        if ItemJnlLine.FindSet() then
             repeat
                 ItemJnlLine.Validate("Inventory Value (Revalued)",
                   Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
@@ -1585,13 +1585,13 @@ codeunit 132212 "Library - Patterns"
         end;
         CalculateInventoryValue.SetTableView(TmpItem);
         CalculateInventoryValue.UseRequestPage(false);
-        CalculateInventoryValue.RunModal;
+        CalculateInventoryValue.RunModal();
     end;
 
     local procedure SetVendorDocNo(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
-        PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
         PurchaseHeader.Modify();
     end;
 }

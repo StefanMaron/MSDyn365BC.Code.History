@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2876 "Native - Tax Rates"
 {
     Caption = 'Native - Tax Rates';
@@ -46,4 +47,4 @@ page 2876 "Native - Tax Rates"
         LoadRecords;
     end;
 }
-
+#endif

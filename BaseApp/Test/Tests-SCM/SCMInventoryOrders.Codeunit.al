@@ -623,7 +623,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // [GIVEN] Sales Order with Drop Shipment Line and "Variant Code", Description = "D1", "Description 2" = "D2".
         CreateItemWithVariant(Item, ItemVariant);
         CreateSalesOrderWithItemVariantPurchDesc(
-          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Purchase Order associated with Sales Order.
         CreatePurchaseOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
@@ -658,7 +658,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // [GIVEN] Sales Order with Drop Shipment Line, "Variant Code" and descriptions.
         CreateItemWithVariant(Item, ItemVariant);
         CreateSalesOrderWithItemVariantPurchDesc(
-          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Create Purchase Order associated with Sales Order.
         CreatePurchOrder(PurchaseHeader, Vendor, SalesHeader."Sell-to Customer No.");
@@ -698,7 +698,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // [GIVEN] Sales Order with Drop Shipment Line, "Variant Code" and descriptions.
         CreateItemWithVariant(Item, ItemVariant);
         CreateSalesOrderWithItemVariantPurchDesc(
-          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Create Purchase Order associated with Sales Order.
         CreatePurchOrder(PurchaseHeader, Vendor, SalesHeader."Sell-to Customer No.");
@@ -711,7 +711,7 @@ codeunit 137400 "SCM Inventory - Orders"
         CreateItemReference(
           ItemReference, Item."No.", ItemReference."Reference Type"::Vendor, Vendor."No.", ItemVariant.Code,
           SalesLine."Unit of Measure Code", Item."No.");
-        ItemReference.Validate(Description, LibraryUtility.GenerateGUID);
+        ItemReference.Validate(Description, LibraryUtility.GenerateGUID());
         ItemReference.Modify(true);
 
         // [WHEN] Getting Drop Shipment Line from Sales Lines.
@@ -756,7 +756,7 @@ codeunit 137400 "SCM Inventory - Orders"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Receive", SalesLine.Quantity);
             Modify(true);
         end;
@@ -1590,7 +1590,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // Setup: Create and post Sales Order as Invoice after Shipment.
         Initialize(false);
         CreateAndPostSalesOrderAsInvoiceAfterShipment;
-        ItemRegister.FindLast;
+        ItemRegister.FindLast();
 
         // Exercise: Run Delete empty Item Registers report with No option for Confirm dialog.
         RunDeleteEmptyItemRegistersReport(ItemRegister."No.");
@@ -1611,7 +1611,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // Setup: Create and post Sales Order as Invoice after Shipment.
         Initialize(false);
         CreateAndPostSalesOrderAsInvoiceAfterShipment;
-        ItemRegister.FindLast;
+        ItemRegister.FindLast();
 
         // Exercise: Run Delete empty Item Registers report with Yes option for Confirm dialog.
         RunDeleteEmptyItemRegistersReport(ItemRegister."No.");
@@ -2411,7 +2411,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        NoSeriesSetup;
+        NoSeriesSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibraryTemplates.EnableTemplatesFeature();
@@ -2569,7 +2569,7 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         Item."No." := ItemCard."No.".Value;
         ItemCard."Gen. Prod. Posting Group".SetValue(Item."Gen. Prod. Posting Group");
         ItemCard."VAT Prod. Posting Group".SetValue(Item."VAT Prod. Posting Group");
@@ -2586,7 +2586,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemReference.validate("Reference Type", ReferenceType);
         ItemReference.Validate("Reference Type No.", ReferenceTypeNo);
         ItemReference.Validate("Reference No.", ReferenceNo);
-        ItemReference.Validate(Description, LibraryUtility.GenerateGUID);
+        ItemReference.Validate(Description, LibraryUtility.GenerateGUID());
         ItemReference.Modify(true);
     end;
 
@@ -2600,7 +2600,7 @@ codeunit 137400 "SCM Inventory - Orders"
     local procedure CreateItemWithDescription(var Item: Record Item)
     begin
         CreateItem(Item);
-        Item."Description 2" := LibraryUtility.GenerateGUID;
+        Item."Description 2" := LibraryUtility.GenerateGUID();
         Item.Modify(true);
     end;
 
@@ -2611,8 +2611,8 @@ codeunit 137400 "SCM Inventory - Orders"
             Validate("Item No.", ItemNo);
             Validate("Language Code", LanguageCode);
             Validate("Variant Code", VariantCode);
-            Validate(Description, LibraryUtility.GenerateGUID);
-            Validate("Description 2", LibraryUtility.GenerateGUID);
+            Validate(Description, LibraryUtility.GenerateGUID());
+            Validate("Description 2", LibraryUtility.GenerateGUID());
             Insert(true);
         end;
     end;
@@ -2620,7 +2620,7 @@ codeunit 137400 "SCM Inventory - Orders"
     local procedure CreateItemVariant(var ItemVariant: Record "Item Variant"; ItemNo: Code[20])
     begin
         LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
-        ItemVariant.Validate("Description 2", LibraryUtility.GenerateGUID);
+        ItemVariant.Validate("Description 2", LibraryUtility.GenerateGUID());
         ItemVariant.Modify(true);
     end;
 
@@ -2851,7 +2851,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
         TempItem.Init();
         TempItem.Insert(true);
         TempItem.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
@@ -2889,7 +2889,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         exit(SalesHeader."No.");
     end;
 
@@ -2898,7 +2898,7 @@ codeunit 137400 "SCM Inventory - Orders"
         Purchasing: Record Purchasing;
     begin
         Purchasing.SetRange("Drop Shipment", true);
-        Purchasing.FindFirst;
+        Purchasing.FindFirst();
         exit(Purchasing.Code);
     end;
 
@@ -2908,14 +2908,14 @@ codeunit 137400 "SCM Inventory - Orders"
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, Type);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20])
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20])
@@ -2924,13 +2924,13 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, Type);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindShippingAgentServices(var ShippingAgentServices: Record "Shipping Agent Services")
     begin
         ShippingAgentServices.SetFilter("Shipping Agent Code", '<>%1', '');
-        ShippingAgentServices.FindFirst;
+        ShippingAgentServices.FindFirst();
     end;
 
     local procedure FindItemChargeAssignmentPurch(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line")
@@ -2953,7 +2953,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         LibraryPurchase.GetDropShipment(PurchaseHeader);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure GetPostedDocumentLinesToReverseOnSalesReturnOrder(No: Code[20])
@@ -3066,11 +3066,11 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Qty. (Phys. Inventory)", ItemJournalLine."Qty. (Calculated)" + Quantity);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-        LibraryUtility.GenerateGUID;  // Generate New Batch.
+        LibraryUtility.GenerateGUID();  // Generate New Batch.
         exit(ItemJournalLine."Document No.");
     end;
 
@@ -3083,7 +3083,7 @@ codeunit 137400 "SCM Inventory - Orders"
         Clear(BatchPostSalesReturnOrders);
         Commit();  // Commit is required to run Batch Post Sales Return Order report.
         BatchPostSalesReturnOrders.SetTableView(SalesHeader);
-        BatchPostSalesReturnOrders.Run;
+        BatchPostSalesReturnOrders.Run();
     end;
 
     local procedure RunCalculateInventoryValueReport(ItemNo: Code[20]): Integer
@@ -3139,12 +3139,12 @@ codeunit 137400 "SCM Inventory - Orders"
         CreateRetRelatedDocuments: Report "Create Ret.-Related Documents";
     begin
         SalesHeader.SetRange("No.", SalesHeaderNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         Commit();  // Commit required before running this Report.
         Clear(CreateRetRelatedDocuments);
         CreateRetRelatedDocuments.SetSalesHeader(SalesHeader);
         CreateRetRelatedDocuments.UseRequestPage(true);
-        CreateRetRelatedDocuments.Run;
+        CreateRetRelatedDocuments.Run();
     end;
 
     local procedure RunDeleteEmptyItemRegistersReport(No: Integer)
@@ -3156,7 +3156,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemRegister.SetRange("No.", No);
         DeleteEmptyItemRegisters.SetTableView(ItemRegister);
         DeleteEmptyItemRegisters.UseRequestPage(true);
-        DeleteEmptyItemRegisters.Run;
+        DeleteEmptyItemRegisters.Run();
     end;
 
     local procedure RunDeleteInvoiceSalesReturnOrder(SelltoCustomerNo: Code[20])
@@ -3205,7 +3205,7 @@ codeunit 137400 "SCM Inventory - Orders"
         with ItemChargeAssignmentSales do begin
             SetRange("Document Type", SalesLine."Document Type");
             SetRange("Document No.", SalesLine."Document No.");
-            FindFirst;
+            FindFirst();
             "Qty. Assigned" := "Qty. to Assign";
             "Qty. to Assign" := 0;
             "Amount to Assign" := 0;
@@ -3315,7 +3315,7 @@ codeunit 137400 "SCM Inventory - Orders"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry.TestField("Dimension Code", DefaultDimension."Dimension Code");
         DimensionSetEntry.TestField("Dimension Value Code", DefaultDimension."Dimension Value Code");
     end;
@@ -3337,7 +3337,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemChargeAssignmentPurch.SetRange("Document Type", DocumentType);
         ItemChargeAssignmentPurch.SetRange("Document No.", DocumentNo);
         ItemChargeAssignmentPurch.SetRange("Item No.", ItemNo);
-        ItemChargeAssignmentPurch.FindFirst;
+        ItemChargeAssignmentPurch.FindFirst();
         ItemChargeAssignmentPurch.TestField("Qty. to Assign", Quantity);
         ItemChargeAssignmentPurch.TestField("Amount to Assign", AmountToAssign);
     end;
@@ -3349,7 +3349,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemChargeAssignmentSales.SetRange("Document Type", DocumentType);
         ItemChargeAssignmentSales.SetRange("Document No.", DocumentNo);
         ItemChargeAssignmentSales.SetRange("Item No.", ItemNo);
-        ItemChargeAssignmentSales.FindFirst;
+        ItemChargeAssignmentSales.FindFirst();
         ItemChargeAssignmentSales.TestField("Qty. to Assign", Quantity);
         ItemChargeAssignmentSales.TestField("Amount to Assign", AmountToAssign);
     end;
@@ -3361,7 +3361,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Document No.", DocNo);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField(Quantity, Quantity);
         ItemLedgerEntry.TestField("Invoiced Quantity", Quantity);
     end;
@@ -3372,7 +3372,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField(Quantity, Quantity);
         ItemLedgerEntry.TestField("Invoiced Quantity", Quantity);
     end;
@@ -3384,7 +3384,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Item Ledger Entry Type", EntryType);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Item Ledger Entry Quantity", Quantity);
         Assert.AreNearlyEqual(
           ValueEntry."Cost per Unit", UnitAmount, LibraryERM.GetAmountRoundingPrecision,
@@ -3433,7 +3433,7 @@ codeunit 137400 "SCM Inventory - Orders"
         PhysInventoryLedgerEntry.SetRange("Document No.", DocumentNo);
         PhysInventoryLedgerEntry.SetRange("Entry Type", ItemJournalLine."Entry Type"::"Positive Adjmt.");
         PhysInventoryLedgerEntry.SetRange("Item No.", ItemNo);
-        PhysInventoryLedgerEntry.FindFirst;
+        PhysInventoryLedgerEntry.FindFirst();
         PhysInventoryLedgerEntry.TestField("Qty. (Calculated)", Quantity);
         PhysInventoryLedgerEntry.TestField("Qty. (Phys. Inventory)", Quantity + Quantity); // As Qty. (Phys. Inventory) is double of Qty. (Calculated).
     end;
@@ -3444,7 +3444,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange("No.", No);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField(Quantity, Quantity);
     end;
 
@@ -3455,7 +3455,7 @@ codeunit 137400 "SCM Inventory - Orders"
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField(Quantity, Quantity);
     end;
 
@@ -3471,7 +3471,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure VerifyPostedSalesCreditMemo(CustomerNo: Code[20]; BillToCustomerNo: Code[20]; Type: Enum "Sales Line Type"; DocumentNo: Code[20]; No: Code[20]; Quantity: Decimal)
@@ -3481,7 +3481,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesCrMemoLine.SetRange("Sell-to Customer No.", CustomerNo);
         SalesCrMemoLine.SetRange(Type, Type);
         SalesCrMemoLine.SetRange("Return Receipt No.", DocumentNo);
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         SalesCrMemoLine.TestField("No.", No);
         SalesCrMemoLine.TestField(Quantity, Quantity);
         SalesCrMemoLine.TestField("Bill-to Customer No.", BillToCustomerNo);
@@ -3502,7 +3502,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ReturnReceiptLine: Record "Return Receipt Line";
     begin
         ReturnReceiptLine.SetRange("Return Order No.", SalesLine."Document No.");
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
         ReturnReceiptLine.TestField("No.", SalesLine."No.");
         ReturnReceiptLine.TestField(Quantity, SalesLine.Quantity);
         ReturnReceiptLine.TestField("Quantity Invoiced", SalesLine.Quantity);
@@ -3525,7 +3525,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField(Quantity, Quantity);
     end;
 
@@ -3535,7 +3535,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure VerifyUnitPriceOnSalesLine(SalesLine: Record "Sales Line"; UnitPrice: Decimal)
@@ -3550,12 +3550,12 @@ codeunit 137400 "SCM Inventory - Orders"
         ValueEntry: Record "Value Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         with ValueEntry do begin
             SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
             SetRange("Item Charge No.", ItemChargeNo);
-            FindFirst;
+            FindFirst();
             TestField("Sales Amount (Actual)", Qty * UnitPrice);
         end;
     end;

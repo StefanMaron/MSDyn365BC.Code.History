@@ -32,7 +32,7 @@ codeunit 136505 "Time Sheets Permissions"
         // [WHEN] User tries to run Report Create Time Sheets
         CreateTimeSheets.InitParameters(WorkDate, 1, '', false, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
 
         // [THEN] No error occurs
     end;
@@ -54,7 +54,7 @@ codeunit 136505 "Time Sheets Permissions"
         // [WHEN] User tries to run Report Create Time Sheets
         CreateTimeSheets.InitParameters(WorkDate, 1, '', false, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
 
         // [THEN] No error occurs
     end;

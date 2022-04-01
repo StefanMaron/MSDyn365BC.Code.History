@@ -9,7 +9,7 @@ codeunit 6319 "Power BI Workspace Mgt."
         GetDataFailedTelemetryMsg: Label 'Could not get workspace data. Status code: %1.', Locked = true;
         WorkspaceResponseNotJsonTelemetryErrMsg: Label 'Workspace response is not a json.', Locked = true;
         WorkspacesAddedTelemetryMsg: Label 'Workspaces added. Initial count: %1, final count: %2.', Locked = true;
-        UrlTooLongTelemetryMsg: Label 'Parsing reports encountered a URL that is too long to be saved to ReportEmbedUrl. Json message: %1.', Locked = true;
+        UrlTooLongTelemetryMsg: Label 'Parsing reports encountered a URL that is too long to be saved to ReportEmbedUrl. Length: %1.', Locked = true;
         ParseReportsWarningTelemetryMsg: Label 'Parse reports encountered an unexpected token.', Locked = true;
         FailedToInsertReportTelemetryMsg: Label 'Could not insert parsed report.', Locked = true;
         MissingUrlErrorTelemetryMsg: Label 'Missing URL for Report Configuration.', Locked = true;
@@ -181,7 +181,7 @@ codeunit 6319 "Power BI Workspace Mgt."
         JObj.SelectToken('embedUrl', JToken);
         if JToken.IsValue() then
             if StrLen(JToken.AsValue().AsText()) > MaxStrLen(TempPowerBISelectionElement.EmbedUrl) then
-                Session.LogMessage('0000BAV', StrSubstNo(UrlTooLongTelemetryMsg, JObj), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
+                Session.LogMessage('0000BAV', StrSubstNo(UrlTooLongTelemetryMsg, StrLen(JToken.AsValue().AsText())), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
         TempPowerBISelectionElement.Validate(EmbedUrl,
             CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(TempPowerBISelectionElement.EmbedUrl)));
 

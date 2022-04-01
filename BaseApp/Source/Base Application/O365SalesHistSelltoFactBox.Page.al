@@ -80,7 +80,7 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
 
         Clear(O365CustomerSalesDocuments);
         O365CustomerSalesDocuments.SetTableView(O365SalesDocument);
-        O365CustomerSalesDocuments.RunModal;
+        O365CustomerSalesDocuments.RunModal();
     end;
 }
 

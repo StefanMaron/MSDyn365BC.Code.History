@@ -1,4 +1,4 @@
-﻿codeunit 1012 "Job Jnl.-Post Line"
+codeunit 1012 "Job Jnl.-Post Line"
 {
     Permissions = TableData "Job Ledger Entry" = imd,
                   TableData "Job Register" = imd,
@@ -7,7 +7,7 @@
 
     trigger OnRun()
     begin
-        GetGLSetup;
+        GetGLSetup();
         RunWithCheck(Rec);
     end;
 
@@ -31,6 +31,7 @@
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         GLSetupRead: Boolean;
+        CalledFromInvtPutawayPick: Boolean;
         NextEntryNo: Integer;
         GLEntryNo: Integer;
 
@@ -54,14 +55,16 @@
     begin
         OnBeforeCode(JobJnlLine);
 
-        GetGLSetup;
+        GetGLSetup();
 
         with JobJnlLine do begin
             if EmptyLine then
                 exit;
 
-            if CheckLine then
+            if CheckLine then begin
+                JobJnlCheckLine.SetCalledFromInvtPutawayPick(CalledFromInvtPutawayPick);
                 JobJnlCheckLine.RunCheck(JobJnlLine);
+            end;
 
             if JobLedgEntry."Entry No." = 0 then begin
                 JobLedgEntry.LockTable();
@@ -98,7 +101,7 @@
             JobJnlLine2."Source Currency Total Price" := 0;
             JobJnlLine2."Source Currency Line Amount" := 0;
 
-            GetGLSetup;
+            GetGLSetup();
             if (GLSetup."Additional Reporting Currency" <> '') and
                (JobJnlLine2."Source Currency Code" <> GLSetup."Additional Reporting Currency")
             then
@@ -135,6 +138,11 @@
 
         Job.Get(JobJnlLine."Job No.");
         CheckJob(JobJnlLine, Job);
+    end;
+
+    internal procedure SetCalledFromInvtPutawayPick(NewCalledFromInvtPutawayPick: Boolean)
+    begin
+        CalledFromInvtPutawayPick := NewCalledFromInvtPutawayPick;
     end;
 
     local procedure CheckJob(var JobJnlLine: Record "Job Journal Line"; Job: Record Job)
@@ -232,7 +240,7 @@
             case Type of
                 Type::Resource:
                     if "Entry Type" = "Entry Type"::Usage then
-                        if ResLedgEntry.FindLast then begin
+                        if ResLedgEntry.FindLast() then begin
                             JobLedgEntry."Ledger Entry Type" := JobLedgEntry."Ledger Entry Type"::Resource;
                             JobLedgEntry."Ledger Entry No." := ResLedgEntry."Entry No.";
                         end;
@@ -473,6 +481,7 @@
             GetLocation("Location Code");
             if Location."Bin Mandatory" then
                 if WMSManagement.CreateWhseJnlLine(ItemJnlLine, 0, WarehouseJournalLine, false) then begin
+                    SetWhseDocForPicks(WarehouseJournalLine, Location.Code);
                     TempTrackingSpecification.ModifyAll("Source Type", DATABASE::"Job Journal Line");
                     ItemTrackingManagement.SplitWhseJnlLine(WarehouseJournalLine, TempWarehouseJournalLine, TempTrackingSpecification, false);
                     if TempWarehouseJournalLine.Find('-') then
@@ -631,6 +640,14 @@
             exit(true);
         end;
         exit(false);
+    end;
+
+    local procedure SetWhseDocForPicks(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10])
+    var
+        WhseLocation: Record Location;
+    begin
+        if WhseLocation.RequirePicking(LocationCode) then
+            WarehouseJournalLine.SetWhseDocument(WarehouseJournalLine."Whse. Document Type"::Job, ItemJnlLine."Job No.", ItemJnlLine."Job Contract Entry No.");
     end;
 
     [IntegrationEvent(false, false)]

@@ -117,7 +117,7 @@ page 830 "Workflow Webhook Entries"
                     WorkflowStepInstance.SetLoadFields("Workflow Code");
                     WorkflowStepInstance.SetRange(ID, Rec."Workflow Step Instance ID");
 
-                    if WorkflowStepInstance.FindFirst then
+                    if WorkflowStepInstance.FindFirst() then
                         WorkflowWebhookManagement.SendWebhookNotificaton(WorkflowStepInstance);
                 end;
             }

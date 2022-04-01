@@ -230,6 +230,9 @@ table 7354 Bin
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", "Zone Code", "Bin Type Code", Empty, Default)
+        {
+        }
     }
 
     trigger OnDelete()
@@ -246,7 +249,7 @@ table 7354 Bin
               ItemJnlLine."Entry Type"::"Negative Adjmt.", ItemJnlLine."Entry Type"::Sale,
               ItemJnlLine."Entry Type"::"Positive Adjmt.", ItemJnlLine."Entry Type"::Purchase);
             ItemJnlLine.SetRange("Location Code", "Location Code");
-            if ItemJnlLine.FindFirst then
+            if ItemJnlLine.FindFirst() then
                 if not Confirm(
                      Text002, false, StrSubstNo(ItemJnlLine.TableCaption, TableCaption))
                 then

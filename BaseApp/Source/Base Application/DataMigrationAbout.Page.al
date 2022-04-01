@@ -56,7 +56,7 @@ page 1798 "Data Migration About"
                     DataMigrationStatus.SetFilter(Status, '%1|%2',
                       DataMigrationStatus.Status::"In Progress",
                       DataMigrationStatus.Status::Pending);
-                    if DataMigrationStatus.FindFirst then
+                    if DataMigrationStatus.FindFirst() then
                         DataMigrationFacade.OnGetMigrationHelpTopicUrl(DataMigrationStatus."Migration Type", Url);
                     if Url = '' then
                         HyperLink(GeneralHelpTopicUrlTxt)

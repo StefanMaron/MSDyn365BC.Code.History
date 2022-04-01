@@ -40,7 +40,7 @@ codeunit 134212 "WF Demo Item Approval"
         // [THEN] The Approval flow gets started.
 
         // Setup
-        Initialize;
+        Initialize();
 
         SendItemForApproval(Workflow, Item, ItemCard);
 
@@ -65,7 +65,7 @@ codeunit 134212 "WF Demo Item Approval"
         // [THEN] The Approval flow is canceled.
 
         // Setup
-        Initialize;
+        Initialize();
 
         SendItemForApproval(Workflow, Item, ItemCard);
 
@@ -96,7 +96,7 @@ codeunit 134212 "WF Demo Item Approval"
         // [THEN] The approval entries are renamed to point to the same record.
 
         // Setup
-        Initialize;
+        Initialize();
 
         SendItemForApproval(Workflow, Item, ItemCard);
 
@@ -136,7 +136,7 @@ codeunit 134212 "WF Demo Item Approval"
         // [THEN] The Item approval requests are canceled and then the Item is deleted.
 
         // Setup
-        Initialize;
+        Initialize();
 
         SendItemForApproval(Workflow, Item, ItemCard);
         ItemCard.OK.Invoke;
@@ -170,7 +170,7 @@ codeunit 134212 "WF Demo Item Approval"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Item approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
@@ -241,7 +241,7 @@ codeunit 134212 "WF Demo Item Approval"
     begin
         // [SCENARIO 4] Approval action availability.
         // [GIVEN] Item approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
@@ -306,7 +306,7 @@ codeunit 134212 "WF Demo Item Approval"
         // [GIVEN] A Item Approval.
         // [WHEN] The user approves a request for Item approval.
         // [THEN] The Item gets approved.
-        Initialize;
+        Initialize();
 
         SendItemForApproval(Workflow, Item, ItemCard);
         ItemCard.Close;
@@ -337,7 +337,7 @@ codeunit 134212 "WF Demo Item Approval"
         // [GIVEN] A Item Approval.
         // [WHEN] The user rejects a request for Item approval.
         // [THEN] The Item gets rejected.
-        Initialize;
+        Initialize();
 
         SendItemForApproval(Workflow, Item, ItemCard);
         ItemCard.Close;
@@ -370,7 +370,7 @@ codeunit 134212 "WF Demo Item Approval"
         // [GIVEN] A Item Approval.
         // [WHEN] The user delegates a request for Item approval.
         // [THEN] The Item gets assigned to the substitute.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -453,8 +453,8 @@ codeunit 134212 "WF Demo Item Approval"
     var
         UserSetup: Record "User Setup";
     begin
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
         if IsInitialized then

@@ -58,7 +58,7 @@ report 812 "Assembly BOM - End Items"
                 BOMComp.SetCurrentKey(Type, "No.");
                 BOMComp.SetRange(Type, BOMComp.Type::Item);
                 BOMComp.SetRange("No.", "No.");
-                if BOMComp.FindFirst then // Part of a BOM
+                if BOMComp.FindFirst() then // Part of a BOM
                     CurrReport.Skip();
             end;
         }

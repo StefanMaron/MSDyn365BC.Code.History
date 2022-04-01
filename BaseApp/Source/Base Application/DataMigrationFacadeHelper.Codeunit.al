@@ -124,7 +124,7 @@ codeunit 1797 "Data Migration Facade Helper"
     begin
         PostCode.SetRange(Code, CodeToSet);
         PostCode.SetRange("Search City", UpperCase(CityToSet));
-        if PostCode.FindFirst then
+        if PostCode.FindFirst() then
             exit(false);
 
         PostCode.Init();
@@ -169,7 +169,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if IntrastatCodeToSet <> '' then
             CountryRegion.SetRange("Intrastat Code", IntrastatCodeToSet);
 
-        if CountryRegion.FindFirst then begin
+        if CountryRegion.FindFirst() then begin
             CodeToGet := CountryRegion.Code;
             exit(true);
         end;
@@ -181,7 +181,7 @@ codeunit 1797 "Data Migration Facade Helper"
         Language: Codeunit Language;
     begin
         WindowsLanguageSearch.SetRange("Abbreviated Name", AbbreviatedNameToSearch);
-        if WindowsLanguageSearch.FindFirst then begin
+        if WindowsLanguageSearch.FindFirst() then begin
             CodeToGet := Language.GetLanguageCode(WindowsLanguageSearch."Language ID");
 
             if CodeToGet <> '' then
@@ -193,7 +193,7 @@ codeunit 1797 "Data Migration Facade Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.FindFirst;
+        GeneralLedgerSetup.FindFirst();
 
         if CurrencyCode = GeneralLedgerSetup."LCY Code" then
             exit('');
@@ -210,7 +210,7 @@ codeunit 1797 "Data Migration Facade Helper"
         GenJournalBatch.SetRange(Name, GeneralJournalBatchCode);
         GenJournalBatch.SetRange("No. Series", NoSeriesCode);
         GenJournalBatch.SetRange("Posting No. Series", PostingNoSeriesCode);
-        if not GenJournalBatch.FindFirst then begin
+        if not GenJournalBatch.FindFirst() then begin
             GenJournalBatch.Init();
             GenJournalBatch.Validate("Journal Template Name", TemplateName);
             GenJournalBatch.SetupNewBatch;
@@ -228,7 +228,7 @@ codeunit 1797 "Data Migration Facade Helper"
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
         GenJournalTemplate.SetRange(Recurring, false);
-        if not GenJournalTemplate.FindFirst then begin
+        if not GenJournalTemplate.FindFirst() then begin
             GenJournalTemplate.Init();
             GenJournalTemplate.Validate(Name, GeneralJournalBatchCode);
             GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::General);
@@ -249,7 +249,7 @@ codeunit 1797 "Data Migration Facade Helper"
 
         GenJournalLineCurrent.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLineCurrent.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        if GenJournalLineCurrent.FindLast then
+        if GenJournalLineCurrent.FindLast() then
             LineNum := GenJournalLineCurrent."Line No." + 10000
         else
             LineNum := 10000;
@@ -336,7 +336,7 @@ codeunit 1797 "Data Migration Facade Helper"
 
         DimensionSetEntry.SetRange("Dimension Set ID", OldDimensionSetId);
         DimensionSetEntry.SetFilter("Dimension Code", '<>%1', DimensionCode);
-        if DimensionSetEntry.FindSet then
+        if DimensionSetEntry.FindSet() then
             repeat
                 TempDimensionSetEntry.TransferFields(DimensionSetEntry);
                 TempDimensionSetEntry.Insert(true);
@@ -376,14 +376,14 @@ codeunit 1797 "Data Migration Facade Helper"
             ContactBusinessRelation.SetRange("Business Relation Code", MarketingSetup."Bus. Rel. Code for Vendors");
             ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
             ContactBusinessRelation.SetRange("No.", EntityNo);
-            if not ContactBusinessRelation.FindFirst then
+            if not ContactBusinessRelation.FindFirst() then
                 exit;
         end else
             if LinkToTable = DATABASE::Customer then begin
                 ContactBusinessRelation.SetRange("Business Relation Code", MarketingSetup."Bus. Rel. Code for Customers");
                 ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
                 ContactBusinessRelation.SetRange("No.", EntityNo);
-                if not ContactBusinessRelation.FindFirst then
+                if not ContactBusinessRelation.FindFirst() then
                     exit;
             end else
                 exit;

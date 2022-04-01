@@ -40,8 +40,8 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] Page Item Reference List shows only References for Customer A and Bar Code (AX, AY and PZ)
         Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
-            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
-            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo;
+            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo();
+            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo();
         end;
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
@@ -58,7 +58,7 @@ codeunit 134463 "ERM Item Reference Sales"
 
         // [GIVEN] Item Reference for Item 1100 with No = 1234, Type = Bar Code
         LibraryItemReference.CreateItemReferenceWithNo(ItemReference[2], ItemRefNo, LibraryInventory.CreateItemNo,
-          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
         EnqueueItemReferenceFields(ItemReference[2]);
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
@@ -98,8 +98,8 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] Page Item Reference List shows only Item References for Customer A (AX and AY)
         Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
-            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
-            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo;
+            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo();
+            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo();
         end;
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
@@ -147,7 +147,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is Yes
         // [SCENARIO 289240] Page Item Reference List shows both Item References (AX and PY)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
         LibraryVariableStorage.Enqueue(ItemRefNo);
@@ -159,7 +159,7 @@ codeunit 134463 "ERM Item Reference Sales"
 
         // [GIVEN] Item References for Item 1001 with same No and Type = Bar Code
         LibraryItemReference.CreateItemReferenceWithNo(ItemReference[2], ItemRefNo, LibraryInventory.CreateItemNo,
-          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
         EnqueueItemReferenceFields(ItemReference[2]);
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
@@ -195,7 +195,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is Yes
         // [SCENARIO 289240] Page Item Reference List shows both Item References (AX and TY)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
         LibraryVariableStorage.Enqueue(ItemRefNo);
@@ -244,7 +244,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is Yes
         // [SCENARIO 289240] Page Item Reference List shows both Item References (AX and AY)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
         LibraryVariableStorage.Enqueue(ItemRefNo);
@@ -296,7 +296,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [GIVEN] Item References for Items 1000 and 1001, both with No = 1234 and Type = Bar Code
         for Index := 1 to ArrayLen(ItemReference) do begin
             LibraryItemReference.CreateItemReferenceWithNo(ItemReference[Index], ItemRefNo, LibraryInventory.CreateItemNo,
-              ItemReference[Index]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+              ItemReference[Index]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
             EnqueueItemReferenceFields(ItemReference[Index]);
         end;
 
@@ -332,7 +332,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is Yes
         // [SCENARIO 289240] Page Item Reference List is not shown, ICRLookupSalesItem returns Item Reference for Customer A (AX)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -342,7 +342,7 @@ codeunit 134463 "ERM Item Reference Sales"
 
         // [GIVEN] Item References for same Item with same No and Type = Bar Code
         LibraryItemReference.CreateItemReferenceWithNo(ItemReference[2], ItemRefNo, ItemReference[1]."Item No.",
-          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, CustNo, ItemRefNo);
@@ -368,7 +368,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is Yes
         // [SCENARIO 289240] Page Item Reference List is not shown, ICRLookupSalesItem returns Item Reference for Customer A (AX)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -405,14 +405,14 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer and ShowDialog is Yes
         // [SCENARIO 289240] Page Item Reference List is not shown, ICRLookupSalesItem returns Item Reference PX
         Initialize();
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
         // [GIVEN] Item References both for same Item, No = 1234 and Type = Bar Code, Type No are "P" and "T"
         for Index := 1 to ArrayLen(ItemReference) do
             LibraryItemReference.CreateItemReferenceWithNo(ItemReference[Index], ItemRefNo, ItemNo,
-              ItemReference[Index]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+              ItemReference[Index]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, LibrarySales.CreateCustomerNo, ItemRefNo);
@@ -439,7 +439,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is Yes
         // [SCENARIO 289240] Page Item Reference List is not shown, ICRLookupSalesItem returns Item Reference for Customer A (AX)
         Initialize();
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -514,7 +514,7 @@ codeunit 134463 "ERM Item Reference Sales"
 
         // [GIVEN] Item References for Item 1001 with same No and Type = Bar Code
         LibraryItemReference.CreateItemReferenceWithNo(ItemReference[2], ItemRefNo, ItemReference[1]."Item No.",
-          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, LibrarySales.CreateCustomerNo, ItemRefNo);
@@ -601,7 +601,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is Yes
         // [SCENARIO 289240] ICRLookupSalesItem Returns Item Reference AX
         Initialize();
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -664,8 +664,8 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem returns Item Reference for Customer A and Item X (AX)
         Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
-            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
-            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo;
+            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo();
+            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo();
         end;
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
@@ -680,7 +680,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [GIVEN] Item Reference for Item 1100 with No = 1234, Type = Bar Code
         LibraryItemReference.CreateItemReferenceWithNo(
           ItemReference[2], ItemRefNo, LibraryInventory.CreateItemNo, ItemReference[2]."Reference Type"::"Bar Code",
-          LibraryUtility.GenerateGUID);
+          LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, CustNo[1], ItemRefNo);
@@ -711,8 +711,8 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem returns Item Reference for Customer A and Item X (AX)
         Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
-            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
-            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo;
+            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo();
+            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo();
         end;
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
@@ -749,7 +749,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupSalesItem returns Item Reference for Customer A and Item X (AX)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -759,7 +759,7 @@ codeunit 134463 "ERM Item Reference Sales"
 
         // [GIVEN] Item References for Item 1001 with same No and Type = Bar Code
         LibraryItemReference.CreateItemReferenceWithNo(ItemReference[2], ItemRefNo, LibraryInventory.CreateItemNo,
-          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, CustNo, ItemRefNo);
@@ -785,7 +785,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupSalesItem returns Item Reference for Customer A and Item X (AX)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -822,7 +822,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupSalesItem returns Item Reference for Customer A and Item X (AX)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -861,7 +861,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [GIVEN] Item References for Items 1000 and 1001, both with No = 1234 and Type = Bar Code
         for Index := 1 to ArrayLen(ItemReference) do
             LibraryItemReference.CreateItemReferenceWithNo(ItemReference[Index], ItemRefNo, LibraryInventory.CreateItemNo,
-              ItemReference[Index]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+              ItemReference[Index]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, LibrarySales.CreateCustomerNo, ItemRefNo);
@@ -887,7 +887,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupSalesItem returns Item Reference for Customer A (AX)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -897,7 +897,7 @@ codeunit 134463 "ERM Item Reference Sales"
 
         // [GIVEN] Item References for same Item with same No and Type = Bar Code
         LibraryItemReference.CreateItemReferenceWithNo(ItemReference[2], ItemRefNo, ItemReference[1]."Item No.",
-          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, CustNo, ItemRefNo);
@@ -923,7 +923,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is No
         // [SCENARIO 289240] Page Item Reference List is not shown, ICRLookupSalesItem returns Item Reference for Customer A (AX)
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -960,14 +960,14 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer and ShowDialog is No
         // [SCENARIO 289240] ICRLookupSalesItem returns Item Reference PX
         Initialize();
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
         // [GIVEN] Item References both for same Item, No = 1234 and Type = Bar Code, Type No are "P" and "T"
         for Index := 1 to ArrayLen(ItemReference) do
             LibraryItemReference.CreateItemReferenceWithNo(ItemReference[Index], ItemRefNo, ItemNo,
-              ItemReference[Index]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+              ItemReference[Index]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, LibrarySales.CreateCustomerNo, ItemRefNo);
@@ -995,7 +995,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupSalesItem returns Item Reference for Customer A (AX)
         Initialize();
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -1030,7 +1030,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 315787] ICRLookupSalesItem for Customer B and ShowDialog is No
         // [SCENARIO 315787] ICRLookupSalesItem returns Item Reference for Customer B (BX)
         Initialize();
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -1107,7 +1107,7 @@ codeunit 134463 "ERM Item Reference Sales"
 
         // [GIVEN] Item References for Item 1001 with same No and Type = Bar Code
         LibraryItemReference.CreateItemReferenceWithNo(ItemReference[2], ItemRefNo, ItemReference[1]."Item No.",
-          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID);
+          ItemReference[2]."Reference Type"::"Bar Code", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, LibrarySales.CreateCustomerNo, ItemRefNo);
@@ -1197,7 +1197,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] ICRLookupSalesItem for Customer A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupSalesItem Returns Item Reference AX
         Initialize();
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), DATABASE::"Item Reference");
 
@@ -1263,8 +1263,8 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] When Stan pushes cancel on page, then error
         Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
-            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
-            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo;
+            ItemNo[ItemIndex] := LibraryInventory.CreateItemNo();
+            CustNo[ItemIndex] := LibrarySales.CreateCustomerNo();
         end;
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
@@ -1279,7 +1279,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [GIVEN] Item Reference for Item 1100 with No = 1234, Type = Bar Code
         LibraryItemReference.CreateItemReferenceWithNo(
           ItemReference[2], ItemRefNo, LibraryInventory.CreateItemNo, ItemReference[2]."Reference Type"::"Bar Code",
-          LibraryUtility.GenerateGUID);
+          LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Line had Type = Item, "Sell-to Customer No." = 10000 and Reference No. = 1234
         MockSalesLineForICRLookupSalesItem(SalesLine, CustNo[1], ItemRefNo);
@@ -1314,7 +1314,7 @@ codeunit 134463 "ERM Item Reference Sales"
         // [SCENARIO 289240] Stan looks up Reference No in Sales Line and selects Item Reference AY
         // [SCENARIO 289240] Sales Line has Item Y
         Initialize();
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ItemRefNo :=
           LibraryUtility.GenerateRandomCode(ItemReference[1].FieldNo("Reference No."), DATABASE::"Item Reference");
         LibraryVariableStorage.Enqueue(ItemRefNo);

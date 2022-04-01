@@ -33,7 +33,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         // [FEATURE] [Blocked Dimension]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when Item Dimension is Blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Dimension = "X" for Item
         PostInvoiceWithDim(PurchInvHeader, '', '', LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue, 1), '');
@@ -56,7 +56,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         // [FEATURE] [Blocked Dimension]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when Vendor Dimension is Blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Dimension = "X" for Vendor
         PostInvoiceWithDim(PurchInvHeader, LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue, 1), '', '', '');
@@ -80,7 +80,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         // [FEATURE] [Dimension Combination]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when Item Dimension Combination is Blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Dimensions "X1" and "X2" for Item
         PostInvoiceWithDim(
@@ -106,7 +106,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         // [FEATURE] [Dimension Combination]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when Vendor Dimension Combination is Blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Dimensions "X1" and "X2" for Vendor
         PostInvoiceWithDim(
@@ -132,7 +132,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         // [FEATURE] [Dimension Code Mandatory]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when mandatory "Default Dimension" assigned to "Payables Account"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Vendor "X"
         PostSimpleInvoice(PurchInvHeader, VendNo, ItemNo);
@@ -160,7 +160,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         // [FEATURE] [Dimension Code Mandatory]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when mandatory "Default Dimension" assigned to "Inventory Account"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Item "X"
         PostSimpleInvoice(PurchInvHeader, VendNo, ItemNo);
@@ -188,7 +188,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         // [FEATURE] [Dimension Code Mandatory]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when VAT and G/L Account dimensions are mandatory
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo cancelled Invoice with Vendor "A" and Item "B"
         PostSimpleInvoice(PurchInvHeader, VendNo, ItemNo);
@@ -210,15 +210,15 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Cancel Purch Cr Memo Dim.");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddAccountPayables;
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Cancel Purch Cr Memo Dim.");
 
         IsInitialized := true;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Cancel Purch Cr Memo Dim.");
     end;
@@ -279,7 +279,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchHeader."No.");
-        PurchInvHeader.FindLast;
+        PurchInvHeader.FindLast();
     end;
 
     local procedure AddMandatoryDefDimToPayablesAccount(VendNo: Code[20])

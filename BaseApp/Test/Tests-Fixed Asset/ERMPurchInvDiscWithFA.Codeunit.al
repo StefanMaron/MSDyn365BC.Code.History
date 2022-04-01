@@ -32,7 +32,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         // Create and Post Purchase Invoice and Update General Posting setup for Purchase Invoice Discount Amount.
 
         // Setup: Create Fixed Asset, Purchase Invoice and Update General Posting Setup.
-        Initialize;
+        Initialize();
         UpdateDepreciationBook(OldSubtractDiscinPurchInv, true);
         InvoiceAmount := CreatePurchaseInvoice(PurchaseHeader, PurchaseLine);
         PurchFADiscAccount := UpdateGeneralPostingSetup(PurchaseLine);
@@ -46,7 +46,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         VerifyGLEntry(PurchFADiscAccount, InvoiceAmount, PurchaseLine."Document No.");
 
         // Tear Down: Reset the initial value of Subtract Discount in Depreciation Book.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         UpdateDepreciationBook(OldSubtractDiscinPurchInv, OldSubtractDiscinPurchInv);
         LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
     end;
@@ -59,11 +59,11 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purch Inv Disc With FA");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch Inv Disc With FA");
@@ -75,7 +75,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         FADepreciationBook: Record "FA Depreciation Book";
         FAPostingGroup: Record "FA Posting Group";
     begin
-        FAPostingGroup.FindFirst;
+        FAPostingGroup.FindFirst();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
@@ -125,10 +125,10 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
     begin
         GeneralLedgerSetup.Get();
         PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         GLEntry.SetRange("Document No.", PurchInvHeader."No.");
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, Amount, GLEntry.TableCaption));
     end;

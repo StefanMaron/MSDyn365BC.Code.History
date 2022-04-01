@@ -121,10 +121,10 @@ page 5758 "Posted Transfer Shipment Lines"
         TempTransShptLine.Reset();
         TempTransShptLine.CopyFilters(Rec);
         TempTransShptLine.SetRange("Document No.", DocNo);
-        if not TempTransShptLine.FindFirst then begin
+        if not TempTransShptLine.FindFirst() then begin
             TransShptLine.CopyFilters(Rec);
             TransShptLine.SetRange("Document No.", DocNo);
-            TransShptLine.FindFirst;
+            TransShptLine.FindFirst();
             TempTransShptLine := TransShptLine;
             TempTransShptLine.Insert();
         end;

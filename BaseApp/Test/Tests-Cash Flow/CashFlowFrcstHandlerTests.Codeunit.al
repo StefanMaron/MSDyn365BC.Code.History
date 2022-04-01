@@ -26,10 +26,10 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         TempTimeSeriesBuffer: Record "Time Series Buffer" temporary;
     begin
         // [SCENARIO] Normal prediction of item with history
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         CreateCashFlowSetup;
-        CashFlowForecastHandler.Initialize;
+        CashFlowForecastHandler.Initialize();
 
         // [GIVEN] There are 6 historical periods
         CreateTestData(WorkDate, true);
@@ -61,7 +61,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         oldWorkDate: Date;
     begin
         // [SCENARIO] MaximumHistoricalPeriods limits the historical periods
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] There are 6 historical periods the last 20 years and another 6 before that
         oldWorkDate := WorkDate;
@@ -142,7 +142,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         VATEntry: Record "VAT Entry";
         EntryNo: Integer;
     begin
-        if VATEntry.FindLast then;
+        if VATEntry.FindLast() then;
         EntryNo := VATEntry."Entry No." + 1;
         VATEntry.Init();
         if IsSales then
@@ -160,7 +160,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         EntryNo: Integer;
     begin
-        if CustLedgerEntry.FindLast then;
+        if CustLedgerEntry.FindLast() then;
         EntryNo := CustLedgerEntry."Entry No." + 1;
         CustLedgerEntry.Init();
         CustLedgerEntry.Open := true;
@@ -175,7 +175,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         EntryNo: Integer;
     begin
-        if VendorLedgerEntry.FindLast then;
+        if VendorLedgerEntry.FindLast() then;
         EntryNo := VendorLedgerEntry."Entry No." + 1;
         VendorLedgerEntry.Init();
         VendorLedgerEntry.Open := true;

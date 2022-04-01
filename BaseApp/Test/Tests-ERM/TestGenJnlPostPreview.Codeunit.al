@@ -41,7 +41,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GLAccount: Record "G/L Account";
         GenJnlPost: Codeunit "Gen. Jnl.-Post";
     begin
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
@@ -65,7 +65,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Amount: Decimal;
     begin
         // Initialize
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(10, 10000, 2);
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -105,7 +105,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Amount: Decimal;
     begin
         // Initialize
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(10, 10000, 2);
         LibraryERM.CreateICGLAccount(ICGLAccount);
         LibraryERM.CreateGLAccount(GLAccount);
@@ -172,7 +172,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Amount: Decimal;
     begin
         // Initialize
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(10, 10000, 2);
         LibrarySales.CreateCustomer(Customer);
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -206,7 +206,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Amount2: Decimal;
     begin
         // Initialize
-        Initialize;
+        Initialize();
         Amount1 := LibraryRandom.RandDecInRange(10, 10000, 2);
         Amount2 := LibraryRandom.RandDecInRange(10, 10000, 2);
         LibrarySales.CreateCustomer(Customer);
@@ -251,7 +251,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Amount2: Decimal;
     begin
         // Initialize
-        Initialize;
+        Initialize();
         Amount1 := LibraryRandom.RandDecInRange(10, 10000, 2);
         Amount2 := LibraryRandom.RandDecInRange(10, 10000, 2);
         LibraryPurchase.CreateVendor(Vendor);
@@ -298,7 +298,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Amount2: Decimal;
     begin
         // Initialize
-        Initialize;
+        Initialize();
         Amount1 := LibraryRandom.RandDecInRange(10, 10000, 2);
         Amount2 := LibraryRandom.RandDecInRange(10, 10000, 2);
         CreateEmployee(Employee);
@@ -344,7 +344,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Amount: Decimal;
     begin
         // Initialize
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(10, 10000, 2);
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -377,7 +377,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         FixedAssetGLJournal: TestPage "Fixed Asset G/L Journal";
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateGeneralJournalLinePayment(
           GenJournalLine,
@@ -412,7 +412,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
     begin
         // [SCENARIO] Preview action on General Journal should work even if batch is under Approval Workflow.
         // Initialize
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(10, 10000, 2);
 
         // [GIVEN] General Journal that is under an approval workflow.
@@ -461,7 +461,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GenJnlPost: Codeunit "Gen. Jnl.-Post";
     begin
         // [SCENARIO 377725] General Journal Line which was fixed after fail on preview should be posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Line with "Amount" = 0
         Clear(GenJournalLine);
@@ -503,7 +503,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         LastGLEntryNo: Integer;
     begin
         // [SCENARIO 377725] No G/L entries should be created when calling preview on fixed general journal line after fail on preview
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Line with "Amount" = 0
         Clear(GenJournalLine);
@@ -513,7 +513,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           LibraryERM.CreateGLAccountNo,
           0);
         Commit();
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastGLEntryNo := GLEntry."Entry No.";
 
         // [GIVEN] Preview failed on "There is nothing to post error"
@@ -529,7 +529,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         // [THEN] Preview successfully ran. No G/L Enries were created
         VerifyEmptyPreviewError;
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         GLEntry.TestField("Entry No.", LastGLEntryNo);
     end;
 
@@ -543,7 +543,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         LastGLEntryNo: Integer;
     begin
         // [SCENARIO 377725] No G/L entries should be created when calling preview twice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Successfull posting preview of General Journal Line
         Clear(GenJournalLine);
@@ -552,7 +552,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo, LibraryRandom.RandInt(100));
         Commit();
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastGLEntryNo := GLEntry."Entry No.";
         asserterror GenJnlPost.Preview(GenJournalLine);
 
@@ -561,7 +561,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         // [THEN] Preview successfully ran. No G/L Enries were created
         VerifyEmptyPreviewError;
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         GLEntry.TestField("Entry No.", LastGLEntryNo);
     end;
 
@@ -575,7 +575,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         PaymentJournal: TestPage "Payment Journal";
     begin
         // [SCENARIO 169196] Posting preview does not remove Payment Lines from Payment Journal and does not change them.
-        Initialize;
+        Initialize();
         BindSubscription(TestGenJnlPostPreview);
 
         // [GIVEN] Payment Line in Payment Journal.
@@ -733,7 +733,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplateType);
-        if not GenJournalTemplate.FindFirst then
+        if not GenJournalTemplate.FindFirst() then
             CreateGeneralJournalTemplate(GenJournalTemplate, GenJournalTemplateType);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -932,7 +932,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GLReg: Record "G/L Register";
     begin
         GLEntry.SetRange("G/L Account No.", AccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, ExpectedAmount);
         GLReg.Init();
         GLReg.SetFilter("From Entry No.", '..%1', GLEntry."Entry No.");
@@ -994,7 +994,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
     begin
         LibraryHumanResource.CreateEmployee(Employee);
         EmployeePostingGroup.Init();
-        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
+        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID());
         EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
         EmployeePostingGroup.Insert(true);
         Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);

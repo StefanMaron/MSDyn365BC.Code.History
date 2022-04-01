@@ -312,7 +312,7 @@ page 99000829 "Firm Planned Prod. Order"
                         OrderPlanning: Page "Order Planning";
                     begin
                         OrderPlanning.SetProdOrder(Rec);
-                        OrderPlanning.RunModal;
+                        OrderPlanning.RunModal();
                     end;
                 }
             }
@@ -408,7 +408,7 @@ page 99000829 "Firm Planned Prod. Order"
                     trigger OnAction()
                     begin
                         CopyProdOrderDoc.SetProdOrder(Rec);
-                        CopyProdOrderDoc.RunModal;
+                        CopyProdOrderDoc.RunModal();
                         Clear(CopyProdOrderDoc);
                     end;
                 }

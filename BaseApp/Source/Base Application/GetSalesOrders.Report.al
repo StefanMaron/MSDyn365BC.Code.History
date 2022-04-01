@@ -95,7 +95,7 @@ report 698 "Get Sales Orders"
         ReqLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         ReqLine.SetRange("Journal Batch Name", ReqLine."Journal Batch Name");
         ReqLine.LockTable();
-        if ReqLine.FindLast then begin
+        if ReqLine.FindLast() then begin
             ReqLine.Init();
             LineNo := ReqLine."Line No.";
         end;
@@ -139,7 +139,7 @@ report 698 "Get Sales Orders"
         ReqLine.SetRange("No.", "Sales Line"."No.");
         ReqLine.SetRange("Sales Order No.", "Sales Line"."Document No.");
         ReqLine.SetRange("Sales Order Line No.", "Sales Line"."Line No.");
-        if ReqLine.FindFirst then
+        if ReqLine.FindFirst() then
             exit;
 
         LineNo := LineNo + 10000;

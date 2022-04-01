@@ -24,13 +24,13 @@ codeunit 790 "IC Inbox Outbox Subscribers"
     [EventSubscriber(ObjectType::Report, Report::"Move IC Trans. to Partner Comp", 'OnICInboxTransactionCreated', '', false, false)]
     local procedure AcceptOnAfterInsertICInboxTransaction(var Sender: Report "Move IC Trans. to Partner Comp"; var ICInboxTransaction: Record "IC Inbox Transaction"; PartnerCompanyName: Text)
     var
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
     begin
-        CompanyInformation.Get();
+        ICSetup.Get();
         ICPartner.ChangeCompany(PartnerCompanyName);
 
-        if not ICPartner.Get(CompanyInformation."IC Partner Code") then
+        if not ICPartner.Get(ICSetup."IC Partner Code") then
             exit;
 
         if ICPartner."Auto. Accept Transactions" then

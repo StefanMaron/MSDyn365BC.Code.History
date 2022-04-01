@@ -76,9 +76,9 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
             NoOfRecords := LineCount;
 
             InsCoverageLedgEntry.LockTable();
-            if InsCoverageLedgEntry.FindLast then;
+            if InsCoverageLedgEntry.FindLast() then;
             InsuranceReg.LockTable();
-            if InsuranceReg.FindLast then
+            if InsuranceReg.FindLast() then
                 InsuranceRegNo := InsuranceReg."No." + 1
             else
                 InsuranceRegNo := 1;
@@ -126,7 +126,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                 OnCodeOnAfterInsuranceJnlPostLineRunWithOutCheck(InsuranceJnlLine);
             until Next() = 0;
 
-            if InsuranceReg.FindLast then;
+            if InsuranceReg.FindLast() then;
             if InsuranceReg."No." <> InsuranceRegNo then
                 InsuranceRegNo := 0;
 
@@ -137,7 +137,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
             if InsuranceRegNo <> 0 then begin
                 InsuranceJnlLine2.CopyFilters(InsuranceJnlLine);
                 InsuranceJnlLine2.SetFilter("Insurance No.", '<>%1', '');
-                if InsuranceJnlLine2.FindLast then; // Remember the last line
+                if InsuranceJnlLine2.FindLast() then; // Remember the last line
                 InsuranceJnlLine3.Copy(InsuranceJnlLine);
                 OnCodeOnBeforeInsuranceJnlLine3DeleteAll(InsuranceJnlLine3, InsuranceJnlLine);
                 InsuranceJnlLine3.DeleteAll();
@@ -145,7 +145,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                 InsuranceJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                 InsuranceJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                 if InsuranceJnlTempl."Increment Batch Name" then
-                    if not InsuranceJnlLine3.FindLast then
+                    if not InsuranceJnlLine3.FindLast() then
                         if IncStr("Journal Batch Name") <> '' then begin
                             InsuranceJnlBatch.Get("Journal Template Name", "Journal Batch Name");
                             InsuranceJnlBatch.Delete();
@@ -156,7 +156,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                         end;
 
                 InsuranceJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-                if (InsuranceJnlBatch."No. Series" = '') and not InsuranceJnlLine3.FindLast then begin
+                if (InsuranceJnlBatch."No. Series" = '') and not InsuranceJnlLine3.FindLast() then begin
                     InsuranceJnlLine3.Init();
                     InsuranceJnlLine3."Journal Template Name" := "Journal Template Name";
                     InsuranceJnlLine3."Journal Batch Name" := "Journal Batch Name";

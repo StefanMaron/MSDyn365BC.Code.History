@@ -52,7 +52,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
     procedure RecallAllNotifications()
     begin
         TempNotificationContext.Reset();
-        if TempNotificationContext.FindSet then
+        if TempNotificationContext.FindSet() then
             RecallNotifications(TempNotificationContext);
     end;
 
@@ -152,7 +152,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
     begin
         TempNotificationContext.Reset();
         TempNotificationContext.SetRange("Notification ID", NotificationId);
-        if TempNotificationContext.FindFirst then begin
+        if TempNotificationContext.FindFirst() then begin
             TempNotificationContext.Delete(true);
             OnAfterDeleteNotificationContext(TempNotificationContext);
         end;

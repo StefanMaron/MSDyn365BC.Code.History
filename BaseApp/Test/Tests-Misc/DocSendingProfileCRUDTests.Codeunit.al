@@ -25,7 +25,7 @@ codeunit 139152 DocSendingProfileCRUDTests
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -44,13 +44,13 @@ codeunit 139152 DocSendingProfileCRUDTests
         // [GIVEN] the empty Document Sending Profiles list
         // [WHEN] Annie creates a record in Document Sending Profile table, without specifying Default value
         // [THEN] the inserted record will be marked as Default = True.
-        Initialize;
+        Initialize();
 
         DocumentSendingProfile.DeleteAll();
         DocumentSendingProfile.Init();
-        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile.Insert(true);
-        DocumentSendingProfile.FindFirst;
+        DocumentSendingProfile.FindFirst();
         Assert.IsTrue(DocumentSendingProfile.Default, 'The first and only document sending profile is not marked as default.');
     end;
 
@@ -62,10 +62,10 @@ codeunit 139152 DocSendingProfileCRUDTests
     begin
         // [WHEN] Annie tries to delete a default Document Sending Profile
         // [THEN] an error is raised.
-        Initialize;
+        Initialize();
 
         DocumentSendingProfile.Init();
-        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile.Default := true;
         DocumentSendingProfile.Insert(true);
         asserterror DocumentSendingProfile.Delete(true);
@@ -81,10 +81,10 @@ codeunit 139152 DocSendingProfileCRUDTests
     begin
         // [WHEN] Annie opens a default Document Sending Profile card
         // [THEN] the default button is disabled.
-        Initialize;
+        Initialize();
 
         DocumentSendingProfile.Init();
-        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile.Default := true;
         DocumentSendingProfile.Insert(true);
         DocumentSendingProfileCard.OpenEdit;
@@ -104,14 +104,14 @@ codeunit 139152 DocSendingProfileCRUDTests
     begin
         // [WHEN] Annie selects a non-default document sending profile as a default
         // [THEN] the default is removed from the previous default document sending profile.
-        Initialize;
+        Initialize();
 
         DocumentSendingProfile1.Init();
-        DocumentSendingProfile1.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile1.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile1.Default := true;
         DocumentSendingProfile1.Insert(true);
         DocumentSendingProfile2.Init();
-        DocumentSendingProfile2.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile2.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile2.Default := false;
         DocumentSendingProfile2.Insert(true);
         DocumentSendingProfileCard.OpenEdit;
@@ -135,14 +135,14 @@ codeunit 139152 DocSendingProfileCRUDTests
     begin
         // [WHEN] Annie tries to delete a non-default document sending profile
         // [THEN] she succeeds
-        Initialize;
+        Initialize();
 
         DocumentSendingProfile1.Init();
-        DocumentSendingProfile1.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile1.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile1.Default := true;
         DocumentSendingProfile1.Insert(true);
         DocumentSendingProfile2.Init();
-        DocumentSendingProfile2.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile2.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile2.Default := false;
         DocumentSendingProfile2.Insert(true);
         DocumentSendingProfile2.Delete(true);
@@ -157,15 +157,15 @@ codeunit 139152 DocSendingProfileCRUDTests
     begin
         // [WHEN] Annie tries to update a document sending profile by selecting multiple sending options
         // [THEN] the changes are successfully persisted
-        Initialize;
+        Initialize();
         DocumentSendingProfile1.Init();
-        DocumentSendingProfile1.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile1.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile1.Default := true;
         DocumentSendingProfile1.Validate(Printer, DocumentSendingProfile1.Printer::"Yes (Use Default Settings)");
         DocumentSendingProfile1.Validate("E-Mail", DocumentSendingProfile1."E-Mail"::"Yes (Prompt for Settings)");
         DocumentSendingProfile1.Insert(true);
         DocumentSendingProfile2.Init();
-        DocumentSendingProfile2.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile2.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile2.Default := true;
         DocumentSendingProfile2.Validate(
           "Electronic Document", DocumentSendingProfile1."Electronic Document"::"Through Document Exchange Service");
@@ -200,9 +200,9 @@ codeunit 139152 DocSendingProfileCRUDTests
     begin
         // [WHEN] Annie opens the Electronic Document Format page and filters on the Code by choosing 'PEPPOL' document format and filters on Usage by choosing 'Sales Invoice'
         // [THEN] she finds exactly one entry for PEPPOL - Sales Invoice electronic document format
-        Initialize;
+        Initialize();
         AdditionalElectronicFormatCode := PeppolFormatNameTxt + '1';
-        AdditionalElectronicFormatDescription := LibraryUtility.GenerateGUID;
+        AdditionalElectronicFormatDescription := LibraryUtility.GenerateGUID();
 
         ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := AdditionalElectronicFormatCode;
@@ -254,7 +254,7 @@ codeunit 139152 DocSendingProfileCRUDTests
     begin
         // [WHEN] Annie tries to modify an electronic document format and set an inexistent codeunit ID for it
         // [THEN] she gets an error message that the object doesn't exist
-        Initialize;
+        Initialize();
         ElectronicDocumentFormat.Get(PeppolFormatNameTxt);
         ElectronicDocumentFormat."Codeunit ID" := 0;
         asserterror ElectronicDocumentFormat.Modify(true);
@@ -269,11 +269,11 @@ codeunit 139152 DocSendingProfileCRUDTests
     begin
         // [WHEN] Sending to different customers
         // [THEN] send electronically must be removed to avoid promting errors to the user
-        Initialize;
+        Initialize();
 
         DocumentSendingProfile.DeleteAll();
         DocumentSendingProfile.Init();
-        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile."Electronic Document" :=
           DocumentSendingProfile."Electronic Document"::"Through Document Exchange Service";
         DocumentSendingProfile."Electronic Format" := PeppolFormatNameTxt;
@@ -301,7 +301,7 @@ codeunit 139152 DocSendingProfileCRUDTests
 
         ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Export Sales Inv. - PEPPOL 2.1";
         ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Sales Invoice";
-        ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
+        ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID();
         ElectronicDocumentFormat.Insert(true);
     end;
 

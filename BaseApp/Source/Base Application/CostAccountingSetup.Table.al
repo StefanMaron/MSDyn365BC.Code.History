@@ -15,7 +15,7 @@ table 1108 "Cost Accounting Setup"
             trigger OnValidate()
             begin
                 CostRegister.SetRange(Source, CostRegister.Source::"Transfer from G/L");
-                if CostRegister.FindFirst then
+                if CostRegister.FindFirst() then
                     Error(Text001, CostRegister."No.");
             end;
         }

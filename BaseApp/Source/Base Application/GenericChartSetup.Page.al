@@ -787,7 +787,7 @@ page 9183 "Generic Chart Setup"
                     CopyGenericChart: Page "Copy Generic Chart";
                 begin
                     CopyGenericChart.SetSourceChart(Rec);
-                    CopyGenericChart.RunModal;
+                    CopyGenericChart.RunModal();
                 end;
             }
         }
@@ -963,7 +963,7 @@ page 9183 "Generic Chart Setup"
         Clear(ChartType);
 
         i := 0;
-        if TempGenericChartYAxis.FindSet then begin
+        if TempGenericChartYAxis.FindSet() then begin
             CurrentCaptionCode := GenericChartMgt.RequiredMeasureCode;
             repeat
                 i += 1;
@@ -1024,11 +1024,11 @@ page 9183 "Generic Chart Setup"
         GenericChartFiltersPage.SetFilters(TempGenericChartFilter);
         GenericChartFiltersPage.SetTableView(TempGenericChartFilter);
         Commit();
-        GenericChartFiltersPage.RunModal;
+        GenericChartFiltersPage.RunModal();
         TempGenericChartFilter.DeleteAll();
         Clear(FilterText);
         GenericChartFiltersPage.GetFilters(TempGenericChartFilter2);
-        if TempGenericChartFilter2.FindSet then
+        if TempGenericChartFilter2.FindSet() then
             repeat
                 TempGenericChartFilter := TempGenericChartFilter2;
                 TempGenericChartFilter.Insert();

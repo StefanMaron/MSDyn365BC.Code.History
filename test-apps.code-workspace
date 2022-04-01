@@ -15,6 +15,9 @@
                         "path":  ".\\APIV2\\Test\\_Exclude_APIV2_ Tests"
                     },
                     {
+                        "path":  ".\\BankDeposits\\Test\\_Exclude_Bank Deposits Tests"
+                    },
+                    {
                         "path":  ".\\BaseApp\\Source\\Base Application\\Test Framework"
                     },
                     {
@@ -99,9 +102,6 @@
                         "path":  ".\\BaseApp\\Test\\Tests-SMB"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-SMTP"
-                    },
-                    {
                         "path":  ".\\BaseApp\\Test\\Tests-TestLibraries"
                     },
                     {
@@ -117,9 +117,6 @@
                         "path":  ".\\BaseApp\\Test\\Tests-Workflow"
                     },
                     {
-                        "path":  ".\\CompanyHub\\Test\\Company Hub Tests"
-                    },
-                    {
                         "path":  ".\\DataArchive\\test\\Data Archive Tests"
                     },
                     {
@@ -132,7 +129,16 @@
                         "path":  ".\\Email - Outlook REST API\\Test"
                     },
                     {
+                        "path":  ".\\Email - SMTP API\\Test\\Email - SMTP API Tests"
+                    },
+                    {
+                        "path":  ".\\Email - SMTP API\\Test Library\\Email - SMTP API Test Library"
+                    },
+                    {
                         "path":  ".\\Email - SMTP Connector\\Test\\Email - SMTP Connector Tests"
+                    },
+                    {
+                        "path":  ".\\EmailLogging\\Test\\_Exclude_Email Logging Using Graph API Tests"
                     },
                     {
                         "path":  ".\\EssentialBusinessHeadlines\\Test\\Essential Business Headlines Test"
@@ -145,6 +151,9 @@
                     },
                     {
                         "path":  ".\\paypalpaymentsstandard\\test\\PayPal Payments Standard Tests"
+                    },
+                    {
+                        "path":  ".\\PlanConfiguration\\Test\\_Exclude_PlanConfiguration_ Tests"
                     },
                     {
                         "path":  ".\\recommendedapps\\test\\Recommended Apps Tests"

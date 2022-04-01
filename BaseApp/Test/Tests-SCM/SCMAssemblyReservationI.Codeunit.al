@@ -39,7 +39,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     begin
         // [FEATURE] [Available - Item Ledg. Entries]
 
-        Initialize;
+        Initialize();
         CreateItem(ParentItem);
         CreateItem(ChildItem);
         AddItemToInventory(ChildItem, 1);
@@ -61,7 +61,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     begin
         // [FEATURE] [Available - Assembly Headers]
 
-        Initialize;
+        Initialize();
         CreateItem(ParentItem);
         CreateItem(ChildItem);
 
@@ -86,7 +86,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     begin
         // [FEATURE] [Available - Assembly Lines]
 
-        Initialize;
+        Initialize();
         CreateItem(ParentItem);
         CreateItem(ChildItem);
 
@@ -110,7 +110,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     begin
         // [FEATURE] [Available - Assembly Headers]
 
-        Initialize;
+        Initialize();
         CreateItem(ParentItem);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ParentItem."No.", '', 1, '');
 
@@ -131,7 +131,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     begin
         // [FEATURE] [Available - Assembly Headers]
 
-        Initialize;
+        Initialize();
         CreateItem(Item);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, Item."No.", '', 1, '');
 
@@ -263,7 +263,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 269556] Assembly line can be reserved from purchase by running "Available to Reserve" -> "Reserve" actions on reservation page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly item "A", component item "C".
         CreateItem(ParentItem);
@@ -299,7 +299,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     begin
         // [SCENARIO 269128] When copying a sales order with linked assembly with "Copy Document", reservation is established between sales and assembly, serial numbers are not copied from the original document
 
-        Initialize;
+        Initialize();
 
         LibrarySales.SetStockoutWarning(false);
 
@@ -341,7 +341,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         // [FEATURE] [Copy Document] [Item Tracking]
         // [SCENARIO 269128] When copying a sales order with linked assembly with "Copy Document", reservation is established between sales and assembly, lot numbers are copied from the original document
 
-        Initialize;
+        Initialize();
 
         LibrarySales.SetStockoutWarning(false);
 
@@ -352,7 +352,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         CreateBOMComponentItem(AsmItem, CompItem, 1);
 
         for I := 1 to ArrayLen(LotNos) do begin
-            LotNos[I] := LibraryUtility.GenerateGUID;
+            LotNos[I] := LibraryUtility.GenerateGUID();
             LotQty[I] := LibraryRandom.RandInt(10);
             TotalQty += LotQty[I];
         end;
@@ -392,7 +392,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         // [FEATURE] [Copy Document]
         // [SCENARIO 269128] When copying a sales order with linked assembly with "Copy Document", reservation is established between sales and assembly if item is not tracked
 
-        Initialize;
+        Initialize();
 
         LibrarySales.SetStockoutWarning(false);
 
@@ -436,8 +436,8 @@ codeunit 137916 "SCM Assembly Reservation I"
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Initialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Reservation I");
@@ -500,7 +500,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     begin
         LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
         ItemJournalBatch.SetRange("Template Type", ItemJournalBatch."Template Type"::Item);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
@@ -511,7 +511,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Order No.", OrderNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesInvoiceHeader."Sell-to Customer No.");
         SalesHeader.Validate("Shipment Date", WorkDate2);
         SalesHeader.Modify(true);
@@ -567,7 +567,7 @@ codeunit 137916 "SCM Assembly Reservation I"
             SetRange("Reservation Status", "Reservation Status"::Reservation);
             SetRange("Serial No.", SerialNo);
             SetRange("Lot No.", LotNo);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, Qty);
 
             Get("Entry No.", true);

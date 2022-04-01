@@ -475,7 +475,7 @@ page 1131 "Cost Budget per Period Matrix"
 
         CostBudgetEntries.SetCurrRegNo(CurrRegNo);
         CostBudgetEntries.SetTableView(CostBudgetEntry);
-        CostBudgetEntries.RunModal;
+        CostBudgetEntries.RunModal();
         CurrRegNo := CostBudgetEntries.GetCurrRegNo;
         CurrPage.Update(false);
     end;

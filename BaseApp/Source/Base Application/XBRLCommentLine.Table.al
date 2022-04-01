@@ -1,6 +1,14 @@
 table 396 "XBRL Comment Line"
 {
     Caption = 'XBRL Comment Line';
+    ObsoleteReason = 'XBRL feature will be discontinued';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {

@@ -22,7 +22,9 @@ permissionset 3723 "Recievables - Admin"
                   tabledata "Gen. Journal Template" = RIMD,
                   tabledata "Item Charge" = RIMD,
                   tabledata "Line Fee Note on Report Hist." = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = MD,
+#endif
                   tabledata "Payment Method" = RIMD,
                   tabledata "Payment Terms" = RIMD,
                   tabledata "Reason Code" = R,
@@ -41,7 +43,6 @@ permissionset 3723 "Recievables - Admin"
                   tabledata "Shipment Method" = RIMD,
                   tabledata "Shipping Agent" = RIMD,
                   tabledata "Shipping Agent Services" = RIMD,
-                  tabledata "Social Listening Setup" = RIMD,
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Source Code Setup" = R,
                   tabledata "Standard Customer Sales Code" = RIMD,

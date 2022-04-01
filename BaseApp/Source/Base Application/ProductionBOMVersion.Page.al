@@ -95,7 +95,7 @@ page 99000809 "Production BOM Version"
                     begin
                         ProdBOMHeader.Get("Production BOM No.");
                         ProdBOMWhereUsed.SetProdBOM(ProdBOMHeader, "Starting Date");
-                        ProdBOMWhereUsed.Run;
+                        ProdBOMWhereUsed.Run();
                     end;
                 }
             }
@@ -112,6 +112,9 @@ page 99000809 "Production BOM Version"
                     Caption = 'Copy &BOM';
                     Image = CopyBOMHeader;
                     ToolTip = 'Copy an existing production BOM to quickly create a similar BOM.';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
 
                     trigger OnAction()
                     begin
@@ -129,6 +132,9 @@ page 99000809 "Production BOM Version"
                     Ellipsis = true;
                     Image = CopyBOMVersion;
                     ToolTip = 'Copy an existing production BOM version to quickly create a similar BOM.';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
 
                     trigger OnAction()
                     begin

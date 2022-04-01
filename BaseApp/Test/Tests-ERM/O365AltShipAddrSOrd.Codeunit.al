@@ -27,13 +27,13 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         // [SCENARIO] Ship-To is initialized to "Default (Sell-To Address)" on a Sales Order in new mode
         // [WHEN] Annie opens a new Sales Order card
         // [THEN] Ship-To option is set to Defualt(Sell-To Address)
-        Initialize;
+        Initialize();
 
         // Setup - Create a customer with address
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // Excercise - Open a New Sales Order for the customer
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".Value := Customer."No.";
 
         // Verify - ShipToOptions is set to default
@@ -54,7 +54,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         // [SCENARIO] Ship-To address fields is in sync with Sell-To address fields when ShipToOption is set to default
         // [WHEN] ShipToOption is set to default and Annie changes Sell-To address fields on Sales Order
         // [THEN] Ship-To address fields are updated
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
@@ -90,7 +90,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         // [SCENARIO] An alternative ship-to address can be selected for a sales Order
         // [WHEN] Annie selects 'Alternative Shipping Address' as ShipToOption on a Sales Order
         // [THEN] Annie is able to select an alternative ship-to address for the customer
-        Initialize;
+        Initialize();
 
         // Setup - Create Customer with an alternative shipping address
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -119,7 +119,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         // [SCENARIO] A custom ship-to address can be selected for a sales Order
         // [WHEN] Annie selects 'Customer Address' as ShipToOption on a Sales Order
         // [THEN] Annie is able to type in values into ship-to address fields
-        Initialize;
+        Initialize();
 
         // Setup - Create a Sales Order for a customer
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
@@ -149,7 +149,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         // [WHEN] Annie selects 'Alternative Shipping Address' as ShipToOption on a Sales Order and
         // [WHEN] Cancels the page opened to select the alternative shipping address.
         // [THEN] Sales Order page changes the ShipToOption to "Customer Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create Customer with an alternative shipping address
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -181,7 +181,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         // [SCENARIO] ShipToOption is set correctly when opening an existing Sales Order
         // [WHEN] Annie opens a Sales Order where an alternative shipping address is set
         // [THEN] The Sales Order page has the ShipToOption set to "Alternative Shipping Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create Customer with an alternative shipping address
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -213,7 +213,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         // [SCENARIO] ShipToOption is set correctly when opening an existing Sales Order
         // [WHEN] Annie opens a Sales Order where a custom shipping address is set
         // [THEN] The Sales Order page has the ShipToOption set to "Customer Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Sales Order for a customer
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
@@ -242,7 +242,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         // [SCENARIO] ShipToOption is set correctly when opening an existing Sales Order
         // [WHEN] Annie opens a Sales Order where the ship-to address is set to default
         // [THEN] The Sales Order page has the ShipToOption set to "Default (Sell-to Address)"
-        Initialize;
+        Initialize();
 
         // Setup - Create Customer with an alternative shipping address
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -264,13 +264,13 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Alt. Ship Addr. S. Ord.");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Alt. Ship Addr. S. Ord.");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();

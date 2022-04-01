@@ -1,4 +1,4 @@
-#if not CLEAN18
+#if not CLEAN20
 page 5156 "Customer Template List"
 {
     AdditionalSearchTerms = 'convert contact, new customer';
@@ -9,6 +9,9 @@ page 5156 "Customer Template List"
     PageType = List;
     SourceTable = "Customer Template";
     UsageCategory = Administration;
+    ObsoleteReason = 'Deprecate mini and customer templates. Use "Customer Templ. List" page instead and for extensions.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -102,7 +105,7 @@ page 5156 "Customer Template List"
                         begin
                             CurrPage.SetSelectionFilter(CustTemplate);
                             DefaultDimMultiple.SetMultiRecord(CustTemplate, FieldNo(Code));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

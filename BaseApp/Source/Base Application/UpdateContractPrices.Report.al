@@ -91,7 +91,7 @@ report 6031 "Update Contract Prices"
                     Clear(ContractPriceUpdateTest);
                     ContractPriceUpdateTest.InitVariables(PriceUpdPct, UpdateToDate);
                     ContractPriceUpdateTest.SetTableView("Service Contract Header");
-                    ContractPriceUpdateTest.RunModal;
+                    ContractPriceUpdateTest.RunModal();
                     CurrReport.Break();
                 end;
 

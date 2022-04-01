@@ -4,12 +4,10 @@ table 5604 "FA Posting Type Setup"
 
     fields
     {
-        field(1; "FA Posting Type"; Option)
+        field(1; "FA Posting Type"; Enum "FA Posting Type Setup Type")
         {
             Caption = 'FA Posting Type';
             Editable = false;
-            OptionCaption = 'Write-Down,Appreciation,Custom 1,Custom 2';
-            OptionMembers = "Write-Down",Appreciation,"Custom 1","Custom 2";
         }
         field(2; "Depreciation Book Code"; Code[10])
         {

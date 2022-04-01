@@ -39,7 +39,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test Employee Absences by Category Matrix after creation of Employee Absence for Employee.
 
         // 1. Setup: Create Employee and Employee Absence for the Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         CreateEmployeeAbsence(EmployeeAbsence, Employee."No.");
         LibraryVariableStorage.Enqueue(EmployeeAbsence."Quantity (Base)");  // Assign variable for page handler.
@@ -67,7 +67,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test values on Employee Absences page after creation of Employee Absence for Employee.
 
         // 1. Setup: Create Employee and Employee Absence for the Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         CreateEmployeeAbsence(EmployeeAbsence, Employee."No.");
 
@@ -98,9 +98,9 @@ codeunit 136404 "Resource Matrix Management"
         // Test Miscellaneous Articles Overview Matrix after creation of Miscellaneous Article Information for Employee.
 
         // 1. Setup: Create Employee and Miscellaneous Article Information for the Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
-        MiscArticle.FindFirst;
+        MiscArticle.FindFirst();
         LibraryHumanResource.CreateMiscArticleInformation(MiscArticleInformation, Employee."No.", MiscArticle.Code);
         LibraryVariableStorage.Enqueue(Employee."No.");  // Assign variable for page handler.
 
@@ -130,9 +130,9 @@ codeunit 136404 "Resource Matrix Management"
         // Test Confidential Information Overview Matrix after creation of Confidential Information for Employee.
 
         // 1. Setup: Create Employee and Confidential Information for the Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
-        Confidential.FindFirst;
+        Confidential.FindFirst();
         LibraryHumanResource.CreateConfidentialInformation(ConfidentialInformation, Employee."No.", Confidential.Code);
         LibraryVariableStorage.Enqueue(Employee."No.");  // Assign variable for page handler.
 
@@ -161,7 +161,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test Absence Overview by Period Matrix after creation of Employee Absence for Employee.
 
         // 1. Setup: Create Employee and Employee Absence for the Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         CreateEmployeeAbsence(EmployeeAbsence, Employee."No.");
 
@@ -195,7 +195,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test Qualification Overview Matrix after creation of Employee Qualifications for Employee.
 
         // 1. Setup: Create Employee and Employee Qualification for the Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         QualificationCode := CreateEmployeeQualification(Employee."No.");
         LibraryVariableStorage.Enqueue(Employee."No.");  // Assign variable for page handler.
@@ -224,7 +224,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test Absence Overview by Category Matrix after creation of Employee Absence for Employee.
 
         // 1. Setup: Create Employee and Employee Absence for the Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         CreateEmployeeAbsence(EmployeeAbsence, Employee."No.");
         LibraryVariableStorage.Enqueue(EmployeeAbsence."Quantity (Base)");  // Assign variable for page handler.
@@ -254,7 +254,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test the Resource Allocated Per Job Matrix after Resource allocation per Job from Resource Card.
 
         // 1. Setup: Find VAT Posting Setup, create Resource, create Job Planning Line.
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
         CreateJobPlanningLine(Resource."No.");
 
@@ -283,7 +283,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test Resource Group Allocated Per Job Matrix after Resource Group allocation per Job from Resource Group Card.
 
         // 1. Setup: Create Resource Group, create Resource with Resource Group, create Job Planning Line.
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceGroup(ResourceGroup);
         CreateResourceWithResourceGroup(Resource, ResourceGroup."No.");
         CreateJobPlanningLine(Resource."No.");
@@ -314,7 +314,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test Resource Allocated Per Service Order Matrix after Resource allocation per Service Order from Resource Card.
 
         // 1. Setup: Create Resource, create Service Order and allocate Resource.
-        Initialize;
+        Initialize();
         CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo);
         LibraryResource.CreateResourceNew(Resource);
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
@@ -352,7 +352,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test Resource Group Allocated Per Service Order Matrix after Resource Group allocation per Service Order from Resource Group Card.
 
         // 1. Setup: Create Resource Group, create Resource with Resource Group, create Service Order and allocate Resource.
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceGroup(ResourceGroup);
         CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo);
         CreateResourceWithResourceGroup(Resource, ResourceGroup."No.");
@@ -386,7 +386,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test Resource availability from Resource Card.
 
         // 1. Setup: Create Resource with Capacity.
-        Initialize;
+        Initialize();
         CreateResourceWithCapacity(Resource);
 
         // 2. Exercise: Run Resource Availability page from Resource Card.
@@ -414,7 +414,7 @@ codeunit 136404 "Resource Matrix Management"
         // Test Resource Group availability from Resource Group Card.
 
         // 1. Setup: Create Resource Group with Capacity and create Resource with Resource Group.
-        Initialize;
+        Initialize();
         CreateResourceGroupWithCapacity(ResourceGroup);
         CreateResourceWithResourceGroup(Resource, ResourceGroup."No.");
 
@@ -442,7 +442,7 @@ codeunit 136404 "Resource Matrix Management"
         i: Integer;
     begin
         // [SCENARIO 377427] Resource Capacity "View by" = Week, "View as" = Net Change.
-        Initialize;
+        Initialize();
         CreateCompanyBaseCalendar(BaseCalendar);
 
         // [GIVEN] Resource Capacity.
@@ -472,7 +472,7 @@ codeunit 136404 "Resource Matrix Management"
         i: Integer;
     begin
         // [SCENARIO 377427] Resource Capacity "View by" = Week, "View as" = Balance at Date.
-        Initialize;
+        Initialize();
         CreateCompanyBaseCalendar(BaseCalendar);
 
         // [GIVEN] Resource Capacity.
@@ -501,7 +501,7 @@ codeunit 136404 "Resource Matrix Management"
         WorkHourTemplate: Record "Work-Hour Template";
     begin
         // [SCENARIO 377427] Resource Capacity "View by" = Week, "View as" = Net Change, zero Work-Hour Template
-        Initialize;
+        Initialize();
         CreateCompanyBaseCalendar(BaseCalendar);
 
         // [GIVEN] Resource Capacity.
@@ -556,7 +556,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         // [FEATURE] [Resource Availability]
         // [SCENARIO 375919] Resource Availability Page should consider "Qty. on Assembly Order"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Resource "R" with Capacity = 12
         Capacity := LibraryRandom.RandDecInRange(10, 100, 2);
@@ -650,7 +650,7 @@ codeunit 136404 "Resource Matrix Management"
         // [SCENARIO 377907] "Resource Capacity" should no be updated when run twice for the same day
 
         // [GIVEN] Resource "X"
-        Initialize;
+        Initialize();
         CreateCompanyBaseCalendar(BaseCalendar);
         LibraryResource.CreateResourceNew(Resource);
 
@@ -678,7 +678,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         // [FEATURE] [Resource Capacity] [UI]
         // [SCENARIO 377907] "Resource Capacity" should be updated when increase work-hour template capacity for current date
-        Initialize;
+        Initialize();
         CreateCompanyBaseCalendar(BaseCalendar);
         // [GIVEN] Resource "X"
         // [GIVEN] Work Hour Template with Day = 1 for date "Y", capacity = 1
@@ -707,7 +707,7 @@ codeunit 136404 "Resource Matrix Management"
         // [SCENARIO 377907] "Resource Capacity" should not be updated for nonworking day
 
         // [GIVEN] Resource "X"
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
         CreateCompanyBaseCalendar(BaseCalendar);
 
@@ -741,7 +741,7 @@ codeunit 136404 "Resource Matrix Management"
         // [SCENARIO 377907] "Resource Capacity" should be zero out when update capacity for non-working day after switch from working
 
         // [GIVEN] Resource "X"
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
         CreateCompanyBaseCalendar(BaseCalendar);
 
@@ -778,7 +778,7 @@ codeunit 136404 "Resource Matrix Management"
         // [SCENARIO 377907] It should be not possible to reverse more capacity then was set for Working day after switch to non-working
 
         // [GIVEN] Resource "X"
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
         // [GIVEN] Company's base calendar is defined, where  date "Y" is a working date
         CreateCompanyBaseCalendar(BaseCalendar);
@@ -814,7 +814,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         // [FEATURE] [Resource Capacity] [UI]
         // [SCENARIO 379406] "Resource Capacity" can be updated to the value with decimals
-        Initialize;
+        Initialize();
 
         // [GIVEN] Resource "X"
         // [GIVEN] New Work Hour Template with Capacity = 1
@@ -835,14 +835,14 @@ codeunit 136404 "Resource Matrix Management"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Resource Matrix Management");
         // Clear global variables.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Matrix Management");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -865,7 +865,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         // Test Allocated Hours, Date and "Availability after Orders" after doing Partial Allocation on Res. Group Availability page.
         // 1. Setup: Create Resource Group and Resource Group capacity.
-        Initialize;
+        Initialize();
         QtyToAllocate := LibraryRandom.RandDec(100, 2);  // For Partial Allocation Qty To Allocate is less than capacity.
         ResourceGroupNo := UpdateResourceGroupWithCapacity(Capacity);
         LibraryVariableStorage.Enqueue(ResourceGroupNo);
@@ -898,7 +898,7 @@ codeunit 136404 "Resource Matrix Management"
         EmployeeQualification: Record "Employee Qualification";
         Qualification: Record Qualification;
     begin
-        Qualification.FindFirst;
+        Qualification.FindFirst();
         LibraryHumanResource.CreateEmployeeQualification(EmployeeQualification, EmployeeNo);
         EmployeeQualification.Validate("Qualification Code", Qualification.Code);
         EmployeeQualification.Modify(true);
@@ -1051,7 +1051,7 @@ codeunit 136404 "Resource Matrix Management"
         ResCapacityEntry: Record "Res. Capacity Entry";
     begin
         with ResCapacityEntry do begin
-            FindLast;
+            FindLast();
             "Entry No." += 1;
             "Resource No." := ResourceNo;
             Capacity := NewCapacity;
@@ -1066,7 +1066,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         with AssemblyLine do begin
             "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             Type := Type::Resource;
             "No." := ResourceNo;
             "Remaining Quantity (Base)" := NewQuantity;
@@ -1083,7 +1083,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
         with CauseOfAbsence do begin
             if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst;
+                HumanResourceUnitOfMeasure.FindFirst();
                 Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
                 Modify(true);
             end;
@@ -1126,7 +1126,7 @@ codeunit 136404 "Resource Matrix Management"
     var
         ResourceCapacitySettings: TestPage "Resource Capacity Settings";
     begin
-        ResourceCapacitySettings.OpenNew;
+        ResourceCapacitySettings.OpenNew();
         ResourceCapacitySettings.FILTER.SetFilter("No.", ResourceNo);
         ResourceCapacitySettings.StartDate.SetValue(StartDate);
         ResourceCapacitySettings.EndDate.SetValue(EndDate);
@@ -1139,7 +1139,7 @@ codeunit 136404 "Resource Matrix Management"
         ServiceOrderAllocation: Record "Service Order Allocation";
     begin
         ServiceOrderAllocation.SetRange("Document No.", DocumentNo);
-        ServiceOrderAllocation.FindFirst;
+        ServiceOrderAllocation.FindFirst();
         ServiceOrderAllocation.Validate("Resource Group No.", ResourceGroupNo);
         ServiceOrderAllocation.Modify(true);
     end;
@@ -1149,7 +1149,7 @@ codeunit 136404 "Resource Matrix Management"
         ServiceOrderAllocation: Record "Service Order Allocation";
     begin
         ServiceOrderAllocation.SetRange("Document No.", DocumentNo);
-        ServiceOrderAllocation.FindFirst;
+        ServiceOrderAllocation.FindFirst();
         ServiceOrderAllocation.TestField("Allocated Hours", AllocatedHours);
         ServiceOrderAllocation.TestField("Allocation Date", WorkDate);
     end;

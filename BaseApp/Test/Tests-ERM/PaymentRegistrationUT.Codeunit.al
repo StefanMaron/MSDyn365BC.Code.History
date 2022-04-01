@@ -58,7 +58,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
 
@@ -83,7 +83,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         TempPaymentRegistrationBuffer.Init();
         TempPaymentRegistrationBuffer."Remaining Amount" := LibraryRandom.RandDec(100, 2);
@@ -107,7 +107,7 @@ codeunit 134700 "Payment Registration UT"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         FirstEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Create Open Entries
         FirstEntryNo := CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, true);
@@ -171,7 +171,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         PaymentRegistrationPage: TestPage "Payment Registration";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
 
         PaymentRegistrationPage.OpenView;
@@ -191,7 +191,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         PaymentRegistrationPage: TestPage "Payment Registration";
     begin
-        Initialize;
+        Initialize();
 
         PaymentRegistrationPage.OpenView;
         PaymentRegistrationPage.Setup.Invoke;
@@ -215,7 +215,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentMethod: Record "Payment Method";
     begin
         // [SCENARIO 412300] "Payment Method Code" must be filled if "Cust. Ledger Entry"."Payment Method Code" has value
-        Initialize;
+        Initialize();
 
         CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -247,14 +247,14 @@ codeunit 134700 "Payment Registration UT"
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.ModifyAll(Open, false);
         Commit();
 
-        asserterror CustLedgEntry.FindFirst;
-        asserterror TempPaymentRegistrationBuffer.FindFirst;
+        asserterror CustLedgEntry.FindFirst();
+        asserterror TempPaymentRegistrationBuffer.FindFirst();
         TempPaymentRegistrationBuffer.PopulateTable
     end;
 
@@ -264,7 +264,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         Assert.IsTrue(PaymentRegistrationSetup.ValidateMandatoryFields(true), MandatoryFieldsSetErr);
     end;
@@ -275,7 +275,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         Assert.IsTrue(PaymentRegistrationSetup.ValidateMandatoryFields(false), MandatoryFieldsSetErr);
     end;
@@ -286,7 +286,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Journal Template Name" := '';
         PaymentRegistrationSetup.Modify();
@@ -301,7 +301,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Journal Batch Name" := '';
         PaymentRegistrationSetup.Modify();
@@ -316,7 +316,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Bal. Account Type" := PaymentRegistrationSetup."Bal. Account Type"::" ";
         PaymentRegistrationSetup.Modify();
@@ -331,7 +331,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Bal. Account No." := '';
         PaymentRegistrationSetup.Modify();
@@ -376,7 +376,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."No. Series" := '';
@@ -392,7 +392,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Journal Template Name" := '';
         PaymentRegistrationSetup.Modify();
@@ -405,7 +405,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Journal Batch Name" := '';
         PaymentRegistrationSetup.Modify();
@@ -418,7 +418,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Bal. Account Type" := PaymentRegistrationSetup."Bal. Account Type"::" ";
         PaymentRegistrationSetup.Modify();
@@ -431,7 +431,7 @@ codeunit 134700 "Payment Registration UT"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Bal. Account No." := '';
         PaymentRegistrationSetup.Modify();
@@ -445,7 +445,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."No. Series" := '';
@@ -460,11 +460,11 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
-        GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo;
+        GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo();
         GenJournalBatch.Modify();
 
         PaymentRegistrationSetup.Validate("Journal Batch Name", GenJournalBatch.Name);
@@ -479,7 +479,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
@@ -498,7 +498,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::Customer;
@@ -515,7 +515,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
@@ -532,7 +532,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
@@ -549,7 +549,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
@@ -571,7 +571,7 @@ codeunit 134700 "Payment Registration UT"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
         EntryNo := CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
@@ -607,7 +607,7 @@ codeunit 134700 "Payment Registration UT"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
         EntryNo := CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
@@ -620,7 +620,7 @@ codeunit 134700 "Payment Registration UT"
             Assert.AreEqual(1, Count, ReloadCountErr);
             Reload;
             Assert.AreEqual(1, Count, ReloadCountErr);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(EntryNo, "Ledger Entry No.", ReloadCountErr);
         end;
     end;
@@ -631,7 +631,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         with TempPaymentRegistrationBuffer do begin
             PopulateTable;
@@ -649,14 +649,14 @@ codeunit 134700 "Payment Registration UT"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         PositionBeforeReload: Text;
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
         CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
 
         with TempPaymentRegistrationBuffer do begin
             PopulateTable;
-            FindLast;
+            FindLast();
             PositionBeforeReload := GetPosition;
             Reload;
             Assert.AreEqual(PositionBeforeReload, GetPosition, ReloadCurrRecErr);
@@ -671,7 +671,7 @@ codeunit 134700 "Payment Registration UT"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         with TempPaymentRegistrationBuffer do begin
             CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
@@ -689,7 +689,7 @@ codeunit 134700 "Payment Registration UT"
         AmountReceived: Decimal;
         RemainingAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         AmountReceived := LibraryRandom.RandDec(100, 2);
         RemainingAmount := AmountReceived + 1;
@@ -704,7 +704,7 @@ codeunit 134700 "Payment Registration UT"
         AmountReceived: Decimal;
         RemainingAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         AmountReceived := LibraryRandom.RandDec(100, 2);
         RemainingAmount := AmountReceived;
@@ -718,7 +718,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
@@ -735,7 +735,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
@@ -754,7 +754,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
@@ -772,7 +772,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
@@ -791,7 +791,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
@@ -822,7 +822,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
         with TempPaymentRegistrationBuffer do begin
@@ -839,7 +839,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
@@ -856,7 +856,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
@@ -874,7 +874,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
@@ -892,7 +892,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
@@ -910,7 +910,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         SetAutoFillDate;
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
@@ -928,7 +928,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Pmt. Discount Date" := "Date Received" - LibraryRandom.RandInt(5);
@@ -943,7 +943,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Due Date" := "Date Received" - LibraryRandom.RandInt(5);
@@ -957,7 +957,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Pmt. Discount Date" := "Date Received" + LibraryRandom.RandInt(5);
@@ -971,7 +971,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Date Received" := "Pmt. Discount Date" + LibraryRandom.RandInt(5);
@@ -985,7 +985,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Date Received" := "Pmt. Discount Date" + LibraryRandom.RandInt(5);
@@ -1000,7 +1000,7 @@ codeunit 134700 "Payment Registration UT"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Date Received" := "Pmt. Discount Date" + LibraryRandom.RandInt(5);
@@ -1034,7 +1034,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         PmtReg: TestPage "Payment Registration";
     begin
-        Initialize;
+        Initialize();
 
         with PaymentRegistrationSetup do begin
             Get(UserId);
@@ -1057,7 +1057,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         PmtReg: TestPage "Payment Registration";
     begin
-        Initialize;
+        Initialize();
 
         with PaymentRegistrationSetup do begin
             Get(UserId);
@@ -1121,7 +1121,7 @@ codeunit 134700 "Payment Registration UT"
         ReminderHeader: Record "Reminder Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupReminder(ReminderHeader);
@@ -1145,7 +1145,7 @@ codeunit 134700 "Payment Registration UT"
         ReminderHeader: Record "Reminder Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupReminder(ReminderHeader);
@@ -1166,7 +1166,7 @@ codeunit 134700 "Payment Registration UT"
         ReminderHeader: Record "Reminder Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupReminder(ReminderHeader);
@@ -1187,7 +1187,7 @@ codeunit 134700 "Payment Registration UT"
         ReminderHeader: Record "Reminder Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupReminder(ReminderHeader);
@@ -1209,7 +1209,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
         TolerancePct: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupReminder(ReminderHeader);
@@ -1240,7 +1240,7 @@ codeunit 134700 "Payment Registration UT"
         ReminderHeader: Record "Reminder Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupReminder(ReminderHeader);
@@ -1262,7 +1262,7 @@ codeunit 134700 "Payment Registration UT"
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupFinanceChargeMemo(FinanceChargeMemoHeader);
@@ -1286,7 +1286,7 @@ codeunit 134700 "Payment Registration UT"
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupFinanceChargeMemo(FinanceChargeMemoHeader);
@@ -1307,7 +1307,7 @@ codeunit 134700 "Payment Registration UT"
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupFinanceChargeMemo(FinanceChargeMemoHeader);
@@ -1330,7 +1330,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
         TolerancePct: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupFinanceChargeMemo(FinanceChargeMemoHeader);
@@ -1363,7 +1363,7 @@ codeunit 134700 "Payment Registration UT"
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupFinanceChargeMemo(FinanceChargeMemoHeader);
@@ -1808,7 +1808,7 @@ codeunit 134700 "Payment Registration UT"
         DocumentSearch: TestPage "Document Search";
         Tolerance: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         Tolerance := LibraryRandom.RandDec(100, 2);
@@ -1830,7 +1830,7 @@ codeunit 134700 "Payment Registration UT"
     var
         DocumentSearch: TestPage "Document Search";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         DocumentSearch.OpenEdit;
@@ -1849,7 +1849,7 @@ codeunit 134700 "Payment Registration UT"
     var
         DocumentSearch: TestPage "Document Search";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         DocumentSearch.OpenEdit;
@@ -1911,7 +1911,7 @@ codeunit 134700 "Payment Registration UT"
         ActualPosted: Decimal;
         ActualUnposted: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostedAmount := LibraryRandom.RandDec(100, 2);
@@ -1944,7 +1944,7 @@ codeunit 134700 "Payment Registration UT"
         ActualPosted: Decimal;
         ActualUnposted: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostedAmount := LibraryRandom.RandDec(100, 2);
@@ -1970,14 +1970,14 @@ codeunit 134700 "Payment Registration UT"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Payment Registration UT");
         SetPaymentRegistrationSetup(PaymentRegistrationSetup."Bal. Account Type"::"Bank Account");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Payment Registration UT");
         MaxPaymentDiscountAmount := 50;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Payment Registration UT");
@@ -1990,7 +1990,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         ServiceLine.SetFilter("Document No.", ServiceNo);
         ServiceTotal := 0;
-        if ServiceLine.FindSet then begin
+        if ServiceLine.FindSet() then begin
             repeat
                 ServiceTotal := ServiceTotal + ServiceLine."Amount Including VAT";
             until ServiceLine.Next = 0;
@@ -2012,7 +2012,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentMethod: Record "Payment Method";
     begin
         with CustLedgerEntry do begin
-            if FindLast then;
+            if FindLast() then;
             Init;
             "Entry No." += 1;
             "Customer No." := CreateCustomer;
@@ -2098,7 +2098,7 @@ codeunit 134700 "Payment Registration UT"
     var
         EntryNo: Integer;
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         EntryNo := GLEntry."Entry No.";
         GLEntry.Init();
         GLEntry."Entry No." := EntryNo + 1;
@@ -2111,7 +2111,7 @@ codeunit 134700 "Payment Registration UT"
     var
         EntryNo: Integer;
     begin
-        BankAccLedgerEntry.FindLast;
+        BankAccLedgerEntry.FindLast();
         EntryNo := BankAccLedgerEntry."Entry No.";
         BankAccLedgerEntry.Init();
         BankAccLedgerEntry."Entry No." := EntryNo + 1;
@@ -2142,7 +2142,7 @@ codeunit 134700 "Payment Registration UT"
                 "Bal. Account Type"::"Bank Account":
                     "Bal. Account No." := CreateBankAccount;
                 "Bal. Account Type"::"G/L Account":
-                    "Bal. Account No." := LibraryERM.CreateGLAccountNo;
+                    "Bal. Account No." := LibraryERM.CreateGLAccountNo();
             end;
             "Bal. Account Type" := AccountType;
             "Journal Template Name" := CreateGenJournalTemplate;
@@ -2228,7 +2228,7 @@ codeunit 134700 "Payment Registration UT"
         SalesHeader: Record "Sales Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesHeader(SalesHeader, DocumentType);
@@ -2252,7 +2252,7 @@ codeunit 134700 "Payment Registration UT"
         SalesHeader: Record "Sales Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesHeader(SalesHeader, DocumentType);
@@ -2272,7 +2272,7 @@ codeunit 134700 "Payment Registration UT"
         SalesHeader: Record "Sales Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesHeader(SalesHeader, DocumentType);
@@ -2293,7 +2293,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
         TolerancePct: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesHeader(SalesHeader, DocumentType);
@@ -2323,7 +2323,7 @@ codeunit 134700 "Payment Registration UT"
         SalesHeader: Record "Sales Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupSalesHeader(SalesHeader, DocumentType);
@@ -2343,7 +2343,7 @@ codeunit 134700 "Payment Registration UT"
         ServiceHeader: Record "Service Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupServiceHeader(ServiceHeader, DocumentType);
@@ -2367,7 +2367,7 @@ codeunit 134700 "Payment Registration UT"
         ServiceHeader: Record "Service Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupServiceHeader(ServiceHeader, DocumentType);
@@ -2387,7 +2387,7 @@ codeunit 134700 "Payment Registration UT"
         ServiceHeader: Record "Service Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupServiceHeader(ServiceHeader, DocumentType);
@@ -2408,7 +2408,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
         TolerancePct: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupServiceHeader(ServiceHeader, DocumentType);
@@ -2438,7 +2438,7 @@ codeunit 134700 "Payment Registration UT"
         ServiceHeader: Record "Service Header";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupServiceHeader(ServiceHeader, DocumentType);

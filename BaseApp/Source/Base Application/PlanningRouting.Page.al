@@ -210,7 +210,7 @@ page 99000863 "Planning Routing"
                           "Worksheet Line No.");
 
                         TrackingForm.SetReqLine(ReqLine);
-                        TrackingForm.RunModal;
+                        TrackingForm.RunModal();
                     end;
                 }
             }

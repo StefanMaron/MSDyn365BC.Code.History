@@ -157,6 +157,14 @@ table 5054 "Contact Business Relation"
         exit(RecordRead);
     end;
 
+    procedure GetLinkedTables(FromLinkToTable: Enum "Contact Business Relation Link To Table"; FromNo: Code[20]; ToLinkToTable: Enum "Contact Business Relation Link To Table"): Code[20];
+    begin
+        SetLoadFields("Contact No.", "Link to Table");
+        if FindByRelation(FromLinkToTable, FromNo) then
+            if FindByContact(ToLinkToTable, "Contact No.") then
+                exit("No.");
+    end;
+
     procedure FindByContact(LinkType: Enum "Contact Business Relation Link To Table"; ContactNo: Code[20]): Boolean
     begin
         Reset;
@@ -217,7 +225,7 @@ table 5054 "Contact Business Relation"
                         else
                             OnFindOrRestoreContactBusinessRelationCaseElse(RecVar);
                     end;
-                    FindFirst;
+                    FindFirst();
                     Cont.Validate("Company No.", "Contact No.");
                     Cont.Modify(true);
                 end;

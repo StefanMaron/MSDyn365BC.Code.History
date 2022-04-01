@@ -58,7 +58,7 @@ table 5123 "Inter. Log Entry Comment Line"
     begin
         InteractionCommentLine.SetRange("Entry No.", "Entry No.");
         InteractionCommentLine.SetRange(Date, WorkDate);
-        if not InteractionCommentLine.FindFirst then
+        if not InteractionCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, InteractionCommentLine);

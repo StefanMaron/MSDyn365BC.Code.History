@@ -149,9 +149,9 @@ codeunit 134299 "Test Partner Integration Event"
 
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryERMCountryData.InitializeCountry;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         IsInitialized := true;
     end;
 
@@ -167,7 +167,7 @@ codeunit 134299 "Test Partner Integration Event"
         with EventSubscription do begin
             SetRange(Active, false);
             InactiveEventsCounter := Count;
-            if FindSet then
+            if FindSet() then
                 repeat
                     InactiveSubscribers += StrSubstNo(' %1.%2', "Subscriber Codeunit ID", "Subscriber Function");
                 until Next = 0;
@@ -188,7 +188,7 @@ codeunit 134299 "Test Partner Integration Event"
         with EventSubscription do begin
             SetFilter("Error Information", '<>%1', '');
             ErrorEventsCounter := Count;
-            if FindSet then
+            if FindSet() then
                 repeat
                     SubscribersWithError += StrSubstNo(' %1.%2="%3"', "Subscriber Codeunit ID", "Subscriber Function", "Error Information");
                 until Next = 0;
@@ -207,7 +207,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Check Line" will trigger the integration event OnAfterGenJournalCheckLine.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForBank(GenJournalLine);
 
@@ -228,7 +228,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Post Line" will trigger the integration event OnBeforeGenJournalLinePost.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForBank(GenJournalLine);
 
@@ -249,7 +249,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Post Line" will trigger the integration event OnBeforeGenJournalLinePost.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // G/L Account
@@ -284,7 +284,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Post Line" will trigger the integration event OnBeforeGenJournalLinePost.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForGLAcc(GenJournalLine);
 
@@ -325,7 +325,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Post Line" will trigger the integration event OnAfterGLRegisterInit.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForBank(GenJournalLine);
 
@@ -346,7 +346,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Post Line" will trigger the integration event OnAfterGlobalGLEntryInsert.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForBank(GenJournalLine);
 
@@ -367,7 +367,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Post Line" will trigger the integration event OnBeforeGLEntryBufferInsert.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForBank(GenJournalLine);
 
@@ -388,7 +388,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Post Line" will trigger the integration event OnAfterCopyGLEntryFromGenJnlLine.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForBank(GenJournalLine);
 
@@ -409,7 +409,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Post Line" will trigger the integration event OnAfterCopyCustLedgerEntryFromGenJnlLine.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForCustomer(GenJournalLine);
 
@@ -430,7 +430,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Gen. Jnl.-Post Line" will trigger the integration event OnAfterCopyVendLedgerEntryFromGenJnlLine.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForVendor(GenJournalLine);
 
@@ -451,7 +451,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Check Line" will trigger the integration event OnAfterItemJnlCheckLine.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase);
 
@@ -473,7 +473,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Release Sales Document" will trigger the integration event OnBeforeReleaseSalesDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
 
@@ -494,7 +494,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Release Sales Document" will trigger the integration event OnBeforeReleaseSalesDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
 
@@ -515,7 +515,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Release Sales Document" will trigger the integration event OnAfterReleaseSalesDoc.
 
         // Setup
-        Initialize;
+        Initialize();
 
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
@@ -538,7 +538,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Release Sales Document" will trigger the integration event OnAfterReleaseSalesDoc.
 
         // Setup
-        Initialize;
+        Initialize();
 
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
@@ -561,7 +561,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the reopen function in the codeunit "Release Sales Document" will trigger the integration event OnBeforeReopenSalesDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
         ReleaseSalesDocument.PerformManualRelease(SalesHeader);
@@ -584,7 +584,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the reopen function in the codeunit "Release Sales Document" will trigger the integration event OnBeforeReopenSalesDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
         ReleaseSalesDocument.PerformManualRelease(SalesHeader);
@@ -607,7 +607,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the reopen function in the codeunit "Release Sales Document" will trigger the integration event OnAfterReopenSalesDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
         ReleaseSalesDocument.PerformManualRelease(SalesHeader);
@@ -630,7 +630,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the reopen function in the codeunit "Release Sales Document" will trigger the integration event OnAfterReopenSalesDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
         ReleaseSalesDocument.PerformManualRelease(SalesHeader);
@@ -653,7 +653,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Release Purchase Document" will trigger the integration event OnBeforeReleasePurchaseDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -674,7 +674,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Release Purchase Document" will trigger the integration event OnBeforeReleasePurchaseDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -695,7 +695,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Release Purchase Document" will trigger the integration event OnAfterReleasePurchaseDoc.
 
         // Setup
-        Initialize;
+        Initialize();
 
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
@@ -718,7 +718,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Release Purchase Document" will trigger the integration event OnAfterReleasePurchaseDoc.
 
         // Setup
-        Initialize;
+        Initialize();
 
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
@@ -741,7 +741,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the reopen function in the codeunit "Release Purchase Document" will trigger the integration event OnBeforeReopenPurchaseDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
         ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
@@ -764,7 +764,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the reopen function in the codeunit "Release Purchase Document" will trigger the integration event OnBeforeReopenPurchaseDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
         ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
@@ -787,7 +787,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the reopen function in the codeunit "Release Purchase Document" will trigger the integration event OnAfterReopenPurchaseDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
         ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
@@ -810,7 +810,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the reopen function in the codeunit "Release Purchase Document" will trigger the integration event OnAfterReopenPurchaseDoc.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
         ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
@@ -832,7 +832,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnBeforeSalesDocPost.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
 
@@ -853,7 +853,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnBeforeSalesDocPostCommit.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
 
@@ -874,7 +874,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnAfterSalesDocPost.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
 
@@ -895,7 +895,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnAfterCheckMandatoryFieldsTxt.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
 
@@ -916,7 +916,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnAfterUpdatePostingNos.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
 
@@ -939,7 +939,7 @@ codeunit 134299 "Test Partner Integration Event"
         // OnBeforePostBalancingEntryTxt, OnBeforePostCustomerEntryTxt, OnBeforePostInvPostBufferTxt
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
         LibraryERM.CreatePaymentMethodWithBalAccount(PaymentMethod);
@@ -971,7 +971,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnBeforeSalesInvHeaderInsert.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesInvoice(SalesHeader);
 
@@ -994,7 +994,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnBeforeSalesCrMemoHeaderInsert.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesCrMemo(SalesHeader);
 
@@ -1017,7 +1017,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnBeforeSalesShptHeaderInsert.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesOrder(SalesHeader);
 
@@ -1039,7 +1039,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnAfterUpdatePostingNos.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesReturn(SalesHeader);
 
@@ -1062,7 +1062,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Create Sales Invoice will trigger the integration events in Sales Header/Line tables.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // Exercise
@@ -1087,7 +1087,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Assign field No. in Sales Line will trigger the integration events per line type.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // Exercise
@@ -1133,7 +1133,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Purch.-Post" will trigger the integration event OnBeforePurchaseDocPost.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -1154,7 +1154,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Purch.-Post" will trigger the integration event OnBeforePurchaseDocPostCommit.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -1175,7 +1175,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Purch.-Post" will trigger the integration event OnAfterPurchaseDocPost.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -1196,7 +1196,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Purch.-Post" will trigger the integration event OnAfterCheckMandatoryFieldsTxt.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -1217,7 +1217,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Purch.-Post" will trigger the integration event OnAfterUpdatePostingNos.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -1240,7 +1240,7 @@ codeunit 134299 "Test Partner Integration Event"
         // OnBeforePostBalancingEntryTxt, OnBeforePostCustomerEntryTxt, OnBeforePostInvPostBufferTxt
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
         LibraryERM.CreatePaymentMethodWithBalAccount(PaymentMethod);
@@ -1272,7 +1272,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnBeforeSalesInvHeaderInsert.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -1295,7 +1295,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Purch.-Post" will trigger the integration event OnBeforeSalesCrMemoHeaderInsert.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseCrMemo(PurchaseHeader);
 
@@ -1318,7 +1318,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Purch.-Post" will trigger the integration event OnBeforeSalesShptHeaderInsert.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseOrder(PurchaseHeader);
 
@@ -1340,7 +1340,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration event OnAfterUpdatePostingNos.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseReturn(PurchaseHeader);
 
@@ -1363,7 +1363,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Create Purchase Invoice will trigger the integration events in Sales Header/Line tables.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // Exercise
@@ -1388,7 +1388,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Assign field No. in Purchase Line will trigger the integration events per line type.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // Exercise
@@ -1433,7 +1433,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Calc. Discount" will trigger the integration event OnBeforeSalesCalcDiscount.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesHeaderAndLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
 
@@ -1455,7 +1455,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Sales-Calc. Discount" will trigger the integration event OnAfterSalesCalcDiscount.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateSalesHeaderAndLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
 
@@ -1477,7 +1477,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Purch.-Calc.Discount" will trigger the integration event OnBeforePurchaseCalcDiscount.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseHeaderAndLine(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
 
@@ -1499,7 +1499,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Purch.-Calc.Discount" will trigger the integration event OnAfterPurchaseCalcDiscount.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseHeaderAndLine(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
 
@@ -1520,7 +1520,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnBeforeItemJnlPostLine.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase);
 
@@ -1541,7 +1541,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnAfterItemJnlPostLine.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase);
 
@@ -1562,7 +1562,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnBeforeInsertTransferEntry.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.");
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Line", ItemJournalLine);
@@ -1585,7 +1585,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnAfterInitItemLedgEntry.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase);
 
@@ -1606,7 +1606,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnAfterInsertItemLedgEntry.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase);
 
@@ -1627,7 +1627,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnBeforeInsertValueEntry.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase);
 
@@ -1648,7 +1648,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnAfterInsertValueEntry.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase);
 
@@ -1670,7 +1670,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnBeforeInsertCorrItemLedgEntry.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseOrder(PurchaseHeader);
         PurchaseReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1693,7 +1693,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnAfterInsertCorrItemLedgEntry.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseOrder(PurchaseHeader);
         PurchaseReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1716,7 +1716,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnBeforeInsertCorrValueEntry.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseOrder(PurchaseHeader);
         PurchaseReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1738,7 +1738,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [SCENARIO] Calling the codeunit "Item Jnl.-Post Line" will trigger the integration event OnAfterInsertCorrValueEntry.
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
         CreatePurchaseOrder(PurchaseHeader);
         PurchaseReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1753,17 +1753,23 @@ codeunit 134299 "Test Partner Integration Event"
     [Scope('OnPrem')]
     procedure TestOnAfterNavigateFindRecords()
     var
+        GLEntry: Record "G/L Entry";
         TestPartnerIntegrationEvent: Codeunit "Test Partner Integration Event";
         Navigate: TestPage Navigate;
     begin
         // [SCENARIO] When using the Navigate page for find records, events are raised to include Custom records.
+        if not GLEntry.FindFirst() then
+            exit; // Nothing to find
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // Exercise
         Navigate.OpenEdit;
+        Navigate.FindByDocument.Invoke();
+        Navigate.DocNoFilter.SetValue(GLEntry."Document No.");
+        Navigate.PostingDateFilter.SetValue(Format(GLEntry."Posting Date"));
         Navigate.Find.Invoke;
 
         // Verify
@@ -1774,18 +1780,23 @@ codeunit 134299 "Test Partner Integration Event"
     [Scope('OnPrem')]
     procedure TestOnAfterNavigateShowRecords()
     var
+        GLEntry: Record "G/L Entry";
         TestPartnerIntegrationEvent: Codeunit "Test Partner Integration Event";
         Navigate: TestPage Navigate;
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
         // [SCENARIO] When using the Navigate page for show records, events are raised to include Custom records.
+        if not GLEntry.FindFirst() then
+            exit; // Nothing to find
 
         // Setup
-        Initialize;
+        Initialize();
         BindSubscription(TestPartnerIntegrationEvent);
 
         // Exercise
         Navigate.OpenEdit;
+        Navigate.DocNoFilter.SetValue(GLEntry."Document No.");
+        Navigate.PostingDateFilter.SetValue(Format(GLEntry."Posting Date"));
         Navigate.Find.Invoke;
         Navigate.First;
         GeneralLedgerEntries.Trap;
@@ -1805,7 +1816,7 @@ codeunit 134299 "Test Partner Integration Event"
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
         // [SCENARIO 210929] Calling the codeunit "Gen. Jnl.-Check Line" will trigger the integration event OnAfterGenJournalCheckLine if OverrideDimErr = TRUE.
-        Initialize;
+        Initialize();
 
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForBank(GenJournalLine);
@@ -1823,7 +1834,7 @@ codeunit 134299 "Test Partner Integration Event"
         TestPartnerIntegrationEvent: Codeunit "Test Partner Integration Event";
     begin
         // [SCENARIO 230201] With integration event OnCheckPostingCostToGL in codeunit "Item Jnl.-Post Line" you can insert an additional condition to turning on/off automatic cost posting to G/L.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Automatic Cost Posting" is set to TRUE in Inventory Setup.
         BindSubscription(TestPartnerIntegrationEvent);
@@ -1840,7 +1851,7 @@ codeunit 134299 "Test Partner Integration Event"
 
         // [WHEN] Amount "Q" * "X" is posted to value entry, but not to G/L entry.
         ValueEntry.SetRange("Item No.", ItemJournalLine."Item No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Cost Amount (Actual)", ItemJournalLine.Quantity * ItemJournalLine."Unit Amount");
         ValueEntry.TestField("Cost Posted to G/L", 0);
     end;
@@ -1855,7 +1866,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [FEATURE] [Booking] [Sales] [Invoice]
         // [SCENARIO 298582] Integration event OnSetBookingItemInvoiced in codeunit "Booking Manager" is not executed in case of temporary Sales Header
 
-        Initialize;
+        Initialize();
         SetBookingMgrSetup;
         BindSubscription(TestPartnerIntegrationEvent);
 
@@ -1883,7 +1894,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [FEATURE] [Booking] [Sales] [Invoice]
         // [SCENARIO 298582] Integration event OnSetBookingItemInvoiced in codeunit "Booking Manager" is not executed in case of temporary Sales Line
 
-        Initialize;
+        Initialize();
         SetBookingMgrSetup;
         BindSubscription(TestPartnerIntegrationEvent);
 
@@ -1913,7 +1924,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [FEATURE] [Booking] [Sales] [Invoice]
         // [SCENARIO 298582] Integration event OnSetBookingItemInvoiced in codeunit "Booking Manager" is executed in case of non-temporary Sales Invoice
 
-        Initialize;
+        Initialize();
         SetBookingMgrSetup;
         BindSubscription(TestPartnerIntegrationEvent);
 
@@ -1941,7 +1952,7 @@ codeunit 134299 "Test Partner Integration Event"
         // [FEATURE] [Booking] [Sales] [Invoice]
         // [SCENARIO 298582] Integration event OnSetBookingItemInvoiced in codeunit "Booking Manager" is executed in case of non-temporary Sales Invoice Line
 
-        Initialize;
+        Initialize();
         SetBookingMgrSetup;
         BindSubscription(TestPartnerIntegrationEvent);
 
@@ -2259,7 +2270,7 @@ codeunit 134299 "Test Partner Integration Event"
     begin
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
-
+#if not CLEAN20
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostBalancingEntry', '', false, false)]
     local procedure OnBeforePostBalancingEntrySalesDoc(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
     begin
@@ -2277,7 +2288,7 @@ codeunit 134299 "Test Partner Integration Event"
     begin
         InsertDataTypeBuffer(OnBeforePostInvPostBufferTxt);
     end;
-
+#endif
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesShptHeaderInsert', '', false, false)]
     local procedure OnBeforeSalesShptHeaderInsert(var SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header")
     begin
@@ -2368,6 +2379,7 @@ codeunit 134299 "Test Partner Integration Event"
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
 
+#if not CLEAN20
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostBalancingEntry', '', false, false)]
     local procedure OnBeforePostBalancingEntryPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
     begin
@@ -2385,7 +2397,7 @@ codeunit 134299 "Test Partner Integration Event"
     begin
         InsertDataTypeBuffer(OnBeforePostInvPostBufferTxt);
     end;
-
+#endif
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchRcptHeaderInsert', '', false, false)]
     local procedure OnBeforePurchRcptHeaderInsert(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchaseHeader: Record "Purchase Header")
     begin
@@ -2772,7 +2784,7 @@ codeunit 134299 "Test Partner Integration Event"
     var
         DataTypeBuffer: Record "Data Type Buffer";
     begin
-        if DataTypeBuffer.FindLast then;
+        if DataTypeBuffer.FindLast() then;
 
         DataTypeBuffer.Init();
         DataTypeBuffer.ID += 1;
@@ -2835,7 +2847,7 @@ codeunit 134299 "Test Partner Integration Event"
     var
         ItemNo: Code[20];
     begin
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateItemJnlLineWithItemNo(ItemJournalLine, ItemJnlLineEntryType, ItemNo, LibraryRandom.RandDecInRange(11, 100, 2));
     end;
 
@@ -2859,7 +2871,7 @@ codeunit 134299 "Test Partner Integration Event"
         Location.SetRange("Require Put-away", false);
         Location.SetRange("Require Receive", false);
         Location.SetRange("Require Shipment", false);
-        Location.FindFirst;
+        Location.FindFirst();
         ItemJournalLine."New Location Code" := Location.Code;
         ItemJournalLine.Modify();
     end;
@@ -2936,7 +2948,7 @@ codeunit 134299 "Test Partner Integration Event"
     begin
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         SalesHeader.Insert();
     end;
 

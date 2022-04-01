@@ -16,7 +16,6 @@ permissionset 132217 "Test Tables"
                   tabledata "Dtld. Entry With Global Dim 2" = RIMD,
                   tabledata "Enabled Test Codeunit" = RIMD,
                   tabledata "Enabled Test Method" = RIMD,
-                  tabledata ExchangeContactMock = RIMD,
                   tabledata "Feature Label Data" = RIMD,
                   tabledata "File Commits" = RIMD,
                   tabledata "Generate Test Data Line" = RIMD,

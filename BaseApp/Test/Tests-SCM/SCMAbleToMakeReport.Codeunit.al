@@ -32,15 +32,15 @@ codeunit 137392 "SCM - Able To Make Report"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM - Able To Make Report");
         // Initialize setup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM - Able To Make Report");
 
         // Setup Demonstration data.
         isInitialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         MfgSetup.Get();
         UpdateMfgSetup('<1D>');
         Commit();
@@ -61,7 +61,7 @@ codeunit 137392 "SCM - Able To Make Report"
         DueDateDelayDateFormula: DateFormula;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         AbleToMake := LibraryRandom.RandIntInRange(10, 25);
 
         LibraryAssembly.SetupPostingToGL(GenProdPostingGroup, InventoryPostingGroup, InventoryPostingGroup, '');
@@ -211,7 +211,7 @@ codeunit 137392 "SCM - Able To Make Report"
     begin
         // [FEATURE] [Item Availability by BOM Level] [Production BOM]
         // [SCENARIO 300845] Item availability by BOM does not show production BOM components with negative Quantity Per.
-        Initialize;
+        Initialize();
 
         QtyPer := LibraryRandom.RandIntInRange(10, 20);
         QtyInStock := QtyPer * LibraryRandom.RandIntInRange(100, 200);
@@ -271,7 +271,7 @@ codeunit 137392 "SCM - Able To Make Report"
         DueDateDelayDateFormula: DateFormula;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         AbleToMake := LibraryRandom.RandIntInRange(10, 25);
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -500,7 +500,7 @@ codeunit 137392 "SCM - Able To Make Report"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     [Normal]
@@ -508,7 +508,7 @@ codeunit 137392 "SCM - Able To Make Report"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     [Normal]
@@ -538,7 +538,7 @@ codeunit 137392 "SCM - Able To Make Report"
         if ProdOrderNo <> '' then begin
             ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
             ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-            if ProdOrderLine.FindFirst then
+            if ProdOrderLine.FindFirst() then
                 ItemAbleToMakeTimeline.InitProdOrder(ProdOrderLine);
         end;
 
@@ -551,7 +551,7 @@ codeunit 137392 "SCM - Able To Make Report"
         Item1.SetRange("No.", ItemNo);
         Item1.SetRange("Location Filter", LocationCode);
         ItemAbleToMakeTimeline.SetTableView(Item1);
-        ItemAbleToMakeTimeline.Run;
+        ItemAbleToMakeTimeline.Run();
     end;
 
     [Normal]
@@ -560,7 +560,7 @@ codeunit 137392 "SCM - Able To Make Report"
         BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
         BOMBuffer.SetFilter(Indentation, '<%1', 1);
         BOMBuffer.SetRange("Is Leaf", false);
-        if BOMBuffer.FindSet then
+        if BOMBuffer.FindSet() then
             repeat
                 RunAbleToMakeReport(BOMBuffer."No.", LocationCode, StartDate, DateInterval, AsmHeaderNo, ProdOrderNo);
                 VerifyValuesForDate(StartDate, BOMBuffer);
@@ -620,11 +620,11 @@ codeunit 137392 "SCM - Able To Make Report"
         if ProdOrderNo <> '' then begin
             ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
             ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-            if ProdOrderLine.FindFirst then
+            if ProdOrderLine.FindFirst() then
                 ItemAvailabilityByBOMLevel.InitProdOrder(ProdOrderLine);
         end;
 
-        ItemAvailabilityByBOMLevel.Run;
+        ItemAvailabilityByBOMLevel.Run();
     end;
 
     [ModalPageHandler]

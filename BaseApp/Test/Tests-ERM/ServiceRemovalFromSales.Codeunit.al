@@ -227,7 +227,7 @@ codeunit 136116 "Service Removal From Sales"
         FieldExist: Boolean;
     begin
         // 1. Setup:
-        Initialize;
+        Initialize();
         // 2. Exercise: Set the filters on Field table for the Table No and Field Name.
         FieldExist := LibraryUtility.CheckFieldExistenceInTable(TableNo, FieldName);
 

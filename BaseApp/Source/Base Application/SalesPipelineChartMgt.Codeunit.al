@@ -9,7 +9,7 @@ codeunit 781 "Sales Pipeline Chart Mgt."
     var
         OppEntry: Record "Opportunity Entry";
     begin
-        if SalesCycleStage.FindSet then begin
+        if SalesCycleStage.FindSet() then begin
             SalesCycleStage.Next(BusinessChartBuffer."Drill-Down X Index");
             OppEntry.SetRange("Sales Cycle Code", SalesCycleStage."Sales Cycle Code");
             OppEntry.SetRange("Sales Cycle Stage", SalesCycleStage.Stage);
@@ -36,7 +36,7 @@ codeunit 781 "Sales Pipeline Chart Mgt."
         TempSalesCycleStage.DeleteAll();
 
         SourceSalesCycleStage.SetRange("Sales Cycle Code", SalesCycle.Code);
-        if SourceSalesCycleStage.FindSet then
+        if SourceSalesCycleStage.FindSet() then
             repeat
                 TempSalesCycleStage := SourceSalesCycleStage;
                 TempSalesCycleStage.Insert();
@@ -46,7 +46,7 @@ codeunit 781 "Sales Pipeline Chart Mgt."
     procedure SetDefaultSalesCycle(var SalesCycle: Record "Sales Cycle"; var NextSalesCycleAvailable: Boolean; var PrevSalesCycleAvailable: Boolean): Boolean
     begin
         OnBeforeSetDefaultSalesCycle(SalesCycle);
-        if not SalesCycle.FindFirst then
+        if not SalesCycle.FindFirst() then
             exit(false);
 
         NextSalesCycleAvailable := TryNextSalesCycle(SalesCycle);
@@ -87,11 +87,11 @@ codeunit 781 "Sales Pipeline Chart Mgt."
         I: Integer;
     begin
         with BusinessChartBuffer do begin
-            Initialize;
+            Initialize();
             AddIntegerMeasure(TempSalesCycleStage.FieldCaption("No. of Opportunities"), 1, "Chart Type"::Funnel);
             SetXAxis(TempSalesCycleStage.TableCaption, "Data Type"::String);
             InsertTempSalesCycleStage(TempSalesCycleStage, SalesCycle);
-            if TempSalesCycleStage.FindSet then begin
+            if TempSalesCycleStage.FindSet() then begin
                 repeat
                     I += 1;
                     AddColumn(TempSalesCycleStage.Description);

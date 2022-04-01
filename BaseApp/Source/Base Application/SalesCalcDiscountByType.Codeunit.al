@@ -94,7 +94,7 @@ codeunit 56 "Sales - Calc Discount By Type"
         with SalesHeader do begin
             SalesLine.SetRange("Document No.", "No.");
             SalesLine.SetRange("Document Type", "Document Type");
-            if SalesLine.FindFirst then begin
+            if SalesLine.FindFirst() then begin
                 if CalcInvoiceDiscountOnSalesLine then
                     SalesCalcDiscount.CalculateInvoiceDiscountOnLine(SalesLine)
                 else

@@ -36,7 +36,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check that Invoice Discount amount calculated on Purchase Credit Memo as per discount mentioned on Vendor.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndVerifyInvoiceDiscForPurchase("Purchase Document Type"::"Credit Memo");
     end;
 
@@ -48,7 +48,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check that Invoice Discount amount calculated on Purchase Invoice as per discount mentioned on Vendor.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndVerifyInvoiceDiscForPurchase("Purchase Document Type"::Invoice);
     end;
 
@@ -60,7 +60,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check that Invoice Discount amount calculated on Purchase Order as per discount mentioned on Vendor.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndVerifyInvoiceDiscForPurchase("Purchase Document Type"::Order);
     end;
 
@@ -72,7 +72,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check that Invoice Discount amount calculated on Sales Credit Memo as per discount mentioned on Customer.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndVerifyInvoiceDiscForSales("Sales Document Type"::"Credit Memo");
     end;
 
@@ -84,7 +84,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check that Invoice Discount amount calculated on Sales Invoice as per discount mentioned on Customer.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndVerifyInvoiceDiscForSales("Sales Document Type"::Invoice);
     end;
 
@@ -131,7 +131,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check Invoice Discount Amount on Sales Lines after entering Invoice Discount Amount in Sales Order Statistics window.
 
         // Setup: Create Sales Order and add new Sales Line.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine);
         CreateAndModifySalesLine(SalesLine2, SalesHeader, SalesLine.Quantity, SalesLine."Unit Price");
 
@@ -164,7 +164,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check Amount on GL Entry after posting Sales Order with partial Invoice.
 
         // Setup: Create Sales Order with Random Unit Price.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine);
         CreateAndModifySalesLine(SalesLine2, SalesHeader, SalesLine.Quantity, SalesLine."Unit Price");
 
@@ -200,7 +200,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check Invoice Discount Amount on Purchase Line after entering Invoice Discount Amount in Purchase Order Statistics window.
 
         // Setup: Create Purchase Order and add new Purchase Line.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
         CreateAndModifyPurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine.Quantity, PurchaseLine."Direct Unit Cost");
 
@@ -232,7 +232,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check Amount on GL Entry after posting Purchase Order with partial Invoice.
 
         // Setup: Create Purchase Order with Random Quantity and Direct Unit Cost.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
         CreateAndModifyPurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine.Quantity, PurchaseLine."Direct Unit Cost");
 
@@ -267,7 +267,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check Invoice Discount Amount on General and Invoicing tab of Sales Order Statistics window after modifying Quantity to Invoice on Sales lines.
 
         // Setup: Create Sales Order with Random Quantity and Unit Price.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine);
         CreateAndModifySalesLine(SalesLine2, SalesHeader, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
         InvoiceDiscountAmount := SalesLine."Line Amount"; // InvoiceDiscountAmount is a global variable and is assigned to make sure discount is less than total Order amount.
@@ -300,7 +300,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Check various VAT fields on Statistics window after modifying Inv. Discount Amount on Invoicing tab.
 
         // Setup: Create Sales Order and use Random for Inv. Discount Amount.
-        Initialize;
+        Initialize();
         CreateSalesDocumentWithVAT(SalesHeader, SalesLine);
         UpdateQtyToInvoice(SalesLine, SalesHeader."No.", SalesLine.Quantity / 2);
         FindSalesLine(SalesLine, SalesHeader."No.", SalesLine."No.");
@@ -338,11 +338,11 @@ codeunit 134079 "ERM Inv Discount by Currency"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Inv Discount by Currency");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Inv Discount by Currency");
@@ -495,21 +495,21 @@ codeunit 134079 "ERM Inv Discount by Currency"
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; No: Code[20])
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure GetSalesInvDiscAmount(SalesLine: Record "Sales Line") TotalInvDiscAmount: Decimal
@@ -586,7 +586,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         VendorInvoiceDisc.SetRange(Code, PurchaseLine."Buy-from Vendor No.");
         VendorInvoiceDisc.SetRange("Currency Code", PurchaseLine."Currency Code");
-        VendorInvoiceDisc.FindFirst;
+        VendorInvoiceDisc.FindFirst();
         Currency.Get(PurchaseLine."Currency Code");
         Currency.InitRoundingPrecision;
         InvDiscountAmount := GetPurchaseInvDiscAmount(PurchaseLine);
@@ -604,7 +604,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         CustInvoiceDisc.SetRange(Code, SalesLine."Sell-to Customer No.");
         CustInvoiceDisc.SetRange("Currency Code", SalesLine."Currency Code");
-        CustInvoiceDisc.FindFirst;
+        CustInvoiceDisc.FindFirst();
         Currency.Get(SalesLine."Currency Code");
         Currency.InitRoundingPrecision;
         InvDiscountAmount := GetSalesInvDiscAmount(SalesLine);

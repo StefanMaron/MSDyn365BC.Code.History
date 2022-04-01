@@ -26,7 +26,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Post Sales Invoice via Job Queue.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice.
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -46,7 +46,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Post Sales Order via Job Queue.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order.
         CreateSalesOrder(SalesHeader);
@@ -67,7 +67,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Post Sales Credit Memo via Job Queue.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo.
         LibrarySales.CreateSalesCreditMemo(SalesHeader);
@@ -87,7 +87,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Post Sales Return Order via Job Queue.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order.
         CreateSalesReturnOrder(SalesHeader);
@@ -109,7 +109,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Post Sales Order via Job Queue in case an error is occured during posting.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with blank "External Document No.".
         CreateSalesOrder(SalesHeader);
@@ -135,7 +135,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Cancel the Job Queue after scheduling Sales Order posting.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order, that is scheduled for posting via Job Queue "J".
         CreateSalesOrder(SalesHeader);
@@ -157,7 +157,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Post Sales Order via Job Queue in case Ship = TRUE, Invoice = FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Ship = TRUE, Invoice = FALSE.
         CreateSalesOrder(SalesHeader);
@@ -178,7 +178,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Post Sales Order in two steps via Job Queue, first Ship, then Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order, that is Shipped, but not Invoiced.
         CreateSalesOrder(SalesHeader);
@@ -203,7 +203,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Post Sales Return Order via Job Queue in case Receive = TRUE, Invoice = FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order with Receive = TRUE, Invoice = FALSE.
         CreateSalesReturnOrder(SalesHeader);
@@ -224,7 +224,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322727] Post Sales Return Order in two steps via Job Queue, first Receive, then Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order, that is Received, but not Invoiced.
         CreateSalesReturnOrder(SalesHeader);
@@ -249,7 +249,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Post Purchase Invoice via Job Queue.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice.
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
@@ -269,7 +269,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Post Purchase Order via Job Queue.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order.
         CreatePurchaseOrder(PurchaseHeader);
@@ -290,7 +290,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Post Purchase Credit Memo via Job Queue.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo.
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
@@ -310,7 +310,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Post Purchase Return Order via Job Queue.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order.
         CreatePurchaseReturnOrder(PurchaseHeader);
@@ -332,7 +332,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Post Purchase Order via Job Queue in case an error is occured during posting.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with blank "Vendor Invoice No.".
         CreatePurchaseOrder(PurchaseHeader);
@@ -358,7 +358,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Cancel the Job Queue after scheduling Purchase Order posting.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order, that is scheduled for posting via Job Queue "J".
         CreatePurchaseOrder(PurchaseHeader);
@@ -380,7 +380,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Post Purchase Order via Job Queue in case Receive = TRUE, Invoice = FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with Receive = TRUE, Invoice = FALSE.
         CreatePurchaseOrder(PurchaseHeader);
@@ -401,7 +401,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Post Purchase Order in two steps via Job Queue, first Receive, then Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order, that is Received, but not Invoiced.
         CreatePurchaseOrder(PurchaseHeader);
@@ -426,7 +426,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Post Purchase Return Order via Job Queue in case Ship = TRUE, Invoice = FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order with Ship = TRUE, Invoice = FALSE.
         CreatePurchaseReturnOrder(PurchaseHeader);
@@ -447,7 +447,7 @@ codeunit 134893 "Background Document Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322727] Post Purchase Return Order in two steps via Job Queue, first Ship, then Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order, that is Shipped, but not Invoiced.
         CreatePurchaseReturnOrder(PurchaseHeader);
@@ -467,14 +467,14 @@ codeunit 134893 "Background Document Posting"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Background Document Posting");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Background Document Posting");
         UpdateSalesAndPurchaseSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         isInitialized := true;
 

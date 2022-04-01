@@ -1,8 +1,12 @@
+#if not CLEAN20
 page 597 "XBRL Comment Lines Part"
 {
     Caption = 'XBRL Comment Lines Part';
     PageType = ListPart;
+    ObsoleteReason = 'XBRL feature will be discontinued';
     SourceTable = "XBRL Comment Line";
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -37,3 +41,5 @@ page 597 "XBRL Comment Lines Part"
     }
 }
 
+
+#endif

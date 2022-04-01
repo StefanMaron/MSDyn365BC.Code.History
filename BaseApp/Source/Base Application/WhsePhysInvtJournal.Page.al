@@ -113,6 +113,7 @@ page 7326 "Whse. Phys. Invt. Journal"
                 field("Qty. (Phys. Inventory) (Base)"; Rec."Qty. (Phys. Inventory) (Base)")
                 {
                     ApplicationArea = Warehouse;
+                    Editable = QtyPhysInventoryBaseIsEditable;
                     ToolTip = 'Specifies the same as for the field in the Item Journal window.';
                     Visible = false;
                 }
@@ -424,18 +425,20 @@ page 7326 "Whse. Phys. Invt. Journal"
         ReportPrint: Codeunit "Test Report-Print";
         CurrentJnlBatchName: Code[10];
         CurrentLocationCode: Code[10];
+
+    protected var
+        ItemDescription: Text[100];
         [InDataSet]
         SerialNoEditable: Boolean;
         [InDataSet]
         LotNoEditable: Boolean;
-
-    protected var
-        ItemDescription: Text[100];
+        QtyPhysInventoryBaseIsEditable: Boolean;
 
     procedure SetControls()
     begin
         SerialNoEditable := not Rec."Phys. Inventory";
         LotNoEditable := not Rec."Phys. Inventory";
+        QtyPhysInventoryBaseIsEditable := Rec.IsQtyPhysInventoryBaseEditable();
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()

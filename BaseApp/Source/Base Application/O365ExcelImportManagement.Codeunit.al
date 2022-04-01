@@ -60,7 +60,7 @@ codeunit 2130 "O365 Excel Import Management"
     local procedure GetLastRowNo(var ExcelBuffer: Record "Excel Buffer"): Integer
     begin
         ExcelBuffer.Reset();
-        ExcelBuffer.FindLast;
+        ExcelBuffer.FindLast();
         exit(ExcelBuffer."Row No.");
     end;
 
@@ -69,7 +69,7 @@ codeunit 2130 "O365 Excel Import Management"
         FieldRef: FieldRef;
     begin
         O365FieldExcelMapping.SetRange("Excel Column No.", ExcelBuffer."Column No.");
-        if O365FieldExcelMapping.FindFirst then begin
+        if O365FieldExcelMapping.FindFirst() then begin
             FieldRef := RecRef.Field(O365FieldExcelMapping."Field ID");
             if FieldRef.Type = FieldType::Decimal then
                 TryEvaluateTextToDecimal(ExcelBuffer."Cell Value as Text");
@@ -112,7 +112,7 @@ codeunit 2130 "O365 Excel Import Management"
     begin
         GetCustomerConfigTemplate(ConfigTemplateHeader);
 
-        if TempCustomer.FindSet then
+        if TempCustomer.FindSet() then
             repeat
                 CreateCustomerFromBuffer(TempCustomer, Customer);
                 UpdateRecordFromTemplate(ConfigTemplateHeader, Customer);
@@ -126,7 +126,7 @@ codeunit 2130 "O365 Excel Import Management"
     begin
         GetItemConfigTemplate(ConfigTemplateHeader);
 
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 CreateItemFromBuffer(TempItem, Item);
                 UpdateRecordFromTemplate(ConfigTemplateHeader, Item);
@@ -149,7 +149,7 @@ codeunit 2130 "O365 Excel Import Management"
 
     local procedure FillRecordRefFromExcelBuffer(var ExcelBuffer: Record "Excel Buffer"; var O365FieldExcelMapping: Record "O365 Field Excel Mapping"; var RecRef: RecordRef)
     begin
-        if ExcelBuffer.FindSet then
+        if ExcelBuffer.FindSet() then
             repeat
                 AddFieldValueToRecordRef(ExcelBuffer, O365FieldExcelMapping, RecRef);
             until ExcelBuffer.Next() = 0;
@@ -192,7 +192,7 @@ codeunit 2130 "O365 Excel Import Management"
     procedure AutomapColumns(var O365FieldExcelMapping: Record "O365 Field Excel Mapping"; var ExcelBuffer: Record "Excel Buffer") MappingFound: Boolean
     begin
         ExcelBuffer.SetRange("Row No.", 1);
-        if ExcelBuffer.FindSet then
+        if ExcelBuffer.FindSet() then
             repeat
                 MappingFound := MappingFound or AdjustColumnMapping(O365FieldExcelMapping, ExcelBuffer);
             until ExcelBuffer.Next() = 0;
@@ -200,7 +200,7 @@ codeunit 2130 "O365 Excel Import Management"
 
     local procedure AdjustColumnMapping(var O365FieldExcelMapping: Record "O365 Field Excel Mapping"; ExcelBuffer: Record "Excel Buffer"): Boolean
     begin
-        if O365FieldExcelMapping.FindSet then
+        if O365FieldExcelMapping.FindSet() then
             repeat
                 O365FieldExcelMapping.CalcFields("Field Name");
                 if LowerCase(O365FieldExcelMapping."Field Name") = LowerCase(ExcelBuffer."Cell Value as Text") then begin

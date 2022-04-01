@@ -55,7 +55,7 @@ codeunit 135155 "Data Privacy Tests"
         ConfigPackage.Reset();
         Assert.AreEqual(1, ConfigPackage.Count, 'There should be exactly one entry in the Config. Package table');
 
-        if ConfigPackage.FindFirst then begin
+        if ConfigPackage.FindFirst() then begin
             // [THEN] The Config. Package's Code is PackageCode
             Assert.AreEqual(PackageCode, ConfigPackage.Code, 'The Code of the Config. Package is incorrect');
 
@@ -180,7 +180,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(1, ConfigPackageField.Count, 'The Config. Package Field table should contain exactly one entry');
 
         // [THEN] The Config. Package Field entry's fields are properly set
-        if ConfigPackageField.FindFirst then begin
+        if ConfigPackageField.FindFirst() then begin
             Assert.AreEqual(TextTableId, ConfigPackageField."Table ID", 'The Table ID of the Config. Package Field is incorrect');
             Assert.AreEqual(TextFieldId, ConfigPackageField."Field ID", 'The Field ID of the Config. Package Field is incorrect');
             Assert.AreEqual(ProcessingOrder, ConfigPackageField."Processing Order",
@@ -241,7 +241,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(1, ConfigPackageFilter.Count, 'The Config. Package Filter table should contain one entry');
 
         // [THEN] The Config. Package Filter entry's fields are properly set
-        if ConfigPackageFilter.FindFirst then begin
+        if ConfigPackageFilter.FindFirst() then begin
             Assert.AreEqual(TextTableId, ConfigPackageFilter."Table ID", 'The Table ID of the Config. Package Filter is incorrect');
             Assert.AreEqual(TextFieldId, ConfigPackageFilter."Field ID", 'The Field ID of the Config. Package Filter is incorrect');
             Assert.AreEqual(ConfigPackageCode, ConfigPackageFilter."Package Code",
@@ -521,7 +521,7 @@ codeunit 135155 "Data Privacy Tests"
         ConfigPackage.Reset();
         Assert.AreEqual(1, ConfigPackage.Count, 'There should be exactly one entry in the Config. Package table');
 
-        if ConfigPackage.FindFirst then
+        if ConfigPackage.FindFirst() then
             Assert.AreEqual(PackageCodeTempTxt, ConfigPackage.Code, 'The Code of the Config. Package is incorrect');
 
         // [THEN] The Package Code should be PackageCodeTempTxt
@@ -616,7 +616,7 @@ codeunit 135155 "Data Privacy Tests"
         // [THEN] A new Config. Package Table is created
         Assert.AreEqual(1, ConfigPackageTable.Count, 'There should be exactly one entry in the Config. Package Table table');
 
-        if ConfigPackageTable.FindFirst then begin
+        if ConfigPackageTable.FindFirst() then begin
             // [THEN] The Config. Package Table's Package Code field is PackageCode
             Assert.AreEqual(PackageCode, ConfigPackageTable."Package Code", 'The Package Code is incorrect');
 
@@ -633,7 +633,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(1, ConfigPackageFilter.Count,
           'There should be a Config. Package Filter with Field Filter specified by TableNo');
 
-        if ConfigPackageFilter.FindFirst then begin
+        if ConfigPackageFilter.FindFirst() then begin
             // [THEN] The Config. Package Filter's fields are set correctly
             Assert.AreEqual(PackageCode, ConfigPackageFilter."Package Code", 'The Package Code is incorrect');
             Assert.AreEqual(DATABASE::"Change Log Entry", ConfigPackageFilter."Table ID",
@@ -647,7 +647,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(1, ConfigPackageFilter.Count,
           'There should be a Config. Package Filter with Field Filter specified by EntityNo');
 
-        if ConfigPackageFilter.FindFirst then begin
+        if ConfigPackageFilter.FindFirst() then begin
             // [THEN] The Config. Package Filter's fields are set correctly
             Assert.AreEqual(PackageCode, ConfigPackageFilter."Package Code", 'The Package Code is incorrect');
             Assert.AreEqual(DATABASE::"Change Log Entry", ConfigPackageFilter."Table ID",
@@ -727,7 +727,7 @@ codeunit 135155 "Data Privacy Tests"
 
         // [THEN] There should exist a Config. Package with the Code PackageCode and Package Name PackageName
         Assert.Equal(1, ConfigPackage.Count);
-        if ConfigPackage.FindFirst then begin
+        if ConfigPackage.FindFirst() then begin
             Assert.AreEqual(PackageCode, ConfigPackage.Code, 'The Config. Package Code is incorrect');
             Assert.AreEqual(PackageName, ConfigPackage."Package Name", 'The Config. Package Name is incorrect');
         end;
@@ -736,7 +736,7 @@ codeunit 135155 "Data Privacy Tests"
         ConfigPackageTable.SetRange("Table ID", EntityTypeTableNo);
         Assert.AreEqual(1, ConfigPackageTable.Count,
           'There should only be one Config. Package Table with the Table ID 18');
-        if ConfigPackageTable.FindFirst then
+        if ConfigPackageTable.FindFirst() then
             Assert.AreEqual(PackageCode, ConfigPackageTable."Package Code",
               'The Package Code of the Config. Package Table is incorrect');
 
@@ -746,14 +746,14 @@ codeunit 135155 "Data Privacy Tests"
         ConfigPackageField.SetRange("Table ID", EntityTypeTableNo);
         Assert.AreEqual(1, ConfigPackageField.Count,
           'There should be exactly one Config. Package Field corresponding to the No. field of the Customer table');
-        if ConfigPackageField.FindFirst then
+        if ConfigPackageField.FindFirst() then
             Assert.AreEqual(PackageCode, ConfigPackageField."Package Code", 'the Package Code of the Config. Package Field is incorrect');
 
         ConfigPackageFilter.SetRange("Field ID", TablePrimaryKeyId);
         ConfigPackageFilter.SetRange("Table ID", EntityTypeTableNo);
         Assert.AreEqual(1, ConfigPackageFilter.Count,
           'There should be exactly one Config. Package Filter corresponding to the No. field of the Customer table');
-        if ConfigPackageFilter.FindFirst then
+        if ConfigPackageFilter.FindFirst() then
             Assert.AreEqual(PackageCode, ConfigPackageFilter."Package Code", 'the Package Code of the Config. Package Filter is incorrect');
 
         // [THEN] There should be a Config. Package Field for both Sensitive fields in the Customer table, 

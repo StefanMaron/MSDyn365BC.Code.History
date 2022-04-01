@@ -307,29 +307,6 @@ codeunit 139066 "Monitor Field Pages Test"
         FieldMonitoringSetupPage.Close();
     end;
 
-    [Test]
-    procedure SetupPageWithSmtpModule()
-    var
-        FieldMonitoringSetupPage: TestPage "Field Monitoring Setup";
-    begin
-        // [Scenario] Hide/show Email account field if Email Feature is disabled/enabled
-        MonitorFieldTestHelper.InitMonitor();
-
-        // [WHEN] Email feature is disabled
-        // [THEN] Email account name field should be hidden
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        FieldMonitoringSetupPage.OpenEdit();
-        Assert.IsFalse(FieldMonitoringSetupPage."Email Account Name".Visible(), 'Email account name should be hidden if email feature is disabled');
-        FieldMonitoringSetupPage.Close();
-
-        // [WHEN] Email feature is enabled
-        // [THEN] Email account name field should be visible
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
-        FieldMonitoringSetupPage.OpenEdit();
-        Assert.IsTrue(FieldMonitoringSetupPage."Email Account Name".Visible(), 'Email account name should be visible if email feature is enabled');
-        FieldMonitoringSetupPage.Close();
-    end;
-
     local procedure AssertOnlyMonitorEntriesAreDisplayed(var MonitoredFieldLogEntries: TestPage "Monitored Field Log Entries")
     var
         ChangeLogEntry: record "Change Log Entry";
@@ -409,7 +386,6 @@ codeunit 139066 "Monitor Field Pages Test"
     end;
 
     var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
         Assert: Codeunit "Library Assert";
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
         MonitorFieldTestHelper: Codeunit "Monitor Field Test Helper";

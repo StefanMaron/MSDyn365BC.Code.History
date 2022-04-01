@@ -104,7 +104,7 @@ table 1500 "Workflow Buffer"
         if TempWorkflowBuffer.IsTemporary() then
             TempWorkflowBuffer.DeleteAll();
         Workflow.SetRange(Template, Template);
-        if Workflow.FindSet then
+        if Workflow.FindSet() then
             repeat
                 if not TempWorkflowBuffer.Get(Workflow.Category, '') then
                     AddCategory(TempWorkflowBuffer, Workflow.Category);
@@ -169,7 +169,7 @@ table 1500 "Workflow Buffer"
         ToWorkflow.Insert();
         CopyWorkflow.InitCopyWorkflow(FromWorkflow, ToWorkflow);
         CopyWorkflow.UseRequestPage(false);
-        CopyWorkflow.Run;
+        CopyWorkflow.Run();
         PAGE.Run(PAGE::Workflow, ToWorkflow);
     end;
 }

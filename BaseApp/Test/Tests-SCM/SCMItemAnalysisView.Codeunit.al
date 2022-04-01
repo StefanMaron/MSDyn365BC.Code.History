@@ -30,7 +30,7 @@ codeunit 137229 "SCM Item Analysis View"
         LastEntryNo: Integer;
     begin
         // 5. Check Update on Posting for GL
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareAnalysisViewRec(ItemAnalysisView, false, true);
@@ -60,7 +60,7 @@ codeunit 137229 "SCM Item Analysis View"
     begin
         // [FEATURE] [Transfer] [Inventory Pick] [Dimension]
         // [SCENARIO 381591] When item analysis view updates on posting and error occurs from posting inventory pick for transfer order no lines must exist in item ledger entry for this transfer order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Analysis View with Update on Posting enabled.
         PrepareAnalysisViewRec(ItemAnalysisView, true, false);
@@ -94,7 +94,7 @@ codeunit 137229 "SCM Item Analysis View"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Item Analysis View");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         isInitialized := true;
         Commit();
@@ -114,7 +114,7 @@ codeunit 137229 "SCM Item Analysis View"
 
             Validate("Update on Posting", UpdateOnPosting);
             Validate("Include Budgets", IncludeBudgets);
-            if Dim.FindSet then
+            if Dim.FindSet() then
                 repeat
                     i += 1;
                     case i of
@@ -284,7 +284,7 @@ codeunit 137229 "SCM Item Analysis View"
             SetRange("Source No.", SourceNo);
             SetRange("Location Code", LocationCode);
             SetRange("Action Type", "Action Type"::Take);
-            FindFirst;
+            FindFirst();
         end;
     end;
 

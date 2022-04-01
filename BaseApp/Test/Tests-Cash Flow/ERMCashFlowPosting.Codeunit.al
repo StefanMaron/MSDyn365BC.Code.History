@@ -138,7 +138,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
 
         // Verify
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
-        CFForecastEntry.FindFirst;
+        CFForecastEntry.FindFirst();
         CFForecastEntry.TestField("G/L Budget Name", '');
     end;
 
@@ -162,7 +162,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
 
         // Verify
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
-        CFForecastEntry.FindFirst;
+        CFForecastEntry.FindFirst();
         CFForecastEntry.TestField("Source Type", CFForecastEntry."Source Type"::"G/L Budget");
         CFForecastEntry.TestField("G/L Budget Name", GLBudgetEntry."Budget Name");
         CFHelper.VerifyExpectedCFAmount(-ExpectedAmount, CFForecastEntry."Amount (LCY)");
@@ -206,7 +206,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
 
     local procedure PostBatch(var CFWorksheetLine: Record "Cash Flow Worksheet Line")
     begin
-        CFWorksheetLine.FindFirst;
+        CFWorksheetLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Cash Flow Wksh.-Register Batch", CFWorksheetLine);
     end;
 }

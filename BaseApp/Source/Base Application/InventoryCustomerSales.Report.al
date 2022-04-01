@@ -73,7 +73,7 @@ report 713 "Inventory - Customer Sales"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not TempValueEntryBuf.FindSet then
+                            if not TempValueEntryBuf.FindSet() then
                                 CurrReport.Break();
                         end else
                             if TempValueEntryBuf.Next() = 0 then
@@ -172,7 +172,7 @@ report 713 "Inventory - Customer Sales"
         LastItemLedgerEntry: Record "Item Ledger Entry";
     begin
         LastItemLedgerEntry.Copy(ItemLedgerEntry);
-        if LastItemLedgerEntry.FindLast then
+        if LastItemLedgerEntry.FindLast() then
             exit(LastItemLedgerEntry."Entry No.");
         exit(0);
     end;

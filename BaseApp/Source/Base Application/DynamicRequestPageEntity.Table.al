@@ -88,7 +88,7 @@ table 1515 "Dynamic Request Page Entity"
             SequenceNo := 1;
             DynamicRequestPageEntity.SetRange(Name, Name);
             DynamicRequestPageEntity.SetRange("Table ID", "Table ID");
-            if DynamicRequestPageEntity.FindLast then
+            if DynamicRequestPageEntity.FindLast() then
                 SequenceNo := DynamicRequestPageEntity."Sequence No." + 1;
             Validate("Sequence No.", SequenceNo);
         end;

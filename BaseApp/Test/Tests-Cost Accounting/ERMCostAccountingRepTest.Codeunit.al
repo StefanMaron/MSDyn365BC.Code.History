@@ -45,7 +45,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     begin
         // Post entries for a cost type in a specific period and then Run the report for for that period. (Make sure you also set the Budget Filter.)
         // Check the values for each report column for the row containing the Cost Type used.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
@@ -91,7 +91,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostJournalLine: Record "Cost Journal Line";
     begin
         // Create a cost journal line and check that it displays correctly on the report
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCostJournalLine(CostJournalLine, WorkDate);
@@ -116,7 +116,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Unit Test Case: REP1128: to check that error is diplayed on the report when Posting Date is blank on Cost Journal Line.
 
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create Cost Journal Line with Blank Posting Date.
         CreateCostJournalLine(CostJournalLine, 0D);
@@ -135,7 +135,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Unit Test Case: REP1128: to check that error is diplayed on the report when document No. is blank on Cost Journal Line.
 
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create Cost Journal Line with blank Document No.
         CreateCostJournalLine(CostJournalLine, WorkDate);
@@ -156,7 +156,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Unit Test Case: REP1128: to check that error is displayed on report when blank Cost Type No. and Bal. Cost Type No is set on Cost Journal Line.
 
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create Cost Journal Line with blank Cost Type No. and Bal. Cost Type No.
         CreateCostJournalLine(CostJournalLine, WorkDate);
@@ -178,7 +178,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Unit Test Case: REP1128: to check that blank Cost Center and Cost Object error is diplayed on the report.
 
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create Cost Journal Line with blank cost center and cost object code.
         CreateCostJournalLine(CostJournalLine, WorkDate);
@@ -200,7 +200,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Unit Test Case: REP1128: to check that error is displayed on report when both Cost Center and Cost Object are set on Cost Journal Line.
 
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create Cost Journal Line with both cost center and cost object code set.
         CreateCCAndCO(CostCenter, CostObject);
@@ -221,7 +221,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Unit Test Case: REP1128: to check that error is displayed on report when both Bal. Cost Center and Bal. Cost Object are blank on Cost Journal Line.
 
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create Cost Journal Line with Bal. cost center and Bal. cost object code blank.
         CreateCostJournalLine(CostJournalLine, WorkDate);
@@ -243,7 +243,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Unit Test Case: REP1128: to check that error is displayed on report when both Bal. Cost Center and Bal. Cost Object are set on Cost Journal Line.
 
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create Cost Journal Line with both Bal. cost center and Bal. cost object code set.
         CreateCCAndCO(CostCenter, CostObject);
@@ -286,10 +286,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     var
         CostEntry: Record "Cost Entry";
     begin
-        Initialize;
+        Initialize();
         CostEntry.SetFilter("Cost Object Code", '<>%1', '');
         CostEntry.SetFilter("Cost Center Code", '%1', '');
-        CostEntry.FindFirst;
+        CostEntry.FindFirst();
         ValidateCostAcctgStmtBudgetReport(CostEntry);
     end;
 
@@ -300,10 +300,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     var
         CostEntry: Record "Cost Entry";
     begin
-        Initialize;
+        Initialize();
         CostEntry.SetFilter("Cost Object Code", '%1', '');
         CostEntry.SetFilter("Cost Center Code", '<>%1', '');
-        CostEntry.FindFirst;
+        CostEntry.FindFirst();
         ValidateCostAcctgStmtBudgetReport(CostEntry);
     end;
 
@@ -318,8 +318,8 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Test Cost Accounting Statement Budget Report.
 
         // Setup: Set Filters When Budget Amount on Cost Type is not equal to zero
-        Initialize;
-        CostBudgetName.FindFirst;
+        Initialize();
+        CostBudgetName.FindFirst();
         CostType.SetRange("Budget Filter", CostBudgetName.Name);
         CostType.SetRange(Type, CostType.Type::"Cost Type");
         CostType.SetFilter("Budget Amount", '>0');
@@ -411,7 +411,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostJournalLine: Record "Cost Journal Line";
     begin
         // Test Cost Acctg. Statement Report.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCostJournalLine(CostJournalLine, WorkDate);
@@ -437,7 +437,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         OldAdditionalReportingCurrency: Code[10];
     begin
         // Test Cost Acctg. Statement Report with additional reporting currency.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         OldAdditionalReportingCurrency := SetupAddRepCurr(Currency, true);
@@ -471,10 +471,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     begin
         // Verify Cost Register Report.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCostJournalLine(CostJournalLine, WorkDate);
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
-        CostRegister.FindLast;
+        CostRegister.FindLast();
         LibraryVariableStorage.Enqueue(CostRegister."No.");
 
         // Exercise: Run Cost Register Report.
@@ -492,7 +492,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostJournalLine: Record "Cost Journal Line";
     begin
         // Test Cost Type Details Report.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCostJournalLine(CostJournalLine, WorkDate);
@@ -519,7 +519,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         OldAdditionalReportingCurrency: Code[10];
     begin
         // Test Cost Type Details Report with additional reporting currency.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         OldAdditionalReportingCurrency := SetupAddRepCurr(Currency, true);
@@ -549,7 +549,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     procedure CostAllocationWhenPrintOnlyIfDetailIsTrue()
     begin
         // Verify that Cost Allocations Report shows details of "Target Cost Type" and "Target Cost Center" when PrintOnlyIfDetails is true and Cost Allocation Target is not blank.
-        Initialize;
+        Initialize();
         CostAllocRepForPrintOnlyDetails(true);
     end;
 
@@ -559,7 +559,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     procedure CostAllocationWhenPrintOnlyIfDetailIsFalse()
     begin
         // Verify that Cost Allocations Report shows details of "Target Cost Type" and "Target Cost Center" when PrintOnlyIfDetails is false and Cost Allocation Target is not blank.
-        Initialize;
+        Initialize();
         CostAllocRepForPrintOnlyDetails(false);
     end;
 
@@ -572,7 +572,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         TypeOfID: Option "Auto Generated",Custom;
     begin
         // Verify that Cost Allocations Report does not shows details when PrintOnlyIfDetails is true and Cost Allocation Target is blank.
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryCostAccounting.CreateAllocSource(CostAllocationSource, TypeOfID::"Auto Generated");
@@ -600,7 +600,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // To verify amount for all 7 Control Cost Center with respect to Cost Type No.
 
         // Setup : Create Multiple Cost Journal Line with New Cost Center.
-        Initialize;
+        Initialize();
         CreateCostJournalBatch(CostJournalBatch);
         CreateCostTypeWithCC(BalCostType);
         for Count := 1 to 7 do begin // As on Request page there is 7 Control.
@@ -638,7 +638,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // To verify amount for all 7 Control Cost Object with respect to Cost Type No.
 
         // Setup : Create multiple Cost Journal Line with New Cost Object.
-        Initialize;
+        Initialize();
         CreateCostJournalBatch(CostJournalBatch);
         CreateCostTypeWithCO(BalCostType);
         for Count := 1 to 7 do begin // As on Request page there is 7 Control.
@@ -672,7 +672,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // To verify the working of Supress Without Amount.
 
         // Setup : Creating New Cost Type No. with New Cost Center.
-        Initialize;
+        Initialize();
         CreateCostTypeWithCC(CostType);
 
         // Post-Setup
@@ -697,7 +697,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // To verify amount for Cost Type with respect to one Cost Center.
 
         // Setup : Create and post Cost Journal Line with New Cost Center.
-        Initialize;
+        Initialize();
         CreateCostJournalLine(CostJournalLine, WorkDate);
 
         // Post-Setup
@@ -722,7 +722,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // To verify amount for Cost Type with respect to one Cost Object.
 
         // Setup : Create and post Cost Journal Line with New Cost Object.
-        Initialize;
+        Initialize();
         CreateCostJournalLineCO(CostJournalLine, WorkDate);
 
         // Post-Setup
@@ -747,7 +747,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Unit Test Cases: REP1140- To verify that dimension value of cost center and cost object cannot be same.
 
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: To create Dimension value and set it on request page using UpdateCostAcctgDimensionsHandler.
         LibraryDimension.CreateDimension(Dimension);
@@ -762,7 +762,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cost Accounting Rep - Test");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure AdjustPeriodAmounts(var AdjustedPreviousPeriodAmount: Decimal; var AdjustedCurrentPeriodAmount: Decimal; PreviousPeriodAmount: Decimal; CurrentPeriodAmount: Decimal; ShowAddCurr: Boolean; CostTypeNo: Code[20]; PreviousPeriodPostingDate: Date; CurrentPeriodPostingDate: Date)
@@ -778,11 +778,11 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostEntry.SetRange("Cost Type No.", CostTypeNo);
 
         CostEntry.SetRange("Posting Date", PreviousPeriodPostingDate);
-        CostEntry.FindFirst;
+        CostEntry.FindFirst();
         AdjustedPreviousPeriodAmount := CostEntry."Additional-Currency Amount";
 
         CostEntry.SetRange("Posting Date", CurrentPeriodPostingDate);
-        CostEntry.FindFirst;
+        CostEntry.FindFirst();
         AdjustedCurrentPeriodAmount := CostEntry."Additional-Currency Amount";
     end;
 
@@ -1143,7 +1143,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     begin
         CostJournalLine.SetRange("Journal Template Name", CostJournalTemplate);
         CostJournalLine.SetRange("Journal Batch Name", CostJournalBatch);
-        CostJournalLine.FindFirst;
+        CostJournalLine.FindFirst();
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
     end;
 
@@ -1300,7 +1300,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     begin
         // Post an entry for a cost type in 2 consecutive years and then run the report for those periods.
         // Check the values for each report column for the row containing the Cost Type used.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreviousPeriodPostingDate := CalcDate(StrSubstNo('<%1Y>', LibraryRandom.RandInt(10)), WorkDate);
@@ -1332,7 +1332,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
 
     local procedure VerifyBudgetAmount(var CostType: Record "Cost Type")
     begin
-        CostType.FindFirst;
+        CostType.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_CostType', CostType."No.");
         if not LibraryReportDataset.GetNextRow then
@@ -1411,7 +1411,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     begin
         LibraryReportDataset.LoadDataSetFile;
         CostEntry.SetRange("Entry No.", FromCostEntryNo);
-        CostEntry.FindFirst;
+        CostEntry.FindFirst();
         LibraryReportDataset.SetRange('DocNo_CostEntry', CostEntry."Document No.");
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundError, 'DocNo_CostEntry', CostEntry."Document No."));
@@ -1441,10 +1441,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     local procedure VerifyExpectedErrorOnCostAcctBalanceBudgetRep(EndDate: Date; ExpectedError: Text[250])
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: To set values on Request Page of Cost Acctg. Balance/Budget Report
-        EnqueueCostAcctgBalanceBudget(WorkDate, EndDate, LibraryUtility.GenerateGUID);
+        EnqueueCostAcctgBalanceBudget(WorkDate, EndDate, LibraryUtility.GenerateGUID());
         Commit();   // COMMIT is required to run this report.
         asserterror REPORT.Run(REPORT::"Cost Acctg. Balance/Budget");
 
@@ -1455,7 +1455,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     local procedure VerifyExpectedErrorOnCostAcctgJournalRep(CostJournalLine: Record "Cost Journal Line"; ExpectedError: Text[250])
     begin
         // Post-Exercise: Set the values on request page through CostAcctgJournalReportHandler and report.
-        EnqueueCostAcctgJournalReport(true, LibraryUtility.GenerateGUID);
+        EnqueueCostAcctgJournalReport(true, LibraryUtility.GenerateGUID());
         RunCostAcctgJournalReport(CostJournalLine);
 
         // Verify: To check that expected error is displayed on report.
@@ -1469,7 +1469,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostJournalLine: Record "Cost Journal Line";
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create Cost Journal Line with specific Cost Type
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);

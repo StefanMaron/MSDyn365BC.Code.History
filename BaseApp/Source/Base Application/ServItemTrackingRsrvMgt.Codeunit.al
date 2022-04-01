@@ -45,7 +45,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         ServLineToCheck.SetFilter("Quantity Shipped", '<>%1', 0);
         ErrorFieldCaption := ServLineToCheck.FieldCaption("Qty. to Ship");
 
-        if ServLineToCheck.FindSet then begin
+        if ServLineToCheck.FindSet() then begin
             ReservationEntry."Source Type" := DATABASE::"Service Line";
             ReservationEntry."Source Subtype" := ServHeader."Document Type".AsInteger();
             SignFactor := CreateReservEntry.SignFactor(ReservationEntry);
@@ -128,7 +128,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         ReservEntry.SetSourceFilter(
           DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.", true);
         ReservEntry.SetSourceFilter('', 0);
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
                 if ReservEntry.TrackingExists then
                     TrackingQtyToHandle := TrackingQtyToHandle + ReservEntry."Qty. to Handle (Base)";

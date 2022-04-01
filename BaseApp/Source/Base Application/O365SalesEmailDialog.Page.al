@@ -106,7 +106,7 @@ page 2150 "O365 Sales Email Dialog"
                         FileName := TempEmailItem."Body File Path";
 
                     O365EmailPreview.LoadHTMLFile(FileName);
-                    O365EmailPreview.RunModal;
+                    O365EmailPreview.RunModal();
                 end;
             }
             group(Attachments)
@@ -183,7 +183,7 @@ page 2150 "O365 Sales Email Dialog"
         BodyInStream: InStream;
     begin
         // Set CC and BCC field
-        TempEmailItem.FindFirst;
+        TempEmailItem.FindFirst();
         UpdateCcBccText(TempEmailItem."Send CC", TempEmailItem."Send BCC");
         SendTo := CopyStr(TempEmailItem."Send to", 1, MaxStrLen(SendTo));
         SubjectText := TempEmailItem.Subject;

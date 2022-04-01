@@ -1,4 +1,4 @@
-codeunit 5720 "Item Reference Management"
+﻿codeunit 5720 "Item Reference Management"
 {
 
     trigger OnRun()
@@ -14,7 +14,9 @@ codeunit 5720 "Item Reference Management"
         Found: Boolean;
         ItemRefNotExistErr: Label 'There are no items with reference %1.', Comment = '%1=Reference No.';
         ItemRefWrongTypeErr: Label 'The reference type must be Customer or Vendor.';
+#if not CLEAN19
         ItemReferenceFeatureIdTok: Label 'ItemReference', Locked = true;
+#endif
 
     procedure EnterSalesItemReference(var SalesLine2: Record "Sales Line")
     var
@@ -232,7 +234,7 @@ codeunit 5720 "Item Reference Management"
         CreateItemReference(ItemVend);
     end;
 
-    local procedure FindOrSelectFromItemReferenceList(var ItemReferenceToReturn: Record "Item Reference"; ShowDialog: Boolean; ItemNo: Code[20]; ItemRefNo: Code[50]; ItemRefTypeNo: Code[30]; ItemRefType: Enum "Item Reference Type")
+    procedure FindOrSelectFromItemReferenceList(var ItemReferenceToReturn: Record "Item Reference"; ShowDialog: Boolean; ItemNo: Code[20]; ItemRefNo: Code[50]; ItemRefTypeNo: Code[30]; ItemRefType: Enum "Item Reference Type")
     var
         TempRecRequired: Boolean;
         MultipleItemsToChoose: Boolean;
@@ -610,7 +612,7 @@ codeunit 5720 "Item Reference Management"
     procedure IsEnabled() FeatureEnabled: Boolean
     begin
         FeatureEnabled := true;
-        
+
         OnAfterIsEnabled(FeatureEnabled);
     end;
 #endif

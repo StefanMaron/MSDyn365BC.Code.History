@@ -2,6 +2,7 @@ table 9190 "Terms And Conditions"
 {
     Caption = 'Terms And Conditions';
     DataPerCompany = false;
+    ReplicateData = false;
 
     fields
     {

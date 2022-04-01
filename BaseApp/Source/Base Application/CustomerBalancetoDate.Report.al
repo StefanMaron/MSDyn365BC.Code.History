@@ -167,7 +167,7 @@ report 121 "Customer - Balance to Date"
                     Reset;
                     SetRange("Date Filter", 0D, MaxDate);
                     FilterCustLedgerEntry(CustLedgEntry3);
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             if not Open then
                                 ClosedEntryIncluded := CheckCustEntryIncluded("Entry No.");
@@ -315,13 +315,13 @@ report 121 "Customer - Balance to Date"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include Unapplied Entries';
-                        ToolTip = 'Specifies if unapplied entries are included in the report.';
+                        ToolTip = 'Specifies if the report includes entries that have been applied and later unapplied using the Unapply action. By default, the report does not show such entries.';
                     }
                     field(ShowEntriesWithZeroBalance; ShowEntriesWithZeroBalance)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show Entries with Zero Balance';
-                        ToolTip = 'Specifies if the report must include entries with a balance of 0. By default, the report only includes entries with a positive or negative balance.';
+                        ToolTip = 'Specifies if the report must include customer ledger entries with a balance of 0. By default, the report only includes customer ledger entries with a positive or negative balance.';
                     }
                 }
             }
@@ -404,7 +404,7 @@ report 121 "Customer - Balance to Date"
             SetCurrentKey("Entry No.");
             SetRange("Date Filter", 0D, MaxDate);
             AddCustomerDimensionFilter(TempCustLedgerEntry);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if PrintAmountInLCY then begin
                         CalcFields("Remaining Amt. (LCY)");

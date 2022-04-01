@@ -14,13 +14,13 @@ codeunit 1351 "Telemetry Subscribers"
         NoSeriesEditedTelemetryTxt: Label 'The number series was changed by the user.', Locked = true;
         PermissionSetCategoryTxt: Label 'AL PermissionSet', Locked = true;
         PermissionSetLinkAddedTelemetryTxt: Label 'A Permission Set Link was added between Source Permission Set %1 and Permission Set %2. Total count of Permission Set Links are %3.', Locked = true;
-        PermissionSetAddedTelemetryTxt: Label 'Permission Set %1 was added. Total count of user defined Permission Sets is %2.', Locked = true;
-        PermissionSetAssignedToUserTelemetryTxt: Label 'Permission Set %1 was added to a user.', Locked = true;
         PermissionSetAssignedToUserGroupTelemetryTxt: Label 'Permission Set %1 was added to a user group %2.', Locked = true;
         PermissionSetLinkAddedTelemetryScopeAllTxt: Label 'Permission set link added: %1 -> %2', Locked = true;
         PermissionSetLinkRemovedTelemetryScopeAllTxt: Label 'Permission set link removed: %1 -> %2', Locked = true;
         PermissionSetAddedTelemetryScopeAllTxt: Label 'User-defined permission set added: %1', Locked = true;
         PermissionSetRemovedTelemetryScopeAllTxt: Label 'User-defined permission set removed: %1', Locked = true;
+        PermissionSetSystemAddedTelemetryScopeAllTxt: Label 'Permission set added: %1', Locked = true;
+        PermissionSetSystemRemovedTelemetryScopeAllTxt: Label 'Permission set removed: %1', Locked = true;
         PermissionSetAssignedToUserTelemetryScopeAllTxt: Label 'Permission set assigned to user: %1', Locked = true;
         PermissionSetRemovedFromUserTelemetryScopeAllTxt: Label 'Permission set removed from user: %1', Locked = true;
         PermissionSetAssignedToUserGroupTelemetryScopeAllTxt: Label 'Permission set assigned to user group: %1', Locked = true;
@@ -114,6 +114,42 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000E29', StrSubstNo(PermissionSetLinkRemovedTelemetryScopeAllTxt, Rec."Permission Set ID", Rec."Linked Permission Set ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Permission Set", 'OnAfterInsertEvent', '', true, true)]
+    local procedure SendTraceOnPermissionSetIsAdded(var Rec: Record "Permission Set"; RunTrigger: Boolean)
+    var
+        PermissionSetRec: Record "Permission Set";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if not IsSaaS() then
+            exit;
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('NumberOfSystemPermissionSets', Format(PermissionSetRec.Count));
+        Session.LogMessage('0000GMG', StrSubstNo(PermissionSetSystemAddedTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Permission Set", 'OnBeforeDeleteEvent', '', true, true)]
+    local procedure SendTraceOnPermissionSetIsRemoved(var Rec: Record "Permission Set"; RunTrigger: Boolean)
+    var
+        PermissionSetRec: Record "Permission Set";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if not IsSaaS() then
+            exit;
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('NumberOfSystemPermissionSets', Format(PermissionSetRec.Count - 1));
+        Session.LogMessage('0000GMH', StrSubstNo(PermissionSetSystemRemovedTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Tenant Permission Set", 'OnAfterInsertEvent', '', true, true)]
     local procedure SendTraceOnUserDefinedPermissionSetIsAdded(var Rec: Record "Tenant Permission Set"; RunTrigger: Boolean)
     var
@@ -130,8 +166,6 @@ codeunit 1351 "Telemetry Subscribers"
             exit;
 
         TenantPermissionSet.SetRange("App ID", Rec."App ID");
-
-        Session.LogMessage('0000251', StrSubstNo(PermissionSetAddedTelemetryTxt, Rec."Role ID", TenantPermissionSet.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', PermissionSetCategoryTxt);
 
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");
@@ -179,8 +213,6 @@ codeunit 1351 "Telemetry Subscribers"
 
         if not TenantPermissionSet.Get(Rec."App ID", Rec."Role ID") then
             exit;
-
-        Session.LogMessage('0000252', StrSubstNo(PermissionSetAssignedToUserTelemetryTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', PermissionSetCategoryTxt);
 
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");

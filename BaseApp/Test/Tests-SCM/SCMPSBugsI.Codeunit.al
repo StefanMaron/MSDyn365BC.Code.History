@@ -278,7 +278,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // 3. Verify : Verify Item Ledger Entry Posted of Entry Type Output.
         ItemLedgerEntry.SetRange("Document No.", ProdOrderNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     [Test]
@@ -366,7 +366,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // 3. Verify: Verify Output entry missing.
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         Assert.AreEqual(
           StrSubstNo(ExpectedOutputMissing, ProdOrderLine."Line No.", ProdOrderLine."Prod. Order No."), GetLastErrorText,
           ErrorGeneratedMustBeSame);
@@ -588,7 +588,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Item.CalcFields(Inventory);
         CreateSalesOrder(SalesHeader, Item."No.", Item.Inventory);
         Purchasing.SetRange("Special Order", true);
-        Purchasing.FindFirst;
+        Purchasing.FindFirst();
         UpdateSalesLine(SalesHeader, '', Purchasing.Code);
 
         // Create Requisition Line. Get sales Order.Perform Carry out Action Message.
@@ -612,7 +612,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // 3. Verify : Verify Purchase Invoice posted.
         PurchInvHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchInvHeader.SetRange("Order No.", PurchaseHeaderNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
     end;
 
     [Test]
@@ -861,7 +861,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // Add second line for the same item
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindLast;
+        ProdOrderLine.FindLast();
         ProdOrderLine2 := ProdOrderLine;
         ProdOrderLine2."Line No." := ProdOrderLine."Line No." + 10000;
         ProdOrderLine2.Quantity := 2 * ProdOrderLine.Quantity;
@@ -1129,7 +1129,8 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -1166,7 +1167,7 @@ codeunit 137035 "SCM PS Bugs-I"
         NewAsmOrderChoice: Option " ","Make Assembly Orders","Make Assembly Orders & Print";
     begin
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Accept Action Message", true);
         RequisitionLine.Modify(true);
         LibraryPlanning.CarryOutPlanWksh(
@@ -1265,14 +1266,14 @@ codeunit 137035 "SCM PS Bugs-I"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         WarehouseActivityHeader.SetRange("Destination No.", ProductionOrderSourceNo);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.Validate("Qty. to Handle", Quantity);
         WarehouseActivityLine.Modify(true);
         WarehouseActivityLine.SetRange("Item No.", ItemNo2);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.Delete();
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
         exit(WarehouseActivityHeader."Source No.");
@@ -1312,7 +1313,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         LibraryInventory.CreateItem(Item);
         LibraryItemReference.CreateItemReference(ItemReference, Item."No.", RefType, RefTypeNo);
-        ItemReference.Validate(Description, LibraryUtility.GenerateGUID);
+        ItemReference.Validate(Description, LibraryUtility.GenerateGUID());
         ItemReference.Modify(true);
     end;
 
@@ -1419,12 +1420,12 @@ codeunit 137035 "SCM PS Bugs-I"
         exit(ProductionOrder."No.");
     end;
 
-    local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line"; TemplateType: Option)
+    local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line"; TemplateType: Enum "Req. Worksheet Template Type")
     var
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         RequisitionWkshName.SetRange("Template Type", TemplateType);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
 
         RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
@@ -1477,7 +1478,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // Update SKU Unit Cost.Random values used are not important for test.
         StockkeepingUnit.SetRange("Item No.", ItemNo);
-        StockkeepingUnit.FindFirst;
+        StockkeepingUnit.FindFirst();
         StockkeepingUnit.Validate("Unit Cost", StockkeepingUnit."Unit Cost" + LibraryRandom.RandDec(10, 2));
         StockkeepingUnit.Modify(true);
     end;
@@ -1495,7 +1496,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderRoutingLine.Status := ProdOrderLine.Status;
         ProdOrderRoutingLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
         ProdOrderRoutingLine."Routing Reference No." := ProdOrderLine."Line No.";
-        ProdOrderRoutingLine."Routing No." := LibraryUtility.GenerateGUID;
+        ProdOrderRoutingLine."Routing No." := LibraryUtility.GenerateGUID();
         ProdOrderRoutingLine."Flushing Method" := FlushingMethod;
         ProdOrderRoutingLine.Insert();
     end;
@@ -1535,7 +1536,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindLast;
+        ProdOrderLine.FindLast();
         ProdOrderLine.Delete(true);
     end;
 
@@ -1543,7 +1544,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
@@ -1551,7 +1552,7 @@ codeunit 137035 "SCM PS Bugs-I"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -1559,7 +1560,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Enum "Production Order Status")
@@ -1572,21 +1573,21 @@ codeunit 137035 "SCM PS Bugs-I"
     local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; BuyfromVendorNo: Code[20])
     begin
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyfromVendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure GetInventoryValue(ItemNo: Code[20]): Decimal
@@ -1594,7 +1595,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         exit(ItemJournalLine."Inventory Value (Calculated)");
     end;
 
@@ -1609,7 +1610,7 @@ codeunit 137035 "SCM PS Bugs-I"
         GetSalesOrders.SetTableView(SalesLine);
         GetSalesOrders.InitializeRequest(NewRetrieveDimensionsFrom::Item);
         GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.Run;
+        GetSalesOrders.Run();
     end;
 
     local procedure ItemReferenceSetup(var PurchaseLine: Record "Purchase Line"; var ItemReference: Record "Item Reference"; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[10]; VariantExist: Boolean)
@@ -1689,7 +1690,7 @@ codeunit 137035 "SCM PS Bugs-I"
     local procedure TransferItemToTemp(var TempItem: Record Item temporary; var Item: Record Item)
     begin
         Item.SetRange("No.", Item."No.");
-        Item.FindFirst;
+        Item.FindFirst();
         TempItem := Item;
         TempItem.Insert();
     end;
@@ -1706,7 +1707,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         FamilyLine.SetRange("Family No.", FamilyNo);
         FamilyLine.SetRange("Item No.", ItemNo);
-        FamilyLine.FindFirst;
+        FamilyLine.FindFirst();
         FamilyLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
         FamilyLine.Modify(true);
     end;
@@ -1742,7 +1743,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.Validate("Variant Code", VariantCode);
         ProdOrderComponent.Modify(true);
     end;
@@ -1762,7 +1763,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Vendor No.", VendorNo);
         RequisitionLine.Modify(true);
     end;
@@ -1811,7 +1812,7 @@ codeunit 137035 "SCM PS Bugs-I"
     local procedure VerifyItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Integer)
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Location Code", LocationCode);
         ItemLedgerEntry.TestField(Quantity, Quantity);
     end;
@@ -1842,10 +1843,10 @@ codeunit 137035 "SCM PS Bugs-I"
         // Select GL Entry of Production Order for WIP Account and Total the same.
         Item.Get(ItemNo);
         InventoryPostingSetup.SetRange("Invt. Posting Group Code", Item."Inventory Posting Group");
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."WIP Account");
         GLEntry.SetRange("Document No.", ProdOrderNo);
-        if GLEntry.FindSet then
+        if GLEntry.FindSet() then
             repeat
                 TotalAmount += GLEntry.Amount;
             until GLEntry.Next = 0;

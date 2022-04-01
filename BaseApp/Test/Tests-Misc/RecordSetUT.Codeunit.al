@@ -116,7 +116,7 @@ codeunit 134235 "Record Set UT"
         TypeHelper.SortRecordRef(RecRef, Key, false);
 
         // Verify
-        TempCustomer.FindLast;
+        TempCustomer.FindLast();
         Assert.AreEqual(TempCustomer.RecordId, RecRef.RecordId, 'Record was not sorted descending');
     end;
 
@@ -426,7 +426,7 @@ codeunit 134235 "Record Set UT"
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
         // Execute
-        TempNewCustomer.FindLast;
+        TempNewCustomer.FindLast();
         TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
@@ -460,7 +460,7 @@ codeunit 134235 "Record Set UT"
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
         // Execute
-        TempNewCustomer.FindLast;
+        TempNewCustomer.FindLast();
         TempNewCustomer.Next(-1);
         TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
@@ -581,7 +581,7 @@ codeunit 134235 "Record Set UT"
         ItemSetRecordTreeCount := TotalSetTreeCount - FirstSetRecordTreeCount;
 
         // Execute
-        TempNewCustomer.FindLast;
+        TempNewCustomer.FindLast();
         TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
@@ -699,7 +699,7 @@ codeunit 134235 "Record Set UT"
 
         // Execute
         SortAscending(TempNewRecordSetBuffer);
-        TempNewRecordSetBuffer.FindLast;
+        TempNewRecordSetBuffer.FindLast();
         TempNewRecordSetBuffer.Delete();
         CreateSetAndCountEntries(TempNewRecordSetBuffer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
@@ -836,7 +836,7 @@ codeunit 134235 "Record Set UT"
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
-        TempNewCustomer.FindLast;
+        TempNewCustomer.FindLast();
         TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
@@ -967,7 +967,7 @@ codeunit 134235 "Record Set UT"
         ItemSetID := RecordSetManagement.SaveSetSingleTable(TempItem);
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
-        TempNewCustomer.FindLast;
+        TempNewCustomer.FindLast();
         TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
@@ -1074,7 +1074,7 @@ codeunit 134235 "Record Set UT"
         DuplicateServiceConnectionSet(TempRecordSetBuffer, TempNewRecordSetBuffer);
 
         SortAscending(TempNewRecordSetBuffer);
-        TempNewRecordSetBuffer.FindLast;
+        TempNewRecordSetBuffer.FindLast();
         TempNewRecordSetBuffer.Delete();
         CreateSetAndCountEntries(TempNewRecordSetBuffer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
@@ -1103,7 +1103,7 @@ codeunit 134235 "Record Set UT"
         // Setup
         RecordSetDefinition.SetRange("Table No.", DATABASE::Customer);
         NonExistingSetID := 10;
-        if RecordSetDefinition.FindLast then;
+        if RecordSetDefinition.FindLast() then;
         NonExistingSetID := RecordSetDefinition."Set ID" + 1;
 
         // Execute
@@ -1127,7 +1127,7 @@ codeunit 134235 "Record Set UT"
         // Setup
         RecordSetDefinition.SetRange("Table No.", DATABASE::"Service Connection");
         NonExistingSetID := 10;
-        if RecordSetDefinition.FindLast then;
+        if RecordSetDefinition.FindLast() then;
         NonExistingSetID := RecordSetDefinition."Set ID" + 1;
 
         // Execute
@@ -1430,7 +1430,7 @@ codeunit 134235 "Record Set UT"
         NumberOfItems := Item.Count();
 
         SortAscending(TempRecordSetBuffer);
-        TempRecordSetBuffer.FindLast;
+        TempRecordSetBuffer.FindLast();
         Item.Get(TempRecordSetBuffer."Value RecordID");
         Item.Delete();
         TempRecordSetBuffer.Delete();
@@ -1572,7 +1572,7 @@ codeunit 134235 "Record Set UT"
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
         NumberOfCustomers := Customer.Count();
 
-        TempCustomer.FindLast;
+        TempCustomer.FindLast();
         RenameCustomer(TempCustomer, xRecRef, RecRef);
 
         // Execute
@@ -2746,7 +2746,7 @@ codeunit 134235 "Record Set UT"
             TempCustomer.Next(DeleteIndex - 1);
 
         LastNo := 0;
-        if TempDeletedCustomerRecordSetBuffer.FindLast then
+        if TempDeletedCustomerRecordSetBuffer.FindLast() then
             LastNo := TempDeletedCustomerRecordSetBuffer.No;
 
         Clear(TempDeletedCustomerRecordSetBuffer);

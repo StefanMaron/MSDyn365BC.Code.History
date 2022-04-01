@@ -95,13 +95,15 @@ page 9110 "Item Attributes Factbox"
 
     var
         ClientTypeManagement: Codeunit "Client Type Management";
-        TranslatedValuesVisible: Boolean;
         ContextType: Option "None",Item,Category;
         ContextValue: Code[20];
         IsItem: Boolean;
         IsVisible: Boolean;
         ItemAttCode: Code[20];
         CategoryAttCode: Code[20];
+
+    protected var
+        TranslatedValuesVisible: Boolean;
 
     procedure LoadItemAttributesData(KeyValue: Code[20])
     begin

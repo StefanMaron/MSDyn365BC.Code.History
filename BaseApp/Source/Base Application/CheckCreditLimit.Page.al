@@ -114,7 +114,10 @@ page 343 "Check Credit Limit"
         RcdNotInvdRetOrdersLCY: Decimal;
         HideMessage: Boolean;
         HideMessageVisible: Boolean;
+#if not CLEAN20
         ExtensionAmounts: List of [Decimal];
+#endif
+        ExtensionAmountsDic: Dictionary of [Guid, Decimal];
 
     protected var
         DeltaAmount: Decimal;
@@ -511,7 +514,10 @@ page 343 "Check Credit Limit"
           "Balance (LCY)" + "Shipped Not Invoiced (LCY)" + "Serv Shipped Not Invoiced(LCY)" - RcdNotInvdRetOrdersLCY +
           OrderAmountTotalLCY - GetInvoicedPrepmtAmountLCY;
 
+#if not CLEAN20
         OnAfterCalcCreditLimitLCY(Rec, CustCreditAmountLCY, ExtensionAmounts);
+#endif
+        OnAfterCalcCreditLimitLCYProcedure(Rec, CustCreditAmountLCY, ExtensionAmountsDic);
     end;
 
     local procedure CalcOverdueBalanceLCY()
@@ -599,13 +605,19 @@ page 343 "Check Credit Limit"
         CurrPage.CreditLimitDetails.PAGE.SetShippedRetRcdNotIndLCY(ShippedRetRcdNotIndLCY);
         CurrPage.CreditLimitDetails.PAGE.SetOrderAmountThisOrderLCY(OrderAmountThisOrderLCY);
         CurrPage.CreditLimitDetails.PAGE.SetCustCreditAmountLCY(CustCreditAmountLCY);
+#if not CLEAN20
         CurrPage.CreditLimitDetails.Page.SetExtensionAmounts(ExtensionAmounts);
+#endif
+        CurrPage.CreditLimitDetails.Page.SetExtensionAmounts(ExtensionAmountsDic);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterCalcCreditLimitLCYProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcCreditLimitLCY(var Customer: Record Customer; var CustCreditAmountLCY: Decimal; var ExtensionAmounts: List of [Decimal])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcTotalOutstandingAmt(var Customer: Record Customer; var IsHandled: Boolean; var Result: Decimal)
@@ -674,6 +686,11 @@ page 343 "Check Credit Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowWarningOnBeforeExitValue(var Customer: Record Customer; ExitValue: Integer; var Result: Boolean; var IsHandled: Boolean; var Heading: Text[250]; var SecondHeading: Text[250]; var NotificationID: Guid)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcCreditLimitLCYProcedure(var Customer: Record Customer; var CustCreditAmountLCY: Decimal; var ExtensionAmountsDic: Dictionary of [Guid, Decimal])
     begin
     end;
 }

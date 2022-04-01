@@ -126,7 +126,7 @@ page 6504 "Serial No. Information Card"
                         ItemTracingBuffer.SetRange("Serial No.", "Serial No.");
                         ItemTracing.InitFilters(ItemTracingBuffer);
                         ItemTracing.FindRecords;
-                        ItemTracing.RunModal;
+                        ItemTracing.RunModal();
                     end;
                 }
             }
@@ -162,7 +162,7 @@ page 6504 "Serial No. Information Card"
 
                         SerialNoInfoList.SetTableView(ShowRecords);
 
-                        if FocusOnRecord.FindFirst then
+                        if FocusOnRecord.FindFirst() then
                             SerialNoInfoList.SetRecord(FocusOnRecord);
                         if SerialNoInfoList.RunModal = ACTION::LookupOK then begin
                             SerialNoInfoList.GetRecord(SelectedRecord);
@@ -178,7 +178,7 @@ page 6504 "Serial No. Information Card"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -188,7 +188,7 @@ page 6504 "Serial No. Information Card"
                 begin
                     ItemTrackingSetup."Serial No." := Rec."Serial No.";
                     Navigate.SetTracking(ItemTrackingSetup);
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

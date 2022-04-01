@@ -58,7 +58,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                 end else begin
                     Date.SetRange("Period Type", PeriodType);
                     Date.SetFilter("Period Start", '<=%1', TempInvtEventBuf."Availability Date");
-                    if Date.FindLast then begin
+                    if Date.FindLast() then begin
                         InvtPageData.Init();
                         InvtPageData.Code := Format(Date."Period Start");
                         InvtPageData."Line No." := NextPageLineNo;

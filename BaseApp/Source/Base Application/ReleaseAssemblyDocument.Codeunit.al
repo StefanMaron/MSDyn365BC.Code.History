@@ -25,7 +25,7 @@ codeunit 903 "Release Assembly Document"
         InvtSetup.Get();
         if InvtSetup."Location Mandatory" then begin
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-            if AssemblyLine.FindSet then
+            if AssemblyLine.FindSet() then
                 repeat
                     if AssemblyLine.IsInventoriableItem then
                         AssemblyLine.TestField("Location Code");

@@ -35,7 +35,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIncomingDocumentWorkflow(Workflow);
@@ -55,7 +55,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoicePostingWorkflow(Workflow);
@@ -78,7 +78,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoiceRejectionComplexWorkflow(Workflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2, SubWorkflowStepJumpForward);
@@ -100,7 +100,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoiceRejectionFullWorkflow(Workflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -122,7 +122,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoiceRejectionLeafLessWorkflow(Workflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -144,7 +144,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoiceRejectionSimpleWorkflow(Workflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -166,7 +166,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePaymentJournalLinesWorkflow(Workflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -188,7 +188,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMultiEntryPaymentJournalLinesWorkflow(Workflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -209,7 +209,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIncomingDocumentWorkflow(SubWorkflow);
@@ -234,7 +234,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoicePostingWorkflow(SubWorkflow);
@@ -258,7 +258,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
     var
         Workflow: Record Workflow;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIncomingDocumentWorkflow(Workflow);
@@ -278,7 +278,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         SubWorkflowStep: Record "Workflow Step";
         Workflow: Record Workflow;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoicePostingWorkflow(SubWorkflow);
@@ -300,7 +300,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         SubWorkflow: Record Workflow;
         Workflow: Record Workflow;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoicePostingWorkflow(SubWorkflow);
@@ -330,7 +330,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoiceRejectionComplexWorkflow(SubWorkflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2, SubWorkflowStepJumpForward);
@@ -362,7 +362,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoiceRejectionFullWorkflow(SubWorkflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -393,7 +393,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoiceRejectionLeafLessWorkflow(SubWorkflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -421,7 +421,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoiceRejectionSimpleWorkflow(SubWorkflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -452,7 +452,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePaymentJournalLinesWorkflow(SubWorkflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -483,7 +483,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMultiEntryPaymentJournalLinesWorkflow(SubWorkflow, SubWorkflowStepBranch1, SubWorkflowStepBranch2);
@@ -512,7 +512,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         Workflow: Record Workflow;
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIncomingDocumentWorkflow(SubWorkflow);
@@ -540,7 +540,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         SubWorkflow: Record Workflow;
         Workflow: Record Workflow;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchInvoicePostingWorkflow(SubWorkflow);
@@ -602,7 +602,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         CreateIncomingDocumentWorkflow(Workflow);
 
         PreviousWorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        PreviousWorkflowStep.FindLast;
+        PreviousWorkflowStep.FindLast();
 
         ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
             PreviousWorkflowStep.ID);
@@ -1000,7 +1000,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         PreviousWorkflowStep: Record "Workflow Step";
     begin
         PreviousWorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        PreviousWorkflowStep.FindLast;
+        PreviousWorkflowStep.FindLast();
 
         LibraryWorkflow.InsertSubWorkflowStep(Workflow, SubWorkflow.Code, PreviousWorkflowStep.ID);
     end;
@@ -1231,7 +1231,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         WorkflowStepInstance.SetRange("Original Workflow Code", WorkflowStep."Workflow Code");
         WorkflowStepInstance.SetRange("Original Workflow Step ID", WorkflowStep.ID);
         WorkflowStepInstance.SetRange(Type, WorkflowStep.Type);
-        WorkflowStepInstance.FindFirst;
+        WorkflowStepInstance.FindFirst();
     end;
 
     local procedure FindNextWorkflowStepInstance(var WorkflowStepInstance: Record "Workflow Step Instance"; Workflow: Record Workflow; WorkflowStep: Record "Workflow Step")
@@ -1239,7 +1239,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
         WorkflowStepInstance.SetRange("Original Workflow Code", WorkflowStep."Workflow Code");
         WorkflowStepInstance.SetRange("Original Workflow Step ID", WorkflowStep."Next Workflow Step ID");
-        WorkflowStepInstance.FindFirst;
+        WorkflowStepInstance.FindFirst();
     end;
 }
 

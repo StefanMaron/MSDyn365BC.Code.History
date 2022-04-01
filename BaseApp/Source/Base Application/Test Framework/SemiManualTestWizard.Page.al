@@ -34,7 +34,7 @@ page 130415 "Semi-Manual Test Wizard"
                             GetSemiManualTestCodeunits.LookupMode := true;
                             if GetSemiManualTestCodeunits.RunModal = ACTION::LookupOK then begin
                                 GetSemiManualTestCodeunits.SetSelectionFilter(AllObjWithCaption);
-                                if AllObjWithCaption.FindFirst then
+                                if AllObjWithCaption.FindFirst() then
                                     CodeunitId := AllObjWithCaption."Object ID";
                                 LoadTest;
                             end;
@@ -110,7 +110,7 @@ page 130415 "Semi-Manual Test Wizard"
                     ServerFileName := FileManagement.ServerTempFileName('txt');
                     File.Create(ServerFileName);
                     File.CreateOutStream(OutStream);
-                    if SemiManualExecutionLog.FindSet then
+                    if SemiManualExecutionLog.FindSet() then
                         repeat
                             OutStream.Write('[' + Format(SemiManualExecutionLog."Time stamp") + '] ');
                             OutStream.WriteText(SemiManualExecutionLog.GetMessage);
@@ -205,7 +205,7 @@ page 130415 "Semi-Manual Test Wizard"
         SemiManualExecutionLog.Log(StrSubstNo('Attempting to load codeunit %1.', CodeunitId));
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Codeunit);
         AllObjWithCaption.SetRange("Object ID", CodeunitId);
-        if not AllObjWithCaption.FindFirst then
+        if not AllObjWithCaption.FindFirst() then
             exit;
 
         CodeunitIdentifier := StrSubstNo('%1: %2', CodeunitId, AllObjWithCaption."Object Name");

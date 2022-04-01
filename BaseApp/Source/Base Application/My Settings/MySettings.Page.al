@@ -64,7 +64,7 @@ page 9176 "My Settings"
                         AllowedCompanies: Page "Allowed Companies";
                         IsSetupInProgress: Boolean;
                     begin
-                        AllowedCompanies.Initialize;
+                        AllowedCompanies.Initialize();
 
                         if SelectedCompany.Get(CompanyName) then
                             AllowedCompanies.SetRecord(SelectedCompany);
@@ -337,7 +337,7 @@ page 9176 "My Settings"
         TimeZone: Record "Time Zone";
     begin
         TimeZone.SetRange(ID, TimeZoneID);
-        if TimeZone.FindFirst then
+        if TimeZone.FindFirst() then
             exit(TimeZone."Display Name");
     end;
 

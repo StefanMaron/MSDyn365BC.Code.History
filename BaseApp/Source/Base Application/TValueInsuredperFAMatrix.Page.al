@@ -634,7 +634,8 @@ page 9275 "T. Value Insured per FA Matrix"
         [InDataSet]
         Field32Visible: Boolean;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by LoadMatrix()', '20.0')]
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Insurance; CurrentNoOfMatrixColumns: Integer; DateFilterLocal: Text[250]; RoundingFactorLocal: Option "None","1","1000","1000000")
     begin
         LoadMatrix(

@@ -43,7 +43,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         Company: Record Company;
         PostedInvoiceNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A sent invoice
@@ -72,14 +72,14 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         NewPaymentDetailName: Text;
         NewPaymentDetailDescription: Text;
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] The default payment Instructions have been updated from settings
         O365PaymentInstructions.SetRange(Default, true);
-        O365PaymentInstructions.FindFirst;
-        NewPaymentDetailName := LibraryUtility.GenerateGUID;
-        NewPaymentDetailDescription := LibraryUtility.GenerateGUID;
+        O365PaymentInstructions.FindFirst();
+        NewPaymentDetailName := LibraryUtility.GenerateGUID();
+        NewPaymentDetailDescription := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(NewPaymentDetailName);
         LibraryVariableStorage.Enqueue(NewPaymentDetailDescription);
         BCO365Settings.OpenEdit;
@@ -103,8 +103,10 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         // [THEN] The sent invoice references the updated default payment Instructions
         BCO365PostedSalesInvoice.OpenEdit;
         BCO365PostedSalesInvoice.GotoKey(PostedInvoiceNo);
+#if not CLEAN19
         Assert.AreEqual(
           NewPaymentDetailName, BCO365PostedSalesInvoice."Payment Instructions Name".Value, 'Wrong payment detail name on draft invoice');
+#endif
         BCO365PostedSalesInvoice.Close;
 
         // [WHEN] The posted invoice is being saved to XML
@@ -129,12 +131,12 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         NewPaymentDetailName: Text;
         NewPaymentDetailDescription: Text;
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A new payment Instructions have been created
-        NewPaymentDetailName := LibraryUtility.GenerateGUID;
-        NewPaymentDetailDescription := LibraryUtility.GenerateGUID;
+        NewPaymentDetailName := LibraryUtility.GenerateGUID();
+        NewPaymentDetailDescription := LibraryUtility.GenerateGUID();
         LibraryInvoicingApp.CreatePaymentInstructions(NewPaymentDetailName, NewPaymentDetailDescription);
 
         // [WHEN] A draft invoice is created
@@ -160,8 +162,10 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         // [THEN] The sent invoice references the updated default payment Instructions
         BCO365PostedSalesInvoice.OpenEdit;
         BCO365PostedSalesInvoice.GotoKey(PostedInvoiceNo);
+#if not CLEAN19
         Assert.AreEqual(
           NewPaymentDetailName, BCO365PostedSalesInvoice."Payment Instructions Name".Value, 'Wrong payment detail name on draft invoice');
+#endif
         BCO365PostedSalesInvoice.Close;
 
         // [WHEN] The posted invoice is being saved to XML
@@ -181,7 +185,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
     begin
         LibraryLowerPermissions.SetInvoiceApp;
         O365PaymentInstructions.SetRange(Default, true);
-        O365PaymentInstructions.FindFirst;
+        O365PaymentInstructions.FindFirst();
         asserterror O365PaymentInstructions.Delete(true);
         Assert.ExpectedError(CannotDeleteDefaultErr);
     end;
@@ -198,12 +202,12 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         NewPaymentDetailName: Text;
         NewPaymentDetailDescription: Text;
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A new payment Instructions have been created
-        NewPaymentDetailName := LibraryUtility.GenerateGUID;
-        NewPaymentDetailDescription := LibraryUtility.GenerateGUID;
+        NewPaymentDetailName := LibraryUtility.GenerateGUID();
+        NewPaymentDetailDescription := LibraryUtility.GenerateGUID();
         LibraryInvoicingApp.CreatePaymentInstructions(NewPaymentDetailName, NewPaymentDetailDescription);
 
         // [GIVEN] A draft invoice with payment the new payment instructions assigned
@@ -220,7 +224,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
 
         // [WHEN] The new payment instruction is deleted
         O365PaymentInstructions.SetRange(Name, NewPaymentDetailName);
-        O365PaymentInstructions.FindFirst;
+        O365PaymentInstructions.FindFirst();
         asserterror O365PaymentInstructions.Delete(true);
         Assert.ExpectedError(PaymentIsUsedErr);
     end;
@@ -237,12 +241,12 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         NewPaymentDetailName: Text;
         NewPaymentDetailDescription: Text;
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A new payment Instructions have been created
-        NewPaymentDetailName := LibraryUtility.GenerateGUID;
-        NewPaymentDetailDescription := LibraryUtility.GenerateGUID;
+        NewPaymentDetailName := LibraryUtility.GenerateGUID();
+        NewPaymentDetailDescription := LibraryUtility.GenerateGUID();
         LibraryInvoicingApp.CreatePaymentInstructions(NewPaymentDetailName, NewPaymentDetailDescription);
 
         // [GIVEN] A posted invoice using this payment instruction
@@ -259,7 +263,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         // [WHEN] The new payment instruction is deleted
         // [THEN] No error occurs
         O365PaymentInstructions.SetRange(Name, NewPaymentDetailName);
-        O365PaymentInstructions.FindFirst;
+        O365PaymentInstructions.FindFirst();
         O365PaymentInstructions.Delete(true);
     end;
 
@@ -277,19 +281,19 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         NewPaymentDetailDescription: Text;
         PaymentInstructionId: Integer;
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         O365PaymentInstructions.SetRange(Default, true);
-        O365PaymentInstructions.FindFirst;
+        O365PaymentInstructions.FindFirst();
         PaymentInstructionId := O365PaymentInstructions.Id;
 
         // [GIVEN] A draft invoice is created
         InvoiceNo := LibraryInvoicingApp.CreateInvoice;
 
         // [WHEN] The default payment instruction is modified
-        NewPaymentDetailName := LibraryUtility.GenerateGUID;
-        NewPaymentDetailDescription := LibraryUtility.GenerateGUID;
+        NewPaymentDetailName := LibraryUtility.GenerateGUID();
+        NewPaymentDetailDescription := LibraryUtility.GenerateGUID();
         LibraryInvoicingApp.UpdatePaymentInstructions(PaymentInstructionId, NewPaymentDetailName, NewPaymentDetailDescription);
 
         // [THEN] The invoice is updated with the new name
@@ -319,11 +323,11 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         OriginalPaymentDetailDescription: Text;
         PaymentInstructionId: Integer;
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         O365PaymentInstructions.SetRange(Default, true);
-        O365PaymentInstructions.FindFirst;
+        O365PaymentInstructions.FindFirst();
         PaymentInstructionId := O365PaymentInstructions.Id;
         OriginalPaymentDetailDescription := O365PaymentInstructions.GetPaymentInstructionsInCurrentLanguage;
 
@@ -331,8 +335,8 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         PostedInvoiceNo := LibraryInvoicingApp.SendInvoice(LibraryInvoicingApp.CreateInvoice);
 
         // [WHEN] The default payment instruction is modified
-        NewPaymentDetailName := LibraryUtility.GenerateGUID;
-        NewPaymentDetailDescription := LibraryUtility.GenerateGUID;
+        NewPaymentDetailName := LibraryUtility.GenerateGUID();
+        NewPaymentDetailDescription := LibraryUtility.GenerateGUID();
         LibraryInvoicingApp.UpdatePaymentInstructions(PaymentInstructionId, NewPaymentDetailName, NewPaymentDetailDescription);
 
         // [WHEN] The invoice is saved to XML
@@ -355,12 +359,12 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         NewPaymentDetailDescription: Text;
         PaymentInstructionId: Integer;
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A new payment Instructions have been created
-        NewPaymentDetailName := LibraryUtility.GenerateGUID;
-        NewPaymentDetailDescription := LibraryUtility.GenerateGUID;
+        NewPaymentDetailName := LibraryUtility.GenerateGUID();
+        NewPaymentDetailDescription := LibraryUtility.GenerateGUID();
         PaymentInstructionId := LibraryInvoicingApp.CreatePaymentInstructions(NewPaymentDetailName, NewPaymentDetailDescription);
 
         // [GIVEN] A draft invoice is created for this payment instruction
@@ -374,8 +378,8 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         BCO365SalesInvoice.Close;
 
         // [WHEN] The default payment instruction is modified
-        NewPaymentDetailName := LibraryUtility.GenerateGUID;
-        NewPaymentDetailDescription := LibraryUtility.GenerateGUID;
+        NewPaymentDetailName := LibraryUtility.GenerateGUID();
+        NewPaymentDetailDescription := LibraryUtility.GenerateGUID();
         LibraryInvoicingApp.UpdatePaymentInstructions(PaymentInstructionId, NewPaymentDetailName, NewPaymentDetailDescription);
 
         // [THEN] The invoice is updated with the new name
@@ -397,8 +401,6 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
     var
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
-        LibraryInvoicingApp.SetupEmailTable;
-
         if IsInitialized then
             exit;
 
@@ -438,7 +440,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         TempXMLBuffer.Load(DatasetFileName);
         if TempXMLBuffer.FindNodesByXPath(TempPaymentDetailXMLBuffer, 'PaymentInstructions_Txt') then begin
             Assert.AreEqual(1, TempPaymentDetailXMLBuffer.Count, 'Bad number of payment Instructions found in the report');
-            TempPaymentDetailXMLBuffer.FindFirst;
+            TempPaymentDetailXMLBuffer.FindFirst();
             Assert.AreEqual(ExpectedPaymentDetailValue, TempPaymentDetailXMLBuffer.Value, 'Wrong payment Instructions in report');
         end;
     end;

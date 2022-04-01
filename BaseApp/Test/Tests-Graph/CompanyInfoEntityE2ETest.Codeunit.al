@@ -36,7 +36,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 204030] User can get the company information that has non-empty values for complex type field address.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The company information record exists and has values assigned to the fields contained in complex types.
         CompanyInformation.Get();
@@ -60,11 +60,11 @@ codeunit 135507 "Company Info. Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 204030] User can modify a company information through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [Given] A company information exists.
         CompanyInformation.Get();
-        CompanyInformation.Name := LibraryUtility.GenerateGUID;
+        CompanyInformation.Name := LibraryUtility.GenerateGUID();
         ModifiedName := CompanyInformation.Name;
         RequestBody := GetSimpleCompanyInformationJSON(CompanyInformation);
 
@@ -90,12 +90,12 @@ codeunit 135507 "Company Info. Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 204030] User can modify a complex type in a company information through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A company information record exists with an address.
         CompanyInformation.Get();
-        CompanyInformation.Address := LibraryUtility.GenerateGUID;
-        CompanyInformation."Address 2" := LibraryUtility.GenerateGUID;
+        CompanyInformation.Address := LibraryUtility.GenerateGUID();
+        CompanyInformation."Address 2" := LibraryUtility.GenerateGUID();
         RequestBody := GetCompanyInformationWithAddressJSON(CompanyInformation);
 
         // [WHEN] The user makes a patch request to the service and specifies address fields.
@@ -120,7 +120,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         Response: Text;
     begin
         // [SCENARIO 204030] User can clear the values encapsulated in a complex type by specifying null.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A company information exists with an address.
         CompanyInformation.Get();
@@ -184,7 +184,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         JSONManagement.GetJSONObject(JSONObject);
 
         if CompanyInformation.Name = '' then
-            CompanyInformation.Name := LibraryUtility.GenerateGUID;
+            CompanyInformation.Name := LibraryUtility.GenerateGUID();
 
         JSONManagement.AddJPropertyToJObject(JSONObject, 'displayName', CompanyInformation.Name);
 

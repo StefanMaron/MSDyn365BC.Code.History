@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 2815 "Native - Coupons"
 {
     ObsoleteState = Pending;
@@ -55,4 +56,4 @@ codeunit 2815 "Native - Coupons"
         exit(NativeEDMTypes.WriteCouponsJSON(DocumentType, DocumentNo));
     end;
 }
-
+#endif

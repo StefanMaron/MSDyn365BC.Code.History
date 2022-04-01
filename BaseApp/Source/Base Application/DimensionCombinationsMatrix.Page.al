@@ -543,7 +543,7 @@ page 9251 "Dimension Combinations Matrix"
             if CombinationIsLimited(ColumnID) then
                 if Confirm(SeeCombinationsQst) then begin
                     DimensionValueCombinations.Load(Code, MatrixRecords[ColumnID].Code, ShowColumnName);
-                    DimensionValueCombinations.RunModal;
+                    DimensionValueCombinations.RunModal();
                     Clear(DimensionValueCombinations);
                     exit;
                 end;

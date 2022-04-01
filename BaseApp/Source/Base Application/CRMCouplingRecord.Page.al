@@ -127,11 +127,16 @@ page 5336 "CRM Coupling Record"
         CurrPage.CoupledFields.PAGE.SetSourceRecord(Rec);
     end;
 
+    procedure SetSourceRecordID(RecordID: RecordID; IsOption: Boolean)
+    begin
+        Rec.Initialize(RecordID, IsOption);
+        Rec.Insert;
+        EnableCreateNew := Rec."Sync Action" = Rec."Sync Action"::"To Integration Table";
+    end;
+
     procedure SetSourceRecordID(RecordID: RecordID)
     begin
-        Initialize(RecordID);
-        Insert;
-        EnableCreateNew := "Sync Action" = "Sync Action"::"To Integration Table";
+        SetSourceRecordID(RecordID, false);
     end;
 }
 

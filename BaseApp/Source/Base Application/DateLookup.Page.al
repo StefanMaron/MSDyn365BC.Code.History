@@ -36,7 +36,7 @@ page 749 "Date Lookup"
             TransferFields(Date);
             Insert;
         until Date.Next() = 0;
-        FindFirst;
+        FindFirst();
     end;
 
     var

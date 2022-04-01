@@ -45,7 +45,7 @@ page 1521 "Workflow Responses"
         WorkflowWebhookResponses: Codeunit "Workflow Webhook Responses";
     begin
         SetFilter("Function Name", '<>%1', WorkflowWebhookResponses.SendNotificationToWebhookCode);
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     var

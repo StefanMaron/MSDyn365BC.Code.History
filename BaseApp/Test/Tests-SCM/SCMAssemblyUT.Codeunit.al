@@ -316,7 +316,7 @@ codeunit 137928 "SCM Assembly UT"
         // [GIVEN] Location with "To-Assembly Bin Code".
         // [GIVEN] Warehouse entries on Location "L" for two items, each of them has two lots, for which there are two serial nos. Quantity of each entry = "Q".
         QtyBase := LibraryRandom.RandInt(10);
-        MockLocation(Location, LibraryUtility.GenerateGUID);
+        MockLocation(Location, LibraryUtility.GenerateGUID());
         MockItemsLotsSerials(ItemNo, LotNo, SerialNo);
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
@@ -343,7 +343,7 @@ codeunit 137928 "SCM Assembly UT"
         // [GIVEN] Location with "To-Assembly Bin Code".
         // [GIVEN] Warehouse entries on Location "L" for two items, each of them has two lots, for which there are two serial nos. Quantity of each entry = "Q".
         QtyBase := LibraryRandom.RandInt(10);
-        MockLocation(Location, LibraryUtility.GenerateGUID);
+        MockLocation(Location, LibraryUtility.GenerateGUID());
         MockItemsLotsSerials(ItemNo, LotNo, SerialNo);
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
@@ -370,7 +370,7 @@ codeunit 137928 "SCM Assembly UT"
         // [GIVEN] Location with "To-Assembly Bin Code".
         // [GIVEN] Warehouse entries on Location "L" for two items, each of them has two lots, for which there are two serial nos. Quantity of each entry = "Q".
         QtyBase := LibraryRandom.RandInt(10);
-        MockLocation(Location, LibraryUtility.GenerateGUID);
+        MockLocation(Location, LibraryUtility.GenerateGUID());
         MockItemsLotsSerials(ItemNo, LotNo, SerialNo);
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
@@ -623,7 +623,7 @@ codeunit 137928 "SCM Assembly UT"
         LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
 
         PostedAssemblyHeader.Init();
-        PostedAssemblyHeader."No." := LibraryUtility.GenerateGUID;
+        PostedAssemblyHeader."No." := LibraryUtility.GenerateGUID();
         PostedAssemblyHeader."Item No." := ItemVariant."Item No.";
 
         PostedAssemblyHeader.Validate("Variant Code", ItemVariant.Code);
@@ -646,13 +646,13 @@ codeunit 137928 "SCM Assembly UT"
         // [SCENARIO 309436] When run ItemAssemblySubstGet in codeunit "Item Subst." then page Item Substitution Entries opens allowing Stan to select substitution
 
         // [GIVEN] Item had Item Substitution
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibraryAssembly.CreateItemSubstitution(ItemSubstitution, ItemNo);
 
         // [GIVEN] Assembly Order had Line with the Item
         AssemblyHeader.Init();
         AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Quote;
-        AssemblyHeader."No." := LibraryUtility.GenerateGUID;
+        AssemblyHeader."No." := LibraryUtility.GenerateGUID();
         AssemblyHeader.Insert();
 
         AssemblyLine.Init();
@@ -816,7 +816,7 @@ codeunit 137928 "SCM Assembly UT"
         with AssembleToOrderLink do begin
             Init;
             "Assembly Document Type" := "Assembly Document Type"::Order;
-            "Assembly Document No." := LibraryUtility.GenerateGUID;
+            "Assembly Document No." := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -826,18 +826,18 @@ codeunit 137928 "SCM Assembly UT"
         i: Integer;
     begin
         for i := 1 to ArrayLen(ItemNo) do
-            ItemNo[i] := LibraryUtility.GenerateGUID;
+            ItemNo[i] := LibraryUtility.GenerateGUID();
         for i := 1 to ArrayLen(LotNo) do
-            LotNo[i] := LibraryUtility.GenerateGUID;
+            LotNo[i] := LibraryUtility.GenerateGUID();
         for i := 1 to ArrayLen(SerialNo) do
-            SerialNo[i] := LibraryUtility.GenerateGUID;
+            SerialNo[i] := LibraryUtility.GenerateGUID();
     end;
 
     local procedure MockLocation(var Location: Record Location; ToAsmBinCode: Code[20])
     begin
         with Location do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             "To-Assembly Bin Code" := ToAsmBinCode;
             Insert;
         end;
@@ -847,7 +847,7 @@ codeunit 137928 "SCM Assembly UT"
     begin
         with WarehouseShipmentLine do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Line No." := LibraryUtility.GetNewRecNo(WarehouseShipmentLine, FieldNo("Line No."));
             "Assemble to Order" := IsATO;
             Insert;
@@ -926,7 +926,7 @@ codeunit 137928 "SCM Assembly UT"
     local procedure CreateSalesLine(SalesDocType: Enum "Sales Document Type"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         SalesHeader."Document Type" := SalesDocType;
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         SalesHeader.Status := SalesHeader.Status::Released;
         SalesHeader.Insert();
 
@@ -949,7 +949,7 @@ codeunit 137928 "SCM Assembly UT"
             SalesLine."Document Type"::Order:
                 AsmHeader."Document Type" := AsmHeader."Document Type"::Order;
         end;
-        AsmHeader."No." := LibraryUtility.GenerateGUID;
+        AsmHeader."No." := LibraryUtility.GenerateGUID();
         AsmHeader.Status := AsmHeader.Status::Released;
         AsmHeader.Insert();
 

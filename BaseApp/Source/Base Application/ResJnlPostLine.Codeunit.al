@@ -8,7 +8,7 @@ codeunit 212 "Res. Jnl.-Post Line"
 
     trigger OnRun()
     begin
-        GetGLSetup;
+        GetGLSetup();
         RunWithCheck(Rec);
     end;
 
@@ -75,16 +75,12 @@ codeunit 212 "Res. Jnl.-Post Line"
             OnBeforeCheckResourceBlocked(Res, IsHandled);
             if not IsHandled then
                 Res.TestField(Blocked, false);
-#if not CLEAN17
-            IsHandled := false;
-            OnBeforeGenPostingSetupGet(ResJnlLine, IsHandled);
-#endif
             "Resource Group No." := Res."Resource Group No.";
 
             ResLedgEntry.Init();
             ResLedgEntry.CopyFromResJnlLine(ResJnlLine);
 
-            GetGLSetup;
+            GetGLSetup();
             ResLedgEntry."Total Cost" := Round(ResLedgEntry."Total Cost");
             ResLedgEntry."Total Price" := Round(ResLedgEntry."Total Price");
             if ResLedgEntry."Entry Type" = ResLedgEntry."Entry Type"::Sale then begin
@@ -172,14 +168,6 @@ codeunit 212 "Res. Jnl.-Post Line"
     local procedure OnBeforePostResJnlLine(var ResJournalLine: Record "Res. Journal Line")
     begin
     end;
-
-#if not CLEAN17
-    [Obsolete('The event was introduced to bypass dead code that imposed strict setup. Dead code is now removed', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenPostingSetupGet(var ResJournalLine: Record "Res. Journal Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResLedgEntryInsert(var ResLedgerEntry: Record "Res. Ledger Entry"; ResJournalLine: Record "Res. Journal Line")

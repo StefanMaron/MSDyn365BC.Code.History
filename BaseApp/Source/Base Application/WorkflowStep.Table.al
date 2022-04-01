@@ -189,7 +189,7 @@ table 1502 "Workflow Step"
         // Change Previous Workflow Step ID to not point to the deleted step
         ChildWorkflowStep.SetRange("Workflow Code", "Workflow Code");
         ChildWorkflowStep.SetRange("Previous Workflow Step ID", ID);
-        if ChildWorkflowStep.FindSet then
+        if ChildWorkflowStep.FindSet() then
             repeat
                 ChildWorkflowStep.Validate("Previous Workflow Step ID", "Previous Workflow Step ID");
                 ChildWorkflowStep.Modify(true);
@@ -333,7 +333,7 @@ table 1502 "Workflow Step"
 
         WorkflowRule.SetRange("Workflow Code", "Workflow Code");
         WorkflowRule.SetRange("Workflow Step ID", ID);
-        if WorkflowRule.FindFirst then
+        if WorkflowRule.FindFirst() then
             TempWorkflowRule := WorkflowRule
         else begin
             TempWorkflowRule."Table ID" := WorkflowEvent."Table ID";
@@ -426,7 +426,7 @@ table 1502 "Workflow Step"
         TempWorkflowStepBuffer.PopulateLookupTable("Workflow Code");
         TempWorkflowStepBuffer.SetFilter("Event Step ID", '0|%1', LookupID);
         TempWorkflowStepBuffer.SetFilter("Response Step ID", '0|%1', LookupID);
-        if TempWorkflowStepBuffer.FindFirst then;
+        if TempWorkflowStepBuffer.FindFirst() then;
         TempWorkflowStepBuffer.Reset();
         if PAGE.RunModal(PAGE::"Workflow Steps", TempWorkflowStepBuffer) = ACTION::LookupOK then begin
             LookupID := TempWorkflowStepBuffer."Event Step ID" + TempWorkflowStepBuffer."Response Step ID";
@@ -470,7 +470,7 @@ table 1502 "Workflow Step"
         SetFilter("Workflow Code", '%1', SelectStr(1, WorkflowStepAttributes));
         SetFilter(ID, SelectStr(2, WorkflowStepAttributes));
         SetFilter(Type, SelectStr(3, WorkflowStepAttributes));
-        FindFirst;
+        FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -506,7 +506,7 @@ table 1502 "Workflow Step"
 
         WorkflowRule.SetRange("Workflow Code", "Workflow Code");
         WorkflowRule.SetRange("Workflow Step ID", ID);
-        if WorkflowRule.FindFirst then
+        if WorkflowRule.FindFirst() then
             exit(WorkflowRule.GetDisplayText);
 
         exit('');
@@ -545,11 +545,11 @@ table 1502 "Workflow Step"
         ChildWorkflowStep.SetRange("Workflow Code", "Workflow Code");
         ChildWorkflowStep.SetRange("Previous Workflow Step ID", ID);
         ChildWorkflowStep.SetRange(Type, ChildWorkflowStep.Type::"Event");
-        if ChildWorkflowStep.FindFirst then
+        if ChildWorkflowStep.FindFirst() then
             exit(true);
 
         ChildWorkflowStep.SetRange(Type);
-        if ChildWorkflowStep.FindSet then
+        if ChildWorkflowStep.FindSet() then
             repeat
                 if ChildWorkflowStep.HasEventsInSubtree(ChildWorkflowStep) then
                     exit(true);
@@ -577,7 +577,7 @@ table 1502 "Workflow Step"
         WorkflowRule.SetRange("Workflow Code", "Workflow Code");
         WorkflowRule.SetRange("Workflow Step ID", ID);
         WorkflowRule.SetRange("Workflow Step Instance ID", ZeroGuid);
-        if WorkflowRule.FindSet then
+        if WorkflowRule.FindSet() then
             repeat
                 InstanceWorkflowRule.Copy(WorkflowRule);
                 InstanceWorkflowRule.ID := 0;
@@ -617,11 +617,11 @@ table 1502 "Workflow Step"
         WorkflowStep.SetRange("Workflow Code", "Workflow Code");
         WorkflowStep.SetRange(Type, WorkflowStep.Type::"Event");
 
-        if WorkflowStep.FindFirst then
+        if WorkflowStep.FindFirst() then
             exit(true);
 
         WorkflowStep.SetRange(Type);
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 if WorkflowStep.HasParentEvent(WorkflowStep) then
                     exit(true);

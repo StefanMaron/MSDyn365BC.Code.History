@@ -1,5 +1,9 @@
+#if not CLEAN20
 codeunit 5455 "Graph Data Setup"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The functionality is not supported any more';
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -32,7 +36,6 @@ codeunit 5455 "Graph Data Setup"
             "Integration Table ID" := IntTableID;
             "Integration Table UID Fld. No." := IntTableUIDFldNo;
             "Int. Tbl. Modified On Fld. No." := IntTableModFldNo;
-            "Synch. Codeunit ID" := CODEUNIT::"Graph Integration Table Sync";
             Direction := Direction::Bidirectional;
             "Synch. Only Coupled Records" := false;
             "Parent Name" := ParentName;
@@ -65,7 +68,7 @@ codeunit 5455 "Graph Data Setup"
 
         MappingName := GetMappingCodeForTable(EntityRecRef.Number);
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", MappingName);
-        if IntegrationFieldMapping.FindSet then
+        if IntegrationFieldMapping.FindSet() then
             repeat
                 FieldRef := EntityRecRef.Field(IntegrationFieldMapping."Field No.");
                 EmptyFieldRef := EmptyRecordRef.Field(IntegrationFieldMapping."Field No.");
@@ -172,4 +175,4 @@ codeunit 5455 "Graph Data Setup"
     begin
     end;
 }
-
+#endif

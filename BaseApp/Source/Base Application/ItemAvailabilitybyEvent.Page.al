@@ -449,12 +449,18 @@ page 5530 "Item Availability by Event"
     end;
 
     trigger OnOpenPage()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
         OnBeforeOnOpenPage(IncludeBlanketOrders);
         if ItemIsSet then
             InitAndCalculatePeriodEntries()
         else
             InitItemRequestFields();
+        if ManufacturingSetup.ReadPermission then begin
+            ManufacturingSetup.Get();
+            ForecastName := ManufacturingSetup."Current Production Forecast";
+        end;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -469,7 +475,6 @@ page 5530 "Item Availability by Event"
         CalcInventoryPageData: Codeunit "Calc. Inventory Page Data";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ForecastName: Code[10];
-        PeriodType: Option Day,Week,Month,Quarter,Year;
         LastUpdateTime: DateTime;
         SelectedDate: Date;
         [InDataSet]
@@ -485,6 +490,7 @@ page 5530 "Item Availability by Event"
         ItemNo: Code[20];
         LocationFilter: Text;
         VariantFilter: Text;
+        PeriodType: Option Day,Week,Month,Quarter,Year;
 
     protected procedure InitAndCalculatePeriodEntries()
     begin

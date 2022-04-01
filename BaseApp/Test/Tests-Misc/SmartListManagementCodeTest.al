@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 138891 "SmartList Management Code Test"
 {
     Subtype = Test;
@@ -132,3 +133,4 @@ codeunit 138891 "SmartList Management Code Test"
     var
         Assert: Codeunit Assert;
 }
+#endif

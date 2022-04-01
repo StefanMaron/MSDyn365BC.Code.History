@@ -35,7 +35,7 @@ codeunit 136132 "Sales Stockout"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales Stockout");
         // Clear the needed globals
         ClearGlobals;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if IsInitialized then
@@ -45,8 +45,8 @@ codeunit 136132 "Sales Stockout"
         SalesAndReceivablesSetup.Get();
         SalesAndReceivablesSetup.Validate("Stockout Warning", true);
         SalesAndReceivablesSetup.Modify();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Stockout");
@@ -71,7 +71,7 @@ codeunit 136132 "Sales Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Quantity = Y.
         // SETUP: Create Sales Demand for Item X,with zero quantity .
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         SaleQuantity := PurchaseQuantity + 1;
         CreateItem(Item);
@@ -104,7 +104,7 @@ codeunit 136132 "Sales Stockout"
           NbNotifs - 1, TempNotificationContext.Count,
           'Unexpected number of notifications after changing the Sales Line type from Item to Resource.');
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -119,7 +119,7 @@ codeunit 136132 "Sales Stockout"
         // Test supply cover Sales Order demand and therefore no warning.
 
         // SETUP: Create Supply for Item X.
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         SaleQuantity := PurchaseQuantity - 1;
         CreateItem(Item);
@@ -148,7 +148,7 @@ codeunit 136132 "Sales Stockout"
 
         // SETUP: Create Sales Demand for Item X,with zero quantity.
         // SETUP: Create Supply with Purchase Order for Item X, Quantity=Y, at a date after Sales Demand.
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         SaleQuantity := PurchaseQuantity - 1;
         CreateItem(Item);
@@ -160,7 +160,7 @@ codeunit 136132 "Sales Stockout"
 
         // VERIFY: Verify Quantity on sales order after warning is Y - 1.
         ValidateQuantity(SalesOrderNo, SaleQuantity);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 136132 "Sales Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Location = Z.
         // SETUP: Create Sales Demand for Item X, Quantity=0, Location = M .
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         SaleQuantity := PurchaseQuantity - 1;
         CreateItem(Item);
@@ -194,7 +194,7 @@ codeunit 136132 "Sales Stockout"
 
         // VERIFY: Quantity on sales order after warning is Y - 1.
         ValidateQuantity(SalesOrderNo, SaleQuantity);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -214,7 +214,7 @@ codeunit 136132 "Sales Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Location = Z.
         // SETUP: Create Sales Demand for Item X, Quantity=Y, Location = Z
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         SaleQuantity := PurchaseQuantity - 1;
         CreateItem(Item);
@@ -230,7 +230,7 @@ codeunit 136132 "Sales Stockout"
 
         // VERIFY: Quantity on sales order after warning is Y and location M.
         ValidateQuantity(SalesOrderNo, SaleQuantity);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -248,7 +248,7 @@ codeunit 136132 "Sales Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Date = Workdate.
         // SETUP: Create Sales Demand for Item X, Quantity=Y, Date = Workdate + 1
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         SaleQuantity := PurchaseQuantity;
         CreateItem(Item);
@@ -263,7 +263,7 @@ codeunit 136132 "Sales Stockout"
 
         // VERIFY: Quantity on sales order after warning is Y and Date is Workdate - 1.
         ValidateQuantity(SalesOrderNo, SaleQuantity);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -281,7 +281,7 @@ codeunit 136132 "Sales Stockout"
         StockAvailSupplyDate: Date;
     begin
         // [SCENARIO 118221.1] Verify Availability Warning's Earliest Date when changing UOM from PCS to BOX
-        Initialize;
+        Initialize();
         QtyPerUOM := 3;
         LocationCode := CreateLocation;
 
@@ -304,7 +304,7 @@ codeunit 136132 "Sales Stockout"
         // [THEN] Availability Warning is shown with Earliest Date = SupplyDate
         LibraryVariableStorage.Enqueue(StockAvailSupplyDate);
         SetSalesUOMPageTestability(SalesOrderNo, BoxUOM);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Normal]
@@ -429,7 +429,7 @@ codeunit 136132 "Sales Stockout"
         with PurchaseLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", PurchaseOrderNo);
-            FindFirst;
+            FindFirst();
             Validate("Unit of Measure Code", UOMCode);
             Validate("Expected Receipt Date", ReceiptDate);
             Modify(true);
@@ -465,7 +465,7 @@ codeunit 136132 "Sales Stockout"
         // Method returns the shipment date from a sales order.
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesHeaderNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         if SalesLine.Count > 0 then
             exit(SalesLine."Shipment Date");
         Error(ShipmentDateDocumentError, SalesHeaderNo);
@@ -478,7 +478,7 @@ codeunit 136132 "Sales Stockout"
         // Method returns the expected receipt date from a purchase order.
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeaderNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         if PurchaseLine.Count > 0 then
             exit(PurchaseLine."Expected Receipt Date");
         Error(ReceiptDateDocumentError, PurchaseHeaderNo);
@@ -505,7 +505,7 @@ codeunit 136132 "Sales Stockout"
         if SalesHeader.Get(SalesHeader."Document Type"::Order, DocumentNo) then begin
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
             SalesLine.SetRange("Document No.", SalesHeader."No.");
-            SalesLine.FindFirst;
+            SalesLine.FindFirst();
             Assert.AreEqual(Quantity, SalesLine.Quantity, 'Verify Sales Line Quantity matches expected');
             exit;
         end;
@@ -532,7 +532,7 @@ codeunit 136132 "Sales Stockout"
     begin
         ItemUnitOfMeasure.SetRange("Item No.", ItemNo);
         ItemUnitOfMeasure.SetRange("Qty. per Unit of Measure", 1);
-        ItemUnitOfMeasure.FindFirst;
+        ItemUnitOfMeasure.FindFirst();
         exit(ItemUnitOfMeasure.Code);
     end;
 

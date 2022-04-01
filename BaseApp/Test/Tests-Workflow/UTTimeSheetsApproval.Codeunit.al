@@ -26,7 +26,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // open -> submitted -> approved
-        Initialize;
+        Initialize();
 
         DoSubmitApprove(TimeSheetLine);
 
@@ -40,7 +40,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // open -> submitted -> approved -> submitted
-        Initialize;
+        Initialize();
 
         DoSubmitApprove(TimeSheetLine);
         TimeSheetLine.TestField(Status, TimeSheetLine.Status::Approved);
@@ -59,7 +59,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // open -> submitted -> rejected
-        Initialize;
+        Initialize();
 
         DoSubmitReject(TimeSheetLine);
 
@@ -73,7 +73,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // open -> submitted -> opened
-        Initialize;
+        Initialize();
 
         // create time sheet with one line
         CreateTimeSheetWithOneLine(TimeSheetLine);
@@ -96,7 +96,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // open -> submitted -> rejected -> submitted
-        Initialize;
+        Initialize();
 
         DoSubmitReject(TimeSheetLine);
 
@@ -114,7 +114,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // rejected line cannot be reopen
-        Initialize;
+        Initialize();
         BindSubscription(UTTimeSheetsApproval);
 
         DoSubmitReject(TimeSheetLine);
@@ -132,7 +132,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // rejected line cannot be approved
-        Initialize;
+        Initialize();
 
         DoSubmitReject(TimeSheetLine);
 
@@ -147,7 +147,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // open line cannot be approved
-        Initialize;
+        Initialize();
 
         // create time sheet with one line
         CreateTimeSheetWithOneLine(TimeSheetLine);
@@ -163,7 +163,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // open line cannot be rejected
-        Initialize;
+        Initialize();
 
         // create time sheet with one line
         CreateTimeSheetWithOneLine(TimeSheetLine);
@@ -179,7 +179,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // approved line cannot be reopened
-        Initialize;
+        Initialize();
         BindSubscription(UTTimeSheetsApproval);
 
         DoSubmitApprove(TimeSheetLine);
@@ -198,7 +198,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // approved line cannot be submitted
-        Initialize;
+        Initialize();
 
         DoSubmitApprove(TimeSheetLine);
 
@@ -215,7 +215,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         // approved line cannot be rejected
-        Initialize;
+        Initialize();
 
         DoSubmitApprove(TimeSheetLine);
 
@@ -233,7 +233,7 @@ codeunit 136501 "UT Time Sheets Approval"
         EmployeeAbsence: Record "Employee Absence";
     begin
         // absence approval causes "absence posting"
-        Initialize;
+        Initialize();
 
         // create time sheet
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
@@ -264,7 +264,7 @@ codeunit 136501 "UT Time Sheets Approval"
         // verify that employee absence is registered
         EmployeeAbsence.SetRange("Employee No.", Employee."No.");
         EmployeeAbsence.SetRange("From Date", TimeSheetHeader."Starting Date");
-        EmployeeAbsence.FindFirst;
+        EmployeeAbsence.FindFirst();
 
         TearDown;
     end;
@@ -282,7 +282,7 @@ codeunit 136501 "UT Time Sheets Approval"
     begin
         // [FEATURE] [UT] [UI] [Submit]
         // [SCENARIO 271237] Extension has possibility to catch approve of timesheet lines on TimeSheet page for further processing
-        Initialize;
+        Initialize();
 
         // [GIVEN] Time sheet with several lines
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
@@ -317,7 +317,7 @@ codeunit 136501 "UT Time Sheets Approval"
     begin
         // [FEATURE] [UT] [UI] [Reject]
         // [SCENARIO 271237] Extension has possibility to catch reject of timesheet lines on ManagerTimeSheet page for further processing
-        Initialize;
+        Initialize();
 
         // [GIVEN] Time sheet with several lines
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
@@ -357,7 +357,7 @@ codeunit 136501 "UT Time Sheets Approval"
     begin
         // [FEATURE] [UT] [UI] [Reject]
         // [SCENARIO 271237] Extension has possibility to catch reject of timesheet lines on ManagerTimeSheetByJob page for further processing
-        Initialize;
+        Initialize();
 
         LibraryTimeSheet.FindJob(Job);
         LibraryTimeSheet.FindJobTask(Job."No.", JobTask);
@@ -391,7 +391,7 @@ codeunit 136501 "UT Time Sheets Approval"
         if IsInitialized then
             exit;
 
-        LibraryTimeSheet.Initialize;
+        LibraryTimeSheet.Initialize();
 
         // create current user id setup for approver
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
@@ -474,7 +474,7 @@ codeunit 136501 "UT Time Sheets Approval"
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
         with CauseOfAbsence do begin
             if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst;
+                HumanResourceUnitOfMeasure.FindFirst();
                 Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
                 Modify(true);
             end;

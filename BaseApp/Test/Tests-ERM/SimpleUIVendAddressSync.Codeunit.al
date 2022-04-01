@@ -34,7 +34,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         // [WHEN]User finished editing the header (Buy-From Address fields) and either leaves the page,
         // invokes an action or starts working on the lines
         // [THEN]The address fields on the Buy-From Vendor do not get sync-ed with the data from the Purchase Header.
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -68,7 +68,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         // [WHEN]User finished editing the header (Ship-to Address fields) and either leaves the page,
         // invokes an action or starts working on the lines
         // [THEN]The address fields on the Buy-from Vendor do not get sync-ed with the data from the Purchase Header.
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -105,7 +105,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         // [WHEN] Confirm to replace the Buy-from Vendor and not to replace the Pay-to Vendor
         // [THEN] Buy-from Address details are cleared from the Purchase Invoice
         // [THEN] Pay-to Address details are not cleared from the Purchase Invoice
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(OriginalVendor);
@@ -146,7 +146,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         // [WHEN] Confirm not to replace the Buy-from Vendor and to replace the Pay-to Vendor
         // [THEN] Buy-from Address details are not cleared from the Purchase Invoice
         // [THEN] Pay-to Address details are cleared from the Purchase Invoice
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(OriginalVendor);
@@ -185,7 +185,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         // [WHEN] Confirm to replace both Buy-from Vendor and Pay-to Vendor
         // [THEN] Buy-from Address details are cleared from the Purchase Invoice
         // [THEN] Pay-to Address details are cleared from the Purchase Invoice
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(OriginalVendor);
@@ -228,7 +228,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         // [THEN] Buy-from Address details are overriden on the Purchase Invoice
         // [THEN] Ship-to Address details are overriden on the Purchase Invoice
         // [THEN] Pay-to Address details are overriden on the Purchase Invoice
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(OriginalVendor);
@@ -260,7 +260,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -278,7 +278,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -296,7 +296,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -314,7 +314,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -332,7 +332,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -350,7 +350,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -368,7 +368,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
@@ -387,7 +387,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -410,7 +410,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -433,7 +433,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -456,7 +456,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -479,7 +479,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -502,7 +502,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -525,7 +525,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -548,7 +548,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -571,7 +571,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -594,7 +594,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -617,7 +617,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -640,7 +640,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -663,7 +663,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -686,7 +686,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -709,7 +709,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -732,7 +732,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -755,7 +755,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -778,7 +778,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -801,7 +801,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -824,7 +824,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -847,7 +847,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -869,8 +869,8 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Simple UI: Vend. Address Sync");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
 
@@ -879,7 +879,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Simple UI: Vend. Address Sync");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
         Commit();
@@ -935,7 +935,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         LibraryERM.CreatePostCode(BuyFromPostCode);
         LibraryERM.CreatePostCode(PayToPostCode);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Posting Date".SetValue(WorkDate);
         PurchaseInvoice."Buy-from Post Code".SetValue(BuyFromPostCode.Code);
         PurchaseInvoice."Buy-from Address".SetValue(GenerateBuyFromAddress);
@@ -1042,7 +1042,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.SetCurrentKey("Document Type", "Buy-from Vendor No.");
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchaseHeader.FindLast;
+        PurchaseHeader.FindLast();
     end;
 
     local procedure FindPayToVendorPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; PayToVendorNo: Code[20])
@@ -1050,7 +1050,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.SetCurrentKey("Document Type", "Pay-to Vendor No.");
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.SetRange("Pay-to Vendor No.", PayToVendorNo);
-        PurchaseHeader.FindLast;
+        PurchaseHeader.FindLast();
     end;
 
     [ConfirmHandler]

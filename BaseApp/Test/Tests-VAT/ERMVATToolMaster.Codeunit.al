@@ -35,8 +35,9 @@ codeunit 134050 "ERM VAT Tool - Master"
             exit;
 
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(LibraryFiscalYear.GetPastNewYearDate(5));
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetBlockDeleteGLAccount(false);
         ERMVATToolHelper.SetupItemNos;
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
 
@@ -57,7 +58,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         VATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
         // Run VAT Rate Change with Perform Conversion = FALSE, expect no updates.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -154,7 +155,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         OldWorkDate: Date;
     begin
         // Run VAT Rate Change with Perform Conversion = FALSE, expect no updates.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -355,7 +356,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         TempRecRef: RecordRef;
     begin
         // Update Gen. Prod. Posting Group table with Auto Insert Default = TRUE. No Confirmations expected.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -622,7 +623,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         GLAccount: Record "G/L Account";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -658,7 +659,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         Item: Record Item;
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(AutoInsertDefault);
@@ -695,7 +696,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ConfigTemplateHeader: Record "Config. Template Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -730,7 +731,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -761,7 +762,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         Resource: Record Resource;
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -796,7 +797,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -826,7 +827,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -856,7 +857,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -886,7 +887,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -916,7 +917,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -946,7 +947,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -976,7 +977,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1006,7 +1007,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1036,7 +1037,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1066,7 +1067,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1096,7 +1097,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1138,7 +1139,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
         GenJournalBatch.SetRange(Recurring, true);
-        if not GenJournalBatch.FindFirst then
+        if not GenJournalBatch.FindFirst() then
             LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
         for I := 1 to Count do begin
             CreateGenJnlLine(GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name);
@@ -1348,7 +1349,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
         TempRecRef.Open(DATABASE::"Job Journal Line", true);
 
-        if not JobJnlBatch.FindFirst then begin
+        if not JobJnlBatch.FindFirst() then begin
             LibraryJob.GetJobJournalTemplate(JobJnlTemplate);
             LibraryJob.CreateJobJournalBatch(JobJnlTemplate.Name, JobJnlBatch);
         end;
@@ -1526,7 +1527,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
         TempRecRef.Open(DATABASE::"Standard General Journal Line", true);
 
-        if not StdGenJnl.FindFirst then begin
+        if not StdGenJnl.FindFirst() then begin
             LibraryERM.FindGenJournalTemplate(GenJnlTemplate);
             LibraryERM.CreateStandardGeneralJournal(StdGenJnl, GenJnlTemplate.Name);
         end;
@@ -1596,8 +1597,8 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
-        if not ReqWkshName.FindFirst then begin
-            ReqWkshTemplate.FindFirst;
+        if not ReqWkshName.FindFirst() then begin
+            ReqWkshTemplate.FindFirst();
             LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, ReqWkshTemplate.Name);
         end;
     end;
@@ -1606,7 +1607,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         ItemJnlTemplate: Record "Item Journal Template";
     begin
-        if not StdItemJnl.FindFirst then begin
+        if not StdItemJnl.FindFirst() then begin
             LibraryInventory.FindItemJournalTemplate(ItemJnlTemplate);
             StdItemJnl.Init();
             StdItemJnl.Validate("Journal Template Name", ItemJnlTemplate.Name);

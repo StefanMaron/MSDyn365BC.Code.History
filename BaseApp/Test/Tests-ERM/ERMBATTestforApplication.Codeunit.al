@@ -43,7 +43,7 @@ codeunit 134013 "ERM BAT Test for Application"
 
         // Setup: Setup Data for Apply Customer Ledger Entries.
         // Create and Post General Journal Line for Credit Memo and Refund.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -88,7 +88,7 @@ codeunit 134013 "ERM BAT Test for Application"
 
         // Setup: Setup Data for Apply Customer Ledger Entries.
         // Create and Post General Journal Line for Invoice.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -136,7 +136,7 @@ codeunit 134013 "ERM BAT Test for Application"
 
         // Setup: Setup Data for Apply Customer Ledger Entries.
         // Create and Post General Journal Line for Invoice.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
@@ -167,7 +167,7 @@ codeunit 134013 "ERM BAT Test for Application"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM BAT Test for Application");
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -210,7 +210,7 @@ codeunit 134013 "ERM BAT Test for Application"
         // Apply Customer Entries.
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         CustLedgerEntry.SetRange(Open, true);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
@@ -226,7 +226,7 @@ codeunit 134013 "ERM BAT Test for Application"
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetRange("Document Type", ApplietoDocType);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         GenJournalLine.Validate("Applies-to Doc. Type", ApplietoDocType);
         GenJournalLine.Validate("Applies-to Doc. No.", CustLedgerEntry."Document No.");
         GenJournalLine.Modify(true);

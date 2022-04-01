@@ -42,11 +42,11 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
         LibraryInventory.SetAverageCostSetupInAccPeriods(
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryPatterns.SETNoSeries;
         isInitialized := true;
         Commit();
@@ -59,7 +59,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInv(Item."Costing Method"::FIFO, 0, CalculatePer::Item, true);
     end;
 
@@ -69,7 +69,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInv(Item."Costing Method"::Average, 0, CalculatePer::Item, false);
     end;
 
@@ -79,7 +79,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInv(Item."Costing Method"::Standard, 50, CalculatePer::Item, true);
     end;
 
@@ -89,7 +89,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInv(Item."Costing Method"::LIFO, 0, CalculatePer::Item, true);
     end;
 
@@ -99,7 +99,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueInboundILEwLoc(Item."Costing Method"::FIFO, 0);
     end;
 
@@ -109,7 +109,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueInboundILEwLoc(Item."Costing Method"::Average, 0);
     end;
 
@@ -119,7 +119,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueInboundILEwLoc(Item."Costing Method"::Standard, 50);
     end;
 
@@ -129,7 +129,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInvNegZeroInv(Item."Costing Method"::LIFO, 0, CalculatePer::Item);
     end;
 
@@ -139,7 +139,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInvNegZeroInv(Item."Costing Method"::Average, 0, CalculatePer::Item);
     end;
 
@@ -149,7 +149,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInvNegZeroInv(Item."Costing Method"::Standard, 50, CalculatePer::Item);
     end;
 
@@ -159,7 +159,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInv(Item."Costing Method"::FIFO, 0, CalculatePer::"Item Ledger Entry", true);
     end;
 
@@ -169,7 +169,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         asserterror TestRevalueExistingInv(Item."Costing Method"::Average, 0, CalculatePer::"Item Ledger Entry", true);
         Assert.ExpectedError(TXTCalcPerILEAvgCostErr);
     end;
@@ -180,7 +180,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInv(Item."Costing Method"::Standard, 50, CalculatePer::"Item Ledger Entry", true);
     end;
 
@@ -190,7 +190,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInvwLocVar(Item."Costing Method"::Average, 0, CalculatePer::Item);
     end;
 
@@ -200,7 +200,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevalueExistingInvwLocVar(Item."Costing Method"::Standard, 50, CalculatePer::Item);
     end;
 
@@ -210,7 +210,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRounding(Item."Costing Method"::FIFO);
     end;
 
@@ -220,7 +220,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRounding(Item."Costing Method"::Average);
     end;
 
@@ -230,7 +230,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRounding(Item."Costing Method"::Standard);
     end;
 
@@ -240,7 +240,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevaluationCircularTransfer(Item."Costing Method"::FIFO, 0);
     end;
 
@@ -250,7 +250,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevaluationCircularTransfer(Item."Costing Method"::LIFO, 0);
     end;
 
@@ -260,7 +260,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevaluationCircularTransfer(Item."Costing Method"::Average, 0);
     end;
 
@@ -270,7 +270,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevaluationCircularTransfer(Item."Costing Method"::Standard, 50);
     end;
 
@@ -280,7 +280,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevaluationSalesReturn(Item."Costing Method"::FIFO, 0);
     end;
 
@@ -290,7 +290,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevaluationSalesReturn(Item."Costing Method"::LIFO, 0);
     end;
 
@@ -300,7 +300,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevaluationSalesReturn(Item."Costing Method"::Average, 0);
     end;
 
@@ -310,7 +310,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestRevaluationSalesReturn(Item."Costing Method"::Standard, 50);
     end;
 
@@ -328,7 +328,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         Qty: Decimal;
     begin
         // Test to reproduce Bug265306
-        Initialize;
+        Initialize();
 
         // Make item
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, LibraryRandom.RandInt(10), 0, 0, '');
@@ -347,7 +347,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryPatterns.POSTItemJournalLine(
           ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item, '', '', '', Qty, Day1 + 4,
           LibraryRandom.RandInt(10));
-        ItemLedgerEntry.FindLast; // store the ILE for last posistive adjustment
+        ItemLedgerEntry.FindLast(); // store the ILE for last posistive adjustment
 
         // Adjust cost
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -391,7 +391,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         // Test to reproduce Bug245517 in TFS
-        Initialize;
+        Initialize();
 
         // Setup Item.
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
@@ -452,7 +452,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         Qty: Decimal;
     begin
         // Test to reproduce Bug311425
-        Initialize;
+        Initialize();
         Day1 := WorkDate;
 
         // Make item
@@ -518,7 +518,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryPatterns.CalculateInventoryValueRun(
           ItemJournalBatch, Item, PostingDate + 1, CalculatePer::"Item Ledger Entry", false, false, false, CalculationBase::" ", false, '', '');
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", UnitCost);
         ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -530,7 +530,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryPatterns.CalculateInventoryValueRun(
           ItemJournalBatch2, Item, PostingDate, CalculatePer::"Item Ledger Entry", false, false, false, CalculationBase::" ", false, '', '');
         ItemJournalLine2.SetRange("Journal Batch Name", ItemJournalBatch2.Name);
-        ItemJournalLine2.FindFirst;
+        ItemJournalLine2.FindFirst();
 
         // [THEN] Check Unit Cost = 0 (since the total cost was 0 on Day 1)
         Assert.AreEqual(0, ItemJournalLine2."Unit Cost (Calculated)", TXTIncorrectUnitCostErr);
@@ -549,7 +549,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     begin
         // Check that revaluation journal lines correctly created for simple item and option "Calculate ByVariant"
 
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
         for i := 1 to 2 do
             PostPositiveAdjmtOnNewLocation(TotalQty, TotalAmount, Item);
@@ -574,7 +574,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         // [SCENARIO 137138] Calc. Inventory Value on date "A" for Standard Cost Item takes into account Value Entry with "Posting Date" > "A" but "Valuation Date" <= "A".
 
         // [GIVEN] Create Purchase Order for Item of Standard Cost = "X".
-        Initialize;
+        Initialize();
         UnitCost := LibraryRandom.RandInt(10);
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, UnitCost);
         LibraryPatterns.MAKEPurchaseOrder(
@@ -586,7 +586,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         // [GIVEN] Post Invoice of Posting Date = WORKDATE + 2 days.
         with PurchaseHeader do begin
             Validate("Posting Date", WorkDate + 2);
-            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
             Modify(true);
         end;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
@@ -596,7 +596,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
           ItemJournalBatch, Item, WorkDate + 1, CalculatePer::Item,
           false, false, false, CalculationBase::" ", false, '', '');
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
 
         // [THEN] Check "Unit Cost (Calculated)" = "X" (since the cost was posted on WORKDATE + 2 days)
         Assert.AreEqual(UnitCost, ItemJournalLine."Unit Cost (Calculated)", TXTIncorrectUnitCostErr);
@@ -821,7 +821,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LocationCode[1] := Location1.Code;
         LocationCode[2] := Location2.Code;
         CreateSetupEntrieswLocInbndandOutbnd(Item, LocationCode, TempItemLedgerEntry, WorkDate);
-        TempItemLedgerEntry.FindFirst;
+        TempItemLedgerEntry.FindFirst();
         if FilterByLocation then
             LocationFilter := TempItemLedgerEntry."Location Code";
         ExecuteRevalueExistingInventory(Item, ItemJnlBatch, WorkDate + 3, CalcPer, false, false, false, CalculationBase::" ", LocationFilter, '');
@@ -897,7 +897,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LocationCode[1] := Location1.Code;
         LocationCode[2] := Location2.Code;
         CreateSetupEntrieswLocInbndandOutbnd(Item, LocationCode, TempItemLedgerEntry, WorkDate);
-        TempItemLedgerEntry.FindFirst;
+        TempItemLedgerEntry.FindFirst();
         LibraryPatterns.ExecutePostRevalueInboundILE(Item, TempItemLedgerEntry, 1.1);
     end;
 
@@ -911,7 +911,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     begin
         LibraryPatterns.MAKEItem(Item, CostingMethod, 3.33333, 0, 0, '');
         CreateSetupEntriesRounding(Item, TempItemLedgerEntry, WorkDate);
-        TempItemLedgerEntry.FindFirst;
+        TempItemLedgerEntry.FindFirst();
         if CostingMethod = Item."Costing Method"::Average then begin
             ExecuteRevalueExistingInventory(Item, ItemJnlBatch, WorkDate, CalculatePer::Item, false, false, false, CalculationBase::" ", '', '');
             ModifyPostRevaluation(ItemJnlBatch, Item."No.", 1.2);
@@ -1197,7 +1197,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
 
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJnlBatchTransfer, ItemJnlBatch."Template Type"::Transfer);
 
@@ -1253,7 +1253,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         ItemJnlLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJnlBatchSalesReturn);
 
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         TempItemLedgerEntry := ItemLedgerEntry;
         TempItemLedgerEntry.Insert();
     end;
@@ -1305,7 +1305,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.SetUpNewLine(ItemJournalLine);
-        ItemJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        ItemJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         ItemJournalLine.Validate("Item No.", ItemNo);
         ItemJournalLine.Validate("Applies-to Entry", AppliesToEntryNo);
         ItemJournalLine.Validate("Unit Cost (Revalued)", UnitCostRevalued);
@@ -1330,7 +1330,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
     begin
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlBatch.Name);
-        if ItemJnlLine.FindSet then
+        if ItemJnlLine.FindSet() then
             repeat
                 ItemJnlLine.Validate(
                   "Inventory Value (Revalued)", Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
@@ -1345,7 +1345,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         with ItemJnlLine do begin
             SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
             SetRange("Journal Batch Name", ItemJnlBatch.Name);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1355,7 +1355,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
             SetRange("Entry Type", EntryType);
             SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
-            FindLast;
+            FindLast();
         end;
     end;
 

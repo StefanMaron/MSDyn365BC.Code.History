@@ -15,7 +15,7 @@ codeunit 7171 "Sales Info-Pane Management"
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
         AvailableQuantity: Decimal;
-        PeriodType: Option Day,Week,Month,Quarter,Year;
+        PeriodType: Enum "Analysis Period Type";
         LookaheadDateformula: DateFormula;
         IsHandled: Boolean;
     begin
@@ -29,7 +29,7 @@ codeunit 7171 "Sales Info-Pane Management"
             Evaluate(LookaheadDateformula, '<0D>');
             exit(
               ConvertQty(
-                AvailableToPromise.QtyAvailabletoPromise(
+                AvailableToPromise.CalcQtyAvailabletoPromise(
                   Item,
                   GrossRequirement,
                   ScheduledReceipt,

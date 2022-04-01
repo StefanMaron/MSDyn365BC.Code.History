@@ -116,7 +116,10 @@ page 1871 "Credit Limit Details"
         ShippedRetRcdNotIndLCY: Decimal;
         OrderAmountThisOrderLCY: Decimal;
         CustCreditAmountLCY: Decimal;
+#if not CLEAN20
         ExtensionAmounts: List of [Decimal];
+#endif
+        ExtensionAmountsDic: Dictionary of [Guid, Decimal];
         OverdueAmountsTxt: Label 'Overdue Amounts (LCY)';
 
     procedure PopulateDataOnNotification(var CreditLimitNotification: Notification)
@@ -127,7 +130,10 @@ page 1871 "Credit Limit Details"
         CreditLimitNotification.SetData('OrderAmountThisOrderLCY', Format(OrderAmountThisOrderLCY));
         CreditLimitNotification.SetData('CustCreditAmountLCY', Format(CustCreditAmountLCY));
 
+#if not CLEAN20
         OnAfterPopulateDataOnNotification(CreditLimitNotification, ExtensionAmounts);
+#endif
+        OnAfterPopulateDataOnNotificationProcedure(CreditLimitNotification, ExtensionAmountsDic);
     end;
 
     procedure InitializeFromNotificationVar(CreditLimitNotification: Notification)
@@ -146,7 +152,10 @@ page 1871 "Credit Limit Details"
         Evaluate(OrderAmountThisOrderLCY, CreditLimitNotification.GetData('OrderAmountThisOrderLCY'));
         Evaluate(CustCreditAmountLCY, CreditLimitNotification.GetData('CustCreditAmountLCY'));
 
+#if not CLEAN20
         OnAfterInitializeFromNotificationVar(CreditLimitNotification, ExtensionAmounts);
+#endif
+        OnAfterInitializeFromNotificationVarProcedure(CreditLimitNotification, ExtensionAmountsDic);
     end;
 
     procedure SetCustomerNumber(Value: Code[20])
@@ -174,23 +183,51 @@ page 1871 "Credit Limit Details"
         CustCreditAmountLCY := Value;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by SetExtensionAmounts(FromExtensionAmounts: Dictionary of [Guid, Decimal])', '20.0')]
     procedure SetExtensionAmounts(FromExtensionAmounts: List of [Decimal])
     begin
         ExtensionAmounts := FromExtensionAmounts;
     end;
 
+    [Obsolete('Replaced by GetExtensionAmounts(var ToExtensionAmounts: Dictionary of [Guid, Decimal])', '20.0')]
     procedure GetExtensionAmounts(var ToExtensionAmounts: List of [Decimal])
     begin
         ToExtensionAmounts := ExtensionAmounts;
     end;
+#endif
 
+    procedure SetExtensionAmounts(FromExtensionAmounts: Dictionary of [Guid, Decimal])
+    begin
+        ExtensionAmountsDic := FromExtensionAmounts;
+    end;
+
+    procedure GetExtensionAmounts(var ToExtensionAmounts: Dictionary of [Guid, Decimal])
+    begin
+        ToExtensionAmounts := ExtensionAmountsDic;
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterPopulateDataOnNotificationProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPopulateDataOnNotification(var CreditLimitNotification: Notification; var ExtensionAmounts: List of [Decimal])
     begin
     end;
 
+    [Obsolete('Replaced by OnAfterInitializeFromNotificationVarProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitializeFromNotificationVar(CreditLimitNotification: Notification; var ExtensionAmounts: List of [Decimal])
+    begin
+    end;
+#endif    
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPopulateDataOnNotificationProcedure(CreditLimitNotification: Notification; var ExtensionAmountsDic: Dictionary of [Guid, Decimal])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeFromNotificationVarProcedure(CreditLimitNotification: Notification; var ExtensionAmountsDic: Dictionary of [Guid, Decimal])
     begin
     end;
 }

@@ -1,4 +1,4 @@
-﻿report 699 "Calculate Plan - Req. Wksh."
+report 699 "Calculate Plan - Req. Wksh."
 {
     Caption = 'Calculate Plan - Req. Wksh.';
     ProcessingOnly = true;
@@ -225,25 +225,27 @@
         ActionMessageEntry: Record "Action Message Entry";
         ReqLineExtern: Record "Requisition Line";
         PurchReqLine: Record "Requisition Line";
-        SKU: Record "Stockkeeping Unit";
         PlanningAssignment: Record "Planning Assignment";
         MfgSetup: Record "Manufacturing Setup";
         InvtProfileOffsetting: Codeunit "Inventory Profile Offsetting";
-        PriceCalculationMethod: Enum "Price Calculation Method";
         Window: Dialog;
         CurrWorksheetType: Option Requisition,Planning;
         PeriodLength: Integer;
+        ReqWkshTemplateFilter: Code[50];
+        ReqWkshFilter: Code[50];
+        Counter: Integer;
+
+    protected var
+        SKU: Record "Stockkeeping Unit";
         CurrTemplateName: Code[10];
         CurrWorksheetName: Code[10];
         FromDate: Date;
         ToDate: Date;
-        ReqWkshTemplateFilter: Code[50];
-        ReqWkshFilter: Code[50];
-        Counter: Integer;
+        PriceCalculationMethod: Enum "Price Calculation Method";
+        ExtendedPriceEnabled: Boolean;
         UseForecast: Code[10];
         ExcludeForecastBefore: Date;
         RespectPlanningParm: Boolean;
-        ExtendedPriceEnabled: Boolean;
 
     procedure SetTemplAndWorksheet(TemplateName: Code[10]; WorksheetName: Code[10])
     begin

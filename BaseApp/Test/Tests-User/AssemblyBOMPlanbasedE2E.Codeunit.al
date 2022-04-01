@@ -30,7 +30,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Assembly BOM Plan-based E2E");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
@@ -62,7 +62,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
 
         // [GIVEN] Given two Items and one Resource
         // [GIVEN] A user with a Viral Signup Plan
-        Initialize;
+        Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
         LibraryE2EPlanPermissions.SetViralSignupPlan;
@@ -89,7 +89,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
 
         // [GIVEN] Given two Items and one Resource
         // [GIVEN] A user with a Business Manager Plan
-        Initialize;
+        Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -116,7 +116,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
 
         // [GIVEN] Given two Items and one Resource
         // [GIVEN] A user with a External Accountant Plan
-        Initialize;
+        Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
@@ -143,7 +143,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
 
         // [GIVEN] Given two Items and one Resource
         // [GIVEN] A user with a Team Member Plan
-        Initialize;
+        Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -168,7 +168,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
 
         // [GIVEN] Given two Items and one Resource
         // [GIVEN] A user with a Essential ISV Emb plan
-        Initialize;
+        Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
@@ -195,7 +195,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
 
         // [GIVEN] Given two Items and one Resource
         // [GIVEN] A user with a Team Member ISV Emb Plan
-        Initialize;
+        Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -220,7 +220,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
 
         // [GIVEN] Given two Items and one Resource
         // [GIVEN] A user with a Device ISV Emb plan
-        Initialize;
+        Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;

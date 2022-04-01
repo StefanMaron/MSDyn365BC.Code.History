@@ -302,7 +302,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
         DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
         DimensionValue.Insert();
 
-        DimensionSetEntry2.FindLast;
+        DimensionSetEntry2.FindLast();
         CreateDimensionSetEntry(DimensionSetEntry,
           DimensionSetEntry2."Dimension Set ID" + LibraryRandom.RandInt(10), DimensionValue."Dimension Code", DimensionValue.Code);  // Should be greater than available Dimension Set ID.
     end;
@@ -347,7 +347,7 @@ codeunit 137457 "PostedPhyInvtOrderDiff UT REP"
     begin
         PstdPhysInvtOrderHdr.SetRange("No.", PstdPhysInvtOrderHdr."No.");
         PostedPhysInvtOrderDiff.SetTableView(PstdPhysInvtOrderHdr);
-        PostedPhysInvtOrderDiff.Run;  // Invokes PostedPhysInvtOrderDiffReportHandler.
+        PostedPhysInvtOrderDiff.Run();  // Invokes PostedPhysInvtOrderDiffReportHandler.
         Clear(PostedPhysInvtOrderDiff);
     end;
 

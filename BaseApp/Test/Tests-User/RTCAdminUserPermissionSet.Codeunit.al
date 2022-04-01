@@ -39,7 +39,7 @@ codeunit 132901 RTCAdmin_User_PermissionSet
                 Error(NotSupportedOS001, Version);
         end;
 
-        UserCard.OpenNew;
+        UserCard.OpenNew();
         asserterror UserCard."Windows User Name".Value := 'Anonymous';
         ValidationError := UserCard.GetValidationError;
         if ValidationError <> ExpectedError then begin
@@ -59,7 +59,7 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         UserCard: TestPage "User Card";
         ValidationError: Text;
     begin
-        UserCard.OpenNew;
+        UserCard.OpenNew();
         asserterror UserCard."Windows User Name".Value := 'Everyone';
         if UserCard.GetValidationError <> UserEveryoneIsNotAllowedTxt then begin
             ValidationError := UserCard.GetValidationError;
@@ -79,7 +79,7 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         UserCard: TestPage "User Card";
         ValidationError: Text;
     begin
-        UserCard.OpenNew;
+        UserCard.OpenNew();
         asserterror UserCard."Windows User Name".Value := 'Administrators';
         if UserCard.GetValidationError <> UserAdministratorsIsNotAllowedTxt then begin
             ValidationError := UserCard.GetValidationError;
@@ -100,7 +100,7 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         ValidationError: Text;
     begin
         AddUserHelper(User002);
-        UserCard.OpenNew;
+        UserCard.OpenNew();
         asserterror UserCard."Windows User Name".Value := UserInvalid001;
         if UserCard.GetValidationError <> UserIsNotValidWinAccountTxt then begin
             ValidationError := UserCard.GetValidationError;
@@ -115,7 +115,7 @@ codeunit 132901 RTCAdmin_User_PermissionSet
     var
         UserCard: TestPage "User Card";
     begin
-        UserCard.OpenNew;
+        UserCard.OpenNew();
         UserCard."User Name".Value := UserName;
         UserCard.Close;
     end;

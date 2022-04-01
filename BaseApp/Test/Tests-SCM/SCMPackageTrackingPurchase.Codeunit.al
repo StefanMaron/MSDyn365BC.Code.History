@@ -317,7 +317,7 @@ codeunit 137265 "SCM Package Tracking Purchase"
 
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, '', '', PackageNo, 3);
 
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -695,7 +695,7 @@ codeunit 137265 "SCM Package Tracking Purchase"
 
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item[1]."No.", Location.Code, '', '', PackageNo[1, 1], 53);
 
-        PurchaseHeader[1].Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader[1].Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader[1].Modify();
         PurchaseOrderNo := PurchaseHeader[1]."No.";
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
@@ -833,13 +833,8 @@ codeunit 137265 "SCM Package Tracking Purchase"
 
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-#if CLEAN17
         CopyPurchaseDocument.SetParameters(
-            "Purchase Document Type From"::"Posted Receipt".AsInteger(), PurchRcptHeader."No.", true, true);
-#else
-        CopyPurchaseDocument.InitializeRequest(
-            "Purchase Document Type From"::"Posted Receipt".AsInteger(), PurchRcptHeader."No.", true, true);
-#endif
+            "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.", true, true);
         CopyPurchaseDocument.Run();
 
         PurchaseHeader.Find();

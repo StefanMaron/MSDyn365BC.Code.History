@@ -484,7 +484,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         RunMailEngine(OfficeAddinContext);
 
         // [WHEN] The user chooses to change an item and picks the first in the list
-        Item[1].FindFirst;
+        Item[1].FindFirst();
 
         // [THEN] The suggested line items page opens (page handler)
         // [THEN] The sales quote page opens and contains the lines from the email body, including the one the user changed to
@@ -516,10 +516,10 @@ codeunit 139062 "Add-in Automatic Line Gen."
 
         // [WHEN] The user adds a few items to the list using the drilldown functionality
         // These values are set in the modal page handler
-        Item[3].FindLast;
+        Item[3].FindLast();
         Quantity[3] := 13;
 
-        Item[4].FindLast;
+        Item[4].FindLast();
         Quantity[4] := 26;
 
         // [THEN] The suggested line items page opens (page handler)
@@ -828,10 +828,10 @@ codeunit 139062 "Add-in Automatic Line Gen."
         ContactBusinessRelation: Record "Contact Business Relation";
         Contact: Record Contact;
     begin
-        Customer.FindFirst;
+        Customer.FindFirst();
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
 
         Contact.Get(ContactBusinessRelation."Contact No.");
         exit(Contact."E-Mail");
@@ -847,7 +847,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
 
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
         ContactBusinessRelation.SetRange("No.", Vendor."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
 
         Contact.Get(ContactBusinessRelation."Contact No.");
         Contact.Validate("E-Mail", StrSubstNo('%1@contoso.com', CreateGuid));

@@ -23,7 +23,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Not recurring job that didn't result in modified/inserted records do not get 'On Hold' status
-        Initialize;
+        Initialize();
 
         // [GIVEN] Active not recurring job 'X' is executed
         CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::Ready);
@@ -48,7 +48,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Active job becomes inactive for a period of time if the run didn't change anything and Inactivity Timeout Period > 0
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         // [GIVEN] Active recurring job 'X' is executed, Inactivity Timeout Period = 10
         CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::Ready);
@@ -73,7 +73,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Active job becomes inactive with "On Hold with Inactivity Timeout" state if the run didn't change anything and Inactivity Timeout Period = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] Active recurring job 'X' is executed with Inactivity Timeout Period = 0
         CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::Ready);
@@ -98,7 +98,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Active job stays active if the run resulted in some activity.
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
 
         // [GIVEN] Active recurring job 'X' is executed
@@ -123,7 +123,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Inactive job becomes active on manual record modification.
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
 
         // [GIVEN] Integration Table Mapping 'ITEM', where "Table ID" = 'Item'
@@ -145,7 +145,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         JobQueueEntry[3].Modify();
 
         // [WHEN] Item 'X' has been inserted
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert(); // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
 
         // [THEN] Job 'ITEM1' does not get status "Ready", as it has only recently executed.
@@ -173,7 +173,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     begin
         // [FEATURE] [UT] [Upgrade]
         // [SCENARIO] Inactive job stays inactive on manual record modification during upgrade.
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
 
         // [GIVEN] Integration Table Mapping 'ITEM', where "Table ID" = 'Item'
@@ -186,7 +186,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         DataUpgradeMgt.SetUpgradeInProgress;
 
         // [WHEN] Item 'X' has been inserted
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert(); // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
 
         // [THEN] Job 'ITEM', where status "On Hold with Inactivity period"
@@ -206,7 +206,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         // [FEATURE] [UT] [Login] [Company]
         // [SCENARIO] "Inactive" jobs are activated on Company opening if source tables are modified
         // [SCENARIO 310997] "Error" jobs are not started on company open
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
 
         // [GIVEN] Jobs 'A' and 'B', executed and got Status "On Hold with Inactivity period"
@@ -267,7 +267,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] SetStatus "On Hold with Inactivity period" with Inactivity Timeout Period > 0
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
 
         // [GIVEN] Active recurring job 'X' is executed, "Inactivity Timeout Period" = 10
@@ -292,7 +292,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] SetStatus "On Hold with Inactivity period" with Inactivity Timeout Period = 0
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
 
         // [GIVEN] Active recurring job 'X' is executed, Inactivity Timeout Period = 0s
@@ -322,7 +322,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         IntegrationTableMapping.Init();
-        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
+        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID();
         IntegrationTableMapping."Table ID" := TableNo;
         IntegrationTableMapping.Insert();
 

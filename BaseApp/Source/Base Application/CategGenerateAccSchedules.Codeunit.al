@@ -204,7 +204,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
               GLAccountCategory."Additional Report Definition"::"Distribution to Shareholders")
         else
             GLAccountCategory.SetRange("Additional Report Definition", AddReportDef);
-        if GLAccountCategory.FindSet then begin
+        if GLAccountCategory.FindSet() then begin
             repeat
                 AddAccShedLine(
                   AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
@@ -291,7 +291,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         GLAccountCategory.SetRange(Indentation, 0);
         GLAccountCategory.SetAutoCalcFields("Has Children");
         GLAccountCategory.SetCurrentKey("Presentation Order");
-        if GLAccountCategory.FindSet then
+        if GLAccountCategory.FindSet() then
             repeat
                 AddAccSchedLinesDetail(AccScheduleLine, RowNo, GLAccountCategory, 0);
             until GLAccountCategory.Next() = 0;
@@ -313,7 +313,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
             GLAccountCategory.SetRange("Parent Entry No.", ParentGLAccountCategory."Entry No.");
             GLAccountCategory.SetCurrentKey("Presentation Order");
             GLAccountCategory.SetAutoCalcFields("Has Children");
-            if GLAccountCategory.FindSet then
+            if GLAccountCategory.FindSet() then
                 repeat
                     AddAccSchedLinesDetail(AccScheduleLine, RowNo, GLAccountCategory, Indentation + 1);
                 until GLAccountCategory.Next() = 0;
@@ -346,7 +346,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
 
     local procedure AddAccShedLine(var AccScheduleLine: Record "Acc. Schedule Line"; var RowNo: Integer; TotalingType: Enum "Acc. Schedule Line Totaling Type"; Description: Text[80]; Totaling: Text[250]; Bold: Boolean; Underline: Boolean; ShowOppositeSign: Boolean; Indentation: Integer)
     begin
-        if AccScheduleLine.FindLast then;
+        if AccScheduleLine.FindLast() then;
         AccScheduleLine.Init();
         AccScheduleLine."Line No." += 10000;
         RowNo += 1;
@@ -386,7 +386,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         AccFilter: Text;
     begin
         GLAccountCategory.SetRange("Additional Report Definition", AdditionalReportingDefinition);
-        if GLAccountCategory.FindSet then
+        if GLAccountCategory.FindSet() then
             repeat
                 Totaling := GLAccountCategory.GetTotaling;
                 if (AccFilter <> '') and (Totaling <> '') then

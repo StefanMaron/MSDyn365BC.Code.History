@@ -41,7 +41,7 @@ codeunit 137045 "SCM Bugfixes"
         TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary;
     begin
         // Setup : Update Sales Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
 
         // Exercise And Verify.
@@ -59,7 +59,7 @@ codeunit 137045 "SCM Bugfixes"
         TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary;
     begin
         // Setup : Update Sales Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
 
         // Exercise And Verify.
@@ -101,7 +101,7 @@ codeunit 137045 "SCM Bugfixes"
         SalesOrderQuantity: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
 
         // Exercise.
@@ -123,7 +123,7 @@ codeunit 137045 "SCM Bugfixes"
         SalesOrderQuantity: Decimal;
     begin
         // Setup : Update Sales Setup. Create Item.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreateReservationSystem(Item, RequisitionLine, SalesOrderQuantity);
@@ -167,8 +167,8 @@ codeunit 137045 "SCM Bugfixes"
         VendorNo: Code[20];
     begin
         // Setup.
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
         PurchaseHeader.Validate("Buy-from Vendor No.", '');
         PurchaseHeader.Modify(true);
@@ -190,8 +190,8 @@ codeunit 137045 "SCM Bugfixes"
         CustomerNo: Code[20];
     begin
         // Setup :
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Sell-to Customer No.", '');
         SalesHeader.Modify(true);
@@ -217,7 +217,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         // [FEATURE] [Item Tracking] [Order Tracking] [Requisition Line]
         // [SCENARIO 287648] Quantity on planning line with both order tracking and item tracking can be increased, this action does not affect item tracking.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item with enabled order tracking.
         CreateTrackedItem(Item);
@@ -257,7 +257,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         // [FEATURE] [Item Tracking] [Order Tracking] [Requisition Line]
         // [SCENARIO 287648] Quantity on planning line with order tracking and no item tracking can be increased, this action does not check item tracking limitations.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item with enabled order tracking.
         CreateTrackedItem(Item);
@@ -295,7 +295,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         // [FEATURE] [Item Tracking] [Order Tracking] [Requisition Line]
         // [SCENARIO 287648] Quantity on planning line with both order tracking and item tracking cannot be decreased, because assigned item tracking quantity would become greater than the quantity on the line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item with enabled order tracking.
         CreateTrackedItem(Item);
@@ -331,7 +331,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         // [FEATURE] [Item Tracking] [Order Tracking] [Requisition Line]
         // [SCENARIO 287648] Quantity on planning line with order tracking and no item tracking can be decreased, this action does not check item tracking limitations.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item with enabled order tracking.
         CreateTrackedItem(Item);
@@ -433,7 +433,7 @@ codeunit 137045 "SCM Bugfixes"
         // Check Sales Return Order page will open from Order Tracking.
 
         // Setup : create item,Sales order and calculated Regenrative plan
-        Initialize;
+        Initialize();
         CreateItemWithReorderValues(Item);
         CreateSalesOrder(SalesHeader, Item."No.", '', -LibraryRandom.RandDec(15, 2), SalesHeader."Document Type"::"Return Order");
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
@@ -456,7 +456,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         // [FEATURE] [Item Reclassification Journal] [Transit Location]
         // [SCENARIO 377757] It should be prohibited to Post Reclassification Journal to In-Transit Location
-        Initialize;
+        Initialize();
 
         // [GIVEN] In-Transit Location "X"
         LibraryWarehouse.CreateInTransitLocation(Location);
@@ -481,7 +481,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         // [FEATURE] [Reclassification Journal] [Transit Location]
         // [SCENARIO 377757] It should be prohibited to Post Reclassification Journal from In-Transit Location
-        Initialize;
+        Initialize();
 
         // [GIVEN] In-Transit Location "X"
         LibraryWarehouse.CreateInTransitLocation(Location);
@@ -574,7 +574,7 @@ codeunit 137045 "SCM Bugfixes"
         // [FEATURE] [Capable to Promise] [Production BOM]
         // [SCENARIO 382250] Items included in a production BOM with a starting date, should be planned if Starting Date is equal to WORKDATE
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create 3 "Critical" items: "I1", "I2", "I3"
         // [GIVEN] Items "I2" and "I3" are replenished via production, "I1" is purchased
@@ -605,7 +605,7 @@ codeunit 137045 "SCM Bugfixes"
         // [FEATURE] [Capable to Promise] [Production BOM]
         // [SCENARIO 382250] Items included in a production BOM with a starting date, should not be planned if Starting Date is greater than WORKDATE
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create 3 "Critical" items: "I1", "I2", "I3"
         // [GIVEN] Items "I2" and "I3" are replenished via production, "I1" is purchased
@@ -635,7 +635,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         // [FEATURE] [Capable to Promise] [Production BOM]
         // [SCENARIO 205943] Multi-lined production order should have a single Ref. Order No. in Planning Worksheet created by Capable-to-Promise.
-        Initialize;
+        Initialize();
 
         // [GIVEN] BOM structure of three production items "I1", "I2" and "I3" is created, so that "I1" is a component of "I2", and "I2" is a component of "I3".
         CreateProdBOMStructureOfCriticalItems(Item, WorkDate, Item[1]."Replenishment System"::"Prod. Order");
@@ -661,7 +661,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         // [FEATURE] [Purchase] [Location] [Inbound Whse. Handling Time] [UT]
         // [SCENARIO 310491] "Inbound Whse. Handling Time" on purchase order is updated from location settings when the record is inserted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with "Inbound Whse. Handling Time" = "5D".
         Evaluate(InbHandlingTime, StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)));
@@ -688,14 +688,14 @@ codeunit 137045 "SCM Bugfixes"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Bugfixes");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Bugfixes");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
 
         GeneralLedgerSetup.Get();
         isInitialized := true;
@@ -775,12 +775,12 @@ codeunit 137045 "SCM Bugfixes"
         DateRec: Record Date;
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshName."Template Type"::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, ReqWkshTemplate.Name);
 
         DateRec.SetRange("Period Type", DateRec."Period Type"::Year);
         DateRec.SetFilter("Period Start", '<=%1', WorkDate);
-        DateRec.FindLast;
+        DateRec.FindLast();
         LibraryPlanning.CalculatePlanForReqWksh(
           Item, ReqWkshTemplate.Name, ReqWkshName.Name, DateRec."Period Start", NormalDate(DateRec."Period End"));
     end;
@@ -945,7 +945,7 @@ codeunit 137045 "SCM Bugfixes"
         with PurchLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", PurchDocNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -955,7 +955,7 @@ codeunit 137045 "SCM Bugfixes"
             SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
             SetRange("Journal Batch Name", RequisitionWkshName.Name);
             SetRange("Action Message", ActionMessage);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -979,7 +979,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         StockkeepingUnit.SetRange("Location Code", LocationCode);
         StockkeepingUnit.SetRange("Item No.", ItemNo);
-        StockkeepingUnit.FindFirst;
+        StockkeepingUnit.FindFirst();
         StockkeepingUnit.Validate("Replenishment System", ReplenishmentSystem);
         StockkeepingUnit.Validate("Transfer-from Code", TransferfromCode);
         StockkeepingUnit.Validate("Vendor No.", VendorNo);
@@ -1020,7 +1020,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         AvailabilityMgt.SetSalesHeader(OrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcCapableToPromise(OrderPromisingLine, SalesHeader."No.");
-        OrderPromisingLine.FindFirst;
+        OrderPromisingLine.FindFirst();
         AvailabilityMgt.UpdateSource(OrderPromisingLine);
         RequisitionLine.SetRange("Order Promising ID", SalesHeader."No.");
         RequisitionLine.FindSet();
@@ -1092,7 +1092,7 @@ codeunit 137045 "SCM Bugfixes"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure VerifySalesLine(SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type From"; DocumentNo: Code[20])
@@ -1105,7 +1105,7 @@ codeunit 137045 "SCM Bugfixes"
                 begin
                     SalesInvoiceLine.SetRange("Document No.", DocumentNo);
                     SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
-                    SalesInvoiceLine.FindFirst;
+                    SalesInvoiceLine.FindFirst();
                     SalesLine.TestField(Type, SalesInvoiceLine.Type);
                     SalesLine.TestField("No.", SalesInvoiceLine."No.");
                     SalesLine.TestField(Quantity, SalesInvoiceLine.Quantity);
@@ -1114,7 +1114,7 @@ codeunit 137045 "SCM Bugfixes"
                 begin
                     SalesShipmentLine.SetRange("Document No.", DocumentNo);
                     SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-                    SalesShipmentLine.FindFirst;
+                    SalesShipmentLine.FindFirst();
                     SalesLine.TestField(Type, SalesShipmentLine.Type);
                     SalesLine.TestField("No.", SalesShipmentLine."No.");
                     SalesLine.TestField(Quantity, SalesShipmentLine.Quantity);
@@ -1166,7 +1166,7 @@ codeunit 137045 "SCM Bugfixes"
     local procedure FindRequsitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure VerifyPurchaseLineQuantity(RefOrderNo: Code[20]; RefLineNo: Integer; ExpectedQuantity: Decimal)
@@ -1177,7 +1177,7 @@ codeunit 137045 "SCM Bugfixes"
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", RefOrderNo);
             SetRange("Line No.", RefLineNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedQuantity, Quantity, WrongPurchLineQtyErr);
         end;
     end;

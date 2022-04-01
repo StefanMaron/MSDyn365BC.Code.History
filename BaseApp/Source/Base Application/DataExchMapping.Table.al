@@ -157,11 +157,11 @@ table 1224 "Data Exch. Mapping"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         DataExchDef.SetRange(Code, "Data Exch. Def Code");
-        if DataExchDef.FindFirst then
+        if DataExchDef.FindFirst() then
             if DataExchDef.Type = DataExchDef.Type::"Positive Pay Export" then begin
                 DataExchLineDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
                 DataExchLineDef.SetRange(Code, "Data Exch. Line Def Code");
-                if DataExchLineDef.FindFirst then begin
+                if DataExchLineDef.FindFirst() then begin
                     case DataExchLineDef."Line Type" of
                         DataExchLineDef."Line Type"::Header:
                             begin

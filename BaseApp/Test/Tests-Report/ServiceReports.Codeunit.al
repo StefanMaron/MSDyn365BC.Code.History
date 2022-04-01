@@ -55,7 +55,7 @@ codeunit 136900 "Service Reports"
         // Test that the Service Contract - Customer Report is generated properly.
 
         // 1. Setup: Create two Service Contracts - Service Item, Service Contract Header, Service Contract Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractWithExpiredLine(ServiceContractHeader, Customer."No.");
         CreateContractWithExpiredLine(ServiceContractHeader2, Customer."No.");
@@ -67,7 +67,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetFilter(
           "Contract No.", ServiceContractHeader."Contract No." + '|' + ServiceContractHeader2."Contract No.");
         ServiceContractCustomer.SetTableView(ServiceContractHeader);
-        ServiceContractCustomer.Run;
+        ServiceContractCustomer.Run();
 
         // 3. Verify: Check that the Amount Per Period, Amount on Expired Lines and Annual Amount are generated correctly in the report.
         // Check that the Total Amounts for Customer as the sum of Amounts of both Service Contract.
@@ -90,7 +90,7 @@ codeunit 136900 "Service Reports"
         // Test that the Service Item Worksheet Report is generated properly.
 
         // 1. Setup: Create Service Order - Service Item, Service Header, Service Item Line and Service Line.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithItemLine(
           ServiceHeader, ServiceItemLine, ServiceItem, LibrarySales.CreateCustomerNo, ServiceHeader."Document Type"::Order);
         ServiceItemLineFaultSymptom(ServiceItemLine);
@@ -102,7 +102,7 @@ codeunit 136900 "Service Reports"
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceItemWorksheet.SetTableView(ServiceItemLine);
-        ServiceItemWorksheet.Run;
+        ServiceItemWorksheet.Run();
 
         // 3. Verify: Check that the Service Item Worksheet is generated properly.
         VerifyServiceItemWorksheet(ServiceItemLine, ServiceLine);
@@ -125,7 +125,7 @@ codeunit 136900 "Service Reports"
 
         // 1. Setup: Create Service Order - Service Item, Service Header, Service Item Line and Service Line. Create
         // comments for Fault and Resolution.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithItemLine(
           ServiceHeader, ServiceItemLine, ServiceItem, LibrarySales.CreateCustomerNo, ServiceHeader."Document Type"::Order);
         ServiceItemLineFaultSymptom(ServiceItemLine);
@@ -140,7 +140,7 @@ codeunit 136900 "Service Reports"
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceItemWorksheet.SetTableView(ServiceItemLine);
         ServiceItemWorksheet.InitializeRequest(true);
-        ServiceItemWorksheet.Run;
+        ServiceItemWorksheet.Run();
 
         // 3. Verify: Check that the Service Item Worksheet is generated properly with Show Comments as TRUE.
         VerifyServiceItemWorksheet(ServiceItemLine, ServiceLine);
@@ -167,7 +167,7 @@ codeunit 136900 "Service Reports"
         // Test that the Maintenance Visit - Planning report is generated properly.
 
         // 1. Setup: Create Service Contract - Service Item, Service Contract Header, Service Contract Line and sign it.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractWithExpiredLine(ServiceContractHeader, Customer."No.");
         ResponsibilityCenterHeader(ServiceContractHeader);
@@ -179,7 +179,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Contract);
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         MaintenanceVisitPlanning.SetTableView(ServiceContractHeader);
-        MaintenanceVisitPlanning.Run;
+        MaintenanceVisitPlanning.Run();
 
         // 3. Verify: Check that the Maintenance Visit - Planning is generated properly.
         VerifyMaintenanceVisitPlanning(ServiceContractHeader);
@@ -199,7 +199,7 @@ codeunit 136900 "Service Reports"
         // Test that the Service Items Out of Warranty report is generated properly.
 
         // 1. Setup: Create Service Contract - Service Item, Service Contract Header, Service Contract Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
         WarrantyEndingDatePartsItem(ServiceItem);
@@ -212,7 +212,7 @@ codeunit 136900 "Service Reports"
         Clear(ServiceItemsOutOfWarranty);
         ServiceItem.SetRange("No.", ServiceItem."No.");
         ServiceItemsOutOfWarranty.SetTableView(ServiceItem);
-        ServiceItemsOutOfWarranty.Run;
+        ServiceItemsOutOfWarranty.Run();
 
         // 3. Verify: Check that the Service Items Out of Warranty report is generated properly.
         VerifyServiceItemsOutWarranty(ServiceItem);
@@ -233,7 +233,7 @@ codeunit 136900 "Service Reports"
         // [SCENARIO] Verify report "Service Item - Resource Usage" after ship & invoice service order.
 
         // [GIVEN] Service Order with resource usage on service item.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithItemLine(
           ServiceHeader, ServiceItemLine, ServiceItem, LibrarySales.CreateCustomerNo, ServiceHeader."Document Type"::Order);
         CreateServiceLineWithResource(ServiceLine, ServiceHeader, ServiceItem."No.");
@@ -245,7 +245,7 @@ codeunit 136900 "Service Reports"
         Clear(ServiceItemResourceUsage);
         ServiceItem.SetRange("No.", ServiceItem."No.");
         ServiceItemResourceUsage.SetTableView(ServiceItem);
-        ServiceItemResourceUsage.Run;
+        ServiceItemResourceUsage.Run();
 
         // [THEN] Report "Service Item - Resource Usage" results contain service item and it's correct usage amount and profit/profit percent values.
         VerifyServiceItemResourceUsage(ServiceItem);
@@ -266,7 +266,7 @@ codeunit 136900 "Service Reports"
         // [SCENARIO] Verify report "Service Item - Resource Usage" with "Show Details" flag after ship & invoice service order.
 
         // [GIVEN] Service Order with resource usage on service item.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithItemLine(
           ServiceHeader, ServiceItemLine, ServiceItem, LibrarySales.CreateCustomerNo, ServiceHeader."Document Type"::Order);
         CreateServiceLineWithResource(ServiceLine, ServiceHeader, ServiceItem."No.");
@@ -279,7 +279,7 @@ codeunit 136900 "Service Reports"
         ServiceItem.SetRange("No.", ServiceItem."No.");
         ServiceItemResourceUsage.SetTableView(ServiceItem);
         ServiceItemResourceUsage.InitializeRequest(true);
-        ServiceItemResourceUsage.Run;
+        ServiceItemResourceUsage.Run();
 
         // [THEN] Report "Service Item - Resource Usage" results contain service item and it's correct usage amount and profit/profit percent values.
         VerifyServiceItemResourceUsage(ServiceItem);
@@ -300,7 +300,7 @@ codeunit 136900 "Service Reports"
 
         // 1. Setup: Create Service Item, Service Header with Document Type Quote, Service Item Line with Service Item and
         // Service Line with Type Item.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithItemLine(
           ServiceHeader, ServiceItemLine, ServiceItem, LibrarySales.CreateCustomerNo, ServiceHeader."Document Type"::Quote);
         CreateServiceLine(ServiceHeader, ServiceItemLine."Line No.");
@@ -331,7 +331,7 @@ codeunit 136900 "Service Reports"
         // [SCENARIO] Verify values on report Service Profit Resp. Centers after shipping & invoicing service order twice.
 
         // [GIVEN] Partial Ship and invoice Service Order with Responcibility Center twice, as result completely shipped and invoiced.
-        Initialize;
+        Initialize();
         CreateHeaderWithResponsibility(ServiceHeader);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -398,7 +398,7 @@ codeunit 136900 "Service Reports"
         // Test that value of Capacity in Service Load Level matches the value of Capacity in corresponding Resource.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
 
         // 2. Exercise: Generate Service Load Level Report with different options.
@@ -407,7 +407,7 @@ codeunit 136900 "Service Reports"
         Resource.SetRange("No.", Resource."No.");
         ServiceLoadLevel.SetTableView(Resource);
         ServiceLoadLevel.InitializeRequest(Selection);
-        ServiceLoadLevel.Run;
+        ServiceLoadLevel.Run();
 
         // 3. Verify: Check that the value of Capicity in Service Load Level is equal to the value of Capacity in corresponding Resource.
         // Check that only one row is generated on different Selections.
@@ -427,7 +427,7 @@ codeunit 136900 "Service Reports"
         // Test that value of Amount in Service Document - Test matches the value of Amount in corresponding Service Line.
 
         // 1. Setup: Create a Service Invoice - Service Header, Service Line.
-        Initialize;
+        Initialize();
         ServiceDocumentTestReport(ServiceLine);
 
         // 3. Verify: Check that the value of Amount in Service Document - Test is equal to the value of Amount in
@@ -450,7 +450,7 @@ codeunit 136900 "Service Reports"
         // Test that value of Error Message in Service Document - Test matches.
 
         // 1. Setup: Create a Service Invoice.
-        Initialize;
+        Initialize();
         ServiceDocumentTestReport(ServiceLine);
 
         // 3. Verify: Check that the value of Amount in Service Document - Test is equal to the value of Amount in
@@ -470,7 +470,7 @@ codeunit 136900 "Service Reports"
         // Test that value of Amount in Service Document - Test matches the value of Amount in corresponding Service Line.
 
         // 1. Setup: Create a Service Invoice - Service Header, Service Line with VAT Posting Setup having VAT Calculation Type as Reverse Charge VAT.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         LibraryService.CreateServiceHeader(
           ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
@@ -485,7 +485,7 @@ codeunit 136900 "Service Reports"
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
         ServiceDocumentTest.SetTableView(ServiceHeader);
         ServiceDocumentTest.InitializeRequest(true, true, true);
-        ServiceDocumentTest.Run;
+        ServiceDocumentTest.Run();
     end;
 
     [Test]
@@ -500,7 +500,7 @@ codeunit 136900 "Service Reports"
         // Test that value of Item No in Service Items matches the value of Item No in corresponding Service Item.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
 
@@ -509,7 +509,7 @@ codeunit 136900 "Service Reports"
         Clear(ServiceItems);
         ServiceItem.SetRange("No.", ServiceItem."No.");
         ServiceItems.SetTableView(ServiceItem);
-        ServiceItems.Run;
+        ServiceItems.Run();
 
         // 3. Verify: Check that the value of Item No in Service Items is equal to the value of Item No in
         // corresponding Service Item, Check that only one row is generated for the Item.
@@ -534,7 +534,7 @@ codeunit 136900 "Service Reports"
         // Test that value of No. in Dispatch Board matches the value of No. Field in corresponding Service Header.
 
         // 1. Setup: Create a Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, '');
@@ -545,7 +545,7 @@ codeunit 136900 "Service Reports"
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
         DispatchBoard.SetTableView(ServiceHeader);
-        DispatchBoard.Run;
+        DispatchBoard.Run();
 
         // 3. Verify: Check that the value of No. in Dispatch Board is equal to the value of No. in corresponding Service Header.
         // Check that only one row is generated for the Item.
@@ -570,7 +570,7 @@ codeunit 136900 "Service Reports"
         // Test that value of Line Value in Service Contract matches the value of Line Value Field in corresponding Service Contract Line.
 
         // 1. Setup: Create Service Contract and Modify Service Contract header.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractAccountHeader(ServiceContractHeader);
@@ -585,7 +585,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ServiceContract.SetTableView(ServiceContractHeader);
         ServiceContract.InitializeRequest(true);
-        ServiceContract.Run;
+        ServiceContract.Run();
 
         // 3. Verify: Check that the value of Line Value in Service Contract is equal to the value of Line Value in
         // corresponding Service Contract Line, Check that only one row is generated for the Item.
@@ -611,7 +611,7 @@ codeunit 136900 "Service Reports"
         // Service Contract Line.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractAccountHeader(ServiceContractHeader);
@@ -626,7 +626,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ContrServOrdersTest.SetTableView(ServiceContractHeader);
         ContrServOrdersTest.InitVariables(WorkDate, WorkDate);
-        ContrServOrdersTest.Run;
+        ContrServOrdersTest.Run();
 
         // 3. Verify: Check that the value of Contract No. in Contr. Serv. Orders - Test is equal to the value of Contract No. in
         // corresponding Service Contract Line.
@@ -651,7 +651,7 @@ codeunit 136900 "Service Reports"
         // Service Contract Line.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractAccountHeader(ServiceContractHeader);
@@ -663,9 +663,9 @@ codeunit 136900 "Service Reports"
         Commit();
         Clear(ContractGainLossEntries);
         ContractGainLossEntry.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ContractGainLossEntry.FindFirst;
+        ContractGainLossEntry.FindFirst();
         ContractGainLossEntries.SetTableView(ContractGainLossEntry);
-        ContractGainLossEntries.Run;
+        ContractGainLossEntries.Run();
 
         // 3. Verify: Test that value of Contract Gain in Contract Gain/Loss Entries matches the value of Line Amount in
         // corresponding Service Contract Line.
@@ -689,7 +689,7 @@ codeunit 136900 "Service Reports"
         // Service Contract Line.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractAccountHeader(ServiceContractHeader);
@@ -704,7 +704,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         MaintenancePerformance.SetTableView(ServiceContractHeader);
         MaintenancePerformance.InitializeRequest(WorkDate);
-        MaintenancePerformance.Run;
+        MaintenancePerformance.Run();
 
         // 3. Verify: Test that value of Annual Amount in Maintenance Performance matches the value of Annual Amount in corresponding
         // corresponding Service Contract Line.
@@ -723,7 +723,7 @@ codeunit 136900 "Service Reports"
         SignServContractDoc: Codeunit SignServContractDoc;
     begin
         // [SCENARIO 332702] Run report "Maintenance Performance" with saving results to Excel file.
-        Initialize;
+        Initialize();
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Signed Service Contract Header with Type = Contract.
@@ -758,7 +758,7 @@ codeunit 136900 "Service Reports"
         // Field in corresponding Service Contract Line.
 
         // 1. Setup: Create Service Contract Header and Service Contract Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractHeaderAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -768,7 +768,7 @@ codeunit 136900 "Service Reports"
         Clear(ServiceContractDetail);
         FilterServiceContractHeader(ServiceContractHeader);
         ServiceContractDetail.SetTableView(ServiceContractHeader);
-        ServiceContractDetail.Run;
+        ServiceContractDetail.Run();
 
         // 3. Verify: Check that the value of Line Value in Service Contract Detail is equal to the value of Line Value in
         // corresponding Service Contract Line, Check that only one row is generated for the Item.
@@ -794,7 +794,7 @@ codeunit 136900 "Service Reports"
         // [FEATURE] [Invoice]
         // [SCENARIO] "Line Amount" in Service Invoice report matches the value of "Line Amount" in corresponding Service Line.
         // [GIVEN] Service Invoice shipped and invoiced.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryService.CreateServiceHeader(
           ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
@@ -805,14 +805,14 @@ codeunit 136900 "Service Reports"
 
         // [WHEN] Run report "Service - Invoice".
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         Clear(ServiceInvoice);
         ServiceInvoice.SetTableView(ServiceInvoiceHeader);
-        ServiceInvoice.Run;
+        ServiceInvoice.Run();
 
         // [THEN] The value of Amount in Service Invoice is equal to the value of Line Amount in corresponding Service Invoice Line.
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_ServiceInvHeader', ServiceInvoiceLine."No.");
         LibraryReportDataset.SetRange('LineNo_ServInvLine', ServiceInvoiceLine."Line No.");
@@ -837,7 +837,7 @@ codeunit 136900 "Service Reports"
         // [FEATURE] [Invoice] [Report Caption]
         // [SCENARIO] 'Service - Invoice' report caption can be redefined by subscription.
         // [GIVEN] Service Invoice shipped and invoiced.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryService.CreateServiceHeader(
           ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
@@ -850,10 +850,10 @@ codeunit 136900 "Service Reports"
         BindSubscription(ReportCaptionSubscriber);
         // [WHEN] Run report "Service - Invoice".
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         Clear(ServiceInvoice);
         ServiceInvoice.SetTableView(ServiceInvoiceHeader);
-        ServiceInvoice.Run;
+        ServiceInvoice.Run();
 
         // [THEN] Report title is 'Service - Tax Invoice '
         LibraryReportDataset.LoadDataSetFile;
@@ -877,7 +877,7 @@ codeunit 136900 "Service Reports"
         // corresponding Service Contract Line.
 
         // Setup: Create Service Contract, Modify Service Contract header, Sign Service Contract and Modify Expiration Date.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractHeaderAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -890,11 +890,11 @@ codeunit 136900 "Service Reports"
         Clear(ExpiredContractLinesTest);
         FilterServiceContractHeader(ServiceContractHeader);
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         ExpiredContractLinesTest.SetTableView(ServiceContractLine);
         ExpiredContractLinesTest.InitVariables(WorkDate, CreateReasonCode);
         Commit();
-        ExpiredContractLinesTest.Run;
+        ExpiredContractLinesTest.Run();
 
         // 3. Verify: Check that value of Contract Expiration Date in Expired Contract Lines Test matches the value of
         // Contract Expiration Date Field in corresponding Service Contract Line.
@@ -937,7 +937,7 @@ codeunit 136900 "Service Reports"
 
         // Setup: Create Service Contract, Modify Service Contract header, Sign Service Contract and Modify Expiration Date and
         // Modify Service Management Setup.
-        Initialize;
+        Initialize();
         UpdateReasonOnServiceSetup;
         LibrarySales.CreateCustomer(Customer);
         CreateContractHeaderAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
@@ -954,7 +954,7 @@ codeunit 136900 "Service Reports"
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ExpiredContractLinesTest.SetTableView(ServiceContractLine);
         ExpiredContractLinesTest.InitVariables(RemoveTo, ReasonCode);
-        asserterror ExpiredContractLinesTest.Run;
+        asserterror ExpiredContractLinesTest.Run();
 
         // 3. Verify: Check that System generates an error when Reason Code is not filled.
         Assert.AreEqual(StrSubstNo(Error), GetLastErrorText, UnknownError);
@@ -979,7 +979,7 @@ codeunit 136900 "Service Reports"
         // Amount LCY Field in corresponding Service Ledger Entry.
 
         // 1. Setup: Create and Sign Service Contract Post Service Invoice and Create Service Credit Memo.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractHeaderAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -995,7 +995,7 @@ codeunit 136900 "Service Reports"
         UpdateExpirationDateOnHeader(ServiceContractHeader);
 
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         ServContractManagement.CreateContractLineCreditMemo(ServiceContractLine, true);
 
         // 2. Exercise: Generate Service Profit Contracts Report.
@@ -1004,10 +1004,10 @@ codeunit 136900 "Service Reports"
         ServiceProfitContracts.SetTableView(ServiceContractHeader);
         ServiceProfitContracts.InitializeRequest(true);
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
 
         Commit();
-        ServiceProfitContracts.Run;
+        ServiceProfitContracts.Run();
 
         // 3. Verify: Check that value of Service Amount LCY in Service Profit Contracts matches the value of
         // Amount LCY Field in corresponding Service Ledger Entry.
@@ -1036,7 +1036,7 @@ codeunit 136900 "Service Reports"
         // Customer No Field in corresponding Service Contract Header.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractHeaderAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1051,7 +1051,7 @@ codeunit 136900 "Service Reports"
         UpdatePercent := LibraryRandom.RandDecInRange(5, 10, 2);
         ContractPriceUpdateTest.InitVariables(
           UpdatePercent, CalcDate('<' + Format(LibraryRandom.RandInt(2)) + 'M>', ServiceContractHeader."Starting Date"));
-        ContractPriceUpdateTest.Run;
+        ContractPriceUpdateTest.Run();
 
         // 3. Verify: Check that value of Customer No in Contract Price Update Test matches the value of
         // Customer No Field in corresponding Service Contract Header.
@@ -1077,7 +1077,7 @@ codeunit 136900 "Service Reports"
         // Test that System generates an error when Price Update is not filled.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractHeaderAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1091,7 +1091,7 @@ codeunit 136900 "Service Reports"
         ContractPriceUpdateTest.SetTableView(ServiceContractHeader);
         ContractPriceUpdateTest.InitVariables(
           0, CalcDate('<' + Format(LibraryRandom.RandInt(2)) + 'M>', ServiceContractHeader."Starting Date"));
-        asserterror ContractPriceUpdateTest.Run;
+        asserterror ContractPriceUpdateTest.Run();
 
         // 3. Verify: Check that System generates an error when Price Update is not filled.
         Assert.AreEqual(StrSubstNo(PriceUpdateError), GetLastErrorText, UnknownError);
@@ -1116,7 +1116,7 @@ codeunit 136900 "Service Reports"
         // Amount LCY Field in corresponding Service Ledger Entry.
 
         // [GIVEN] Signed Service Contract with Posted Service Invoice and not posted Service Credit Memo.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractHeaderAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1130,10 +1130,10 @@ codeunit 136900 "Service Reports"
         Clear(PrepaidContrEntriesTest);
         FilterServiceContractHeader(ServiceContractHeader);
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         PrepaidContrEntriesTest.SetTableView(ServiceLedgerEntry);
         PrepaidContrEntriesTest.InitVariables(WorkDate, WorkDate);
-        PrepaidContrEntriesTest.Run;
+        PrepaidContrEntriesTest.Run();
 
         // [THEN] The value of Amount LCY in report results matches the value of Amount LCY Field in corresponding Service Ledger Entry.
         LibraryReportDataset.LoadDataSetFile;
@@ -1183,7 +1183,7 @@ codeunit 136900 "Service Reports"
         // Test that System generates an error when Posting Date is not filled.
 
         // 1. Setup: Create and Sign Service Contract Post Service Invoice and Create Service Credit Memo.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractHeaderAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1198,7 +1198,7 @@ codeunit 136900 "Service Reports"
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         PrepaidContrEntriesTest.SetTableView(ServiceLedgerEntry);
         PrepaidContrEntriesTest.InitVariables(PostUntilDate, PostingDate);
-        asserterror PrepaidContrEntriesTest.Run;
+        asserterror PrepaidContrEntriesTest.Run();
 
         // 3. Verify: Check that System generates an error when Posting Date is not filled.
         Assert.AreEqual(StrSubstNo(Error), GetLastErrorText, UnknownError);
@@ -1221,7 +1221,7 @@ codeunit 136900 "Service Reports"
         // [SCENARIO] Verify that report "Prepaid Contr. Entries - Test" has warning because of unposted credit memo.
 
         // [GIVEN] Signed Service Contract, with posted Service Invoice and not posted Credit Memo.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractHeaderAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1242,7 +1242,7 @@ codeunit 136900 "Service Reports"
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         PrepaidContrEntriesTest.SetTableView(ServiceLedgerEntry);
         PrepaidContrEntriesTest.InitVariables(WorkDate, WorkDate);
-        PrepaidContrEntriesTest.Run;
+        PrepaidContrEntriesTest.Run();
 
         // 3. [THEN] Prepaid Contract Entries Test results contain warning.
         LibraryReportDataset.LoadDataSetFile;
@@ -1262,7 +1262,7 @@ codeunit 136900 "Service Reports"
         // Test values on Service Contract Quote Report with Show Comments False.
 
         // 1. Setup: Create Service Item, Service Contract Header of Contract Type Quote and Service Contract Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1288,7 +1288,7 @@ codeunit 136900 "Service Reports"
 
         // 1. Setup: Create Service Item, Service Contract Header of Contract Type Quote, Service Contract Line, Create Comment for the
         // Service Contract Quote.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1311,7 +1311,7 @@ codeunit 136900 "Service Reports"
         ServiceContractLine: Record "Service Contract Line";
     begin
         // [SCENARIO 332702] Run report "Service Contract Quote" with saving results to Excel file.
-        Initialize;
+        Initialize();
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Service Contract Header with Type = Quote.
@@ -1342,7 +1342,7 @@ codeunit 136900 "Service Reports"
         // Test values on Service Contract Quote Detail Report with Show Comments False.
 
         // 1. Setup: Create Service Item, Service Contract Header of Contract Type Quote and Service Contract Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1368,7 +1368,7 @@ codeunit 136900 "Service Reports"
 
         // 1. Setup: Create Service Item, Service Contract Header of Contract Type Quote, Service Contract Line, Create Comment for the
         // Service Contract Quote.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1395,7 +1395,7 @@ codeunit 136900 "Service Reports"
         // Test that the Service Tasks Report is generated properly.
 
         // 1. Setup: Create Service Order - Service Item, Service Header, Service Item Line and Service Line.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithItemLine(
           ServiceHeader, ServiceItemLine, ServiceItem, LibrarySales.CreateCustomerNo, ServiceHeader."Document Type"::Order);
 
@@ -1405,7 +1405,7 @@ codeunit 136900 "Service Reports"
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceTasks.SetTableView(ServiceItemLine);
-        ServiceTasks.Run;
+        ServiceTasks.Run();
 
         // 3. Verify: Check that the Service Task is generated properly.
         VerifyServiceTasks(ServiceItemLine);
@@ -1427,7 +1427,7 @@ codeunit 136900 "Service Reports"
         // Value of SalesPerson Code,Line Value and Contract No. Field in corresponding Service Contract Header and Service Contract Line.
 
         // 1. Setup: Create Service Contract and Modify Service Contract header and Calculate Amount in Service Contract Header.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         Customer.Validate("Salesperson Code", SalespersonPurchaser.Code);
@@ -1444,7 +1444,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ServContractSalesperson.SetTableView(ServiceContractHeader);
-        ServContractSalesperson.Run;
+        ServContractSalesperson.Run();
 
         // 3. Verify: Check that value of SalesPerson Code,Annual Amount and Contract No. in Serv. Contract - Salesperson matches the
         // Value of SalesPerson Code,Line Value and Contract No. Field in corresponding Service Contract Header and Service Contract Line.
@@ -1466,7 +1466,7 @@ codeunit 136900 "Service Reports"
         // Contract Gain/Loss Entry.
 
         // 1. Setup: Create Multiple Contract Gain Loss Entries.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateContractGainLossEntries(ServiceContractHeader, Customer."No.");
         CreateContractGainLossEntries(ServiceContractHeader2, Customer."No.");
@@ -1479,7 +1479,7 @@ codeunit 136900 "Service Reports"
           "Contract No.", ServiceContractHeader."Contract No." + '|' + ServiceContractHeader2."Contract No.");
         ContrGainLossRespCtr.SetTableView(ContractGainLossEntry);
         ContrGainLossRespCtr.InitializeRequest(true);
-        ContrGainLossRespCtr.Run;
+        ContrGainLossRespCtr.Run();
 
         // 3. Verify: Verify that value of Grand Total Amount in Contr. Gain/Loss - Resp. Ctr. matches the value of Amount in
         // Corresponding Contract Gain/Loss Entry.
@@ -1510,7 +1510,7 @@ codeunit 136900 "Service Reports"
         // in corresponding Service Contract Header.
 
         // 1. Setup: Create Contract Gain Loss Entries and Calculate Amount Per Period.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractAccountHeader(ServiceContractHeader);
@@ -1539,7 +1539,7 @@ codeunit 136900 "Service Reports"
         // Test that System generates an error when Invoice-to Date is not filled.
 
         // 1. Setup: Create Contract Gain Loss Entries and Calculate Amount Per Period.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractAccountHeader(ServiceContractHeader);
@@ -1567,7 +1567,7 @@ codeunit 136900 "Service Reports"
         // Test that System generates an error when Posting Date is not filled.
 
         // 1. Setup: Create Contract Gain Loss Entries and Calculate Amount Per Period.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractAccountHeader(ServiceContractHeader);
@@ -1594,7 +1594,7 @@ codeunit 136900 "Service Reports"
     begin
         // [FEATURE] [Contract Invoicing]
         // [SCENARIO 229113] Contract Invoicing report contains all new invoicing periods after Next Invoice Date when Invoice Period value is changed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract "SC" with Service Contract Line
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, '');
@@ -1644,7 +1644,7 @@ codeunit 136900 "Service Reports"
         // Confirm that this is the correct date.
 
         // 1. Setup: Create Contract Gain Loss Entries and Calculate Amount Per Period.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractAccountHeader(ServiceContractHeader);
@@ -1675,7 +1675,7 @@ codeunit 136900 "Service Reports"
         // Test that System generates an error when posting date is later than the work date.Confirm that this is the correct date.
 
         // 1. Setup: Create Contract Gain Loss Entries and Calculate Amount Per Period.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractAccountHeader(ServiceContractHeader);
@@ -1706,7 +1706,7 @@ codeunit 136900 "Service Reports"
         // Service Contract Line.
 
         // 1. Setup: Create Service Contract Quote - Service Contract Header, Service Contract Line, Service Item.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1737,7 +1737,7 @@ codeunit 136900 "Service Reports"
         // Service Contract Line.
 
         // 1. Setup: Create Service Contract Quote - Service Contract Header, Service Contract Line, Service Item.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, Customer."No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1800,7 +1800,7 @@ codeunit 136900 "Service Reports"
         // Test to verify Invoice Discount Amount by printing Service Order report.
 
         // 1. Setup : Modify Sales Receivables Setup, Create Customer, Item, Customer Invoice Discount, Service Order and Calculate Invoice Discount.
-        Initialize;
+        Initialize();
         UpdateCalculateInvoiceDiscount(true);
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
@@ -1820,7 +1820,7 @@ codeunit 136900 "Service Reports"
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
         ServiceOrderReport.SetTableView(ServiceHeader);
         ServiceOrderReport.InitializeRequest(false, ShowQty::Quantity);
-        ServiceOrderReport.Run;
+        ServiceOrderReport.Run();
 
         GrossAmount := LibraryService.GetServiceOrderReportGrossAmount(ServiceLine);
 
@@ -1849,7 +1849,7 @@ codeunit 136900 "Service Reports"
         // Service Contract Line.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(
@@ -1865,9 +1865,9 @@ codeunit 136900 "Service Reports"
         Commit();
         Clear(ContractGainLossEntries);
         ContractGainLossEntry.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ContractGainLossEntry.FindFirst;
+        ContractGainLossEntry.FindFirst();
         ContractGainLossEntries.SetTableView(ContractGainLossEntry);
-        ContractGainLossEntries.Run;
+        ContractGainLossEntries.Run();
 
         // 3. Verify: Test that value of Contract Gain in Contract Gain/Loss Entries matches the value of Line Amount in
         // corresponding Service Contract Line.
@@ -1891,7 +1891,7 @@ codeunit 136900 "Service Reports"
         // Annual Amount Field in corresponding Service Contract Header.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
 
         CreateAndSignServiceContract(ServiceContractHeader);
         CreateAndSignServiceContract(ServiceContractHeader2);
@@ -1901,7 +1901,7 @@ codeunit 136900 "Service Reports"
         UpdatePercent := LibraryRandom.RandDecInRange(5, 10, 2);
         ContractPriceUpdateTest.InitVariables(
           UpdatePercent, CalcDate('<' + Format(LibraryRandom.RandInt(2)) + 'M>', ServiceContractHeader."Starting Date"));
-        ContractPriceUpdateTest.Run;
+        ContractPriceUpdateTest.Run();
 
         // 3. Verify: Check that value of Annual Amount in Contract Price Update Test matches the value of
         // Annual Amount Field in corresponding Service Contract Header.
@@ -1923,7 +1923,7 @@ codeunit 136900 "Service Reports"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 375187] Total Invoice Discount Amount should be printed in "Service Document - Test" report when "Allow Inv. Disc." is not mark in first Service Line
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Order with two lines. "Allow Inv. Discount" is on only for the second line. "Inv. Disc. Amount" = "X"
         UpdateCalculateInvoiceDiscount(true);
         CreateServiceOrderWithDiscount(ServiceHeader, ServiceItemLineNo, DiscountPct);
@@ -1952,7 +1952,7 @@ codeunit 136900 "Service Reports"
         TestReportPrint: Codeunit "Test Report-Print";
     begin
         // [SCENARIO 375362] Section "Customer" of Test Report should contain Sell-to address from Service Order header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service order with different Sell-to and Ship-to Addresses
         CreateServiceOrderWithSelltoAddress(ServiceHeader);
@@ -1977,7 +1977,7 @@ codeunit 136900 "Service Reports"
     begin
         // [FEATURE] [Dimensions]
         // [SCENARIO 376031] Long Dimension text should be printed fully for both Header and Lines in Test Report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with Dimensions that give long length string
         DimText := CreateServiceOrderWithDimensions(ServiceHeader);
@@ -1987,7 +1987,7 @@ codeunit 136900 "Service Reports"
         ServiceHeader.SetRecFilter;
         ServiceDocumentTest.SetTableView(ServiceHeader);
         ServiceDocumentTest.InitializeRequest(false, false, true);
-        ServiceDocumentTest.Run;
+        ServiceDocumentTest.Run();
 
         // [THEN] All header dimensions are printed in the report
         // [THEN] All line dimensions are printed in the report
@@ -2038,14 +2038,14 @@ codeunit 136900 "Service Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Reports");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Reports");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
@@ -2062,7 +2062,7 @@ codeunit 136900 "Service Reports"
         ServiceOrderNo: Code[20];
     begin
         // 1. Setup: Create Customer, Dimension, Dimension value, create an account type Default Dimension, create default dimension for Customer and create a Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
@@ -2467,7 +2467,7 @@ codeunit 136900 "Service Reports"
     begin
         RepairStatus.SetRange("Quote Finished", false);
         RepairStatus.Init();
-        RepairStatus.FindFirst;
+        RepairStatus.FindFirst();
         exit(RepairStatus.Code);
     end;
 
@@ -2502,7 +2502,7 @@ codeunit 136900 "Service Reports"
     begin
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractHeader.FindFirst;
+        ServiceContractHeader.FindFirst();
     end;
 
     local procedure ModifyHeaderForPrepaid(var ServiceContractHeader: Record "Service Contract Header")
@@ -2521,7 +2521,7 @@ codeunit 136900 "Service Reports"
         ServiceDocumentRegister.SetRange("Source Document Type", ServiceDocumentRegister."Source Document Type"::Contract);
         ServiceDocumentRegister.SetRange("Source Document No.", ServiceContractNo);
         ServiceDocumentRegister.SetRange("Destination Document Type", ServiceDocumentRegister."Destination Document Type"::Invoice);
-        ServiceDocumentRegister.FindFirst;
+        ServiceDocumentRegister.FindFirst();
         ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, ServiceDocumentRegister."Destination Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
     end;
@@ -2567,7 +2567,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract No.", ContractNo);
         ServiceContractQuote.SetTableView(ServiceContractHeader);
         ServiceContractQuote.InitializeRequestComment(ShowComments);
-        ServiceContractQuote.Run;
+        ServiceContractQuote.Run();
     end;
 
     local procedure RunServiceContractQuoteDetail(ContractNo: Code[20]; ShowComments: Boolean)
@@ -2581,7 +2581,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract No.", ContractNo);
         ServiceContractQuoteDetail.SetTableView(ServiceContractHeader);
         ServiceContractQuoteDetail.InitializeRequest(ShowComments);
-        ServiceContractQuoteDetail.Run;
+        ServiceContractQuoteDetail.Run();
     end;
 
     local procedure RunContractQuotesToBeSigned(ServiceContractHeader: Record "Service Contract Header"; ForecastIncluded: Boolean)
@@ -2595,7 +2595,7 @@ codeunit 136900 "Service Reports"
 
         ContractQuotesToBeSigned.SetTableView(ServiceContractHeader);
         ContractQuotesToBeSigned.InitializeRequest(ForecastIncluded);
-        ContractQuotesToBeSigned.Run;
+        ContractQuotesToBeSigned.Run();
     end;
 
     local procedure RunServiceProfitRespCenters(ResponsibilityCenter: Code[10])
@@ -2606,10 +2606,10 @@ codeunit 136900 "Service Reports"
         Clear(ServiceProfitRespCenters);
         ServiceShipmentHeader.SetRange("Responsibility Center", ResponsibilityCenter);
         ServiceProfitRespCenters.SetTableView(ServiceShipmentHeader);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceProfitRespCenters.InitializeRequest(true);
 
-        ServiceProfitRespCenters.Run;
+        ServiceProfitRespCenters.Run();
     end;
 
     local procedure RunServiceQuoteReport(No: Code[20])
@@ -2622,7 +2622,7 @@ codeunit 136900 "Service Reports"
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Quote);
         ServiceHeader.SetRange("No.", No);
         ServiceQuote.SetTableView(ServiceHeader);
-        ServiceQuote.Run;
+        ServiceQuote.Run();
     end;
 
     local procedure RunContractInvoicingReport(ServiceContractHeader: Record "Service Contract Header"; PostingDate: Date; InvoiceToDate: Date)
@@ -2634,7 +2634,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ContractInvoicing.SetTableView(ServiceContractHeader);
         ContractInvoicing.InitVariables(PostingDate, InvoiceToDate);
-        ContractInvoicing.Run;
+        ContractInvoicing.Run();
     end;
 
     local procedure ServiceContractAccountHeader(var ServiceContractHeader: Record "Service Contract Header")
@@ -2708,7 +2708,7 @@ codeunit 136900 "Service Reports"
         ServiceHeader.SetRange("No.", No);
         ServiceDocumentTest.SetTableView(ServiceHeader);
         ServiceDocumentTest.InitializeRequest(true, true, true);
-        ServiceDocumentTest.Run;
+        ServiceDocumentTest.Run();
     end;
 
     local procedure UpdateCalculateInvoiceDiscount(CalcInvDiscount: Boolean)

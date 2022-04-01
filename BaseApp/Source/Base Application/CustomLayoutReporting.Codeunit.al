@@ -1,4 +1,4 @@
-﻿codeunit 8800 "Custom Layout Reporting"
+codeunit 8800 "Custom Layout Reporting"
 {
     // This codeunit implements batch printing and custom layout association on a per-object basis.
     // Reports may be based on one table, but we may want to sepcific a layout per-customer, or per-vendor.
@@ -44,12 +44,8 @@
         ZipFile: File;
         ZipFileOutStream: OutStream;
         OutputType: Option Print,Preview,PDF,Email,Excel,Word,XML;
-#if not CLEAN17
-        SaveFolderMsg: Label 'Select a folder to save reports to.';
-#endif
         NotInitializedErr: Label 'Report data not initialized.';
         OutputNotSupportedErr: Label 'The chosen output method is not supported.';
-        SMTPNotSetupErr: Label 'To send as email, you must set up SMTP.';
         EmailAccountsNotSetupErr: Label 'To send as email, you must register an email account.';
         ReportingType: Option "Object","Layout";
         ZipFileName: Text;
@@ -264,17 +260,6 @@
 
         ProcessReport();
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by ProcessReportData().', '17.0')]
-    [Scope('OnPrem')]
-    procedure ProcessReportForData(ReportSelectionUsage: Integer; var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
-    begin
-        ProcessReportData(
-            "Report Selection Usage".FromInteger(ReportSelectionUsage),
-            DataRecordRef, SourceJoinFieldName, DataRecordJoinTable, IteratorTableFieldName, DataItemTableSameAsIterator);
-    end;
-#endif
 
     local procedure ProcessReportPerLayout()
     var
@@ -774,16 +759,14 @@
 
     local procedure GetRequestParameters()
     var
-        SMTPMailSetup: Record "SMTP Mail Setup";
         EmailAccount: Codeunit "Email Account";
-        EmailFeature: Codeunit "Email Feature";
         DataVariant: Variant;
         RequestPageParameters: Text;
         FilterGroup: Integer;
         LocalRepId: Integer;
     begin
         ReportSelections.SetFilter("Report ID", '<>0');
-        ReportSelections.FindFirst;
+        ReportSelections.FindFirst();
 
         if ReportSelections.FindSet() then
             repeat
@@ -815,23 +798,14 @@
                 SaveReportRequestPageParameters(LocalRepId, RequestPageParameters);
                 // Validate output type and get a file save path, if necessary, only prompt for windows clients that are not in test mode
                 SetOutputType(LocalRepId);
-#if not CLEAN17
-                if FileManagement.IsLocalFileSystemAccessible and (Path = '') and (not IsTestMode) and
-                   (OutputType in [OutputType::PDF, OutputType::Excel, OutputType::Word, OutputType::XML])
-                then
-                    FileManagement.SelectFolderDialog(SaveFolderMsg, Path);
-#endif
 
                 // Use the temp path if we're set in test mode and the path wasn't already set
                 if (Path = '') and IsTestMode then
                     Path := TemporaryPath;
 
                 // If email is chosen, ensure that email account is set up
-                if EmailFeature.IsEnabled() and (OutputType = OutputType::Email) and not EmailAccount.IsAnyAccountRegistered() and not SupressOutput then
+                if (OutputType = OutputType::Email) and not EmailAccount.IsAnyAccountRegistered() and not SupressOutput then
                     Error(EmailAccountsNotSetupErr);
-
-                if not EmailFeature.IsEnabled() and (OutputType = OutputType::Email) and not SMTPMailSetup.GetSetup and not SupressOutput then
-                    Error(SMTPNotSetupErr);
             until ReportSelections.Next() = 0;
         Initialized := true;
     end;
@@ -1252,6 +1226,7 @@
         File: File;
         FileStream: OutStream;
         TempFilePath: Text[250];
+        ErasePath: Text;
     begin
         case ReportFormatType of
             REPORTFORMAT::Pdf:
@@ -1265,7 +1240,9 @@
                             File.Close;
                             exit(TempFilePath);
                         end;
+                    ErasePath := File.Name;
                     File.Close;
+                    Erase(ErasePath);
                     exit('');
                 end;
             REPORTFORMAT::Html:
@@ -1279,7 +1256,9 @@
                             File.Close;
                             exit(TempFilePath);
                         end;
+                    ErasePath := File.Name;
                     File.Close;
+                    Erase(ErasePath);
                     exit('');
                 end;
             else
@@ -1443,7 +1422,9 @@
         end;
     end;
 
+#if not CLEAN20
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Report Mgt.", 'OnBeforeMergeDocument', '', false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure VerifyXmlContainsDatasetOnBeforeMergeDocument(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; PrinterName: Text; OutStream: OutStream; var Handled: Boolean; IsFileNameBlank: Boolean)
     var
         DocumentReportMgt: Codeunit "Document Report Mgt.";
@@ -1458,16 +1439,18 @@
         WordOutputXmlHasDataVerified := true;
     end;
 
+    [IntegrationEvent(false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
+    local procedure OnBeforeVerifyXmlContainsDataset(var CancelVerification: Boolean)
+    begin
+    end;
+#endif
+
     procedure CheckForCustomLayoutReportingJob()
     var
         CustomerLayoutStatement: Codeunit "Customer Layout - Statement";
     begin
         CustomerLayoutStatement.CheckReportRunningInBackground;
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeVerifyXmlContainsDataset(var CancelVerification: Boolean)
-    begin
     end;
 
     local procedure IsObjectOptionsInsertDeleteAllowed(): Boolean

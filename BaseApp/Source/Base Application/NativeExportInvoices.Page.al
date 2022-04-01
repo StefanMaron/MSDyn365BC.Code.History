@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2822 "Native - Export Invoices"
 {
     Caption = 'nativeInvoicingExportInvoices', Locked = true;
@@ -76,4 +77,4 @@ page 2822 "Native - Export Invoices"
         EmailErr: Label 'The email address is not specified.';
         PeriodErr: Label 'The specified period is not valid.';
 }
-
+#endif

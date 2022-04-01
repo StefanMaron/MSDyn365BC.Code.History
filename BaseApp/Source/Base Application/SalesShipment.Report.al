@@ -84,10 +84,10 @@ report 208 "Sales - Shipment"
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(SelltoCustNo_SalesShptHeader; "Sales Shipment Header"."Sell-to Customer No.")
@@ -188,7 +188,7 @@ report 208 "Sales - Shipment"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -245,20 +245,6 @@ report 208 "Sales - Shipment"
                         column(LinNo; LinNo)
                         {
                         }
-#if not CLEAN17
-                        column(CrossReferenceNo_Line; "Cross-Reference No.")
-                        {
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'Replaced by Item Reference No.';
-                            ObsoleteTag = '17.0';
-                        }
-                        column(CrossReferenceNo_Line_Lbl; FieldCaption("Item Reference No."))
-                        {
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'Replaced by Item Reference No.';
-                            ObsoleteTag = '17.0';
-                        }
-#endif
                         column(ItemReferenceNo_Line; "Item Reference No.")
                         {
                         }
@@ -302,7 +288,7 @@ report 208 "Sales - Shipment"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -584,6 +570,9 @@ report 208 "Sales - Shipment"
                 FormatAddressFields("Sales Shipment Header");
                 FormatDocumentFields("Sales Shipment Header");
 
+                if not CompanyBankAccount.Get("Sales Shipment Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
             end;
 
@@ -678,7 +667,7 @@ report 208 "Sales - Shipment"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Sales Shipment Header".FindSet then
+            if "Sales Shipment Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(
                       5, "Sales Shipment Header"."No.", 0, 0, DATABASE::Customer, "Sales Shipment Header"."Sell-to Customer No.",
@@ -699,6 +688,7 @@ report 208 "Sales - Shipment"
     var
         Text002: Label 'Sales - Shipment %1', Comment = '%1 = Document No.';
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";

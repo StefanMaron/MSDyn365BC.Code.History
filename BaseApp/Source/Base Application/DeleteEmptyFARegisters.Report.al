@@ -14,10 +14,10 @@ report 5693 "Delete Empty FA Registers"
             trigger OnAfterGetRecord()
             begin
                 FALedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
-                if FALedgEntry.FindFirst then
+                if FALedgEntry.FindFirst() then
                     CurrReport.Skip();
                 MaintenanceLedgEntry.SetRange("Entry No.", "From Maintenance Entry No.", "To Maintenance Entry No.");
-                if MaintenanceLedgEntry.FindFirst then
+                if MaintenanceLedgEntry.FindFirst() then
                     CurrReport.Skip();
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");

@@ -286,7 +286,7 @@ report 7310 "Calculate Bins"
         BinCreationWkshLine.SetRange("Worksheet Template Name", CurrTemplateName);
         BinCreationWkshLine.SetRange(Name, CurrWorksheetName);
         BinCreationWkshLine.SetRange("Location Code", CurrLocationCode);
-        if BinCreationWkshLine.FindLast then
+        if BinCreationWkshLine.FindLast() then
             LineNo := BinCreationWkshLine."Line No." + 10000
         else
             LineNo := 10000;

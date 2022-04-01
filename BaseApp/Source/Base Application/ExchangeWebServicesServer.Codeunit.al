@@ -238,9 +238,27 @@ codeunit 5321 "Exchange Web Services Server"
         EmailMessage := Service.GetEmailWithAttachments(ItemID);
     end;
 
+#if not CLEAN20
+    [Obsolete('Please use GetEmailAndAttachments which uses RecordRef instead of Vendor number.', '20.0')]
     [Scope('OnPrem')]
-    procedure GetEmailAndAttachments(ItemID: Text[250]; var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; VendorNumber: Code[20])
+    procedure GetEmailAndAttachments(ItemID: Text[250]; var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,IntiateSendToAttachments; VendorNumber: Code[20])
     var
+        Vendor: Record Vendor;
+        RecRef: RecordRef;
+    begin
+        Vendor.Validate("No.", VendorNumber);
+        Vendor.Get(VendorNumber);
+        RecRef.Get(Vendor.RecordId());
+        GetEmailAndAttachments(ItemID, TempExchangeObject, Action, RecRef);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetEmailAndAttachments(ItemID: Text[250]; var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,IntiateSendToAttachments; RecRef: RecordRef)
+    var
+#if not CLEAN20
+        Vendor: Record Vendor;
+#endif
         EmailMessage: DotNet IEmailMessage;
         Attachments: DotNet IEnumerable;
         Attachment: DotNet IAttachment;
@@ -268,8 +286,12 @@ codeunit 5321 "Exchange Web Services Server"
                         Validate("Parent ID", EmailMessage.Id);
                         Validate("Content Type", Attachment.ContentType);
                         Validate(InitiatedAction, Action);
-                        Validate(VendorNo, VendorNumber);
                         Validate(IsInline, Attachment.IsInline);
+                        Validate(RecId, RecRef.RecordId());
+#if not CLEAN20
+                        if RecRef.RecordId.TableNo = DATABASE::Vendor then
+                            Validate(VendorNo, RecRef.Field(Vendor.FieldNo("No.")).Value);
+#endif
                         SetContent(Attachment.Content);
                         if not Insert(true) then
                             Modify(true);

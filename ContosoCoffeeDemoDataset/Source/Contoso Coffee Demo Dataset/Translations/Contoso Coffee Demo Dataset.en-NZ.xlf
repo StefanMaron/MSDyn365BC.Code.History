@@ -1,0 +1,1540 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-NZ" original="Contoso Coffee Demo Dataset">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 811197606 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing Demo Account</source>
+          <target state="translated">Manufacturing Demo Account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 811197606 - Field 3844419201 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Description</source>
+          <target state="translated">Account Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Account - Field Account Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 811197606 - Field 2180938866 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Key</source>
+          <target state="translated">Account Key</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Account - Field Account Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 811197606 - Field 14865046 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Value</source>
+          <target state="translated">Account Value</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Account - Field Account Value - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing Demo Data Setup</source>
+          <target state="translated">Manufacturing Demo Data Setup</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 3928393419 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Adjust for Payment Discount</source>
+          <target state="translated">Adjust for Payment Discount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Adjust for Payment Discount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 3529346069 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Base VAT Code</source>
+          <target state="translated">Base GST Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Base VAT Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 332174833 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Type</source>
+          <target state="translated">Company Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Company Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 332174833 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT,Sales Tax</source>
+          <target state="translated">GST,Sales Tax</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Company Type - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 3381089669 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Domestic - Gen. Bus. Posting Group</source>
+          <target state="translated">Domestic - Gen. Bus. Posting Group</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Domestic Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 2074682513 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finished Code</source>
+          <target state="translated">Finished Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Finished Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 1722058077 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Is DemoData Populated</source>
+          <target state="translated">Is DemoData Populated</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Is DemoData Populated - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 2386326790 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Capacity - Gen. Prod. Posting Group</source>
+          <target state="translated">Capacity - Gen. Prod. Posting Group</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Manufact Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 4238943959 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing Location</source>
+          <target state="translated">Manufacturing Location</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Manufacturing Location - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 2604280068 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Price Factor</source>
+          <target state="translated">Price Factor</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Price Factor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Primary Key</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 4220723123 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Raw Mat - Gen. Prod. Posting Group</source>
+          <target state="translated">Raw Mat - Gen. Prod. Posting Group</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Raw Mat Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 4242196510 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retail - Gen. Prod. Posting Group</source>
+          <target state="translated">Retail - Gen. Prod. Posting Group</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Retail Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 2556434784 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rounding Precision</source>
+          <target state="translated">Rounding Precision</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Rounding Precision - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 34877017 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Year</source>
+          <target state="translated">Starting Year</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Starting Year - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2670224048 - Field 2099156127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Working Date</source>
+          <target state="translated">Working Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Working Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 549124993 - NamedType 4239967506" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DOMESTIC</source>
+          <target state="translated">DOMESTIC</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XDOMESTICTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 549124993 - NamedType 360575174" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FINISHED</source>
+          <target state="translated">FINISHED</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XFINISHEDTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 549124993 - NamedType 2326689169" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MANUFACT</source>
+          <target state="translated">MANUFACT</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XMANUFACTTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 549124993 - NamedType 2432616601" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>North</source>
+          <target state="translated">North</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XNorthTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 549124993 - NamedType 1091556328" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RAW MAT</source>
+          <target state="translated">RAW MAT</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XRAWMATTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 549124993 - NamedType 2986904825" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RETAIL</source>
+          <target state="translated">RETAIL</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XRETAILTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1083179759 - NamedType 1654479348" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Days</source>
+          <target state="translated">Days</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Cap Unit of Measure - NamedType XDaysLowerCaseTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1083179759 - NamedType 2683289921" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DAYS</source>
+          <target state="translated">DAYS</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Cap Unit of Measure - NamedType XDAYSTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1083179759 - NamedType 1408284608" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Hours</source>
+          <target state="translated">Hours</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Cap Unit of Measure - NamedType XHoursLowerCaseTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1083179759 - NamedType 2150486581" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HOURS</source>
+          <target state="translated">HOURS</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Cap Unit of Measure - NamedType XHOURSTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1083179759 - NamedType 4291328894" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Minutes</source>
+          <target state="translated">Minutes</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Cap Unit of Measure - NamedType XMinutesLowerCaseTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1083179759 - NamedType 2056705879" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MINUTES</source>
+          <target state="translated">MINUTES</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Cap Unit of Measure - NamedType XMINUTESTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 3792587043" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Capacity Variance</source>
+          <target state="translated">Capacity Variance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XCapacityVarianceTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 2775833291" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cap. Overhead Variance</source>
+          <target state="translated">Cap. Overhead Variance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XCapOverheadVarianceTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 1864160131" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Direct Cost Applied, Cap.</source>
+          <target state="translated">Direct Cost Applied, Cap.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XDirectCostAppliedCapTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 109983697" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Direct Cost Applied, Rawmat.</source>
+          <target state="translated">Direct Cost Applied, Rawmat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XDirectCostAppliedRawMatTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 3644177200" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Direct Cost Applied, Retail.</source>
+          <target state="translated">Direct Cost Applied, Retail.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XDirectCostAppliedRetailTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 2305113782" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finished Goods</source>
+          <target state="translated">Finished Goods</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XFinishedGoodsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 728973331" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory Adjmt., Raw Mat.</source>
+          <target state="translated">Inventory Adjmt., Raw Mat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XInventoryAdjRawMatTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 1566354006" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory Adjmt., Retail</source>
+          <target state="translated">Inventory Adjmt., Retail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XInventoryAdjRetailTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 2500529338" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Material Variance</source>
+          <target state="translated">Material Variance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XMaterialVarianceTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 2627081961" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mfg. Overhead Variance</source>
+          <target state="translated">Mfg. Overhead Variance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XMfgOverheadVarianceTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 2180863087" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overhead Applied, Rawmat.</source>
+          <target state="translated">Overhead Applied, Rawmat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XOverheadAppliedawMatTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 292171635" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overhead Applied, Cap.</source>
+          <target state="translated">Overhead Applied, Cap.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XOverheadAppliedCapTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 3256896768" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overhead Applied, Retail</source>
+          <target state="translated">Overhead Applied, Retail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XOverheadAppliedRetailTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 39329264" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchase Variance, Cap.</source>
+          <target state="translated">Purchase Variance, Cap.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XPurchaseVarianceCapTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 2677595774" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overhead Applied, Rawmat.</source>
+          <target state="translated">Overhead Applied, Rawmat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XPurchaseVarianceRawMatTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 1939289131" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchase Variance, Retail</source>
+          <target state="translated">Purchase Variance, Retail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XPurchaseVarianceRetailTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 1046934442" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purch., Raw Materials - Dom.</source>
+          <target state="translated">Purch., Raw Materials - Dom.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XPurchRawMatDomTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 922344904" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Raw Materials</source>
+          <target state="translated">Raw Materials</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XRawMaterialsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 2746860126" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Subcontracted Variance</source>
+          <target state="translated">Subcontracted Variance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XSubcontractedVarianceTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3657324299 - NamedType 2774156519" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WIP Account, Finished goods</source>
+          <target state="translated">WIP Account, Finished goods</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Demo Accounts - NamedType XWIPAccountFinishedgoodsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1456729777" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airpot Duo</source>
+          <target state="translated">Airpot Duo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAirpotDuoTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3876593487" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airpot lite</source>
+          <target state="translated">Airpot lite</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAirpotLiteTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 898215891" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airpot</source>
+          <target state="translated">Airpot</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAirpotTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2397719157" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDripLite - Black</source>
+          <target state="translated">AutoDripLite - Black</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAutoDripLiteBlackTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3299135649" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDripLite - Red</source>
+          <target state="translated">AutoDripLite - Red</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAutoDripLiteRedTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 4153281376" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDripLite</source>
+          <target state="translated">AutoDripLite</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAutoDripLiteTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3790473597" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDripLite - White</source>
+          <target state="translated">AutoDripLite - White</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAutoDripLiteWhiteTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3008359636" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDrip</source>
+          <target state="translated">AutoDrip</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAutoDripTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3027883969" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BLACK</source>
+          <target state="translated">BLACK</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XBlackTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1557909258" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Button</source>
+          <target state="translated">Button</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XButtonTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2541024088" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CAN</source>
+          <target state="translated">CAN</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as in CreateMfgUnitofMeasures codeunit</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XCANTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1169693987" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Circuit board</source>
+          <target state="translated">Circuit board</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XCircuitBoardTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3487790671" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CM_Commer</source>
+          <target state="translated">CM_Commer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XCMCommerTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3967768057" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CM_Consum</source>
+          <target state="translated">CM_Consum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XCMConsumTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1994848466" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CM</source>
+          <target state="translated">CM</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XCMTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3880269161" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Coffee Makers</source>
+          <target state="translated">Coffee Makers</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XCoffeeMakersTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 59147860" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Commercial Models</source>
+          <target state="translated">Commercial Models</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XCommercialModelsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3596745286" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Consumer Models</source>
+          <target state="translated">Consumer Models</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XConsumerModelsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 104452069" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Control panel display</source>
+          <target state="translated">Control panel display</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XControlPanelDisplayTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2510970646" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Facia Panel with display</source>
+          <target state="translated">Facia Panel with display</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XFaciaPanelWithDisplayTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3157154902" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Coffee filter basket</source>
+          <target state="translated">Coffee filter basket</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XFilterBasketTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 117551038" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Foot, adjustable, rubber</source>
+          <target state="translated">Foot, adjustable, rubber</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XFootTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2595206036" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Glass Carafe</source>
+          <target state="translated">Glass Carafe</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XGlassCarafeTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3899518690" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Heating element.</source>
+          <target state="translated">Heating element.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XHeatingElementTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1889595090" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Housing Airpot Duo</source>
+          <target state="translated">Housing Airpot Duo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XHousingAirpotDuoTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2685753100" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Housing Airpot</source>
+          <target state="translated">Housing Airpot</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XHousingAirpotTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1948949243" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Housing AutoDrip</source>
+          <target state="translated">Housing AutoDrip</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XHousingAutoDripTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3637905680" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IoT Sensor</source>
+          <target state="translated">IoT Sensor</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XIoTSensorTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3803182540" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>On/off light</source>
+          <target state="translated">On/off light</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XOnOffLightTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2461526415" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paint, black</source>
+          <target state="translated">Paint, black</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XPaintBlackTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1865603779" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paint, red</source>
+          <target state="translated">Paint, red</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XPaintRedTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1031980631" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paint, white</source>
+          <target state="translated">Paint, white</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XPaintWhiteTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2469451421" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Parts</source>
+          <target state="translated">Parts</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XPartsLCTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1222554688" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PARTS</source>
+          <target state="translated">PARTS</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XPartsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2362260276" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PCS</source>
+          <target state="translated">PCS</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as in CreateMfgUnitofMeasures codeunit</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XPCSTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2512947775" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Power cord</source>
+          <target state="translated">Power cord</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XPowerCordTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 839650965" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RED</source>
+          <target state="translated">RED</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XRedTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 834994219" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reservoir Assy.</source>
+          <target state="translated">Reservoir Assy.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XReservoirAssyTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 843906211" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reservoir testing kit</source>
+          <target state="translated">Reservoir testing kit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XReservoirTestKitTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 597323651" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reservoir.</source>
+          <target state="translated">Reservoir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XReservoirTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1276095357" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Screw Hex M3, Zink</source>
+          <target state="translated">Screw Hex M3, Zink</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XScrewHexM3Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 4222614502" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SET</source>
+          <target state="translated">SET</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as in CreateMfgUnitofMeasures codeunit</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XSETTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2835448451" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SN specific tracking for manufacturing</source>
+          <target state="translated">SN specific tracking for manufacturing</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XSNPRODspecifictrackingLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2795536560" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SN-PROD</source>
+          <target state="translated">SN-PROD</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XSNPRODTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1223161368" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Stainless still thermal carafe</source>
+          <target state="translated">Stainless still thermal carafe</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XStillCarafeTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 1353862664" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Switch on/off</source>
+          <target state="translated">Switch on/off</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XSwitchOnOffTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 2884640167" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Warming plate</source>
+          <target state="translated">Warming plate</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XWarmingPlateTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 690714794" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Water tubing</source>
+          <target state="translated">Water tubing</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XWaterTubingTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 68986151 - NamedType 3357886793" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WHITE</source>
+          <target state="translated">WHITE</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XWhiteTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 288858027 - NamedType 4172129958" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Default Journal</source>
+          <target state="translated">Default Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Batch - NamedType XDefaultJournalTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 288858027 - NamedType 582150517" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DEFAULT</source>
+          <target state="translated">DEFAULT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Batch - NamedType XDEFAULTTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 288858027 - NamedType 3058070655" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ITEM</source>
+          <target state="translated">ITEM</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as XITEMTok in CreateMfgJnlBatch codeunit</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Batch - NamedType XITEMTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3818209661 - NamedType 582150517" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DEFAULT</source>
+          <target state="translated">DEFAULT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Line - NamedType XDEFAULTTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3818209661 - NamedType 3058070655" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ITEM</source>
+          <target state="translated">ITEM</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as XITEMTok in CreateMfgJnlBatch codeunit</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Line - NamedType XITEMTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3818209661 - NamedType 626118576" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>START-MANF</source>
+          <target state="translated">START-MANF</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Line - NamedType XSTARTMANFTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 96371575 - NamedType 2285831687" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Capacity Journal</source>
+          <target state="translated">Capacity Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XCapacityJournalTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 96371575 - NamedType 407043264" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CAPACITY</source>
+          <target state="translated">CAPACITY</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XCAPACITYTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 96371575 - NamedType 2426949496" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Consumption Journal</source>
+          <target state="translated">Consumption Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XConsumptionJournalTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 96371575 - NamedType 1807469227" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CONSUMP</source>
+          <target state="translated">CONSUMP</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XCONSUMPTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 96371575 - NamedType 2931701824" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item Journal</source>
+          <target state="translated">Item Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XItemJournalTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 96371575 - NamedType 3058070655" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ITEM</source>
+          <target state="translated">ITEM</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XITEMTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 96371575 - NamedType 767469418" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Output Journal</source>
+          <target state="translated">Output Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XOutputJournalTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 96371575 - NamedType 895498073" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OUTPUT</source>
+          <target state="translated">OUTPUT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XOUTPUTTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 87617727 - NamedType 517193696" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>North Street, 2</source>
+          <target state="translated">North Street, 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Location - NamedType XNorthStreet2Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 87617727 - NamedType 420762174" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>North Warehouse</source>
+          <target state="translated">North Warehouse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Location - NamedType XNorthWarehouseTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3891720912 - NamedType 994084425" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>O-PROM</source>
+          <target state="translated">O-PROM</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Order Promising - NamedType XOPROMTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 214596657 - NamedType 1499495566" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Capacities</source>
+          <target state="translated">Capacities</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Posting Setup - NamedType XCapacitiesTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 214596657 - NamedType 1224585919" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Domestic customers and vendors</source>
+          <target state="translated">Domestic customers and vendors</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Posting Setup - NamedType XDomesticcustomersandvendorsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 214596657 - NamedType 2958877632" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finished items</source>
+          <target state="translated">Finished items</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Posting Setup - NamedType XFinishedItemsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 214596657 - NamedType 922344904" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Raw materials</source>
+          <target state="translated">Raw materials</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Posting Setup - NamedType XRawMaterialsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3528194800 - NamedType 1456729777" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airpot Duo</source>
+          <target state="translated">Airpot Duo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XAirpotDuoTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3528194800 - NamedType 898215891" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airpot</source>
+          <target state="translated">Airpot</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XAirpotTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3528194800 - NamedType 562018507" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDripLite - Base</source>
+          <target state="translated">AutoDripLite - Base</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XAutoDripLiteBaseTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3528194800 - NamedType 2397719157" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDripLite - Black</source>
+          <target state="translated">AutoDripLite - Black</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XAutoDripLiteBlackTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3528194800 - NamedType 3299135649" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDripLite - Red</source>
+          <target state="translated">AutoDripLite - Red</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XAutoDripLiteRedTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3528194800 - NamedType 3790473597" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDripLite - White</source>
+          <target state="translated">AutoDripLite - White</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XAutoDripLiteWhiteTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3528194800 - NamedType 3008359636" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDrip</source>
+          <target state="translated">AutoDrip</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XAutoDripTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3528194800 - NamedType 2362260276" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PCS</source>
+          <target state="translated">PCS</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XPCSTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3528194800 - NamedType 834994219" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reservoir Assy.</source>
+          <target state="translated">Reservoir Assy.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XReservoirAssyTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 2182533702" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airpot - Parallel</source>
+          <target state="translated">Airpot - Parallel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XAirpotParallelTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 1243304915" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airpot - Serial</source>
+          <target state="translated">Airpot - Serial</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XAirpotSerialTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 2677663684" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airpot - Subcontracting 1</source>
+          <target state="translated">Airpot - Subcontracting 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XAirpotSubcontr1Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 3353443525" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Airpot - Subcontracting 2</source>
+          <target state="translated">Airpot - Subcontracting 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XAirpotSubcontr2Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 3008359636" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AutoDrip</source>
+          <target state="translated">AutoDrip</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XAutoDripTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 365924642" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Body assembly</source>
+          <target state="translated">Body assembly</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XBodyAssemblyTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 3966382110" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Electrical wiring</source>
+          <target state="translated">Electrical wiring</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XElectricalWiringTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 431626339" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Packing</source>
+          <target state="translated">Packing</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XPackingTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 208874333" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reservoir assembly</source>
+          <target state="translated">Reservoir assembly</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XReservAssemblyTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 834994219" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reservoir Assy.</source>
+          <target state="translated">Reservoir Assy.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XReservoirAssyTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 439344242" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Testing</source>
+          <target state="translated">Testing</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XTestingTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 873807125 - NamedType 3687200900" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unit assembly</source>
+          <target state="translated">Unit assembly</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. Routing - NamedType XUnitAssemblyTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241798080 - NamedType 2707760297" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assembling</source>
+          <target state="translated">Assembling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Routing Link - NamedType XAssemblingTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241798080 - NamedType 3925811530" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inspection</source>
+          <target state="translated">Inspection</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Routing Link - NamedType XInspectionTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3507819959 - NamedType 443149422" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect configuration of the equipment</source>
+          <target state="translated">Incorrect configuration of the equipment</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Scrap Codes - NamedType xConfigEquipmentLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3507819959 - NamedType 4291570728" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Defective material</source>
+          <target state="translated">Defective material</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Scrap Codes - NamedType xDefectiveMaterialTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3507819959 - NamedType 2996979614" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Equipment</source>
+          <target state="translated">Equipment</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Scrap Codes - NamedType xEquipmentTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3507819959 - NamedType 4083469917" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Material</source>
+          <target state="translated">Material</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Scrap Codes - NamedType xMaterialTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3507819959 - NamedType 1829563420" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Operator error</source>
+          <target state="translated">Operator error</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Scrap Codes - NamedType xOperatorErrorTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3507819959 - NamedType 297152596" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Operator</source>
+          <target state="translated">Operator</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Scrap Codes - NamedType xOperatorTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 1633213707" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Firm Planned orders</source>
+          <target state="translated">Firm Planned orders</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XFirmPlannedordersTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 2597049544" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>M10</source>
+          <target state="translated">M10</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XM10Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 2197751487" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>M99990</source>
+          <target state="translated">M99990</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XM99990Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 3104224454" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MACHCTR</source>
+          <target state="translated">MACHCTR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XMACHCTRTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 415094527" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Machine Centers</source>
+          <target state="translated">Machine Centres</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XMachineCentersTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 1292798863" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>M-FIRMP</source>
+          <target state="translated">M-FIRMP</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XMFIRMPTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 2056705879" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MINUTES</source>
+          <target state="translated">MINUTES</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XMINUTESTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 4081881578" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>M-PLAN</source>
+          <target state="translated">M-PLAN</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XMPLANTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 3948819970" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>M-REL</source>
+          <target state="translated">M-REL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XMRELTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 1937216702" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>M-SIM</source>
+          <target state="translated">M-SIM</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XMSIMTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 599817619" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>P10</source>
+          <target state="translated">P10</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XP10Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 440729716" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>P99990</source>
+          <target state="translated">P99990</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XP99990Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 1781565835" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Planned orders</source>
+          <target state="translated">Planned orders</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XPlannedordersTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 1137857291" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PRODBOM</source>
+          <target state="translated">PRODBOM</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XPRODBOMTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 1871862084" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Production BOMs</source>
+          <target state="translated">Production BOMs</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XProductionBOMsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 3384358229" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>R10</source>
+          <target state="translated">R10</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XR10Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 2193400326" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>R99990</source>
+          <target state="translated">R99990</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XR99990Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 3739501676" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Released orders</source>
+          <target state="translated">Released orders</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XReleasedordersTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 1835083596" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Routings</source>
+          <target state="translated">Routings</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XRoutingslcTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 1864597336" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ROUTING</source>
+          <target state="translated">ROUTING</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XROUTINGTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 2008229553" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Simulated orders</source>
+          <target state="translated">Simulated orders</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XSimulatedOrdersTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 2598540370" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>W10</source>
+          <target state="translated">W10</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XW10Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 4219098425" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>W99990</source>
+          <target state="translated">W99990</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XW99990Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 3707582811" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Work Centers</source>
+          <target state="translated">Work Centres</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XWorkCentersTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551934849 - NamedType 364141176" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WORKCTR</source>
+          <target state="translated">WORKCTR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Setup - NamedType XWORKCTRTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 67275466 - NamedType 981684282" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>1st shift</source>
+          <target state="translated">1st shift</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Shop Calendar - NamedType X1stshiftTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 67275466 - NamedType 969557420" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>2nd shift</source>
+          <target state="translated">2nd shift</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Shop Calendar - NamedType X2ndshiftTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 67275466 - NamedType 84382223" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One shift Monday-Friday</source>
+          <target state="translated">One shift Monday-Friday</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Shop Calendar - NamedType XOneshiftMondayFridayTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 67275466 - NamedType 3427044464" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One shift</source>
+          <target state="translated">One shift</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Shop Calendar - NamedType XOneshiftTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 67275466 - NamedType 1653964762" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Two shifts Monday-Friday</source>
+          <target state="translated">Two shifts Monday-Friday</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Shop Calendar - NamedType XTwoshiftsMondayFridayTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 67275466 - NamedType 1063843593" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Two shifts</source>
+          <target state="translated">Two shifts</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Shop Calendar - NamedType XTwoshiftsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2335938242 - NamedType 1235139546" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Lack of personnel</source>
+          <target state="translated">Lack of personnel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Stop Codes - NamedType xLackOfPersonnelTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2335938242 - NamedType 158636967" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Machine failure</source>
+          <target state="translated">Machine failure</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Stop Codes - NamedType xMachineFailureTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2335938242 - NamedType 1575679519" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Machine</source>
+          <target state="translated">Machine</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Stop Codes - NamedType xMachineTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2335938242 - NamedType 4249788903" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Material defects</source>
+          <target state="translated">Material defects</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Stop Codes - NamedType xMaterialDefectsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2335938242 - NamedType 4083469917" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Material</source>
+          <target state="translated">Material</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Stop Codes - NamedType xMaterialTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2335938242 - NamedType 2284683222" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Personnel</source>
+          <target state="translated">Personnel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Stop Codes - NamedType xPersonnelTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 1201596926" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Box</source>
+          <target state="translated">Box</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XBoxlcTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 3568171903" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BOX</source>
+          <target state="translated">BOX</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XBOXTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 4181951205" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Can</source>
+          <target state="translated">Can</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XCanlcTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 2541024088" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CAN</source>
+          <target state="translated">CAN</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XCANTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 1836113883" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Gram</source>
+          <target state="translated">Gram</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XGramTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 3400842967" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GR</source>
+          <target state="translated">GR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XGRTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 2911806800" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>KG</source>
+          <target state="translated">KG</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XKGTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 2363919627" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Kilo</source>
+          <target state="translated">Kilo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XKiloTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 3422683962" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Liter</source>
+          <target state="translated">Litre</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XLiterTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 2278525952" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>L</source>
+          <target state="translated">L</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XLTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 2362260276" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PCS</source>
+          <target state="translated">PCS</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XPCSTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 3674639275" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pieces</source>
+          <target state="translated">Pieces</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XPiecesTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 2691107031" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set</source>
+          <target state="translated">Set</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XSetlcTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3329509744 - NamedType 4222614502" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SET</source>
+          <target state="translated">SET</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Unit of Measures - NamedType XSETTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2976520648 - NamedType 1455794467" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Raw material supplier</source>
+          <target state="translated">Raw material supplier</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Vendor - NamedType XRawMaterialSupplierLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2976520648 - NamedType 3272671339" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Subcontractor</source>
+          <target state="translated">Subcontractor</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Vendor - NamedType XSubcontractorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2542274014" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assembly department</source>
+          <target state="translated">Assembly department</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XAssemblydepartmentTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 337648629" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CNC machine</source>
+          <target state="translated">CNC machine</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XCNCmachineTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2421834702" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Drilling machine</source>
+          <target state="translated">Drilling machine</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XDrillingmachineTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2985526196" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Drying Cabin</source>
+          <target state="translated">Drying Cabin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XDryingCabinTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 1395390113" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Flushing Backward</source>
+          <target state="translated">Flushing Backward</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XFlushBackTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 932807089" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Flushing Forward</source>
+          <target state="translated">Flushing Forward</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XFlushForwardTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 3502478122" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Flushing Manual</source>
+          <target state="translated">Flushing Manual</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XFlushManualTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 3999105125" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Machine deburr</source>
+          <target state="translated">Machine deburr</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XMachinedeburrTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2836133803" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Machine department</source>
+          <target state="translated">Machine department</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XMachinedepartmentTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2704216749" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Machine inspection</source>
+          <target state="translated">Machine inspection</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XMachineinspectionTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2056705879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MINUTES</source>
+          <target state="translated">MINUTES</target>
+          <note from="Developer" annotates="general" priority="2">Max length 10, must be the same as in CreateMfgUnitofMeasures codeunit</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XMINUTESTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 3427044464" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One shift</source>
+          <target state="translated">One shift</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XOneshiftTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 1307713991" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Packing department</source>
+          <target state="translated">Packing department</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XPackingdepartmentTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 3397875976" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Packing Machine</source>
+          <target state="translated">Packing Machine</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XPackingMachineTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2907610434" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Packing table 1</source>
+          <target state="translated">Packing table 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XPackingtable1Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 488702271" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Packing table 2</source>
+          <target state="translated">Packing table 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XPackingtable2Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 1410547935" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Painting Cabin</source>
+          <target state="translated">Painting Cabin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XPaintingCabinTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 588012098" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Painting department</source>
+          <target state="translated">Painting department</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XPaintingdepartmentTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2238999424" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Painting inspection</source>
+          <target state="translated">Painting inspection</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XPaintinginspectionTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2219879153" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Production department</source>
+          <target state="translated">Production department</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XProductiondepartmentTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2470200229" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Subcontractor</source>
+          <target state="translated">Subcontractor</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XSubcontractorTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 2465685928" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Subcontractors</source>
+          <target state="translated">Subcontractors</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XSuncontractorsTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 792207414 - NamedType 1063843593" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Two shifts</source>
+          <target state="translated">Two shifts</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XTwoshiftsTok</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contoso Coffee Demo Data</source>
+          <target state="translated">Contoso Coffee Demo Data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 332174833 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company type.</source>
+          <target state="translated">Specifies the company type.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Company Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 4238943959 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a new or an existing location that you want to use for production operations.</source>
+          <target state="translated">Specifies a new or an existing location that you want to use for production operations.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Manufacturing Location - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 34877017 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the first year that you you want to use for the Contoso demonstration data.</source>
+          <target state="translated">Specifies the first year that you you want to use for the Contoso demonstration data.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Starting Year - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 4067159089 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting Setup</source>
+          <target state="translated">Posting Setup</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Posting Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 3529346069 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies an existing VAT product group that will be used for items.</source>
+          <target state="translated">Specifies an existing GST product group that will be used for items.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Base VAT Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 3529346069 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Base VAT Code</source>
+          <target state="translated">Base GST Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Base VAT Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 3381089669 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies existing business posting groups and, if relevant, VAT posting groups that will be applied to the vendors that will be added. The Domestic group is a great choice.</source>
+          <target state="translated">Specifies existing business posting groups and, if relevant, GST posting groups that will be applied to the vendors that will be added. The Domestic group is a great choice.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Domestic Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 3381089669 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Domestic - General Business Posting Group</source>
+          <target state="translated">Domestic - General Business Posting Group</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Domestic Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 2074682513 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a new inventory posting group that will be used for finished items.</source>
+          <target state="translated">Specifies a new inventory posting group that will be used for finished items.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Finished Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 2074682513 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finished Code</source>
+          <target state="translated">Finished Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Finished Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 2386326790 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a new product group that will be used to map capacity transactions.</source>
+          <target state="translated">Specifies a new product group that will be used to map capacity transactions.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Manufact Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 2386326790 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Capacity - General Product Posting Group</source>
+          <target state="translated">Capacity - General Product Posting Group</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Manufact Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 4220723123 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies new product and inventory posting groups that will be used for raw materials items.</source>
+          <target state="translated">Specifies new product and inventory posting groups that will be used for raw materials items.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Raw Mat Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 4220723123 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Raw - General Product Posting Group</source>
+          <target state="translated">Raw - General Product Posting Group</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Raw Mat Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 4242196510 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies an existing product posting group that will be used for finished items. The Retail group is a great choice.</source>
+          <target state="translated">Specifies an existing product posting group that will be used for finished items. The Retail group is a great choice.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Retail Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 4242196510 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retail - General Product Posting Group</source>
+          <target state="translated">Retail - General Product Posting Group</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Retail Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 2770449500 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Price/cost factor and rounding</source>
+          <target state="translated">Price/cost factor and rounding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Pricing - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 2604280068 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a factor to convert a price from USD/EUR to your local currency. 1 means that the price is 149 in any currency. A higher number will be used to get the price in your local currency.</source>
+          <target state="translated">Specifies a factor to convert a price from USD/EUR to your local currency. 1 means that the price is 149 in any currency. A higher number will be used to get the price in your local currency.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Price Factor - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 2604280068 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Price Factor</source>
+          <target state="translated">Price Factor</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Price Factor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 2556434784 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the rounding precision for prices on items.</source>
+          <target state="translated">Specifies the rounding precision for prices on items.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Rounding Precision - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Control 2556434784 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rounding Precision</source>
+          <target state="translated">Rounding Precision</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Rounding Precision - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Action 1056858697 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Adds new demonstration data for the Manufacturing capabilities in Business Central.</source>
+          <target state="translated">Adds new demonstration data for the Manufacturing capabilities in Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Action Create Demo Data - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - Action 1056858697 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create Demo Data</source>
+          <target state="translated">Create Demo Data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Action Create Demo Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 258902614 - Field 3700672413 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>InstallAdditionalDemoData</source>
+          <target state="translated">InstallAdditionalDemoData</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 725310902</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1641808626 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contoso Coffee Read</source>
+          <target state="translated">Contoso Coffee Read</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Contoso Coffee -Read - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1320793698 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contoso Coffee Admin</source>
+          <target state="translated">Contoso Coffee Admin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Contoso Coffee Admin - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

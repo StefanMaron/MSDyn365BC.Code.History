@@ -42,7 +42,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify error when change the date on Campaign Sales Prices.
 
         // Setup: Create Campaign with Sales Price.
-        Initialize;
+        Initialize();
         CreateAndUpdateCampaign(Campaign);
         LibraryMarketing.CreateSalesPriceForCampaign(SalesPrice, CreateItem, Campaign."No.");
 
@@ -63,7 +63,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify error when change the date on Campaign Sales Line Discounts.
 
         // Setup: Create Campaign with Sales Line Discount.
-        Initialize;
+        Initialize();
         CreateAndUpdateCampaign(Campaign);
         LibraryMarketing.CreateSalesLineDiscount(SalesLineDiscount, Campaign."No.", CreateItem);
 
@@ -88,7 +88,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify dates on Sales Prices and Sales Line Discounts after changing Campaign dates.
 
         // Setup: Create Campaign with Sales Price and Line Discount.
-        Initialize;
+        Initialize();
         CreateAndUpdateCampaign(Campaign);
         LibraryMarketing.CreateSalesPriceForCampaign(SalesPrice, CreateItem, Campaign."No.");
         LibraryMarketing.CreateSalesLineDiscount(SalesLineDiscount, Campaign."No.", SalesPrice."Item No.");
@@ -119,7 +119,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify price on Sales Order without activating Campaign while Segment is created for the Campaign.
 
         // Setup: Create Campaign with Sales Price. Create Contact with Customer and create Segment.
-        Initialize;
+        Initialize();
         CreateSalesPriceForCampaign(SalesPrice);
         CreateCustomerForContact(Contact);
         CreateSegment(SalesPrice."Sales Code", Contact."No.");
@@ -144,7 +144,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify error when activate Campaign having no price and no Segment.
 
         // Setup: Create Campaign without Sales Price.
-        Initialize;
+        Initialize();
         CreateAndUpdateCampaign(Campaign);
         LibraryVariableStorage.Enqueue(StrSubstNo(SalesPriceConfirmMessage, Campaign.TableCaption));  // Enqueue for ConfirmHandler.
 
@@ -166,7 +166,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify Campaign is activated without Agreement when create a Segment for the Campaign.
 
         // Setup: Create Campaign without Sales Price. Create Segment.
-        Initialize;
+        Initialize();
         CreateAndUpdateCampaign(Campaign);
         LibraryMarketing.CreateCompanyContact(Contact);
         CreateSegment(Campaign."No.", Contact."No.");
@@ -201,7 +201,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify error when activate Campaign with logged Segment and Campaign Target is False.
 
         // Setup: Create Campaign with Sales Price. Create Contact. Create a logged Segment.
-        Initialize;
+        Initialize();
         CreateSalesPriceForCampaign(SalesPrice);
         LibraryMarketing.CreateCompanyContact(Contact);
         CreateLoggedSegment(SalesPrice."Sales Code", Contact."No.", false, false);
@@ -230,7 +230,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         CustomerNo: Code[20];
     begin
         // Setup: Create Campaign with Sales Price. Create Contact with Customer. Create a logged Segment. Activate Campaign Price.
-        Initialize;
+        Initialize();
         CreateSalesPriceForCampaign(SalesPrice);
         CreateCustomerForContact(Contact);
         CreateLoggedSegment(SalesPrice."Sales Code", Contact."No.", true, FollowUpSeg);
@@ -267,7 +267,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify Sales Order Price after deleting Contact from Segment.
 
         // Setup & Exercise: Create Campaign with Sales Price.
-        Initialize;
+        Initialize();
         CreateSalesPriceForCampaign(SalesPrice);
         SalesOrderAfterRemovingContactFromSegment(SalesLine, SalesPrice."Sales Code", SalesPrice."Item No.", SalesPrice."Minimum Quantity");
 
@@ -286,7 +286,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify Sales Order Line Discount after deleting Customer for Contact.
 
         // Setup & Exercise: Create Campaign and Sales Line Discount.
-        Initialize;
+        Initialize();
         CreateSalesLineDiscountForCampaign(SalesLineDiscount);
         SalesOrderAfterRemovingContactFromSegment(
           SalesLine, SalesLineDiscount."Sales Code", SalesLineDiscount.Code, SalesLineDiscount."Minimum Quantity");
@@ -310,7 +310,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify Sales Order Price after deleting existing Contact from Segment and adding a new Contact.
 
         // Setup: Create Campaign with Sales Price. Create Contact with Customer and create Segment. Activate Campaign.
-        Initialize;
+        Initialize();
         CreateSalesPriceForCampaign(SalesPrice);
         CreateCustomerForContact(Contact);
         SegmentNo := CreateSegment(SalesPrice."Sales Code", Contact."No.");
@@ -346,7 +346,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify price after suggesting Sales Price on Sales Price Worksheet.
 
         // Setup: Create Campaign and Sales Line Discount. Create Contact with Customer and create Segment. Activate Campaign
-        Initialize;
+        Initialize();
         CreateSalesPriceForCampaign(SalesPrice);
         Item.Get(SalesPrice."Item No.");
 
@@ -371,7 +371,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify price after using Get Price on Sales Line.
 
         // Setup: Create Campaign and Sales Line Discount. Create Contact with Customer and create Segment. Activate Campaign.
-        Initialize;
+        Initialize();
         CreateSalesPriceForCampaign(SalesPrice);
         CreateCustomerForContact(Contact);
         CreateSegment(SalesPrice."Sales Code", Contact."No.");
@@ -402,7 +402,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // [FEATURE] [Sales Price] [UI]
         // [SCENARIO 253682] "Item No" can be validated on page 7002 "Sales Prices" in case of blanked "Item No. Filter" field value.
         // [SCENARIO 256758] "Item No" has filter value and can be validated on page 7002 "Sales Prices" in case of "Item No. Filter" field value (TFS 256758).
-        Initialize;
+        Initialize();
 
         // [GIVEN] Page 7002 "Sales Prices"
         SalesPrices.OpenEdit;
@@ -439,7 +439,7 @@ codeunit 136214 "Marketing Campaign Pricing"
     begin
         // [FEATURE] [Sales Prices] [UT]
         // [SCENARIO] Sales Price exists in customer's "Special Prices & Discounts" for Sales Price->Campaign (activated)->Segment->Contact (Company)->Customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company contact "Cont1" related to customer "Cust1"
         LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
@@ -473,7 +473,7 @@ codeunit 136214 "Marketing Campaign Pricing"
     begin
         // [FEATURE] [Sales Prices] [UT]
         // [SCENARIO] Sales Price exists in customer's "Special Prices & Discounts" for Sales Price->Campaign (activated)->Segment->Contact (Person)->Contact (Company)->Customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company contact "Cont1" related to customer "Cust1"
         LibraryMarketing.CreateContactWithCustomer(CompanyContact, Customer);
@@ -505,7 +505,7 @@ codeunit 136214 "Marketing Campaign Pricing"
     begin
         // [FEATURE] [Sales Price] [UI]
         // [SCENARIO 261907] "Starting Date" value can be set for a new record on the page "Sales Prices" if "Starting Date Filter" page field is set.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Page 7002 "Sales Prices".
         SalesPrices.OpenEdit;
@@ -534,7 +534,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Campaign Pricing");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         PriceListLine.DeleteAll();
 
         // Lazy Setup.
@@ -543,8 +543,8 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Campaign Pricing");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Campaign Pricing");
@@ -637,7 +637,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LogSegment.SetSegmentNo(SegmentNo);
         LogSegment.InitializeRequest(false, FollowUp);
         LogSegment.UseRequestPage(false);
-        LogSegment.Run;
+        LogSegment.Run();
     end;
 
     local procedure CreateLoggedSegment(CampaignNo: Code[20]; ContactNo: Code[20]; CampaignTarget: Boolean; FollowUp: Boolean)
@@ -716,7 +716,7 @@ codeunit 136214 "Marketing Campaign Pricing"
     begin
         with CustomerTemplate do begin
             SetRange("Currency Code", '');
-            FindFirst;
+            FindFirst();
             if "VAT Bus. Posting Group" = '' then begin
                 LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
                 Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -731,7 +731,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
         ContactBusinessRelation.SetRange("Contact No.", ContactNo);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         UpdateCustomerPaymentTermsCode(ContactBusinessRelation."No.");  // Added fix for G1 Country
         exit(ContactBusinessRelation."No.");
     end;
@@ -747,7 +747,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         RemoveContactsReduce.SetTableView(SegmentHeader);
         RemoveContactsReduce.SetTableView(Contact);
         RemoveContactsReduce.UseRequestPage(false);
-        RemoveContactsReduce.Run;
+        RemoveContactsReduce.Run();
     end;
 
     local procedure SalesOrderAfterRemovingContactFromSegment(var SalesLine: Record "Sales Line"; CampaignNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
@@ -801,7 +801,7 @@ codeunit 136214 "Marketing Campaign Pricing"
     begin
         SalesPriceWorksheet.SetRange("Sales Type", SalesPrice."Sales Type");
         SalesPriceWorksheet.SetRange("Sales Code", SalesPrice."Sales Code");
-        SalesPriceWorksheet.FindFirst;
+        SalesPriceWorksheet.FindFirst();
         SalesPriceWorksheet.TestField("Item No.", SalesPrice."Item No.");
         SalesPriceWorksheet.TestField("Minimum Quantity", SalesPrice."Minimum Quantity");
         SalesPriceWorksheet.TestField("Current Unit Price", SalesPrice."Unit Price");

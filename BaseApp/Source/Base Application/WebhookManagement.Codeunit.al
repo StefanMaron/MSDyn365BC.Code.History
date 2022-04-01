@@ -51,7 +51,7 @@ codeunit 5377 "Webhook Management"
     procedure FindMatchingWebhookSubscriptionRegex(var WebhookSubscription: Record "Webhook Subscription"; EndpointRegex: DotNet Regex): Boolean
     begin
         WebhookSubscription.SetRange("Company Name", CompanyName);
-        if WebhookSubscription.FindSet then
+        if WebhookSubscription.FindSet() then
             repeat
                 if EndpointRegex.IsMatch(WebhookSubscription.Endpoint) then
                     exit(true);
@@ -65,7 +65,7 @@ codeunit 5377 "Webhook Management"
         SearchSubString: Text;
         IsSameEndpoint: Boolean;
     begin
-        if WebhookSubscription.FindSet then
+        if WebhookSubscription.FindSet() then
             repeat
                 SubscriptionEndpointUri := SubscriptionEndpointUri.Uri(WebhookSubscription.Endpoint);
                 IsSameEndpoint := false;
@@ -93,7 +93,7 @@ codeunit 5377 "Webhook Management"
         IsSameEndpoint: Boolean;
     begin
         EndpointUri := EndpointUri.Uri(EndpointUriTxt);
-        if WebhookSubscription.FindSet then
+        if WebhookSubscription.FindSet() then
             repeat
                 SubscriptionEndpointUri := SubscriptionEndpointUri.Uri(WebhookSubscription.Endpoint);
                 IsSameEndpoint := false;

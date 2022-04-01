@@ -22,9 +22,13 @@ table 7325 "Whse. Pick Request"
             ELSE
             IF ("Document Type" = CONST("Internal Pick")) "Whse. Internal Pick Header"."No."
             ELSE
+#pragma warning disable AL0603
             IF ("Document Type" = CONST(Production)) "Production Order"."No." WHERE(Status = FIELD("Document Subtype"))
             ELSE
-            IF ("Document Type" = CONST(Assembly)) "Assembly Header"."No." WHERE("Document Type" = FIELD("Document Subtype"));
+            IF ("Document Type" = CONST(Assembly)) "Assembly Header"."No." WHERE("Document Type" = FIELD("Document Subtype"))
+#pragma warning restore AL0603
+            ELSE
+            IF ("Document Type" = const(Job)) Job."No." where(Status = const(Open));
 
             trigger OnLookup()
             begin
@@ -106,10 +110,12 @@ table 7325 "Whse. Pick Request"
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
         ProdOrderHeader: Record "Production Order";
         AssemblyHeader: Record "Assembly Header";
+        JobHeader: Record Job;
         WhseShptList: Page "Warehouse Shipment List";
         WhseInternalPickList: Page "Whse. Internal Pick List";
         ProdOrderList: Page "Production Order List";
         AssemblyOrders: Page "Assembly Orders";
+        JobList: Page "Job List";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -122,29 +128,36 @@ table 7325 "Whse. Pick Request"
                 begin
                     if WhseShptHeader.Get("Document No.") then
                         WhseShptList.SetRecord(WhseShptHeader);
-                    WhseShptList.RunModal;
+                    WhseShptList.RunModal();
                     Clear(WhseShptList);
                 end;
             "Document Type"::"Internal Pick":
                 begin
                     if WhseInternalPickHeader.Get("Document No.") then
                         WhseInternalPickList.SetRecord(WhseInternalPickHeader);
-                    WhseInternalPickList.RunModal;
+                    WhseInternalPickList.RunModal();
                     Clear(WhseInternalPickList);
                 end;
             "Document Type"::Production:
                 begin
                     if ProdOrderHeader.Get("Document Subtype", "Document No.") then
                         ProdOrderList.SetRecord(ProdOrderHeader);
-                    ProdOrderList.RunModal;
+                    ProdOrderList.RunModal();
                     Clear(ProdOrderList);
                 end;
             "Document Type"::Assembly:
                 begin
                     if AssemblyHeader.Get("Document Subtype", "Document No.") then
                         AssemblyOrders.SetRecord(AssemblyHeader);
-                    AssemblyOrders.RunModal;
+                    AssemblyOrders.RunModal();
                     Clear(AssemblyOrders);
+                end;
+            "Document Type"::Job:
+                begin
+                    if JobHeader.Get("Document No.") then
+                        JobList.SetRecord(JobHeader);
+                    JobList.RunModal();
+                    Clear(JobList);
                 end;
         end;
     end;

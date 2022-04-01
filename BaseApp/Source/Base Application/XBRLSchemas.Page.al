@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 588 "XBRL Schemas"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 588 "XBRL Schemas"
     DataCaptionFields = "XBRL Taxonomy Name";
     PageType = List;
     SourceTable = "XBRL Schema";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -147,7 +151,16 @@ page 588 "XBRL Schemas"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        XBRLDeprecationNotification: Codeunit "XBRL Deprecation Notification";
+    begin
+        XBRLDeprecationNotification.Show();
+    end;
+
     var
         Text001: Label 'Do you want to replace the existing definition?';
 }
 
+
+#endif

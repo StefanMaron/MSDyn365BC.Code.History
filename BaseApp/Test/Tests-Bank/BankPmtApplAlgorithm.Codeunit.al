@@ -43,7 +43,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -72,7 +72,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -105,7 +105,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -136,7 +136,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -174,7 +174,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankPmtApplSettings.GetOrInsert();
@@ -216,7 +216,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -253,7 +253,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -292,7 +292,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -334,7 +334,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -370,7 +370,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -407,7 +407,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -442,7 +442,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -477,7 +477,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -511,7 +511,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -542,7 +542,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -574,7 +574,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -610,7 +610,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -645,7 +645,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -676,7 +676,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -711,7 +711,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -746,7 +746,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CustomerBankAccount: Record "Customer Bank Account";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -780,7 +780,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -815,7 +815,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         FirstName: Text[20];
         LastName: Text[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -853,7 +853,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -891,7 +891,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -929,7 +929,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -966,7 +966,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1001,7 +1001,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1034,7 +1034,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1070,7 +1070,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1105,7 +1105,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1144,7 +1144,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         Length: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1182,7 +1182,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankPmtApplSettings.GetOrInsert();
@@ -1224,7 +1224,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1265,7 +1265,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankPmtApplSettings.GetOrInsert();
@@ -1304,7 +1304,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankPmtApplSettings.GetOrInsert();
@@ -1342,7 +1342,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CustomerBankAccount: Record "Customer Bank Account";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1378,7 +1378,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CustomerBankAccount: Record "Customer Bank Account";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1413,7 +1413,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1447,7 +1447,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1483,7 +1483,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1520,7 +1520,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExtDocNo: Code[20];
         Tolerance: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1556,7 +1556,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1586,7 +1586,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1617,7 +1617,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         TextMapper: Text[140];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1650,7 +1650,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         TextMapper: Text[140];
         SalesInvoiceNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1709,7 +1709,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         TextMapper: Text[140];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1743,7 +1743,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         TextMapper: Text[140];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1780,7 +1780,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         UsePaymentDiscounts: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1828,7 +1828,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedRemainingAmount: Decimal;
         UsePaymentDiscounts: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1891,7 +1891,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo2: Code[20];
         UsePaymentDiscounts: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -1963,7 +1963,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2000,7 +2000,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount2, CustLedgerEntry2."Entry No.");
@@ -2028,7 +2028,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2066,7 +2066,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount2, CustLedgerEntry2."Entry No.");
@@ -2093,7 +2093,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2130,7 +2130,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(
@@ -2157,7 +2157,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2193,7 +2193,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
 
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
     end;
 
@@ -2217,7 +2217,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2253,7 +2253,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality, AppliedAmount, CustLedgerEntry."Entry No.");
     end;
@@ -2285,7 +2285,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DueDate2: Date;
         DueDate3: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2330,7 +2330,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount2, CustLedgerEntry2."Entry No.");
 
         AppliedPaymentEntry.Next;
@@ -2354,7 +2354,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2380,7 +2380,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankAccReconciliationLine, Quality, Difference, Amount, BankAccReconciliationLine."Account Type"::"G/L Account",
           TextToAccMapping."Debit Acc. No.", ExpectedNoOfEntries);
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, 0);
     end;
 
@@ -2405,7 +2405,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2440,7 +2440,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankAccReconciliationLine, Quality, Difference, 2 * Amount, BankAccReconciliationLine."Account Type"::Customer, Customer."No.",
           ExpectedNoOfEntries);
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry2."Entry No.");
@@ -2458,7 +2458,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         DocumentNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2505,7 +2505,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2564,7 +2564,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2625,7 +2625,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Quality: Integer;
         Quality2: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2674,7 +2674,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries Line 1
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
 
         AppliedPaymentEntry.Next;
@@ -2683,7 +2683,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries Line 2
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine2);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality2, CustLedgerEntry3."Remaining Amount", CustLedgerEntry3."Entry No.");
 
@@ -2714,7 +2714,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         // Remove all rules except multiple match rules, so they will be scored with 0
@@ -2758,7 +2758,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount2, CustLedgerEntry2."Entry No.");
@@ -2778,7 +2778,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2796,7 +2796,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Verify positive entry is present and was scored
         Assert.AreEqual(1, TempBankStatementMatchingBuffer.Count, 'There should be one entry present');
-        TempBankStatementMatchingBuffer.FindFirst;
+        TempBankStatementMatchingBuffer.FindFirst();
         SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
@@ -2819,7 +2819,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2853,7 +2853,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2873,7 +2873,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Verify positive entry is present and was scored
         Assert.AreEqual(1, TempBankStatementMatchingBuffer.Count, 'There should be one entry present');
-        TempBankStatementMatchingBuffer.FindFirst;
+        TempBankStatementMatchingBuffer.FindFirst();
         SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
@@ -2896,7 +2896,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -2929,7 +2929,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -2959,7 +2959,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -2990,7 +2990,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3027,7 +3027,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3065,7 +3065,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3103,7 +3103,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3140,7 +3140,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3177,7 +3177,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Tolerance: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3215,7 +3215,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3250,7 +3250,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3285,7 +3285,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3319,7 +3319,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3350,7 +3350,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3382,7 +3382,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3418,7 +3418,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3453,7 +3453,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3484,7 +3484,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3519,7 +3519,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3554,7 +3554,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         VendorBankAccount: Record "Vendor Bank Account";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3588,7 +3588,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3623,7 +3623,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         FirstName: Text[20];
         LastName: Text[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3661,7 +3661,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3699,7 +3699,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3737,7 +3737,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3774,7 +3774,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3809,7 +3809,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3842,7 +3842,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3879,7 +3879,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankPmtApplSettings.GetOrInsert();
@@ -3921,7 +3921,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -3962,7 +3962,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankPmtApplSettings.GetOrInsert();
@@ -3999,7 +3999,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4034,7 +4034,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4073,7 +4073,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         Length: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4111,7 +4111,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         VendorBankAccount: Record "Vendor Bank Account";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4147,7 +4147,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         VendorBankAccount: Record "Vendor Bank Account";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4182,7 +4182,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4216,7 +4216,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4252,7 +4252,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4289,7 +4289,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExtDocNo: Code[20];
         Tolerance: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4325,7 +4325,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4355,7 +4355,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4386,7 +4386,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         TextMapper: Text[140];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4416,7 +4416,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         TextMapper: Text[140];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4472,7 +4472,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         TextMapper: Text[140];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4506,7 +4506,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         TextMapper: Text[140];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4543,7 +4543,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         UsePaymentDiscounts: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4591,7 +4591,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedRemainingAmount: Decimal;
         UsePaymentDiscounts: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4654,7 +4654,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo2: Code[20];
         UsePaymentDiscounts: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4725,7 +4725,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4762,7 +4762,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount2, VendorLedgerEntry2."Entry No.");
@@ -4790,7 +4790,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4828,7 +4828,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount2, VendorLedgerEntry2."Entry No.");
@@ -4855,7 +4855,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4892,7 +4892,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(
@@ -4920,7 +4920,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -4956,7 +4956,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
 
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
     end;
 
@@ -4980,7 +4980,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5016,7 +5016,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality, AppliedAmount, VendorLedgerEntry."Entry No.");
     end;
@@ -5048,7 +5048,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DueDate3: Date;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5093,7 +5093,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount2, VendorLedgerEntry2."Entry No.");
 
         AppliedPaymentEntry.Next;
@@ -5117,7 +5117,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5143,7 +5143,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankAccReconciliationLine, Quality, Difference, -Amount, BankAccReconciliationLine."Account Type"::"G/L Account",
           TextToAccMapping."Credit Acc. No.", ExpectedNoOfEntries);
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, 0);
     end;
 
@@ -5168,7 +5168,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5203,7 +5203,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankAccReconciliationLine, Quality, Difference, -2 * Amount, BankAccReconciliationLine."Account Type"::Vendor, Vendor."No.",
           ExpectedNoOfEntries);
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry2."Entry No.");
@@ -5221,7 +5221,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         DocumentNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5268,7 +5268,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5327,7 +5327,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5376,7 +5376,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         ExtDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankPmtApplSettings.GetOrInsert();
@@ -5430,7 +5430,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Quality: Integer;
         Quality2: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5479,7 +5479,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries Line 1
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
 
         AppliedPaymentEntry.Next;
@@ -5488,7 +5488,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries Line 2
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine2);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality2, VendorLedgerEntry3."Remaining Amount", VendorLedgerEntry3."Entry No.");
 
@@ -5519,7 +5519,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ExpectedNoOfEntries: Integer;
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         // Remove all rules except multiple match rules, so they will be scored with 0
@@ -5563,7 +5563,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify Applied Payment Entries
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
-        AppliedPaymentEntry.FindFirst;
+        AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next;
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount2, VendorLedgerEntry2."Entry No.");
@@ -5583,7 +5583,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5601,7 +5601,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Verify positive entry is present and was scored
         Assert.AreEqual(1, TempBankStatementMatchingBuffer.Count, 'There should be one entry present');
-        TempBankStatementMatchingBuffer.FindFirst;
+        TempBankStatementMatchingBuffer.FindFirst();
         SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
@@ -5624,7 +5624,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5658,7 +5658,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo: Code[20];
         Quality: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5678,7 +5678,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Verify positive entry is present and was scored
         Assert.AreEqual(1, TempBankStatementMatchingBuffer.Count, 'There should be one entry present');
-        TempBankStatementMatchingBuffer.FindFirst;
+        TempBankStatementMatchingBuffer.FindFirst();
         SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
@@ -5701,7 +5701,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5739,7 +5739,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         InvoiceNo: Code[20];
         InvoiceNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -5748,9 +5748,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         InvoiceNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
         InvoiceNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount + 1);
         CustLedgerEntry.SetRange("Document No.", InvoiceNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry2.SetRange("Document No.", InvoiceNo2);
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
@@ -5785,7 +5785,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         InvoiceNo: Code[20];
         InvoiceNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -5795,9 +5795,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         InvoiceNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount + Tolerance);
         InvoiceNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount + Tolerance / 3);
         CustLedgerEntry.SetRange("Document No.", InvoiceNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry2.SetRange("Document No.", InvoiceNo2);
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
@@ -5830,7 +5830,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         InvoiceNo: Code[20];
         InvoiceNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5841,10 +5841,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
         VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         PostVendPayment(VendorLedgerEntry, BankAccReconciliation."Bank Account No.");
         VendorLedgerEntry2.SetRange("Document No.", InvoiceNo2);
-        VendorLedgerEntry2.FindFirst;
+        VendorLedgerEntry2.FindFirst();
         PostVendPayment(VendorLedgerEntry2, BankAccReconciliation."Bank Account No.");
 
         // Exercise
@@ -5874,7 +5874,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         InvoiceNo: Code[20];
         InvoiceNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -5883,9 +5883,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         InvoiceNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID, Amount + Tolerance);
         InvoiceNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID, Amount + Tolerance / 3);
         VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry2.SetRange("Document No.", InvoiceNo2);
-        VendorLedgerEntry2.FindFirst;
+        VendorLedgerEntry2.FindFirst();
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
@@ -5918,7 +5918,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // [FEATURE] [UI]
         // [SCENARIO 380975] "Amount Incl. Tolerance" is "Not Considered" on "Payment-to-Entry Match" page when no rule considered for "Amount Incl. Tolerance"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with "Document No." = "X" and Amount = 100
         CreateCustomer(Customer);
@@ -5952,7 +5952,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // [FEATURE] [UT]
         // [SCENARIO 381519] After Applied Payment Entry is deleted, "Applies-To ID" should be cleared in Customer Ledger Entries
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Ledger Entry "CCC"
         CustLedgerEntry.Init();
@@ -5989,7 +5989,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // [FEATURE] [UT]
         // [SCENARIO 381519] After Applied Payment Entry is deleted, "Applies-To ID" should be cleared in Vendor Ledger Entries
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry "VVV"
         VendorLedgerEntry.Init();
@@ -6060,7 +6060,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm");
         CleanupPreviousTestData;
         ClearGlobals;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         BankPmtApplRule.DeleteAll();
         BankPmtApplRule.InsertDefaultMatchingRules;
         BankPmtApplSettings.DeleteAll();
@@ -6069,11 +6069,11 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm");
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         TempBankPmtApplRule.LoadRules;
-        LibraryERMCountryData.UpdateLocalData;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         isInitialized := true;
@@ -6129,7 +6129,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankAccReconciliation.Init();
         BankAccReconciliation."Statement No." := StatementNo;
         BankAccount.SetRange("No.", '');
-        if not BankAccount.FindFirst then begin
+        if not BankAccount.FindFirst() then begin
             BankAccount.Init();
             BankAccount.Insert();
         end;
@@ -6300,7 +6300,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     begin
         BankAccReconciliation.SetRange("Statement Type", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
         BankAccReconciliation.SetRange("Statement No.", StatementNo);
-        BankAccReconciliation.FindFirst;
+        BankAccReconciliation.FindFirst();
         BankAccReconciliation.Delete(true);
     end;
 
@@ -6436,7 +6436,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
     end;
 
@@ -6444,7 +6444,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
     end;
 
@@ -6461,7 +6461,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Account Type", TempBankStatementMatchingBuffer."Account Type");
         TempBankStatementMatchingBuffer.SetRange("Entry No.", EntryNo);
-        TempBankStatementMatchingBuffer.FindFirst;
+        TempBankStatementMatchingBuffer.FindFirst();
     end;
 
     local procedure GetOneToManyBankStatementMatchingBuffer(var OneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary)
@@ -6471,14 +6471,14 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         OneToManyTempBankStatementMatchingBuffer.SetRange("Entry No.", -1);
         OneToManyTempBankStatementMatchingBuffer.SetRange("Account Type", TempBankStatementMatchingBuffer."Account Type");
         OneToManyTempBankStatementMatchingBuffer.SetRange("Account No.", TempBankStatementMatchingBuffer."Account No.");
-        OneToManyTempBankStatementMatchingBuffer.FindFirst;
+        OneToManyTempBankStatementMatchingBuffer.FindFirst();
     end;
 
     local procedure VerifyReconciliation(ExpectedBankPmtApplRule: Record "Bank Pmt. Appl. Rule"; StatementLineNo: Integer)
     begin
         TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
-        TempBankStatementMatchingBuffer.FindFirst;
+        TempBankStatementMatchingBuffer.FindFirst();
 
         Assert.AreEqual(TempBankPmtApplRule.GetBestMatchScore(ExpectedBankPmtApplRule),
           TempBankStatementMatchingBuffer.Quality, 'Matching is wrong for statement line ' + Format(StatementLineNo))
@@ -6490,7 +6490,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         TempBankStatementMatchingBuffer.SetCurrentKey(Quality);
         TempBankStatementMatchingBuffer.Ascending(false);
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
-        TempBankStatementMatchingBuffer.FindFirst;
+        TempBankStatementMatchingBuffer.FindFirst();
 
         Assert.AreEqual(TempBankPmtApplRule.GetTextMapperScore,
           TempBankStatementMatchingBuffer.Quality, 'Matching is wrong for statement line ' + Format(StatementLineNo));
@@ -6877,7 +6877,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         TempBankStmtMultipleMatchLine.SetRange("Account No.", OneToManyTempBankStatementMatchingBuffer."Account No.");
 
         Assert.AreEqual(ExpectedNoOfLines, TempBankStmtMultipleMatchLine.Count, 'There should be only one TempBankStmtMultipleMatchLine');
-        TempBankStmtMultipleMatchLine.FindFirst;
+        TempBankStmtMultipleMatchLine.FindFirst();
 
         Assert.IsTrue(BankStatementMatchingBuffer.IsEmpty, 'No permanent lines should be inserted in BankStatementMatchingBuffer table');
         Assert.IsTrue(BankStmtMultipleMatchLine.IsEmpty, 'No permanent lines should be inserted in BankStmtMultipleMatchLine table');

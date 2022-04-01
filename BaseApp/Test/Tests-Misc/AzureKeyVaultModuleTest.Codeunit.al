@@ -211,38 +211,6 @@ codeunit 135209 "Azure Key Vault Module Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestRetrievalOfSMTPSecrets()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        AzureKeyVault: Codeunit "Azure Key Vault";
-        AzureKeyVaultTestLibrary: Codeunit "Azure Key Vault Test Library";
-        MailManagement: Codeunit "Mail Management";
-        MockAzureKeyvaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;
-        SMTPSettings: Text;
-    begin
-        // [SCENARIO] Retrival of SMTP secrets from Azure Key Vault
-
-        // [GIVEN] A key vault
-        SMTPSettings := '[{"Server":"smtp.test.com","ServerPort":"25","Authentication":"Basic","User":"TestUser","Password":"Pass123!","SecureConnection":"true"}]';
-        MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
-        MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'SmtpSetup');
-        MockAzureKeyvaultSecretProvider.AddSecretMapping('SmtpSetup', SMTPSettings);
-        AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
-
-        // [WHEN] The secrets are retrieved
-        MailManagement.GetSMTPCredentials(SMTPMailSetup);
-
-        // [THEN] The values returned are correct
-        Assert.AreEqual('smtp.test.com', SMTPMailSetup."SMTP Server", 'Retrieved SMTP Server was wrong.');
-        Assert.AreEqual(25, SMTPMailSetup."SMTP Server Port", 'Retrieved SMTP Server Port was wrong.');
-        Assert.AreEqual(SMTPMailSetup.Authentication::Basic, SMTPMailSetup.Authentication, 'Retrieved Authentication was wrong.');
-        Assert.AreEqual('TestUser', SMTPMailSetup."User ID", 'Retrieved User ID was wrong.');
-        Assert.AreEqual('Pass123!', SMTPMailSetup.GetPassword, 'Retrieved Password was wrong.');
-        Assert.AreEqual(true, SMTPMailSetup."Secure Connection", 'Retrieved Secure Connection was wrong.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestRetrievalOfIsvSecret()
     var
         AzureKeyVault: Codeunit "Azure Key Vault";

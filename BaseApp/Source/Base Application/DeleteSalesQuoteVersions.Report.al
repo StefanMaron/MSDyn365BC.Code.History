@@ -21,7 +21,7 @@ report 5179 "Delete Sales Quote Versions"
                 SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
                 SalesHeader.SetRange("No.", "No.");
                 SalesHeader.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                if not SalesHeader.FindFirst then begin
+                if not SalesHeader.FindFirst() then begin
                     Delete(true);
                     DeletedDocuments += 1;
                 end;

@@ -45,7 +45,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] Transfer Line Autoreserve Inbound to Sales Line: "Reservation Entry"."Shipment Date" must be equal to "Sales Line"."Shipment Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Supply from Transfer Line Reserved Outbound
         CreateSupplyFromTransferLineQtyOneReservedOutbound(TransferLine);
@@ -74,7 +74,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] Transfer Line Autoreserve Inbound to Transfer Line: "Reservation Entry"."Shipment Date" must be equal to Demand from Date "Transfer Line"."Shipment Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Supply from Transfer Line Reserved Outbound
         CreateSupplyFromTransferLineQtyOneReservedOutbound(SupplyTransferLine);
@@ -104,7 +104,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] Transfer Line Autoreserve Inbound to Service Line: "Reservation Entry"."Shipment Date" must be equal to "Service Line"."Needed by Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Supply from Transfer Line Reserved Outbound
         CreateSupplyFromTransferLineQtyOneReservedOutbound(TransferLine);
@@ -133,7 +133,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt] [Job]
         // [SCENARIO 380276] Transfer Line Autoreserve Inbound to Job Planning Line: "Reservation Entry"."Shipment Date" must be equal to "Job Planning Line"."Planning Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Supply from Transfer Line Reserved Outbound
         CreateSupplyFromTransferLineQtyOneReservedOutbound(TransferLine);
@@ -163,7 +163,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Transfer Order Header]
         // [SCENARIO 380276] No Confirm Dialog occurs when VALIDATE "Transfer Header"."Receipt Date".
-        Initialize;
+        Initialize();
 
         // Stub for test handler if no error occurs
         RunDummyConfirm;
@@ -193,7 +193,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Line"."Receipt Date" with bad for Inbound Autoreserve date
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -223,7 +223,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Line"."Shipment Date" with bad for Inbound Autoreserve date
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Line"."Shipment Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -253,7 +253,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Line"."Shipping Time" and bad date for Inbound Autoreserve date occurs
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Line"."Shipping Time" leads to "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -283,7 +283,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Line"."Outbound Whse. Handling Time" and bad date for Inbound Autoreserve date occurs
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Line"."Outbound Whse. Handling Time" leads to "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -313,7 +313,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Line"."Inbound Whse. Handling Time" and bad date for Inbound Autoreserve date occurs
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Line"."Inbound Whse. Handling Time" leads to "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -344,7 +344,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Line"."Shipping Agent Service Code" and bad date for Inbound Autoreserve date occurs
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Line"."Shipping Agent Service Code" leads to "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -376,7 +376,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Header"."Receipt Date" with bad for Inbound Autoreserve date
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Header"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -407,7 +407,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Header"."Shipment Date" with bad for Inbound Autoreserve date
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Header"."Shipment Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -438,7 +438,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Header"."Shipping Time" and bad date for Inbound Autoreserve date occurs
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Header"."Shipping Time" leads to "Transfer Header"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -470,7 +470,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Receipt]
         // [SCENARIO 380276] ERROR occurs when VALIDATE "Transfer Header"."Shipping Agent Service Code" and bad date for Inbound Autoreserve date occurs
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Header"."Shipping Agent Service Code" leads to "Transfer Header"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -501,7 +501,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Shipment]
         // [SCENARIO 380276] Error occurs when trying to validate "Receipt Date" in "Transfer Line" table with a date leading to a reservation conflict
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Outbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -528,7 +528,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Shipment Date] [Transfer Shipment]
         // [SCENARIO 380276] Error occurs when trying to validate "Receipt Date" in "Transfer Header" table with a date leading to a reservation conflict
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Outbound Autoreserve
         DemandDate := WorkDate + LibraryRandom.RandInt(30);
@@ -556,7 +556,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 381007] Synchronize Transfer Outbound To Inbound Item Tracking for SN Specific Tracking
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order as Demand and released Production Order as Supply at different Locations reserved one to another via Transfer Order
         ProdOrderNo := CreateSOAsDemandAndPOAsSupplyAtDifferentLocations(SalesLine, TempTrackingSpecification, true, false);
@@ -580,7 +580,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 381007] Synchronize Transfer Outbound To Inbound Item Tracking for Lot Specific Tracking
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order as Demand and released Production Order as Supply at different Locations reserved one to another via Transfer Order
         ProdOrderNo := CreateSOAsDemandAndPOAsSupplyAtDifferentLocations(SalesLine, TempTrackingSpecification, false, true);
@@ -604,7 +604,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 381007] Synchronize Transfer Outbound To Inbound Item Tracking for SN and Lot Specific Tracking
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order as Demand and released Production Order as Supply at different Locations reserved one to another via Transfer Order
         ProdOrderNo := CreateSOAsDemandAndPOAsSupplyAtDifferentLocations(SalesLine, TempTrackingSpecification, true, true);
@@ -634,7 +634,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking] [Warehouse Pick]
         // [SCENARIO 216549] Transfer Receipt can be posted if "Qty. to Handle" < Quantity on Item Tracking Lines for Transfer Shipment from location set up for directed put-away and pick.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateTrackedItem(Item, false, true, false, true);
@@ -689,7 +689,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 216549] Transfer Receipt can be posted if "Qty. to Handle" < Quantity on Item Tracking Lines for Transfer Shipment from location set up for required inventory pick.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateTrackedItem(Item, false, true, false, true);
@@ -701,7 +701,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
 
         // [GIVEN] The item is in inventory on location "S".
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         UpdateTrackedInventoryOnWMSLocation(LocationSilver.Code, Item."No.", LotNo, LibraryRandom.RandIntInRange(20, 40));
 
         // [GIVEN] Transfer Order from "S" to "B" for 1 pc of the item.
@@ -740,7 +740,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [FEATURE] [Sales] [Shipment Date] [Date Conflict]
         // [SCENARIO 267780] Changing shipment date in transfer order to a later date is allowed when there is a tracking reservation entry between transfer and sale, and the date change results in date conflict
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with two stockkeeping units: "SKU1" on location "L1", and "SKU2" on "L2"
         LibraryInventory.CreateItem(Item);
@@ -785,7 +785,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [FEATURE] [Sales] [Shipment Date] [Date Conflict]
         // [SCENARIO 267780] Changing shipment date in transfer order to a later date is not allowed when there is reservation between transfer and sale, and the date change results in date conflict
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with two stockkeeping units: "SKU1" on location "L1", and "SKU2" on "L2"
         LibraryInventory.CreateItem(Item);
@@ -827,9 +827,9 @@ codeunit 137269 "SCM Transfer Reservation"
         // [FEATURE] [UT] [Purchase] [Shipment Date] [Date Conflict]
         // [SCENARIO 267780] When reservation exists for a transfer line, updating the shipment date is not allowed if the new date leads to a date conflict in reservation
 
-        Initialize;
+        Initialize();
 
-        MockPurchaseLine(PurchaseLine, WorkDate, LibraryUtility.GenerateGUID);
+        MockPurchaseLine(PurchaseLine, WorkDate, LibraryUtility.GenerateGUID());
         MockTransferLine(TransferLine, PurchaseLine."No.", WorkDate, WorkDate);
 
         ReservationEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
@@ -858,7 +858,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [FEATURE] [UT] [Purchase] [Shipment Date] [Date Conflict]
         // [SCENARIO 267780] When item tracking record exists for a transfer line, updating the shipment date is allowed if the new date leads to a date conflict with linked supply
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         MockPurchaseLine(PurchaseLine, WorkDate, Item."No.");
@@ -889,9 +889,9 @@ codeunit 137269 "SCM Transfer Reservation"
         // [FEATURE] [UT] [Sales] [Shipment Date] [Date Conflict]
         // [SCENARIO 267780] When reservation exists for a transfer line, updating the receipt date is not allowed if the new date leads to a date conflict in reservation
 
-        Initialize;
+        Initialize();
 
-        MockSalesLine(SalesLine, WorkDate, LibraryUtility.GenerateGUID);
+        MockSalesLine(SalesLine, WorkDate, LibraryUtility.GenerateGUID());
         MockTransferLine(TransferLine, SalesLine."No.", WorkDate, WorkDate);
 
         ReservationEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
@@ -920,7 +920,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [FEATURE] [UT] [Sales] [Shipment Date] [Date Conflict]
         // [SCENARIO 267780] When item tracking record exists for a transfer line, updating the receipt date is allowed if the new date leads to a date conflict with linked demand
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         MockSalesLine(SalesLine, WorkDate, Item."No.");
@@ -957,11 +957,11 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 271087] When you set item tracking on inventory pick line and post it in order to ship a transfer, the item tracking is synchronized with the inbound transfer, which in its turn, is reserved for a sales order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateTrackedItem(Item, false, true, false, true);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Location "Silver" set up for inventory pick.
         // [GIVEN] Location "Blue".
@@ -1001,12 +1001,12 @@ codeunit 137269 "SCM Transfer Reservation"
         with ReservationEntry do begin
             Reset;
             SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, -SalesLine.Quantity);
             Reset;
             SetRange("Entry No.", "Entry No.");
             SetRange(Positive, true);
-            FindFirst;
+            FindFirst();
             TestField("Source Type", DATABASE::"Item Ledger Entry");
         end;
     end;
@@ -1028,11 +1028,11 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 271087] When you set item tracking on inventory put-away and post it in order to receive a transfer, which in its turn, is reserved for a sales order, the tracking for the transfer is deleted, and the sales is reserved from inventory.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateTrackedItem(Item, false, true, false, true);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Location "Blue".
         // [GIVEN] Location "Silver" set up for inventory pick.
@@ -1073,12 +1073,12 @@ codeunit 137269 "SCM Transfer Reservation"
         with ReservationEntry do begin
             Reset;
             SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, -SalesLine.Quantity);
             Reset;
             SetRange("Entry No.", "Entry No.");
             SetRange(Positive, true);
-            FindFirst;
+            FindFirst();
             TestField("Source Type", DATABASE::"Item Ledger Entry");
         end;
     end;
@@ -1100,11 +1100,11 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 271087] When you set item tracking on inventory pick line for the outbound transfer reserved from the inventory, and post the inventory pick, the item tracking is pushed to the inbound size of the transfer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateTrackedItem(Item, false, true, false, true);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Location "Silver" set up for inventory pick.
         // [GIVEN] Location "Blue".
@@ -1137,12 +1137,12 @@ codeunit 137269 "SCM Transfer Reservation"
         with ReservationEntry do begin
             Reset;
             SetSourceFilter(DATABASE::"Transfer Line", 0, TransferLine."Document No.", -1, true);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, -(WarehouseActivityLine.Quantity - WarehouseActivityLine."Qty. to Handle"));
             Reset;
             SetRange("Entry No.", "Entry No.");
             SetRange(Positive, true);
-            FindFirst;
+            FindFirst();
             TestField("Source Type", DATABASE::"Item Ledger Entry");
         end;
     end;
@@ -1164,11 +1164,11 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 271087] When you set item tracking on transfer line, create an inventory pick, decrease the quantity to handle and post the inventory pick, the item tracking is synchronized with the inbound transfer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateTrackedItem(Item, false, true, false, true);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Location "Silver" set up for inventory pick.
         // [GIVEN] Location "Blue".
@@ -1218,12 +1218,12 @@ codeunit 137269 "SCM Transfer Reservation"
             Reset;
             SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
             SetRange("Reservation Status", "Reservation Status"::Reservation);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, -SalesLine.Quantity);
             Reset;
             SetRange("Entry No.", "Entry No.");
             SetRange(Positive, true);
-            FindFirst;
+            FindFirst();
             TestField("Source Type", DATABASE::"Transfer Line");
             TestField("Lot No.", LotNo);
         end;
@@ -1248,11 +1248,11 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 271087] When you set item tracking on inventory pick greater than you earlier set on the transfer line, the posting succeeds for the tracked quantity.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         CreateTrackedItem(Item, false, true, false, true);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Location "Silver" set up for inventory pick.
         // [GIVEN] Location "Blue".
@@ -1313,7 +1313,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Order-to-Order Binding]
         // [SCENARIO 283223] When a user inserts new item tracking line on purchase line planned to supply transfer, the new item tracking is pushed to the inbound transfer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with Reordering Policy = "Order".
         CreateLotTrackedItemForPlanning(Item);
@@ -1329,7 +1329,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [GIVEN] A new purchase order is created after carrying out action in the planning worksheet.
         FindPurchaseLine(PurchaseLine, Item."No.");
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LotQty := PurchaseLine.Quantity;
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -1342,7 +1342,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [THEN] Lot No. = "L", quantity = 100.
         ReservationEntry.SetSourceFilter(
           DATABASE::"Transfer Line", Direction::Inbound, TransferLine."Document No.", TransferLine."Line No.", false);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Lot No.", LotNo);
         ReservationEntry.TestField(Quantity, LotQty);
 
@@ -1366,7 +1366,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Order-to-Order Binding]
         // [SCENARIO 283223] When the program inserts item tracking on purchase line planned to supply transfer, the new item tracking is pushed to the inbound transfer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with Reordering Policy = "Order".
         CreateLotTrackedItemForPlanning(Item);
@@ -1382,7 +1382,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [GIVEN] A new purchase order is created after carrying out action in the planning worksheet.
         FindPurchaseLine(PurchaseLine, Item."No.");
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LotQty := LibraryRandom.RandIntInRange(10, 20);
         with TempTrackingSpecification do begin
             Init;
@@ -1400,7 +1400,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [THEN] Lot No. = "L", quantity = 20.
         ReservationEntry.SetSourceFilter(
           DATABASE::"Transfer Line", Direction::Inbound, TransferLine."Document No.", TransferLine."Line No.", false);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Lot No.", LotNo);
         ReservationEntry.TestField(Quantity, LotQty);
     end;
@@ -1420,7 +1420,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Order-to-Order Binding]
         // [SCENARIO 283223] When a user modifies existing item tracking line on purchase line planned to supply transfer, the changes are pushed to the inbound transfer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with Reordering Policy = "Order".
         CreateLotTrackedItemForPlanning(Item);
@@ -1437,7 +1437,7 @@ codeunit 137269 "SCM Transfer Reservation"
         FindPurchaseLine(PurchaseLine, Item."No.");
 
         // [GIVEN] Insert item tracking on the purchase line. Lot No. = "L", Quantity = 100.
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
@@ -1455,7 +1455,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [THEN] Lot No. = "L", quantity = 20.
         ReservationEntry.SetSourceFilter(
           DATABASE::"Transfer Line", Direction::Inbound, TransferLine."Document No.", TransferLine."Line No.", false);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Lot No.", LotNo);
         ReservationEntry.TestField(Quantity, LotQty);
 
@@ -1476,7 +1476,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Order-to-Order Binding]
         // [SCENARIO 283223] When a user deletes existing item tracking line on purchase line planned to supply transfer, that deletes the item tracking in the inbound transfer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I" with Reordering Policy = "Order".
         CreateLotTrackedItemForPlanning(Item);
@@ -1493,7 +1493,7 @@ codeunit 137269 "SCM Transfer Reservation"
         FindPurchaseLine(PurchaseLine, Item."No.");
 
         // [GIVEN] Insert item tracking on the purchase line. Lot No. = "L", Quantity = 100.
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
@@ -1526,7 +1526,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Date Conflict]
         // [SCENARIO 295798] Date Conflict check is performed when you change receipt date on active transfer line reserved for a demand.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
 
@@ -1561,7 +1561,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Date Conflict]
         // [SCENARIO 295798] Date Conflict check is performed when you change receipt date on shipped transfer line reserved for a demand.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
 
@@ -1605,7 +1605,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking] [Get Receipt Lines]
         // [SCENARIO 322980] Item Tracking is transferred from posted purchase receipt when you create a transfer line using "Get Receipt Line".
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandIntInRange(2, 5);
 
         // [GIVEN] Serial no.-tracked item.
@@ -1660,7 +1660,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         // [FEATURE] [Item Tracking] [Get Receipt Lines]
         // [SCENARIO 322980] No reservation entries are created on transfer line, if the posted purchase receipt the transfer line was created from had no item tracking.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with disabled item tracking.
         LibraryInventory.CreateItem(Item);
@@ -1809,18 +1809,18 @@ codeunit 137269 "SCM Transfer Reservation"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Transfer Reservation");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Transfer Reservation");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
 
@@ -2154,7 +2154,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
         ReservationEntry.SetRange("Source Subtype", Direction::Inbound);
         ReservationEntry.SetRange("Source ID", SourceID);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
     end;
 
     local procedure CreateTransferOrderQtyOneReservedOutbound(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line")
@@ -2370,7 +2370,7 @@ codeunit 137269 "SCM Transfer Reservation"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", Item."No.");
         RequisitionLine.ModifyAll("Accept Action Message", true);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
 
@@ -2389,30 +2389,30 @@ codeunit 137269 "SCM Transfer Reservation"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProductionOrder.SetRange(Status, ProdOrderLine.Status);
         ProductionOrder.SetRange("No.", ProdOrderLine."Prod. Order No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindTransferLine(var TransferLine: Record "Transfer Line"; ItemNo: Code[20])
     begin
         TransferLine.SetRange("Item No.", ItemNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; SourceNo: Code[20])
     begin
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindSetWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; SourceNo: Code[20])
@@ -2425,7 +2425,7 @@ codeunit 137269 "SCM Transfer Reservation"
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PlannedReceiptDate: Date; ItemNo: Code[20])
     begin
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::Order;
-        PurchaseLine."Document No." := LibraryUtility.GenerateGUID;
+        PurchaseLine."Document No." := LibraryUtility.GenerateGUID();
         PurchaseLine."Planned Receipt Date" := PlannedReceiptDate;
         PurchaseLine.Type := PurchaseLine.Type::Item;
         PurchaseLine."No." := ItemNo;
@@ -2435,7 +2435,7 @@ codeunit 137269 "SCM Transfer Reservation"
     local procedure MockSalesLine(var SalesLine: Record "Sales Line"; ShipmentDate: Date; ItemNo: Code[20])
     begin
         SalesLine."Document Type" := SalesLine."Document Type"::Order;
-        SalesLine."Document No." := LibraryUtility.GenerateGUID;
+        SalesLine."Document No." := LibraryUtility.GenerateGUID();
         SalesLine."Shipment Date" := ShipmentDate;
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."No." := ItemNo;
@@ -2444,7 +2444,7 @@ codeunit 137269 "SCM Transfer Reservation"
 
     local procedure MockTransferLine(var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; ShipmentDate: Date; ReceiptDate: Date)
     begin
-        TransferLine."Document No." := LibraryUtility.GenerateGUID;
+        TransferLine."Document No." := LibraryUtility.GenerateGUID();
         TransferLine."Line No." := LibraryUtility.GetNewRecNo(TransferLine, TransferLine.FieldNo("Line No."));
         TransferLine."Shipment Date" := ShipmentDate;
         TransferLine."Receipt Date" := ReceiptDate;
@@ -2488,7 +2488,7 @@ codeunit 137269 "SCM Transfer Reservation"
 
     local procedure UpdateTrackedInventoryOnFullWMSLocation(LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
     begin
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(Qty);
         LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(ItemNo, LocationCode, Qty, true);
     end;
@@ -2516,7 +2516,7 @@ codeunit 137269 "SCM Transfer Reservation"
         repeat
             ReservationEntry.SetRange("Serial No.", TempTrackingSpecification."Serial No.");
             ReservationEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.");
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
             ReservationEntry.TestField("Quantity (Base)", TempTrackingSpecification."Quantity (Base)" * SignFactor);
         until TempTrackingSpecification.Next = 0;
     end;

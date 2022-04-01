@@ -15,6 +15,7 @@ codeunit 8614 "Config. XML Exchange"
         TypeHelper: Codeunit "Type Helper";
         XMLDOMMgt: Codeunit "XML DOM Management";
         ErrorTypeEnum: Option General,TableRelation;
+        ImportedPackageCode: Code[20];
         Advanced: Boolean;
         CalledFromCode: Boolean;
         PackageAllreadyContainsDataQst: Label 'Package %1 already contains data that will be overwritten by the import. Do you want to continue?', Comment = '%1 - Package name';
@@ -132,7 +133,7 @@ codeunit 8614 "Config. XML Exchange"
         DimCode: Code[20];
     begin
         ConfigPackageField.SetRange(Dimension, true);
-        if ConfigPackageField.FindSet then
+        if ConfigPackageField.FindSet() then
             repeat
                 FieldNode :=
                   PackageXML.CreateElement(
@@ -189,7 +190,7 @@ codeunit 8614 "Config. XML Exchange"
         ConfigPackageFilter.SetRange("Package Code", ConfigPackageTable."Package Code");
         ConfigPackageFilter.SetRange("Table ID", ConfigPackageTable."Table ID");
         ConfigPackageFilter.SetRange("Processing Rule No.", 0);
-        if ConfigPackageFilter.FindSet then
+        if ConfigPackageFilter.FindSet() then
             repeat
                 if ConfigPackageFilter."Field Filter" <> '' then begin
                     FieldRef := RecRef.Field(ConfigPackageFilter."Field ID");
@@ -269,7 +270,7 @@ codeunit 8614 "Config. XML Exchange"
                 ConfigPackageField.SetRange(Dimension, false);
                 ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
                 OnCreateRecordNodesOnAfterConfigPackageFieldSetFilters(ConfigPackageTable, ConfigPackageField);
-                if ConfigPackageField.FindSet then
+                if ConfigPackageField.FindSet() then
                     repeat
                         FieldRef := RecRef.Field(ConfigPackageField."Field ID");
                         if TypeHelper.GetField(RecRef.Number, FieldRef.Number, Field) then begin
@@ -311,7 +312,7 @@ codeunit 8614 "Config. XML Exchange"
             ConfigPackageField.SetRange("Include Field", true);
             ConfigPackageField.SetRange(Dimension, false);
             OnCreateRecordNodesOnNotFoundOnAfterConfigPackageFieldSetFilters(ConfigPackageTable, ConfigPackageField);
-            if ConfigPackageField.FindSet then
+            if ConfigPackageField.FindSet() then
                 repeat
                     FieldRef := RecRef.Field(ConfigPackageField."Field ID");
                     FieldNode :=
@@ -389,7 +390,7 @@ codeunit 8614 "Config. XML Exchange"
         StartTime := CurrentDateTime();
         Session.LogMessage('00009Q4', PackageExportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
-        ConfigPackageTable.FindFirst;
+        ConfigPackageTable.FindFirst();
         ConfigPackage.Get(ConfigPackageTable."Package Code");
         ConfigPackage.TestField(Code);
         ConfigPackage.TestField("Package Name");
@@ -478,7 +479,7 @@ codeunit 8614 "Config. XML Exchange"
         if not HideDialog then
             ConfigProgressBar.Init(ConfigPackageTable.Count, 1, ExportPackageTxt);
         ConfigPackageTable.SetAutoCalcFields("Table Name");
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 if not HideDialog then
                     ConfigProgressBar.Update(ConfigPackageTable."Table Name");
@@ -500,6 +501,11 @@ codeunit 8614 "Config. XML Exchange"
         CreateRecordNodes(PackageXML, ConfigPackageTable);
         ConfigPackageTable."Exported Date and Time" := CreateDateTime(Today, Time);
         ConfigPackageTable.Modify();
+    end;
+
+    procedure GetImportedPackageCode(): Code[20]
+    begin
+        exit(ImportedPackageCode);
     end;
 
     [Scope('OnPrem')]
@@ -616,6 +622,7 @@ codeunit 8614 "Config. XML Exchange"
                 ConfigPackage.Insert();
             end else
                 ConfigPackage.Get(PackageCode);
+            ImportedPackageCode := PackageCode;
 
             ConfigPackage."Package Name" :=
               CopyStr(
@@ -679,7 +686,7 @@ codeunit 8614 "Config. XML Exchange"
                                 ConfigPackageRecord.SetRange("Package Code", PackageCode);
                                 ConfigPackageRecord.SetRange("Table ID", TableID);
                                 OnImportPackageXMLDocumentOnDefaultDimOnAfterConfigPackageRecordSetFilters(ConfigPackageRecord, ConfigPackageData, PackageCode);
-                                if ConfigPackageRecord.FindSet then
+                                if ConfigPackageRecord.FindSet() then
                                     repeat
                                         ConfigPackageData.Get(
                                           ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID",
@@ -691,7 +698,7 @@ codeunit 8614 "Config. XML Exchange"
                             begin
                                 ConfigPackageRecord.SetRange("Package Code", PackageCode);
                                 ConfigPackageRecord.SetRange("Table ID", TableID);
-                                if ConfigPackageRecord.FindSet then
+                                if ConfigPackageRecord.FindSet() then
                                     repeat
                                         ConfigPackageMgt.HandlePackageDataDimSetIDForRecord(ConfigPackageRecord);
                                     until ConfigPackageRecord.Next() = 0;
@@ -805,7 +812,7 @@ codeunit 8614 "Config. XML Exchange"
                 RecRef.Open(ConfigPackageTable."Table ID");
                 ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
                 ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
-                if ConfigPackageField.FindSet then
+                if ConfigPackageField.FindSet() then
                     repeat
                         if ConfigPackageField."Include Field" and FieldNodeExists(RecordNode, GetElementName(ConfigPackageField."Field Name")) then
                             if GetNodeValue(RecordNode, GetElementName(ConfigPackageField."Field Name")) <> '' then
@@ -911,7 +918,7 @@ codeunit 8614 "Config. XML Exchange"
                     RecordNode := RecordNodes.Item(0);
                     if RecordNode.HasChildNodes then begin
                         ConfigPackageMgt.SetFieldFilter(Field, TableID, 0);
-                        if Field.FindSet then
+                        if Field.FindSet() then
                             repeat
                                 if FieldNodeExists(RecordNode, GetElementName(Field.FieldName)) then begin
                                     ConfigPackageField.Get(PackageCode, TableID, Field."No.");
@@ -991,7 +998,7 @@ codeunit 8614 "Config. XML Exchange"
             ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
             ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
             ConfigPackageField.SetRange("Include Field", true);
-            if ConfigPackageField.FindSet then
+            if ConfigPackageField.FindSet() then
                 repeat
                     TempConfigPackageField := ConfigPackageField;
                     TempConfigPackageField.Insert();
@@ -1004,7 +1011,7 @@ codeunit 8614 "Config. XML Exchange"
 
                     RecRef.Close;
                     RecRef.Open(ConfigPackageTable."Table ID");
-                    if TempConfigPackageField.FindSet then
+                    if TempConfigPackageField.FindSet() then
                         repeat
                             ConfigPackageData.Init();
                             OnFillPackageDataFromXMLOnAfterConfigPackageDataInit(ConfigPackageData, TempConfigPackageField);
@@ -1054,7 +1061,7 @@ codeunit 8614 "Config. XML Exchange"
     begin
         Field.SetRange(TableNo, ConfigPackageTable."Table ID");
         Field.SetRange(ObsoleteState, Field.ObsoleteState::Removed);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 if ConfigPackageField.Get(ConfigPackageTable."Package Code", Field.TableNo, Field."No.") then begin
                     ConfigPackageField.Validate("Include Field", false);
@@ -1139,7 +1146,7 @@ codeunit 8614 "Config. XML Exchange"
             if DimSetID > 0 then begin
                 DimSetEntry.SetRange("Dimension Set ID", DimSetID);
                 DimSetEntry.SetRange("Dimension Code", DimCode);
-                if DimSetEntry.FindFirst then
+                if DimSetEntry.FindFirst() then
                     exit(DimSetEntry."Dimension Value Code");
             end;
         end else
@@ -1149,7 +1156,7 @@ codeunit 8614 "Config. XML Exchange"
                 MasterNo := Format(FieldRef.Value);
                 DefaultDim.SetRange("No.", MasterNo);
                 DefaultDim.SetRange("Dimension Code", DimCode);
-                if DefaultDim.FindFirst then
+                if DefaultDim.FindFirst() then
                     exit(DefaultDim."Dimension Value Code");
             end;
     end;
@@ -1457,7 +1464,7 @@ codeunit 8614 "Config. XML Exchange"
             exit;
 
         FileManagement.GetServerDirectoryFilesList(TempNameValueBuffer, MediaFolder);
-        if not TempNameValueBuffer.FindSet then
+        if not TempNameValueBuffer.FindSet() then
             exit;
 
         repeat

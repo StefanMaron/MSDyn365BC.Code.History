@@ -135,7 +135,7 @@ page 5645 "Insurance List"
                         begin
                             CurrPage.SetSelectionFilter(Insurance);
                             DefaultDimMultiple.SetMultiRecord(Insurance, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

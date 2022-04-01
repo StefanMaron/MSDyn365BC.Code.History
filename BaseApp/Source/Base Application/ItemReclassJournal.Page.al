@@ -7,7 +7,7 @@ page 393 "Item Reclass. Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Item';
+    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Item,Page';
     SaveValues = true;
     SourceTable = "Item Journal Line";
     UsageCategory = Tasks;
@@ -27,6 +27,7 @@ page 393 "Item Reclass. Journal"
                 begin
                     CurrPage.SaveRecord();
                     ItemJnlMgt.LookupName(CurrentJnlBatchName, Rec);
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
@@ -432,6 +433,15 @@ page 393 "Item Reclass. Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Item Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -477,7 +487,7 @@ page 393 "Item Reclass. Journal"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -723,6 +733,44 @@ page 393 "Item Reclass. Journal"
                     REPORT.RunModal(REPORT::"Inventory Movement", true, true, ItemJnlLine);
                 end;
             }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+            }
         }
     }
 
@@ -764,12 +812,14 @@ page 393 "Item Reclass. Journal"
         if Rec.IsOpenedFromBatch then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
             exit;
         end;
         ItemJnlMgt.TemplateSelection(PAGE::"Item Reclass. Journal", 1, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
     end;
 
     var
@@ -781,9 +831,12 @@ page 393 "Item Reclass. Journal"
         Text005: Label '1,2,8,New ';
         ItemJnlMgt: Codeunit ItemJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
+        ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -801,6 +854,7 @@ page 393 "Item Reclass. Journal"
     begin
         CurrPage.SaveRecord();
         ItemJnlMgt.SetName(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
     end;
 
@@ -809,6 +863,20 @@ page 393 "Item Reclass. Journal"
         ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
         Rec.ShowShortcutDimCode(ShortcutDimCode);
         Rec.ShowNewShortcutDimCode(NewShortcutDimCode);
+    end;
+
+    local procedure SetControlAppearanceFromBatch()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+    begin
+        if not ItemJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
+
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        ItemJournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     local procedure SetDimensionsVisibility()

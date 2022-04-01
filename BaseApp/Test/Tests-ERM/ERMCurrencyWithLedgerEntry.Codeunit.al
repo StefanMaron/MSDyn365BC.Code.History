@@ -97,7 +97,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
         TotalAmount: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         if PurchaseDocument then begin
             // Setup: Create Currency and Purchase Document as per the option selected after release.
@@ -142,9 +142,9 @@ codeunit 134078 "ERM Currency With Ledger Entry"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Currency With Ledger Entry");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Currency With Ledger Entry");
@@ -233,7 +233,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
         Currency: Record Currency;
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.AreEqual(CurrencyCode, VendorLedgerEntry."Currency Code", StrSubstNo(CurrencyCodeError, CurrencyCode));
 
         VendorLedgerEntry.CalcFields("Amount (LCY)");
@@ -250,7 +250,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
         Currency: Record Currency;
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         Assert.AreEqual(CurrencyCode, CustLedgerEntry."Currency Code", StrSubstNo(CurrencyCodeError, CurrencyCode));
 
         CustLedgerEntry.CalcFields("Amount (LCY)");

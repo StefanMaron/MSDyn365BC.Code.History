@@ -87,7 +87,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         // [FEATURE] [UT]
         // [SCENARIO 201072] New cost shares in the standard cost worksheet are set to 0 when "New Standard Cost" field is validated with 0 amount
 
-        Initialize;
+        Initialize();
 
         StandardCostWorksheet.Init();
         StandardCostWorksheet.Validate(Type, StandardCostWorksheet.Type::Item);
@@ -105,7 +105,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - Std Cost Wksheet");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         SourceCodeSetup.Get();
 
         isInitialized := true;
@@ -120,7 +120,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         Item: Record Item;
         Overhead: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create mixed tree and rollup the cost.
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, TreeDepth, 2, 0);
@@ -200,7 +200,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
     begin
         StdCostWorksheet.SetRange(Type, Type);
         StdCostWorksheet.SetRange("No.", No);
-        StdCostWorksheet.FindFirst;
+        StdCostWorksheet.FindFirst();
         StdCostWorksheet.TestField(Implemented, Implemented);
         case StdCostWorksheet.Type of
             StdCostWorksheet.Type::Item:
@@ -274,7 +274,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
     begin
         StdCostWorksheet.SetRange(Type, StdCostWorksheet.Type::Item);
         StdCostWorksheet.SetRange("No.", ItemNo);
-        if StdCostWorksheet.FindFirst then begin
+        if StdCostWorksheet.FindFirst() then begin
             GetRevalJournalNames(RevalJnlTemplateName, RevalJnlBatchName);
             ItemJournalLine.SetRange("Journal Template Name", RevalJnlTemplateName);
             ItemJournalLine.SetRange("Journal Batch Name", RevalJnlBatchName);
@@ -282,7 +282,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
             ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::"Positive Adjmt.");
             ItemJournalLine.SetRange("Source Code", SourceCodeSetup."Revaluation Journal");
             Assert.AreEqual(1, ItemJournalLine.Count, 'Filters:' + ItemJournalLine.GetFilters);
-            ItemJournalLine.FindFirst;
+            ItemJournalLine.FindFirst();
             Assert.AreNearlyEqual(
               StdCostWorksheet."Standard Cost", ItemJournalLine."Unit Cost (Calculated)", LibraryERM.GetAmountRoundingPrecision,
               StrSubstNo(ERRWrongCost, ItemJournalLine.FieldCaption("Unit Cost (Calculated)")));
@@ -308,7 +308,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                 begin
                     StdCostWorksheet.SetRange(Type, StdCostWorksheet.Type::Item);
                     Item.Get(No);
-                    if StdCostWorksheet.FindFirst then begin
+                    if StdCostWorksheet.FindFirst() then begin
                         Item.TestField("Standard Cost", StdCostWorksheet."New Standard Cost");
                         Item.TestField("Indirect Cost %", StdCostWorksheet."New Indirect Cost %");
                         Item.TestField("Overhead Rate", StdCostWorksheet."New Overhead Rate");
@@ -328,7 +328,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                 begin
                     StdCostWorksheet.SetRange(Type, StdCostWorksheet.Type::Resource);
                     Resource.Get(No);
-                    if StdCostWorksheet.FindFirst then begin
+                    if StdCostWorksheet.FindFirst() then begin
                         Resource.TestField("Unit Cost", StdCostWorksheet."New Standard Cost");
                         Resource.TestField("Indirect Cost %", StdCostWorksheet."New Indirect Cost %");
                     end;
@@ -354,12 +354,12 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
     var
         Resource: Record Resource;
     begin
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 LibraryAssembly.ModifyItem(TempItem."No.", true, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
             until TempItem.Next = 0;
 
-        if TempResource.FindSet then
+        if TempResource.FindSet() then
             repeat
                 Resource.Get(TempResource."No.");
                 Resource.Validate("Indirect Cost %", LibraryRandom.RandInt(5));
@@ -389,7 +389,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                 begin
                     BOMComponent.SetRange("Parent Item No.", Item."No.");
                     BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-                    if BOMComponent.FindSet then
+                    if BOMComponent.FindSet() then
                         repeat
                             Item1.Get(BOMComponent."No.");
                             LocalRolledUpMaterialCost := 0;
@@ -409,7 +409,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                         until BOMComponent.Next = 0;
 
                     BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
-                    if BOMComponent.FindSet then
+                    if BOMComponent.FindSet() then
                         repeat
                             Resource.Get(BOMComponent."No.");
                             TempResource := Resource;
@@ -433,7 +433,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                 begin
                     ProdBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
                     ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-                    if ProdBOMLine.FindSet then
+                    if ProdBOMLine.FindSet() then
                         repeat
                             Item1.Get(ProdBOMLine."No.");
                             LocalRolledUpMaterialCost := 0;
@@ -497,9 +497,9 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Revaluation);
         ItemJournalTemplate.SetRange(Recurring, false);
-        if ItemJournalTemplate.FindFirst then begin
+        if ItemJournalTemplate.FindFirst() then begin
             ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-            if ItemJournalBatch.FindFirst then
+            if ItemJournalBatch.FindFirst() then
                 RevalJournalBatchName := ItemJournalBatch.Name;
             RevalJournalTemplateName := ItemJournalTemplate.Name;
         end;
@@ -522,7 +522,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         GLBIndirectCostAdj := LibraryRandom.RandIntInRange(2, 5);
         GLBOverheadRateAdj := LibraryRandom.RandIntInRange(2, 5);
         GLBParentItemNo := ParentItemNo;
-        if RoundingMethod.FindFirst then
+        if RoundingMethod.FindFirst() then
             GLBRoundingMethod := RoundingMethod.Code;
 
         TempItem.Next(LibraryRandom.RandInt(TempItem.Count));

@@ -17,7 +17,7 @@ codeunit 6638 "Sales-Get Return Receipts"
         GetReturnRcptLines.SetTableView(ReturnRcptLine);
         GetReturnRcptLines.LookupMode := true;
         GetReturnRcptLines.SetSalesHeader(SalesHeader);
-        GetReturnRcptLines.RunModal;
+        GetReturnRcptLines.RunModal();
     end;
 
     var
@@ -93,7 +93,7 @@ codeunit 6638 "Sales-Get Return Receipts"
                 ItemChargeAssgntSales.SetRange("Document Type", SalesOrderLine."Document Type");
                 ItemChargeAssgntSales.SetRange("Document No.", SalesOrderLine."Document No.");
                 ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
-                if ItemChargeAssgntSales.FindFirst then begin
+                if ItemChargeAssgntSales.FindFirst() then begin
                     ItemChargeAssgntSales.CalcSums("Qty. to Assign");
                     if ItemChargeAssgntSales."Qty. to Assign" <> 0 then
                         CopyItemChargeAssgnt(
@@ -150,7 +150,7 @@ codeunit 6638 "Sales-Get Return Receipts"
                                 ReturnRcptLine2.SetRange("Return Order No.", ItemChargeAssgntSales."Applies-to Doc. No.");
                                 ReturnRcptLine2.SetRange("Return Order Line No.", ItemChargeAssgntSales."Applies-to Doc. Line No.");
                                 ReturnRcptLine2.SetFilter(Quantity, '<>0');
-                                if ReturnRcptLine2.FindFirst then begin
+                                if ReturnRcptLine2.FindFirst() then begin
                                     SalesLine2.SetCurrentKey("Document Type", "Shipment No.", "Shipment Line No.");
                                     SalesLine2.SetRange("Document Type", "Document Type"::"Credit Memo");
                                     SalesLine2.SetRange("Return Receipt No.", ReturnRcptLine2."Document No.");

@@ -1484,7 +1484,7 @@
             until TempTrackingSpecification.Next() = 0;
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by SetPageControls().', '19.0')]
     protected procedure SetControls(Controls: Option Handle,Invoice,Quantity,Reclass,Tracking; SetAccess: Boolean)
     begin
@@ -2810,7 +2810,7 @@
         OnAfterUpdateExpDateEditable(Rec, ExpirationDateEditable, ItemTrackingCode, NewExpirationDateEditable, CurrentSignFactor);
     end;
 
-    local procedure LookupAvailable(LookupMode: Enum "Item Tracking Type")
+    procedure LookupAvailable(LookupMode: Enum "Item Tracking Type")
     begin
         Rec."Bin Code" := ForBinCode;
         ItemTrackingDataCollection.LookupTrackingAvailability(Rec, LookupMode);
@@ -3294,7 +3294,8 @@
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterSetPageControls()', '20.0')]
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterSetControls(ItemTrackingCode: Record "Item Tracking Code"; var Controls: Option Handle,Invoice,Quantity,Reclass,Tracking; var SetAccess: Boolean)
     begin

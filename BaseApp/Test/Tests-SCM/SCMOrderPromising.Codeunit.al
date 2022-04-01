@@ -107,7 +107,7 @@ codeunit 137044 "SCM Order Promising"
 
         // Setup: Enable Stockout Warning In Sales & Receivables Setup.
         // Create two Sales Orders on Workdate.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(true);
 
         LibraryInventory.CreateItem(Item);
@@ -132,7 +132,7 @@ codeunit 137044 "SCM Order Promising"
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(-(Quantity + Quantity2));
         UpdateShipmentDateOnSalesOrderPage(SalesHeader."No.", WorkDate);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -146,7 +146,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales Order] [Shipment Date] [Availability]
         // [SCENARIO 379282] Availability warning should be raised if Shipment Date in Sales Line is changed from the date after the Purchase Receipt to the date preceding it.
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         LibrarySales.SetStockoutWarning(true);
 
@@ -161,7 +161,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [THEN] There is a lack of Inventory on Date3. Availability warning is raised.
         // Verification is done in CheckAvailabilityHandler.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales Order] [Shipment Date] [Availability]
         // [SCENARIO 379282] Availability warning should be raised when Shipment Date in Sales Line is set and updated with a date preceding Purchase Receipt Date.
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         LibrarySales.SetStockoutWarning(true);
 
@@ -190,7 +190,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [THEN] There is a lack of Inventory on Date3. Availability warnings is raised.
         // Verification is done in CheckAvailabilityHandler.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -203,7 +203,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Shipment Date] [UI]
         // [SCENARIO 379282] Shipment Date in Factbox should be updated when Shipment Date in Sales Line is updated.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Sales Order with Shipment Date = Date1.
@@ -229,7 +229,7 @@ codeunit 137044 "SCM Order Promising"
         Qty: Decimal;
     begin
         // [SCENARIO 376713] Calculate order promising when expected receipt date is later than requested delivery date
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
@@ -258,7 +258,7 @@ codeunit 137044 "SCM Order Promising"
         Qty: Decimal;
     begin
         // [SCENARIO 376713] Calculate order promising when expected receipt date is later than requested delivery date and shipment date is after expected receipt
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
@@ -289,7 +289,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Base Calendar]
         // [SCENARIO 376713] Calculate order promising when requested delivery date is a non-working day
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
@@ -325,7 +325,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Base Calendar]
         // [SCENARIO 376713] Calculate order promising when requested delivery date is before expected receipt, and both dates are non-working
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
@@ -360,7 +360,7 @@ codeunit 137044 "SCM Order Promising"
         Qty: Decimal;
     begin
         // [SCENARIO 376713] When calculating order promising for a period, sales orders with requested delivery date outside of this period are not included
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
@@ -391,7 +391,7 @@ codeunit 137044 "SCM Order Promising"
         Qty: Decimal;
     begin
         // [SCENARIO 376713] When calculating order promising for a period, all sales orders with requested delivery date within this period are included
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
@@ -422,7 +422,7 @@ codeunit 137044 "SCM Order Promising"
         Qty: Decimal;
     begin
         // [SCENARIO 376713] "Outbound Whse. Handling Time" and "Shipping Time" are considered when calculating order promising
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
@@ -456,7 +456,7 @@ codeunit 137044 "SCM Order Promising"
         Qty: Decimal;
     begin
         // [SCENARIO] "Shipping Time" is considered in order promising calculation
-        Initialize;
+        Initialize();
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
@@ -492,10 +492,10 @@ codeunit 137044 "SCM Order Promising"
         NonStockItemNo: Code[20];
     begin
         // [SCENARIO 380031] Sales Lines with Items of non-inventoriable type aren't applicable to order promising functional.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with three items - one of of each Item type
-        InventoryItemNo := LibraryInventory.CreateItemNo; // Item.Type::Inventory
+        InventoryItemNo := LibraryInventory.CreateItemNo(); // Item.Type::Inventory
         ServiceItemNo := CreateItemTypeService;           // Item.Type::Service
         NonStockItemNo := CreateItemTypeNonStock;         // Item.Type::Non-Inventory
         CreateSalesOrderForThreeItems(SalesHeader, InventoryItemNo, ServiceItemNo, NonStockItemNo);
@@ -528,10 +528,10 @@ codeunit 137044 "SCM Order Promising"
         NonStockItemNo: Code[20];
     begin
         // [SCENARIO 380031] Job Planning Lines with items of non-inventoriable types aren't applicable to order promising functional.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with three items - one of each type
-        InventoryItemNo := LibraryInventory.CreateItemNo; // Item.Type::Inventory
+        InventoryItemNo := LibraryInventory.CreateItemNo(); // Item.Type::Inventory
         ServiceItemNo := CreateItemTypeService;           // Item.Type::Service
         NonStockItemNo := CreateItemTypeNonStock;         // Item.Type::Non-Inventory
 
@@ -564,7 +564,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Check-Avail. Time Bucket]
         // [SCENARIO 202032] Availability warning SHOULD NOT be raised if a supply exists AFTER the shipment date that covers all demands by the end of the time bucket.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
@@ -595,7 +595,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Check-Avail. Time Bucket]
         // [SCENARIO 202032] Availability warning SHOULD NOT be raised if a supply exists AFTER the shipment date that covers all demands by the end of the time bucket, and the shipment date is changed from the supply date to the date preceding it.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
@@ -614,7 +614,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [THEN] Availability warning is not raised.
         VerifyNoOfRaisedNotifications(NoOfNotificationsRaised, 0);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -629,7 +629,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Check-Avail. Time Bucket]
         // [SCENARIO 202032] Availability warning SHOULD NOT be raised if a supply exists AFTER the shipment date that covers all demands by the end of the time bucket, and the shipment date is changed from the earlier date to the date preceding the supply
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
@@ -663,7 +663,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Check-Avail. Time Bucket]
         // [SCENARIO 202032] Availability warning SHOULD be raised if a supply exists ON the shipment date that covers all demands by the end of the time bucket, but does not cover future demands within the calc. period.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
@@ -679,7 +679,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [THEN] Availability warning is raised.
         VerifyNoOfRaisedNotifications(NoOfWarningsRaised, 1);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -695,7 +695,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Check-Avail. Time Bucket]
         // [SCENARIO 202032] Avail. warning SHOULD be raised if supply exists ON the shipment date that covers all demands by the end of the time bucket, but not all demands within the calc. period. Shipment date changed from later date to the supply date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
@@ -714,7 +714,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [THEN] Availability warning is raised.
         VerifyNoOfRaisedNotifications(NoOfWarningsRaised, 1);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -730,7 +730,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Check-Avail. Time Bucket]
         // [SCENARIO 202032] Avail. warning SHOULD be raised if supply exists ON the shipment date that covers all demands by the end of the time bucket, but not all demands within the calc. period. Shipment date changed from earlier date to the supply dat
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
@@ -749,7 +749,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [THEN] Availability warning is raised.
         VerifyNoOfRaisedNotifications(NoOfRaisedNotifications, 1);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -763,7 +763,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Check-Avail. Time Bucket]
         // [SCENARIO 202032] Availability warning SHOULD NOT be raised if a supply exists ON the shipment date that covers all demands within the calc. period.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
@@ -792,7 +792,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Check-Avail. Time Bucket]
         // [SCENARIO 202032] Availability warning SHOULD NOT be raised if a supply exists ON the shipment date that covers all demands within the calc. period and the shipment date of one demand is changed from later date to the supply date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
@@ -825,7 +825,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Check-Avail. Time Bucket]
         // [SCENARIO 202032] Availability warning SHOULD NOT be raised if a supply exists ON the shipment date that covers all demands within the calc. period and the shipment date of one demand is changed from earlier date to the supply date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-week long Check.-Avail Calc Period and 1-day long Check-Avail. Time Bucket in Company Information.
         // [GIVEN] Item "I" with "X" units in stock on workdate.
@@ -860,7 +860,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Assemble-to-Order]
         // [SCENARIO 234903] Availability warning for BOM component is raised after shipment date of an assembled item is shifted to the date on which the component is lacking.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable stockout warnings.
         LibrarySales.SetStockoutWarning(true);
@@ -910,7 +910,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Shipment Date] [Assemble-to-Order]
         // [SCENARIO 234903] Availability warning for BOM component is not raised after shipment date of an assembled item is shifted to a later date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable stockout warnings.
         LibraryAssembly.SetStockoutWarning(true);
@@ -927,7 +927,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [WHEN] Set "Shipment Date" on the sales line to a later date.
         SalesLine.SetRange("No.", AsmItem."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine."Shipment Date" := WorkDate + 90;
         IsWarningRaised := ItemCheckAvail.SalesLineCheck(SalesLine);
 
@@ -950,7 +950,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [Sales] [Order] [Assemble-to-Order]
         // [SCENARIO 251877] Availability warning is raised on Assemble-to-Order line when you shift Due Date to an earlier date on which the component is lacking.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable stockout warnings.
         LibrarySales.SetStockoutWarning(true);
@@ -1143,7 +1143,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // [FEATURE] [UT] [Availability]
         // [SCENARIO 338140] Item."Reserved Qty. on Prod. Order" is calculated at COD5790.CalcAllItemFields function.
-        Initialize;
+        Initialize();
 
         CreateItem(Item, Item."Replenishment System"::"Prod. Order");
 
@@ -1418,16 +1418,16 @@ codeunit 137044 "SCM Order Promising"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Order Promising");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Order Promising");
 
         UpdateCompSalesManufPurchSetup;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
 
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -1455,7 +1455,7 @@ codeunit 137044 "SCM Order Promising"
         Evaluate(DateFormula, '<3M>');  // Values used are important for test.
         UpdateCompanyInformationPeriodCalc(DateFormula);
         UpdateCompanyInformationCalcBucket(1);
-        UpdateSalesReceivablesSetup;
+        UpdateSalesReceivablesSetup();
         UpdateManufacturingSetup;
         UpdatePurchaseSetup;
     end;
@@ -1755,7 +1755,7 @@ codeunit 137044 "SCM Order Promising"
         for i := 0 to 5 do
             LibraryVariableStorage.Enqueue(i); // this lets us see how many avail. warnings are raised during the test
 
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateAndPostItemJournalLine(ItemNo, '', InventoryQty);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -1796,7 +1796,7 @@ codeunit 137044 "SCM Order Promising"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange("No.", ItemNo);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     local procedure FindSalesline(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20])
@@ -1804,7 +1804,7 @@ codeunit 137044 "SCM Order Promising"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", ItemNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
@@ -1812,7 +1812,7 @@ codeunit 137044 "SCM Order Promising"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -1825,7 +1825,7 @@ codeunit 137044 "SCM Order Promising"
         SalesOrderQty: Decimal;
         ShipmentDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateOrderPromisingSetups(Item, ShipmentDate);
 
         // Create One Demand Documents.
@@ -1850,7 +1850,7 @@ codeunit 137044 "SCM Order Promising"
         ShipmentDate: Date;
     begin
         // Create Demand Documents.
-        Initialize;
+        Initialize();
         CreateOrderPromisingSetups(Item, ShipmentDate);
 
         CreateDemandDocuments(Item, SalesHeader, ShipmentDate, NoOfDemandDocuments);
@@ -1908,7 +1908,7 @@ codeunit 137044 "SCM Order Promising"
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Evaluate("Outbound Whse. Handling Time", WhseHandlingTimeFormula);
             Evaluate("Shipping Time", ShippingTimeFormula);
             Modify(true);
@@ -2079,7 +2079,7 @@ codeunit 137044 "SCM Order Promising"
         with ReservationEntry do begin
             SetRange("Source Type", SourceType);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             TestField("Shipment Date", ShipmentDate);
         end;
     end;

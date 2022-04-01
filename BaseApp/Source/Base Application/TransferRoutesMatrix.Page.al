@@ -443,7 +443,7 @@ page 9285 "Transfer Routes Matrix"
         MatrixRecords: array[32] of Record Location;
         TransferRoute: Record "Transfer Route";
         Specification: Text[80];
-        Show: Option "In-Transit Code","Shipping Agent Code","Shipping Agent Service Code";
+        Show: Enum "Transfer Routes Show";
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[32] of Text[80];
         MATRIX_CaptionSet: array[32] of Text[80];
@@ -512,7 +512,16 @@ page 9285 "Transfer Routes Matrix"
         [InDataSet]
         Field32Visible: Boolean;
 
+#if not CLEAN20
+    [Obsolete('Replaced by LoadMatrix()', '20.0')]
     procedure Load(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Location; NewCurrentNoOfMatrixColumns: Integer; NewShow: Option "In-Transit Code","Shipping Agent Code","Shipping Agent Service Code")
+    begin
+        LoadMatrix(
+            NewMatrixColumns, NewMatrixRecords, NewCurrentNoOfMatrixColumns, "Transfer Routes Show".FromInteger(NewShow));
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Location; NewCurrentNoOfMatrixColumns: Integer; NewShow: Enum "Transfer Routes Show")
     begin
         CopyArray(MATRIX_CaptionSet, NewMatrixColumns, 1);
         CopyArray(MatrixRecords, NewMatrixRecords, 1);
@@ -530,6 +539,8 @@ page 9285 "Transfer Routes Matrix"
     end;
 
     local procedure ShowRouteSpecification(MATRIX_ColumnOrdinal: Integer)
+    var
+        ShowOpt: Option;
     begin
         Specification := '';
         if TransferRoute.Get(Code, MatrixRecords[MATRIX_ColumnOrdinal].Code) then
@@ -540,8 +551,11 @@ page 9285 "Transfer Routes Matrix"
                     Specification := TransferRoute."Shipping Agent Service Code";
                 Show::"In-Transit Code":
                     Specification := TransferRoute."In-Transit Code";
-                else
-                    OnShowRouteSpecificationCaseElse(TransferRoute, Show, Specification);
+                else begin
+                        ShowOpt := Show.AsInteger();
+                        OnShowRouteSpecificationCaseElse(TransferRoute, ShowOpt, Specification);
+                        Show := "Transfer Routes Show".FromInteger(ShowOpt);
+                    end;
             end;
     end;
 

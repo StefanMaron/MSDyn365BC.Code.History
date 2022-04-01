@@ -148,7 +148,7 @@ page 127 "Det. Cust. Ledg. Entr. Preview"
 
     procedure Set(var TempDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary)
     begin
-        if TempDtldCustLedgEntry.FindSet then
+        if TempDtldCustLedgEntry.FindSet() then
             repeat
                 Rec := TempDtldCustLedgEntry;
                 Insert;

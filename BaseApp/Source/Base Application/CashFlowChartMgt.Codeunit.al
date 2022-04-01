@@ -90,7 +90,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         CashFlowChartSetup.Get(UserId);
 
         with BusChartBuf do begin
-            Initialize;
+            Initialize();
             "Period Length" := CashFlowChartSetup."Period Length";
             SetPeriodXAxis;
 
@@ -232,7 +232,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         CFForecastEntry.SetRange("Cash Flow Date", FromDate, ToDate);
         CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
-        if CFAccount.FindSet then
+        if CFAccount.FindSet() then
             repeat
                 CFForecastEntry.SetRange("Cash Flow Account No.", CFAccount."No.");
                 if not CFForecastEntry.IsEmpty() then begin

@@ -15,9 +15,7 @@ codeunit 132908 TestCompanyChangePages
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-#if not CLEAN19
         CompanySetUpInProgressMsg: Label 'Company %1 was just created, and we are still setting it up for you.', Comment = '%1 - a company name';
-#endif
         LibraryPermissions: Codeunit "Library - Permissions";
         SetupStatus: Enum "Company Setup Status";
         NoConfigPackDefinedMsg: Label 'No configuration package file is defined within the specified filter';
@@ -115,7 +113,7 @@ codeunit 132908 TestCompanyChangePages
         UserSettings.Company.AssertEquals(CompanyDisplayNameTxt);
     end;
 
-     [Test]
+    [Test]
     [HandlerFunctions('PickCompanyModalHandler,MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -188,7 +186,7 @@ codeunit 132908 TestCompanyChangePages
     begin
         // [FEATURE] [UT]
         // [SCENARIO] FillCompanyData() for Standard data sets "Evaluation Company" to 'No' and schedules a task
-        Initialize;
+        Initialize();
         // [GIVEN] Config. Package "STANDARD" is in config. package files
         InitCompanySetupWithPackage('ENU.STANDARD');
 
@@ -219,7 +217,7 @@ codeunit 132908 TestCompanyChangePages
     begin
         // [FEATURE] [UT]
         // [SCENARIO] FillCompanyData() for Evaluation data sets "Evaluation Company" to 'Yes' and schedules a task
-        Initialize;
+        Initialize();
         // [GIVEN] Config. Package "EVALUATION" is in config. package files
         InitCompanySetupWithPackage('ENU.EVALUATION');
 
@@ -250,7 +248,7 @@ codeunit 132908 TestCompanyChangePages
     begin
         // [FEATURE] [UT]
         // [SCENARIO] FillCompanyData() for Extended data sets "Evaluation Company" to 'No' and schedules a task
-        Initialize;
+        Initialize();
         // [GIVEN] Config. Package "EXTENDED" is in config. package files
         InitCompanySetupWithPackage('ENU.EXTENDED');
 
@@ -281,7 +279,7 @@ codeunit 132908 TestCompanyChangePages
     begin
         // [FEATURE] [UT]
         // [SCENARIO] FillCompanyData() for Full No Data sets "Evaluation Company" to 'No' and does not schedule a task
-        Initialize;
+        Initialize();
         // [GIVEN] Config. Package "EXTENDED" is in config. package files
         InitCompanySetupWithPackage('ENU.EXTENDED');
 
@@ -408,7 +406,7 @@ codeunit 132908 TestCompanyChangePages
         // [THEN] One Job Queue Log Entry added, where "ID" = 'x', "Status" = 'Error',
         JobQueueLogEntry.SetRange(ID, TaskID);
         Assert.RecordCount(JobQueueLogEntry, 1);
-        JobQueueLogEntry.FindLast;
+        JobQueueLogEntry.FindLast();
         JobQueueLogEntry.TestField(Status, JobQueueLogEntry.Status::Error);
         // [THEN] Description and Error message are 'No configuration package file is defined ...'
         Assert.ExpectedMessage(NoConfigPackDefinedMsg, JobQueueLogEntry."Error Message");
@@ -479,7 +477,7 @@ codeunit 132908 TestCompanyChangePages
 
         // [THEN] ApplicationAreaSetup, where "Basic" and "Suite" are 'Yes', no AssistedCompanySetupStatus
         ApplicationAreaSetup.SetRange("Company Name", CompanyName);
-        ApplicationAreaSetup.FindFirst;
+        ApplicationAreaSetup.FindFirst();
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
         Assert.IsTrue(AssistedCompanySetupStatus.Get(CompanyName), 'Expected that record exists.');
         Assert.AreEqual(AssistedCompanySetupStatus.GetCompanySetupStatusValue(CompanyName), SetupStatus::Completed,
@@ -516,11 +514,11 @@ codeunit 132908 TestCompanyChangePages
 
         // [THEN] ApplicationAreaSetup, where "Basic" and "Suite" are 'Yes'
         ApplicationAreaSetup.SetRange("Company Name", CompanyName);
-        ApplicationAreaSetup.FindFirst;
+        ApplicationAreaSetup.FindFirst();
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
         // [THEN] AssistedCompanySetupStatus, where "Enabled" is false, "Task ID" is not <null>
         AssistedCompanySetupStatus.SetRange("Company Name", CompanyName);
-        AssistedCompanySetupStatus.FindFirst;
+        AssistedCompanySetupStatus.FindFirst();
         AssistedCompanySetupStatus.TestField(Enabled, false);
         AssistedCompanySetupStatus.TestField("Task ID", ExpectedTaskID);
     end;
@@ -555,11 +553,11 @@ codeunit 132908 TestCompanyChangePages
 
         // [THEN] ApplicationAreaSetup, where "Basic" and "Relationship Mgmt" are 'Yes', "Suite" is 'No'
         ApplicationAreaSetup.SetRange("Company Name", CompanyName);
-        ApplicationAreaSetup.FindFirst;
+        ApplicationAreaSetup.FindFirst();
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
         // [THEN] AssistedCompanySetupStatus, where "Enabled" is 'No', "Task ID" is not <null>
         AssistedCompanySetupStatus.SetRange("Company Name", CompanyName);
-        AssistedCompanySetupStatus.FindFirst;
+        AssistedCompanySetupStatus.FindFirst();
         AssistedCompanySetupStatus.TestField(Enabled, false);
         AssistedCompanySetupStatus.TestField("Task ID", ExpectedTaskID);
     end;
@@ -591,11 +589,11 @@ codeunit 132908 TestCompanyChangePages
 
         // [THEN] ApplicationAreaSetup, where "Basic" and "Suite" are 'No'
         ApplicationAreaSetup.SetRange("Company Name", CompanyName);
-        ApplicationAreaSetup.FindFirst;
+        ApplicationAreaSetup.FindFirst();
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
         // [THEN] AssistedCompanySetupStatus, where "Enabled" is 'No', "Task ID" is not <null>
         AssistedCompanySetupStatus.SetRange("Company Name", CompanyName);
-        AssistedCompanySetupStatus.FindFirst;
+        AssistedCompanySetupStatus.FindFirst();
         AssistedCompanySetupStatus.TestField(Enabled, false);
         AssistedCompanySetupStatus.TestField("Task ID", ExpectedTaskID);
         LibraryPermissions.SetTestTenantEnvironmentType(false);
@@ -628,7 +626,7 @@ codeunit 132908 TestCompanyChangePages
 
         // [THEN] ApplicationAreaSetup, where "Basic" and "Suite" are 'No'
         ApplicationAreaSetup.SetRange("Company Name", CompanyName);
-        ApplicationAreaSetup.FindFirst;
+        ApplicationAreaSetup.FindFirst();
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
         // [THEN] AssistedCompanySetupStatus has a rec for the comapny and status is completed
         Assert.IsTrue(AssistedCompanySetupStatus.Get(CompanyName), 'Expected that record exists.');
@@ -650,10 +648,10 @@ codeunit 132908 TestCompanyChangePages
     begin
         // [FEATURE] [Status]
         // [SCENARIO] "Assisted Company Setup Status" field on "Companies" page drills down to job queue log entries
-        Initialize;
+        Initialize();
         // [GIVEN] Two related Job Queue Log Entries, where Status is 'Success' and 'In Process'
         SetAssistedCompanySetupStatus(CompanyName, SessionId, 1);
-        AssistedCompanySetupStatus.FindFirst;
+        AssistedCompanySetupStatus.FindFirst();
         MockJobQueueLogEntries(AssistedCompanySetupStatus."Task ID", JobQueueLogEntry);
 
         // [GIVEN] Allowed Companies page is open
@@ -680,28 +678,28 @@ codeunit 132908 TestCompanyChangePages
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         Company: Record Company;
         JobQueueLogEntry: Record "Job Queue Log Entry";
-        AllowedCompanies: Page "Allowed Companies";
-        AllowedCompaniesPage: TestPage "Allowed Companies";
+        AccessibleCompanies: Page "Accessible Companies";
+        AccessibleCompaniesTestPage: TestPage "Accessible Companies";
     begin
         // [FEATURE] [Status]
         // [SCENARIO] "Setup Status" field on "Allowed Companies" page drills down to job queue log entries
-        Initialize;
+        Initialize();
         // [GIVEN] Two related Job Queue Log Entries, where Status is 'Success' and 'In Process'
         SetAssistedCompanySetupStatus(CompanyName, SessionId, 1);
-        AssistedCompanySetupStatus.FindFirst;
+        AssistedCompanySetupStatus.FindFirst();
         MockJobQueueLogEntries(AssistedCompanySetupStatus."Task ID", JobQueueLogEntry);
 
         // [GIVEN] Allowed Companies page is open
-        AllowedCompaniesPage.Trap();
-        AllowedCompanies.Initialize();
-        AllowedCompanies.Run();
+        AccessibleCompaniesTestPage.Trap();
+        AccessibleCompanies.Initialize();
+        AccessibleCompanies.Run();
         Company.Get(CompanyName);
-        AllowedCompaniesPage.GotoRecord(Company);
-        Assert.IsFalse(AllowedCompaniesPage.SetupStatus.Editable, 'SetupStatus.EDITABLE');
-        AllowedCompaniesPage.SetupStatus.AssertEquals(JobQueueLogEntry.Status::"In Process" + 1);
+        AccessibleCompaniesTestPage.GotoRecord(Company);
+        Assert.IsFalse(AccessibleCompaniesTestPage.SetupStatus.Editable, 'SetupStatus.EDITABLE');
+        AccessibleCompaniesTestPage.SetupStatus.AssertEquals(JobQueueLogEntry.Status::"In Process" + 1);
 
         // [WHEN] Drill down on "Setup Status" on Allowed Companies page
-        AllowedCompaniesPage.SetupStatus.DrillDown(); // handled by JobQueueLogModalHandler
+        AccessibleCompaniesTestPage.SetupStatus.DrillDown(); // handled by JobQueueLogModalHandler
 
         // [THEN] The first entry's "Status" is 'In Process', the second  - 'Success'
         Assert.AreEqual(JobQueueLogEntry.Status::"In Process", LibraryVariableStorage.DequeueInteger, 'the first entry status');
@@ -762,7 +760,7 @@ codeunit 132908 TestCompanyChangePages
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryApplicationArea.EnableBasicSetup;
     end;
 
@@ -931,6 +929,7 @@ codeunit 132908 TestCompanyChangePages
         GlobalSessionID := SessionID;
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AllowedCompaniesReturnsDisplayNameModalHandler(var AllowedCompanies: TestPage "Allowed Companies")
@@ -938,7 +937,7 @@ codeunit 132908 TestCompanyChangePages
         LibraryVariableStorage.Enqueue(AllowedCompanies.CompanyDisplayName.Value);
         AllowedCompanies.Cancel.Invoke;
     end;
-
+#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure JobQueueLogModalHandler(var JobQueueLogEntries: TestPage "Job Queue Log Entries")

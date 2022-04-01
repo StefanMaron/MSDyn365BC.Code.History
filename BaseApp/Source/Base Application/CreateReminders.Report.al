@@ -39,7 +39,7 @@ report 188 "Create Reminders"
                 Window.Close;
                 MarkedOnly := true;
                 Commit();
-                if FindFirst then begin
+                if FindFirst() then begin
                     FinishDateTime := CurrentDateTime();
                     if ConfirmManagement.GetResponse(Text003, true) then
                         PAGE.RunModal(0, Customer);

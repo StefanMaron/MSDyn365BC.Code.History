@@ -26,7 +26,7 @@ codeunit 9025 "Small Business Report Catalog"
           WorkDate, AgingBy::"Posting Date", PeriodLength, false, false, HeadingType::"Date Interval", false);
         AgedAccountsReceivable.UseRequestPage(UseRequestPage);
 
-        AgedAccountsReceivable.Run;
+        AgedAccountsReceivable.Run();
     end;
 
     procedure RunAgedAccountsPayableReport(UseRequestPage: Boolean)
@@ -47,7 +47,7 @@ codeunit 9025 "Small Business Report Catalog"
           WorkDate, AgingBy::"Posting Date", PeriodLength, false, false, HeadingType::"Date Interval", false);
         AgedAccountsPayable.UseRequestPage(UseRequestPage);
 
-        AgedAccountsPayable.Run;
+        AgedAccountsPayable.Run();
     end;
 
     procedure RunCustomerTop10ListReport(UseRequestPage: Boolean)
@@ -64,7 +64,7 @@ codeunit 9025 "Small Business Report Catalog"
 
         CustomerTop10ListReport.InitializeRequest(ChartType::"Bar chart", ShowType::"Sales (LCY)", 10);
         CustomerTop10ListReport.UseRequestPage(UseRequestPage);
-        CustomerTop10ListReport.Run;
+        CustomerTop10ListReport.Run();
     end;
 
     procedure RunVendorTop10ListReport(UseRequestPage: Boolean)
@@ -80,7 +80,7 @@ codeunit 9025 "Small Business Report Catalog"
 
         VendorTop10ListReport.InitializeRequest(ShowType::"Purchases (LCY)", 10);
         VendorTop10ListReport.UseRequestPage(UseRequestPage);
-        VendorTop10ListReport.Run;
+        VendorTop10ListReport.Run();
     end;
 
     procedure RunCustomerStatementReport(UseRequestPage: Boolean)
@@ -125,7 +125,7 @@ codeunit 9025 "Small Business Report Catalog"
           NewPrintUnappliedEntries, NewIncludeAgingBand, NewPeriodLength, NewDateChoice,
           NewLogInteraction, NewStartDate, NewEndDate);
         CustomerStatementReport.UseRequestPage(UseRequestPage);
-        CustomerStatementReport.Run;
+        CustomerStatementReport.Run();
     end;
 
     procedure RunTrialBalanceReport(UseRequestPage: Boolean)
@@ -139,7 +139,7 @@ codeunit 9025 "Small Business Report Catalog"
             exit;
 
         TrialBalance.UseRequestPage(UseRequestPage);
-        TrialBalance.Run;
+        TrialBalance.Run();
     end;
 
     [Scope('OnPrem')]

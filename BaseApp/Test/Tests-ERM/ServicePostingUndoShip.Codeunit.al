@@ -48,11 +48,11 @@ codeunit 136117 "Service Posting - Undo Ship"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Posting - Undo Ship");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting - Undo Ship");
@@ -380,7 +380,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         ShipmentHeaderNo: Code[20];
     begin
         // 1. Setup: Create Item with Item Tracking Code for Serial No., Purchase Order, assign Item Tracking on Purchase Line and Post it as Receive.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
 
@@ -420,7 +420,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         // Test Posted Entries after posting Service Order as Ship with Item having Item Tracking Code for Lot No.
 
         // 1. Setup: Create Item with Item Tracking Code for Lot No., Purchase Order, assign Lot No. on Purchase Line and Post it as Receive.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithItemTrackingCode(FindItemTrackingCode(true, false)),
@@ -509,7 +509,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         DocumentNo: Code[20];
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
         // Setup: Create and post 2 purchase receipts, order1 without Item Tracking, order2 with Expiration Date and Serial No. / Lot No.
         CreatePurchaseHeader(PurchaseHeader1);
         Quantity := LibraryRandom.RandInt(10);
@@ -545,7 +545,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
         SalesShipmentLine.SetRange("No.", No);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
     end;
 
@@ -559,7 +559,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line, Post it as Receive, Create Service Order, select Item Tracking for Service Line
         // and Post Service Order as Ship.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, 1);  // 1 is important for test case.
 
@@ -733,7 +733,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
     begin
         // Create a new Service Order - Service Header, Service Item, Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         CreateServiceItemLine(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
@@ -742,7 +742,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     local procedure CreateServiceOrderResourceCost(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
     begin
         // Create a new Service Order - Service Header, Service Item, Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         CreateServiceItemLine(ServiceHeader);
         CreateServiceLineForResource(ServiceHeader);
@@ -777,7 +777,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         exit(ServiceShipmentHeader."No.");
     end;
 
@@ -873,7 +873,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindLast;
+        ServiceLine.FindLast();
         ServiceLine.Validate(Quantity, 0);
         ServiceLine.Modify(true);
     end;
@@ -906,7 +906,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         asserterror UndoShipment(OrderNo);
         ServiceShipmentLine.SetRange("Order No.", OrderNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         Assert.AreEqual(
           StrSubstNo(
             QtyShippedErrorServiceTier, ServiceShipmentLine.FieldCaption("Qty. Shipped Not Invoiced"),
@@ -922,7 +922,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
         ServiceLedgerEntry.SetRange("Document No.", DocumentNo);
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         ServiceLedgerEntry.TestField("No.", No);
         ServiceLedgerEntry.TestField(Quantity, Quantity);
     end;
@@ -1042,7 +1042,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         ServiceLedgerEntry.SetRange("Document No.", FindServiceShipmentHeader(ServiceLine."Document No."));
         repeat
             ServiceLedgerEntry.SetRange("Document Line No.", ServiceLine."Line No.");
-            ServiceLedgerEntry.FindFirst;
+            ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField("No.", ServiceLine."No.");
             ServiceLedgerEntry.TestField("Posting Date", ServiceLine."Posting Date");
             ServiceLedgerEntry.TestField("Bill-to Customer No.", ServiceLine."Bill-to Customer No.");

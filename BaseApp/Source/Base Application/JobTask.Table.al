@@ -41,11 +41,9 @@ table 1001 "Job Task"
         {
             Caption = 'Description';
         }
-        field(4; "Job Task Type"; Option)
+        field(4; "Job Task Type"; Enum "Job Task Type")
         {
             Caption = 'Job Task Type';
-            OptionCaption = 'Posting,Heading,Total,Begin-Total,End-Total';
-            OptionMembers = Posting,Heading,Total,"Begin-Total","End-Total";
 
             trigger OnValidate()
             begin

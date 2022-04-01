@@ -3,6 +3,7 @@ table 1738 "OData Initialized Status"
     Access = Internal;
     DataPerCompany = false;
     DataClassification = SystemMetadata;
+    ReplicateData = false;
 
     fields
     {

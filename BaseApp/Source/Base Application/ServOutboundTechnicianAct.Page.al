@@ -12,13 +12,13 @@ page 9066 "Serv Outbound Technician Act."
             cuegroup("Outbound Service Orders")
             {
                 Caption = 'Outbound Service Orders';
-                field("Service Orders - Today"; "Service Orders - Today")
+                field("Service Orders - Today"; Rec."Service Orders - Today")
                 {
                     ApplicationArea = Service;
                     DrillDownPageID = "Service Orders";
                     ToolTip = 'Specifies the number of in-service orders that are displayed in the Service Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Service Orders - to Follow-up"; "Service Orders - to Follow-up")
+                field("Service Orders - to Follow-up"; Rec."Service Orders - to Follow-up")
                 {
                     ApplicationArea = Service;
                     DrillDownPageID = "Service Orders";
@@ -44,33 +44,6 @@ page 9066 "Serv Outbound Technician Act."
                     }
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
-                }
-            }
         }
     }
 
@@ -80,18 +53,15 @@ page 9066 "Serv Outbound Technician Act."
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetRespCenterFilter;
-        SetRange("Date Filter", WorkDate, WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetRespCenterFilter();
+        Rec.SetRange("Date Filter", WorkDate(), WorkDate());
+        Rec.SetRange("User ID Filter", UserId());
     end;
-
-    var
-        UserTaskManagement: Codeunit "User Task Management";
 }
 

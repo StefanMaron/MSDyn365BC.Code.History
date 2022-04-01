@@ -14,6 +14,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         SupportingAttachmentsTxt: Label 'Supporting Attachments';
@@ -24,16 +25,23 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         InventorySetup: Record "Inventory Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Inc Doc Attachment Overview UT");
+        LibrarySetupStorage.Restore();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Inc Doc Attachment Overview UT");
 
-        Initialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
+        Initialized := true;
+        Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        ;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Inc Doc Attachment Overview UT");
     end;
 
@@ -46,7 +54,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         CommonFieldRefArray: array[7] of FieldRef;
         IncDocumentSpecificFieldRefArray: array[5] of FieldRef;
     begin
-        Initialize;
+        Initialize();
         GetCommonFields(CommonFieldRefArray);
         GetIncDocAttachmentOverviewSpecificFields(IncDocumentSpecificFieldRefArray);
 
@@ -68,7 +76,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         IncomingDocument: Record "Incoming Document";
         TempIncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview" temporary;
     begin
-        Initialize;
+        Initialize();
         CreateIncomingDocument(IncomingDocument, '');
         TempIncDocAttachmentOverview.InsertFromIncomingDocument(IncomingDocument, TempIncDocAttachmentOverview);
 
@@ -84,7 +92,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         DocumentURL: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         DocumentURL := LibraryUtility.GenerateRandomText(300);
         CreateIncomingDocument(IncomingDocument, DocumentURL);
 
@@ -119,7 +127,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         DocumentURL: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         DocumentURL := '';
         CreateIncomingDocument(IncomingDocument, DocumentURL);
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
@@ -145,7 +153,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         SortingOrder: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         DocumentURL := '';
         CreateIncomingDocument(IncomingDocument, DocumentURL);
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
@@ -183,7 +191,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         SortingOrder: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         DocumentURL := '';
         CreateIncomingDocument(IncomingDocument2, DocumentURL);
         CreateIncomingDocumentAttachment(IncomingDocument2, IncomingDocumentAttachment3);
@@ -223,7 +231,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         DocumentURL: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         DocumentURL := '';
         CreateIncomingDocument(IncomingDocument, DocumentURL);
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment2);
@@ -251,7 +259,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateIncomingDocument(IncomingDocument, '');
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
         CreatePurchaseInvoiceAndPost(VendorLedgerEntry, IncomingDocument);
@@ -284,7 +292,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateIncomingDocument(IncomingDocument, '');
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
         CreatePurchaseInvoice(PurchaseHeader, IncomingDocument);
@@ -309,7 +317,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateIncomingDocument(IncomingDocument, '');
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment2);
@@ -337,7 +345,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateIncomingDocument(IncomingDocument, '');
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
         CreatePurchaseInvoice(PurchaseHeader, IncomingDocument);
@@ -361,7 +369,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         IncomingDocuments: TestPage "Incoming Documents";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateIncomingDocument(IncomingDocument, '');
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
 
@@ -386,7 +394,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateIncomingDocument(IncomingDocument, '');
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
         CreatePurchaseInvoice(PurchaseHeader, IncomingDocument);
@@ -454,11 +462,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         AnyXMLTxt: Text;
     begin
         AnyXMLTxt := '<test><test2 /></test>';
-#if not CLEAN17
-        IncomingDocument.AddXmlAttachmentFromXmlText(IncomingDocumentAttachment, FileManagement.ClientTempFileName('XML'), AnyXMLTxt);
-#else
         IncomingDocument.AddXmlAttachmentFromXmlText(IncomingDocumentAttachment, FileManagement.CreateFileNameWithExtension(Format(CreateGuid()), 'XML'), AnyXMLTxt);
-#endif
     end;
 
     local procedure CreatePurchaseInvoiceAndPost(var VendLedgEntry: Record "Vendor Ledger Entry"; var IncomingDocument: Record "Incoming Document")
@@ -471,7 +475,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         VendLedgEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
         VendLedgEntry.SetRange("Document No.", LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
 
         VendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
     end;

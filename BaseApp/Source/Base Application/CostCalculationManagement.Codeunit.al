@@ -151,6 +151,7 @@ codeunit 5836 "Cost Calculation Management"
             ProdOrderComp.SetRange(Status, Status);
             ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
             ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
+            OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(ProdOrderComp, ProdOrderLine);
             if ProdOrderComp.Find('-') then
                 repeat
                     ExpMatCost := ExpMatCost + ProdOrderComp."Cost Amount";
@@ -160,6 +161,7 @@ codeunit 5836 "Cost Calculation Management"
             ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
             ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
             ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
+            OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine, ProdOrderLine);
             if ProdOrderRtngLine.Find('-') then
                 repeat
                     ExpOperCost :=
@@ -187,6 +189,8 @@ codeunit 5836 "Cost Calculation Management"
             ExpMfgOvhdCost := ExpOvhdCost +
               Round(CalcOvhdCost(ExpMfgDirCost, "Indirect Cost %", 0, 0));
         end;
+
+        OnAfterCalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost, ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
     end;
 
     procedure CalcProdOrderLineActCost(ProdOrderLine: Record "Prod. Order Line"; var ActMatCost: Decimal; var ActCapDirCost: Decimal; var ActSubDirCost: Decimal; var ActCapOvhdCost: Decimal; var ActMfgOvhdCost: Decimal; var ActMatCostCostACY: Decimal; var ActCapDirCostACY: Decimal; var ActSubDirCostACY: Decimal; var ActCapOvhdCostACY: Decimal; var ActMfgOvhdCostACY: Decimal)
@@ -465,7 +469,11 @@ codeunit 5836 "Cost Calculation Management"
             exit(Result);
 
         CompQtyBasePerMfgQtyBase := ProdOrderComp."Quantity (Base)" / ProdOrderLine."Qty. per Unit of Measure";
-        exit(CalcQtyAdjdForBOMScrap(OutputQtyBase * CompQtyBasePerMfgQtyBase, ProdOrderComp."Scrap %"));
+
+        if (ProdOrderComp."Calculation Formula" = ProdOrderComp."Calculation Formula"::"Fixed Quantity") and (OutputQtyBase <> 0) then
+            exit(CalcQtyAdjdForBOMScrap(CompQtyBasePerMfgQtyBase, ProdOrderComp."Scrap %"))
+        else
+            exit(CalcQtyAdjdForBOMScrap(OutputQtyBase * CompQtyBasePerMfgQtyBase, ProdOrderComp."Scrap %"));
     end;
 
     procedure CalcActTimeAndQtyBase(ProdOrderLine: Record "Prod. Order Line"; OperationNo: Code[10]; var ActRunTime: Decimal; var ActSetupTime: Decimal; var ActOutputQty: Decimal; var ActScrapQty: Decimal)
@@ -503,12 +511,14 @@ codeunit 5836 "Cost Calculation Management"
             exit(MfgItemQtyBase);
 
         with ProdBOMComponent do begin
-            MfgItemQtyBase := CalcQtyAdjdForBOMScrap(MfgItemQtyBase, "Scrap %");
-            if AdjdForRtngScrap and FindRountingLine(RtngLine, ProdBOMComponent, CalculationDate, RtngNo) then
-                MfgItemQtyBase :=
-                  CalcQtyAdjdForRoutingScrap(MfgItemQtyBase, RtngLine."Scrap Factor % (Accumulated)", RtngLine."Fixed Scrap Qty. (Accum.)");
-            MfgItemQtyBase := MfgItemQtyBase * Quantity * GetQtyPerUnitOfMeasure;
-
+            if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
+                MfgItemQtyBase := Quantity * GetQtyPerUnitOfMeasure()
+            else begin
+                MfgItemQtyBase := CalcQtyAdjdForBOMScrap(MfgItemQtyBase, "Scrap %");
+                if AdjdForRtngScrap and FindRountingLine(RtngLine, ProdBOMComponent, CalculationDate, RtngNo) then
+                    MfgItemQtyBase := CalcQtyAdjdForRoutingScrap(MfgItemQtyBase, RtngLine."Scrap Factor % (Accumulated)", RtngLine."Fixed Scrap Qty. (Accum.)");
+                MfgItemQtyBase := MfgItemQtyBase * Quantity * GetQtyPerUnitOfMeasure();
+            end;
             exit(MfgItemQtyBase);
         end;
     end;
@@ -603,10 +613,10 @@ codeunit 5836 "Cost Calculation Management"
         if not RoutingLine.IsEmpty() then begin
             if ProdBOMLine."Routing Link Code" <> '' then
                 RoutingLine.SetRange("Routing Link Code", ProdBOMLine."Routing Link Code");
-            RecFound := RoutingLine.FindFirst;
+            RecFound := RoutingLine.FindFirst();
             if not RecFound then begin
                 RoutingLine.SetRange("Routing Link Code");
-                RecFound := RoutingLine.FindFirst;
+                RecFound := RoutingLine.FindFirst();
             end;
         end;
 
@@ -717,7 +727,7 @@ codeunit 5836 "Cost Calculation Management"
             end else
                 RemQtyToCalcBase := SalesLine."Quantity (Base)";
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Qty. per Unit of Measure" = 0 then
                         QtyShippedNotInvcdBase := "Qty. Shipped Not Invoiced"
@@ -778,7 +788,7 @@ codeunit 5836 "Cost Calculation Management"
             end else
                 RemQtyToCalcBase := SalesLine."Quantity (Base)";
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Qty. per Unit of Measure" = 0 then
                         RtrnQtyRcvdNotInvcdBase := "Return Qty. Rcd. Not Invd."
@@ -873,7 +883,7 @@ codeunit 5836 "Cost Calculation Management"
                 end else begin
                     ValueEntry.SetCurrentKey("Item Ledger Entry No.");
                     ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-                    if ValueEntry.FindSet then
+                    if ValueEntry.FindSet() then
                         repeat
                             if (ValueEntry."Entry Type" <> ValueEntry."Entry Type"::Revaluation) and
                                (ValueEntry."Item Charge No." = '')
@@ -1074,7 +1084,7 @@ codeunit 5836 "Cost Calculation Management"
     procedure SumValueEntriesCostAmt(var ValueEntry: Record "Value Entry") CostAmt: Decimal
     begin
         with ValueEntry do
-            if FindSet then
+            if FindSet() then
                 repeat
                     CostAmt := CostAmt + "Cost Amount (Actual)";
                 until Next() = 0;
@@ -1156,7 +1166,7 @@ codeunit 5836 "Cost Calculation Management"
                 else
                     RemQtyToCalcBase := ServLine."Quantity (Base)";
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Qty. per Unit of Measure" = 0 then
                         QtyShippedNotInvcdBase := "Qty. Shipped Not Invoiced"
@@ -1238,11 +1248,11 @@ codeunit 5836 "Cost Calculation Management"
     begin
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ItemLedgEntry.SetRange(Positive, true);
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
                 ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
-                if ValueEntry.FindSet then
+                if ValueEntry.FindSet() then
                     repeat
                         ActMatCost += ValueEntry."Cost Amount (Actual)";
                         ActMatCostCostACY += ValueEntry."Cost Amount (Actual) (ACY)";
@@ -1252,6 +1262,11 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcShareOfTotalCapCost(var ProdOrderLine: Record "Prod. Order Line"; var ShareOfTotalCapCost: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcProdOrderLineExpCost(var ProdOrderLine: Record "Prod. Order Line"; var ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
     begin
     end;
 
@@ -1342,6 +1357,16 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdOrderExpCapNeedOnBeforeMarkNotFinishedProdOrderRtngLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var ExpectedCapNeed: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(var ProdOrderComp: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 

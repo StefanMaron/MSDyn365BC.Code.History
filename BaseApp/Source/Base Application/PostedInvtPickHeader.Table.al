@@ -205,7 +205,7 @@ table 7342 "Posted Invt. Pick Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 }
 

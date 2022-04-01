@@ -17,7 +17,7 @@ codeunit 130231 "Test Proxy Notification Mgt."
 
     local procedure GetFirstRecordIDText(): Text
     begin
-        TempNotificationContext.FindFirst;
+        TempNotificationContext.FindFirst();
         exit(Format(TempNotificationContext."Record ID"));
     end;
 

@@ -35,7 +35,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Manual mode] [Order]
         // [SCENARIO] There is no sales standard codes notification on order validate Sell-to Customer No. when Insert Rec. Lines On Orders = Manual
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Orders = Manual
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Manual);
@@ -58,7 +58,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Automatic mode] [Order]
         // [SCENARIO] Recurring sales line created on order validate Sell-to Customer No. when Insert Rec. Lines On Orders = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Orders = Automatic
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic);
@@ -81,7 +81,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Always Ask mode] [Order]
         // [SCENARIO] Standard codes notification created on order validate Sell-to Customer No. when Insert Rec. Lines On Orders = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Orders = "Always Ask"
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::"Always Ask");
@@ -104,10 +104,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Order]
         // [SCENARIO] There is no sales standard codes notification on order validate Sell-to Customer No. for customer without Standard Sales Codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST without standard sales codes
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Create new sales order
         CreateSalesOrder(SalesHeader);
 
@@ -129,10 +129,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [UT] [Automatic mode] [Order]
         // [SCENARIO] There is no sales standard codes notification on order validate Sell-to Customer No. for customer with multiple Standard Sales Codes where Insert Rec. Lines On Orders = Automatic and cancel lookup list of standard codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST without standard codes
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] New sales order
         CreateSalesOrder(SalesHeader);
@@ -161,10 +161,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [UT] [Always Ask mode] [Order]
         // [SCENARIO] There is no sales standard codes notification on GetSalesRecurringLines run for customer with multiple Standard Sales Codes where Insert Rec. Lines On Orders = "Always Ask" and cancel lookup list of standard codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST without standard codes
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] New sales order
         CreateSalesOrder(SalesHeader);
 
@@ -192,10 +192,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [UT] [Automatic mode] [Order]
         // [SCENARIO] Sales line created by GetSalesRecurringLines for customer with multiple Standard Sales Codes when Insert Rec. Lines On Orders = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST without standard codes
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] New sales order
         CreateSalesOrder(SalesHeader);
         // [GIVEN] Set Sell-to Customer No. = CUST
@@ -221,10 +221,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [UT] [Always Ask mode] [Order]
         // [SCENARIO] Sales line created by GetSalesRecurringLines for customer with multiple Standard Sales Codes when Insert Rec. Lines On Cr. Memos = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST without standard codes
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] New sales order
         CreateSalesOrder(SalesHeader);
         // [GIVEN] Set Sell-to Customer No. = CUST
@@ -248,7 +248,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Manual mode] [Quote]
         // [SCENARIO] There is no sales standard codes notification on quote validate Sell-to Customer No. when Insert Rec. Lines On Quotes = Manual
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Quotes = Manual
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Quote, RefMode::Manual);
@@ -271,7 +271,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Automatic mode] [Quote]
         // [SCENARIO] Recurring sales line created on quote validate Sell-to Customer No. when Insert Rec. Lines On Quotes = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Quotes = Automatic
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Quote, RefMode::Automatic);
@@ -294,7 +294,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Always Ask mode] [Quote]
         // [SCENARIO] Standard codes notification created on quote validate Sell-to Customer No. when Insert Rec. Lines On Quotes = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Quotes = "Always Ask"
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Quote, RefMode::"Always Ask");
@@ -317,10 +317,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Quote]
         // [SCENARIO] There is no sales standard codes notification on quote validate Sell-to Customer No. for customer without Standard Sales Codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST without standard sales codes
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Create new sales quote
         CreateSalesQuote(SalesHeader);
 
@@ -340,7 +340,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Manual mode] [Invoice]
         // [SCENARIO] There is no sales standard codes notification on invoice validate Sell-to Customer No. when Insert Rec. Lines On Invoices = Manual
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Invoices = Manual
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Invoice, RefMode::Manual);
@@ -363,7 +363,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Automatic mode] [Invoice]
         // [SCENARIO] Recurring sales line created on invoice validate Sell-to Customer No. when Insert Rec. Lines On Invoices = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Invoices = Automatic
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Invoice, RefMode::Automatic);
@@ -386,7 +386,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Always Ask mode] [Invoice]
         // [SCENARIO] Standard codes notification created on invoice validate Sell-to Customer No. when Insert Rec. Lines On Invoices = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Invoices = "Always Ask"
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Invoice, RefMode::"Always Ask");
@@ -409,10 +409,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO] There is no sales standard codes notification on invoice validate Sell-to Customer No. for customer without Standard Sales Codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST without standard sales codes
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Create new sales invoice
         CreateSalesInvoice(SalesHeader);
 
@@ -432,7 +432,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Manual mode] [Credit memo]
         // [SCENARIO] There is no sales standard codes notification on cr memo validate Sell-to Customer No. when Insert Rec. Lines On Cr. Memos = Manual
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Cr. Memos = Manual
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::"Credit Memo", RefMode::Manual);
@@ -455,7 +455,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Automatic mode] [Credit memo]
         // [SCENARIO] Recurring sales line created on cr memo validate Sell-to Customer No. when Insert Rec. Lines On Cr. Memos = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Cr. Memos = Automatic
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::"Credit Memo", RefMode::Automatic);
@@ -478,7 +478,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Always Ask mode] [Credit memo]
         // [SCENARIO] There is no sales standard codes notification on cr memo validate Sell-to Customer No. when Insert Rec. Lines On Cr. Memos = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Cr. Memos = "Always Ask"
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::"Credit Memo", RefMode::"Always Ask");
@@ -501,10 +501,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Credit memo]
         // [SCENARIO] There is no sales standard codes notification on cr memo validate Sell-to Customer No. for customer without Standard Sales Codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST without standard sales codes
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Open new sales credit memo card
         CreateSalesCrMemo(SalesHeader);
 
@@ -526,7 +526,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [UI] [Automatic mode] [Order]
         // [SCENARIO 209394] Recurring sales line created when new Sales Order is created from Customer List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Std. Sales Code where Insert Rec. Lines On Orders = Automatic
         Customer.Get(GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic));
@@ -558,7 +558,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [UI] [Automatic mode] [Invoice]
         // [SCENARIO 211206] Standard sales code notification created when new Sales Invoice is created from Customer List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Std. Sales Code where Insert Rec. Lines On Invoices = Automatic
         Customer.Get(GetNewCustNoWithStandardSalesCode(RefDocType::Invoice, RefMode::Automatic));
@@ -590,7 +590,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [UI] [Automatic mode] [Quote]
         // [SCENARIO 211206] Standard sales code notification created when new Sales Quote is created from Customer List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Std. Sales Code where Insert Rec. Lines On Quotes = Automatic
         Customer.Get(GetNewCustNoWithStandardSalesCode(RefDocType::Quote, RefMode::Automatic));
@@ -622,7 +622,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [UI] [Automatic mode] [Credit Memo]
         // [SCENARIO 211206] Standard sales code notification created when new Sales Cr.Memo is created from Customer List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Std. Sales Code where Insert Rec. Lines On Cr. Memos = Automatic
         Customer.Get(GetNewCustNoWithStandardSalesCode(RefDocType::"Credit Memo", RefMode::Automatic));
@@ -653,7 +653,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         // [SCENARIO] Standard Customer Sales Codes new fields are visible for application area #Suite
 
         // [GIVEN] Enable #suite application area
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open page Standard Customer Sales Codes
         StandardCustomerSalesCodes.OpenEdit;
@@ -677,7 +677,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Blanket Order] [UT]
         // [SCENARIO 283678] Standard codes notification is not created for blanket order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Orders = Manual
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Manual);
@@ -701,7 +701,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Return Order] [UT]
         // [SCENARIO 283678] Standard codes notification is not created for return order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Orders = Manual
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Manual);
@@ -725,7 +725,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Order] [UT]
         // [SCENARIO 311677] Standard codes notification is not created when Standard Sales Code currency code <> currency code of sales document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Local currency customer CUST with standard sales code "AA" where Insert Rec. Lines On Orders = "Always Ask"
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::"Always Ask");
@@ -755,7 +755,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         // [FEATURE] [Order] [UT]
         // [SCENARIO 311677] Standard codes notification created when currency code of sales document became same with Standard Sales Code currency code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Local currency customer CUST with standard sales code "AA" where Insert Rec. Lines On Orders = "Always Ask"
         CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::"Always Ask");
@@ -1051,6 +1051,46 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Assert.RecordIsEmpty(StdSalesCode);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketOrderToOrderAutomaticSalesOrderNoRecurringLines()
+    var
+        SalesHeaderBlanketOrder: Record "Sales Header";
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLineBlanketOrder: Record "Sales Line";
+        SalesLineOrder: Record "Sales Line";
+        BlanketSalesOrdertoOrder: Codeunit "Blanket Sales Order to Order";
+    begin
+        // [FEATURE] [Automatic mode] [Blanket Order] [Blanket Order or Order]
+        // [SCENARIO 424805] Recurring purchase lines are NOT added on Quote to Order convert when Insert Rec. Lines On Orders = Automatic
+        Initialize();
+
+        // [GIVEN] Create new sales quote for customer with standard sales code where Insert Rec. Lines On Orders = Automatic
+        LibrarySales.CreateSalesHeader(
+            SalesHeaderBlanketOrder, SalesHeaderBlanketOrder."Document Type"::"Blanket Order",
+            GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic));
+
+        // [GIVEN] Sales Line exists on Sales quote
+        LibrarySales.CreateSalesLine(
+            SalesLineBlanketOrder, SalesHeaderBlanketOrder, SalesLineBlanketOrder.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLineBlanketOrder.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLineBlanketOrder.Modify(true);
+
+        // [WHEN] Run Sales-Quote to Order codeunit on this quote
+        BlanketSalesOrdertoOrder.Run(SalesHeaderBlanketOrder);
+
+        // [THEN] Order created with no errors
+        BlanketSalesOrdertoOrder.GetSalesOrderHeader(SalesHeaderOrder);
+
+        // [THEN] Line from Quote exists on this Order
+        FilterOnSalesLine(SalesLineOrder, SalesHeaderOrder);
+        SalesLineOrder.SetRange("No.", SalesLineBlanketOrder."No.");
+        Assert.RecordIsNotEmpty(SalesLineOrder);
+
+        // [THEN] No other lines were added
+        SalesLineOrder.SetFilter("No.", '<>%1', SalesLineBlanketOrder."No.");
+        Assert.RecordIsEmpty(SalesLineOrder);
+    end;
 
     local procedure Initialize()
     var
@@ -1058,15 +1098,15 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Insert Std. Sales Lines");
-        LibraryVariableStorage.Clear;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryVariableStorage.Clear();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Insert Std. Sales Lines");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Insert Std. Sales Lines");
     end;
@@ -1115,7 +1155,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         StandardSalesLine."Standard Sales Code" := CreateStandardSalesCode;
         StandardSalesLine.Type := StandardSalesLine.Type::Item;
-        StandardSalesLine."No." := LibraryInventory.CreateItemNo;
+        StandardSalesLine."No." := LibraryInventory.CreateItemNo();
         StandardSalesLine.Quantity := LibraryRandom.RandDec(10, 2);
         StandardSalesLine.Insert();
         exit(StandardSalesLine."Standard Sales Code")
@@ -1189,9 +1229,9 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
         StandardCustomerSalesCode.SetRange("Customer No.", CustomerNo);
-        StandardCustomerSalesCode.FindFirst;
+        StandardCustomerSalesCode.FindFirst();
         StandardSalesLine.SetRange("Standard Sales Code", StandardCustomerSalesCode.Code);
-        StandardSalesLine.FindFirst;
+        StandardSalesLine.FindFirst();
     end;
 
     local procedure GetNewCustNoWithStandardSalesCode(DocType: Option; Mode: Integer): Code[20]
@@ -1334,7 +1374,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
           StandardCodesMgt.GetSalesRecurringLinesNotificationId,
           TempNotificationContext."Notification ID",
           InvalidNotificationIdMsg);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure VerifySalesStdCodesNotificationId()
@@ -1348,7 +1388,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
           StandardCodesMgt.GetSalesRecurringLinesNotificationId,
           TempNotificationContext."Notification ID",
           InvalidNotificationIdMsg);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [ModalPageHandler]
@@ -1378,7 +1418,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         if not (Notification.Id = StandardCodesMgt.GetSalesRecurringLinesNotificationId()) then
             exit;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Evaluate(SalesHeader."Document Type", Notification.GetData(SalesHeader.FieldName("Document Type")));
         SalesHeader."No." := Notification.GetData(SalesHeader.FieldName("No."));
         LibraryVariableStorage.Enqueue(SalesHeader."Document Type");

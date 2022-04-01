@@ -120,12 +120,6 @@ page 8902 "Human Resources Manager RC"
                     Caption = 'Human Resources Units of Measure';
                     RunObject = page "Human Res. Units of Measure";
                 }
-                // action("Causes of Absence")
-                // {
-                //     ApplicationArea = BasicHR;
-                //     Caption = 'Causes of Absence';
-                //     RunObject = page "Causes of Absence";
-                // }
                 action("Causes of Inactivity")
                 {
                     ApplicationArea = BasicHR;
@@ -181,6 +175,6 @@ page 8902 "Human Resources Manager RC"
                     RunObject = page "Employee Statistics Groups";
                 }
             }
-        }
+       }
     }
 }

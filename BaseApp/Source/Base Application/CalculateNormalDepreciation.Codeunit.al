@@ -615,7 +615,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1',
           DepreciationCalc.ToMorrow(FADeprBook."Depreciation Starting Date", Year365Days));
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         NewYearDate := AccountingPeriod."Starting Date";
         if FirstDeprDate >= NewYearDate then
             exit(false);

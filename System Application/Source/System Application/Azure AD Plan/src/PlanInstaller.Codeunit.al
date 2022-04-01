@@ -13,6 +13,15 @@ codeunit 9056 "Plan Installer"
 
     trigger OnInstallAppPerDatabase()
     var
+        PlanConfigurationImpl: Codeunit "Plan Configuration Impl.";
+    begin
+        CreatePlans();
+
+        PlanConfigurationImpl.CreateDefaultPlanConfigurations();
+    end;
+
+    local procedure CreatePlans()
+    var
         PlanIds: Codeunit "Plan Ids";
         UpgradeTag: Codeunit "Upgrade Tag";
         PlanUpgradeTag: Codeunit "Plan Upgrade Tag";

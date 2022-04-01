@@ -67,7 +67,7 @@ report 97 "Date Compr. G/L Budget Entries"
                 UpdateAnalysisView: Codeunit "Update Analysis View";
             begin
                 InsertRegister;
-                if AnalysisView.FindFirst then
+                if AnalysisView.FindFirst() then
                     if LowestEntryNo < 2147483647 then
                         UpdateAnalysisView.SetLastBudgetEntryNo(LowestEntryNo - 1);
                 if UseDataArchive then
@@ -92,7 +92,7 @@ report 97 "Date Compr. G/L Budget Entries"
                 DateComprReg."Table ID" := DATABASE::"G/L Budget Entry";
                 DateComprReg.Filter := CopyStr(GetFilters, 1, MaxStrLen(DateComprReg.Filter));
 
-                if AnalysisView.FindFirst then begin
+                if AnalysisView.FindFirst() then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Compr. G/L Budget Entries", true);
                     if not SkipAnalysisViewUpdateCheck then
                         AnalysisView.CheckViewsAreUpdated;

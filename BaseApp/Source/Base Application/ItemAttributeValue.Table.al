@@ -305,7 +305,7 @@ table 7501 "Item Attribute Value"
         DeleteAll();
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.SetRange("No.", KeyValue);
-        if ItemAttributeValueMapping.FindSet then
+        if ItemAttributeValueMapping.FindSet() then
             repeat
                 if ItemAttributeValue.Get(ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID") then begin
                     TransferFields(ItemAttributeValue);
@@ -328,7 +328,7 @@ table 7501 "Item Attribute Value"
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::"Item Category");
         repeat
             ItemAttributeValueMapping.SetRange("No.", CategoryCode);
-            if ItemAttributeValueMapping.FindSet then
+            if ItemAttributeValueMapping.FindSet() then
                 repeat
                     if ItemAttributeValue.Get(ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID") then
                         if not AttributeExists(ItemAttributeValue."Attribute ID") then begin

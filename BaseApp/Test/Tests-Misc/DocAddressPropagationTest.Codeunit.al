@@ -40,7 +40,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Purchase]
         // [SCENARIO] Changes to Purchase Header Buy-from Address fields should propagate to Pay-to Address fields when the field values are equal
         // [GIVEN] Purchase Header with matching Buy-from address fields and Pay-to address fields
-        Initialize;
+        Initialize();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         CreateTempVendor(Vendor);
@@ -64,7 +64,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Purchase]
         // [SCENARIO] Changes to Purchase Header Buy-from Address fields should not propagate to Pay-to Address fields when the field values are not equal
         // [GIVEN] Purchase Header with non-matching Buy-from address fields and Pay-to address fields
-        Initialize;
+        Initialize();
         PurchaseHeader."Pay-to Address" := 'New Pay-to Address';
         PurchaseHeader."Pay-to Address 2" := 'New Pay-to Address2';
         CountryRegion.Next(LibraryRandom.RandInt(CountryRegion.Count));
@@ -102,7 +102,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Purchase]
         // [SCENARIO] Changes to Purchase Header Buy-from Address fields should not propagate to Pay-to Address fields when the field values are not equal
         // [GIVEN] Purchase Header with non-matching Buy-from address fields and Pay-to address fields
-        Initialize;
+        Initialize();
         PurchaseHeader."Pay-to Address" := 'New Pay-to Address';
 
         DeltaPayToAddress2 := PurchaseHeader."Pay-to Address 2";
@@ -133,7 +133,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Purchase]
         // [SCENARIO] Changes to Purchase Header Buy-from Address fields should not propagate to Pay-to Address fields when the field values are not equal
         // [GIVEN] Purchase Header with non-matching Buy-from address fields and Pay-to address fields
-        Initialize;
+        Initialize();
         PurchaseHeader."Pay-to Address 2" := 'New Pay-to Address2';
 
         DeltaPayToAddress := PurchaseHeader."Pay-to Address";
@@ -164,7 +164,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Purchase]
         // [SCENARIO] Changes to Purchase Header Buy-from Address fields should not propagate to Pay-to Address fields when the field values are not equal
         // [GIVEN] Purchase Header with non-matching Buy-from address fields and Pay-to address fields
-        Initialize;
+        Initialize();
         PurchaseHeader."Pay-to City" := 'New Pay-to City';
 
         DeltaPayToAddress := PurchaseHeader."Pay-to Address";
@@ -195,7 +195,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Purchase]
         // [SCENARIO] Changes to Purchase Header Buy-from Address fields should not propagate to Pay-to Address fields when the field values are not equal
         // [GIVEN] Purchase Header with non-matching Buy-from address fields and Pay-to address fields
-        Initialize;
+        Initialize();
         PurchaseHeader."Pay-to Post Code" := 'New Pay-to Post Code';
 
         DeltaPayToAddress := PurchaseHeader."Pay-to Address";
@@ -227,7 +227,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Purchase]
         // [SCENARIO] Changes to Purchase Header Buy-from Address fields should not propagate to Pay-to Address fields when the field values are not equal
         // [GIVEN] Purchase Header with non-matching Buy-from address fields and Pay-to address fields
-        Initialize;
+        Initialize();
         PurchaseHeader."Pay-to County" := 'New Pay-to County';
 
         DeltaPayToAddress := PurchaseHeader."Pay-to Address";
@@ -260,7 +260,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Purchase]
         // [SCENARIO] Changes to Purchase Header Buy-from Address fields should not propagate to Pay-to Address fields when the field values are not equal
         // [GIVEN] Purchase Header with non-matching Buy-from address fields and Pay-to address fields
-        Initialize;
+        Initialize();
         CountryRegion.Next(LibraryRandom.RandInt(CountryRegion.Count));
         PurchaseHeader.Validate("Pay-to Country/Region Code", CountryRegion.Code);
         DeltaCountryRegionCode := CountryRegion.Code;
@@ -290,7 +290,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should propagate to Ship-to Address fields when the field values are equal
         // [GIVEN] Sales Header with matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         CreateTempCustomer(Customer);
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -313,7 +313,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         SalesHeader."Ship-to Address" := 'New Sell-to Address';
         SalesHeader."Ship-to Address 2" := 'New Sell-to Address2';
         SalesHeader."Ship-to City" := 'New Sell-to City';
@@ -350,7 +350,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when "Ship-to Code" is set
         // [GIVEN] Sales Header with "Ship-to Code" set
-        Initialize;
+        Initialize();
         CreateTempCustomer(Customer);
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
@@ -393,7 +393,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         SalesHeader."Ship-to Address" := 'New Ship-to Address';
 
         DeltaShipToAddress2 := SalesHeader."Ship-to Address 2";
@@ -424,7 +424,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         SalesHeader."Ship-to Address 2" := 'New Ship-to Address2';
 
         DeltaShipToAddress := SalesHeader."Ship-to Address";
@@ -455,7 +455,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         SalesHeader."Ship-to City" := 'New Ship-to City';
 
         DeltaShipToAddress := SalesHeader."Ship-to Address";
@@ -486,7 +486,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         SalesHeader."Ship-to Post Code" := 'New Ship-to PostCode';
 
         DeltaShipToAddress := SalesHeader."Ship-to Address";
@@ -518,7 +518,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         SalesHeader."Ship-to County" := 'New Ship-to County';
 
         DeltaShipToAddress := SalesHeader."Ship-to Address";
@@ -551,7 +551,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         CountryRegion.Next(LibraryRandom.RandInt(CountryRegion.Count));
         SalesHeader.Validate("Ship-to Country/Region Code", CountryRegion.Code);
         DeltaCountryRegionCode := CountryRegion.Code;
@@ -581,7 +581,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Service]
         // [SCENARIO] Changes to Service Header Address fields should propagate to Ship-to Address fields when the field values are equal
         // [GIVEN] Service Header with matching address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         CreateTempCustomer(Customer);
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
 
@@ -602,7 +602,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Service]
         // [SCENARIO] Changes to Service Order General Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Service Order with non-matching general address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         ServiceHeader."Ship-to Address" := 'New Ship-to Address';
         ServiceHeader."Ship-to Address 2" := 'New Ship-to Address2';
         ServiceHeader."Ship-to City" := 'New Ship-to City';
@@ -641,7 +641,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Service]
         // [SCENARIO] Changes to Service Header General Address fields should not propagate to Ship-to Address fields when "Ship-to Code" is set
         // [GIVEN] Service Header with "Ship-to Code" set
-        Initialize;
+        Initialize();
         CreateTempCustomer(Customer);
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
@@ -683,7 +683,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         ServiceHeader."Ship-to Address" := 'New Ship-to Address';
 
         DeltaShipToAddress2 := ServiceHeader."Ship-to Address 2";
@@ -714,7 +714,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         ServiceHeader."Ship-to Address 2" := 'New Ship-to Address2';
 
         DeltaShipToAddress := ServiceHeader."Ship-to Address";
@@ -745,7 +745,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         ServiceHeader."Ship-to City" := 'New Ship-to City';
 
         DeltaShipToAddress := ServiceHeader."Ship-to Address";
@@ -776,7 +776,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         ServiceHeader."Ship-to Post Code" := 'New Ship-to PostCode';
 
         DeltaShipToAddress := ServiceHeader."Ship-to Address";
@@ -808,7 +808,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         ServiceHeader."Ship-to County" := 'New Ship-to County';
 
         DeltaShipToAddress := ServiceHeader."Ship-to Address";
@@ -841,7 +841,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should not propagate to Ship-to Address fields when the field values are not equal
         // [GIVEN] Sales Header with non-matching Sell-to address fields and Ship-to address fields
-        Initialize;
+        Initialize();
         CountryRegion.Next(LibraryRandom.RandInt(CountryRegion.Count));
         ServiceHeader.Validate("Ship-to Country/Region Code", CountryRegion.Code);
         DeltaCountryRegionCode := CountryRegion.Code;
@@ -873,7 +873,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Sell-to Address fields should propagate to Customer Address fields when the Notification action is pressed
-        Initialize;
+        Initialize();
         CreateTempCustomer(Customer);
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
 
@@ -904,7 +904,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Changes to Sales Header Bill-to Address fields should propagate to Customer Address fields when the Notification action is pressed
-        Initialize;
+        Initialize();
         CreateTempCustomer(Customer);
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
 
@@ -1000,7 +1000,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         MyNotificationsPage: TestPage "My Notifications";
     begin
         // [GIVEN] A user
-        Initialize;
+        Initialize();
         LibraryPermissions.CreateWindowsUser(User, UserId);
 
         // [WHEN] My Notifications Page is opened
@@ -1021,7 +1021,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 263931] Customer Address is not changed after Sales Header Sell-to/Bill-to Address change, when "Ignore Updated Addresses" flag is set.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Ignore Updated Addresses" flag is set.
         LibrarySales.EnableSalesSetupIgnoreUpdatedAddresses;
@@ -1051,7 +1051,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 263931] Vendor Address is not changed after Purchase Header Buy-from/Pay-to Address change, when "Ignore Updated Addresses" flag is set.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Ignore Updated Addresses" flag is set.
         LibraryPurchase.EnablePurchSetupIgnoreUpdatedAddresses;
@@ -1080,7 +1080,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     begin
         // [FEATURE] [UI] [Sales Receivables Setup]
         // [SCENARIO 263931] "Ignore Updated Addresses" field is visible and editable on Sales Setup page in Basic Application Area setup.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
 
         // [GIVEN] "Ignore Updated Addresses" initial state is FALSE.
@@ -1109,7 +1109,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     begin
         // [FEATURE] [UI] [Purchases Payables Setup]
         // [SCENARIO 263931] "Ignore Updated Addresses" field is visible and editable on Purchases Setup page in Basic Application Area setup.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
 
         // [GIVEN] "Ignore Updated Addresses" initial state is FALSE.
@@ -1141,7 +1141,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         // [FEATURE] [Sales]
         // [SCENARIO] Ship-to Code from Customer should propagate to Ship-to Address fields
         // [GIVEN] Sales Header created for Customer with "Ship-to Code" set
-        Initialize;
+        Initialize();
         CreateTempCustomer(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
         Customer."Ship-to Code" := ShipToAddress.Code;
@@ -1167,7 +1167,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 324316] Ship-to Code should propagate from "Sell-to Customer"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with 'Ship-to Code' "X"
         CreateCustomerWithShipToCode(SellToCustomer);
@@ -1193,7 +1193,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 331966] Ship-to Code should propagate from Customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created customer C1 with "Ship-to Code"=X
         CreateCustomerWithShipToCode(Customer);
@@ -1208,7 +1208,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Doc. Address Propagation Test");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Doc. Address Propagation Test");

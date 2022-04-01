@@ -85,7 +85,6 @@ page 7604 "Base Calendar Entries Subform"
     trigger OnFindRecord(Which: Text): Boolean
     var
         FoundDate: Boolean;
-        FoundLine: Boolean;
     begin
         FoundDate := PeriodPageMgt.FindDate(Which, DateRec, "Analysis Period Type"::Day);
         if not FoundDate then
@@ -98,7 +97,6 @@ page 7604 "Base Calendar Entries Subform"
 
     trigger OnNextRecord(Steps: Integer): Integer
     var
-        FoundLine: Boolean;
         ResultSteps: Integer;
     begin
         ResultSteps := PeriodPageMgt.NextDate(Steps, DateRec, "Analysis Period Type"::Day);
@@ -156,7 +154,7 @@ page 7604 "Base Calendar Entries Subform"
         BaseCalendarChange.Reset();
         BaseCalendarChange.SetRange("Base Calendar Code", "Base Calendar Code");
         BaseCalendarChange.SetRange(Date, Date);
-        if BaseCalendarChange.FindFirst then
+        if BaseCalendarChange.FindFirst() then
             BaseCalendarChange.Delete();
         BaseCalendarChange.Init();
         BaseCalendarChange."Base Calendar Code" := "Base Calendar Code";
@@ -164,12 +162,12 @@ page 7604 "Base Calendar Entries Subform"
         BaseCalendarChange.Description := Description;
         BaseCalendarChange.Nonworking := Nonworking;
         BaseCalendarChange.Day := Day;
-        OnUpdateBaseCalendarChanges(BaseCalendarChange);
+        OnUpdateBaseCalendarChanges(BaseCalendarChange, Rec);
         BaseCalendarChange.Insert();
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateBaseCalendarChanges(var BaseCalendarChange: Record "Base Calendar Change")
+    local procedure OnUpdateBaseCalendarChanges(var BaseCalendarChange: Record "Base Calendar Change"; var CustCalendarChange: Record "Customized Calendar Change")
     begin
     end;
 }

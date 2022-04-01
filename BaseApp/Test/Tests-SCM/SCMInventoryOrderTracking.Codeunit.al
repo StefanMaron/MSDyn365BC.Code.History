@@ -37,7 +37,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Released Production Order created after Calculate Regenerative Plan and Carry Out Action Message on Planning Worksheet.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupForReleasedProductionOrder(ProdOrderLine);
 
         // Exercise: Open Order Tracking Page.
@@ -61,7 +61,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         Quantity: Decimal;
     begin
         // Setup: Create Production and Component Item.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
         CreateItem(ComponentItem, ComponentItem."Replenishment System"::Purchase, ComponentItem."Order Tracking Policy"::"Tracking Only");
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
@@ -104,11 +104,11 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Firm Planned Production Order Component Item, which have Planned Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(50);  // Random Integer Value required.
         SetupForOrderTracking(ProductionOrder, Quantity);
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder);
-        ProdOrderComponent.FindFirst;  // Find component Item 1.
+        ProdOrderComponent.FindFirst();  // Find component Item 1.
         EnqueueForOrderTracking(ProductionOrder.Quantity, -Quantity, 0, ProdOrderComponent."Item No.");  // Enqueue values for Order Tracking page handler.
 
         // Exercise: Check order tracking for Component items of Firm Planned Production Order Line.
@@ -129,11 +129,11 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Firm Planned Production Order Component Item which used in another Firm Planned Prod. Order as a Component Item.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(50);  // Random Integer Value required.
         SetupForOrderTracking(ProductionOrder, Quantity);
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder);
-        ProdOrderComponent.FindLast;  // Find component Item 2.
+        ProdOrderComponent.FindLast();  // Find component Item 2.
         EnqueueForOrderTracking(ProductionOrder.Quantity, -Quantity, 0, ProdOrderComponent."Item No.");  // Enqueue values for Order Tracking page handler.
 
         // Exercise: Check order tracking for Component items of Firm Planned Production Order Line.
@@ -156,13 +156,13 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Planning line Component Item, which have Purchase Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(15);  // Random Integer Value required.
         PurchaseQuantity := Quantity + LibraryRandom.RandInt(5);
         SetupForPlanningWkstComponentOrderTrkg(RequisitionLine, Quantity, PurchaseQuantity);
         UntrackedQuantity := RequisitionLine.Quantity - PurchaseQuantity;
         FindPlanningComponent(PlanningComponent, RequisitionLine);
-        PlanningComponent.FindFirst;  // Find Component Item 1.
+        PlanningComponent.FindFirst();  // Find Component Item 1.
         EnqueueForOrderTracking(
           RequisitionLine.Quantity, UntrackedQuantity - RequisitionLine.Quantity, UntrackedQuantity, PlanningComponent."Item No.");  // Enqueue values for Order Tracking page handler.
 
@@ -186,13 +186,13 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Planning line Component Item, which have another Planning line.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(15);  // Random Integer Value required.
         PurchaseQuantity := Quantity + LibraryRandom.RandInt(5);
         SetupForPlanningWkstComponentOrderTrkg(RequisitionLine, Quantity, PurchaseQuantity);
         UntrackedQuantity := RequisitionLine.Quantity - Quantity;
         FindPlanningComponent(PlanningComponent, RequisitionLine);
-        PlanningComponent.FindLast;  // Find Component Item 2.
+        PlanningComponent.FindLast();  // Find Component Item 2.
         EnqueueForOrderTracking(
           RequisitionLine.Quantity, UntrackedQuantity - RequisitionLine.Quantity, UntrackedQuantity, PlanningComponent."Item No.");  // Enqueue values for Order Tracking page handler.
 
@@ -276,12 +276,12 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Component Lines of Planning Worksheet Line, component item partially received from purchase order.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Random Integer Value required.
         PurchaseQuantity := Quantity + LibraryRandom.RandInt(10);  // Purchase Quantity should be more than Requisition Line Quantity.
         SetupForPlanningWkshLineOrderTrkg(RequisitionLine, Quantity, PurchaseQuantity);
         FindPlanningComponent(PlanningComponent, RequisitionLine);
-        PlanningComponent.FindFirst;  // Find Component Item 1.
+        PlanningComponent.FindFirst();  // Find Component Item 1.
         UntrackedQuantity := RequisitionLine.Quantity - PurchaseQuantity;
         EnqueueForOrderTracking(
           RequisitionLine.Quantity, UntrackedQuantity - RequisitionLine.Quantity, UntrackedQuantity, PlanningComponent."Item No.");  // Enqueue values for Order Tracking page handler.
@@ -306,12 +306,12 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Component Lines of Planning Worksheet Line, component item partially exist in Planning Worksheet Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Random Integer Value required.
         PurchaseQuantity := Quantity + LibraryRandom.RandInt(10);  // Purchase Quantity should be more than Requisition Line Quantity.
         SetupForPlanningWkshLineOrderTrkg(RequisitionLine, Quantity, PurchaseQuantity);
         FindPlanningComponent(PlanningComponent, RequisitionLine);
-        PlanningComponent.FindLast;  // Find Component Item 2.
+        PlanningComponent.FindLast();  // Find Component Item 2.
         UntrackedQuantity := RequisitionLine.Quantity - Quantity;
         EnqueueForOrderTracking(
           RequisitionLine.Quantity, UntrackedQuantity - RequisitionLine.Quantity, UntrackedQuantity, PlanningComponent."Item No.");  // Enqueue values for Order Tracking page handler.
@@ -343,7 +343,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Released Production Order after creating Planning Line for Source item.
 
         // Setup: Create Production and Component Item.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
         CreateItem(ComponentItem, ComponentItem."Replenishment System"::Purchase, ComponentItem."Order Tracking Policy"::"Tracking Only");
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
@@ -395,7 +395,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Firm Planned Production Order Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupForFirmPlannedProdOrderLine(ProductionOrder, false);
         EnqueueForOrderTracking(ProductionOrder.Quantity, ProductionOrder.Quantity, 0, ProductionOrder."Source No.");  // Enqueue values for Order Tracking page handler.
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."Source No.", '');  // Use blank for Location Code.
@@ -417,10 +417,10 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Component Line of Firm Planned Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupForFirmPlannedProdOrderLine(ProductionOrder, true);
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder);
-        ProdOrderComponent.FindFirst;  // Find component Item 1.
+        ProdOrderComponent.FindFirst();  // Find component Item 1.
         EnqueueForOrderTracking(ProductionOrder.Quantity, -ProductionOrder.Quantity, 0, ProdOrderComponent."Item No.");  // Enqueue values for Order Tracking page handler.
 
         // Exercise: Check order tracking for Firm Planned Production Order's Component Items.
@@ -440,10 +440,10 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Component Lines of Released Production Order, component item have another Released Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupForRlsdProdOrderComponentLineTrkg(ProductionOrder);
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder);
-        ProdOrderComponent.FindLast;  // Find component Item 2.
+        ProdOrderComponent.FindLast();  // Find component Item 2.
         EnqueueForOrderTracking(ProductionOrder.Quantity, -ProductionOrder.Quantity, 0, ProdOrderComponent."Item No.");  // Enqueue values for Order Tracking page handler.
 
         // Exercise: Check Production Order's Component Lines Order Tracking.
@@ -463,10 +463,10 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking Line for Component Lines of Released Production Order, component item have Requisition Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupForRlsdProdOrderComponentLineTrkg(ProductionOrder);
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder);
-        ProdOrderComponent.FindFirst;  // Find component Item 1.
+        ProdOrderComponent.FindFirst();  // Find component Item 1.
         EnqueueForOrderTracking(ProductionOrder.Quantity, -ProductionOrder.Quantity, 0, ProdOrderComponent."Item No.");  // Enqueue values for Order Tracking page handler.
 
         // Exercise: Check Production Order's Component Lines Order Tracking.
@@ -487,7 +487,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking for Purchase Receipt Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking Only");
         Quantity := LibraryRandom.RandInt(5);  // Random Integer Value required.
@@ -514,7 +514,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking for Sale Order Line which have item that reserved as a Item Ledger Entry and Purchase Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking Only");
         Quantity := LibraryRandom.RandInt(5);  // Random Integer Value required.
@@ -548,7 +548,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking for Sale Order Line which have item that reserved as a Item Ledger Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking Only");
         Quantity := LibraryRandom.RandInt(5);  // Random Integer Value required.
@@ -578,7 +578,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         // Verify Order Tracking for Simulated Production Order Line which have item that exist in another Simulated Prod. Order and Sales Quotes.
 
         // Setup: Create Item, Simulated Production Order, Sales Quote.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking & Action Msg.");
         CreateAndRefreshProdOrder(
@@ -650,15 +650,15 @@ codeunit 137250 "SCM Inventory Order Tracking"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Order Tracking");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Order Tracking");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -811,7 +811,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Item No.", ItemNo);
         ProdOrderLine.SetRange("Location Code", LocationCode);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20]; LocationCode: Code[10])
@@ -819,14 +819,14 @@ codeunit 137250 "SCM Inventory Order Tracking"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindWorksheetTemplate(var RequisitionWkshName: Record "Requisition Wksh. Name"; TemplateType: Option)
     begin
         RequisitionWkshName.SetRange("Template Type", TemplateType);
         RequisitionWkshName.SetRange(Recurring, false);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
     end;
 
     local procedure FindPickZone(LocationCode: Code[10]): Code[10]
@@ -836,7 +836,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(false, false, true, true));
         Zone.SetRange("Cross-Dock Bin Zone", false);
-        Zone.FindFirst;
+        Zone.FindFirst();
         exit(Zone.Code);
     end;
 
@@ -846,7 +846,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
     begin
         // Open Order Tracking page for required Planning Line Component.
         OrderTracking.SetPlanningComponent(PlanningComponent);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure OpenOrderTrkgForProduction(ProdOrderLine: Record "Prod. Order Line")
@@ -855,7 +855,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
     begin
         // Open Order Tracking page for required Production Order.
         OrderTracking.SetProdOrderLine(ProdOrderLine);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure OpenOrderTrkgForProductionComponent(ProdOrderComponent: Record "Prod. Order Component")
@@ -864,7 +864,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
     begin
         // Open Order Tracking page for required Production Order Component.
         OrderTracking.SetProdOrderComponent(ProdOrderComponent);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure OpenOrderTrkgForPurchaseReceipt(No: Code[20])
@@ -883,7 +883,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
     begin
         // Open Order Tracking page for required Sales Order.
         OrderTracking.SetSalesLine(SalesLine);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure SetupForOrderTracking(var ProductionOrder2: Record "Production Order"; Quantity: Decimal)
@@ -1016,7 +1016,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         TemplateType: Option "Req.","For. Labor",Planning;
     begin
         // Creating 3 Component Items and 2 Production Items with Order Tacking Policy and Replanishment System.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
         CreateItem(ComponentItem, ComponentItem."Replenishment System"::Purchase, ComponentItem."Order Tracking Policy"::"Tracking Only");
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
@@ -1094,7 +1094,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         TemplateType: Option "Req.","For. Labor",Planning;
     begin
         // Setup. Create 3 Component Items and 2 Production Items with Order Tacking Policy and Replanishment System.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
         CreateItem(ComponentItem, ComponentItem."Replenishment System"::Purchase, ComponentItem."Order Tracking Policy"::"Tracking Only");
         LibraryVariableStorage.Enqueue(OrderTrackingPolicyMsg);  // Enqueue value for message handler.
@@ -1151,7 +1151,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.Validate("Due Date", ProductionOrder."Due Date");
         ProdOrderLine.Validate("Starting Date", CalcDate('<-1D>', ProdOrderLine."Due Date"));  // Take 1 because Starting Date and Ending Date should be just less than 1day of Due Date.
         ProdOrderLine.Validate("Ending Date", ProdOrderLine."Starting Date");

@@ -1889,7 +1889,7 @@ codeunit 136506 "New Time Sheet Experience"
         Date.SetRange("Period Type", Date."Period Type"::Date);
         Date.SetFilter("Period Start", '%1..', StartingDate);
         Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
-        Date.FindFirst;
+        Date.FindFirst();
     end;
 
     local procedure SetupTSResourceUserID(var Resource: Record Resource; UserSetup: Record "User Setup")

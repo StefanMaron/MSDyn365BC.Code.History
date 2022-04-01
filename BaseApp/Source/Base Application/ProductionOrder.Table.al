@@ -97,7 +97,7 @@ table 5405 "Production Order"
                             InitFromSourceNo(
                               Item.Description, Item."Description 2", Item."Routing No.",
                               Item."Inventory Posting Group", Item."Gen. Prod. Posting Group", '', Item."Unit Cost");
-                            CreateDim(DATABASE::Item, "Source No.");
+                            CreateDimFromDefaultDim();
                             OnBeforeAssignItemNo(Rec, xRec, Item, CurrFieldNo);
                         end;
                     "Source Type"::Family:
@@ -188,13 +188,8 @@ table 5405 "Production Order"
         field(20; "Starting Time"; Time)
         {
             Caption = 'Starting Time';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Starting Date-Time field should be used instead.';
-            ObsoleteTag = '17.0';
 
             trigger OnValidate()
-            var
-                IsHandled: Boolean;
             begin
                 UpdateStartingEndingTime(0);
             end;
@@ -202,9 +197,6 @@ table 5405 "Production Order"
         field(21; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Starting Date-Time field should be used instead.';
-            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -214,9 +206,6 @@ table 5405 "Production Order"
         field(22; "Ending Time"; Time)
         {
             Caption = 'Ending Time';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Ending Date-Time field should be used instead.';
-            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -226,9 +215,6 @@ table 5405 "Production Order"
         field(23; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Ending Date-Time field should be used instead.';
-            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -331,6 +317,7 @@ table 5405 "Production Order"
                 GetDefaultBin;
 
                 Validate("Due Date"); // Scheduling consider Calendar assigned to Location
+                CreateDimFromDefaultDim();
             end;
         }
         field(33; "Bin Code"; Code[20])
@@ -931,17 +918,17 @@ table 5405 "Production Order"
             exit;
 
         EarliestLatestProdOrderLine.SetCurrentKey("Starting Date-Time");
-        EarliestLatestProdOrderLine.FindFirst;
+        EarliestLatestProdOrderLine.FindFirst();
         "Starting Date" := EarliestLatestProdOrderLine."Starting Date";
         "Starting Time" := EarliestLatestProdOrderLine."Starting Time";
 
         EarliestLatestProdOrderLine.SetCurrentKey("Ending Date-Time");
-        EarliestLatestProdOrderLine.FindLast;
+        EarliestLatestProdOrderLine.FindLast();
         "Ending Date" := EarliestLatestProdOrderLine."Ending Date";
         "Ending Time" := EarliestLatestProdOrderLine."Ending Time";
 
         EarliestLatestProdOrderLine.SetCurrentKey("Due Date");
-        EarliestLatestProdOrderLine.FindLast;
+        EarliestLatestProdOrderLine.FindLast();
 
         IsHandled := false;
         OnAdjustStartEndingDateOnBeforeSetDueDate(Rec, EarliestLatestProdOrderLine, IsHandled);
@@ -980,20 +967,37 @@ table 5405 "Production Order"
         OnAfterUpdateDateTime(Rec, xRec, CurrFieldNo);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1022,7 +1026,7 @@ table 5405 "Production Order"
     begin
         NavigatePage.SetDoc("Due Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure CreatePick(AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
@@ -1371,16 +1375,81 @@ table 5405 "Production Order"
         Error(Text001, TableCaption);
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Source No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Production Order", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Production Order", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Production Order") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var ProductionOrder: Record "Production Order"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var ProductionOrder: Record "Production Order"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAdjustStartEndingDateOnBeforeSetDueDate(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ProductionOrder: Record "Production Order"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnDelete(var ProductionOrder: Record "Production Order"; var RefreshOrder: Boolean)
     begin

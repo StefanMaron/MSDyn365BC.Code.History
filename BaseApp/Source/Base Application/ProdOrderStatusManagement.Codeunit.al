@@ -56,14 +56,6 @@ codeunit 5407 "Prod. Order Status Management"
         Text010: Label 'You must specify a %1 in %2 %3 %4.';
         ProdOrderCompRemainToPickErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.', Comment = '%1: Production Order No.';
 
-#if not CLEAN17
-    [Obsolete('Replaced by ChangeProdOrderStatus with enum parameter NewStatus.', '17.0')]
-    procedure ChangeStatusOnProdOrder(ProdOrder: Record "Production Order"; NewStatus: Option Quote,Planned,"Firm Planned",Released,Finished; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
-    begin
-        ChangeProdOrderStatus(ProdOrder, "Production Order Status".FromInteger(NewStatus), NewPostingDate, NewUpdateUnitCost);
-    end;
-#endif
-
     procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     var
         SuppressCommit: Boolean;
@@ -112,7 +104,7 @@ codeunit 5407 "Prod. Order Status Management"
             InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
     end;
 
-    local procedure TransProdOrder(var FromProdOrder: Record "Production Order")
+    procedure TransProdOrder(var FromProdOrder: Record "Production Order")
     var
         ToProdOrderLine: Record "Prod. Order Line";
     begin
@@ -253,7 +245,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
             LockTable();
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     ToProdOrderRtngLine := FromProdOrderRtngLine;
                     ToProdOrderRtngLine.Status := ToProdOrder.Status;
@@ -291,7 +283,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
             LockTable();
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     if Location.Get("Location Code") and
                        Location."Bin Mandatory" and
@@ -342,7 +334,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
             LockTable();
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     ToProdOrderRoutTool := FromProdOrderRtngTool;
                     ToProdOrderRoutTool.Status := ToProdOrder.Status;
@@ -363,7 +355,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
             LockTable();
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     ToProdOrderRtngPersonnel := FromProdOrderRtngPersonnel;
                     ToProdOrderRtngPersonnel.Status := ToProdOrder.Status;
@@ -384,7 +376,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
             LockTable();
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     ToProdOrderRtngQltyMeas := FromProdOrderRtngQltyMeas;
                     ToProdOrderRtngQltyMeas.Status := ToProdOrder.Status;
@@ -405,7 +397,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
             LockTable();
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     ToProdOrderCommentLine := FromProdOrderCommentLine;
                     ToProdOrderCommentLine.Status := ToProdOrder.Status;
@@ -427,7 +419,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
             LockTable();
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     ToProdOrderRtngComment := FromProdOrderRtngComment;
                     ToProdOrderRtngComment.Status := ToProdOrder.Status;
@@ -448,7 +440,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
             LockTable();
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     ToProdOrderBOMComment := FromProdOrderBOMComment;
                     ToProdOrderBOMComment.Status := ToProdOrder.Status;
@@ -477,7 +469,7 @@ codeunit 5407 "Prod. Order Status Management"
                     DeleteAll();
             end else begin
                 LockTable();
-                if FindSet then begin
+                if FindSet() then begin
                     repeat
                         ToProdOrderCapNeed := FromProdOrderCapNeed;
                         ToProdOrderCapNeed.Status := ToProdOrder.Status;
@@ -521,7 +513,7 @@ codeunit 5407 "Prod. Order Status Management"
         ProdOrderLine.Reset();
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
-        if ProdOrderLine.FindSet then
+        if ProdOrderLine.FindSet() then
             repeat
                 ProdOrderRtngLine.SetCurrentKey("Prod. Order No.", Status, "Flushing Method");
                 if NewStatus = NewStatus::Released then
@@ -558,7 +550,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetFilter("Item No.", '<>%1', '');
             LockTable();
             OnFlushProdOrderOnAfterProdOrderCompSetFilters(ProdOrder, ProdOrderComp);
-            if FindSet then begin
+            if FindSet() then begin
                 NoOfRecords := Count;
                 Window.Open(
                   Text002 +
@@ -577,7 +569,8 @@ codeunit 5407 "Prod. Order Status Management"
                     else begin
                         QtyToPost := GetNeededQty(0, false);
                         if SuppliedByProdOrderLine.Get(Status, "Prod. Order No.", "Supplied-by Line No.") and
-                           (SuppliedByProdOrderLine."Remaining Quantity" = 0)
+                           (SuppliedByProdOrderLine."Remaining Quantity" = 0) or
+                           (Abs(QtyToPost * "Qty. per Unit of Measure" - "Remaining Qty. (Base)") < Item."Rounding Precision")
                         then
                             QtyToPost := GetNeededQty(1, false);
                     end;
@@ -773,7 +766,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange("Prod. Order No.", ProdOrder."No.");
             SetFilter("Outstanding Quantity", '<>%1', 0);
             OnCheckBeforeFinishProdOrderOnAfterSetProdOrderCompFilters(ProdOrderComp);
-            if FindFirst then
+            if FindFirst() then
                 Error(Text008, ProdOrder.TableCaption, ProdOrder."No.", "Document No.");
         end;
 
@@ -784,7 +777,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, ProdOrder.Status);
             SetRange("Prod. Order No.", ProdOrder."No.");
             SetFilter("Remaining Quantity", '<>0');
-            if FindSet then
+            if FindSet() then
                 repeat
                     ProdOrderRtngLine.SetRange(Status, Status);
                     ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
@@ -806,7 +799,7 @@ codeunit 5407 "Prod. Order Status Management"
         with ProdOrderComp do begin
             ShowWarning := false;
             SetProdOrderCompFilters(ProdOrderComp, ProdOrder);
-            if FindSet then
+            if FindSet() then
                 repeat
                     CheckNothingRemainingToPickForProdOrderComp(ProdOrderComp);
                     if (("Flushing Method" <> "Flushing Method"::Backward) and
@@ -854,16 +847,6 @@ codeunit 5407 "Prod. Order Status Management"
         SourceCodeSetupRead := true;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by same with enum parameter NewStatus.', '17.0')]
-    procedure SetPostingInfo(Status: Option Quote,Planned,"Firm Planned",Released,Finished; PostingDate: Date; UpdateUnitCost: Boolean)
-    begin
-        NewStatus := "Production Order Status".FromInteger(Status);
-        NewPostingDate := PostingDate;
-        NewUpdateUnitCost := UpdateUnitCost;
-    end;
-#endif
-
     procedure SetPostingInfo(Status: Enum "Production Order Status"; PostingDate: Date; UpdateUnitCost: Boolean)
     begin
         NewStatus := Status;
@@ -878,7 +861,7 @@ codeunit 5407 "Prod. Order Status Management"
     begin
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
-        if ProdOrderLine.FindSet then
+        if ProdOrderLine.FindSet() then
             repeat
                 IsHandled := false;
                 OnErrorIfUnableToClearWIPOnBeforeError(ProdOrderLine, IsHandled);
@@ -898,7 +881,7 @@ codeunit 5407 "Prod. Order Status Management"
         ItemLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
         ItemLedgEntry.SetRange("Order Line No.", ProdOrderLine."Line No.");
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
-        if ItemLedgEntry.FindFirst then begin
+        if ItemLedgEntry.FindFirst() then begin
             ItemLedgEntry.CalcSums(Quantity);
             if ItemLedgEntry.Quantity <> 0 then
                 exit(true)

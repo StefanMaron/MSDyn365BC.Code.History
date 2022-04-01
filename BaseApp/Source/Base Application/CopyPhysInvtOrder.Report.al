@@ -78,7 +78,7 @@ report 5882 "Copy Phys. Invt. Order"
             PhysInvtOrderLine.LockTable();
             PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
-            if PhysInvtOrderLine.FindLast then
+            if PhysInvtOrderLine.FindLast() then
                 NextLineNo := PhysInvtOrderLine."Line No." + 10000
             else
                 NextLineNo := 10000;
@@ -100,8 +100,7 @@ report 5882 "Copy Phys. Invt. Order"
                                 if FromPhysInvtOrderLine."Item No." <> '' then begin
                                     NoOfOrderLines :=
                                       GetSamePhysInvtOrderLine(
-                                        FromPhysInvtOrderLine."Item No.", FromPhysInvtOrderLine."Variant Code",
-                                        FromPhysInvtOrderLine."Location Code", FromPhysInvtOrderLine."Bin Code",
+                                        FromPhysInvtOrderLine,
                                         ErrorText,
                                         PhysInvtOrderLine2);
                                     if NoOfOrderLines = 0 then begin
@@ -234,7 +233,7 @@ report 5882 "Copy Phys. Invt. Order"
         PhysInvtOrderLine.Validate("Location Code", LocationCode);
         PhysInvtOrderLine.Validate("Bin Code", BinCode);
         PhysInvtOrderLine.Insert(true);
-        PhysInvtOrderLine.CreateDim(DATABASE::Item, PhysInvtOrderLine."Item No.");
+        PhysInvtOrderLine.CreateDimFromDefaultDim();
         if CalcQtyExpected then
             PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
         PhysInvtOrderLine.Modify();

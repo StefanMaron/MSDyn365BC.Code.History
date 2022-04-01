@@ -37,7 +37,7 @@ page 9103 "Pending Approval FactBox"
                 begin
                     ApprovalComments.SetTableView(ApprovalCommentLine);
                     ApprovalComments.SetWorkflowStepInstanceID("Workflow Step Instance ID");
-                    ApprovalComments.RunModal;
+                    ApprovalComments.RunModal();
                     CurrPage.Update();
                 end;
             }
@@ -52,7 +52,7 @@ page 9103 "Pending Approval FactBox"
     begin
         ApprovalCommentLine.SetRange("Table ID", "Table ID");
         ApprovalCommentLine.SetRange("Record ID to Approve", "Record ID to Approve");
-        if ApprovalCommentLine.FindLast then;
+        if ApprovalCommentLine.FindLast() then;
     end;
 
     var

@@ -53,12 +53,12 @@ codeunit 136110 "Service Management Setup"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Management Setup");
 
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
-        LibraryERMCountryData.CreateVATData;
-        LibraryService.SetupServiceMgtNoSeries;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
+        LibraryERMCountryData.CreateVATData();
+        LibraryService.SetupServiceMgtNoSeries();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Management Setup");
@@ -85,7 +85,7 @@ codeunit 136110 "Service Management Setup"
         // 5. Cleanup if Setup was changed.
 
         // Setup: Setup Next Service Calc. Method in Service Management Setup as Planned. Create and sign Service Contract.
-        Initialize;
+        Initialize();
         SetupModified := SetupServiceMgtSetupPlanned;
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate(Prepaid, true);
@@ -126,7 +126,7 @@ codeunit 136110 "Service Management Setup"
         // 5. Cleanup if Setup was changed.
 
         // Setup: Setup Next Service Calc. Method in Service Management Setup as Actual. Create and sign Service Contract.
-        Initialize;
+        Initialize();
         SetupModified := SetupServiceMgtSetupActual;
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate(Prepaid, true);
@@ -163,7 +163,7 @@ codeunit 136110 "Service Management Setup"
         // 4. Verify that the values on the Service Line correspond to the values of the Service Cost entered in the Service Mgt. Setup.
 
         // Setup: Setup Service Order Starting Fee of Service Management Setup. Create a new Service Order - Service Header, Service Line.
-        Initialize;
+        Initialize();
         ExecuteConfirm;
         SetupServiceMgtStartingFee(ServiceCost);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -194,7 +194,7 @@ codeunit 136110 "Service Management Setup"
         // 4. Verify that the application generates an error if Starting Fee has not been specified in Service Management Setup.
 
         // Setup: Setup Service Order Starting Fee of Service Management Setup. Create a new Service Order - Service Header, Service Line.
-        Initialize;
+        Initialize();
         SetupServiceMgtStartngFeeBlank;
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
 
@@ -231,7 +231,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Resource Skills Option as Warning Displayed in Service Management Setup. Create a new Service Order - Service
         // Header, Service Item Line, Service Line having Service Item with Resource Skill assigned.
-        Initialize;
+        Initialize();
         SetupServiceMgtResSkillServZon(
           ServiceMgtSetup."Resource Skills Option"::"Warning Displayed", ServiceMgtSetup."Service Zones Option"::"Code Shown");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -248,7 +248,7 @@ codeunit 136110 "Service Management Setup"
         ServiceItemLine.SetRange("Line No.", ServiceItemLine."Line No.");
         ServiceOrderSubform.SetTableView(ServiceItemLine);
         ServiceOrderSubform.SetRecord(ServiceItemLine);
-        asserterror ServiceOrderSubform.Run;
+        asserterror ServiceOrderSubform.Run();
 
         // Verify: Check that the application generates an error if the Resource is not qualified to carry the Service.
         Assert.AreEqual(
@@ -281,7 +281,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Resource Skills Option as Warning Displayed in Service Management Setup. Create a new Service Order - Service
         // Header, Service Item Line, Service Line having Service Item with Resource Skill assigned. Assign the Skill Code to Resource.
-        Initialize;
+        Initialize();
         SetupServiceMgtResSkillServZon(
           ServiceMgtSetup."Resource Skills Option"::"Warning Displayed", ServiceMgtSetup."Service Zones Option"::"Code Shown");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -298,7 +298,7 @@ codeunit 136110 "Service Management Setup"
         ServiceItemLine.SetRange("Line No.", ServiceItemLine."Line No.");
         ServiceOrderSubform.SetTableView(ServiceItemLine);
         ServiceOrderSubform.SetRecord(ServiceItemLine);
-        ServiceOrderSubform.Run;
+        ServiceOrderSubform.Run();
 
         // Verify: Check that the application allows Resource allocation if Resource is qualified to carry the Service.
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
@@ -329,7 +329,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Resource Skills Option as Code Shown in Service Management Setup. Create a new Service Order - Service
         // Header, Service Item Line, Service Line having Service Item with Resource Skill assigned.
-        Initialize;
+        Initialize();
         SetupServiceMgtResSkillServZon(
           ServiceMgtSetup."Resource Skills Option"::"Code Shown", ServiceMgtSetup."Service Zones Option"::"Warning Displayed");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -345,7 +345,7 @@ codeunit 136110 "Service Management Setup"
         ServiceItemLine.SetRange("Line No.", ServiceItemLine."Line No.");
         ServiceOrderSubform.SetTableView(ServiceItemLine);
         ServiceOrderSubform.SetRecord(ServiceItemLine);
-        ServiceOrderSubform.Run;
+        ServiceOrderSubform.Run();
         ExecuteConfirm;
 
         // Verify: Check that the application allows the Resource to be allocated if the Resource is not qualified to carry the Service.
@@ -377,7 +377,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Resource Skills Option as Code Shown in Service Management Setup. Create a new Service Order - Service
         // Header, Service Item Line, Service Line having Service Item with Resource Skill assigned.
-        Initialize;
+        Initialize();
         SetupServiceMgtResSkillServZon(
           ServiceMgtSetup."Resource Skills Option"::"Code Shown", ServiceMgtSetup."Service Zones Option"::"Code Shown");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -393,7 +393,7 @@ codeunit 136110 "Service Management Setup"
         ServiceItemLine.SetRange("Line No.", ServiceItemLine."Line No.");
         ServiceOrderSubform.SetTableView(ServiceItemLine);
         ServiceOrderSubform.SetRecord(ServiceItemLine);
-        ServiceOrderSubform.Run;
+        ServiceOrderSubform.Run();
 
         // Verify: Check that the application allows the Resource to be allocated if the Resource is not qualified to carry the Service.
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
@@ -424,7 +424,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup:Input Resource Skills Option as Warning Displayed in Service Management Setup. Create a new Service Order - Service
         // Header, Service Item Line, Service Line having Service Item with Resource Skill assigned.
-        Initialize;
+        Initialize();
         SetupServiceMgtResSkillServZon(
           ServiceMgtSetup."Resource Skills Option"::"Warning Displayed", ServiceMgtSetup."Service Zones Option"::"Warning Displayed");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -441,7 +441,7 @@ codeunit 136110 "Service Management Setup"
         ServiceItemLine.SetRange("Line No.", ServiceItemLine."Line No.");
         ServiceOrderSubform.SetTableView(ServiceItemLine);
         ServiceOrderSubform.SetRecord(ServiceItemLine);
-        asserterror ServiceOrderSubform.Run;
+        asserterror ServiceOrderSubform.Run();
 
         // Verify: Check that the application generates an error if the Resource is not qualified to carry the Service.
         Assert.AreEqual(
@@ -474,7 +474,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Resource Skills Option as Warning Displayed in Service Management Setup. Create a new Service Order - Service
         // Header, Service Item Line, Service Line having Service Item with Resource Skill assigned. Assign the Skill Code to Resource.
-        Initialize;
+        Initialize();
         ExecuteConfirm;
         SetupServiceMgtResSkillServZon(
           ServiceMgtSetup."Resource Skills Option"::"Warning Displayed", ServiceMgtSetup."Service Zones Option"::"Warning Displayed");
@@ -492,7 +492,7 @@ codeunit 136110 "Service Management Setup"
         ServiceItemLine.SetRange("Line No.", ServiceItemLine."Line No.");
         ServiceOrderSubform.SetTableView(ServiceItemLine);
         ServiceOrderSubform.SetRecord(ServiceItemLine);
-        ServiceOrderSubform.Run;
+        ServiceOrderSubform.Run();
 
         // Verify: Check that the application allows Resource allocation if Resource is qualified to carry the Service.
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
@@ -522,7 +522,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input both Options as Not Used in Service Management Setup. Create a new Service Order - Service
         // Header, Service Item Line, Service Line having Service Item with Resource Skill assigned. Assign the Skill Code to Resource.
-        Initialize;
+        Initialize();
         SetupServiceMgtResSkillServZon(
           ServiceMgtSetup."Resource Skills Option"::"Not Used", ServiceMgtSetup."Service Zones Option"::"Not Used");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -539,7 +539,7 @@ codeunit 136110 "Service Management Setup"
         ServiceItemLine.SetRange("Line No.", ServiceItemLine."Line No.");
         ServiceOrderSubform.SetTableView(ServiceItemLine);
         ServiceOrderSubform.SetRecord(ServiceItemLine);
-        ServiceOrderSubform.Run;
+        ServiceOrderSubform.Run();
 
         // Verify: Check that the application allows Resource allocation if Resource is qualified to carry the Service.
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
@@ -619,7 +619,7 @@ codeunit 136110 "Service Management Setup"
         // Verify: Check that the values in the Fault Resolution Codes Relationship correspond to the values in the Fault Code record.
         FaultResolCodRelationship.SetRange("Fault Code", FaultCode.Code);
         FaultResolCodRelationship.SetRange("Resolution Code", ServiceItemLine."Resolution Code");
-        FaultResolCodRelationship.FindFirst;
+        FaultResolCodRelationship.FindFirst();
         FaultResolCodRelationship.TestField("Fault Area Code", '');
         FaultResolCodRelationship.TestField("Symptom Code", '');
         FaultResolCodRelationship.TestField("Service Item Group Code", ServiceItemLine."Service Item Group Code");
@@ -673,7 +673,7 @@ codeunit 136110 "Service Management Setup"
         // Verify: Check that the values in the Fault Resolution Codes Relationship correspond to the values in the Fault Code record.
         FaultResolCodRelationship.SetRange("Fault Code", FaultCode.Code);
         FaultResolCodRelationship.SetRange("Resolution Code", ServiceItemLine."Resolution Code");
-        FaultResolCodRelationship.FindFirst;
+        FaultResolCodRelationship.FindFirst();
         FaultResolCodRelationship.TestField("Fault Area Code", FaultArea.Code);
         FaultResolCodRelationship.TestField("Symptom Code", SymptomCode.Code);
         FaultResolCodRelationship.TestField("Service Item Group Code", ServiceItemLine."Service Item Group Code");
@@ -730,7 +730,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Create Service Order for a non working day that is followed by a working day - Service Item, Service Header, Service Item
         // Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetNonWrkngDayFollwdByWrkngDay);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -757,7 +757,7 @@ codeunit 136110 "Service Management Setup"
         // 3. Verify that the Response Date on Service Item Line is the Service Order Date.
 
         // Setup: Create Service Order for a Working Day - Service Item, Service Header, Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate));
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -787,7 +787,7 @@ codeunit 136110 "Service Management Setup"
         // 4. Enter the original Default Response Time (Hours) in Service Management Setup.
 
         // Setup:Input Default Response Time (Hours) on Service Management Setup as 0. Create Service Order.
-        Initialize;
+        Initialize();
         DefaultResponseTime := SetupServiceMgtDefaultRespTime(ServiceMgtSetup, 0);  // Value 0 is important to test case.
         LibraryService.CreateServiceItem(ServiceItem, '');
         CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate));
@@ -821,7 +821,7 @@ codeunit 136110 "Service Management Setup"
         // 4. Enter the original Default Response Time (Hours) in Service Management Setup.
 
         // Setup:Input Default Response Time (Hours) on Service Management Setup as any random value. Create Service Order.
-        Initialize;
+        Initialize();
         DefaultResponseTime := SetupServiceMgtDefaultRespTime(ServiceMgtSetup, LibraryRandom.RandInt(100));
         LibraryService.CreateServiceItem(ServiceItem, '');
         CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate));
@@ -856,7 +856,7 @@ codeunit 136110 "Service Management Setup"
         // 4. Enter the original Default Response Time (Hours) in Service Management Setup.
 
         // Setup:Input Default Response Time (Hours) on Service Management Setup as any more than a year. Create Service Order.
-        Initialize;
+        Initialize();
         DefaultResponseTime := SetupServiceMgtDefaultRespTime(ServiceMgtSetup, (365 * 24) + LibraryRandom.RandInt(100));
         LibraryService.CreateServiceItem(ServiceItem, '');
         CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate));
@@ -894,7 +894,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Warranty Disc. % (Parts) and Warranty Disc. % (Labor) on Service Management Setup as any random value.
         // Create Service Order.
-        Initialize;
+        Initialize();
         SetupServiceMgtWarrantyDisc(ServiceMgtSetup, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
 
@@ -932,7 +932,7 @@ codeunit 136110 "Service Management Setup"
         // 4. Enter the original Default Warranty Duration in Service Management Setup.
 
         // Setup: Input Default Warranty Duration on Service Management Setup as one month. Create Service Order.
-        Initialize;
+        Initialize();
         Evaluate(DefaultWarrantyDuration, '<1M>');
         Evaluate(DefaultWarrantyDuration, SetupServiceMgtDefaultWarrDur(ServiceMgtSetup, DefaultWarrantyDuration));
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -973,7 +973,7 @@ codeunit 136110 "Service Management Setup"
         // 4. Enter the original Default Warranty Duration in Service Management Setup.
 
         // Setup: Input Default Warranty Duration on Service Management Setup as zero month. Create Service Order.
-        Initialize;
+        Initialize();
         Evaluate(DefaultWarrantyDuration, '<0M>');
         Evaluate(DefaultWarrantyDuration, SetupServiceMgtDefaultWarrDur(ServiceMgtSetup, DefaultWarrantyDuration));
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -1011,7 +1011,7 @@ codeunit 136110 "Service Management Setup"
         // 4. Enter the original Default Warranty Duration in Service Management Setup.
 
         // Setup: Input Default Warranty Duration on Service Management Setup as minus one month. Create Service Order.
-        Initialize;
+        Initialize();
         Evaluate(DefaultWarrantyDuration, '<-1M>');
         Evaluate(DefaultWarrantyDuration, SetupServiceMgtDefaultWarrDur(ServiceMgtSetup, DefaultWarrantyDuration));
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -1045,7 +1045,7 @@ codeunit 136110 "Service Management Setup"
         // 3. Check that the Contract Change Log for the Service Contract created is empty.
 
         // Setup: Input Register Contract Changes as FALSE on Service Management Setup.
-        Initialize;
+        Initialize();
         SetupServiceMgtRgistrCtrctChng(false);
 
         // Exercise: Create Service Contract - Service Contract Header, Service Item, Service Contract Line.
@@ -1076,7 +1076,7 @@ codeunit 136110 "Service Management Setup"
         // 3. Check that the Contract Change Log for the Service Contract created is generated.
 
         // Setup: Input Register Contract Changes as TRUE on Service Management Setup.
-        Initialize;
+        Initialize();
         SetupServiceMgtRgistrCtrctChng(true);
 
         // Exercise: Create Service Contract - Service Contract Header, Service Item, Service Contract Line.
@@ -1086,7 +1086,7 @@ codeunit 136110 "Service Management Setup"
 
         // Verify: Check that the Contract Change Log for the Service Contract created is generated.
         ContractChangeLog.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ContractChangeLog.FindFirst;
+        ContractChangeLog.FindFirst();
     end;
 
     [Test]
@@ -1106,7 +1106,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Use Contract Cancel Reason as TRUE on Service Management Setup. Create Service Contract - Service Contract
         // Header, Service Item, Service Contract Line.
-        Initialize;
+        Initialize();
         SetupServiceMgtCntrctCancelRsn(true);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
@@ -1139,7 +1139,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Use Contract Cancel Reason as TRUE on Service Management Setup. Create Service Contract - Service Contract
         // Header, Service Item, Service Contract Line. Create a new Reason Code and enter it in the field Cancel Reason Code.
-        Initialize;
+        Initialize();
         SetupServiceMgtCntrctCancelRsn(true);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
@@ -1173,7 +1173,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Use Contract Cancel Reason as FALSE on Service Management Setup. Create Service Contract - Service Contract
         // Header, Service Item, Service Contract Line.
-        Initialize;
+        Initialize();
         SetupServiceMgtCntrctCancelRsn(false);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
@@ -1212,7 +1212,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Contract Serv. Ord.  Max. Days as 0 on Service Management Setup. Create and Sign Service Contract - Service
         // Contract Header, Service Item, Service Contract Line.
-        Initialize;
+        Initialize();
         ContractServOrdMaxDays := SetupServiceMgtServOrdMaxDays(ServiceMgtSetup, 0);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
@@ -1228,7 +1228,7 @@ codeunit 136110 "Service Management Setup"
         CreateContractServiceOrders.SetTableView(ServiceContractHeader);
         CreateContractServiceOrders.UseRequestPage(false);
         CreateContractServiceOrders.InitializeRequest(WorkDate, WorkDate, 0);
-        asserterror CreateContractServiceOrders.Run;
+        asserterror CreateContractServiceOrders.Run();
 
         // Verify: Check that the application generates an error if the date range entered is longer than the period allowed in Service
         // Management Setup.
@@ -1263,7 +1263,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Input Contract Serv. Ord.  Max. Days as 1 on Service Management Setup. Create and Sign Service Contract - Service
         // Contract Header, Service Item, Service Contract Line.
-        Initialize;
+        Initialize();
         ContractServOrdMaxDays := SetupServiceMgtServOrdMaxDays(ServiceMgtSetup, 1);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
@@ -1279,7 +1279,7 @@ codeunit 136110 "Service Management Setup"
         CreateContractServiceOrders.SetTableView(ServiceContractHeader);
         CreateContractServiceOrders.UseRequestPage(false);
         CreateContractServiceOrders.InitializeRequest(WorkDate, WorkDate, 0);
-        CreateContractServiceOrders.Run;
+        CreateContractServiceOrders.Run();
 
         // Verify: Check that the application generates an error if the date range entered is invalid and no Service Order is created.
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
@@ -1307,7 +1307,7 @@ codeunit 136110 "Service Management Setup"
         // Test fault / resolution code relationship in a Service Order using Fault Reporting Level of Fault.
 
         // 1. Setup: Create Resolution Code, Fault Code, set Fault Reporting Level and create a Service Order.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateResolutionCode(ResolutionCode);
@@ -1347,7 +1347,7 @@ codeunit 136110 "Service Management Setup"
         // Test fault / resolution code relationship in a Service Order using Fault Reporting Level of Fault and Symptom.
 
         // 1. Setup: Create Resolution Code, Fault Code, set Fault Reporting Level and create a Service Order.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateSymptomCode(SymptomCode);
@@ -1389,7 +1389,7 @@ codeunit 136110 "Service Management Setup"
         // Test fault / resolution code relationship in a Service Order using Fault Reporting Level of Fault, Symptom and Area.
 
         // 1. Setup: Create Resolution Code, Fault Code, set Fault Reporting Level and create a Service Order.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateFaultArea(FaultArea);
@@ -1429,7 +1429,7 @@ codeunit 136110 "Service Management Setup"
         // Test Next Planned Service Date on Service Contract Header after Insert Travel Fee.
 
         // Setup: Create and Post Service Order as Ship with Contract No. as No. of Service Contract Header.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
         CreateAndPostServiceOrderForResource(
@@ -1581,7 +1581,7 @@ codeunit 136110 "Service Management Setup"
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceItemLine.FindSet();
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ResourceNo := LibraryResource.CreateResourceNo();
         repeat
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
@@ -1594,14 +1594,14 @@ codeunit 136110 "Service Management Setup"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", DocumentNo);
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
     end;
 
     local procedure FindServiceLineForOrder(var ServiceLine: Record "Service Line"; No: Code[20])
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", No);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure FindServiceZone(): Code[10]
@@ -1611,7 +1611,7 @@ codeunit 136110 "Service Management Setup"
         ServiceCost.SetRange("Cost Type", ServiceCost."Cost Type"::Travel);
         ServiceCost.SetFilter("Account No.", '<>''''');
         ServiceCost.SetFilter("Service Zone Code", '<>''''');
-        ServiceCost.FindFirst;
+        ServiceCost.FindFirst();
         exit(ServiceCost."Service Zone Code");
     end;
 
@@ -1633,7 +1633,7 @@ codeunit 136110 "Service Management Setup"
         InsertFaultResolRelations.UseRequestPage(false);
         // Using random values for To Date as value is not important.
         InsertFaultResolRelations.InitializeRequest(WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), true, true);
-        InsertFaultResolRelations.RunModal;
+        InsertFaultResolRelations.RunModal();
     end;
 
     local procedure ModifyServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header")
@@ -1847,7 +1847,7 @@ codeunit 136110 "Service Management Setup"
         FindServiceItemLineForOrder(ServiceItemLine, No);
         FindServiceLineForOrder(ServiceLine, No);
         ServiceItemLine.SetRange("Line No.", ServiceLine."Line No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         ServiceLine.TestField("Fault Reason Code", ServiceItemLine."Fault Reason Code");
     end;
 
@@ -1871,7 +1871,7 @@ codeunit 136110 "Service Management Setup"
         // Check that the values populated in the Service Line are equal to the values in the Service Cost selected.
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField(Type, ServiceLine.Type::Cost);
         ServiceLine.TestField("No.", ServiceCost.Code);
         ServiceLine.TestField(Quantity, ServiceCost."Default Quantity");
@@ -1949,7 +1949,7 @@ codeunit 136110 "Service Management Setup"
           ServiceOrderAllocation."Entry No.");
         if ServiceOrderAllocation."Resource No." <> '' then
             ResAvailabilityService.SetRecord(Resource);
-        ResAvailabilityService.RunModal;
+        ResAvailabilityService.RunModal();
     end;
 
     [ModalPageHandler]

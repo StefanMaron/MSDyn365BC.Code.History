@@ -107,7 +107,7 @@ table 175 "Standard Vendor Purchase Code"
             StdVendPurchCodes.LookupMode(true);
             if StdVendPurchCodes.RunModal = ACTION::LookupOK then begin
                 StdVendPurchCodes.GetSelected(StdVendPurchCode);
-                if StdVendPurchCode.FindSet then
+                if StdVendPurchCode.FindSet() then
                     repeat
                         ApplyStdCodesToPurchaseLines(PurchHeader, StdVendPurchCode);
                     until StdVendPurchCode.Next() = 0;
@@ -223,7 +223,7 @@ table 175 "Standard Vendor Purchase Code"
     begin
         PurchLine.SetRange("Document Type", PurchLine."Document Type");
         PurchLine.SetRange("Document No.", PurchLine."Document No.");
-        if PurchLine.FindLast then
+        if PurchLine.FindLast() then
             exit(PurchLine."Line No." + 10000);
 
         exit(10000);

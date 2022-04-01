@@ -387,7 +387,7 @@ page 93 "Job Ledger Entries Preview"
                     begin
                         JobUsageLink.SetRange("Entry No.", "Entry No.");
 
-                        if JobUsageLink.FindSet then
+                        if JobUsageLink.FindSet() then
                             repeat
                                 JobPlanningLine.Get(JobUsageLink."Job No.", JobUsageLink."Job Task No.", JobUsageLink."Line No.");
                                 JobPlanningLine.Mark := true;

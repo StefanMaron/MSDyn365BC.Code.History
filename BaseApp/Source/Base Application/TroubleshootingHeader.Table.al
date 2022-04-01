@@ -82,17 +82,17 @@ table 5943 "Troubleshooting Header"
         TblshtgSetup.Reset();
         TblshtgSetup.SetRange(Type, TblshtgSetup.Type::"Service Item");
         TblshtgSetup.SetRange("No.", ServItemLine."Service Item No.");
-        TblshtFound := TblshtgSetup.FindFirst;
+        TblshtFound := TblshtgSetup.FindFirst();
 
         if not TblshtFound then begin
             TblshtgSetup.SetRange(Type, TblshtgSetup.Type::Item);
             TblshtgSetup.SetRange("No.", ServItemLine."Item No.");
-            TblshtFound := TblshtgSetup.FindFirst;
+            TblshtFound := TblshtgSetup.FindFirst();
         end;
         if not TblshtFound then begin
             TblshtgSetup.SetRange(Type, TblshtgSetup.Type::"Service Item Group");
             TblshtgSetup.SetRange("No.", ServItemLine."Service Item Group Code");
-            TblshtFound := TblshtgSetup.FindFirst;
+            TblshtFound := TblshtgSetup.FindFirst();
         end;
         if TblshtFound then
             RunTroubleshooting
@@ -108,18 +108,18 @@ table 5943 "Troubleshooting Header"
         TblshtgSetup.Reset();
         TblshtgSetup.SetRange(Type, TblshtgSetup.Type::"Service Item");
         TblshtgSetup.SetRange("No.", ServItem."No.");
-        TblshtFound := TblshtgSetup.FindFirst;
+        TblshtFound := TblshtgSetup.FindFirst();
 
         if not TblshtFound then begin
             TblshtgSetup.Reset();
             TblshtgSetup.SetRange(Type, TblshtgSetup.Type::Item);
             TblshtgSetup.SetRange("No.", ServItem."Item No.");
-            TblshtFound := TblshtgSetup.FindFirst;
+            TblshtFound := TblshtgSetup.FindFirst();
         end;
         if not TblshtFound then begin
             TblshtgSetup.SetRange(Type, TblshtgSetup.Type::"Service Item Group");
             TblshtgSetup.SetRange("No.", ServItem."Service Item Group Code");
-            TblshtFound := TblshtgSetup.FindFirst;
+            TblshtFound := TblshtgSetup.FindFirst();
         end;
         if TblshtFound then
             RunTroubleshooting
@@ -134,11 +134,11 @@ table 5943 "Troubleshooting Header"
         TblshtgSetup.Reset();
         TblshtgSetup.SetRange(Type, TblshtgSetup.Type::Item);
         TblshtgSetup.SetRange("No.", Item."No.");
-        TblshtFound := TblshtgSetup.FindFirst;
+        TblshtFound := TblshtgSetup.FindFirst();
         if not TblshtFound then begin
             TblshtgSetup.SetRange(Type, TblshtgSetup.Type::"Service Item Group");
             TblshtgSetup.SetRange("No.", Item."Service Item Group");
-            TblshtFound := TblshtgSetup.FindFirst;
+            TblshtFound := TblshtgSetup.FindFirst();
         end;
         if TblshtFound then
             RunTroubleshooting
@@ -165,7 +165,7 @@ table 5943 "Troubleshooting Header"
         Tblshtg.SetRecord(TblshtgHeader);
         Tblshtg.SetTableView(TblshtgHeader2);
         Tblshtg.Editable := false;
-        Tblshtg.Run;
+        Tblshtg.Run();
         TblshtgHeader2.Reset();
     end;
 }

@@ -144,7 +144,7 @@ page 1702 "Deferral Schedule"
             FieldError("No. of Periods");
 
         DeferralLine.SetFilter("Posting Date", '>%1', 0D);
-        if DeferralLine.FindFirst then begin
+        if DeferralLine.FindFirst() then begin
             EarliestPostingDate := DeferralLine."Posting Date";
             if EarliestPostingDate <> DeferralHeader."Start Date" then
                 Error(PostingDateErr);

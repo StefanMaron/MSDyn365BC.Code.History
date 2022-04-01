@@ -59,7 +59,7 @@ table 5502 "Tax Rate Buffer"
         TempTaxGroupBuffer: Record "Tax Group Buffer" temporary;
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        if not VATPostingSetup.FindSet then
+        if not VATPostingSetup.FindSet() then
             exit;
 
         TempTaxGroupBuffer.LoadRecords;

@@ -512,7 +512,7 @@ codeunit 137163 "SCM Orders VI"
         CreateVendorAndOpenPurchasePricesPageFromVendorCard(PurchasePrices);
 
         // [GIVEN] "Vendor No. Filter" = Non-existing Vendor.
-        VendorNo := LibraryUtility.GenerateGUID;
+        VendorNo := LibraryUtility.GenerateGUID();
         asserterror PurchasePrices.VendNoFilterCtrl.SetValue(VendorNo);
 
         // [WHEN] Set "Vendor No. Filter" to blank on Purchase Price Page.
@@ -541,7 +541,7 @@ codeunit 137163 "SCM Orders VI"
         CreateVendorAndOpenPurchasePricesPageFromVendorCard(PurchasePrices);
 
         // [GIVEN] "Item No. Filter" = Non-existing Item.
-        ItemNo := LibraryUtility.GenerateGUID;
+        ItemNo := LibraryUtility.GenerateGUID();
         asserterror PurchasePrices.ItemNoFIlterCtrl.SetValue(ItemNo);
 
         // [WHEN] Set "Item No. Filter" to blank on Purchase Price Page.
@@ -1308,7 +1308,7 @@ codeunit 137163 "SCM Orders VI"
         Initialize(false);
 
         // [GIVEN] Purchase Order with two Lines
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
 
         // [GIVEN] Purchase Order Line with Quantity > 0; Extended Text = "T1"
@@ -1648,8 +1648,8 @@ codeunit 137163 "SCM Orders VI"
         CreateReqWkshTemplateName(ReqWkshTemplate, RequisitionWkshName);
 
         // [GIVEN] ItemNo and DocumentNo needed for Requisition Lines
-        ItemNo := LibraryInventory.CreateItemNo;
-        DocumentNo := LibraryUtility.GenerateGUID;
+        ItemNo := LibraryInventory.CreateItemNo();
+        DocumentNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Requisition Line [1] with Starting Date = 11-01-2020 and Starting Time = 01:00:00
         CreateRequisitionLine(RequisitionLine[1], ReqWkshTemplate, RequisitionWkshName, WorkDate, 020000T, ItemNo, DocumentNo);
@@ -1669,7 +1669,7 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] Production order is created
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", ItemNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
 
         // [THEN] Production Order Starting Date = 01-01-2018
         ProductionOrder.TestField("Starting Date", RequisitionLine[2]."Starting Date");
@@ -1803,7 +1803,7 @@ codeunit 137163 "SCM Orders VI"
 
         // [GIVEN] Production Order Component for "Prod" has a reservation from "PO" for quantity = 4 for "Red" location
         ProdOrderComponent.SetRange("Item No.", CompItem."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ReservationManagement.SetReservSource(ProdOrderComponent);
         ReservationManagement.AutoReserve(FullAutoReserve, '', ProdOrderComponent."Due Date", PurchQty, PurchQty);
 
@@ -1817,13 +1817,13 @@ codeunit 137163 "SCM Orders VI"
         // [WHEN] Post Inventory Pick for "Component"
         WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Prod. Consumption");
         WarehouseActivityHeader.SetRange("Source No.", ProdOrderComponent."Prod. Order No.");
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
 
         // [THEN] Inventory Pick for "Component" is posted
         PostedInvtPickLine.SetRange("Item No.", CompItem."No.");
-        PostedInvtPickLine.FindFirst;
+        PostedInvtPickLine.FindFirst();
         PostedInvtPickLine.TestField(Quantity, StockQty);
     end;
 
@@ -2723,6 +2723,7 @@ codeunit 137163 "SCM Orders VI"
         NoSeriesSetup();
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
         LocationSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -2739,11 +2740,11 @@ codeunit 137163 "SCM Orders VI"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
     end;
 
     local procedure DisableNotifications()
@@ -3079,7 +3080,7 @@ codeunit 137163 "SCM Orders VI"
 
     local procedure CreatePurchaseOrderByPage(var PurchaseOrder: TestPage "Purchase Order")
     begin
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
         EnqueueForChangeOfSellToCustomerOrBuyFromVendor;
         EnqueueForChangeOfSellToCustomerOrBuyFromVendor;
@@ -3274,7 +3275,7 @@ codeunit 137163 "SCM Orders VI"
     local procedure CreateReqWkshTemplateName(var ReqWkshTemplate: Record "Req. Wksh. Template"; var RequisitionWkshName: Record "Requisition Wksh. Name")
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
@@ -3476,21 +3477,21 @@ codeunit 137163 "SCM Orders VI"
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindPostedWhseShipmentLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20])
     begin
         PostedWhseShipmentLine.SetRange("Source Document", SourceDocument);
         PostedWhseShipmentLine.SetRange("Item No.", ItemNo);
-        PostedWhseShipmentLine.FindFirst;
+        PostedWhseShipmentLine.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindPurchaseReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; DocumentNo: Code[20]) LineNo: Integer
@@ -3507,7 +3508,7 @@ codeunit 137163 "SCM Orders VI"
         with PurchRcptLine do begin
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             DocumentNo := "Document No.";
         end;
     end;
@@ -3515,7 +3516,7 @@ codeunit 137163 "SCM Orders VI"
     local procedure FindReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; ItemNo: Code[20])
     begin
         ReturnShipmentLine.SetRange("No.", ItemNo);
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
@@ -3523,21 +3524,21 @@ codeunit 137163 "SCM Orders VI"
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FilterPurchReturnExtLine(var PurchLine: Record "Purchase Line"; VendorNo: Code[20])
@@ -3546,7 +3547,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         PurchHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::"Return Order");
-        PurchHeader.FindFirst;
+        PurchHeader.FindFirst();
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::"Return Order");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetRange("No.", '');
@@ -3568,7 +3569,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseLine."Document Type");
         PurchaseHeader.SetRange("No.", PurchaseLine."Document No.");
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         ExpdTotalDisAmt := PurchaseLine."Line Discount Amount" + PurchaseLine."Inv. Discount Amount";
     end;
 
@@ -3645,7 +3646,7 @@ codeunit 137163 "SCM Orders VI"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         PurchRcptHeader.SetRange("Order No.", OrderNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         PurchaseReceiptHeaderNo := PurchRcptHeader."No.";
     end;
 
@@ -3681,7 +3682,7 @@ codeunit 137163 "SCM Orders VI"
         MoveNegPurchLines.SetPurchHeader(PurchHeader);
         MoveNegPurchLines.InitializeRequest(FromDocType::Order, ToDocType::"Return Order", ToDocType::"Return Order");
         MoveNegPurchLines.UseRequestPage(false);
-        MoveNegPurchLines.RunModal;
+        MoveNegPurchLines.RunModal();
     end;
 
     local procedure OpenPurchaseOrderByPage(var PurchaseOrder: TestPage "Purchase Order"; PurchaseHeaderNo: Code[20])
@@ -3924,7 +3925,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         ReqWkshTemplateName := ReqWkshTemplate.Name
     end;
 
@@ -4092,13 +4093,13 @@ codeunit 137163 "SCM Orders VI"
     local procedure UpdateReasonCodeAndVendorCreditMemoNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.Validate("Reason Code", CreateReasonCode);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdateVendorInvoiceNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -4165,7 +4166,7 @@ codeunit 137163 "SCM Orders VI"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 
@@ -4191,7 +4192,7 @@ codeunit 137163 "SCM Orders VI"
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         PurchCrMemoLine.SetRange("No.", ItemNo);
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
         PurchCrMemoLine.TestField(Quantity, Quantity);
     end;
 
@@ -4202,7 +4203,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Return Order");
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.TestField("Ship-to Name", ShipToName);
 
         // Verify Purchase Line.
@@ -4218,7 +4219,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::"Blanket Order");
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Qty. to Receive", QuantityToReceive);
         PurchaseLine.TestField("Quantity Received", QuantityReceived);
     end;
@@ -4238,7 +4239,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange("No.", No);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField(Quantity, Quantity);
     end;
 
@@ -4258,7 +4259,7 @@ codeunit 137163 "SCM Orders VI"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         PurchRcptHeader.SetRange("Order No.", PurchaseHeaderNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         PostedPurchaseReceipt."No.".AssertEquals(PurchRcptHeader."No.");
         PostedPurchaseReceipt.PurchReceiptLines."No.".AssertEquals(ItemNo);
         PostedPurchaseReceipt.PurchReceiptLines.Quantity.AssertEquals(Quantity);
@@ -4309,7 +4310,7 @@ codeunit 137163 "SCM Orders VI"
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Receipt");
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Document Line No.", DocumentLineNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Valued Quantity", ValuedQuantity);
     end;
 

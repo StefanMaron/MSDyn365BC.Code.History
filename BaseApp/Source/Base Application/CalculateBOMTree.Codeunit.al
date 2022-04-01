@@ -26,7 +26,7 @@ codeunit 5870 "Calculate BOM Tree"
 
     local procedure OpenWindow()
     begin
-        if HideDialog then
+        if HideDialog or not GuiAllowed() then
             exit;
 
         Window.Open(Text000);
@@ -35,7 +35,7 @@ codeunit 5870 "Calculate BOM Tree"
 
     local procedure UpdateWindow(ProgressValue: Integer)
     begin
-        if HideDialog then
+        if HideDialog or not GuiAllowed() then
             exit;
 
         if CurrentDateTime - WindowUpdateDateTime >= 300 then begin
@@ -73,7 +73,7 @@ codeunit 5870 "Calculate BOM Tree"
     begin
         OnBeforeGenerateTreeForItems(HideDialog);
 
-        OpenWindow;
+        OpenWindow();
 
         InitBOMBuffer(BOMBuffer);
         InitTreeType(TreeType);
@@ -85,7 +85,7 @@ codeunit 5870 "Calculate BOM Tree"
             else
                 DemandDate := 99981231D;
             NoOfRecords := Count;
-            if FindSet then
+            if FindSet() then
                 repeat
                     i += 1;
                     UpdateWindow(Round(i / NoOfRecords * 10000, 1));
@@ -95,8 +95,8 @@ codeunit 5870 "Calculate BOM Tree"
 
         ParentItem.Copy(ItemFilter);
 
-        if not HideDialog then
-            Window.Close;
+        if not HideDialog and GuiAllowed() then
+            Window.Close();
     end;
 
     procedure GenerateTreeForItem(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; DemandDate: Date; TreeType: Option)
@@ -118,7 +118,10 @@ codeunit 5870 "Calculate BOM Tree"
         ProdBOMLine: Record "Production BOM Line";
         IsHandled: Boolean;
     begin
-        OnBeforeGenerateTreeForItemLocal(ParentItem, DemandDate, TreeType);
+        IsHandled := false;
+        OnBeforeGenerateTreeForItemLocal(ParentItem, DemandDate, TreeType, BOMBuffer, IsHandled);
+        if IsHandled then
+            exit;
 
         with ParentItem do begin
             InitVars;
@@ -227,7 +230,7 @@ codeunit 5870 "Calculate BOM Tree"
         ParentBOMBuffer := BOMBuffer;
         with BOMComp do begin
             SetRange("Parent Item No.", ParentItem."No.");
-            if FindSet then begin
+            if FindSet() then begin
                 if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::Assembly then
                     exit(true);
                 repeat
@@ -280,7 +283,7 @@ codeunit 5870 "Calculate BOM Tree"
             if not IsHandled then
                 if TreeType = TreeType::Availability then
                     SetFilter("Quantity per", '>%1', 0);
-            if FindSet then begin
+            if FindSet() then begin
                 if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::"Prod. Order" then
                     exit(true);
                 repeat
@@ -397,7 +400,7 @@ codeunit 5870 "Calculate BOM Tree"
         with AsmLine do begin
             SetRange("Document Type", AsmHeader."Document Type");
             SetRange("Document No.", AsmHeader."No.");
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     if (Type = Type::Item) and ("No." <> '') then begin
                         OldAsmHeader.Get("Document Type", "Document No.");
@@ -428,7 +431,7 @@ codeunit 5870 "Calculate BOM Tree"
             SetRange(Status, ProdOrderLine.Status);
             SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     if "Item No." <> '' then begin
                         OldProdOrderLine.Get(Status, "Prod. Order No.", "Prod. Order Line No.");
@@ -447,31 +450,51 @@ codeunit 5870 "Calculate BOM Tree"
         end;
     end;
 
-    local procedure UpdateMinAbleToMake(var BOMBuffer: Record "BOM Buffer"; AvailToUse: Option UpdatedQtyOnItemAvail,QtyOnItemAvail,QtyAvail)
+    local procedure UpdateMinAbleToMake(var BOMBuffer: Record "BOM Buffer"; AvailToUse: Option UpdatedQtyOnItemAvail,QtyOnItemAvail,QtyAvail): Decimal
     var
         AvailQty: Decimal;
     begin
-        with TempItemAvailByDate do begin
-            SetRange("Item No.", BOMBuffer."No.");
-            SetRange("Variant Code", BOMBuffer."Variant Code");
-            if LocationSpecific then
-                SetRange("Location Code", BOMBuffer."Location Code");
-            SetRange(Date, BOMBuffer."Needed by Date");
-            FindFirst;
+        TempItemAvailByDate.SetRange("Item No.", BOMBuffer."No.");
+        TempItemAvailByDate.SetRange("Variant Code", BOMBuffer."Variant Code");
+        if LocationSpecific then
+            TempItemAvailByDate.SetRange("Location Code", BOMBuffer."Location Code");
+        TempItemAvailByDate.SetRange(Date, BOMBuffer."Needed by Date");
+        TempItemAvailByDate.FindFirst();
 
-            case AvailToUse of
-                AvailToUse::UpdatedQtyOnItemAvail:
-                    AvailQty := "Updated Available Qty";
-                AvailToUse::QtyOnItemAvail:
-                    AvailQty := "Available Qty";
-                AvailToUse::QtyAvail:
-                    AvailQty := BOMBuffer."Available Quantity";
-            end;
+        case AvailToUse of
+            AvailToUse::UpdatedQtyOnItemAvail:
+                AvailQty := TempItemAvailByDate."Updated Available Qty";
+            AvailToUse::QtyOnItemAvail:
+                AvailQty := TempItemAvailByDate."Available Qty";
+            AvailToUse::QtyAvail:
+                AvailQty := BOMBuffer."Available Quantity";
         end;
 
-        with BOMBuffer do begin
-            UpdateAbleToMake(AvailQty);
-            Modify;
+        if BOMBuffer."Calculation Formula" = BOMBuffer."Calculation Formula"::"Fixed Quantity" then
+            exit(MinAbleToMakeWithFixedQuantity(BOMBuffer, AvailQty))
+        else begin
+            BOMBuffer.UpdateAbleToMake(AvailQty);
+            BOMBuffer.Modify();
+            exit(BOMBuffer."Able to Make Top Item");
+        end;
+    end;
+
+    local procedure MinAbleToMakeWithFixedQuantity(var BOMBuffer: Record "BOM Buffer"; AvailableQty: Decimal): Decimal
+    begin
+        if BOMBuffer."Calculation Formula" = BOMBuffer."Calculation Formula"::"Fixed Quantity" then begin
+            UpdateAvailabilityForFixedQty(BOMBuffer, AvailableQty);
+            if AvailableQty < BOMBuffer."Qty. per Parent" then
+                exit(0)
+            else
+                exit(999999999);
+        end;
+    end;
+
+    local procedure UpdateAvailabilityForFixedQty(var BOMBuffer: Record "BOM Buffer"; AvailableQty: Decimal)
+    begin
+        if BOMBuffer."Calculation Formula" = BOMBuffer."Calculation Formula"::"Fixed Quantity" then begin
+            BOMBuffer."Available Quantity" := AvailableQty;
+            BOMBuffer.Modify();
         end;
     end;
 
@@ -517,7 +540,8 @@ codeunit 5870 "Calculate BOM Tree"
                     Clear(AvailableToPromise);
                     OnInitItemAvailDatesOnBeforeCalcAvailableQty(BOMItem);
                     TempItemAvailByDate."Available Qty" :=
-                      AvailableToPromise.QtyAvailabletoPromise(BOMItem, "Gross Requirement", "Scheduled Receipts", "Needed by Date", 0, ZeroDF);
+                      AvailableToPromise.CalcQtyAvailabletoPromise(
+                          BOMItem, "Gross Requirement", "Scheduled Receipts", "Needed by Date", "Analysis Period Type"::Day, ZeroDF);
                     TempItemAvailByDate."Updated Available Qty" := TempItemAvailByDate."Available Qty";
                     TempItemAvailByDate.Insert();
 
@@ -560,6 +584,8 @@ codeunit 5870 "Calculate BOM Tree"
     var
         ParentBOMBuffer: Record "BOM Buffer";
         IsFirst: Boolean;
+        MinAbleToMakeQty: Decimal;
+        MinAbleToMakeTopItem: Decimal;
     begin
         ParentBOMBuffer := BOMBuffer;
         IsFirst := true;
@@ -568,20 +594,26 @@ codeunit 5870 "Calculate BOM Tree"
                 if ParentBOMBuffer.Indentation + 1 = Indentation then begin
                     if not "Is Leaf" then
                         TraverseTree(BOMBuffer, AvailToUse)
-                    else
-                        UpdateMinAbleToMake(BOMBuffer, AvailToUse);
+                    else begin
+                        MinAbleToMakeQty := UpdateMinAbleToMake(BOMBuffer, AvailToUse);
+                        MinAbleToMakeTopItem := CalcMinAbleToMake(IsFirst, MinAbleToMakeTopItem, MinAbleToMakeQty);
+                    end;
 
-                    ParentBOMBuffer."Able to Make Parent" :=
-                      CalcMinAbleToMake(IsFirst, ParentBOMBuffer."Able to Make Parent", "Able to Make Parent");
-                    ParentBOMBuffer."Able to Make Top Item" :=
-                      CalcMinAbleToMake(IsFirst, ParentBOMBuffer."Able to Make Top Item", "Able to Make Top Item");
-
+                    if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then begin
+                        ParentBOMBuffer."Able to Make Parent" := CalcMinAbleToMake(IsFirst, ParentBOMBuffer."Able to Make Parent", MinAbleToMakeTopItem);
+                        ParentBOMBuffer."Able to Make Top Item" := CalcMinAbleToMake(IsFirst, ParentBOMBuffer."Able to Make Top Item", MinAbleToMakeTopItem);
+                    end
+                    else begin
+                        ParentBOMBuffer."Able to Make Parent" := CalcMinAbleToMake(IsFirst, ParentBOMBuffer."Able to Make Parent", "Able to Make Parent");
+                        MinAbleToMakeTopItem := CalcMinAbleToMake(IsFirst, ParentBOMBuffer."Able to Make Top Item", "Able to Make Top Item");
+                        ParentBOMBuffer."Able to Make Top Item" := MinAbleToMakeTopItem;
+                    end;
                     IsFirst := false;
                 end;
 
             BOMBuffer := ParentBOMBuffer;
             UpdateMinAbleToMake(BOMBuffer, AvailToUse);
-            exit("Able to Make Top Item");
+            exit(MinAbleToMakeTopItem);
         end;
     end;
 
@@ -722,9 +754,16 @@ codeunit 5870 "Calculate BOM Tree"
                     TempItemAvailByDate.SetRange("Variant Code", "Variant Code");
                     if LocationSpecific then
                         TempItemAvailByDate.SetRange("Location Code", "Location Code");
-                    TempItemAvailByDate.FindFirst;
-                    ExpectedQty := Round("Qty. per Parent" * Input, UOMMgt.QtyRndPrecision);
-                    AvailQty := TempItemAvailByDate."Updated Available Qty";
+                    TempItemAvailByDate.FindFirst();
+                    if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then begin
+                        ExpectedQty := Round("Qty. per Parent", UOMMgt.QtyRndPrecision);
+                        AvailQty := TempItemAvailByDate."Available Qty"
+                    end
+                    else begin
+                        ExpectedQty := Round("Qty. per Parent" * Input, UOMMgt.QtyRndPrecision);
+                        AvailQty := TempItemAvailByDate."Updated Available Qty";
+                    end;
+
                     if AvailQty < ExpectedQty then begin
                         if "Is Leaf" then begin
                             if MarkBottleneck then begin
@@ -737,7 +776,7 @@ codeunit 5870 "Calculate BOM Tree"
                             exit(false);
                         end;
                         if AvailQty <> 0 then
-                            ReduceAvailability("No.", "Variant Code", "Location Code", "Needed by Date", AvailQty);
+                            ReduceAvailability("No.", "Variant Code", "Location Code", "Needed by Date", AvailQty, "Calculation Formula");
                         if not IsTest then begin
                             "Available Quantity" := AvailQty;
                             Modify;
@@ -757,12 +796,14 @@ codeunit 5870 "Calculate BOM Tree"
                                 MaxTime := (ParentBOMBuffer."Needed by Date" - "Needed by Date") + "Rolled-up Lead-Time Offset";
                     end else begin
                         if not IsTest then begin
-                            "Available Quantity" := ExpectedQty;
-                            Modify;
+                            if "Calculation Formula" <> "Calculation Formula"::"Fixed Quantity" then begin
+                                "Available Quantity" := ExpectedQty;
+                                Modify();
+                            end;
                             if MaxTime < (ParentBOMBuffer."Needed by Date" - "Needed by Date") + "Rolled-up Lead-Time Offset" then
                                 MaxTime := (ParentBOMBuffer."Needed by Date" - "Needed by Date") + "Rolled-up Lead-Time Offset";
                         end;
-                        ReduceAvailability("No.", "Variant Code", "Location Code", "Needed by Date", ExpectedQty);
+                        ReduceAvailability("No.", "Variant Code", "Location Code", "Needed by Date", ExpectedQty, "Calculation Formula");
                     end;
                 end;
             BOMBuffer := ParentBOMBuffer;
@@ -797,8 +838,10 @@ codeunit 5870 "Calculate BOM Tree"
         end;
     end;
 
-    local procedure ReduceAvailability(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ToDate: Date; Qty: Decimal)
+    local procedure ReduceAvailability(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ToDate: Date; Qty: Decimal; BOMLineCalcFormula: Enum "Quantity Calculation Formula")
     begin
+        if BOMLineCalcFormula = BOMLineCalcFormula::"Fixed Quantity" then
+            exit;
         with TempItemAvailByDate do begin
             Reset;
             SetRange("Item No.", ItemNo);
@@ -806,7 +849,7 @@ codeunit 5870 "Calculate BOM Tree"
             if LocationSpecific then
                 SetRange("Location Code", LocationCode);
             SetRange(Date, 0D, ToDate);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Updated Available Qty" <> 0 then begin
                         if "Updated Available Qty" > Qty then
@@ -833,8 +876,9 @@ codeunit 5870 "Calculate BOM Tree"
             Reset;
             SetCurrentKey(Type, "No.", Indentation);
             SetFilter("Entry No.", '>=%1', "Entry No.");
+            SetFilter("Calculation Formula", '<>%1', "Calculation Formula"::"Fixed Quantity");
             TempItemAvailByDate.Reset();
-            if TempItemAvailByDate.FindSet then
+            if TempItemAvailByDate.FindSet() then
                 repeat
                     if TempItemAvailByDate."Updated Available Qty" <> 0 then begin
                         CurrItemAvailByDate := TempItemAvailByDate;
@@ -845,14 +889,14 @@ codeunit 5870 "Calculate BOM Tree"
                         if LocationSpecific then
                             SetRange("Location Code", TempItemAvailByDate."Location Code");
                         SetRange("Needed by Date", TempItemAvailByDate.Date);
-                        FindFirst;
-                        "Available Quantity" += TempItemAvailByDate."Updated Available Qty";
-                        "Unused Quantity" += TempItemAvailByDate."Updated Available Qty";
-                        Modify;
+                        if FindFirst() then begin
+                            "Available Quantity" += TempItemAvailByDate."Updated Available Qty";
+                            "Unused Quantity" += TempItemAvailByDate."Updated Available Qty";
+                            Modify;
 
-                        ReduceAvailability("No.", "Variant Code", "Location Code",
-                          "Needed by Date",
-                          TempItemAvailByDate."Updated Available Qty");
+                            ReduceAvailability("No.", "Variant Code", "Location Code", "Needed by Date", TempItemAvailByDate."Updated Available Qty", BOMBuffer."Calculation Formula");
+                        end;
+
                         TempItemAvailByDate := CurrItemAvailByDate;
                     end;
                 until TempItemAvailByDate.Next() = 0;
@@ -1026,7 +1070,7 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenerateTreeForItemLocal(var ParentItem: Record Item; DemandDate: Date; TreeType: Option)
+    local procedure OnBeforeGenerateTreeForItemLocal(var ParentItem: Record Item; DemandDate: Date; TreeType: Option; var BOMBuffer: Record "BOM Buffer"; var IsHandled: Boolean)
     begin
     end;
 

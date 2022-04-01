@@ -222,14 +222,19 @@ page 9850 "Tenant Permissions"
 
     actions
     {
-#if not CLEAN19
+#if not CLEAN20
         area(navigation)
         {
             group(DQPermissions)
             {
                 Caption = 'SmartList Permissions';
                 Image = Permission;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The SmartList Designer is no longer available in Business Central.';
+                ObsoleteTag = '20.0';
 
+#if not CLEAN19
                 action("SmartList Designer Permissions")
                 {
                     ApplicationArea = Basic, Suite;
@@ -254,6 +259,7 @@ page 9850 "Tenant Permissions"
                         Page.Run(Page::"SmartList Permissions", DesignedQueryPermission);
                     end;
                 }
+#endif
             }
         }
 #endif
@@ -595,7 +601,7 @@ page 9850 "Tenant Permissions"
                     begin
                         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, "App ID", "Role ID");
                         AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
-                        AddSubtractPermissionSet.RunModal;
+                        AddSubtractPermissionSet.RunModal();
                         FillTempPermissions;
                     end;
                 }
@@ -660,7 +666,7 @@ page 9850 "Tenant Permissions"
                             exit;
                         AddLoggedPermissions(TempTablePermissionBuffer);
                         FillTempPermissions;
-                        if FindFirst then;
+                        if FindFirst() then;
                     end;
                 }
             }
@@ -790,7 +796,7 @@ page 9850 "Tenant Permissions"
         if GetFilter("App ID") <> '' then
             CurrentAppID := GetFilter("App ID")
         else
-            if TenantPermissionSet.FindFirst then
+            if TenantPermissionSet.FindFirst() then
                 CurrentAppID := TenantPermissionSet."App ID";
 
         if not IsNullGuid(CurrentAppID) then
@@ -800,7 +806,7 @@ page 9850 "Tenant Permissions"
             if GetFilter("Role ID") <> '' then
                 CurrentRoleID := GetFilter("Role ID")
             else
-                if TenantPermissionSet.FindFirst then
+                if TenantPermissionSet.FindFirst() then
                     CurrentRoleID := TenantPermissionSet."Role ID";
         Reset;
         FillTempPermissions;
@@ -854,7 +860,7 @@ page 9850 "Tenant Permissions"
         TenantPermission.SetFilter("App ID", CurrentAppID);
         FilterGroup(0);
 
-        if TenantPermission.FindSet then
+        if TenantPermission.FindSet() then
             repeat
                 TempTenantPermission := TenantPermission;
                 TempTenantPermission.Insert();
@@ -884,7 +890,7 @@ page 9850 "Tenant Permissions"
           TenantPermission."Object Type"::System);
         TempTenantPermission.Copy(TenantPermission, true);
         TempTenantPermission.Init();
-        if AllObj.FindSet then
+        if AllObj.FindSet() then
             repeat
                 TempTenantPermission."Object Type" := AllObj."Object Type";
                 TempTenantPermission."Object ID" := AllObj."Object ID";
@@ -972,7 +978,7 @@ page 9850 "Tenant Permissions"
         TempTenantPermission.Copy(Rec, true);
         CurrPage.SetSelectionFilter(TempTenantPermission);
 
-        if TempTenantPermission.FindSet then
+        if TempTenantPermission.FindSet() then
             repeat
                 case RIMDX of
                     'R':
@@ -1020,7 +1026,7 @@ page 9850 "Tenant Permissions"
     begin
         TempTenantPermission.Copy(Rec, true);
         CurrPage.SetSelectionFilter(TempTenantPermission);
-        if TempTenantPermission.FindSet then
+        if TempTenantPermission.FindSet() then
             repeat
                 DoAddRelatedTables(TempTenantPermission);
             until TempTenantPermission.Next() = 0;
@@ -1030,7 +1036,7 @@ page 9850 "Tenant Permissions"
     local procedure AddLoggedPermissions(var TablePermissionBuffer: Record "Table Permission Buffer")
     begin
         TablePermissionBuffer.SetRange("Session ID", SessionId);
-        if TablePermissionBuffer.FindSet then
+        if TablePermissionBuffer.FindSet() then
             repeat
                 AddPermission(CurrentAppID, CurrentRoleID,
                   TablePermissionBuffer."Object Type",
@@ -1055,7 +1061,7 @@ page 9850 "Tenant Permissions"
 
         TableRelationsMetadata.SetRange("Table ID", TenantPermission."Object ID");
         TableRelationsMetadata.SetFilter("Related Table ID", '>0&<>%1', TenantPermission."Object ID");
-        if TableRelationsMetadata.FindSet then
+        if TableRelationsMetadata.FindSet() then
             repeat
                 AddPermission(
                   CurrentAppID, CurrentRoleID, "Object Type"::"Table Data", TableRelationsMetadata."Related Table ID", "Read Permission"::Yes,

@@ -31,7 +31,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDoc(SalesHeader, SalesLine, false);
 
         // Create Posting Setup for Sales Tax.
@@ -59,7 +59,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDoc(SalesHeader, SalesLine, false);
 
         // Create Posting Setup for Sales Tax.
@@ -88,7 +88,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDoc(SalesHeader, SalesLine, false);
 
         // Create Posting Setup for Sales Tax.
@@ -115,7 +115,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDoc(SalesHeader, SalesLine, false);
 
         // Create Posting Setup for Sales Tax.
@@ -144,7 +144,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDoc(SalesHeader, SalesLine, true);
 
         // Create Posting Setup for Sales Tax.
@@ -171,7 +171,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDoc(SalesHeader, SalesLine, true);
 
         // Create Posting Setup for Sales Tax.
@@ -198,7 +198,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDoc(SalesHeader, SalesLine, true);
 
         // Create Posting Setup for Sales Tax.
@@ -228,7 +228,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Purch Invoice.
-        Initialize;
+        Initialize();
         CreatePurchDoc(PurchHeader, PurchLine, false);
 
         // Create Posting Setup for Purch Tax.
@@ -256,7 +256,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Purch Invoice.
-        Initialize;
+        Initialize();
         CreatePurchDoc(PurchHeader, PurchLine, false);
 
         // Create Posting Setup for Purch Tax.
@@ -286,7 +286,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Purch Invoice.
-        Initialize;
+        Initialize();
         CreatePurchDoc(PurchHeader, PurchLine, false);
 
         // Create Posting Setup for Purch Tax.
@@ -313,7 +313,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Purch Invoice.
-        Initialize;
+        Initialize();
         CreatePurchDoc(PurchHeader, PurchLine, false);
 
         // Create Posting Setup for Purch Tax.
@@ -342,7 +342,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreatePurchDoc(PurchHeader, PurchLine, true);
 
         // Create Posting Setup for Sales Tax.
@@ -369,7 +369,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreatePurchDoc(PurchHeader, PurchLine, true);
 
         // Create Posting Setup for Sales Tax.
@@ -396,7 +396,7 @@ codeunit 134064 "Sales Tax"
         DocumentNo: Code[20];
     begin
         // Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreatePurchDoc(PurchHeader, PurchLine, true);
 
         // Create Posting Setup for Sales Tax.
@@ -426,7 +426,7 @@ codeunit 134064 "Sales Tax"
     begin
         // [GIVEN] System is set up to use default accounts on jurisdiction creation
         TaxSetup.Get();
-        TaxSetup."Tax Account (Sales)" := LibraryERM.CreateGLAccountNo;
+        TaxSetup."Tax Account (Sales)" := LibraryERM.CreateGLAccountNo();
         TaxSetup.Modify();
 
         // [WHEN] A Jurisdiction is created
@@ -489,8 +489,8 @@ codeunit 134064 "Sales Tax"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales Tax");
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Tax");
@@ -635,7 +635,7 @@ codeunit 134064 "Sales Tax"
     begin
         TaxAreaLine.SetFilter("Tax Area", TaxArea);
         TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
-        TaxAreaLine.FindLast;
+        TaxAreaLine.FindLast();
         exit(TaxAreaLine."Calculation Order" + 1);
     end;
 
@@ -656,7 +656,7 @@ codeunit 134064 "Sales Tax"
     begin
         GLEntry.SetFilter("Document No.", DocumentNo);
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 }

@@ -71,21 +71,21 @@ table 7303 "Bin Type"
         BinContent: Record "Bin Content";
     begin
         Zone.SetRange("Bin Type Code", Code);
-        if Zone.FindFirst then
+        if Zone.FindFirst() then
             Error(
               Text000,
               TableCaption, Zone.TableCaption, Zone."Location Code", Zone.Code);
 
         Bin.SetCurrentKey("Bin Type Code");
         Bin.SetRange("Bin Type Code", Code);
-        if Bin.FindFirst then
+        if Bin.FindFirst() then
             Error(
               Text001,
               TableCaption, Bin.TableCaption, Bin."Location Code", Bin."Zone Code", Bin.Code);
 
         BinContent.SetCurrentKey("Bin Type Code");
         BinContent.SetRange("Bin Type Code", Code);
-        if BinContent.FindFirst then
+        if BinContent.FindFirst() then
             Error(
               Text001,
               TableCaption, BinContent.TableCaption, BinContent."Location Code",
@@ -126,7 +126,7 @@ table 7303 "Bin Type"
                     BinType.SetRange(Ship, Ship);
                     BinType.SetRange("Put Away", "Put Away");
                     BinType.SetRange(Pick, Pick);
-                    if BinType.FindFirst then
+                    if BinType.FindFirst() then
                         Error(Text002, TableCaption, BinType.Code);
                 end;
             FieldNo(Receive):

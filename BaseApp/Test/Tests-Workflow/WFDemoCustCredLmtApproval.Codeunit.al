@@ -28,10 +28,10 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
         if IsInitialized then
@@ -61,7 +61,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [WHEN] A user sends the customer credit limit change for approval and all users in the group of approvals approve the document.
         // [THEN] The customer credit limit change is approved and applied.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -127,7 +127,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [WHEN] A user sends the customer credit limit change for approval, the first approver approves it and last approver rejects it.
         // [THEN] The customer credit limit change is rejected and the change deleted.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -193,7 +193,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [WHEN] A user sends the customer credit limit change for approval and the first approver rejects it.
         // [THEN] The customer credit limit change is rejected and deleted.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -251,7 +251,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [WHEN] A user sends the customer credit limit change for approval and the second user delegates the approval to the 3rd user and the last user approves it.
         // [THEN] The customer credit limit change is approved and applied.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -322,7 +322,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
     begin
         // [SCENARIO 5] Approval action availability.
         // [GIVEN] Customer approval workflow and customer credit limit change approval workflow are disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Customer card is opened.
         LibrarySales.CreateCustomer(Customer);
@@ -410,7 +410,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
     begin
         // [SCENARIO 6] Approval action availability.
         // [GIVEN] Customer approval workflow and customer credit limit change approval workflow are disabled.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [WHEN] Customer card is opened.
@@ -488,7 +488,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [WHEN] A user sends 3 customer credit limit changes for approval and all users in the group of approvals approve the 2nd request.
         // [THEN] The 2nd customer credit limit change is approved and applied.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -512,18 +512,18 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         WorkflowRecordChange.SetRange("Table No.", DATABASE::Customer);
         WorkflowRecordChange.SetRange("Field No.", Customer.FieldNo("Credit Limit (LCY)"));
         WorkflowRecordChange.SetRange("New Value", Format(NewCreditLimit, 0, 9));
-        WorkflowRecordChange.FindFirst;
+        WorkflowRecordChange.FindFirst();
         // find the approval entry from the workflow instance
         ApprovalEntry.SetFilter("Record ID to Approve", '%1', Customer.RecordId);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowRecordChange."Workflow Step Instance ID");
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         // goto the approval entry and approve
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Approve.Invoke;
         // find the next approval entry (there were 3, 1 auto-approved, 1 approved just above and this last one)
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Approve.Invoke;
         // close the page
@@ -556,7 +556,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [WHEN] A user sends the customer credit limit change for approval, sends the customer for approval and then rejects the customer credit limit change approval.
         // [THEN] The customer credit limit change is rejected, but the customer approval is not impacted.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowCreditLimit, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowCustomerApproval, WorkflowSetup.CustomerWorkflowCode);
 
@@ -589,7 +589,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
 
         // Verify - Not all Approval requests were rejected
         WorkflowRecordChangeArchive.SetRange("Record ID", Customer.RecordId);
-        WorkflowRecordChangeArchive.FindFirst;
+        WorkflowRecordChangeArchive.FindFirst();
         ApprovalEntry.SetRange("Record ID to Approve", Customer.RecordId);
         ApprovalEntry.SetFilter("Workflow Step Instance ID", '<>%1', WorkflowRecordChangeArchive."Workflow Step Instance ID");
         ApprovalEntry.SetFilter(Status, '<>%1', ApprovalEntry.Status::Rejected);
@@ -619,7 +619,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [WHEN] A user sends the customer credit limit change for approval, sends the customer for approval and then cancels the customer approval.
         // [THEN] The customer approval is canceled, but the credit limit change approval is not impacted.
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowCustomerApproval, WorkflowSetup.CustomerWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowCreditLimit, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
@@ -657,7 +657,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
 
         // Verify - Not correct Approval requests were rejected
         WorkflowRecordChange.SetRange("Record ID", Customer.RecordId);
-        WorkflowRecordChange.FindFirst;
+        WorkflowRecordChange.FindFirst();
         ApprovalEntry.SetRange("Record ID to Approve", Customer.RecordId);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowRecordChange."Workflow Step Instance ID");
         ApprovalEntry.SetFilter(Status, '<>%1', ApprovalEntry.Status::Canceled);
@@ -687,7 +687,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [WHEN] A user sends the customer credit limit change for approval, sends the customer for approval and then cancels the customer approval.
         // [THEN] The customer approval is canceled, but the credit limit change approval is not impacted.
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowCreditLimit, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowCustomerApproval, WorkflowSetup.CustomerWorkflowCode);
@@ -726,7 +726,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
 
         // Verify - Not correct Approval requests were rejected
         WorkflowRecordChange.SetRange("Record ID", Customer.RecordId);
-        WorkflowRecordChange.FindFirst;
+        WorkflowRecordChange.FindFirst();
         ApprovalEntry.SetRange("Record ID to Approve", Customer.RecordId);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowRecordChange."Workflow Step Instance ID");
         ApprovalEntry.SetFilter(Status, '<>%1', ApprovalEntry.Status::Canceled);
@@ -753,7 +753,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [WHEN] A user sends the customer credit limit change for approval and all users in the group of approvals approve the document.
         // [THEN] The customer credit limit change is approved and applied.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -895,7 +895,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         ApprovalEntry.SetRange("Record ID to Approve", Customer.RecordId);
         ApprovalEntry.SetRange("Related to Change", true);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
 
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
@@ -912,7 +912,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         ApprovalEntry.SetRange("Record ID to Approve", Customer.RecordId);
         ApprovalEntry.SetRange("Related to Change", true);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
 
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
@@ -939,7 +939,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         ApprovalEntry.SetRange("Record ID to Approve", Customer.RecordId);
         ApprovalEntry.SetRange("Related to Change", true);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
 
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);

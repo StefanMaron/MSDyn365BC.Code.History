@@ -49,7 +49,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Receipt Lines, Item Tracking Lines and Value Entries when undo a Purchase Receipt Line Tracked by Serial Number.
 
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
           TempReservationEntry, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode), '', 1);  // 1 is Sign Factor.
         FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, TempReservationEntry."Item No.");
@@ -78,7 +78,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo a Invoiced Purchase Receipt.
 
         // Setup: Create and Invoice Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -106,7 +106,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo a Purchase Receipt Line with applied Quantity Tracked by Serial Number.
 
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithTracking(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode),
           TrackingOption::AssignSerialNo, '', 1);  // 1 is Sign Factor.
@@ -141,7 +141,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Item Tracking Lines and Value Entries when undo a Purchase Receipt Line With Charge Assignment.
 
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order. Create Purchase Invoice for Charge Item and assign it to previous Posted Receipt.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
           TempReservationEntry, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode), '', 1);  // 1 is sign factor.
         FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, TempReservationEntry."Item No.");
@@ -176,7 +176,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo a Purchase Receipt Line With Invoiced Charge Assignment.
 
         // Setup: Create and Receive Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -210,7 +210,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Serial numbers for the line in the undone Purchase Receipt are not available for Sales Order.
 
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithTracking(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode),
           TrackingOption::AssignSerialNo, '', 1);  // 1 is Sign Factor.
@@ -237,7 +237,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Serial numbers for the line in the undone Purchase Receipt are not available for Purchase Return Order.
 
         // Setup: Create Serial Tracked Item. Create Purchase Order and assign Serial No. Receive Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithTracking(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode),
           TrackingOption::AssignSerialNo, '', 1);  // 1 is Sign Factor.
@@ -268,7 +268,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify corrective Receipt Lines when undo Multiple Lines from Purchase Receipt.
 
         // Setup: Create and Receive Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -298,7 +298,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Receipt Lines, Item Tracking Lines and Value Entries when undo a Purchase Receipt Line with Negative Quantity Tracked by Serial Number.
 
         // Setup: Create Item with Item Tracking Code which is neither SN Specific nor Lot Specific. Create Purchase Order and assign Serial No. Receive Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithTracking(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode),
           TrackingOption::AssignSerialNo, AvailabilityWarning, -1);  // -1 is for SignFactor.
@@ -318,7 +318,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Receipt Lines, Item Tracking Lines and Value Entries when undo a Purchase Receipt Line Tracked by Lot Number.
 
         // Setup: Create Item with Item Tracking Code which is neither SN Specific nor Lot Specific. Create Purchase Order and assign Lot No. Receive Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithTracking(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateTrackedItem(false, LibraryUtility.GetGlobalNoSeriesCode, ''),
           TrackingOption::AssignLotNo, '', 1);  // 1 is for SignFactor.
@@ -339,7 +339,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Return Shipment Lines, Item Tracking Lines and Value Entries when undo a Purchase Return Shipment Line Tracked by Serial Number.
 
         // Setup: Create Item for tracking. Create Purchase Return Order and assign Serial No. Ship Purchase Return Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
           TempReservationEntry, PurchaseLine."Document Type"::"Return Order",
           CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode), AvailabilityWarning, 1);  // 1 is Sign Factor.
@@ -368,7 +368,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo Invoiced Purchase Return Shipment.
 
         // Setup: Create and Invoice Purchase Return Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -393,7 +393,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo Shipped Purchase Return Shipment.
 
         // Setup: Create and Ship Purchase Return Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -425,7 +425,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Item Tracking Lines and Value Entries when undo a Purchase Return Shipment Line With Charge Assignment.
 
         // Setup: Create Item for tracking. Create Purchase Return Order and assign Serial No. Receive Purchase Return Order. Create Purchase Invoice for Charge Item and assign it to previous Posted Return Shipment.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
           TempReservationEntry, PurchaseLine."Document Type"::"Return Order",
           CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode), AvailabilityWarning, 1);  // 1 is Sign Factor.
@@ -460,7 +460,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo a Purchase Return Shipment Line With Invoiced Charge Assignment.
 
         // Setup: Create and Ship Purchase Return Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -495,7 +495,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify corrective Return Shipment Lines when undo Multiple Lines from Return Shipment.
 
         // Setup: Create and Ship Purchase Return Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -526,7 +526,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify deletion of Purchase Return Order is allowed after undo because nothing has been posted.
 
         // Setup: Create and Ship Purchase Return Order. Undo Return Shipment and reopen the Purchase Return Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -555,7 +555,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Return Shipment Lines, Item Tracking Lines and Value Entries when undo a Purchase Return Shipment Line with Negative Quantity Tracked by Serial Number.
 
         // Setup: Create Serial tracked Item. Create Purchase Return Order and assign Serial No. Ship Purchase Return Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocumentWithTracking(
           TempReservationEntry, PurchaseLine."Document Type"::"Return Order",
           CreateTrackedItem(true, '', LibraryUtility.GetGlobalNoSeriesCode), '', -1);  // -1 is sign factor.
@@ -598,7 +598,7 @@ codeunit 137288 "SCM Inventory Costing III"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create and Post Purchase Order. Create and Ship Sales Order. Undo Sales Shipment.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -638,7 +638,7 @@ codeunit 137288 "SCM Inventory Costing III"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create and Post Purchase Order. Create and Invoice Sales Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -674,7 +674,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Cost Amount (actual) of the Undone and the corrected Item Ledger Entry, should balance each other.
 
         // Setup: Create and Receive Purchase Order. Undo Purchase Receipt.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -712,7 +712,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Cost Amount (actual) of the Undone and the corrected Item Ledger Entry, should balance each other.
 
         // Setup: Create and Ship Sales Order. Undo Sales Shipment. Post Sales Order as Invoice.
-        Initialize;
+        Initialize();
         CreateShipSalesOrderAndUndoShipment(
           SalesLine, CreateItem(Item."Replenishment System"::Purchase), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostSalesDocument(SalesLine, true);
@@ -736,7 +736,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Cost Amount (actual) of the Undone and the corrected Item Ledger Entry, should balance each other.
 
         // Setup: Create Production Order and Post Comsumption. Create and Ship Sales Order. Undo Sales Shipment.
-        Initialize;
+        Initialize();
         CreateProductionOrderAndPostConsumptionOutput(ItemJournalLine, ItemJournalTemplate.Type::Consumption);
         CreateShipSalesOrderAndUndoShipment(SalesLine, ItemJournalLine."Item No.", LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostSalesDocument(SalesLine, true);
@@ -760,7 +760,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Cost Amount (actual) of the Undone and the corrected Item Ledger Entry, should balance each other.
 
         // Setup: Create Production Order and Post Output. Create and Ship Sales Order. Undo Sales Shipment.
-        Initialize;
+        Initialize();
         CreateProductionOrderAndPostConsumptionOutput(ItemJournalLine, ItemJournalTemplate.Type::Output);
         CreateShipSalesOrderAndUndoShipment(SalesLine, ItemJournalLine."Item No.", LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
 
@@ -783,7 +783,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo Invoiced Sales Shipment.
 
         // Setup: Create and Invoice Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, CreateItem(Item."Replenishment System"::Purchase), LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostSalesDocument(SalesLine, true);  // True for Invoice.
@@ -807,7 +807,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo un- invoiced Sales Shipment.
 
         // Setup: Create and Ship Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, CreateItem(Item."Replenishment System"::Purchase), LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostSalesDocument(SalesLine, false);  // Ship only.
@@ -838,7 +838,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo a Sales Shipment Line With Invoiced Charge Assignment.
 
         // Setup: Create and Ship Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, CreateItem(Item."Replenishment System"::Purchase), LibraryRandom.RandInt(5));  // Use random value for Quantity.
         PostSalesDocument(SalesLine, false);  // False for Invoice.
@@ -870,7 +870,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify deletion of Sales Order is allowed after undo because nothing has been posted.
 
         // Setup: Create and Ship Sales Order. Undo Sales Shipment and reopen the Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesHeader."Document Type"::Order, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -897,7 +897,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Shipment Lines, Item Tracking Lines and Value Entries when undo a Sales Shipment Line Tracked by Serial Number.
 
         // Setup: Create and Receive Purchase Order with Serial Tracking. Create and Ship Sales Order with Serial Tracking.
-        Initialize;
+        Initialize();
         PostPurchaseAndSalesOrderWithTracking(SalesLine);
 
         // Exercise: Undo Sales Shipment Line.
@@ -923,7 +923,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Item Tracking Lines and Value Entries when undo a Sales Shipment Line Tracked by Serial Number With Charge Assignment.
 
         // Setup: Create and Receive Purchase Order with Serial Tracking. Create and Ship Sales Order with Serial Tracking. Create Sales Invoice for Charge Item and assign it to previous Posted Shipment.
-        Initialize;
+        Initialize();
         PostPurchaseAndSalesOrderWithTracking(SalesLine);
         FindShipmentLine(SalesShipmentLine, SalesLine, 1);  // 1 is for Sign Factor.
         SalesInvoiceItemChargeAssign(
@@ -954,7 +954,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify corrective Sales Shipment Lines when undo Multiple Lines from Sales Shipment.
 
         // Setup: Create and Ship Sales Order with multiple lines.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesHeader."Document Type"::Order, CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use random value for Quantity.
@@ -986,7 +986,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Sales Shipment Lines, Item Tracking Lines and Value Entries when undo a Sales Shipment Line with Negative Quantity Tracked by Serial Number.
 
         // Setup: Create and Ship Sales Order with Serial Tracking.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode),
           -LibraryRandom.RandInt(5));
@@ -1019,7 +1019,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Return Receipt Lines, Item Tracking Lines and Value Entries when undo a Return Receipt Line Tracked by Serial Number.
 
         // Setup: Create Serial Tracked Item. Create Sales Return Order and assign Serial No. Receive Sales Return Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesReturnOrderWithTracking(TempReservationEntry, true, 1, '');  // 1 is for Sign factor.
         FindSalesLine(SalesLine, SalesLine."Document Type"::"Return Order", TempReservationEntry."Item No.");
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value.
@@ -1047,7 +1047,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo a Invoiced Return Receipt.
 
         // Setup: Create and Invoice Sales Return Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::"Return Order", CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use Random Quantity.
@@ -1076,7 +1076,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo a Return Receipt Line with applied Quantity Tracked by Serial Number.
 
         // Setup: Create Serial Tracked Item. Create Sales Return Order and assign Serial No. Receive Sales Return Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesReturnOrderWithTracking(TempReservationEntry, true, 1, '');  // 1 is for Sign factor.
         FindSalesLine(SalesLine, SalesLine."Document Type"::"Return Order", TempReservationEntry."Item No.");
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value.
@@ -1110,7 +1110,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Return Receipt Lines, Item Tracking Lines and Value Entries when undo a Return Receipt Line Tracked by Serial Number With Charge Assignment.
 
         // Setup: Create Serial Tracked Item. Create Sales Return Order and assign Serial No. Receive Sales Return Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesReturnOrderWithTracking(TempReservationEntry, true, 1, '');  // 1 is for Sign factor.
         FindSalesLine(SalesLine, SalesLine."Document Type"::"Return Order", TempReservationEntry."Item No.");
         LibraryVariableStorage.Dequeue(DummyValue);  // Dequeue dummy value to balance blank Enqueued value.
@@ -1146,7 +1146,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify error when undo a Return Receipt Line With Invoiced Charge Assignment.
 
         // Setup: Create and Receive Sales Return Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::"Return Order", CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use Random Quantity.
@@ -1181,7 +1181,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify corrective Return Receipt Lines when undo Multiple Lines from Return Receipt.
 
         // Setup: Create and Receive Sales Return Order with multiple lines.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::"Return Order", CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use Random Quantity.
@@ -1212,7 +1212,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify deletion of Sales Return Order is allowed after undo because nothing has been posted.
 
         // Setup: Create and Receive Sales Return Order. Undo Return Receipt.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::"Return Order", CreateItem(Item."Replenishment System"::Purchase),
           LibraryRandom.RandInt(5));  // Use Random Quantity.
@@ -1240,7 +1240,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Return Receipt Lines, Item Tracking Lines and Value Entries when undo a Return Receipt Line with Negative Quantity Tracked by Serial Number.
 
         // Setup: Create Sales Return Order with negative quantity and Serial Tracking. Receive Sales Return Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesReturnOrderWithTracking(TempReservationEntry, false, -1, AvailabilityWarning);  // -1 is for Sign factor.
         FindSalesLine(SalesLine, SalesLine."Document Type"::"Return Order", TempReservationEntry."Item No.");
         EnqueueValuesForPostedItemTrackingLines(TempReservationEntry, UndoReturnReceiptMessage, 1);  // Enqueue value for PostedItemTrackingLinesHandler.
@@ -1266,7 +1266,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Serial numbers for the line in the undone Return Receipt are not available for Sales Order.
 
         // Setup: Create Sales Return Order and assign Serial No. Receive Sales Return Order. Undo Return Receipt.
-        Initialize;
+        Initialize();
         PostSalesReturnOrderAndUndoReturnReceipt(SalesLine);
 
         // Exercise: Create Sales Order and select Serial No.
@@ -1287,7 +1287,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify Serial numbers for the line in the undone Return Receipt are not available for Purchase Return Order.
 
         // Setup: Create Sales Return Order and assign Serial No. Receive Sales Return Order. Undo Return Receipt.
-        Initialize;
+        Initialize();
         PostSalesReturnOrderAndUndoReturnReceipt(SalesLine);
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
 
@@ -1304,17 +1304,17 @@ codeunit 137288 "SCM Inventory Costing III"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Costing III");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing III");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         isInitialized := true;
         Commit();
@@ -1525,35 +1525,35 @@ codeunit 137288 "SCM Inventory Costing III"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Sales Amount (Actual)", SalesAmountActual);
         ItemLedgerEntry.SetRange(Open, Open);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLine: Record "Purchase Line"; QuantityFactor: Integer)
     begin
         FilterForReceiptLine(PurchRcptLine, PurchaseLine, PurchaseLine."No.");
         PurchRcptLine.SetRange(Quantity, QuantityFactor * PurchaseLine.Quantity);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line"; QuantityFactor: Integer)
     begin
         FilterForReturnReceiptLine(ReturnReceiptLine, SalesLine, SalesLine."No.");
         ReturnReceiptLine.SetRange(Quantity, QuantityFactor * SalesLine.Quantity);
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
     end;
 
     local procedure FindReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; PurchaseLine: Record "Purchase Line"; QuantityFactor: Integer)
     begin
         FilterForReturnShipmentLine(ReturnShipmentLine, PurchaseLine, PurchaseLine."No.");
         ReturnShipmentLine.SetRange(Quantity, QuantityFactor * PurchaseLine.Quantity);
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
     end;
 
     local procedure FindReservationEntry(var TempReservationEntry: Record "Reservation Entry" temporary; ItemNo: Code[20])
@@ -1572,14 +1572,14 @@ codeunit 137288 "SCM Inventory Costing III"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; SalesLine: Record "Sales Line"; SignFactor: Integer)
     begin
         FilterForShipmentLine(SalesShipmentLine, SalesLine, SalesLine."No.");
         SalesShipmentLine.SetRange(Quantity, SignFactor * SalesLine.Quantity);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; DocumentLineNo: Integer)

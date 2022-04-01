@@ -59,25 +59,29 @@ report 95 "Date Compress VAT Entries"
                     DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
                     Window.Update(7, DateComprReg."No. of New Records");
 
-                    if RetainNo(FieldNo("Document No.")) then begin
+                    if DateComprRetainFields."Retain Document No." then begin
                         SetRange("Document No.", "Document No.");
                         NewVATEntry."Document No." := "Document No.";
                     end;
-                    if RetainNo(FieldNo("Bill-to/Pay-to No.")) then begin
+                    if DateComprRetainFields."Retain Bill-to/Pay-to No." then begin
                         SetRange("Bill-to/Pay-to No.", "Bill-to/Pay-to No.");
                         NewVATEntry."Bill-to/Pay-to No." := "Bill-to/Pay-to No.";
                     end;
-                    if RetainNo(FieldNo("EU 3-Party Trade")) then begin
+                    if DateComprRetainFields."Retain EU 3-Party Trade" then begin
                         SetRange("EU 3-Party Trade", "EU 3-Party Trade");
                         NewVATEntry."EU 3-Party Trade" := "EU 3-Party Trade";
                     end;
-                    if RetainNo(FieldNo("Country/Region Code")) then begin
+                    if DateComprRetainFields."Retain Country/Region Code" then begin
                         SetRange("Country/Region Code", "Country/Region Code");
                         NewVATEntry."Country/Region Code" := "Country/Region Code";
                     end;
-                    if RetainNo(FieldNo("Internal Ref. No.")) then begin
+                    if DateComprRetainFields."Retain Internal Ref. No." then begin
                         SetRange("Internal Ref. No.", "Internal Ref. No.");
                         NewVATEntry."Internal Ref. No." := "Internal Ref. No.";
+                    end;
+                    if DateComprRetainFields."Retain Journal Template Name" then begin
+                        SetRange("Journal Templ. Name", "Journal Templ. Name");
+                        NewVATEntry."Journal Templ. Name" := "Journal Templ. Name";
                     end;
                     if Base >= 0 then
                         SetFilter(Base, '>=0')
@@ -102,7 +106,7 @@ report 95 "Date Compress VAT Entries"
                           NewVATEntry."Remaining Unrealized Base" + "Remaining Unrealized Base";
                         Delete;
                         GLEntryVATEntryLink.SetRange("VAT Entry No.", "Entry No.");
-                        if GLEntryVATEntryLink.FindSet then
+                        if GLEntryVATEntryLink.FindSet() then
                             repeat
                                 GLEntryVATEntryLink2 := GLEntryVATEntryLink;
                                 GLEntryVATEntryLink2.Delete();
@@ -163,7 +167,7 @@ report 95 "Date Compress VAT Entries"
                 SetRange("Entry No.", 0, LastVATEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
-                InitRegisters;
+                InitRegisters();
 
                 if UseDataArchive then
                     DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress VAT Entries"));
@@ -211,35 +215,41 @@ report 95 "Date Compress VAT Entries"
                     group("Retain Field Contents")
                     {
                         Caption = 'Retain Field Contents';
-                        field("Retain[1]"; Retain[1])
+                        field("Retain[1]"; DateComprRetainFields."Retain Document No.")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies if you want to retain the contents of the Document No. field. ';
                         }
-                        field("Retain[2]"; Retain[2])
+                        field("Retain[2]"; DateComprRetainFields."Retain Bill-to/Pay-to No.")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Bill-to/Pay-to No.';
                             ToolTip = 'Specifies whether you want to retain the contents of the Bill-to/Pay-to No. field. ';
                         }
-                        field("Retain[3]"; Retain[3])
+                        field("Retain[3]"; DateComprRetainFields."Retain EU 3-Party Trade")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'EU 3-Party Trade';
                             ToolTip = 'Specifies if you want to retain the contents of the EU 3-Party Trade field. ';
                         }
-                        field("Retain[4]"; Retain[4])
+                        field("Retain[4]"; DateComprRetainFields."Retain Country/Region Code")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Country/Region Code';
                             ToolTip = 'Specifies if you want to retain the address country/region field contents.';
                         }
-                        field("Retain[5]"; Retain[5])
+                        field("Retain[5]"; DateComprRetainFields."Retain Internal Ref. No.")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Internal Ref. No.';
                             ToolTip = 'Specifies if you want to retain the contents of the Internal Ref. No. field.';
+                        }
+                        field("Retain[6]"; DateComprRetainFields."Retain Journal Template Name")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Journal Template Name';
+                            ToolTip = 'Specifies the name of the journal template that is used for the posting.';
                         }
                     }
                     field(UseDataArchiveCtrl; UseDataArchive)
@@ -273,14 +283,6 @@ report 95 "Date Compress VAT Entries"
         begin
             if EntrdDateComprReg."Ending Date" = 0D then
                 EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
-
-            with "VAT Entry" do begin
-                InsertField(FieldNo("Document No."), FieldCaption("Document No."));
-                InsertField(FieldNo("Bill-to/Pay-to No."), FieldCaption("Bill-to/Pay-to No."));
-                InsertField(FieldNo("EU 3-Party Trade"), FieldCaption("EU 3-Party Trade"));
-                InsertField(FieldNo("Country/Region Code"), FieldCaption("Country/Region Code"));
-                InsertField(FieldNo("Internal Ref. No."), FieldCaption("Internal Ref. No."));
-            end;
 
             DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
             UseDataArchive := DataArchiveProviderExists;
@@ -325,6 +327,7 @@ report 95 "Date Compress VAT Entries"
         SourceCodeSetup: Record "Source Code Setup";
         EntrdDateComprReg: Record "Date Compr. Register";
         DateComprReg: Record "Date Compr. Register";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         GLReg: Record "G/L Register";
         NewVATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
@@ -335,10 +338,6 @@ report 95 "Date Compress VAT Entries"
         DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         VATEntryFilter: Text[250];
-        NoOfFields: Integer;
-        Retain: array[10] of Boolean;
-        FieldNumber: array[10] of Integer;
-        FieldNameArray: array[10] of Text[100];
         LastGLEntryNo: Integer;
         LastVATEntryNo: Integer;
         NextTransactionNo: Integer;
@@ -347,7 +346,6 @@ report 95 "Date Compress VAT Entries"
         UseDataArchive: Boolean;
         [InDataSet]
         DataArchiveProviderExists: Boolean;
-        i: Integer;
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
@@ -359,16 +357,31 @@ report 95 "Date Compress VAT Entries"
         DateComprReg.InitRegister(
           DATABASE::"VAT Entry", DateComprReg.GetLastEntryNo() + 1, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date",
           EntrdDateComprReg."Period Length", VATEntryFilter, GLReg."No.", SourceCodeSetup."Compress VAT Entries");
-        for i := 1 to NoOfFields do
-            if Retain[i] then
-                DateComprReg."Retain Field Contents" :=
-                  CopyStr(
-                    DateComprReg."Retain Field Contents" + ',' + FieldNameArray[i], 1,
-                    MaxStrLen(DateComprReg."Retain Field Contents"));
+
+        if DateComprRetainFields."Retain Document No." then
+            AddFieldContent(NewVATEntry.FieldName("Document No."));
+        if DateComprRetainFields."Retain Bill-to/Pay-to No." then
+            AddFieldContent(NewVATEntry.FieldName("Bill-to/Pay-to No."));
+        if DateComprRetainFields."Retain EU 3-Party Trade" then
+            AddFieldContent(NewVATEntry.FieldName("EU 3-Party Trade"));
+        if DateComprRetainFields."Retain Country/Region Code" then
+            AddFieldContent(NewVATEntry.FieldName("Country/Region Code"));
+        if DateComprRetainFields."Retain Internal Ref. No." then
+            AddFieldContent(NewVATEntry.FieldName("Internal Ref. No."));
+        if DateComprRetainFields."Retain Journal Template Name" then
+            AddFieldContent(NewVATEntry.FieldName("Journal Templ. Name"));
+
         DateComprReg."Retain Field Contents" := CopyStr(DateComprReg."Retain Field Contents", 2);
 
         GLRegExists := false;
         NoOfDeleted := 0;
+    end;
+
+    local procedure AddFieldContent(FieldName: Text)
+    begin
+        DateComprReg."Retain Field Contents" :=
+            CopyStr(
+                DateComprReg."Retain Field Contents" + ',' + FieldName, 1, MaxStrLen(DateComprReg."Retain Field Contents"));
     end;
 
     local procedure InsertRegisters(var GLReg: Record "G/L Register"; var DateComprReg: Record "Date Compr. Register")
@@ -417,57 +430,47 @@ report 95 "Date Compress VAT Entries"
         end;
     end;
 
-    local procedure InsertField(Number: Integer; Name: Text[100])
-    begin
-        NoOfFields := NoOfFields + 1;
-        FieldNumber[NoOfFields] := Number;
-        FieldNameArray[NoOfFields] := Name;
-    end;
-
-    local procedure RetainNo(Number: Integer): Boolean
-    begin
-        exit(Retain[Index(Number)]);
-    end;
-
-    local procedure Index(Number: Integer): Integer
-    begin
-        for i := 1 to NoOfFields do
-            if Number = FieldNumber[i] then
-                exit(i);
-    end;
-
     local procedure InitializeParameter()
     var
         DateCompression: Codeunit "Date Compression";
     begin
         if EntrdDateComprReg."Ending Date" = 0D then
             EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
-
-        with "VAT Entry" do begin
-            InsertField(FieldNo("Document No."), FieldCaption("Document No."));
-            InsertField(FieldNo("Bill-to/Pay-to No."), FieldCaption("Bill-to/Pay-to No."));
-            InsertField(FieldNo("EU 3-Party Trade"), FieldCaption("EU 3-Party Trade"));
-            InsertField(FieldNo("Country/Region Code"), FieldCaption("Country/Region Code"));
-            InsertField(FieldNo("Internal Ref. No."), FieldCaption("Internal Ref. No."));
-        end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest with parameter DateComprRetainFields', '20.0')]
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; RetainDocumentNo: Boolean; RetainBilltoPaytoNo: Boolean; RetainEU3PartyTrade: Boolean; RetainCountryRegionCode: Boolean; RetainInternalRefNo: Boolean)
     begin
         InitializeRequest(StartingDate, EndingDate, PeriodLength, RetainDocumentNo, RetainBilltoPaytoNo, RetainEU3PartyTrade, RetainCountryRegionCode, RetainInternalRefNo, true);
     end;
+#endif
 
+#if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest with parameter DateComprRetainFields', '20.0')]
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; RetainDocumentNo: Boolean; RetainBilltoPaytoNo: Boolean; RetainEU3PartyTrade: Boolean; RetainCountryRegionCode: Boolean; RetainInternalRefNo: Boolean; DoUseDataArchive: Boolean)
     begin
-        InitializeParameter;
+        InitializeParameter();
         EntrdDateComprReg."Starting Date" := StartingDate;
         EntrdDateComprReg."Ending Date" := EndingDate;
         EntrdDateComprReg."Period Length" := PeriodLength;
-        Retain[1] := RetainDocumentNo;
-        Retain[2] := RetainBilltoPaytoNo;
-        Retain[3] := RetainEU3PartyTrade;
-        Retain[4] := RetainCountryRegionCode;
-        Retain[5] := RetainInternalRefNo;
+        DateComprRetainFields."Retain Document No." := RetainDocumentNo;
+        DateComprRetainFields."Retain Bill-to/Pay-to No." := RetainBilltoPaytoNo;
+        DateComprRetainFields."Retain EU 3-Party Trade" := RetainEU3PartyTrade;
+        DateComprRetainFields."Retain Country/Region Code" := RetainCountryRegionCode;
+        DateComprRetainFields."Retain Internal Ref. No." := RetainInternalRefNo;
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
+    end;
+#endif
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; NewDateComprRetainFields: Record "Date Compr. Retain Fields"; DoUseDataArchive: Boolean)
+    begin
+        InitializeParameter();
+        EntrdDateComprReg."Starting Date" := StartingDate;
+        EntrdDateComprReg."Ending Date" := EndingDate;
+        EntrdDateComprReg."Period Length" := PeriodLength;
+        DateComprRetainFields := NewDateComprRetainFields;
         DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
@@ -482,11 +485,12 @@ report 95 "Date Compress VAT Entries"
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
-        TelemetryDimensions.Add('RetainBilltoPaytoNo', Format(Retain[2], 0, 9));
-        TelemetryDimensions.Add('RetainEU3PartyTrade', Format(Retain[3], 0, 9));
-        TelemetryDimensions.Add('RetainCountryRegionCode', Format(Retain[4], 0, 9));
-        TelemetryDimensions.Add('RetainInternalRefNo', Format(Retain[5], 0, 9));
+        TelemetryDimensions.Add('RetainDocumentNo', Format(DateComprRetainFields."Retain Document No.", 0, 9));
+        TelemetryDimensions.Add('RetainBilltoPaytoNo', Format(DateComprRetainFields."Retain Bill-to/Pay-to No.", 0, 9));
+        TelemetryDimensions.Add('RetainEU3PartyTrade', Format(DateComprRetainFields."Retain EU 3-Party Trade", 0, 9));
+        TelemetryDimensions.Add('RetainCountryRegionCode', Format(DateComprRetainFields."Retain Country/Region Code", 0, 9));
+        TelemetryDimensions.Add('RetainInternalRefNo', Format(DateComprRetainFields."Retain Internal Ref. No.", 0, 9));
+        TelemetryDimensions.Add('RetainJnlTemplateName', Format(DateComprRetainFields."Retain Journal Template Name", 0, 9));
         TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4W', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);

@@ -62,7 +62,7 @@ codeunit 9090 "Postcode Service Manager"
     var
         PostcodeServiceConfig: Record "Postcode Service Config";
     begin
-        if not PostcodeServiceConfig.FindFirst then begin
+        if not PostcodeServiceConfig.FindFirst() then begin
             PostcodeServiceConfig.Init();
             PostcodeServiceConfig.Insert();
         end;
@@ -87,7 +87,7 @@ codeunit 9090 "Postcode Service Manager"
         IsSerConf: Boolean;
         PostCodeServiceKey: Text;
     begin
-        if not PostcodeServiceConfig.FindFirst then
+        if not PostcodeServiceConfig.FindFirst() then
             exit(false);
 
         PostCodeServiceKey := PostcodeServiceConfig.GetServiceKey();
@@ -122,7 +122,7 @@ codeunit 9090 "Postcode Service Manager"
         LastId: Integer;
     begin
         LastId := 0;
-        if TempNameValueBuffer.FindLast then
+        if TempNameValueBuffer.FindLast() then
             LastId := TempNameValueBuffer.ID;
 
         TempNameValueBuffer.Init();
@@ -136,7 +136,7 @@ codeunit 9090 "Postcode Service Manager"
     var
         PostcodeServiceConfig: Record "Postcode Service Config";
     begin
-        if not PostcodeServiceConfig.FindFirst then
+        if not PostcodeServiceConfig.FindFirst() then
             Error(ServiceNotConfiguredErr);
 
         exit(PostcodeServiceConfig.GetServiceKey);

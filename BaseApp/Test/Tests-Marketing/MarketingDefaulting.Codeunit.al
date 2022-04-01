@@ -22,7 +22,7 @@ codeunit 136217 "Marketing Defaulting"
         UserSetup: Record "User Setup";
         Contact: Record Contact;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Salesperson Code field filled in User Setup with current User ID
         CreateUserSetup(UserSetup);
 
@@ -41,7 +41,7 @@ codeunit 136217 "Marketing Defaulting"
         UserSetup: Record "User Setup";
         Opportunity: Record Opportunity;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Salesperson Code field filled in User Setup with current User ID
         CreateUserSetup(UserSetup);
 
@@ -60,7 +60,7 @@ codeunit 136217 "Marketing Defaulting"
         UserSetup: Record "User Setup";
         SegmentHeader: Record "Segment Header";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Salesperson Code field filled in User Setup with current User ID
         CreateUserSetup(UserSetup);
 
@@ -79,7 +79,7 @@ codeunit 136217 "Marketing Defaulting"
         UserSetup: Record "User Setup";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Salesperson Code field filled in User Setup with current User ID
         CreateUserSetup(UserSetup);
 
@@ -98,7 +98,7 @@ codeunit 136217 "Marketing Defaulting"
         UserSetup: Record "User Setup";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Salesperson Code field filled in User Setup with current User ID
         CreateUserSetup(UserSetup);
 
@@ -118,7 +118,7 @@ codeunit 136217 "Marketing Defaulting"
         SalesHeader: Record "Sales Header";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Salesperson Code field filled in User Setup with current User ID
         CreateUserSetup(UserSetup);
         SalesReceivablesSetup.Get();
@@ -144,7 +144,7 @@ codeunit 136217 "Marketing Defaulting"
         PurchaseHeader: Record "Purchase Header";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Salesperson Code field filled in User Setup with current User ID
         CreateUserSetup(UserSetup);
         PurchasesPayablesSetup.Get();

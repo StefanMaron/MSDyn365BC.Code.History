@@ -87,7 +87,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             SetCurrentKey("Due Date");
             SetRange("Due Date", StartingDate, GetPeriodEndingDate(StartingDate, PeriodType));
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     CalcFields("Amount (LCY)");
                     Total := Total + "Amount (LCY)";
@@ -107,7 +107,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             SetCurrentKey("Due Date");
             SetRange("Due Date", StartingDate, GetPeriodEndingDate(StartingDate, PeriodType));
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     CalcFields("Amount (LCY)");
                     Total := Total + "Amount (LCY)";
@@ -134,7 +134,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             else
                 SetRange(Type, Type::Purchase);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     Total := Total + Amount;
                 until Next() = 0;
@@ -163,7 +163,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             end;
             SetRange("Document Type", "Document Type"::Order);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if IsTax then
                         AmountValue := -CashFlowManagement.GetTaxAmountFromSalesOrder(SalesHeader)
@@ -199,7 +199,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             end;
             SetRange("Document Type", "Document Type"::Order);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if IsTax then
                         AmountValue := CashFlowManagement.GetTaxAmountFromPurchaseOrder(PurchaseHeader)
@@ -312,7 +312,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         CashFlowSetup.Get();
         PeriodType := CashFlowSetup."Period Type";
         // History Records
-        if TimeSeriesBuffer.FindSet then
+        if TimeSeriesBuffer.FindSet() then
             repeat
                 NewCashFlowAzureAIBufferRecord(TimeSeriesBuffer."Group ID",
                   TimeSeriesBuffer.Value,
@@ -328,7 +328,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         AggregateTaxRecordsToTaxablePeriod(TimeSeriesForecast, XTAXPAYABLESTxt);
         AggregateTaxRecordsToTaxablePeriod(TimeSeriesForecast, XTAXRECEIVABLESTxt);
         // Forecast
-        if TimeSeriesForecast.FindSet then
+        if TimeSeriesForecast.FindSet() then
             repeat
                 // if Variance % is big, do not insert it
                 if TimeSeriesForecast."Delta %" >= CashFlowSetup."Variance %" then
@@ -409,7 +409,7 @@ codeunit 850 "Cash Flow Forecast Handler"
 
         TempTimeSeriesBuffer.SetRange("Group ID", InvoiceOption);
 
-        if TempTimeSeriesBuffer.FindSet and TempCreditMemoTimeSeriesBuffer.FindSet then
+        if TempTimeSeriesBuffer.FindSet and TempCreditMemoTimeSeriesBuffer.FindSet() then
             repeat
                 TempTimeSeriesBuffer.Value := TempTimeSeriesBuffer.Value + TempCreditMemoTimeSeriesBuffer.Value;
                 TempTimeSeriesBuffer.Modify();
@@ -432,7 +432,7 @@ codeunit 850 "Cash Flow Forecast Handler"
 
     local procedure AppendRecords(var TargetTimeSeriesBuffer: Record "Time Series Buffer"; var SourceTimeSeriesBuffer: Record "Time Series Buffer"; Label: Text[50])
     begin
-        if SourceTimeSeriesBuffer.FindSet then
+        if SourceTimeSeriesBuffer.FindSet() then
             repeat
                 if TargetTimeSeriesBuffer.Get(Label, SourceTimeSeriesBuffer."Period No.") then begin
                     TargetTimeSeriesBuffer.Validate(Value, (TargetTimeSeriesBuffer.Value + SourceTimeSeriesBuffer.Value));
@@ -705,10 +705,10 @@ codeunit 850 "Cash Flow Forecast Handler"
         TimeSeriesForecast.SetRange("Group ID", GroupID);
         CurrentSum := 0;
         // Get the biggest taxable period endDate to avoid insertion of first record
-        if TimeSeriesForecast.FindLast then
+        if TimeSeriesForecast.FindLast() then
             LastPeriodNo := TimeSeriesForecast."Period No.";
         PeriodTypeOption := PeriodType;
-        if TimeSeriesForecast.FindSet then begin
+        if TimeSeriesForecast.FindSet() then begin
             repeat
                 CurrentSum += TimeSeriesForecast.Value;
                 TaxablePeriodEndDate := CashFlowSetup.GetTaxPaymentDueDate(TimeSeriesForecast."Period Start Date");

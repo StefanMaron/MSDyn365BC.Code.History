@@ -1,4 +1,4 @@
-﻿codeunit 99000837 "Prod. Order Line-Reserve"
+codeunit 99000837 "Prod. Order Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Action Message Entry" = rm;
@@ -339,7 +339,7 @@
 
             SetFilter("Source Type", '%1|%2', DATABASE::"Prod. Order Line", DATABASE::"Prod. Order Component");
             SetRange("Source Ref. No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     ReservEntry2 := ReservEntry;
                     ReservEntry2.ClearItemTrackingFields;
@@ -473,7 +473,7 @@
             Clear(AvailableProdOrderLines);
             AvailableProdOrderLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
             AvailableProdOrderLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailableProdOrderLines.RunModal;
+            AvailableProdOrderLines.RunModal();
         end;
     end;
 
@@ -597,7 +597,7 @@
 
         AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         ProdOrderLine.FilterLinesForReservation(CalcReservEntry, Status.AsInteger(), AvailabilityFilter, Positive);
-        if ProdOrderLine.FindSet then
+        if ProdOrderLine.FindSet() then
             repeat
                 ProdOrderLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" += ProdOrderLine."Reserved Qty. (Base)";

@@ -43,7 +43,7 @@ codeunit 134144 "ERM ACY Amount in GL Entries"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Reverse GL Register for General Journal Line.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -80,7 +80,7 @@ codeunit 134144 "ERM ACY Amount in GL Entries"
         // Relational Exch. Rate Amount and Relational Adjmt Exch Rate Amount always one third of Exchange Rate Amount.
         LibraryERM.CreateRandomExchangeRate(CurrencyCode);
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount" / 3);
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
         CurrencyExchangeRate.Modify(true);

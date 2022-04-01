@@ -1,12 +1,14 @@
+#if not CLEAN20
 page 99000919 "Demand Forecast"
 {
-    ApplicationArea = Planning;
     Caption = 'Demand Forecast Overview';
     DataCaptionExpression = ProductionForecastName;
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = ListPlus;
-    UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'This page will be replaced by Page 2901 "Demand Forecast Card"';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -204,17 +206,19 @@ page 99000919 "Demand Forecast"
 
     var
         MatrixRecords: array[32] of Record Date;
-        PeriodType: Enum "Analysis Period Type";
         QtyType: Enum "Analysis Amount Type";
-        ForecastType: Enum "Demand Forecast Type";
-        ProductionForecastName: Text[30];
         NewProductionForecastName: Text[30];
-        LocationFilter: Text;
-        DateFilter: Text[1024];
         MatrixColumnCaptions: array[32] of Text[1024];
         ColumnSet: Text[1024];
         PKFirstRecInCurrSet: Text[100];
         CurrSetLength: Integer;
+
+    protected var
+        PeriodType: Enum "Analysis Period Type";
+        ForecastType: Enum "Demand Forecast Type";
+        ProductionForecastName: Text[30];
+        LocationFilter: Text;
+        DateFilter: Text[1024];
 
 #if not CLEAN19
     [Obsolete('Replaced by SetMatrixColumns().', '19.0')]
@@ -225,6 +229,7 @@ page 99000919 "Demand Forecast"
     end;
 #endif
 
+    [Obsolete('The page object will be replaced by Page 2901 "Demand Forecast Card"', '20.0')]
     procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
@@ -235,11 +240,13 @@ page 99000919 "Demand Forecast"
         SetMatrix();
     end;
 
+    [Obsolete('The page object will be replaced by Page 2901 "Demand Forecast Card"', '20.0')]
     procedure SetProductionForecastName(NextProductionForecastName: Text[30])
     begin
         NewProductionForecastName := NextProductionForecastName;
     end;
 
+    [Obsolete('The page object will be replaced by Page 2901 "Demand Forecast Card"', '20.0')]
     [Scope('OnPrem')]
     procedure SetMatrix()
     begin
@@ -264,4 +271,4 @@ page 99000919 "Demand Forecast"
     begin
     end;
 }
-
+#endif

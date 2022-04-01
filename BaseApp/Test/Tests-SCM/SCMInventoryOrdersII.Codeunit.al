@@ -58,7 +58,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     procedure TransferOrderWithSameExpirationDateAndLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         TransferOrderWithExpirationDateAndLotNo;  // Expiration Date values same on Item Tracking Lines.
     end;
 
@@ -68,7 +68,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     procedure TransferOrderWithDifferentExpirationDateAndLotNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         DifferentExpirationDate := true;  // Expiration Date values different on Item Tracking Lines. Global variable required in PostedItemTrackingLinesPageHandler.
         TransferOrderWithExpirationDateAndLotNo;
     end;
@@ -122,7 +122,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         ItemNo: Code[20];
     begin
         // Setup: Create Item and create and post a Sales Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         StockoutWarning := UpdateStockoutWarning(false);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -151,7 +151,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         ItemNo: Code[20];
     begin
         // Setup: Create Item and create and post a Sales Order. Copy Sales Order to a Sales blank Quote
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         StockoutWarning := UpdateStockoutWarning(false);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -182,7 +182,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item, create release and post a Purchase Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleasePurchaseOrder(PurchaseHeader, ItemNo, PurchaseLine.Type::Item, '', Quantity, 0);
@@ -208,7 +208,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item, create and release Purchase Order and post it. Copy Purchase Order to a Purchase Quote.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleasePurchaseOrder(PurchaseHeader, ItemNo, PurchaseLine.Type::Item, '', Quantity, 0);
@@ -238,7 +238,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item, create and post Purchase Order. Create Transfer Order and update Bin on Transfer Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -270,7 +270,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [SCENARIO] Check Quantity and Amount is not changed after Adjust Cost, if Item is purchased only.
 
         // [GIVEN] Prevent Automatic Cost Posting. Create and post Item Journal Line (purchase).
-        Initialize;
+        Initialize();
         UpdateAutomaticCostSetup(InventorySetup);
         UnitCost := LibraryRandom.RandDec(100, 2);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -297,7 +297,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Quantity: Decimal;
     begin
         // Setup: Create Item, create and release Purchase Order. Create Purchase Line for Item Charge and assign it to the Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleasePurchaseOrder(PurchaseHeader, Item."No.", PurchaseLine.Type::Item, LocationBlue.Code, Quantity, 0);
@@ -320,7 +320,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         ItemNo: Code[20];
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
 
         // Create a Drop shipment Sales Order.
@@ -342,7 +342,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         SalesHeader: Record "Sales Header";
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
 
         // Create a Special Order Sales Order.
         CreateSalesOrderWithPurchasingCodeSpecialOrder(SalesHeader, CreateItem);
@@ -365,7 +365,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Vendor: Record Vendor;
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
 
         // Create a Special Order Sales Order with Shipment Method Code.
         CreateSalesOrderWithPurchasingCodeSpecialOrder(SalesHeader, CreateItem);
@@ -386,7 +386,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Item: Record Item;
     begin
         // Setup: Create FRQ Item.
-        Initialize;
+        Initialize();
         CreateFRQItem(Item);
 
         // Create and Post Purchase Order for Item at different locations.
@@ -413,7 +413,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Item: Record Item;
     begin
         // Setup: Create FRQ Item.
-        Initialize;
+        Initialize();
         CreateFRQItem(Item);
 
         // Create Item Journal Lines for Item at different locations.
@@ -441,7 +441,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // Verify the GL Entry after post Purchase Order with Assign Item Charge Equally on multiple Purchase Lines.
 
         // Setup: Update Setups, create Purchase Order with multiple lines and Assign Charge Item Equally on Purchase Lines.
-        Initialize;
+        Initialize();
         LibraryERM.SetInvRoundingPrecisionLCY(1);  // Required Invoice Rounding as 1.
         LibraryPurchase.SetInvoiceRounding(false);
         CreatePurchaseOrderWithMultiLine(PurchaseHeader);
@@ -474,7 +474,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // Verify the GL Entry after post Sales Order with Assign Item Charge Equally on multiple Sales Lines.
 
         // Setup: Update Setups, create Sales Order with multiple lines and Assign Charge Item Equally on Sales Lines.
-        Initialize;
+        Initialize();
         LibraryERM.SetInvRoundingPrecisionLCY(1);  // Required Invoice Rounding as 1.
         LibrarySales.SetInvoiceRounding(false);
         CreateSalesOrder(
@@ -510,7 +510,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // Verify Shipment Method Code on Purchase Order with Shipment method code on Vendor when created through Requisition WorkSheet.
 
         // Setup: Create Item and create vendor with Shipment Method Code and Create Sales Order with Purchasing Code.
-        Initialize;
+        Initialize();
 
         CreateSalesOrderWithPurchasingCodeSpecialOrder(SalesHeader, CreateItem);
         CreateVendorWithShipmentMethodCode(Vendor, SalesHeader."Shipment Method Code");
@@ -518,7 +518,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 1); // Special Order.
         Commit();
-        GetSalesOrders.RunModal;
+        GetSalesOrders.RunModal();
         UpdateVendorOnRequisitionLine(RequisitionLine, SalesHeader."No.", Vendor."No.");
 
         // Exercise: For Carry Out Action Message.
@@ -547,7 +547,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         ItemNo: Code[20];
     begin
         // Setup: Create Item with variant.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
 
@@ -555,7 +555,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateSalesOrderWithPurchasingCodeSpecialOrder(SalesHeader, ItemNo);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Variant Code", ItemVariant.Code);
         SalesLine.Modify(true);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -563,20 +563,20 @@ codeunit 137068 "SCM Inventory Orders-II"
         // Get Sales Orders for Special Orders in Req. Worksheet.
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         ReqWkshName.SetRange("Template Type", ReqWkshName."Template Type"::"Req.");
-        ReqWkshName.FindFirst;
+        ReqWkshName.FindFirst();
         LibraryPlanning.CreateRequisitionLine(ReqLine, ReqWkshName."Worksheet Template Name", ReqWkshName.Name);
 
         Commit();
         Clear(GetSalesOrders);
         GetSalesOrders.InitializeRequest(RetrieveDimFrom::Item);
         GetSalesOrders.SetReqWkshLine(ReqLine, 1);
-        GetSalesOrders.RunModal;
+        GetSalesOrders.RunModal();
 
         // Execute: Access Item Vendor Catalog for a Req. Line holding a Variant Code and create a new entry.
         Vendor.Init();
         ReqLine.SetRange(Type, ReqLine.Type::Item);
         ReqLine.SetRange("No.", ItemNo);
-        ReqLine.FindFirst;
+        ReqLine.FindFirst();
         ReqLine.LookupVendor(Vendor, true);
 
         // Verify: The Item Vendor record has the expected Variant Code.
@@ -595,7 +595,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Requisition Worksheet] [Sales Order] [Drop Shipment]
         // [SCENARIO 378516] Location and Bin shouldn't be changed when modifying Vendor in Requisition Line for Sales Line with Drop Shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Requisition Line with Drop Shipment, "Location Code" = "L1", "Bin Code" = Blank.
         CreateReqLineWithDropShipmentAndLocation(ReqLine, LocationSilver.Code);
@@ -670,7 +670,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [SCENARIO 376111] "Copy Document" does not copy item tracking lines from a posted sales invoice into a quote
 
         // [GIVEN] Post sales invoice with lot tracking
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostSalesOrderWithLotTracking;
 
         // [GIVEN] Create new sales quote
@@ -694,7 +694,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [SCENARIO 376111] "Copy Document" does not copy item tracking lines from a posted purchase invoice into a quote
 
         // [GIVEN] Post purchase invoice with lot tracking
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostPurchaseOrderWithLotTracking;
 
         // [GIVEN] Create new purchase quote
@@ -718,7 +718,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [SCENARIO 376111] "Copy Document" does not copy item tracking lines from a posted sales invoice into a blanket order
 
         // [GIVEN] Post sales invoice with lot tracking
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostSalesOrderWithLotTracking;
 
         // [GIVEN] Create new blanket sales order
@@ -742,7 +742,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [SCENARIO 376111] "Copy Document" does not copy item tracking lines from a posted purchase invoice into a blanket order
 
         // [GIVEN] Post purchase invoice with lot tracking
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostPurchaseOrderWithLotTracking;
 
         // [GIVEN] Create new blanket purchase order
@@ -767,7 +767,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [SCENARIO 376009] Value entry Amounts for Posted Purchase Invoice equal to line Amounts when they are changed after shipping.
 
         // [GIVEN] Purchase Order with 2 lines: 1 - Item and 2 - negative Item Charge, assigned to Item, shipped.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithAssignedItemCharge(PurchaseHeader, PurchaseHeader."Document Type"::Order, ItemNo, ItemChargeNo, -1);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
@@ -797,10 +797,10 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [SCENARIO 376009] Value entry Amounts for Posted Sales Invoice equal to line Amounts when they are changed after shipping.
 
         // [GIVEN] Sales Order with 2 lines: 1 - Item and 2 - negative Item Charge, assigned to Item, shipped.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo,
           LibraryRandom.RandDecInRange(5, 10, 2), LibraryRandom.RandDecInRange(100, 200, 2));
@@ -922,7 +922,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Item Tracking] [Transfer] [Inventory Put-away]
         // [SCENARIO 378627] Inventory Put-away line with correct Quantity created for Lot tracked Item Transfer order with different UOM.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot Tracked Item, create and release Purchase Order, assign Lot and receive.
         CreateLotTrackedItem(Item);
@@ -951,7 +951,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [THEN] One Put-away line created with Transfer quantity
         WarehouseActivityLine.SetRange("Item No.", Item."No.");
         Assert.RecordCount(WarehouseActivityLine, 1);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.TestField(Quantity, TrackingQuantity);
     end;
 
@@ -967,14 +967,14 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Item Charge] [Costing]
         // [SCENARIO 379405] Item Charge should be distributed equally to all Item Ledger Entries of Purchase Line with Serial No. tracking when the document is partially invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Serial No. tracking.
         LibraryItemTracking.CreateSerialItem(ItemSNTracked);
 
         // [GIVEN] Tracked Purchase Line for the Item. "Qty. to Invoice" is set less than Quantity.
         LibraryPurchase.CreatePurchHeaderWithDocNo(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, LibraryUtility.GenerateGUID);
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, LibraryUtility.GenerateGUID());
         CreateAndTrackPurchaseLine(PurchaseHeader, PurchaseLine, ItemSNTracked."No.", TrackingMethod::"Serial No.");
 
         // [GIVEN] Purchase Line with Item Charge. The Charge is assigned to the line with Item.
@@ -1004,7 +1004,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Item Charge] [Costing]
         // [SCENARIO 379405] Item Charge should be distributed proportionally to Item Ledger Entries of two Purchase Lines with different tracking methods when the document is partially invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Items with Serial No. and Lot tracking.
         LibraryItemTracking.CreateSerialItem(ItemSNTracked);
@@ -1014,7 +1014,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [GIVEN] (I.e. "L1" with 2 serial nos. "L1".Quantity = 2, "L1"."Qty. to Invoice" = 1;
         // [GIVEN] "L2" with a lot. "L2".Quantity = 5, L2."Qty. to Invoice" = 3.)
         LibraryPurchase.CreatePurchHeaderWithDocNo(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, LibraryUtility.GenerateGUID);
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, LibraryUtility.GenerateGUID());
         CreateAndTrackPurchaseLine(PurchaseHeader, PurchaseLineSN, ItemSNTracked."No.", TrackingMethod::"Serial No.");
         CreateAndTrackPurchaseLine(PurchaseHeader, PurchaseLineLot, ItemLotTracked."No.", TrackingMethod::Lot);
 
@@ -1255,7 +1255,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Purchase] [Invoice] [Item Charge] [Get Receipt Lines]
         // [SCENARIO 211014] The cost of purchase should consist of the direct unit cost of purchase line and the cost of the item charge assigned to that line, if the purchase invoice is created via Get Receipt Lines function.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with a line of item type and a line of item charge type. Total amount of the purchase = "X".
         // [GIVEN] The item charge is assigned to the item line.
@@ -1286,7 +1286,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Item Charge] [Get Return Shipment Lines]
         // [SCENARIO 211014] The cost of purchase return should consist of the direct unit cost of purchase return line and the cost of the item charge assigned to that line, if the purchase credit memo is created via Get Return Shipment Lines function.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order with a line of item type and a line of item charge type. Total amount of the purchase = "X".
         // [GIVEN] The item charge is assigned to the item line.
@@ -1325,7 +1325,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Purchase] [Item Charge] [Copy Document] [Item Tracking]
         // [SCENARIO 288429] Credit Memo reverses multiple item charges without rounding errors
-        Initialize;
+        Initialize();
         // [GIVEN] Item 'X' with serial number tracking
         LibraryItemTracking.CreateSerialItem(Item);
         // [GIVEN] posted Receipt 'R' from Purchase Order, where Item is 'X', Quantity is 3,
@@ -1334,7 +1334,7 @@ codeunit 137068 "SCM Inventory Orders-II"
           PurchaseHeader, Item."No.", PurchaseLine.Type::Item, '', 3, LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         // [GIVEN] assigned serial numbers "X1,X2,X3"
         LibraryVariableStorage.Enqueue(TrackingMethod::"Serial No.");
         LibraryVariableStorage.Enqueue(false);
@@ -1352,7 +1352,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         // [GIVEN] Each Item charge line has "Quantity" = 1 is assigned to receipt line from 'R':"IC1" = 5, "IC2" = 10, "IC3" = 15
         PurchRcptLine.SetRange("Document No.", ReceiptNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         for i := 1 to 3 do begin
             UnitCost := 5.0 * i;
             AssignItemChargeToPostedReceiptLine(PurchaseHeader, 1, UnitCost, PurchRcptLine);
@@ -1368,7 +1368,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [WHEN] Posted Credit memo, that is created by "Copy Document" from posted invoice 'I'
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", "Purchase Document Type From"::"Posted Invoice", InvoiceNo);
-        PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
         PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -1401,7 +1401,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Sales] [Item Charge] [Copy Document] [Item Tracking]
         // [SCENARIO 288429] Credit Memo reverses multiple item charges without rounding errors
-        Initialize;
+        Initialize();
         // [GIVEN] Item 'X' with serial number tracking
         LibraryItemTracking.CreateSerialItem(Item);
         // [GIVEN] Recieved Purchase Order, where Item is 'X', Quantity is 3,
@@ -1410,7 +1410,7 @@ codeunit 137068 "SCM Inventory Orders-II"
           PurchaseHeader, Item."No.", PurchaseLine.Type::Item, '', 3, LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         // [GIVEN] assigned serial numbers "X1,X2,X3"
         LibraryVariableStorage.Enqueue(TrackingMethod::"Serial No.");
         LibraryVariableStorage.Enqueue(false);
@@ -1429,7 +1429,7 @@ codeunit 137068 "SCM Inventory Orders-II"
           SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 3, LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         // [GIVEN] assigned serial numbers "X1,X2,X3"
         LibraryVariableStorage.Enqueue(TrackingMethod::"Serial No.");
         LibraryVariableStorage.Enqueue(true);
@@ -1444,7 +1444,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         // [GIVEN] Each Item charge line has "Quantity" = 1 is assigned to shipment line from 'S':"IC1" = 5, "IC2" = 10, "IC3" = 15
         SalesShipmentLine.SetRange("Document No.", ShipmentNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         for i := 1 to 3 do begin
             UnitPrice := 5.0 * i;
             AssignItemChargeToPostedShipmentLine(SalesHeader, 1, UnitPrice, SalesShipmentLine);
@@ -1488,13 +1488,13 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [FEATURE] [Drop Shipment] [Requisition Worksheet]
         // [SCENARIO 215292] Purchase Order created when Ship-To Address of Sales Drop Shipment is changed via Requisition Worksheet
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three sales orders with "Purchasing Code" = "Drop shipment", for the same customer - "SO1","SO2","SO3". "Ship-to Address" for "SO1" is "X", for "SO2" and "SO3" is "Y"
         CreatePurchasingCodeWithDropShipment(Purchasing);
         LibraryInventory.CreateItem(Item);
         for i := 1 to ArrayLen(ShipToAddress) do
-            ShipToAddress[i] := LibraryUtility.GenerateGUID;
+            ShipToAddress[i] := LibraryUtility.GenerateGUID();
         CreateSalesOrderWithPurchCodeAndAddress(
           SalesHeader[1], SelectCustomer, Item."No.", Purchasing.Code, ShipToAddress[1]);
         CreateSalesOrderWithPurchCodeAndAddress(
@@ -1540,7 +1540,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Special Order] [Requisition Worksheet] [Planning] [Purchase]
         // [SCENARIO 311897] Planning several lines for special order on one location results in a single purchase order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with three lines - 1st line on location "BLUE", 2nd and 3rd line on location "RED".
         // [GIVEN] All lines are set up for special order.
@@ -1554,7 +1554,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         GetSpecialOrderInReqWorksheet(RequisitionLine, SalesHeader."No.");
 
         // [GIVEN] Set "Vendor No." on the planning lines.
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         RequisitionLine.SetRange("Sales Order No.", SalesHeader."No.");
         RequisitionLine.ModifyAll("Vendor No.", VendorNo, true);
 
@@ -1567,13 +1567,13 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [THEN] The purchase order on location "BLUE" has one line.
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchaseHeader.SetRange("Location Code", LocationBlue.Code);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         Assert.RecordCount(PurchaseLine, 1);
 
         // [THEN] The purchase order on location "RED" has two lines.
         PurchaseHeader.SetRange("Location Code", LocationRed.Code);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         Assert.RecordCount(PurchaseLine, 2);
     end;
@@ -1591,7 +1591,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Special Order] [Location]
         // [SCENARIO 218068] Location code should be forwarded from sales order to purchase order populated with Special Order - Get Sales Order function.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order "SO" set up for Special Order. Location code on the sales line = "X".
         CreateSalesOrderWithPurchasingCodeSpecialOrder(SalesHeader, CreateItem);
@@ -1630,7 +1630,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Special Order] [Item Translation]
         // [SCENARIO 218068] Purchase line descriptions should be taken from item translation when the purchase order is created with Special Order - Get Sales Order function.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with item translation into language "L".
         // [GIVEN] Description and "Description 2" in "L" are "DL1" and "DL2" respectively.
@@ -1669,7 +1669,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Item] [Inventory Value Zero] [COGS]
         // [SCENARIO 227359] When item has "Inventory Value Zero" on then "General Posting Setup" can have "COGS Account" and "Inventory Adjmt. Account" blank for posting
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Inventory Setup" has "Expected Cost Posting to G/L" on and "Automatic Cost Adjustment" = Always
         LibraryInventory.SetExpectedCostPosting(true);
@@ -1699,7 +1699,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         SalesLine.Validate("Unit Cost", 10);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         SalesShipmentLine.SetRange("No.", Item."No.");
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
 
         // [WHEN] Undo sales shipment for "S"
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
@@ -1772,10 +1772,10 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Item Charge]
         // [SCENARIO 278165] Posting of a negative sales credit memo line for item charge results in a value entry with positive "Sales Amount (Actual)".
-        Initialize;
+        Initialize();
 
-        LotNos[1] := LibraryUtility.GenerateGUID;
-        LotNos[2] := LibraryUtility.GenerateGUID;
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
         Qty := LibraryRandom.RandInt(10);
         UnitPrice := LibraryRandom.RandDecInRange(10, 20, 2);
 
@@ -1833,10 +1833,10 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Item Charge]
         // [SCENARIO 278165] Posting of a negative sales credit memo line for item charge results in a value entry with positive "Sales Amount (Actual)" for each sales item entry the charge is distributed into.
-        Initialize;
+        Initialize();
 
         for i := 1 to ArrayLen(LotNos) do
-            LotNos[i] := LibraryUtility.GenerateGUID;
+            LotNos[i] := LibraryUtility.GenerateGUID();
         Qty := 2 * LibraryRandom.RandInt(5);
         UnitPrice := LibraryRandom.RandDecInRange(10, 20, 2);
 
@@ -1899,7 +1899,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Special Order] [Requisition Worksheet]
         // [SCENARIO 215292] Requisition Worksheet Line is not deleted when one Purchase Order was created while the other was stopped by Vendor block for Special Order and Drop Shipment orders.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Vendor "V1"
         CreateItemWithVendor(Item);
@@ -1952,7 +1952,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Requisition Worksheet] [Purchase]
         // [SCENARIO 315410] Requisition worksheet lines with the same vendor and different locations are combined to one purchase order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with vendor code and set up for planning.
         CreateItemWithVendor(Item);
@@ -1975,7 +1975,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Assert.RecordCount(PurchaseHeader, 1);
 
         // [THEN] The purchase contains two lines - on locations "BLUE" and "RED".
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         PurchaseLine.SetRange("Location Code", LocationBlue.Code);
         Assert.RecordCount(PurchaseLine, 1);
@@ -1995,7 +1995,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Sales] [Purchasing Code] [UT]
         // [SCENARIO 277218] Purchasing code copied to sales line from item card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Purchasing Code = "PC"
         LibraryPurchase.CreatePurchasingCode(Purchasing);
@@ -2085,7 +2085,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         // [FEATURE] [Sales] [Purchasing Code] [UT]
         // [SCENARIO 328639] Error message record about Posting drop shipment without link to purchase order has Context field name Purchasing Code and Support URL to "Make Drop Shipments" help topic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Purchasing Code = "PC" with "Drop Shipment" = Yes
         LibraryPurchase.CreatePurchasingCode(Purchasing);
@@ -2312,25 +2312,25 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Orders-II");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         Clear(TrackingQuantity);
         Clear(AssignLotNo);
         Clear(DifferentExpirationDate);
         Clear(NewExpirationDate);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Orders-II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         CreateLocationSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
         RevaluationJournalSetup;
         ItemJournalSetup;
         IsInitialized := true;
@@ -2440,7 +2440,7 @@ codeunit 137068 "SCM Inventory Orders-II"
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, LineType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2466,7 +2466,7 @@ codeunit 137068 "SCM Inventory Orders-II"
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
             SetRange(Type, LineType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2494,7 +2494,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CarryOutActionMsgReq.InitializeRequest(ExpirationDate, OrderDate, PostingDate, ExpectedReceiptDate, '');
         CarryOutActionMsgReq.UseRequestPage(true);
         Commit();
-        CarryOutActionMsgReq.Run;
+        CarryOutActionMsgReq.Run();
     end;
 
     local procedure CreateAndUpdateLocation(var Location: Record Location; BinMandatory: Boolean; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean)
@@ -2534,7 +2534,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
         ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         PurchRcptLine.SetRange("Document No.", ReceiptNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure CreateSalesOrderPostShipment(var SalesShipmentLine: Record "Sales Shipment Line")
@@ -2548,7 +2548,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         ShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         SalesShipmentLine.SetRange("Document No.", ShipmentNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure NoSeriesSetup()
@@ -2614,7 +2614,7 @@ codeunit 137068 "SCM Inventory Orders-II"
           '', LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
         FindPurchaseLine(ChargePurchaseLine, PurchaseHeader);
         ChargePurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
-        ChargePurchaseLine.FindFirst;
+        ChargePurchaseLine.FindFirst();
         LibraryInventory.CreateItemChargeAssignPurchase(
           ItemChargeAssignmentPurch, ChargePurchaseLine, PurchaseLine."Document Type", PurchaseLine."Document No.",
           PurchaseLine."Line No.", PurchaseLine."No.");
@@ -2637,7 +2637,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryPlanning: Codeunit "Library - Planning";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
     end;
@@ -2837,7 +2837,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreatePurchaseLine(
           PurchaseHeader, ItemNo, PurchaseLine.Type::Item, '', LibraryRandom.RandDecInRange(5, 10, 2), LibraryRandom.RandDecInRange(100, 200, 2));
         ItemChargeNo := LibraryInventory.CreateItemChargeNo;
@@ -2879,7 +2879,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         with RequisitionLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", SalesLine."No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2968,7 +2968,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         ShipmentMethod: Record "Shipment Method";
     begin
         ShipmentMethod.SetFilter(Code, '<>%1', ShipmentMethodCode);
-        ShipmentMethod.FindFirst;
+        ShipmentMethod.FindFirst();
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Shipment Method Code", ShipmentMethod.Code);
         Vendor.Modify(true);
@@ -3039,21 +3039,21 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; ItemNo: Code[20])
     begin
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
         SalesShipmentLine.SetRange("No.", ItemNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindPurchaseLineBySpecialOrderSalesLine(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
@@ -3062,7 +3062,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         PurchaseLine.SetRange("No.", SalesLine."No.");
         PurchaseLine.SetRange("Special Order Sales No.", SalesLine."Document No.");
         PurchaseLine.SetRange("Special Order Sales Line No.", SalesLine."Line No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindPurchaseLineBySalesSpecialOrder(var PurchaseLine: Record "Purchase Line"; SalesHeader: Record "Sales Header")
@@ -3079,7 +3079,7 @@ codeunit 137068 "SCM Inventory Orders-II"
             SetRange("Entry Type", EntryType);
             SetRange("Item No.", ItemNo);
             SetRange("Lot No.", LotNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3088,7 +3088,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         with ValueEntry do begin
             SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3106,7 +3106,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         PurchaseLine.SetRange("No.", SalesLine."No.");
         PurchaseLine.SetRange("Sales Order No.", SalesLine."Document No.");
         PurchaseLine.SetRange("Sales Order Line No.", SalesLine."Line No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure MakeOrderFromPurchaseQuote(var PurchaseHeader: Record "Purchase Header")
@@ -3132,7 +3132,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchaseHeader.SetRange(Status, PurchaseHeader.Status::Open);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure SelectSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
@@ -3140,7 +3140,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesHeader.SetRange(Status, SalesHeader.Status::Open);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -3279,7 +3279,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure CreateSalesOrderWithPurchasingCode(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; PurchasingCode: Code[10])
@@ -3342,7 +3342,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Customer: Record Customer;
         ShipmentMethod: Record "Shipment Method";
     begin
-        ShipmentMethod.FindFirst;
+        ShipmentMethod.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Location Code", LocationBlue.Code);
         Customer.Validate("Shipment Method Code", ShipmentMethod.Code);
@@ -3410,7 +3410,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
         ItemJournalLine.SetRange("Location Code", LocationCode);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure UpdateItemJournallineUnitCostRevalued(ItemNo: Code[20]; LocationCode: Code[10])
@@ -3436,7 +3436,7 @@ codeunit 137068 "SCM Inventory Orders-II"
             Init();
             ReportSelections := SavedReportSelections;
             Validate(Usage, Usage::"P.Order");
-            Validate(Sequence, LibraryUtility.GenerateGUID);
+            Validate(Sequence, LibraryUtility.GenerateGUID());
             Validate("Report ID", ReportID);
             Insert(true);
         end;
@@ -3477,7 +3477,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         with RequisitionLine do begin
             SetRange("Sales Order No.", SalesOrderNo);
-            FindFirst;
+            FindFirst();
             Validate("Vendor No.", VendorNo);
             Modify(true);
         end;
@@ -3542,7 +3542,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryVariableStorage.Enqueue(SalesOrderFilter);
         GetSalesOrders.SetReqWkshLine(RequisitionLine, SpecialOrder);
         Commit();
-        GetSalesOrders.RunModal;
+        GetSalesOrders.RunModal();
     end;
 
     local procedure CarryOutActionMessages(FilterText: Text; PostingDate: Date)
@@ -3551,7 +3551,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         UpdateReportSelection(REPORT::Order);
         RequisitionLine.SetFilter("Sales Order No.", FilterText);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         CarryOutReqWkshWithRequestPage(
           RequisitionLine, RequisitionLine."Expiration Date", RequisitionLine."Order Date", PostingDate, PostingDate);
     end;
@@ -3597,7 +3597,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
             Assert.AreNearlyEqual(
               ExpectedAmount, "Cost Amount (Actual)" + "Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision, AmountErr);
@@ -3644,7 +3644,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Transfer Receipt");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField(Quantity, Quantity);
         ItemLedgerEntry.TestField("Invoiced Quantity", Quantity);
     end;
@@ -3655,7 +3655,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Invoiced Quantity", InvoicedQuantity);
     end;
 
@@ -3672,11 +3672,11 @@ codeunit 137068 "SCM Inventory Orders-II"
         ItemLedgerEntry.CalcSums(Quantity);
         PostedQty := ItemLedgerEntry.Quantity;
 
-        if ItemLedgerEntry.FindSet then
+        if ItemLedgerEntry.FindSet() then
             repeat
                 ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
                 ValueEntry.SetRange("Item Charge No.", PurchaseLineCharge."No.");
-                ValueEntry.FindFirst;
+                ValueEntry.FindFirst();
                 Assert.AreEqual(1, ValueEntry.Count, MultipleValueEntriesWithChargeMsg);
                 Assert.AreNearlyEqual(
                   PurchaseLineCharge."Direct Unit Cost" * ItemChargeShare * ItemLedgerEntry.Quantity / PostedQty,
@@ -3725,7 +3725,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         TransferReceiptLine: Record "Transfer Receipt Line";
     begin
         TransferReceiptLine.SetRange("Transfer Order No.", TransferOrderNo);
-        TransferReceiptLine.FindFirst;
+        TransferReceiptLine.FindFirst();
         TransferReceiptLine.TestField("Item No.", ItemNo);
         TransferReceiptLine.TestField(Quantity, Quantity);
         TransferReceiptLine.TestField("Transfer-to Code", TransferToCode);
@@ -3741,7 +3741,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         ItemLedgerEntry.TestField("Invoiced Quantity", InvoicedQuantity);
         Assert.AreNearlyEqual(
@@ -3775,7 +3775,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.TestField("Shipment Method Code", ShipmentMethodCode);
     end;
 
@@ -3786,7 +3786,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // Verify Item is still present on same worksheet.
         ItemJournalLine.SetRange("Item No.", ItemNo);
         ItemJournalLine.SetRange("Location Code", LocationCode);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Journal Template Name", JournalTemplateName);
         ItemJournalLine.TestField("Journal Batch Name", JournalBatchName);
     end;

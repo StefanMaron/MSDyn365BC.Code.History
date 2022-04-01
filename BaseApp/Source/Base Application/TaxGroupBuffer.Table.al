@@ -64,7 +64,7 @@ table 5480 "Tax Group Buffer"
         PropagateUpdate(false);
     end;
 
-    local procedure PropagateUpdate(Insert: Boolean)
+    local procedure PropagateUpdate(InsertRec: Boolean)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -74,7 +74,7 @@ table 5480 "Tax Group Buffer"
             Error(RecordMustBeTemporaryErr);
 
         if GeneralLedgerSetup.UseVat then begin
-            if Insert() then begin
+            if InsertRec then begin
                 VATProductPostingGroup.TransferFields(Rec, true);
                 VATProductPostingGroup.Insert(true)
             end else begin
@@ -89,7 +89,7 @@ table 5480 "Tax Group Buffer"
 
             UpdateFromVATProductPostingGroup(VATProductPostingGroup);
         end else begin
-            if Insert() then begin
+            if InsertRec then begin
                 TaxGroup.TransferFields(Rec, true);
                 TaxGroup.Insert(true)
             end else begin
@@ -140,7 +140,7 @@ table 5480 "Tax Group Buffer"
     var
         TaxGroup: Record "Tax Group";
     begin
-        if not TaxGroup.FindSet then
+        if not TaxGroup.FindSet() then
             exit;
 
         repeat
@@ -153,7 +153,7 @@ table 5480 "Tax Group Buffer"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        if not VATProductPostingGroup.FindSet then
+        if not VATProductPostingGroup.FindSet() then
             exit;
 
         repeat

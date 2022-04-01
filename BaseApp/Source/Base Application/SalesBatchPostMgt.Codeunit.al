@@ -1,4 +1,4 @@
-﻿codeunit 1371 "Sales Batch Post Mgt."
+codeunit 1371 "Sales Batch Post Mgt."
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Batch Processing Parameter" = rimd,
@@ -24,7 +24,7 @@
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
         PostingCodeunitId: Integer;
         PostingDateIsNotSetErr: Label 'Enter the posting date.';
-        BatchPostingMsg: Label 'Bacth posting of sales documents.';
+        BatchPostingMsg: Label 'Batch posting of sales documents.';
         ApprovalPendingErr: Label 'Cannot post sales document no. %1 of type %2 because it is pending approval.', Comment = '%1 = Document No.; %2 = Document Type';
         ApprovalWorkflowErr: Label 'Cannot post sales document no. %1 of type %2 due to the approval workflow.', Comment = '%1 = Document No.; %2 = Document Type';
         InterCompanyZipFileNamePatternTok: Label 'Sales IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';
@@ -56,9 +56,9 @@
         if GuiAllowed then begin
             BatchProcessingMgt.GetErrorMessages(TempErrorMessage);
 
-            if TempErrorMessage.FindFirst then begin
+            if TempErrorMessage.FindFirst() then begin
                 ErrorMessages.SetRecords(TempErrorMessage);
-                ErrorMessages.Run;
+                ErrorMessages.Run();
             end;
         end;
     end;
@@ -152,7 +152,7 @@
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst then begin
+        if SalesLine.FindFirst() then begin
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
             Commit();
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -181,12 +181,6 @@
 
         if SalesHeader.Status = SalesHeader.Status::"Pending Approval" then
             Error(ApprovalPendingErr, SalesHeader."No.", SalesHeader."Document Type");
-    end;
-
-    [Obsolete('Replaced by SetParameter().', '17.0')]
-    procedure AddParameter(ParameterId: Integer; ParameterValue: Variant)
-    begin
-        SetParameter("Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue);
     end;
 
     procedure SetParameter(ParameterId: Enum "Batch Posting Parameter Type"; ParameterValue: Variant)

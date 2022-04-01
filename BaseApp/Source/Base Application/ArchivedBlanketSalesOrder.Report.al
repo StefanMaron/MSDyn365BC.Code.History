@@ -83,10 +83,10 @@ report 5176 "Archived Blanket Sales Order"
                     column(CompanyInfo__Giro_No__; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfo__Bank_Name_; CompanyInfo."Bank Name")
+                    column(CompanyInfo__Bank_Name_; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfo__Bank_Account_No__; CompanyInfo."Bank Account No.")
+                    column(CompanyInfo__Bank_Account_No__; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(Sales_Header_Archive___Bill_to_Customer_No__; "Sales Header Archive"."Bill-to Customer No.")
@@ -202,7 +202,7 @@ report 5176 "Archived Blanket Sales Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -438,7 +438,7 @@ report 5176 "Archived Blanket Sales Order"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -851,7 +851,7 @@ report 5176 "Archived Blanket Sales Order"
                     SalesLineArchive.SetRange("Document No.", "Sales Header Archive"."No.");
                     SalesLineArchive.SetRange("Version No.", "Sales Header Archive"."Version No.");
 
-                    if SalesLineArchive.FindSet then
+                    if SalesLineArchive.FindSet() then
                         repeat
                             TempSalesLineArchive := SalesLineArchive;
                             TempSalesLineArchive.Insert();
@@ -885,6 +885,9 @@ report 5176 "Archived Blanket Sales Order"
 
                 FormatAddressFields("Sales Header Archive");
                 FormatDocumentFields("Sales Header Archive");
+
+                if not CompanyBankAccount.Get("Sales Header Archive"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
@@ -959,6 +962,7 @@ report 5176 "Archived Blanket Sales Order"
         PaymentTerms: Record "Payment Terms";
         PrepmtPaymentTerms: Record "Payment Terms";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";

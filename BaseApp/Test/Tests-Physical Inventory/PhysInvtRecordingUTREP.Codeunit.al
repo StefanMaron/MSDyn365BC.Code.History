@@ -24,7 +24,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
     begin
         // [SCENARIO] verify execution of Report Physical Inventory Recording with various filters.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePhysInvtRecordingOrderHeader(PhysInvtRecordHeader, PhysInvtOrderHeader."No.");
         LibraryVariableStorage.Enqueue(PhysInvtRecordHeader."Order No."); // Required inside PhysInvtRecordingRequestPageHandler.
@@ -63,7 +63,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
 
         // [THEN] Verify Report runs for all the Physical Inventory Order which exists in database.
         LibraryReportDataset.LoadDataSetFile;
-        PhysInvtRecordHeader.FindFirst;
+        PhysInvtRecordHeader.FindFirst();
         repeat
             LibraryReportDataset.AssertElementWithValueExists(
               'Phys__Invt__Recording_Header_Order_No_', PhysInvtRecordHeader."Order No.");
@@ -81,7 +81,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
     begin
         // [SCENARIO] verify execution of Report Posted Phys. Invt. Recording with various filters.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePostedPhysInvtRecordingOrderHeader(PstdPhysInvtRecordHdr, PhysInvtOrderHeader."No.");
         LibraryVariableStorage.Enqueue(PstdPhysInvtRecordHdr."Order No."); // Required inside PostedPhysInvtRecordingRequestPageHandler.
@@ -118,7 +118,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
 
         // [THEN] Verify Report runs for all the Physical Inventory Order which exists in database.
         LibraryReportDataset.LoadDataSetFile;
-        PstdPhysInvtRecordHdr.FindFirst;
+        PstdPhysInvtRecordHdr.FindFirst();
         repeat
             LibraryReportDataset.AssertElementWithValueExists(
               'Posted_Phys__Invt__Rec__Header___Order_No__', PstdPhysInvtRecordHdr."Order No.");
@@ -127,7 +127,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")

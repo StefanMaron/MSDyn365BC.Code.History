@@ -1,18 +1,12 @@
 codeunit 6704 "Booking Customer Sync."
 {
-
     trigger OnRun()
     var
         LocalBookingSync: Record "Booking Sync";
-        MarketingSetup: Record "Marketing Setup";
     begin
-        // Do not sync with Bookings if Graph sync is enabled
-        if MarketingSetup.Get and MarketingSetup."Sync with Microsoft Graph" then
-            exit;
-
         LocalBookingSync.SetRange("Sync Customers", true);
         LocalBookingSync.SetRange(Enabled, true);
-        if LocalBookingSync.FindFirst then
+        if LocalBookingSync.FindFirst() then
             O365SyncManagement.SyncBookingCustomers(LocalBookingSync);
     end;
 
@@ -93,12 +87,12 @@ codeunit 6704 "Booking Customer Sync."
     begin
         ExchangeSync.Get(UserId);
 
-        if LocalContact.FindSet then begin
+        if LocalContact.FindSet() then begin
             repeat
                 Contact.Reset();
                 Clear(Contact);
                 Contact.SetRange("Search E-Mail", UpperCase(LocalContact."E-Mail"));
-                if not Contact.FindFirst then begin
+                if not Contact.FindFirst() then begin
                     Contact.Init();
                     Contact.Type := Contact.Type::Person;
                     Contact.Insert(true);
@@ -149,7 +143,7 @@ codeunit 6704 "Booking Customer Sync."
     begin
         Customer.SetView(BookingSync.GetCustomerFilter);
 
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 CustomerFilter += Customer."No." + '|';
             until Customer.Next() = 0;
@@ -158,7 +152,7 @@ codeunit 6704 "Booking Customer Sync."
         if CustomerFilter <> '' then begin
             ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
             ContactBusinessRelation.SetFilter("No.", CustomerFilter);
-            if ContactBusinessRelation.FindSet then
+            if ContactBusinessRelation.FindSet() then
                 repeat
                     ContactFilter += ContactBusinessRelation."Contact No." + '|';
                 until ContactBusinessRelation.Next() = 0;
@@ -171,4 +165,3 @@ codeunit 6704 "Booking Customer Sync."
         end;
     end;
 }
-

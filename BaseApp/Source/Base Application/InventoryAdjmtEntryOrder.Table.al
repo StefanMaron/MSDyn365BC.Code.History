@@ -296,7 +296,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
                 OutputItemLedgEntry.SetRange("Entry Type", OutputItemLedgEntry."Entry Type"::"Assembly Output");
 
             OnCalcCurrencyFactorOnAfterSetFilters(OutputItemLedgEntry, Rec);
-            if OutputItemLedgEntry.FindLast then
+            if OutputItemLedgEntry.FindLast() then
                 exit(CurrExchRate.ExchangeRate(OutputItemLedgEntry."Posting Date", GLSetup."Additional Reporting Currency"));
         end;
     end;

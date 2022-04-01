@@ -343,7 +343,7 @@ table 1103 "Cost Type"
         // Error if movement in not closed fiscal year
         CostEntry.SetRange("Cost Type No.", "No.");
         AccPeriod.SetRange(Closed, false);
-        if AccPeriod.FindFirst then
+        if AccPeriod.FindFirst() then
             CostEntry.SetFilter("Posting Date", '>=%1', AccPeriod."Starting Date");
         if not CostEntry.IsEmpty() then
             Error(Text000);

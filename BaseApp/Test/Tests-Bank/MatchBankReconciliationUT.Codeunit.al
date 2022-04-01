@@ -36,7 +36,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -73,7 +73,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -116,7 +116,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -147,7 +147,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -178,7 +178,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -209,7 +209,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -244,7 +244,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -286,7 +286,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -326,7 +326,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -357,7 +357,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -388,7 +388,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -419,7 +419,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -450,7 +450,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -483,7 +483,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -514,7 +514,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -545,7 +545,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -576,7 +576,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -610,7 +610,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedEntryNo: Integer;
         AdditionalLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -651,7 +651,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Amount: Decimal;
         ExpectedMatchedLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -688,7 +688,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedEntryNo: Integer;
         ExpectedMatchedLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -732,7 +732,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo: Integer;
         PaymentMatchDetailsCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -784,7 +784,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Amount: Decimal;
         ExpectedMatchedLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -820,7 +820,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Delta: Decimal;
         ExpectedMatchedLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         Delta := LibraryRandom.RandDec(100, 2);
@@ -856,7 +856,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Amount: Decimal;
         ExpectedMatchedLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -896,7 +896,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Amount: Decimal;
         ExpectedMatchedLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -939,7 +939,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Amount: Decimal;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -1000,7 +1000,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Amount: Decimal;
         ExpectedMatchedEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
@@ -1033,7 +1033,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 375536] Fields "Related-Party Name" and "Related-Party Bank Acc. No." of "Bank Acc. Reconciliation Line" should have length of 250 and 100 respectively
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record of "Bank Acc. Reconciliation Line" - "BACL"
         BankAccReconciliationLine.Init();
@@ -1062,7 +1062,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 375536] Field "Related-Party Name" of "Posted Payment Recon. Line" should has length of 250
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record of "Posted Payment Recon. Line" - "PPRL"
         PostedPaymentReconLine.Init();
@@ -1122,16 +1122,16 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Match Bank Reconciliation - UT");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Match Bank Reconciliation - UT");
 
-        LibraryERMCountryData.UpdateLocalData;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
-        LibraryVariableStorage.Clear;
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryVariableStorage.Clear();
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Match Bank Reconciliation - UT");
@@ -1162,7 +1162,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
-        if BankAccReconciliationLine.FindSet then
+        if BankAccReconciliationLine.FindSet() then
             repeat
                 TempBankAccReconciliationLine := BankAccReconciliationLine;
                 TempBankAccReconciliationLine.Insert();
@@ -1176,7 +1176,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         TempBankAccLedgerEntry.Reset();
         TempBankAccLedgerEntry.DeleteAll();
         BankAccLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        if BankAccLedgerEntry.FindSet then
+        if BankAccLedgerEntry.FindSet() then
             repeat
                 TempBankAccLedgerEntry := BankAccLedgerEntry;
                 TempBankAccLedgerEntry.Insert();
@@ -1214,7 +1214,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
-        if BankAccReconciliationLine.FindLast then;
+        if BankAccReconciliationLine.FindLast() then;
 
         BankAccReconciliationLine.Init();
         BankAccReconciliationLine."Bank Account No." := BankAccReconciliation."Bank Account No.";
@@ -1236,7 +1236,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        if BankAccountLedgerEntry.FindLast then;
+        if BankAccountLedgerEntry.FindLast() then;
 
         BankAccountLedgerEntry.Init();
         BankAccountLedgerEntry."Entry No." += 1;

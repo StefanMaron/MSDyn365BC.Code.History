@@ -83,7 +83,7 @@ codeunit 139165 "Integration Table Synch. Test"
         InitializeTestForToIntegrationTableSynch(IntegrationTableMapping);
         // [GIVEN] Source table has 1 row
         LibraryCRMIntegration.CreateIntegrationTableData(1, 0);
-        SourceRecordRef.FindFirst;
+        SourceRecordRef.FindFirst();
 
         // [GIVEN] Destination rows have already been synchronized and integration records exists.
         IntegrationTableSynch.BeginIntegrationSynchJob(
@@ -91,14 +91,14 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, true);
         IntegrationTableSynch.EndIntegrationSynchJob;
         IntTableSynchSubscriber.VerifyCallbackCounters(1, 1, 1, 1, 0, 0);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Inserted, 'Expected the Job Info to record 1 inserted item');
 
         IntTableSynchSubscriber.Reset();
         IntegrationSynchJob.DeleteAll();
 
         // [GIVEN] Destination row is modified and has last modified field set > last sync.
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         UnitOfMeasure.Description := 'MODIFIED';
         UnitOfMeasure.Modify(true);
 
@@ -117,7 +117,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntTableSynchSubscriber.VerifyCallbackCounters(1, 1, 0, 0, 1, 1);
 
         // [THEN] The job should record 1 item was modified
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Modified, 'Expected the Job Info to record 1 modified item');
     end;
 
@@ -139,7 +139,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [WHEN] Running the Table Sync
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, SourceRecordRef.Number);
-        if SourceRecordRef.FindFirst then
+        if SourceRecordRef.FindFirst() then
             repeat
                 IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, true);
             until SourceRecordRef.Next = 0;
@@ -160,7 +160,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [WHEN] Running the Table Sync
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, SourceRecordRef.Number);
-        if SourceRecordRef.FindFirst then
+        if SourceRecordRef.FindFirst() then
             repeat
                 IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, true);
             until SourceRecordRef.Next = 0;
@@ -171,7 +171,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [THEN] The item callback handlers should be called 2 times for each item on before/after insert
         // [THEN] The item callback handlers should be called 0 times for each item on before/after modify
         IntTableSynchSubscriber.VerifyCallbackCounters(2, 2, 2, 2, 0, 0);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         // [THEN] The job should record 2 inserted item for each item inserted.
         Assert.AreEqual(2, IntegrationSynchJob.Inserted, 'Expected the Job Info to record 2 inserted items');
     end;
@@ -194,7 +194,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [GIVEN] Rows have already been synchronized and integration records exists.
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, SourceRecordRef.Number);
-        if SourceRecordRef.FindFirst then
+        if SourceRecordRef.FindFirst() then
             repeat
                 IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, true);
             until SourceRecordRef.Next = 0;
@@ -206,7 +206,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationSynchJob.DeleteAll();
 
         // [GIVEN] Source row is modified and has last modified field set > last sync.
-        TestIntegrationTable.FindFirst;
+        TestIntegrationTable.FindFirst();
         TestIntegrationTable."Integration Field Value" := 'MODIFIED';
         TestIntegrationTable."Integration Modified Field" :=
           CreateDateTime(CalcDate('<+1D>', DT2Date(TestIntegrationTable."Integration Modified Field")), Time);
@@ -217,7 +217,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [WHEN] Running the Table Sync
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, SourceRecordRef.Number);
-        if SourceRecordRef.FindFirst then
+        if SourceRecordRef.FindFirst() then
             repeat
                 IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
             until SourceRecordRef.Next = 0;
@@ -230,7 +230,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntTableSynchSubscriber.VerifyCallbackCounters(1, 1, 0, 0, 1, 1);
 
         // [THEN] The job should record 1 item was modified
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Modified, 'Expected the Job Info to record 1 modified item');
     end;
 
@@ -251,7 +251,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [GIVEN] Destination rows have already been synchronized and integration records exists.
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, SourceRecordRef.Number);
-        if SourceRecordRef.FindFirst then
+        if SourceRecordRef.FindFirst() then
             repeat
                 IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, true);
             until SourceRecordRef.Next = 0;
@@ -267,7 +267,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [WHEN] Running the Table Sync
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, SourceRecordRef.Number);
-        if SourceRecordRef.FindFirst then
+        if SourceRecordRef.FindFirst() then
             repeat
                 IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
             until SourceRecordRef.Next = 0;
@@ -280,7 +280,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntTableSynchSubscriber.VerifyCallbackCounters(0, 0, 0, 0, 0, 0);
 
         // [THEN] The job should record 1 item was Unchanged
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Unchanged, 'Expected the Job Info to record 1 unchanged item');
     end;
 
@@ -302,7 +302,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [GIVEN] Destination rows have already been synchronized and integration records exists.
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Integration Table ID");
-        if SourceRecordRef.FindFirst then
+        if SourceRecordRef.FindFirst() then
             repeat
                 IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, true);
             until SourceRecordRef.Next = 0;
@@ -318,7 +318,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [WHEN] Running the Table Sync
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Integration Table ID");
-        if SourceRecordRef.FindFirst then
+        if SourceRecordRef.FindFirst() then
             repeat
                 IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
             until SourceRecordRef.Next = 0;
@@ -326,7 +326,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch.EndIntegrationSynchJob;
         // [THEN] Row is not modified and job info records 0 modified item
         IntTableSynchSubscriber.VerifyCallbackCounters(0, 0, 0, 0, 0, 0);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Unchanged, 'Expected the Job Info to record 1 unchanged item');
     end;
 
@@ -343,7 +343,7 @@ codeunit 139165 "Integration Table Synch. Test"
     begin
         // [FEATURE] [Integration Synch. Job]
         // [SCENARIO] Synchronize() should create a failed sync job if the source record is deleted
-        Initialize;
+        Initialize();
         IntegrationSynchJob.DeleteAll();
 
         SourceRecordRef.Open(DATABASE::"CRM Account");
@@ -362,7 +362,7 @@ codeunit 139165 "Integration Table Synch. Test"
 
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
 
         // [WHEN] Running the Table Sync once
         IntegrationTableSynch.BeginIntegrationSynchJob(
@@ -376,7 +376,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
 
         // [THEN] 1 record is skipped in the sync job
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Skipped, 'Expected 1 record to skip');
 
         IntTableSynchSubscriber.VerifyCallbackCounters(0, 0, 0, 0, 0, 0);
@@ -502,7 +502,7 @@ codeunit 139165 "Integration Table Synch. Test"
     begin
         // [FEATURE] [Integration Synch. Job]
         // [SCENARIO] Synchronize() should create a failed sync job if the source record is deleted
-        Initialize;
+        Initialize();
         IntegrationSynchJob.DeleteAll();
 
         SourceRecordRef.Open(DATABASE::"CRM Account");
@@ -554,7 +554,7 @@ codeunit 139165 "Integration Table Synch. Test"
     begin
         // [FEATURE] [Integration Synch. Job]
         // [SCENARIO] Synchronize() should create a failed sync job if the source record is deleted
-        Initialize;
+        Initialize();
         IntegrationSynchJob.DeleteAll();
 
         SourceRecordRef.Open(DATABASE::"CRM Account");
@@ -680,7 +680,7 @@ codeunit 139165 "Integration Table Synch. Test"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO] Synchronize() should apply config. template values if it exists and defined in the mapping
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
 
         // [GIVEN] Customer config template, where "Location Code" =  'SOMELOCATION'
@@ -704,7 +704,7 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [GIVEN] Integration Table Mapping for Customer, where config template is defined
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
         IntegrationTableMapping."Table Config Template Code" := ConfigTemplateHeader.Code;
 
         // [GIVEN] Field "Location Code" is not mapped
@@ -728,7 +728,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [THEN] Row is inserted
         IntTableSynchSubscriber.VerifyCallbackCounters(1, 1, 1, 1, 0, 0);
         IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Inserted, 'Expected the Job Info to record 1 inserted item');
 
         // [THEN] Customer, where "Location Code" = 'SOMELOCATION'
@@ -756,14 +756,14 @@ codeunit 139165 "Integration Table Synch. Test"
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO] Synchronize() should fail if config. template doesn't exist, but defined in the mapping
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
 
         ConfigTemplateName := LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
 
         // [GIVEN] Integration Table Mapping for Customer, where non-existing config template is defined
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
         IntegrationTableMapping."Table Config Template Code" := ConfigTemplateName;
 
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
@@ -786,7 +786,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntTableSynchSubscriber.VerifyCallbackCounters(1, 1, 1, 0, 0, 0);
         // [THEN] 1 record sync will be failed
         IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Failed, 'Expected the Job Info to record 1 failed item');
         // [THEN] CRMAccount is not coupled
         Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'CRM Account should not be coupled.');
@@ -802,7 +802,7 @@ codeunit 139165 "Integration Table Synch. Test"
         EmptyRecordRef: RecordRef;
     begin
         // [FEATURE] [Direction]
-        Initialize;
+        Initialize();
 
         IntegrationSynchJob.Reset();
 
@@ -893,7 +893,7 @@ codeunit 139165 "Integration Table Synch. Test"
         DestinationRecordRef: RecordRef;
         CoupledRecordID: RecordID;
     begin
-        Initialize;
+        Initialize();
 
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
@@ -937,7 +937,7 @@ codeunit 139165 "Integration Table Synch. Test"
         SourceRecordRef: RecordRef;
     begin
         // [FEATURE] [Direction]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
 
@@ -998,7 +998,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
     begin
         // [FEATURE] [Integration Synch. Job]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
 
@@ -1021,7 +1021,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch.EndIntegrationSynchJob;
 
         IntegrationSynchJob.SetFilter("Integration Table Mapping Name", IntegrationTableMapping.Name);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Modified, 'Expected the destination to be modified');
 
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1039,7 +1039,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Integration Table ID");
         IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Modified, 'Expected the destination to be modified');
     end;
 
@@ -1052,7 +1052,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         SourceRecordRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
 
@@ -1082,7 +1082,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         SourceRecordRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
 
@@ -1117,7 +1117,7 @@ codeunit 139165 "Integration Table Synch. Test"
         SourceRecordRef: RecordRef;
     begin
         // [FEATURE] [Modified On]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
 
@@ -1155,7 +1155,7 @@ codeunit 139165 "Integration Table Synch. Test"
         SourceRecordRef: RecordRef;
     begin
         // [FEATURE] [Modified On]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
 
@@ -1193,7 +1193,7 @@ codeunit 139165 "Integration Table Synch. Test"
         SourceRecordRef: RecordRef;
     begin
         // [FEATURE] [Modified On]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
 
@@ -1246,7 +1246,7 @@ codeunit 139165 "Integration Table Synch. Test"
         SourceRecordRef: RecordRef;
     begin
         // [FEATURE] [Modified On]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
 
@@ -1297,7 +1297,7 @@ codeunit 139165 "Integration Table Synch. Test"
     begin
         // [FEATURE] [Modified On] [UI]
         // [SCENARIO] From the mapping table list page select a mapping and choose "Synchronize All"
-        Initialize;
+        Initialize();
         // [GIVEN] A coupled Customer and Account modified a year ago
         LatestModifiedOnBefore := CreateDateTime(CalcDate('<+1Y>', Today), Time);
         LatestModifiedOnAfter := CreateDateTime(Today, Time);
@@ -1347,7 +1347,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
         // [FEATURE] [Integration Synch. Job]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.GetGLSetupCRMTransactionCurrencyID;
         ResetDefaultCRMSetupConfiguration;
 
@@ -1372,7 +1372,7 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(1, Customer.Count, 'Expected one new customer to be created');
         IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
         IntegrationSynchJob.SetRange("Synch. Direction", IntegrationSynchJob."Synch. Direction"::FromIntegrationTable);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         Assert.AreEqual(1, IntegrationSynchJob.Inserted,
           StrSubstNo(
             'Expected one row to be inserted. Modified: %1, Unchanged: %2, Failed: %3\', IntegrationSynchJob.Modified,
@@ -1415,7 +1415,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
     begin
         // [FEATURE] [Integration Synch. Job]
-        Initialize;
+        Initialize();
 
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
@@ -1462,7 +1462,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [SCENARIO 379611] Update Contact when synchronize Customer with CRM.
 
         // [GIVEN] Customer "C1" with Name = "A" is coupled with "CRM Account"
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get(Customer.TableCaption);
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1504,7 +1504,7 @@ codeunit 139165 "Integration Table Synch. Test"
     var
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
     begin
-        if not IntegrationSynchJobErrors.FindSet then
+        if not IntegrationSynchJobErrors.FindSet() then
             exit('');
 
         repeat
@@ -1525,7 +1525,7 @@ codeunit 139165 "Integration Table Synch. Test"
         DestinationRecRef: RecordRef;
     begin
         // [FEATURE] [UT]
-        Initialize;
+        Initialize();
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, DATABASE::Customer);
 
@@ -1554,7 +1554,7 @@ codeunit 139165 "Integration Table Synch. Test"
         DummyRecID: RecordID;
     begin
         // [FEATURE] [UT]
-        Initialize;
+        Initialize();
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, DATABASE::Customer);
         // [GIVEN] the coupled Customer and CRM Account both do not exist.
@@ -1581,7 +1581,7 @@ codeunit 139165 "Integration Table Synch. Test"
         DummyRecID: RecordID;
     begin
         // [FEATURE] [UT]
-        Initialize;
+        Initialize();
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, DATABASE::Customer);
 
@@ -1612,7 +1612,7 @@ codeunit 139165 "Integration Table Synch. Test"
         DummyRecID: RecordID;
     begin
         // [FEATURE] [UT]
-        Initialize;
+        Initialize();
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, DATABASE::Customer);
 
@@ -2482,7 +2482,7 @@ codeunit 139165 "Integration Table Synch. Test"
 
     local procedure InitializeTestForToIntegrationTableSynch(var IntegrationTableMapping: Record "Integration Table Mapping")
     begin
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
 
         // Prepare Source
@@ -2498,7 +2498,7 @@ codeunit 139165 "Integration Table Synch. Test"
 
     local procedure InitializeTestForFromIntegrationTableSynch(var IntegrationTableMapping: Record "Integration Table Mapping")
     begin
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
 
         // Prepare Source
@@ -2518,7 +2518,7 @@ codeunit 139165 "Integration Table Synch. Test"
     begin
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", CustomerNo);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         Contact.Get(ContactBusinessRelation."Contact No.");
         Contact.TestField(Name, CustomerName);
     end;
@@ -2575,7 +2575,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
     begin
         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", JobID);
-        IntegrationSynchJobErrors.FindFirst;
+        IntegrationSynchJobErrors.FindFirst();
         IntegrationSynchJobErrors.TestField("Source Record ID", SourceRecID);
         IntegrationSynchJobErrors.TestField("Destination Record ID", DestinationRecID);
     end;

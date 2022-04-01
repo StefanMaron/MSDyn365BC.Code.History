@@ -31,11 +31,11 @@ codeunit 136120 "Service Warranty and Discounts"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Warranty and Discounts");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Warranty and Discounts");
@@ -112,7 +112,7 @@ codeunit 136120 "Service Warranty and Discounts"
         SignServContractDoc: Codeunit SignServContractDoc;
     begin
         // 1. Setup: Create Resource. Create Resource Group, Assign it to the Resource.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
 
@@ -160,7 +160,7 @@ codeunit 136120 "Service Warranty and Discounts"
 
         // 1. Setup: Create Resource. Create Resource Group, Assign it to the Resource.
         // Set Contract Discount Greatest.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
         LineDiscountPercentage := LibraryUtility.GenerateRandomFraction;
@@ -209,7 +209,7 @@ codeunit 136120 "Service Warranty and Discounts"
 
         // 1. Setup: Create Resource. Create Resource Group, Assign it to the Resource.
         // Set Line Discount Greatest.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
         ContractDiscountPercentage := LibraryUtility.GenerateRandomFraction;
@@ -257,7 +257,7 @@ codeunit 136120 "Service Warranty and Discounts"
 
         // 1. Setup: Create Resource. Create Resource Group, Assign it to the Resource.
         // Set Warranty Discount Greatest.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
         LineDiscountPercentage := LibraryUtility.GenerateRandomFraction;
@@ -307,7 +307,7 @@ codeunit 136120 "Service Warranty and Discounts"
 
         // 1. Setup: Create Resource. Create Resource Group, Assign it to the Resource.
         // Set Line Discount Greatest.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
         ContractDiscountPercentage := LibraryUtility.GenerateRandomFraction;
@@ -365,7 +365,7 @@ codeunit 136120 "Service Warranty and Discounts"
 
         // 1. Setup: Create Resource. Create Resource Group, Assign it to the Resource.
         // Set Warranty Discount Greatest.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
         LineDiscountPercentage := LibraryUtility.GenerateRandomFraction;
@@ -412,9 +412,9 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         // [FEATURE] [UT] [Service Contract]
         // [SCENARIO 293249] Service Discount can be created or changed only when Service Contract "Change Status" is Open.
-        Initialize;
+        Initialize();
 
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
         CreateServiceContract(ServiceContractHeader, ServiceItem);
 
@@ -515,7 +515,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.FindSet();
         repeat
@@ -525,7 +525,7 @@ codeunit 136120 "Service Warranty and Discounts"
 
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToTempServiceLine: Record "Service Line" temporary)
     begin
-        if FromServiceLine.FindSet then
+        if FromServiceLine.FindSet() then
             repeat
                 ToTempServiceLine.Init();
                 ToTempServiceLine := FromServiceLine;
@@ -543,7 +543,7 @@ codeunit 136120 "Service Warranty and Discounts"
           ContractDiscountPercentage);
         DiscountServiceContract(
           ServiceContractHeader, ContractServiceDiscount.Type::"Resource Group", ResourceGroupNo, ContractDiscountPercentage);
-        ServiceCost.FindFirst;
+        ServiceCost.FindFirst();
         DiscountServiceContract(
           ServiceContractHeader, ContractServiceDiscount.Type::Cost, ServiceCost.Code, ContractDiscountPercentage);
     end;
@@ -599,7 +599,7 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.Modify(true);
@@ -628,7 +628,7 @@ codeunit 136120 "Service Warranty and Discounts"
 
             SetRange("Contract No.", ServiceContractHeader."Contract No.");
             SetRange("Contract Type", ServiceContractHeader."Contract Type");
-            FindFirst;
+            FindFirst();
             Validate("Discount %", LibraryRandom.RandDec(10, 2));
             Modify(true);
         end;
@@ -733,7 +733,7 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Posting Date", PostingDate);
     end;
 
@@ -743,8 +743,8 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Invoice);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedCustLedgEntry.FindFirst;
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField(Amount, TotalAmount);
     end;
 
@@ -754,7 +754,7 @@ codeunit 136120 "Service Warranty and Discounts"
         GLEntry: Record "G/L Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         GLEntry.FindSet();
@@ -771,7 +771,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.FindSet();
         repeat
@@ -786,12 +786,12 @@ codeunit 136120 "Service Warranty and Discounts"
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Resource);
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ResLedgerEntry.SetRange("Document No.", ServiceInvoiceLine."Document No.");
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField(Quantity, -ServiceInvoiceLine.Quantity);
         ResLedgerEntry.TestField("Order Type", ResLedgerEntry."Order Type"::Service);
         ResLedgerEntry.TestField("Order No.", ServiceInvoiceHeader."Order No.");
@@ -807,7 +807,7 @@ codeunit 136120 "Service Warranty and Discounts"
         // field Type and No. of the relevant Service Line.
         TempServiceLine.FindSet();
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", TempServiceLine."Line No.");
             ServiceInvoiceLine.TestField(Type, TempServiceLine.Type);
@@ -849,7 +849,7 @@ codeunit 136120 "Service Warranty and Discounts"
         VerifyGLEntry(TempServiceLine."Document No.");
 
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         VerifyServiceLedgerEntry(ServiceInvoiceHeader."No.", TempServiceLine."Customer No.");
         VerifyCustomerLedgerEntry(ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Posting Date");
         VerifyDetailedCustLedgerEntry(ServiceInvoiceHeader."No.", CalculateTotalAmountOnInvoice(TempServiceLine."Document No."));
@@ -866,7 +866,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceShipmentLine.SetRange("Order No.", TempServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");
-            ServiceShipmentLine.FindFirst;
+            ServiceShipmentLine.FindFirst();
             ServiceShipmentLine.TestField(Type, TempServiceLine.Type);
             ServiceShipmentLine.TestField("No.", TempServiceLine."No.");
             ServiceShipmentLine.TestField("Line Discount %", TempServiceLine."Line Discount %");
@@ -882,7 +882,7 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("Posting Date", PostingDate);
     end;
 

@@ -14,8 +14,10 @@ codeunit 136361 "UT C Copy Job"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryResource: Codeunit "Library - Resource";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryPriceCalculation: codeunit "Library - Price Calculation";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -33,12 +35,12 @@ codeunit 136361 "UT C Copy Job"
         CopyJob: Codeunit "Copy Job";
         NewJobNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
 
         CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
-        NewJobNo := LibraryUtility.GenerateGUID;
-        CopyJob.CopyJob(SourceJob, NewJobNo, '', '');
+        NewJobNo := LibraryUtility.GenerateGUID();
+        CopyJob.CopyJob(SourceJob, NewJobNo, '', '', '');
         TargetJob.Get(NewJobNo);
         CompareJobFields(SourceJob, TargetJob);
     end;
@@ -54,7 +56,7 @@ codeunit 136361 "UT C Copy Job"
         TargetJobTask: Record "Job Task";
         CopyJob: Codeunit "Copy Job";
     begin
-        Initialize;
+        Initialize();
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
 
         InitJobTask(TargetJob, SourceJob."Bill-to Customer No.", '');
@@ -76,7 +78,7 @@ codeunit 136361 "UT C Copy Job"
         TargetJobPlanningLine: Record "Job Planning Line";
         CopyJob: Codeunit "Copy Job";
     begin
-        Initialize;
+        Initialize();
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
 
         InitJobTask(TargetJob, SourceJob."Bill-to Customer No.", '');
@@ -104,7 +106,7 @@ codeunit 136361 "UT C Copy Job"
         TargetJobPlanningLine: Record "Job Planning Line";
         CopyJob: Codeunit "Copy Job";
     begin
-        Initialize;
+        Initialize();
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
 
         InitJobTask(TargetJob, SourceJob."Bill-to Customer No.", '');
@@ -134,7 +136,7 @@ codeunit 136361 "UT C Copy Job"
         JobWIPMethod: Record "Job WIP Method";
         CopyJob: Codeunit "Copy Job";
     begin
-        Initialize;
+        Initialize();
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
         LibraryJob.CreateJobWIPMethod(JobWIPMethod);
 
@@ -161,17 +163,17 @@ codeunit 136361 "UT C Copy Job"
         NewJobNo: Code[20];
         NewDescription: Text[50];
     begin
-        Initialize;
+        Initialize();
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
 
-        NewDescription := LibraryUtility.GenerateGUID;
+        NewDescription := LibraryUtility.GenerateGUID();
         NewCustNo := CreateCustomer;
         SourceJob.Validate(Status, SourceJob.Status::Planning);
         SourceJob.Modify();
 
         CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
-        NewJobNo := LibraryUtility.GenerateGUID;
-        CopyJob.CopyJob(SourceJob, NewJobNo, NewDescription, NewCustNo);
+        NewJobNo := LibraryUtility.GenerateGUID();
+        CopyJob.CopyJob(SourceJob, NewJobNo, NewDescription, NewCustNo, '');
         TargetJob.Get(NewJobNo);
 
         Assert.AreEqual(NewDescription, TargetJob.Description, '');
@@ -187,7 +189,7 @@ codeunit 136361 "UT C Copy Job"
         ExpectedJobNo: Code[20];
     begin
         // [SCENARIO 108995] Job with disabled "Manual Nos" in "Job No. Series" can be copied
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job
         LibraryJob.CreateJob(SourceJob);
@@ -196,11 +198,11 @@ codeunit 136361 "UT C Copy Job"
         SetupManualNos(false);
 
         // [GIVEN] Next "No." from "Job No. Series"
-        ExpectedJobNo := LibraryUtility.GenerateGUID;
+        ExpectedJobNo := LibraryUtility.GenerateGUID();
 
         // [WHEN] Copy the job
         CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
-        CopyJob.CopyJob(SourceJob, ExpectedJobNo, '', '');
+        CopyJob.CopyJob(SourceJob, ExpectedJobNo, '', '', '');
 
         // [THEN] New job created with "Job No." assigned from "Job No. Series"
         Assert.IsTrue(SourceJob.Get(ExpectedJobNo), JobWithManualNoNotCreatedErr);
@@ -224,7 +226,7 @@ codeunit 136361 "UT C Copy Job"
         // [SCENARIO 377532] "WIP Method" shouldn't be copied to Job Task if it was not defined in the original Job Task
 
         // [GIVEN] Source Job with Job Task "A" where "WIP Method" is not defined
-        Initialize;
+        Initialize();
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
 
         // [GIVEN] Target job with "WIP Method"
@@ -253,7 +255,7 @@ codeunit 136361 "UT C Copy Job"
     begin
         // [SCENARIO 195862] Job Planning Line with uneven "Line No." can be copied to new Job Task twice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source Job Task and Job Planning Line
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
@@ -290,7 +292,7 @@ codeunit 136361 "UT C Copy Job"
     begin
         // [SCENARIO 195862] Job Planning Line with "Line No." close to zero can be copied to new Job Task twice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source Job and Job Task
         LibraryJob.CreateJob(SourceJob);
@@ -327,7 +329,7 @@ codeunit 136361 "UT C Copy Job"
     begin
         // [SCENARIO 382032] Copy Job Planning Lines from the same Job Task
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source Job Task and Job Planning Line
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
@@ -353,7 +355,7 @@ codeunit 136361 "UT C Copy Job"
     begin
         // [SCENARIO 272463] "Copy Job Task" page copies Job Task Dimensions
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job "J1" with Job Task "JT"
         LibraryJob.CreateJob(SourceJob);
@@ -375,9 +377,9 @@ codeunit 136361 "UT C Copy Job"
           CopyStr(LibraryVariableStorage.DequeueText, 1, 20));
 
         // [WHEN] Copy Job With Dimensions
-        TargetJobNo := LibraryUtility.GenerateGUID;
+        TargetJobNo := LibraryUtility.GenerateGUID();
         CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
-        CopyJob.CopyJob(SourceJob, TargetJobNo, '', '');
+        CopyJob.CopyJob(SourceJob, TargetJobNo, '', '', '');
         TargetJob.Get(TargetJobNo);
 
         // [THEN] Task Dimensions identical
@@ -394,7 +396,7 @@ codeunit 136361 "UT C Copy Job"
         CopyJob: Codeunit "Copy Job";
     begin
         // [SCENARIO 225344] "Copy Job Task" page clears "Ledger Entry No.´Š¢ and ´Š¢Ledger Entry Type".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job "J1" with Job Task "JT".
         LibraryJob.CreateJob(Job[1]);
@@ -418,6 +420,7 @@ codeunit 136361 "UT C Copy Job"
         VerifyJobPlanningLineLedgerEntryFields(Job[2]."No.", JobTask."Job Task No.");
     end;
 
+#if not CLEAN20
     [Test]
     [Scope('OnPrem')]
     procedure CopyJobWithPriceDiffCurrency()
@@ -434,7 +437,7 @@ codeunit 136361 "UT C Copy Job"
         TargetJobNo: Code[20];
     begin
         // [SCENARIO 409848] Copy Job should not ignore prices with Currency <> Job Currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with Currency Code = '' and with 3 Job Planning Lines of types "G/L Account", "Item", "Resource"
         LibraryJob.CreateJob(SourceJob);
@@ -454,9 +457,9 @@ codeunit 136361 "UT C Copy Job"
         CreateJobResourcePrice(JobResourcePrice[1], SourceJob."No.", SourceJobPlanningLine[3]."No.", Currency.Code);
 
         // [WHEN] Copy Job with Copy Price = true
-        TargetJobNo := LibraryUtility.GenerateGUID;
+        TargetJobNo := LibraryUtility.GenerateGUID();
         CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
-        CopyJob.CopyJob(SourceJob, TargetJobNo, '', SourceJob."Bill-to Customer No.");
+        CopyJob.CopyJob(SourceJob, TargetJobNo, '', SourceJob."Bill-to Customer No.", '');
 
         // [THEN] New Job created with Job G/L Account Price, Job Item Price, Job Resource Price lines with Currency Code = "C"
         JobGLAccountPrice[2].SetRange("Job No.", TargetJobNo);
@@ -474,6 +477,147 @@ codeunit 136361 "UT C Copy Job"
         JobResourcePrice[2].SetRange("Currency Code", Currency.Code);
         Assert.RecordIsNotEmpty(JobResourcePrice[2]);
     end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyJobWithPriceListsDiffCurrency()
+    var
+        ResourceGroup: Record "Resource Group";
+        SourceJob: Record Job;
+        SourceJobTask: Record "Job Task";
+        SourceJobPlanningLine: array[3] of Record "Job Planning Line";
+        TargetJobTask: Record "Job Task";
+        PriceListHeader: array[4] of Record "Price List Header";
+        PriceListLine: array[7] of Record "Price List Line";
+        Currency: Record Currency;
+        CopyJob: Codeunit "Copy Job";
+        TargetJobNo: Code[20];
+    begin
+        // [SCENARIO 409848] Copy Job should not ignore prices with Currency <> Job Currency
+        Initialize();
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Job with Currency Code = '' and with 3 Job Planning Lines of types "G/L Account", "Item", "Resource"
+        LibraryJob.CreateJob(SourceJob);
+        SourceJob.Validate("Currency Code", '');
+        SourceJob.Modify();
+        LibraryJob.CreateJobTask(SourceJob, SourceJobTask);
+        CreateJobPlanningLine(SourceJobPlanningLine[1], SourceJobPlanningLine[1].Type::"G/L Account", SourceJobTask);
+        CreateJobPlanningLine(SourceJobPlanningLine[2], SourceJobPlanningLine[2].Type::Item, SourceJobTask);
+        CreateJobPlanningLine(SourceJobPlanningLine[3], SourceJobPlanningLine[3].Type::Resource, SourceJobTask);
+
+        // [GIVEN] Currency "C"
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Price list for Job Task with 3 lines for G/L Account, Item, Resource with Currency Code = "C"
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[1], "Price Type"::Purchase, "Price Source Type"::"Job Task", SourceJob."No.", SourceJobTask."Job Task No.");
+        PriceListHeader[1].Status := PriceListHeader[1].Status::Active;
+        PriceListHeader[1].Modify();
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", SourceJobPlanningLine[1]."No.");
+        PriceListLine[1]."Currency Code" := Currency.Code;
+        PriceListLine[1].Modify();
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Item, SourceJobPlanningLine[2]."No.");
+        PriceListLine[2]."Currency Code" := Currency.Code;
+        PriceListLine[2].Status := PriceListLine[2].Status::Active;
+        PriceListLine[2].Modify();
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[3], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Resource, SourceJobPlanningLine[3]."No.");
+        PriceListLine[3]."Currency Code" := Currency.Code;
+        PriceListLine[3].Modify();
+
+        // [GIVEN] Price list for Job  with 3 lines for G/L Account, Item, Resource with Currency Code = "C"
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::Job, SourceJob."No.");
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[4], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+
+        // [GIVEN] Price list for All Jobs with "Allow Updating Defaults" with 2 lines: one - for Job, second - for Job task
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[3], "Price Type"::Purchase, "Price Source Type"::"All Jobs", '');
+        PriceListHeader[3].Validate("Allow Updating Defaults", true);
+        PriceListHeader[3].Modify();
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[6], PriceListHeader[3].Code, "Price Source Type"::Job, SourceJob."No.",
+            "Price Asset Type"::"G/L Account", SourceJobPlanningLine[1]."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[7], PriceListHeader[3].Code, "Price Type"::Purchase, "Price Source Type"::"Job Task", SourceJob."No.", SourceJobTask."Job Task No.",
+            "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", SourceJobPlanningLine[1]."No.");
+
+        // [WHEN] Copy Job with Copy Price = true
+        TargetJobNo := LibraryUtility.GenerateGUID();
+        CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
+        CopyJob.CopyJob(SourceJob, TargetJobNo, '', SourceJob."Bill-to Customer No.", '');
+
+        // [THEN] New Job created with 2 price lists: 1st for Job with 1 line for "Resource Group"
+        PriceListHeader[4].SetRange("Source Type", "Price Source Type"::Job);
+        PriceListHeader[4].SetRange("Source No.", TargetJobNo);
+        Assert.RecordCount(PriceListHeader[4], 1);
+        PriceListHeader[4].FindFirst();
+        PriceListHeader[4].TestField(Status, PriceListHeader[2].Status);
+
+        PriceListLine[5].SetRange("Price List Code", PriceListHeader[4].Code);
+        PriceListLine[5].SetRange("Source Type", "Price Source Type"::Job);
+        PriceListLine[5].SetRange("Source No.", TargetJobNo);
+        Assert.RecordCount(PriceListLine[5], 1);
+        PriceListLine[5].SetRange("Asset Type", "Price Asset Type"::"Resource Group");
+        PriceListLine[5].SetRange("Asset No.", ResourceGroup."No.");
+        Assert.RecordCount(PriceListLine[5], 1);
+
+        // [THEN] 2nd includes 3 price list lines for G/L Account, Item, Resource with Currency Code = "C"
+        PriceListHeader[4].SetRange("Source Type", "Price Source Type"::"Job Task");
+        PriceListHeader[4].SetRange("Parent Source No.", TargetJobNo);
+        PriceListHeader[4].SetRange("Source No.", SourceJobTask."Job Task No.");
+        Assert.RecordCount(PriceListHeader[4], 1);
+        PriceListHeader[4].FindFirst();
+        PriceListHeader[4].TestField(Status, PriceListHeader[1].Status);
+
+        PriceListLine[5].SetRange("Price List Code", PriceListHeader[4].Code);
+        PriceListLine[5].SetRange("Source Type", "Price Source Type"::"Job Task");
+        PriceListLine[5].SetRange("Parent Source No.", TargetJobNo);
+        PriceListLine[5].SetRange("Source No.", SourceJobTask."Job Task No.");
+        PriceListLine[5].SetRange("Currency Code", Currency.Code);
+        PriceListLine[5].SetRange("Asset Type");
+        PriceListLine[5].SetRange("Asset No.");
+        Assert.RecordCount(PriceListLine[5], 3);
+
+        PriceListLine[5].SetRange("Asset Type", "Price Asset Type"::"G/L Account");
+        PriceListLine[5].SetRange("Asset No.", SourceJobPlanningLine[1]."No.");
+        Assert.RecordCount(PriceListLine[5], 1);
+        PriceListLine[5].FindFirst();
+        PriceListLine[5].TestField(Status, PriceListLine[1].Status);
+
+        PriceListLine[5].SetRange("Asset Type", "Price Asset Type"::Item);
+        PriceListLine[5].SetRange("Asset No.", SourceJobPlanningLine[2]."No.");
+        Assert.RecordCount(PriceListLine[5], 1);
+        PriceListLine[5].FindFirst();
+        PriceListLine[5].TestField(Status, PriceListLine[2].Status);
+
+        PriceListLine[5].SetRange("Asset Type", "Price Asset Type"::Resource);
+        PriceListLine[5].SetRange("Asset No.", SourceJobPlanningLine[3]."No.");
+        Assert.RecordCount(PriceListLine[5], 1);
+        PriceListLine[5].FindFirst();
+        PriceListLine[5].TestField(Status, PriceListLine[3].Status);
+
+        // [THEN] 2 lines added to the "Allow Updating Defaults" price list: one - for Job, second - for Job task
+        PriceListLine[5].SetRange("Currency Code");
+        PriceListLine[5].SetRange("Asset Type");
+        PriceListLine[5].SetRange("Asset No.");
+        PriceListLine[5].SetRange("Price List Code", PriceListHeader[3].Code);
+        PriceListLine[5].SetRange("Source Type", "Price Source Type"::"Job Task");
+        PriceListLine[5].SetRange("Parent Source No.", TargetJobNo);
+        PriceListLine[5].SetRange("Source No.", SourceJobTask."Job Task No.");
+        Assert.RecordCount(PriceListLine[5], 1);
+        PriceListLine[5].SetRange("Source Type", "Price Source Type"::Job);
+        PriceListLine[5].SetRange("Source No.", TargetJobNo);
+        PriceListLine[5].SetRange("Parent Source No.");
+        Assert.RecordCount(PriceListLine[5], 1);
+    end;
+
 
     local procedure Initialize()
     var
@@ -484,7 +628,7 @@ codeunit 136361 "UT C Copy Job"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT C Copy Job");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT C Copy Job");
@@ -539,6 +683,7 @@ codeunit 136361 "UT C Copy Job"
         JobPlanningLine.Modify();
     end;
 
+#if not CLEAN20
     local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[20])
     begin
         LibraryJob.CreateJobGLAccountPrice(
@@ -562,6 +707,7 @@ codeunit 136361 "UT C Copy Job"
         JobResourcePrice."Unit Price" := LibraryRandom.RandIntInRange(1, 10);
         JobResourcePrice.Modify();
     end;
+#endif
 
     local procedure CompareJobFields(SourceJob: Record Job; TargetJob: Record Job)
     begin
@@ -835,7 +981,7 @@ codeunit 136361 "UT C Copy Job"
     local procedure InitJobTask(var TargetJob: Record Job; CustNo: Code[20]; WIPMethodCode: Code[20])
     begin
         TargetJob.Init();
-        TargetJob."No." := LibraryUtility.GenerateGUID;
+        TargetJob."No." := LibraryUtility.GenerateGUID();
         TargetJob.Validate("Bill-to Customer No.", CustNo);
         TargetJob."WIP Method" := WIPMethodCode;
         TargetJob.Insert();
@@ -878,7 +1024,7 @@ codeunit 136361 "UT C Copy Job"
         with JobPlanningLine do begin
             SetRange("Job No.", JobNo);
             SetRange("Job Task No.", JobTaskNo);
-            FindFirst;
+            FindFirst();
             TestField("Ledger Entry No.", 0);
             TestField("Ledger Entry Type", "Ledger Entry Type"::" ");
         end;

@@ -75,7 +75,7 @@ page 7600 "Base Calendar Card"
                         WhereUsedList: Page "Where-Used Base Calendar";
                     begin
                         CalendarMgt.CreateWhereUsedEntries(Code);
-                        WhereUsedList.RunModal;
+                        WhereUsedList.RunModal();
                         Clear(WhereUsedList);
                     end;
                 }

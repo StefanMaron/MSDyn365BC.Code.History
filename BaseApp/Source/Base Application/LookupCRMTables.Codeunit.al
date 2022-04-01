@@ -41,6 +41,28 @@ codeunit 5332 "Lookup CRM Tables"
         exit(false);
     end;
 
+    procedure LookupOptions(CRMTableID: Integer; NAVTableId: Integer; SavedCRMOptionId: Integer; var CRMOptionId: Integer; var CRMOptionCode: Text[250]): Boolean
+    var
+        IntTableFilter: Text;
+        Handled: Boolean;
+    begin
+        IntTableFilter := GetIntegrationTableFilter(CRMTableID, NAVTableId);
+
+        OnLookupCRMOption(CRMTableID, NAVTableId, SavedCRMOptionId, CRMOptionId, CRMOptionCode, IntTableFilter, Handled);
+        if Handled then
+            exit(true);
+
+        case CRMTableID of
+            DATABASE::"CRM Payment Terms":
+                exit(LookupCRMPaymentTerm(SavedCRMOptionId, CRMOptionId, CRMOptionCode, IntTableFilter));
+            DATABASE::"CRM Freight Terms":
+                exit(LookupCRMFreightTerm(SavedCRMOptionId, CRMOptionId, CRMOptionCode, IntTableFilter));
+            DATABASE::"CRM Shipping Method":
+                exit(LookupCRMShippingMethod(SavedCRMOptionId, CRMOptionId, CRMOptionCode, IntTableFilter));
+        end;
+        exit(false);
+    end;
+
     local procedure LookupCRMAccount(SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text): Boolean
     var
         CRMAccount: Record "CRM Account";
@@ -291,6 +313,96 @@ codeunit 5332 "Lookup CRM Tables"
         exit(false);
     end;
 
+    local procedure LookupCRMPaymentTerm(SavedCRMId: Integer; var CRMOptionId: Integer; var CRMOptionCode: Text[250]; IntTableFilter: Text): Boolean
+    var
+        CRMPaymentTerms: Record "CRM Payment Terms";
+        OriginalCRMPaymentTerms: Record "CRM Payment Terms";
+        CRMPaymentTermsList: Page "CRM Payment Terms List";
+    begin
+        if CRMOptionId <> 0 then begin
+            CRMPaymentTermsList.LoadRecords();
+            CRMPaymentTerms := CRMPaymentTermsList.GetRec(CRMOptionId);
+            if CRMPaymentTerms."Option Id" <> 0 then
+                CRMPaymentTermsList.SetRecord(CRMPaymentTerms);
+            if SavedCRMId <> 0 then begin
+                OriginalCRMPaymentTerms := CRMPaymentTermsList.GetRec(SavedCRMId);
+                if OriginalCRMPaymentTerms."Option Id" <> 0 then
+                    CRMPaymentTermsList.SetCurrentlyMappedCRMPaymentTermOptionId(SavedCRMId);
+            end;
+        end;
+        CRMPaymentTerms.SetView(IntTableFilter);
+        CRMPaymentTermsList.SetTableView(CRMPaymentTerms);
+        CRMPaymentTermsList.LookupMode(true);
+        Commit();
+        if CRMPaymentTermsList.RunModal() = ACTION::LookupOK then begin
+            CRMPaymentTermsList.GetRecord(CRMPaymentTerms);
+            CRMOptionId := CRMPaymentTerms."Option Id";
+            CRMOptionCode := CRMPaymentTerms."Code";
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure LookupCRMFreightTerm(SavedCRMId: Integer; var CRMOptionId: Integer; var CRMOptionCode: Text[250]; IntTableFilter: Text): Boolean
+    var
+        CRMFreightTerms: Record "CRM Freight Terms";
+        OriginalCRMFreightTerms: Record "CRM Freight Terms";
+        CRMFreightTermsList: Page "CRM Freight Terms List";
+    begin
+        if CRMOptionId <> 0 then begin
+            CRMFreightTermsList.LoadRecords();
+            CRMFreightTerms := CRMFreightTermsList.GetRec(CRMOptionId);
+            if CRMFreightTerms."Option Id" <> 0 then
+                CRMFreightTermsList.SetRecord(CRMFreightTerms);
+            if SavedCRMId <> 0 then begin
+                OriginalCRMFreightTerms := CRMFreightTermsList.GetRec(SavedCRMId);
+                if OriginalCRMFreightTerms."Option Id" <> 0 then
+                    CRMFreightTermsList.SetCurrentlyMappedCRMFreightTermOptionId(SavedCRMId);
+            end;
+        end;
+        CRMFreightTerms.SetView(IntTableFilter);
+        CRMFreightTermsList.SetTableView(CRMFreightTerms);
+        CRMFreightTermsList.LookupMode(true);
+        Commit();
+        if CRMFreightTermsList.RunModal() = ACTION::LookupOK then begin
+            CRMFreightTermsList.GetRecord(CRMFreightTerms);
+            CRMOptionId := CRMFreightTerms."Option Id";
+            CRMOptionCode := CRMFreightTerms."Code";
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure LookupCRMShippingMethod(SavedCRMId: Integer; var CRMOptionId: Integer; var CRMOptionCode: Text[250]; IntTableFilter: Text): Boolean
+    var
+        CRMShippingMethod: Record "CRM Shipping Method";
+        OriginalCRMShippingMethod: Record "CRM Shipping Method";
+        CRMShippingMethodList: Page "CRM Shipping Method List";
+    begin
+        if CRMOptionId <> 0 then begin
+            CRMShippingMethodList.LoadRecords();
+            CRMShippingMethod := CRMShippingMethodList.GetRec(CRMOptionId);
+            if CRMShippingMethod."Option Id" <> 0 then
+                CRMShippingMethodList.SetRecord(CRMShippingMethod);
+            if SavedCRMId <> 0 then begin
+                OriginalCRMShippingMethod := CRMShippingMethodList.GetRec(SavedCRMId);
+                if OriginalCRMShippingMethod."Option Id" <> 0 then
+                    CRMShippingMethodList.SetCurrentlyMappedCRMPShippingMethodOptionId(SavedCRMId);
+            end;
+        end;
+        CRMShippingMethod.SetView(IntTableFilter);
+        CRMShippingMethodList.SetTableView(CRMShippingMethod);
+        CRMShippingMethodList.LookupMode(true);
+        Commit();
+        if CRMShippingMethodList.RunModal() = ACTION::LookupOK then begin
+            CRMShippingMethodList.GetRecord(CRMShippingMethod);
+            CRMOptionId := CRMShippingMethod."Option Id";
+            CRMOptionCode := CRMShippingMethod."Code";
+            exit(true);
+        end;
+        exit(false);
+    end;
+
     procedure GetIntegrationTableFilter(CRMTableId: Integer; NAVTableId: Integer): Text
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -299,7 +411,7 @@ codeunit 5332 "Lookup CRM Tables"
         IntegrationTableMapping.SetRange("Table ID", NAVTableId);
         IntegrationTableMapping.SetRange("Integration Table ID", CRMTableId);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-        if IntegrationTableMapping.FindFirst then
+        if IntegrationTableMapping.FindFirst() then
             exit(IntegrationTableMapping.GetIntegrationTableFilter);
         exit('');
     end;
@@ -311,6 +423,7 @@ codeunit 5332 "Lookup CRM Tables"
         RecRef: array[2] of RecordRef;
         FieldRef: array[2] of FieldRef;
         FieldFilter: array[2] of Text;
+        NoFilter: Dictionary of [Integer, Boolean];
     begin
         RecRef[1].Open(TableId);
         RecRef[2].Open(TableId);
@@ -319,7 +432,7 @@ codeunit 5332 "Lookup CRM Tables"
         IntegrationTableMapping.SetRange("Integration Table ID", TableId);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
-        if IntegrationTableMapping.FindSet then
+        if IntegrationTableMapping.FindSet() then
             repeat
                 FieldFilter[2] := IntegrationTableMapping.GetIntegrationTableFilter;
                 if FieldFilter[2] <> '' then begin
@@ -327,20 +440,25 @@ codeunit 5332 "Lookup CRM Tables"
 
                     Field.SetRange(TableNo, TableId);
                     Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-                    if Field.FindSet then
+                    if Field.FindSet() then
                         repeat
-                            FieldRef[1] := RecRef[1].Field(Field."No.");
-                            FieldRef[2] := RecRef[2].Field(Field."No.");
+                            if not NoFilter.ContainsKey(Field."No.") then begin
+                                FieldRef[1] := RecRef[1].Field(Field."No.");
+                                FieldRef[2] := RecRef[2].Field(Field."No.");
 
-                            FieldFilter[1] := FieldRef[1].GetFilter;
-                            FieldFilter[2] := FieldRef[2].GetFilter;
+                                FieldFilter[1] := FieldRef[1].GetFilter;
+                                FieldFilter[2] := FieldRef[2].GetFilter;
 
-                            if FieldFilter[2] <> '' then
-                                if FieldFilter[1] = '' then
-                                    FieldRef[1].SetFilter(FieldFilter[2])
-                                else
-                                    FieldRef[1].SetFilter(StrSubstNo('%1|%2', FieldFilter[1], FieldFilter[2]));
-
+                                if FieldFilter[2] <> '' then
+                                    if FieldFilter[1] = '' then
+                                        FieldRef[1].SetFilter(FieldFilter[2])
+                                    else
+                                        FieldRef[1].SetFilter(StrSubstNo('%1|%2', FieldFilter[1], FieldFilter[2]))
+                                else begin
+                                    NoFilter.Add(Field."No.", true);
+                                    FieldRef[1].SetFilter('');
+                                end;
+                            end;
                         until Field.Next() = 0;
                 end;
             until IntegrationTableMapping.Next() = 0;
@@ -352,5 +470,9 @@ codeunit 5332 "Lookup CRM Tables"
     local procedure OnLookupCRMTables(CRMTableID: Integer; NAVTableId: Integer; SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text; var Handled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupCRMOption(CRMTableID: Integer; NAVTableId: Integer; SavedCRMOptionId: Integer; var CRMOptionId: Integer; var CRMOptionCode: Text[250]; IntTableFilter: Text; var Handled: Boolean)
+    begin
+    end;
+}

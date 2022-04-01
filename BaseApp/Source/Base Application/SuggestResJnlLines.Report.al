@@ -22,7 +22,7 @@ report 951 "Suggest Res. Jnl. Lines"
                 LineNo: Integer;
                 QtyToPost: Decimal;
             begin
-                if TempTimeSheetLine.FindSet then begin
+                if TempTimeSheetLine.FindSet() then begin
                     ResJnlLine.LockTable();
                     ResJnlTemplate.Get(ResJnlLine."Journal Template Name");
                     ResJnlBatch.Get(ResJnlLine."Journal Template Name", ResJnlLine."Journal Batch Name");
@@ -33,7 +33,7 @@ report 951 "Suggest Res. Jnl. Lines"
 
                     ResJnlLine.SetRange("Journal Template Name", ResJnlLine."Journal Template Name");
                     ResJnlLine.SetRange("Journal Batch Name", ResJnlLine."Journal Batch Name");
-                    if ResJnlLine.FindLast then;
+                    if ResJnlLine.FindLast() then;
                     LineNo := ResJnlLine."Line No.";
 
                     repeat
@@ -43,7 +43,7 @@ report 951 "Suggest Res. Jnl. Lines"
                         if DateFilter <> '' then
                             TimeSheetDetail.SetFilter(Date, DateFilter);
                         TimeSheetDetail.SetFilter(Quantity, '<>0');
-                        if TimeSheetDetail.FindSet then
+                        if TimeSheetDetail.FindSet() then
                             repeat
                                 QtyToPost := TimeSheetDetail.GetMaxQtyToPost;
                                 if QtyToPost <> 0 then begin
@@ -154,13 +154,13 @@ report 951 "Suggest Res. Jnl. Lines"
     local procedure FillTempBuffer(ResourceNo: Code[20])
     begin
         TimeSheetHeader.SetRange("Resource No.", ResourceNo);
-        if TimeSheetHeader.FindSet then
+        if TimeSheetHeader.FindSet() then
             repeat
                 TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
                 TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Resource);
                 TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Approved);
                 TimeSheetLine.SetRange(Posted, false);
-                if TimeSheetLine.FindSet then
+                if TimeSheetLine.FindSet() then
                     repeat
                         TempTimeSheetLine := TimeSheetLine;
                         TempTimeSheetLine.Insert();

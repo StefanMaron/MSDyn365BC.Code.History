@@ -79,9 +79,9 @@ table 1308 "O365 Getting Started Page Data"
     begin
         O365GettingStartedPageData.SetFilter("Display Target", StrSubstNo('*%1*', Format(ClientTypeManagement.GetCurrentClientType)));
 
-        if not O365GettingStartedPageData.FindLast then begin
+        if not O365GettingStartedPageData.FindLast() then begin
             O365GettingStartedPageData.SetRange("Display Target", AllDisplayTargetsTxt);
-            if not O365GettingStartedPageData.FindLast then
+            if not O365GettingStartedPageData.FindLast() then
                 exit(false);
         end;
 

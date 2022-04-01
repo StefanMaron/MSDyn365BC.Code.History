@@ -159,7 +159,7 @@ table 8612 "Config. Question"
             ConfigQuestion1.SetRange("Question Area Code", "Question Area Code");
             ConfigQuestion1.SetRange("Table ID", "Table ID");
             ConfigQuestion1.SetRange("Field ID", "Field ID");
-            if ConfigQuestion1.FindFirst then begin
+            if ConfigQuestion1.FindFirst() then begin
                 "Field ID" := 0;
                 ConfigQuestion1.CalcFields("Field Caption");
                 Error(Text002, ConfigQuestion1."No.", ConfigQuestion1."Field Caption");
@@ -202,7 +202,7 @@ table 8612 "Config. Question"
     begin
         if "Table ID" > 0 then begin
             RecRef.Open("Table ID");
-            RecRef.FindFirst;
+            RecRef.FindFirst();
             FieldRef := RecRef.Field("Field ID");
             exit(Format(FieldRef.Value));
         end;

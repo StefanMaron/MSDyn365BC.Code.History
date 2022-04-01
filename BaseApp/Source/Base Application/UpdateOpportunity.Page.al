@@ -269,7 +269,7 @@ page 5129 "Update Opportunity"
         Task.Reset();
         Task.SetCurrentKey("Opportunity No.");
         Task.SetRange("Opportunity No.", "Opportunity No.");
-        if Task.FindFirst then
+        if Task.FindFirst() then
             CancelOldTaskEnable := true;
         Modify;
     end;

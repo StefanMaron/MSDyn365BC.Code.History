@@ -346,7 +346,7 @@ page 740 "VAT Report"
                         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
                     begin
                         CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", WorkDate, "No.", '', false, false);
-                        CalcAndPostVATSettlement.Run;
+                        CalcAndPostVATSettlement.Run();
                     end;
                 }
             }

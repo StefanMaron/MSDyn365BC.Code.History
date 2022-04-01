@@ -938,7 +938,7 @@ page 9255 "Tasks Matrix"
                 if "No. of Tasks" > 1 then
                     MATRIX_CellData[Matrix_ColumnOrdinal] := MultipleTxt
                 else begin
-                    Task.FindFirst;
+                    Task.FindFirst();
                     if Task."Contact No." <> '' then
                         MATRIX_CellData[Matrix_ColumnOrdinal] := Task."Contact No."
                     else

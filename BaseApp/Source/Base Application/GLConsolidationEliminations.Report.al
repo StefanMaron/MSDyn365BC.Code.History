@@ -378,7 +378,7 @@ report 16 "G/L Consolidation Eliminations"
         GenJournalLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.SetRange("Account No.", GLAccount."No.");
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 LineNo += 10000;
                 TempGenJournalLine := GenJournalLine;
@@ -390,7 +390,7 @@ report 16 "G/L Consolidation Eliminations"
         GenJournalLine.SetRange("Account No.");
         GenJournalLine.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.SetRange("Bal. Account No.", GLAccount."No.");
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 LineNo += 10000;
                 TempGenJournalLine := GenJournalLine;

@@ -435,7 +435,7 @@ table 2103 "O365 Sales Document"
                 exit(SalesHeaderResults); // therefore, no more recs, so this means we are done
 
             // No more sales headers, but we are moving forward so move on to sales invoice headers below
-            if not SalesInvoiceHeader.FindSet then
+            if not SalesInvoiceHeader.FindSet() then
                 exit(0);
 
             StepOffset += 1; // need to adjust for one step that we did with FINDSET
@@ -560,7 +560,7 @@ table 2103 "O365 Sales Document"
 
         // Get the first posted doc since we no longer have any unposted docs
         SetSalesInvoiceHeaderFilters(SalesInvoiceHeader);
-        if SalesInvoiceHeader.FindFirst then begin
+        if SalesInvoiceHeader.FindFirst() then begin
             SetSalesInvoiceHeaderAsRec(SalesInvoiceHeader);
             exit(true);
         end;
@@ -592,7 +592,7 @@ table 2103 "O365 Sales Document"
         // that match the specified criteria.
         if (StrPos(Which, '<') > 0) or (Which = '+') then begin
             SetSalesHeaderFilters(SalesHeader);
-            if SalesHeader.FindLast then begin
+            if SalesHeader.FindLast() then begin
                 SetSalesHeaderAsRec(SalesHeader);
                 exit(true);
             end;

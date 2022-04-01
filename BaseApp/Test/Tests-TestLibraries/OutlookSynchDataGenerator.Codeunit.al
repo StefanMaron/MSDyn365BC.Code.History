@@ -98,7 +98,7 @@ codeunit 132461 "Outlook Synch Data Generator"
             Task."Organizer To-do No." := OrganizerTask;
             Task.Insert(true);
 
-            if Attendee.FindLast then
+            if Attendee.FindLast() then
                 AttendeeLineNo := Attendee."Line No." + 10000
             else
                 AttendeeLineNo := 10000;

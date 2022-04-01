@@ -72,7 +72,7 @@ page 484 "Edit Reclas. Dimensions"
     begin
         DeleteAll();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 "Dimension Code" := DimSetEntry."Dimension Code";
                 "Dimension Value Code" := DimSetEntry."Dimension Value Code";
@@ -80,7 +80,7 @@ page 484 "Edit Reclas. Dimensions"
                 Insert;
             until DimSetEntry.Next() = 0;
         DimSetEntry.SetRange("Dimension Set ID", NewDimSetId);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 if not Get(DimSetEntry."Dimension Code") then begin
                     "Dimension Code" := DimSetEntry."Dimension Code";

@@ -22,7 +22,7 @@ codeunit 139451 "O365 Item Permission Test"
         RecordRefWithAllRelations: RecordRef;
     begin
         // [GIVEN] A user with O365 Basic and Item Edit permissions
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetItemEdit;
         ExcludedTables := ExcludedTables.List;
         InsertTablesExcludedFromItemCreate(ExcludedTables);
@@ -32,7 +32,7 @@ codeunit 139451 "O365 Item Permission Test"
         LibraryPermissionsVerify.VerifyWritePermissionTrue(RecordRef);
 
         // [THEN] The user can read from the record and related tables
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         RecordRefWithAllRelations.Open(DATABASE::Item);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
         LibraryPermissionsVerify.CheckReadAccessToRelatedTables(ExcludedTables, RecordRef);
@@ -47,8 +47,8 @@ codeunit 139451 "O365 Item Permission Test"
         RecordRefWithAllRelations: RecordRef;
     begin
         // [GIVEN] An Item with related records and a user with O365 Basic and Item View
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         RecordRefWithAllRelations.Open(DATABASE::Item);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
         ExcludedTables := ExcludedTables.List;

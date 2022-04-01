@@ -133,7 +133,7 @@ report 751 "Save as Standard Item Journal"
             StdItemJnl.Insert(true);
 
         NextLineNo := 10000;
-        if ItemJnlLine.FindSet then
+        if ItemJnlLine.FindSet() then
             repeat
                 StdItemJnlLine."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 10000;

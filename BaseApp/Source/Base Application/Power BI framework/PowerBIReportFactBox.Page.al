@@ -87,9 +87,14 @@ page 6306 "Power BI Report FactBox"
                     end;
 
                     trigger DocumentReady()
+                    var
+                        LoadReportMessage: Text;
                     begin
                         if not TempPowerBiReportBuffer.IsEmpty() then
-                            CurrPage.WebReportViewer.PostMessage(PowerBiEmbedHelper.GetLoadReportMessage(), PowerBiEmbedHelper.TargetOrigin(), false);
+                            if PowerBiEmbedHelper.TryGetLoadReportMessage(LoadReportMessage) then
+                                CurrPage.WebReportViewer.PostMessage(LoadReportMessage, PowerBiEmbedHelper.TargetOrigin(), false)
+                            else
+                                ShowError(GetLastErrorText());
                     end;
 
                     trigger Callback(data: Text)
@@ -325,6 +330,7 @@ page 6306 "Power BI Report FactBox"
                             ObsoleteTag = '18.0';
                         }
                     }
+#endif
                     group(Control21)
                     {
                         ShowCaption = false;
@@ -341,7 +347,6 @@ page 6306 "Power BI Report FactBox"
                             Visible = false;
                         }
                     }
-#endif
                 }
             }
         }
@@ -690,7 +695,7 @@ page 6306 "Power BI Report FactBox"
         DotNetString: DotNet String;
     begin
         if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::Phone, ClientType::Windows]) then
-            CurrPage.WebReportViewer.InitializeIFrame('4:3');
+            CurrPage.WebReportViewer.InitializeIFrame(PowerBiServiceMgt.GetFactboxRatio());
         // subscribe to events
         CurrPage.WebReportViewer.SubscribeToEvent('message', GetEmbedUrl());
         CurrPage.WebReportViewer.Navigate(GetEmbedUrl());
@@ -807,4 +812,9 @@ page 6306 "Power BI Report FactBox"
         end;
     end;
 
+    local procedure ShowError(NewErrorMessageText: Text)
+    begin
+        PageState := PageState::ErrorVisible;
+        ErrorMessageText := NewErrorMessageText;
+    end;
 }

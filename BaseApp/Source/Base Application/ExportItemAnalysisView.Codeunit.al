@@ -191,7 +191,7 @@ codeunit 7152 "Export Item Analysis View"
             FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Last Date Updated"));
             FillCell(RowNoCount, 3, ItemAnalysisView."Last Date Updated");
             ItemAnalysisViewFilter.SetRange("Analysis View Code", "Analysis View Code");
-            if ItemAnalysisViewFilter.FindSet then
+            if ItemAnalysisViewFilter.FindSet() then
                 repeat
                     RowNoCount := RowNoCount + 1;
                     FillCell(RowNoCount, 2, ItemAnalysisViewFilter."Dimension Code");
@@ -403,7 +403,7 @@ codeunit 7152 "Export Item Analysis View"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast then begin
+                        if AccountingPeriod.FindLast() then begin
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
                         end else
                             PrevCalculatedPostingDate := PostingDate;
@@ -470,7 +470,7 @@ codeunit 7152 "Export Item Analysis View"
                     AddParentToBuffer(ParentTempNameValueBuffer, i, TempDimValue2.Code, TempDimValue2.Name);
                 end;
 
-            if ParentTempNameValueBuffer.FindSet then
+            if ParentTempNameValueBuffer.FindSet() then
                 repeat
                     AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
                 until ParentTempNameValueBuffer.Next() = 0;

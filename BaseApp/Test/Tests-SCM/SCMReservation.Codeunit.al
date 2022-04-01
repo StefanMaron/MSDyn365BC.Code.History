@@ -24,6 +24,7 @@ codeunit 137049 "SCM Reservation"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
@@ -54,7 +55,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialReserveSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservation(InitialInventory, InitialInventory - 1);  // Item inventory value and partial Sales quantity for reservation.
     end;
@@ -65,7 +66,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullReserveSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservation(InitialInventory, InitialInventory);
     end;
@@ -76,7 +77,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialAutoReserveSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservation(InitialInventory, InitialInventory - 1);  // Item inventory value and partial Sales quantity for reservation.
     end;
@@ -87,7 +88,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullAutoReserveSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservation(InitialInventory, InitialInventory);
     end;
@@ -120,7 +121,7 @@ codeunit 137049 "SCM Reservation"
         ReducedInventory: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         CreateItemAndUpdateInventory(Item, InitialInventory);
         CreateSalesOrder(SalesHeader, Item."No.", InitialInventory);
@@ -153,7 +154,7 @@ codeunit 137049 "SCM Reservation"
         PurchaseQty: Decimal;
     begin
         // Setup: Create Item and Two Purchase Orders.
-        Initialize;
+        Initialize();
         PurchaseQty := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         CreateAndPostPurchaseOrder(PurchaseHeader, Item."No.", PurchaseQty, true);  // invoice.
@@ -177,7 +178,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservation(ProductionOrder.Status::"Firm Planned", InitialInventory, InitialInventory - 1);  // Partial reservation.
     end;
@@ -190,7 +191,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservation(ProductionOrder.Status::"Firm Planned", InitialInventory, InitialInventory);
     end;
@@ -203,7 +204,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservation(ProductionOrder.Status::Released, InitialInventory, InitialInventory - 1);  // Partial reservation.
     end;
@@ -216,7 +217,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservation(ProductionOrder.Status::Released, InitialInventory, InitialInventory);
     end;
@@ -229,7 +230,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservation(ProductionOrder.Status::"Firm Planned", InitialInventory, InitialInventory - 1);  // Partial reservation.
     end;
@@ -242,7 +243,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservation(ProductionOrder.Status::"Firm Planned", InitialInventory, InitialInventory);
     end;
@@ -255,7 +256,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservation(ProductionOrder.Status::Released, InitialInventory, InitialInventory - 1);  // Partial reservation.
     end;
@@ -268,7 +269,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservation(ProductionOrder.Status::Released, InitialInventory, InitialInventory);
     end;
@@ -298,7 +299,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullReservFirmRelProdOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;
         ReservFirmAndReleasedProdOrder(InitialInventory - 1, 1, InitialInventory);  // Prod. Qty.: Firm Planned,Released and Sales Line Qty.
     end;
@@ -309,7 +310,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullAutoReservFirmRelProdOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;
         ReservFirmAndReleasedProdOrder(InitialInventory - 1, 1, InitialInventory);  // Prod. Qty.: Firm Planned,Released and Sales Line Qty.
     end;
@@ -320,7 +321,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialReservFirmRelProdOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;
         ReservFirmAndReleasedProdOrder(
           InitialInventory / 2, InitialInventory / 2,
@@ -333,7 +334,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartAutoReservFirmRelProdOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;
         ReservFirmAndReleasedProdOrder(
           InitialInventory / 2, InitialInventory / 2,
@@ -368,7 +369,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         DeleteProductionOrderReserve(ProductionOrder.Status::Released);
     end;
 
@@ -380,7 +381,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         DeleteProductionOrderReserve(ProductionOrder.Status::"Firm Planned");
     end;
 
@@ -392,7 +393,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         DeleteProductionOrderReserve(ProductionOrder.Status::Released);
     end;
 
@@ -404,7 +405,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         DeleteProductionOrderReserve(ProductionOrder.Status::"Firm Planned");
     end;
 
@@ -439,7 +440,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservationCancel(ProductionOrder.Status::"Firm Planned", InitialInventory, InitialInventory - 1);  // Partial reservation.
     end;
@@ -452,7 +453,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservationCancel(ProductionOrder.Status::"Firm Planned", InitialInventory, InitialInventory);
     end;
@@ -465,7 +466,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservationCancel(ProductionOrder.Status::Released, InitialInventory, InitialInventory - 1);  // Partial reservation.
     end;
@@ -478,7 +479,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservationCancel(ProductionOrder.Status::Released, InitialInventory, InitialInventory);
     end;
@@ -510,7 +511,7 @@ codeunit 137049 "SCM Reservation"
     procedure CancelPartialReserveSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationCancel(
           InitialInventory, InitialInventory - 1);  // Item inventory value and partial Sales quantity for reservation.
@@ -522,7 +523,7 @@ codeunit 137049 "SCM Reservation"
     procedure CancelFullReserveSalesOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationCancel(InitialInventory, InitialInventory);
     end;
@@ -533,7 +534,7 @@ codeunit 137049 "SCM Reservation"
     procedure CancelPartialAutoReserveSales()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationCancel(
           InitialInventory, InitialInventory - 1);  // Item inventory value and partial Sales quantity for reservation.
@@ -545,7 +546,7 @@ codeunit 137049 "SCM Reservation"
     procedure CancelFullAutoReserveSales()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationCancel(InitialInventory, InitialInventory);
     end;
@@ -575,7 +576,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullReserveFromPurchaseOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Purchase quantity.
         ReserveFromPurchaseOrder(InitialInventory, InitialInventory, true);  // Purchase Invoice - True.
     end;
@@ -586,7 +587,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialReserveFromPurchOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Purchase quantity.
         ReserveFromPurchaseOrder(InitialInventory, InitialInventory - 1, true);
     end;
@@ -597,7 +598,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullResvPurchaseOrderReceive()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Purchase quantity.
         ReserveFromPurchaseOrder(InitialInventory, InitialInventory, false);  // Purchase Invoice - False.
     end;
@@ -608,7 +609,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialResvPurchOrderReceive()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Purchase quantity.
         ReserveFromPurchaseOrder(InitialInventory, InitialInventory - 1, false);
     end;
@@ -643,7 +644,7 @@ codeunit 137049 "SCM Reservation"
         PurchaseQty: Decimal;
     begin
         // Setup: Create Item and Purchase Orders with Partial Qty to Receive.
-        Initialize;
+        Initialize();
         PurchaseQty := LibraryRandom.RandDec(10, 2) + 100;  // Large random Purchase quantity.
         LibraryInventory.CreateItem(Item);
         CreatePurchaseOrder(PurchaseHeader, Item."No.", PurchaseQty);
@@ -675,7 +676,7 @@ codeunit 137049 "SCM Reservation"
         ItemCheckAvail: Codeunit "Item-Check Avail.";
     begin
         // Setup: Update Sales Setup for Stockout warning. Create Item with Inventory and Reserve full qty in Sales Order.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true);  // Stockout Warning - TRUE
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
@@ -696,7 +697,7 @@ codeunit 137049 "SCM Reservation"
 
         // Teardown.
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Stockout Warning");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -705,7 +706,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialOutputReleasedProdReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostOutputForProduction(OutputQuantity::Partial);  // Post Partial Output.
     end;
 
@@ -715,7 +716,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullOutputReleasedProdReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostOutputForProduction(OutputQuantity::Full);  // Post Full Output.
     end;
 
@@ -725,7 +726,7 @@ codeunit 137049 "SCM Reservation"
     procedure ExcessOutputReleasedProdReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostOutputForProduction(OutputQuantity::Excess);  // Post Excess Output.
     end;
 
@@ -735,7 +736,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialOutputReleasedProdAutoReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostOutputForProduction(OutputQuantity::Partial);  // Post Partial Output with Auto Reserve.
     end;
 
@@ -745,7 +746,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullOutputReleasedProdAutoReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostOutputForProduction(OutputQuantity::Full);  // Post Full Output with Auto Reserve.
     end;
 
@@ -755,7 +756,7 @@ codeunit 137049 "SCM Reservation"
     procedure ExcessOutputReleasedProdAutoReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostOutputForProduction(OutputQuantity::Excess);  // Post Excess Output with Auto Reserve.
     end;
 
@@ -822,7 +823,7 @@ codeunit 137049 "SCM Reservation"
         // [SCENARIO] Verify reserved Qty. = (R - 1) after creating released prod. order with Qty. = R, creating sales order with reserverd Qty. = R, posting output with Qty. = (R - 1), finishing production order.
 
         // [GIVEN] Released Production Order with quantity = R. Sales Order reserved R quantity.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item);
         InitialInventory := LibraryRandom.RandInt(5) + 1;
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", InitialInventory);
@@ -855,7 +856,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialShipAfterReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 10;
         ShipmentAfterReserve(InitialInventory, InitialInventory - LibraryRandom.RandDec(10, 2));  // Shipment Quantity - Partial.
     end;
@@ -866,7 +867,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullShipAfterReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2);
         ShipmentAfterReserve(InitialInventory, InitialInventory);  // Shipment Quantity - Full.
     end;
@@ -877,7 +878,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialShipAfterAutoReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 10;
         ShipmentAfterReserve(InitialInventory, InitialInventory - LibraryRandom.RandDec(10, 2));  // Shipment Quantity - Partial with Auto reserve.
     end;
@@ -888,7 +889,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullShipAfterAutoReserve()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2);
         ShipmentAfterReserve(InitialInventory, InitialInventory);  // Shipment Quantity - Full with Auto reserve.
     end;
@@ -926,7 +927,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProductionOrderComponentReservation(ProductionOrder.Status::"Firm Planned");
     end;
 
@@ -938,7 +939,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProductionOrderComponentReservation(ProductionOrder.Status::Released);
     end;
 
@@ -950,7 +951,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProductionOrderComponentReservation(ProductionOrder.Status::"Firm Planned");  // Prod. Order Component reservation with Auto Reserve.
     end;
 
@@ -962,7 +963,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProductionOrderComponentReservation(ProductionOrder.Status::Released);  // Prod. Order Component reservation with Auto Reserve.
     end;
 
@@ -995,7 +996,7 @@ codeunit 137049 "SCM Reservation"
         // [GIVEN] Sales Order with partial reservation.
         // [WHEN] Run Adjust Cost and Post Inventory Cost to G/L.
         // [THEN] Total amount in G/L for Inventory Account is correct.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationAndPostToGL(InitialInventory, InitialInventory - 1);  // Item inventory value and partial Sales quantity for reservation.
     end;
@@ -1011,7 +1012,7 @@ codeunit 137049 "SCM Reservation"
         // [GIVEN] Sales Order with full reservation.
         // [WHEN] Run Adjust Cost and Post Inventory Cost to G/L.
         // [THEN] Total amount in G/L for Inventory Account is correct.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationAndPostToGL(InitialInventory, InitialInventory);
     end;
@@ -1049,7 +1050,7 @@ codeunit 137049 "SCM Reservation"
         // [GIVEN] Sales Order with partial reservation.
         // [WHEN] Run Adjust Cost and Post Inventory Cost to G/L.
         // [THEN] Total amount in G/L for Inventory Account is correct.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservationAndPostToGL(ProductionOrder.Status::Released, InitialInventory, InitialInventory - 1);  // Partial reservation.
     end;
@@ -1067,7 +1068,7 @@ codeunit 137049 "SCM Reservation"
         // [GIVEN] Released production Order with full reservation.
         // [WHEN] Run Adjust Cost and Post Inventory Cost to G/L.
         // [THEN] Total amount in G/L for Inventory Account is correct.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         ProdOrderReservationAndPostToGL(ProductionOrder.Status::Released, InitialInventory, InitialInventory);
     end;
@@ -1101,7 +1102,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialReserveSalesWithApplyToItemEntryError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationAndApplyToItemEntryAndPost(InitialInventory, InitialInventory - 1);  // Item inventory, partial Sales quantity with Apply To Item Entry.
     end;
@@ -1112,7 +1113,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullReserveSalesWithApplyToItemEntryError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationAndApplyToItemEntryAndPost(InitialInventory, InitialInventory);
     end;
@@ -1147,7 +1148,7 @@ codeunit 137049 "SCM Reservation"
     procedure PartialReserveSalesAndShipWithoutApplyToItemEntry()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationAndShipWithoutApplyToItemEntry(InitialInventory, InitialInventory - 1);  // Item inventory, partial Sales quantity without Apply To Item Entry.
     end;
@@ -1158,7 +1159,7 @@ codeunit 137049 "SCM Reservation"
     procedure FullReserveSalesAndShipWithoutApplyToItemEntry()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
         SalesOrderReservationAndShipWithoutApplyToItemEntry(InitialInventory, InitialInventory);
     end;
@@ -1553,7 +1554,7 @@ codeunit 137049 "SCM Reservation"
         SourceRefNo: Integer;
         SourceProdOrderLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Please refer to bug in VSTF 330787 for reference to the values.
 
@@ -1571,10 +1572,10 @@ codeunit 137049 "SCM Reservation"
             ItemTrackingCode."Lot Specific Tracking" := true;
             ItemTrackingCode.Insert();
             Item."Item Category Code" := ItemTrackingCode.Code;
-            LotNo := LibraryUtility.GenerateGUID;
+            LotNo := LibraryUtility.GenerateGUID();
         end;
         Item.Insert();
-        LocationCode := LibraryUtility.GenerateGUID;
+        LocationCode := LibraryUtility.GenerateGUID();
 
         // Create supply - 2 supplies for 4 BAG and 1 supply for 10 CAS
         // Furthermore in PreReserve cases when demand is reserved against the BAG, create the supply part of the pair.
@@ -1754,7 +1755,7 @@ codeunit 137049 "SCM Reservation"
         ReservationEntry.SetRange(Positive, false);
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
         ReservationEntry.SetRange("Source Type", SourceType);
-        ReservationEntry.FindLast;
+        ReservationEntry.FindLast();
     end;
 
     local procedure RoundingIssuesCreateILE(ItemNo: Code[20]; Qty: Decimal; UOMCode: Code[10]; LocationCode: Code[10]; LotNo: Code[10]; CreateReservationEntry: Boolean)
@@ -1763,7 +1764,7 @@ codeunit 137049 "SCM Reservation"
         ItemLedgerEntry2: Record "Item Ledger Entry";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        if ItemLedgerEntry2.FindLast then
+        if ItemLedgerEntry2.FindLast() then
             ItemLedgerEntry."Entry No." := ItemLedgerEntry2."Entry No." + 1
         else
             ItemLedgerEntry."Entry No." := 1;
@@ -1898,7 +1899,7 @@ codeunit 137049 "SCM Reservation"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
         AsmHeader."Document Type" := AsmHeader."Document Type"::Order;
-        AsmHeader."No." := LibraryUtility.GenerateGUID;
+        AsmHeader."No." := LibraryUtility.GenerateGUID();
         AsmHeader."Item No." := ItemNo;
         AsmHeader."Unit of Measure Code" := UOMCode;
         ItemUnitOfMeasure.Get(ItemNo, UOMCode);
@@ -1927,7 +1928,7 @@ codeunit 137049 "SCM Reservation"
         RecRef: RecordRef;
     begin
         AsmLine."Document Type" := AsmLine."Document Type"::Order;
-        AsmLine."Document No." := LibraryUtility.GenerateGUID;
+        AsmLine."Document No." := LibraryUtility.GenerateGUID();
         RecRef.GetTable(AsmLine);
         AsmLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, AsmLine.FieldNo("Line No."));
         AsmLine.Type := AsmLine.Type::Item;
@@ -2071,7 +2072,7 @@ codeunit 137049 "SCM Reservation"
         JobPlanningLine: Record "Job Planning Line";
         RecRef: RecordRef;
     begin
-        JobPlanningLine."Job No." := LibraryUtility.GenerateGUID;
+        JobPlanningLine."Job No." := LibraryUtility.GenerateGUID();
         RecRef.GetTable(JobPlanningLine);
         JobPlanningLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, JobPlanningLine.FieldNo("Line No."));
         JobPlanningLine.Status := JobPlanningLine.Status::Order;
@@ -2090,20 +2091,20 @@ codeunit 137049 "SCM Reservation"
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(false, true, JobPlanningLine."No.", -JobPlanningLine.Quantity,
               -JobPlanningLine."Quantity (Base)",
-              DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.",
+              DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.",
               JobPlanningLine."Job Contract Entry No.", 0, '',
               JobPlanningLine."Qty. per Unit of Measure", LotNo, JobPlanningLine."Planning Date");
 
         RoundingIssuesCreateReservationEntry(false, false, JobPlanningLine."No.", -JobPlanningLine.Quantity,
           -JobPlanningLine."Quantity (Base)",
-          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.",
+          DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.",
           JobPlanningLine."Job Contract Entry No.", 0, '',
           JobPlanningLine."Qty. per Unit of Measure", LotNo, JobPlanningLine."Planning Date");
 
         ShipmentDate := JobPlanningLine."Planning Date";
         QtyToReserve := JobPlanningLine.Quantity;
         QtyToReserveBase := JobPlanningLine."Quantity (Base)";
-        SourceSubType := JobPlanningLine.Status;
+        SourceSubType := JobPlanningLine.Status.AsInteger();
         SourceID := JobPlanningLine."Job No.";
         SourceRefNo := JobPlanningLine."Job Contract Entry No.";
         SourceProdOrderLineNo := 0;
@@ -2140,7 +2141,7 @@ codeunit 137049 "SCM Reservation"
             exit;
         end;
 
-        if ReservationEntry2.FindLast then
+        if ReservationEntry2.FindLast() then
             ReservationEntry."Entry No." := ReservationEntry2."Entry No." + 1
         else
             ReservationEntry."Entry No." := 1;
@@ -2160,7 +2161,7 @@ codeunit 137049 "SCM Reservation"
             ReservationEntry2.SetRange("Source Batch Name", SourceBatchName);
             ReservationEntry2.SetRange("Source Prod. Order Line", SourceProdOrderLineNo);
             ReservationEntry2.SetRange("Source Ref. No.", SourceRefNo);
-            if ReservationEntry2.FindSet then
+            if ReservationEntry2.FindSet() then
                 repeat
                     Quantity := Quantity - ReservationEntry2.Quantity;
                     QuantityBase := QuantityBase - ReservationEntry2."Quantity (Base)";
@@ -2263,7 +2264,7 @@ codeunit 137049 "SCM Reservation"
             DATABASE::"Job Planning Line":
                 begin
                     JobPlanningLine.SetRange("Job No.", ReservationEntry."Source ID");
-                    JobPlanningLine.FindLast;
+                    JobPlanningLine.FindLast();
                     JobPlanningLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
                     ReservedQuantity := JobPlanningLine."Reserved Quantity";
                     ReservedQuantityBase := JobPlanningLine."Reserved Qty. (Base)";
@@ -2343,7 +2344,7 @@ codeunit 137049 "SCM Reservation"
 
         // Setup: Create Item (e.g., Base UOM is PCS), create a Unit of Measure (e.g., PALLET) with "Qty. per Unit of Measure" greater than 2.
         // Create Sales Order for the Item, the UOM on Sales Line is PALLET.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateItemUOMAndUpdateItem(Item, QtyPerUnitOfMeasure);
         SalesQuantity := LibraryRandom.RandDec(10, 2);
@@ -2371,7 +2372,7 @@ codeunit 137049 "SCM Reservation"
 
         // Setup: Create Item (e.g., Base UOM is PCS) and update its Inventory, create a Unit of Measure (e.g., PALLET) with
         // "Qty. per Unit of Measure" greater than 2. Create Sales Order for the Item, the UOM on Sales Line is PALLET.
-        Initialize;
+        Initialize();
         CreateItemAndUpdateInventory(Item, LibraryRandom.RandDecInRange(50, 100, 2));
         Item.Get(Item."No."); // Need to get Item because the Inventory has been updated
         CreateItemUOMAndUpdateItem(Item, QtyPerUnitOfMeasure);
@@ -2401,7 +2402,7 @@ codeunit 137049 "SCM Reservation"
         // [SCENARIO] Can reserve from page "Available - Assembly Headers" when supply is Assembly Line
 
         // [GIVEN] Create Assembly Order with resulting Item "I" of Quantity "Q", set Due Date to workdate
-        Initialize;
+        Initialize();
         CreateItemAndUpdateInventory(Item, LibraryRandom.RandIntInRange(100, 200));
         Quantity := LibraryRandom.RandIntInRange(10, 20);
         LibraryInventory.CreateItem(AssemblyItem);
@@ -2438,11 +2439,11 @@ codeunit 137049 "SCM Reservation"
         // [FEATURE] [Purchase Order] [Sales Order] [Reservation]
         // [SCENARIO 379402] In Sales Line and in Reservation Entry, Shipment Date shouldn't be changed after changing of "Sell-to Customer No.".
 
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         LibraryWarehouse.CreateLocation(Location);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         Qty := LibraryRandom.RandInt(20);
         // [GIVEN] Date "TransactionDate" of Purchase and Sales more than WORKDATE.
         TransactionDate := WorkDate + LibraryRandom.RandInt(30);
@@ -2578,7 +2579,8 @@ codeunit 137049 "SCM Reservation"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Reservation");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         Clear(InitialInventory);  // Clear Global variables.
         Clear(ExpCurrentReservedQty);
         Clear(MessageCounter);
@@ -2589,14 +2591,17 @@ codeunit 137049 "SCM Reservation"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Reservation");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
-        OutputJournalSetup;
+        OutputJournalSetup();
 
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         isInitialized := true;
         Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservation");
     end;
 
@@ -2732,7 +2737,7 @@ codeunit 137049 "SCM Reservation"
         RecRef: RecordRef;
     begin
         PurchaseLine."Document Type" := DocumentType;
-        PurchaseLine."Document No." := LibraryUtility.GenerateGUID;
+        PurchaseLine."Document No." := LibraryUtility.GenerateGUID();
         RecRef.GetTable(PurchaseLine);
         PurchaseLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, PurchaseLine.FieldNo("Line No."));
         PurchaseLine.Type := PurchaseLine.Type::Item;
@@ -2767,7 +2772,7 @@ codeunit 137049 "SCM Reservation"
         RecRef: RecordRef;
     begin
         ProdOrderLine.Status := ProdOrderLine.Status::"Firm Planned";
-        ProdOrderLine."Prod. Order No." := LibraryUtility.GenerateGUID;
+        ProdOrderLine."Prod. Order No." := LibraryUtility.GenerateGUID();
         RecRef.GetTable(ProdOrderLine);
         ProdOrderLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, ProdOrderLine.FieldNo("Line No."));
         ProdOrderLine."Item No." := ItemNo;
@@ -2788,7 +2793,7 @@ codeunit 137049 "SCM Reservation"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         RecRef: RecordRef;
     begin
-        TransferLine."Document No." := LibraryUtility.GenerateGUID;
+        TransferLine."Document No." := LibraryUtility.GenerateGUID();
         RecRef.GetTable(TransferLine);
         TransferLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, TransferLine.FieldNo("Line No."));
         TransferLine."Item No." := ItemNo;
@@ -2812,7 +2817,7 @@ codeunit 137049 "SCM Reservation"
         RecRef: RecordRef;
     begin
         SalesLine."Document Type" := DocumentType;
-        SalesLine."Document No." := LibraryUtility.GenerateGUID;
+        SalesLine."Document No." := LibraryUtility.GenerateGUID();
         RecRef.GetTable(SalesLine);
         SalesLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No."));
         SalesLine.Type := SalesLine.Type::Item;
@@ -2845,7 +2850,7 @@ codeunit 137049 "SCM Reservation"
         RecRef: RecordRef;
     begin
         ProdOrderComp.Status := ProdOrderComp.Status::"Firm Planned";
-        ProdOrderComp."Prod. Order No." := LibraryUtility.GenerateGUID;
+        ProdOrderComp."Prod. Order No." := LibraryUtility.GenerateGUID();
         RecRef.GetTable(ProdOrderComp);
         ProdOrderComp."Prod. Order Line No." := LibraryUtility.GetNewLineNo(RecRef, ProdOrderComp.FieldNo("Prod. Order Line No."));
         ProdOrderComp."Line No." := LibraryUtility.GetNewLineNo(RecRef, ProdOrderComp.FieldNo("Line No."));
@@ -2885,7 +2890,7 @@ codeunit 137049 "SCM Reservation"
         RecRef: RecordRef;
     begin
         ServiceLine."Document Type" := ServiceLine."Document Type"::Order;
-        ServiceLine."Document No." := LibraryUtility.GenerateGUID;
+        ServiceLine."Document No." := LibraryUtility.GenerateGUID();
         RecRef.GetTable(ServiceLine);
         ServiceLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, ServiceLine.FieldNo("Line No."));
         ServiceLine.Type := ServiceLine.Type::Item;
@@ -3139,7 +3144,7 @@ codeunit 137049 "SCM Reservation"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure CreateAndPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; Invoice: Boolean)
@@ -3162,7 +3167,7 @@ codeunit 137049 "SCM Reservation"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
         PurchaseLine.Modify(true);
     end;
@@ -3221,7 +3226,7 @@ codeunit 137049 "SCM Reservation"
     begin
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         ProductionOrder.Delete(true);
     end;
 
@@ -3237,7 +3242,7 @@ codeunit 137049 "SCM Reservation"
     local procedure SelectOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20])
     begin
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure FindReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; ReservationStatus: Enum "Reservation Status"; SourceType: Integer)
@@ -3245,7 +3250,7 @@ codeunit 137049 "SCM Reservation"
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Reservation Status", ReservationStatus);
         ReservationEntry.SetRange("Source Type", SourceType);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
     end;
 
     local procedure UpdateOutputJournal(var ItemJournalLine: Record "Item Journal Line"; FinishedQty: Decimal)
@@ -3257,7 +3262,7 @@ codeunit 137049 "SCM Reservation"
     local procedure SelectItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure UpdateSalesLineApplyToEntry(DocumentNo: Code[20]; ApplyToItemEntry: Integer)
@@ -3265,7 +3270,7 @@ codeunit 137049 "SCM Reservation"
         SalesLine: Record "Sales Line";
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Appl.-to Item Entry", ApplyToItemEntry);
         SalesLine.Modify(true);
     end;
@@ -3276,7 +3281,7 @@ codeunit 137049 "SCM Reservation"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         InventoryPostingSetup.SetRange("Invt. Posting Group Code", Item."Inventory Posting Group");
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
         SelectItemLedgerEntry(ItemLedgerEntry, Item."No.");
 
         GLEntry.SetRange("Document No.", ItemLedgerEntry."Document No.");
@@ -3315,7 +3320,7 @@ codeunit 137049 "SCM Reservation"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", 0);
     end;
@@ -3339,7 +3344,7 @@ codeunit 137049 "SCM Reservation"
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
         SalesShipmentLine.SetRange("Order No.", OrderNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         SalesShipmentLine.TestField(Quantity, QtyToShip);
     end;
 
@@ -3389,10 +3394,10 @@ codeunit 137049 "SCM Reservation"
         ShipmentDate: Date;
     begin
         // Setup: Create Supply and Demand with Lot.
-        Initialize;
+        Initialize();
         CreateItemWithLotSpecificTracking(Item, ItemUnitOfMeasure);
-        LotNo := LibraryUtility.GenerateGUID;
-        LocationCode := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
+        LocationCode := LibraryUtility.GenerateGUID();
         ShipmentDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate);
         CreateSupply(SupplySourceType, ItemUnitOfMeasure, LocationCode, LotNo, WorkDate, LibraryRandom.RandDecInRange(15, 20, 2));
         CreateDemand(DemandSourceType, ItemUnitOfMeasure, LibraryRandom.RandDec(10, 2), LocationCode, LotNo,

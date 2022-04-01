@@ -25,7 +25,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
     begin
         // [SCENARIO] validate OnPreReport Trigger of Report 5005362 - Copy Phys. Invt. Order.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysicalInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No."); // Required inside CopyPhysInvtOrderRequestPageHandler.
         CreatePhysicalInventoryOrderHeader(PhysInvtOrderHeader2);
@@ -35,7 +35,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
 
         // [THEN] Verify Physical Inventory Order Line is successfully copied for second Physical Inventory Order Header.
         PhysInvtOrderLine2.SetRange("Document No.", PhysInvtOrderHeader2."No.");
-        PhysInvtOrderLine2.FindFirst;
+        PhysInvtOrderLine2.FindFirst();
         PhysInvtOrderLine2.TestField("Item No.", PhysInvtOrderLine."Item No.");
         PhysInvtOrderLine2.TestField("Location Code", PhysInvtOrderLine."Location Code");
     end;
@@ -50,7 +50,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
     begin
         // [SCENARIO] validate OnPreReport Trigger of Report 5005362 - Copy Phys. Invt. Order.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysicalInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No."); // Required inside CopyPhysInvtOrderRequestPageHandler.
 
@@ -73,7 +73,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
     begin
         // [SCENARIO] validate OnPreReport Trigger of Report 5005362 - Copy Phys. Invt. Order.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedPhysInventoryOrderHeader(PstdPhysInvtOrderHdr);
         CreatePostedPhysInventoryOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderHdr."No.");
         LibraryVariableStorage.Enqueue(PstdPhysInvtOrderHdr."No."); // Required inside CopyPostedPhysInvtOrderRequestPageHandler.
@@ -84,7 +84,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
 
         // [THEN] Verify Posted Physical Inventory Order Line is successfully copied for Physical Inventory Order Header.
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
-        PhysInvtOrderLine.FindFirst;
+        PhysInvtOrderLine.FindFirst();
         PhysInvtOrderLine.TestField("Item No.", PstdPhysInvtOrderLine."Item No.");
         PhysInvtOrderLine.TestField("Location Code", PstdPhysInvtOrderLine."Location Code");
     end;
@@ -101,7 +101,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
     begin
         // [SCENARIO] validate OnPreReport Trigger of Report 5005362 - Copy Phys. Invt. Order.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysicalInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No."); // Required inside CopyPhysInvtOrderRequestPageHandler.
         CreatePhysicalInventoryOrderHeader(PhysInvtOrderHeader2);
@@ -120,7 +120,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(): Code[20]
@@ -184,7 +184,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
     begin
         Commit();  // COMMIT required in OnPreReport Trigger of Report 5005362 - Copy Phys. Invt. Order.
         CopyPhysInvtOrder.SetPhysInvtOrderHeader(PhysInvtOrderHeader);
-        CopyPhysInvtOrder.Run;  // Invokes CopyPhysInvtOrderRequestPageHandler or CopyPostedPhysInvtOrderRequestPageHandler as required.
+        CopyPhysInvtOrder.Run();  // Invokes CopyPhysInvtOrderRequestPageHandler or CopyPostedPhysInvtOrderRequestPageHandler as required.
     end;
 
     [RequestPageHandler]

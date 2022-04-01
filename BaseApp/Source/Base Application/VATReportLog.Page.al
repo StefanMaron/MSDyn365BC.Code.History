@@ -64,9 +64,9 @@ page 739 "VAT Report Log"
                     VATReportArchive: Record "VAT Report Archive";
                 begin
                     CurrPage.SetSelectionFilter(VATReportArchive);
-                    if VATReportArchive.FindFirst then
+                    if VATReportArchive.FindFirst() then
                         VATReportArchive.DownloadSubmissionMessage(
-                          VATReportArchive."VAT Report Type", VATReportArchive."VAT Report No.");
+                          VATReportArchive."VAT Report Type".AsInteger(), VATReportArchive."VAT Report No.");
                 end;
             }
             action("Download Response Message")
@@ -85,9 +85,9 @@ page 739 "VAT Report Log"
                     VATReportArchive: Record "VAT Report Archive";
                 begin
                     CurrPage.SetSelectionFilter(VATReportArchive);
-                    if VATReportArchive.FindFirst then
+                    if VATReportArchive.FindFirst() then
                         VATReportArchive.DownloadResponseMessage(
-                          VATReportArchive."VAT Report Type", VATReportArchive."VAT Report No.");
+                          VATReportArchive."VAT Report Type".AsInteger(), VATReportArchive."VAT Report No.");
                 end;
             }
         }

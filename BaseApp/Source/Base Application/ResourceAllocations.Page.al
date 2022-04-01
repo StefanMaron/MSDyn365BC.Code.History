@@ -141,7 +141,7 @@ page 6005 "Resource Allocations"
                             Res.Get("Resource No.");
                             ResAvailability.SetRecord(Res);
                         end;
-                        ResAvailability.RunModal;
+                        ResAvailability.RunModal();
                     end;
                 }
                 action(ResGroupAvailability)
@@ -159,7 +159,7 @@ page 6005 "Resource Allocations"
                             ResGr.Get("Resource Group No.");
                             ResGrAvailability.SetRecord(ResGr);
                         end;
-                        ResGrAvailability.RunModal;
+                        ResGrAvailability.RunModal();
                     end;
                 }
                 action("Canceled Allocation &Entries")
@@ -179,7 +179,7 @@ page 6005 "Resource Allocations"
                         ServOrderAlloc.SetFilter(Status, '%1', ServOrderAlloc.Status::Canceled);
                         CanceledAllocEntries.SetTableView(ServOrderAlloc);
                         CanceledAllocEntries.SetRecord(ServOrderAlloc);
-                        CanceledAllocEntries.Run;
+                        CanceledAllocEntries.Run();
                     end;
                 }
             }
@@ -229,7 +229,7 @@ page 6005 "Resource Allocations"
             ServItemLine.SetRange("Document Type", "Document Type");
             ServItemLine.SetRange("Document No.", "Document No.");
             if ServItemLine.Count = 1 then begin
-                ServItemLine.FindFirst;
+                ServItemLine.FindFirst();
                 "Service Item Line No." := ServItemLine."Line No.";
             end;
         end;

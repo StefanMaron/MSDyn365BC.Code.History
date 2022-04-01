@@ -1,4 +1,4 @@
-﻿codeunit 5790 "Available to Promise"
+codeunit 5790 "Available to Promise"
 {
     Permissions = TableData "Prod. Order Line" = r,
                   TableData "Prod. Order Component" = r;
@@ -17,30 +17,47 @@
         PrevItemNo: Code[20];
         PrevItemFilters: Text;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CalcQtyAvailableToPromise()', '20.0')]
     procedure QtyAvailabletoPromise(var Item: Record Item; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; AvailabilityDate: Date; PeriodType: Option Day,Week,Month,Quarter,Year; LookaheadDateFormula: DateFormula) AvailableToPromise: Decimal
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeQtyAvailableToPromise(Item, AvailabilityDate, GrossRequirement, ScheduledReceipt, PeriodType, LookaheadDateFormula, AvailableToPromise, IsHandled);
-        If IsHandled then
-            exit(AvailableToPromise);
+        OnBeforeQtyAvailableToPromise(
+            Item, AvailabilityDate, GrossRequirement, ScheduledReceipt, PeriodType, LookaheadDateFormula, AvailableToPromise, IsHandled);
+        If not IsHandled then
+            AvailableToPromise :=
+                CalcQtyAvailableToPromise(
+                    Item, GrossRequirement, ScheduledReceipt, AvailabilityDate, "Analysis Period Type".FromInteger(PeriodType), LookaheadDateFormula);
 
-        ScheduledReceipt := CalcScheduledReceipt(Item);
-        GrossRequirement := CalcGrossRequirement(Item);
+        exit(AvailableToPromise);
+    end;
+#endif
 
-        if AvailabilityDate <> 0D then
-            GrossRequirement :=
-              GrossRequirement +
-              CalculateLookahead(
-                Item, PeriodType,
-                AvailabilityDate + 1,
-                GetLookAheadPeriodEndDate(LookaheadDateFormula, PeriodType, AvailabilityDate));
+    procedure CalcQtyAvailableToPromise(var Item: Record Item; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; AvailabilityDate: Date; PeriodType: Enum "Analysis Period Type"; LookaheadDateFormula: DateFormula) AvailableToPromise: Decimal
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcQtyAvailableToPromise(
+            Item, AvailabilityDate, GrossRequirement, ScheduledReceipt, PeriodType, LookaheadDateFormula, AvailableToPromise, IsHandled);
+        If not IsHandled then begin
+            ScheduledReceipt := CalcScheduledReceipt(Item);
+            GrossRequirement := CalcGrossRequirement(Item);
 
-        AvailableToPromise :=
-          CalcAvailableInventory(Item) +
-          (ScheduledReceipt - CalcReservedReceipt(Item)) -
-          (GrossRequirement - CalcReservedRequirement(Item));
+            if AvailabilityDate <> 0D then
+                GrossRequirement +=
+                    CalculateForward(
+                        Item, PeriodType,
+                        AvailabilityDate + 1,
+                        GetForwardPeriodEndDate(LookaheadDateFormula, PeriodType, AvailabilityDate));
+
+            AvailableToPromise :=
+                CalcAvailableInventory(Item) +
+                (ScheduledReceipt - CalcReservedReceipt(Item)) -
+                (GrossRequirement - CalcReservedRequirement(Item));
+        end;
 
         OnAfterQtyAvailableToPromise(Item, ScheduledReceipt, GrossRequirement, AvailableToPromise);
 
@@ -54,11 +71,10 @@
     begin
         IsHandled := false;
         OnBeforeCalcAvailableInventory(Item, AvailableInventory, IsHandled);
-        if IsHandled then
-            exit(AvailableInventory);
-
-        CalcAllItemFields(Item);
-        AvailableInventory := Item.Inventory - Item."Reserved Qty. on Inventory";
+        if not IsHandled then begin
+            CalcAllItemFields(Item);
+            AvailableInventory := Item.Inventory - Item."Reserved Qty. on Inventory";
+        end;
         OnAfterCalcAvailableInventory(Item, AvailableInventory);
         exit(AvailableInventory);
     end;
@@ -70,25 +86,20 @@
         CalcAllItemFields(Item);
         IsHandled := false;
         OnBeforeCalcGrossRequirement(Item, GrossRequirement, IsHandled);
-        if IsHandled then
-            exit(GrossRequirement);
-
-        with Item do begin
+        if not IsHandled then
             GrossRequirement :=
-              "Qty. on Component Lines" +
-              "Planning Issues (Qty.)" +
-              "Planning Transfer Ship. (Qty)." +
-              "Qty. on Sales Order" +
-              "Qty. on Service Order" +
-              "Qty. on Job Order" +
-              "Trans. Ord. Shipment (Qty.)" +
-              "Qty. on Asm. Component" +
-              "Qty. on Purch. Return";
+                Item."Qty. on Component Lines" +
+                Item."Planning Issues (Qty.)" +
+                Item."Planning Transfer Ship. (Qty)." +
+                Item."Qty. on Sales Order" +
+                Item."Qty. on Service Order" +
+                Item."Qty. on Job Order" +
+                Item."Trans. Ord. Shipment (Qty.)" +
+                Item."Qty. on Asm. Component" +
+                Item."Qty. on Purch. Return";
 
-            OnAfterCalcGrossRequirement(Item, GrossRequirement);
-
-            exit(GrossRequirement);
-        end;
+        OnAfterCalcGrossRequirement(Item, GrossRequirement);
+        exit(GrossRequirement);
     end;
 
     procedure CalcReservedRequirement(var Item: Record Item) ReservedRequirement: Decimal
@@ -98,23 +109,18 @@
         CalcAllItemFields(Item);
         IsHandled := false;
         OnBeforeCalcReservedRequirement(Item, ReservedRequirement, IsHandled);
-        if IsHandled then
-            exit(ReservedRequirement);
-
-        with Item do begin
+        if not IsHandled then
             ReservedRequirement :=
-              "Res. Qty. on Prod. Order Comp." +
-              "Reserved Qty. on Sales Orders" +
-              "Res. Qty. on Service Orders" +
-              "Res. Qty. on Job Order" +
-              "Res. Qty. on Outbound Transfer" +
-              "Res. Qty. on  Asm. Comp." +
-              "Res. Qty. on Purch. Returns";
+                Item."Res. Qty. on Prod. Order Comp." +
+                Item."Reserved Qty. on Sales Orders" +
+                Item."Res. Qty. on Service Orders" +
+                Item."Res. Qty. on Job Order" +
+                Item."Res. Qty. on Outbound Transfer" +
+                Item."Res. Qty. on  Asm. Comp." +
+                Item."Res. Qty. on Purch. Returns";
 
-            OnAfterCalcReservedRequirement(Item, ReservedRequirement);
-
-            exit(ReservedRequirement);
-        end;
+        OnAfterCalcReservedRequirement(Item, ReservedRequirement);
+        exit(ReservedRequirement);
     end;
 
     procedure CalcScheduledReceipt(var Item: Record Item) ScheduledReceipt: Decimal
@@ -124,23 +130,18 @@
         CalcAllItemFields(Item);
         IsHandled := false;
         OnBeforeCalcScheduledReceipt(Item, ScheduledReceipt, IsHandled);
-        if IsHandled then
-            exit(ScheduledReceipt);
-
-        with Item do begin
+        if not IsHandled then
             ScheduledReceipt :=
-              "Scheduled Receipt (Qty.)" +
-              "Planned Order Receipt (Qty.)" +
-              "Qty. on Purch. Order" +
-              "Trans. Ord. Receipt (Qty.)" +
-              "Qty. in Transit" +
-              "Qty. on Assembly Order" +
-              "Qty. on Sales Return";
+                Item."Scheduled Receipt (Qty.)" +
+                Item."Planned Order Receipt (Qty.)" +
+                Item."Qty. on Purch. Order" +
+                Item."Trans. Ord. Receipt (Qty.)" +
+                Item."Qty. in Transit" +
+                Item."Qty. on Assembly Order" +
+                Item."Qty. on Sales Return";
 
-            OnAfterCalcScheduledReceipt(Item, ScheduledReceipt);
-
-            exit(ScheduledReceipt);
-        end;
+        OnAfterCalcScheduledReceipt(Item, ScheduledReceipt);
+        exit(ScheduledReceipt);
     end;
 
     procedure CalcReservedReceipt(var Item: Record Item) ReservedReceipt: Decimal
@@ -150,24 +151,30 @@
         CalcAllItemFields(Item);
         IsHandled := false;
         OnBeforeCalcReservedReceipt(Item, ReservedReceipt, IsHandled);
-        if IsHandled then
-            exit(ReservedReceipt);
-
-        with Item do begin
+        if not IsHandled then
             ReservedReceipt :=
-              "Reserved Qty. on Prod. Order" +
-              "Reserved Qty. on Purch. Orders" +
-              "Res. Qty. on Inbound Transfer" +
-              "Res. Qty. on Assembly Order" +
-              "Res. Qty. on Sales Returns";
+                Item."Reserved Qty. on Prod. Order" +
+                Item."Reserved Qty. on Purch. Orders" +
+                Item."Res. Qty. on Inbound Transfer" +
+                Item."Res. Qty. on Assembly Order" +
+                Item."Res. Qty. on Sales Returns";
 
-            OnAfterCalcReservedReceipt(Item, ReservedReceipt);
-
-            exit(ReservedReceipt);
-        end;
+        OnAfterCalcReservedReceipt(Item, ReservedReceipt);
+        exit(ReservedReceipt);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CalcEarliestAvailabilityDate()', '20.0')]
     procedure EarliestAvailabilityDate(var Item: Record Item; NeededQty: Decimal; StartDate: Date; ExcludeQty: Decimal; ExcludeOnDate: Date; var AvailableQty: Decimal; PeriodType: Option Day,Week,Month,Quarter,Year; LookaheadDateFormula: DateFormula): Date
+    begin
+        exit(
+            CalcEarliestAvailabilityDate(
+                Item, NeededQty, StartDate, ExcludeQty, ExcludeOnDate, AvailableQty,
+                "Analysis Period Type".FromInteger(PeriodType), LookaheadDateFormula));
+    end;
+#endif
+
+    procedure CalcEarliestAvailabilityDate(var Item: Record Item; NeededQty: Decimal; StartDate: Date; ExcludeQty: Decimal; ExcludeOnDate: Date; var AvailableQty: Decimal; PeriodType: Enum "Analysis Period Type"; LookaheadDateFormula: DateFormula): Date
     var
         Date: Record Date;
         DummyItem: Record Item;
@@ -186,21 +193,25 @@
         AvailableQty := 0;
 
         Item.CopyFilter("Date Filter", DummyItem."Date Filter");
-        Item.SetRange("Date Filter", 0D, GetLookAheadPeriodEndDate(LookaheadDateFormula, PeriodType, StartDate));
+        Item.SetRange("Date Filter", 0D, GetForwardPeriodEndDate(LookaheadDateFormula, PeriodType, StartDate));
         CalculateAvailability(Item, AvailabilityAtDate);
         UpdateScheduledReceipt(AvailabilityAtDate, ExcludeOnDate, ExcludeQty);
         CalculateAvailabilityByPeriod(AvailabilityAtDate, PeriodType);
 
         IsHandled := false;
-        OnEarliestAvailabilityDateOnBeforeFilterDate(Item, NeededQty, StartDate, AvailableQty, PeriodType, LookaheadDateFormula, AvailabilityAtDate, AvailableDate, IsHandled);
+#if not CLEAN20
+        OnEarliestAvailabilityDateOnBeforeFilterDate(
+            Item, NeededQty, StartDate, AvailableQty, PeriodType.AsInteger(), LookaheadDateFormula, AvailabilityAtDate, AvailableDate, IsHandled);
+#endif
+        OnCalcEarliestAvailabilityDateOnBeforeFilterDate(Item, NeededQty, StartDate, AvailableQty, PeriodType, LookaheadDateFormula, AvailabilityAtDate, AvailableDate, IsHandled);
         if IsHandled then
             exit(AvailableDate);
 
         Date.SetRange("Period Type", PeriodType);
         Date.SetRange("Period Start", 0D, StartDate);
-        if Date.FindLast then begin
+        if Date.FindLast() then begin
             AvailabilityAtDate.SetRange("Period Start", 0D, Date."Period Start");
-            if AvailabilityAtDate.FindSet then
+            if AvailabilityAtDate.FindSet() then
                 repeat
                     if PeriodStart = 0D then
                         PeriodStart := AvailabilityAtDate."Period Start";
@@ -272,11 +283,20 @@
         exit(AvailableDate);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CalculateForward', '20.0')]
     procedure CalculateLookahead(var Item: Record Item; PeriodType: Option Day,Week,Month,Quarter,Year; StartDate: Date; EndDate: Date): Decimal
+    begin
+        exit(
+            CalculateForward(Item, "Analysis Period Type".FromInteger(PeriodType), StartDate, EndDate));
+    end;
+#endif
+
+    procedure CalculateForward(var Item: Record Item; PeriodType: Enum "Analysis Period Type"; StartDate: Date; EndDate: Date): Decimal
     var
         DummyItem: Record Item;
         AvailabilityAtDate: Record "Availability at Date" temporary;
-        LookaheadQty: Decimal;
+        ForwardQty: Decimal;
         Stop: Boolean;
     begin
         Item.CopyFilter("Date Filter", DummyItem."Date Filter");
@@ -284,26 +304,26 @@
         CalculateAvailability(Item, AvailabilityAtDate);
         CalculateAvailabilityByPeriod(AvailabilityAtDate, PeriodType);
         AvailabilityAtDate.SetRange("Period Start", 0D, StartDate - 1);
-        if AvailabilityAtDate.FindSet then
+        if AvailabilityAtDate.FindSet() then
             repeat
-                LookaheadQty += AvailabilityAtDate."Gross Requirement" - AvailabilityAtDate."Scheduled Receipt";
+                ForwardQty += AvailabilityAtDate."Gross Requirement" - AvailabilityAtDate."Scheduled Receipt";
             until AvailabilityAtDate.Next() = 0;
 
         AvailabilityAtDate.SetRange("Period Start", StartDate, EndDate);
-        if AvailabilityAtDate.FindSet then
+        if AvailabilityAtDate.FindSet() then
             repeat
                 if AvailabilityAtDate."Gross Requirement" > AvailabilityAtDate."Scheduled Receipt" then
-                    LookaheadQty += AvailabilityAtDate."Gross Requirement" - AvailabilityAtDate."Scheduled Receipt"
+                    ForwardQty += AvailabilityAtDate."Gross Requirement" - AvailabilityAtDate."Scheduled Receipt"
                 else
                     if AvailabilityAtDate."Gross Requirement" < AvailabilityAtDate."Scheduled Receipt" then
                         Stop := true;
             until (AvailabilityAtDate.Next() = 0) or Stop;
 
-        if LookaheadQty < 0 then
-            LookaheadQty := 0;
+        if ForwardQty < 0 then
+            ForwardQty := 0;
 
         DummyItem.CopyFilter("Date Filter", Item."Date Filter");
-        exit(LookaheadQty);
+        exit(ForwardQty);
     end;
 
     procedure CalculateAvailability(var Item: Record Item; var AvailabilityAtDate: Record "Availability at Date")
@@ -380,7 +400,7 @@
         OldRecordExists := true;
     end;
 
-    local procedure CalculateAvailabilityByPeriod(var AvailabilityAtDate: Record "Availability at Date"; PeriodType: Option Day,Week,Month,Quarter,Year)
+    local procedure CalculateAvailabilityByPeriod(var AvailabilityAtDate: Record "Availability at Date"; PeriodType: Enum "Analysis Period Type")
     var
         AvailabilityInPeriod: Record "Availability at Date";
         Date: Record Date;
@@ -388,10 +408,10 @@
         if PeriodType = PeriodType::Day then
             exit;
 
-        if AvailabilityAtDate.FindSet then
+        if AvailabilityAtDate.FindSet() then
             repeat
                 Date.SetRange("Period Type", PeriodType);
-                Date."Period Type" := PeriodType;
+                Date."Period Type" := PeriodType.AsInteger();
                 Date."Period Start" := AvailabilityAtDate."Period Start";
                 if Date.Find('=<') then begin
                     AvailabilityAtDate.SetRange("Period Start", Date."Period Start", Date."Period End");
@@ -415,17 +435,35 @@
         exit(ReqShipDate);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by GetForwardPeriodEndDate()', '20.0')]
     procedure GetLookAheadPeriodEndDate(LookaheadDateFormula: DateFormula; PeriodType: Option; StartDate: Date): Date
+    begin
+        exit(
+            GetForwardPeriodEndDate(LookaheadDateFormula, "Analysis Period Type".FromInteger(PeriodType), StartDate));
+    end;
+#endif
+
+    procedure GetForwardPeriodEndDate(LookaheadDateFormula: DateFormula; PeriodType: Enum "Analysis Period Type"; StartDate: Date): Date
     var
         CalendarManagement: Codeunit "Calendar Management";
     begin
         if Format(LookaheadDateFormula) = '' then
             exit(CalendarManagement.GetMaxDate);
 
-        exit(AdjustedEndingDate(CalcDate(LookaheadDateFormula, StartDate), PeriodType));
+        exit(GetPeriodEndingDate(CalcDate(LookaheadDateFormula, StartDate), PeriodType));
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by GetPeriodEndingDate()', '20.0')]
     procedure AdjustedEndingDate(PeriodEnd: Date; PeriodType: Option Day,Week,Month,Quarter,Year): Date
+    begin
+        exit(
+            GetPeriodEndingDate(PeriodEnd, "Analysis Period Type".FromInteger(PeriodType)));
+    end;
+#endif
+
+    procedure GetPeriodEndingDate(PeriodEnd: Date; PeriodType: Enum "Analysis Period Type"): Date
     var
         Date: Record Date;
     begin
@@ -434,7 +472,7 @@
 
         Date.SetRange("Period Type", PeriodType);
         Date.SetRange("Period Start", 0D, PeriodEnd);
-        Date.FindLast;
+        Date.FindLast();
         exit(NormalDate(Date."Period End"));
     end;
 
@@ -791,8 +829,16 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnBeforeCalcQtyAvailableToPromise event', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeQtyAvailableToPromise(var Item: Record Item; var AvailabilityDate: Date; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; PeriodType: Option Day,Week,Month,Quarter,Year; LookaheadDateFormula: DateFormula; var AvailableToPromise: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyAvailableToPromise(var Item: Record Item; var AvailabilityDate: Date; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; PeriodType: Enum "Analysis Period Type"; LookaheadDateFormula: DateFormula; var AvailableToPromise: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -811,10 +857,17 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnCalcEarliestAvailabilityDateOnBeforeFilterDate event', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnEarliestAvailabilityDateOnBeforeFilterDate(var Item: Record Item; NeededQty: Decimal; StartDate: Date; var AvailableQty: Decimal; PeriodType: Option; LookaheadDateFormula: DateFormula; var AvailabilityAtDate: Record "Availability at Date"; var AvailableDate: Date; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcEarliestAvailabilityDateOnBeforeFilterDate(var Item: Record Item; NeededQty: Decimal; StartDate: Date; var AvailableQty: Decimal; PeriodType: Enum "Analysis Period Type"; LookaheadDateFormula: DateFormula; var AvailabilityAtDate: Record "Availability at Date"; var AvailableDate: Date; var IsHandled: Boolean)
+    begin
+    end;
 }
 

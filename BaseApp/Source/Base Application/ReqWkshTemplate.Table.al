@@ -47,17 +47,15 @@ table 244 "Req. Wksh. Template"
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
             FieldClass = FlowField;
         }
-        field(99000750; Type; Option)
+        field(99000750; Type; Enum "Req. Worksheet Template Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Req.,For. Labor,Planning';
-            OptionMembers = "Req.","For. Labor",Planning;
         }
     }
 

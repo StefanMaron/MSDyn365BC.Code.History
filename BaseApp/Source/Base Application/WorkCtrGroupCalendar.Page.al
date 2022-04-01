@@ -66,7 +66,7 @@ page 99000771 "Work Ctr. Group Calendar"
                     Clear(MatrixForm);
                     MatrixForm.Load(MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentSetLenght, CapacityUoM);
                     MatrixForm.SetTableView(Rec);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

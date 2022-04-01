@@ -41,18 +41,18 @@ codeunit 139314 "CRM Connection Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The CRM Connection Setup Wizard is run to the end but not finished
         RunWizardToCompletion(CRMConnectionSetupWizard);
         CRMConnectionSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
     end;
 
     [Test]
@@ -61,11 +61,11 @@ codeunit 139314 "CRM Connection Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The CRM Connection Setup Wizard wizard is exited right away
         CRMConnectionSetupWizard.Trap;
@@ -73,7 +73,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
     end;
 
     [Test]
@@ -82,11 +82,11 @@ codeunit 139314 "CRM Connection Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The CRM Connection Setup Wizard is closed but closing is not confirmed
         CRMConnectionSetupWizard.Trap;
@@ -94,7 +94,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
     end;
 
     [Test]
@@ -102,18 +102,18 @@ codeunit 139314 "CRM Connection Wizard Tests"
     [HandlerFunctions('CRMConnectionSetupPageHandler')]
     procedure VerifyStatusCompletedWhenFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The CRM Connection Setup Wizard is completed
         RunWizardToCompletion(CRMConnectionSetupWizard);
         CRMConnectionSetupWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should be completed.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should be completed.');
     end;
 
     [Test]
@@ -126,7 +126,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Connection Setup already exists
         CreateCRMConnectionSetup(CRMConnectionSetup);
@@ -152,7 +152,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [SCENARIO 180150] CRM Connection Wizard does not allow empty CRM URL server address
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
         CRMConnectionSetupWizard.Trap;
@@ -176,7 +176,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [SCENARIO 180150] If common CRM Connection Setup fields are disabled then Wizard shows them as editable
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Connection Setup already exists
         // [GIVEN] Solution Imported = FALSE, Enable CRM Connection = FALSE, Sales Order Integration = FALSE
@@ -227,7 +227,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [SCENARIO 180150] If common CRM Connection Setup fields are enabled then Wizard shows them as non-editable
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Connection Setup already exists
         // [GIVEN] Solution Imported = TRUE, Enable CRM Connection = TRUE, Sales Order Integration = TRUE
@@ -276,7 +276,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [SCENARIO 197282] Advanced action button appears on second page of Wizard
-        Initialize;
+        Initialize();
 
         // [WHEN] CRM Connection Wizard is opened
         CRMConnectionSetupWizard.OpenEdit;
@@ -342,7 +342,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [SCENARIO 197282] If synch user credentials not filled user cannot finish Wizard
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Connection Wizard is opened, synch user credentials not filled
         CRMConnectionSetupWizard.OpenEdit;
@@ -366,7 +366,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Error message apprears when user email or server address are empty
-        Initialize;
+        Initialize();
         asserterror CRMIntegrationManagement.CheckConnectRequiredFields(LibraryUtility.GenerateRandomText(10), '');
         Assert.ExpectedError(EmailAndServerAddressEmptyErr);
         asserterror CRMIntegrationManagement.CheckConnectRequiredFields('', LibraryUtility.GenerateRandomText(10));
@@ -381,7 +381,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Construct CRM connection string from user CRM URL
-        Initialize;
+        Initialize();
         Assert.AreEqual(
           CorrectConnectionStringTxt, CRMIntegrationManagement.ConstructConnectionStringForSolutionImport(InitialCRMUrlTxt),
           WrongConnectionStringErr);
@@ -397,7 +397,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] EnableCRMConnectionFromWizard() should execute on the context record
-        Initialize;
+        Initialize();
 
         // [GIVEN] real CRMConnectionSetup has all credentials set
         CRMConnectionSetup.Init();
@@ -422,7 +422,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] UpdateFromWizard() should set credentials on the context record
-        Initialize;
+        Initialize();
         CRMConnectionSetup."Server Address" := 'https://somedomain.dynamics.com';
         CRMConnectionSetup."User Name" := 'user@test.net';
 
@@ -449,13 +449,13 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Step Finish should update the real record
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCRMOrganization;
 
         // [GIVEN] CRM Connection Setup Wizard is opened
-        CRMConnectionSetupWizard.OpenNew;
+        CRMConnectionSetupWizard.OpenNew();
         // [GIVEN] Fill Office365 parameters
         CRMConnectionSetupWizard.ServerAddress.SetValue('@@test@@');
         CRMConnectionSetupWizard.ActionNext.Invoke;
@@ -475,8 +475,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup.RefreshDataFromCRM;
         CRMConnectionSetup.TestField("Is S.Order Integration Enabled");
         // [THEN] user mapping is disabled
-        CRMConnectionSetup.TestField("Is User Mapping Required", false);
-        CRMConnectionSetup.TestField("Is User Mapped To CRM User", false);
         // [THEN] The latest SDK proxy version is by default
         LatestSDKVersion := LibraryCRMIntegration.GetLastestSDKVersion();
         CRMConnectionSetup.TestField("Proxy Version", LatestSDKVersion);
@@ -492,7 +490,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] CRM Connection URL should comply with rules
-        Initialize;
+        Initialize();
 
         // [GIVEN] Empty CRM Connection URL
         Address := '';
@@ -538,7 +536,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Email: Text;
     begin
         // [SCENARIO 211412] CRM Connection Wizard allow entering email for CRM server address not containing 'dynamics.com'
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
         // [GIVEN] Server address = "https://crm.abc.com"
@@ -566,7 +564,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Email: Text;
     begin
         // [SCENARIO 211819] CRM Connection Wizard allow entering email for CRM server address not containing 'dynamics.com' when setup already exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Connection Setup exists and "Authentication Type" = AD
         CRMConnectionSetup.Init();
@@ -598,13 +596,13 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         // [FEATURE] [Multiple SDK]
         // [SCENARIO 234755] Check selected sdk version 8 copied to connection setup
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCRMOrganization;
 
         // [GIVEN] CRM Connection Setup Wizard is opened
-        CRMConnectionSetupWizard.OpenNew;
+        CRMConnectionSetupWizard.OpenNew();
         // [GIVEN] Fill Office365 parameters, SDK Version = 8
         CRMConnectionSetupWizard.ServerAddress.SetValue('@@test@@');
         CRMConnectionSetupWizard.ActionNext.Invoke;
@@ -630,13 +628,13 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         // [FEATURE] [Multiple SDK]
         // [SCENARIO 234755] SDK Version '8' can be changed to '9'
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCRMOrganization;
 
         // [GIVEN] CRM Connection Setup Wizard is opened
-        CRMConnectionSetupWizard.OpenNew;
+        CRMConnectionSetupWizard.OpenNew();
         // [GIVEN] Fill Office365 parameters
         CRMConnectionSetupWizard.ServerAddress.SetValue('@@test@@');
         CRMConnectionSetupWizard.ActionNext.Invoke;
@@ -664,7 +662,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211819] UpdateFromWizard should set "Authentication Type" = Office365 by default
-        Initialize;
+        Initialize();
         TempCRMConnectionSetup.Init();
         TempCRMConnectionSetup.Insert();
 
@@ -684,7 +682,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CDSConnectionSetup: Record "CDS Connection Setup";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
         AssistedSetupTestLibrary.DeleteAll();

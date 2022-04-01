@@ -49,17 +49,6 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -265,7 +254,7 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -348,10 +337,10 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
         TempPurchCrMemoLine.Reset();
         TempPurchCrMemoLine.CopyFilters(Rec);
         TempPurchCrMemoLine.SetRange("Document No.", "Document No.");
-        if not TempPurchCrMemoLine.FindFirst then begin
+        if not TempPurchCrMemoLine.FindFirst() then begin
             PurchCrMemoLine.CopyFilters(Rec);
             PurchCrMemoLine.SetRange("Document No.", "Document No.");
-            if not PurchCrMemoLine.FindFirst then
+            if not PurchCrMemoLine.FindFirst() then
                 exit(false);
             TempPurchCrMemoLine := PurchCrMemoLine;
             TempPurchCrMemoLine.Insert();

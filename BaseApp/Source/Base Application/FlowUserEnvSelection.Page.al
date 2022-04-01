@@ -51,7 +51,7 @@ page 6416 "Flow User Env. Selection"
             Error(FlowServiceManagement.GetGenericError);
 
         SortByEnvironmentNameAscending;
-        FindFirst;
+        FindFirst();
     end;
 
     var

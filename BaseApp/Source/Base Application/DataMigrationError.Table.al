@@ -54,7 +54,7 @@ table 1797 "Data Migration Error"
         DataMigrationError: Record "Data Migration Error";
     begin
         Init;
-        if DataMigrationError.FindLast then
+        if DataMigrationError.FindLast() then
             Id := DataMigrationError.Id + 1
         else
             Id := 1;
@@ -139,7 +139,7 @@ table 1797 "Data Migration Error"
     begin
         SetRange("Migration Type", MigrationType);
         SetRange("Source Staging Table Record ID", SourceRecordId);
-        if FindFirst then
+        if FindFirst() then
             ErrorMessage := "Error Message"
         else
             ErrorMessage := '';

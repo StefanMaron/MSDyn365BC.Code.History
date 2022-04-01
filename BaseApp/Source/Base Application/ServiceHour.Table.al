@@ -103,7 +103,7 @@ table 5910 "Service Hour"
 
         ServHour.Reset();
         ServHour.SetRange("Service Contract No.", '');
-        if ServHour.FindSet then
+        if ServHour.FindSet() then
             repeat
                 ServHour2.TransferFields(ServHour);
                 Evaluate(ServHour2."Service Contract Type", GetFilter("Service Contract Type"));

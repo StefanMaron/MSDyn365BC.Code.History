@@ -1,7 +1,7 @@
 table 404 "Change Log Setup (Field)"
 {
     Caption = 'Change Log Setup (Field)';
-    ReplicateData = true;
+    ReplicateData = false;
 
     fields
     {

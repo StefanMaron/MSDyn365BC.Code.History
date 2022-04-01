@@ -1,4 +1,4 @@
-﻿page 554 "Analysis by Dimensions"
+page 554 "Analysis by Dimensions"
 {
     Caption = 'Analysis by Dimensions';
     DeleteAllowed = false;
@@ -77,9 +77,9 @@
                         end;
                         ValidateLineDimCode;
                         if "Line Dim Option" = "Line Dim Option"::Period then
-                            DimensionCodeBuffer.SetCurrentKey("Period Start")
+                            TempDimensionCodeBuffer.SetCurrentKey("Period Start")
                         else
-                            DimensionCodeBuffer.SetCurrentKey(Code);
+                            TempDimensionCodeBuffer.SetCurrentKey(Code);
                     end;
                 }
                 field(ColumnDimCode; ColumnDimCode)
@@ -99,7 +99,7 @@
                         Text := NewCode;
                         ColumnDimCode := NewCode;
                         ValidateColumnDimCode;
-                        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                        CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                         exit(true);
                     end;
 
@@ -111,7 +111,7 @@
                         end;
                         ValidateColumnDimCode;
 
-                        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                        CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
             }
@@ -134,7 +134,7 @@
                         "Date Filter" := GLAcc.GetFilter("Date Filter");
                         InternalDateFilter := "Date Filter";
                         if "Column Dim Option" = "Column Dim Option"::Period then
-                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                            CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
                 field(AccFilter; "Account Filter")
@@ -167,7 +167,7 @@
                     trigger OnValidate()
                     begin
                         if ("Column Dim Option" = "Column Dim Option"::"G/L Account") or ("Column Dim Option" = "Column Dim Option"::"Cash Flow Account") then
-                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                            CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
                 field(BusUnitFilter; "Bus. Unit Filter")
@@ -199,7 +199,7 @@
                     trigger OnValidate()
                     begin
                         if "Column Dim Option" = "Column Dim Option"::"Cash Flow Forecast" then
-                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                            CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
                 field(BudgetFilter; "Budget Filter")
@@ -227,7 +227,7 @@
                     trigger OnValidate()
                     begin
                         if "Column Dim Option" = "Column Dim Option"::"Dimension 1" then
-                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                            CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
                 field(Dim2Filter; "Dimension 2 Filter")
@@ -246,7 +246,7 @@
                     trigger OnValidate()
                     begin
                         if "Column Dim Option" = "Column Dim Option"::"Dimension 2" then
-                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                            CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
                 field(Dim3Filter; "Dimension 3 Filter")
@@ -265,7 +265,7 @@
                     trigger OnValidate()
                     begin
                         if "Column Dim Option" = "Column Dim Option"::"Dimension 3" then
-                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                            CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
                 field(Dim4Filter; "Dimension 4 Filter")
@@ -284,7 +284,7 @@
                     trigger OnValidate()
                     begin
                         if "Column Dim Option" = "Column Dim Option"::"Dimension 4" then
-                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                            CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
             }
@@ -335,7 +335,7 @@
 
                     trigger OnValidate()
                     begin
-                        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                        CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
                 field(ShowOppositeSign; "Show Opposite Sign")
@@ -357,7 +357,7 @@
                     begin
                         FindPeriod('');
                         if "Column Dim Option" = "Column Dim Option"::Period then
-                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                            CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
                 field(ColumnsSet; "Column Set")
@@ -401,7 +401,7 @@
                         LineDimCode := TempDimCode;
                         ValidateLineDimCode;
                         ValidateColumnDimCode;
-                        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                        CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
             }
@@ -428,7 +428,7 @@
                         "Cash Flow Forecast Filter" := '';
 
                     MatrixForm.Load(Rec, LineDimCode, ColumnDimCode, ColumnCaptions, PrimaryKeyFirstColInSet);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")
@@ -444,7 +444,7 @@
 
                 trigger OnAction()
                 begin
-                    CreateCaptionSet(DimensionCodeBuffer, Step::Previous, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                    CreateCaptionSet(TempDimensionCodeBuffer, Step::Previous, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                 end;
             }
             action("Next Set")
@@ -459,7 +459,7 @@
 
                 trigger OnAction()
                 begin
-                    CreateCaptionSet(DimensionCodeBuffer, Step::Next, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+                    CreateCaptionSet(TempDimensionCodeBuffer, Step::Next, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                 end;
             }
         }
@@ -467,7 +467,7 @@
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(FindRec("Line Dim Option", DimensionCodeBuffer, Which));
+        exit(FindRecord("Line Dim Option", TempDimensionCodeBuffer, Which));
     end;
 
     trigger OnInit()
@@ -480,7 +480,7 @@
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec("Line Dim Option", DimensionCodeBuffer, Steps));
+        exit(NextRecord("Line Dim Option", TempDimensionCodeBuffer, Steps));
     end;
 
     trigger OnOpenPage()
@@ -507,8 +507,8 @@
             LineDimCode := CashFlowAccount.TableCaption;
         ColumnDimCode := Text000;
 
-        "Line Dim Option" := DimCodeToOption(LineDimCode);
-        "Column Dim Option" := DimCodeToOption(ColumnDimCode);
+        "Line Dim Option" := DimCodeToDimOption(LineDimCode);
+        "Column Dim Option" := DimCodeToDimOption(ColumnDimCode);
         if GLAccountSource then begin
             Field.Get(DATABASE::"G/L Account", 42);
             BusUnitFilterCaption := Field."Field Caption";
@@ -516,7 +516,7 @@
 
         FindPeriod('');
 
-        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
+        CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -539,18 +539,14 @@
         AnalysisView: Record "Analysis View";
         AnalysisViewEntry: Record "Analysis View Entry";
         Currency: Record Currency;
-        DimensionCodeBuffer: Record "Dimension Code Buffer" temporary;
         AmountType: Enum "Analysis Amount Type";
         [InDataSet]
         GLAccountSource: Boolean;
         LineDimCode: Text[30];
         ColumnDimCode: Text[30];
         InternalDateFilter: Text;
-        ColumnCaptions: array[32] of Text[80];
-        PrimaryKeyFirstColInSet: Text[1024];
         NewAnalysisViewCode: Code[10];
         PeriodInitialized: Boolean;
-        Step: Option First,Previous,Same,Next;
         BusUnitFilterCaption: Text[80];
         [InDataSet]
         Dim1FilterEnable: Boolean;
@@ -562,14 +558,35 @@
         Dim4FilterEnable: Boolean;
         Text009: Label 'Unsupported Account Source %1.';
 
+    protected var
+        TempDimensionCodeBuffer: Record "Dimension Code Buffer" temporary;
+        ColumnCaptions: array[32] of Text[80];
+        PrimaryKeyFirstColInSet: Text[1024];
+        Step: Option First,Previous,Same,Next;
+
+#if not CLEAN20
+    [Obsolete('Replaced by DimCodeToDimOption()', '20.0')]
     procedure DimCodeToOption(DimCode: Text[30]) Result: Integer
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDimCodeToOption(DimCode, AnalysisView, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(DimCodeToDimOption(DimCode).AsInteger());
+    end;
+#endif
+
+    procedure DimCodeToDimOption(DimCode: Text[30]) Result: Enum "Analysis Dimension Option"
     var
         AccountCaption: Text[30];
         UnitCaption: Text[30];
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeDimCodeToOption(DimCode, AnalysisView, Result, IsHandled);
+        OnBeforeDimCodeToDimOption(DimCode, AnalysisView, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
@@ -578,31 +595,41 @@
             AccountCaption:
                 begin
                     if GLAccountSource then
-                        exit(0);
-                    exit(7);
+                        exit("Analysis Dimension Option"::"G/L Account");
+                    exit("Analysis Dimension Option"::"Cash Flow Account");
                 end;
             Text000:
-                exit(1);
+                exit("Analysis Dimension Option"::Period);
             UnitCaption:
                 begin
                     if GLAccountSource then
-                        exit(2);
-                    exit(8);
+                        exit("Analysis Dimension Option"::"Business Unit");
+                    exit("Analysis Dimension Option"::"Cash Flow Forecast");
                 end;
             AnalysisView."Dimension 1 Code":
-                exit(3);
+                exit("Analysis Dimension Option"::"Dimension 1");
             AnalysisView."Dimension 2 Code":
-                exit(4);
+                exit("Analysis Dimension Option"::"Dimension 2");
             AnalysisView."Dimension 3 Code":
-                exit(5);
+                exit("Analysis Dimension Option"::"Dimension 3");
             AnalysisView."Dimension 4 Code":
-                exit(6);
+                exit("Analysis Dimension Option"::"Dimension 4");
             else
-                exit(-1);
+                exit("Analysis Dimension Option"::Undefined);
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by FindRecord()', '20.0')]
     procedure FindRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]) Found: Boolean
+    begin
+        Found := FindRecord("Analysis Dimension Option".FromInteger(DimOption), DimCodeBuf, Which);
+
+        OnAfterFindRec(DimOption, DimCodeBuf, AnalysisView, Which, Found);
+    end;
+#endif
+
+    procedure FindRecord(DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]) Found: Boolean
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
@@ -710,10 +737,20 @@
                 end;
         end;
 
-        OnAfterFindRec(DimOption, DimCodeBuf, AnalysisView, Which, Found);
+        OnAfterFindRecord(DimOption, DimCodeBuf, AnalysisView, Which, Found);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by NextRecord()', '20.0')]
     procedure NextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer) ResultSteps: Integer
+    begin
+        ResultSteps := NextRecord("Analysis Dimension Option".FromInteger(DimOption), DimCodeBuf, Steps);
+
+        OnAfterNextRec(DimOption, DimCodeBuf, AnalysisView, Steps, ResultSteps);
+    end;
+#endif
+
+    procedure NextRecord(DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer) ResultSteps: Integer
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
@@ -815,7 +852,7 @@
                 end;
         end;
 
-        OnAfterNextRec(DimOption, DimCodeBuf, AnalysisView, Steps, ResultSteps);
+        OnAfterNextRecord(DimOption, DimCodeBuf, AnalysisView, Steps, ResultSteps);
     end;
 
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -1050,7 +1087,7 @@
             Message(Text003, LineDimCode);
             LineDimCode := '';
         end;
-        "Line Dim Option" := DimCodeToOption(LineDimCode);
+        "Line Dim Option" := DimCodeToDimOption(LineDimCode);
         InternalDateFilter := AnalysisViewEntry.GetFilter("Posting Date");
         if ("Line Dim Option" <> "Line Dim Option"::Period) and ("Column Dim Option" <> "Column Dim Option"::Period) then begin
             "Date Filter" := InternalDateFilter;
@@ -1084,7 +1121,7 @@
             Message(Text004, ColumnDimCode);
             ColumnDimCode := '';
         end;
-        "Column Dim Option" := DimCodeToOption(ColumnDimCode);
+        "Column Dim Option" := DimCodeToDimOption(ColumnDimCode);
         InternalDateFilter := AnalysisViewEntry.GetFilter("Posting Date");
         if ("Line Dim Option" <> "Line Dim Option"::Period) and ("Column Dim Option" <> "Column Dim Option"::Period) then begin
             "Date Filter" := InternalDateFilter;
@@ -1132,7 +1169,7 @@
         OnAfterGetCaptionClass(AnalysisViewDimType, AnalysisView, Result);
     end;
 
-    local procedure CreateCaptionSet(RecRef: Record "Dimension Code Buffer"; Step: Option First,Previous,Same,Next; MaximumNoOfCaptions: Integer; var PrimaryKeyFirstCaptionInCurrSe: Text[1024]; var CaptionSet: array[32] of Text[1024]; var CaptionRange: Text[1024])
+    protected procedure CreateCaptionSet(RecRef: Record "Dimension Code Buffer"; Step: Option First,Previous,Same,Next; MaximumNoOfCaptions: Integer; var PrimaryKeyFirstCaptionInCurrSe: Text[1024]; var CaptionSet: array[32] of Text[1024]; var CaptionRange: Text[1024])
     var
         CurrentCaptionOrdinal: Integer;
     begin
@@ -1145,9 +1182,9 @@
             Step::First:
                 begin
                     if ("Column Dim Option" = "Column Dim Option"::Period) and ("Date Filter" = '') then
-                        FindRec("Column Dim Option", RecRef, '=><')
+                        FindRecord("Column Dim Option", RecRef, '=><')
                     else
-                        if not FindRec("Column Dim Option", RecRef, '-') then
+                        if not FindRecord("Column Dim Option", RecRef, '-') then
                             exit;
                 end;
             Step::Previous:
@@ -1155,16 +1192,16 @@
                     RecRef.SetPosition(PrimaryKeyFirstCaptionInCurrSe);
                     if "Column Dim Option" = "Column Dim Option"::Period then
                         Evaluate(RecRef."Period Start", RecRef.Code);
-                    if not FindRec("Column Dim Option", RecRef, '=') then
+                    if not FindRecord("Column Dim Option", RecRef, '=') then
                         exit;
-                    NextRec("Column Dim Option", RecRef, -MaximumNoOfCaptions);
+                    NextRecord("Column Dim Option", RecRef, -MaximumNoOfCaptions);
                 end;
             Step::Same:
                 begin
                     RecRef.SetPosition(PrimaryKeyFirstCaptionInCurrSe);
                     if "Column Dim Option" = "Column Dim Option"::Period then
                         Evaluate(RecRef."Period Start", RecRef.Code);
-                    if not FindRec("Column Dim Option", RecRef, '=') then
+                    if not FindRecord("Column Dim Option", RecRef, '=') then
                         exit;
                 end;
             Step::Next:
@@ -1172,11 +1209,11 @@
                     RecRef.SetPosition(PrimaryKeyFirstCaptionInCurrSe);
                     if "Column Dim Option" = "Column Dim Option"::Period then
                         Evaluate(RecRef."Period Start", RecRef.Code);
-                    if not FindRec("Column Dim Option", RecRef, '=') then
+                    if not FindRecord("Column Dim Option", RecRef, '=') then
                         exit;
-                    if not (NextRec("Column Dim Option", RecRef, MaximumNoOfCaptions) = MaximumNoOfCaptions) then begin
+                    if not (NextRecord("Column Dim Option", RecRef, MaximumNoOfCaptions) = MaximumNoOfCaptions) then begin
                         RecRef.SetPosition(PrimaryKeyFirstCaptionInCurrSe);
-                        FindRec("Column Dim Option", RecRef, '=');
+                        FindRecord("Column Dim Option", RecRef, '=');
                     end;
                 end;
         end;
@@ -1189,7 +1226,7 @@
                 CaptionSet[CurrentCaptionOrdinal] := RecRef.Name
             else
                 CaptionSet[CurrentCaptionOrdinal] := RecRef.Code;
-        until (CurrentCaptionOrdinal = MaximumNoOfCaptions) or (NextRec("Column Dim Option", RecRef, 1) <> 1);
+        until (CurrentCaptionOrdinal = MaximumNoOfCaptions) or (NextRecord("Column Dim Option", RecRef, 1) <> 1);
 
         if CurrentCaptionOrdinal = 1 then
             CaptionRange := CaptionSet[1]
@@ -1220,8 +1257,16 @@
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by event OnAfterFindRecord()', '20.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterFindRec(var DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var DimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View"; Which: Text[250]; var Found: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterFindRecord(var DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View"; Which: Text[250]; var Found: Boolean)
     begin
     end;
 
@@ -1230,13 +1275,29 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterNextRecord()', '20.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterNextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var DimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View"; Steps: Integer; var ResultSteps: Integer)
     begin
     end;
+#endif
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterNextRecord(DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View"; Steps: Integer; var ResultSteps: Integer)
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by OnBeforeDimCodeToDimOption()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDimCodeToOption(DimCode: Text[30]; var AnalysisView: Record "Analysis View"; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDimCodeToDimOption(DimCode: Text[30]; var AnalysisView: Record "Analysis View"; var Result: Enum "Analysis Dimension Option"; var IsHandled: Boolean)
     begin
     end;
 

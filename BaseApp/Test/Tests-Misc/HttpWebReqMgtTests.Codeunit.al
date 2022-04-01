@@ -24,7 +24,7 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
     begin
         // [GIVEN] Everything set up for new request on prem.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
 
         // [WHEN] We initialize Http Web Request Management with a new Url.
@@ -41,7 +41,7 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
     begin
         // [GIVEN] Everything set up for new request in SaaS.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
@@ -59,7 +59,7 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
     begin
         // [GIVEN] Everything set up for new request, there are not rewrite subscribers.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         Initialized := false;
         UnbindSubscription(HttpWebReqMgtTests);
@@ -78,7 +78,7 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
     begin
         // [GIVEN] Everything set up for new request on prem.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
 
         // [WHEN] We initialize Http Web Request Management with a new Url and set basic authentication

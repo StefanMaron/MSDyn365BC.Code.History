@@ -30,15 +30,15 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Unreal VAT Option Last");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Unreal VAT Option Last");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERM.SetUnrealizedVAT(true);
 
         IsInitialized := true;
@@ -58,7 +58,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check the Partial VAT Amount Applied after posting Sales Credit Memo and making Refund against it.
 
         // Create Sales Credit Memo and make Refund against it. Apply the Refund over Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
         UnrealizedVATSalesCrMemo(GenJournalLine, SalesCrMemoLine, VATPostingSetup);
 
@@ -77,7 +77,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check the Remaining VAT Amount Applied after posting Sales Credit Memo and making Refund twice against it.
 
         // Create Sales Credit Memo and make Refund against it. Apply the Refund over Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
         UnrealizedVATSalesCrMemo(GenJournalLine, SalesCrMemoLine, VATPostingSetup);
 
@@ -101,7 +101,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check the Partial VAT Amount Applied after posting Purchase Credit Memo and making Refund against it.
 
         // Create Purchase Credit Memo and make Refund against it. Apply the Refund over Credit Memo.
-        Initialize;
+        Initialize();
 
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
         UnrealizedVATPurchaseCrMemo(GenJournalLine, PurchCrMemoLine, VATPostingSetup);
@@ -121,7 +121,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check the Remaining VAT Amount Applied after posting Purchase Credit Memo and making Refund twice against it.
 
         // Create Purchase Credit Memo and make Refund against it. Apply the Refund over Credit Memo.
-        Initialize;
+        Initialize();
 
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
         UnrealizedVATPurchaseCrMemo(GenJournalLine, PurchCrMemoLine, VATPostingSetup);
@@ -146,7 +146,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check that no VAT Amount Applied after posting Sales Invoice and making Payment against it.
 
         // Create Sales Invoice and make Payment against it. Apply the Payment over Invoice.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
         UnrealizedVATSalesInvoice(GenJournalLine, SalesInvoiceLine, VATPostingSetup);
 
@@ -165,7 +165,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check that Full VAT Amount Applied after posting Sales Invoice and making Payment twice against it.
 
         // Create Sales Invoice and make Payment against it. Apply the Payment over Invoice.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
         UnrealizedVATSalesInvoice(GenJournalLine, SalesInvoiceLine, VATPostingSetup);
 
@@ -189,7 +189,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check that no VAT Amount Applied after posting Purchase Invoice and making Payment against it.
 
         // Create Purchase Invoice and make Payment against it. Apply the Payment over Invoice.
-        Initialize;
+        Initialize();
 
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
         UnrealizedVATPurchaseInvoice(GenJournalLine, PurchInvLine, VATPostingSetup);
@@ -210,7 +210,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check that Full VAT Amount Applied after posting Purchase Invoice and making Payment twice against it.
 
         // Create Purchase Invoice and make Payment against it. Apply the Payment over Invoice.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
         UnrealizedVATPurchaseInvoice(GenJournalLine, PurchInvLine, VATPostingSetup);
 
@@ -236,7 +236,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // making Partial Payment for Customer with Unrealized VAT Type - Last (Fully Paid).
 
         // Create General Journal Line with document type Invoice and making partial payment against it.
-        Initialize;
+        Initialize();
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);  // Use Random Number Generator for Amount.
@@ -261,7 +261,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // making Payment for Customer with Unrealized VAT Type - Last (Fully Paid).
 
         // Create General Journal Line with document type Invoice and making partial Over Vat payment against it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
         InvoiceAmount := 100 + LibraryRandom.RandDec(1000, 2);  // Use Random Number Generator for Amount.
         VATAmount := Round(InvoiceAmount * VATPostingSetup."VAT %") / (100 + VATPostingSetup."VAT %");
@@ -292,7 +292,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Journal Line with Document Type Invoice and making Full Payment for Customer with Unrealized VAT Type - Last.
 
         // Setup: Update General Ledger and VAT Setup, and Create and post a General Journal Line.
-        Initialize;
+        Initialize();
 
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
         LibraryERM.SetAddReportingCurrency(CreateCurrency);
@@ -343,7 +343,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // Check that correct Amount applied in Customer Ledger Entry and G/L Entry and no VAT Amount applied in VAT Entry after Posting
         // General Journal Line with Document Type Invoice and making Payment(Below VAT) for Customer with Unrealized VAT Type - Last.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
 
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
@@ -375,7 +375,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // Check that correct Amount applied in Customer Ledger Entry and G/L Entry and VAT Amount applied in VAT Entry after Posting
         // General Journal Line with Document Type Invoice and making Payment(Above VAT) for Customer with Unrealized VAT Type - Last.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);  // Use Random Number Generator for Amount.
@@ -408,7 +408,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
 
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type Last.
         // Create and post Sales Credit Memo, General Journal Line with Document Type as Refund and apply it on Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
         UpdateVATPostingSetup(VATPostingSetup, false);
 
@@ -473,7 +473,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type Last.
         // Create and post Purchase Credit Memo with currency.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, UnrealizedVATType);
         UpdateVATPostingSetup(VATPostingSetup, false);
 
@@ -532,7 +532,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type Last. Create and
         // post Purchase Credit Memo with Currency, General Journal Line with Document Type as Refund and apply it on Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
         UpdateVATPostingSetup(VATPostingSetup, false);
         LibraryPurchase.CreatePurchHeader(
@@ -603,7 +603,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type as parameter.
         // Create and post Sales Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, UnrealizedVATType);
         UpdateVATPostingSetup(VATPostingSetup, false);
 
@@ -646,7 +646,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type Last
         // (Fully Paid). Create and post Sales Credit Memo, General Journal Line with Document Type as Refund
         // and apply it on Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
         UpdateVATPostingSetup(VATPostingSetup, false);
 
@@ -696,7 +696,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type Last (Fully Paid).
         // Create and post Sales Credit Memo, General Journal Line with Document Type as Refund twice firstly with
         // partial Sales Credit Memo amount and secondly with partial VAT amount covering and apply both on Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
         UpdateVATPostingSetup(VATPostingSetup, false);
 
@@ -762,7 +762,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type as Last
         // (Fully Paid). Create and post Purchase Credit Memo, General Journal Line with Document Type as Refund
         // and apply it on Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
         UpdateVATPostingSetup(VATPostingSetup, false);
         LibraryPurchase.CreatePurchHeader(
@@ -812,7 +812,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type as Last
         // (Fully Paid). Create and post Purchase Credit Memo, General Journal Line with Document Type as Refund twice
         // firstly with partial Sales Credit Memo amount and secondly with partial VAT amount covering and apply both on Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
         UpdateVATPostingSetup(VATPostingSetup, false);
         LibraryPurchase.CreatePurchHeader(
@@ -861,7 +861,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
 
         // Set Applies-to ID.
         CustLedgerEntry2.SetRange("Document No.", PostedDocumentNo);
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
 
         // Post Application Entries.
@@ -898,7 +898,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
 
         // Set Applies-to ID.
         VendorLedgerEntry2.SetRange("Document No.", PostedDocumentNo);
-        VendorLedgerEntry2.FindFirst;
+        VendorLedgerEntry2.FindFirst();
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry2);
 
         // Post Application Entries.
@@ -1036,7 +1036,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // Return Amount less than Sales Credit Memo VAT Amount to use it as partial Amount.
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         exit(((SalesCrMemoLine.Amount * SalesCrMemoLine."VAT %") / 100) - LibraryRandom.RandDec(10, 2));
     end;
 
@@ -1044,7 +1044,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // Return Amount less than Purchase Credit Memo VAT Amount to use it as partial Amount.
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
         exit(((PurchCrMemoLine.Amount * PurchCrMemoLine."VAT %") / 100) - LibraryRandom.RandDec(10, 2));
     end;
 
@@ -1052,7 +1052,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // Return Amount less than Sales Invoice VAT Amount to use it as partial Amount.
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         exit(((SalesInvoiceLine.Amount * SalesInvoiceLine."VAT %") / 100) - LibraryRandom.RandDec(10, 2));
     end;
 
@@ -1060,7 +1060,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // Return Amount less than Purchase Invoice VAT Amount to use it as partial Amount.
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         exit(((PurchInvLine.Amount * PurchInvLine."VAT %") / 100) - LibraryRandom.RandDec(10, 2));
     end;
 
@@ -1076,7 +1076,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-        GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;  // Using assignment to avoid error in ES.
+        GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();  // Using assignment to avoid error in ES.
         GeneralPostingSetup.Modify(true);
         exit(GeneralPostingSetup."Gen. Bus. Posting Group");
     end;
@@ -1201,8 +1201,8 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         GeneralPostingSetup.Get(GenBusPostingGroupCode, GenProdPostingGroupCode);
         // Using assignment to avoid error in ES.
-        GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
-        GeneralPostingSetup."Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
+        GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GeneralPostingSetup."Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -1246,7 +1246,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", DocumentType);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
         GLEntry.TestField("Additional-Currency Amount", AdditionalCurrencyAmount);
     end;

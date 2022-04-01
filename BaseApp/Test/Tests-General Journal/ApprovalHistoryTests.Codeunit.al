@@ -30,10 +30,10 @@ codeunit 134323 "Approval History Tests"
         GenJournalTemplate: Record "Gen. Journal Template";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         Workflow.ModifyAll(Enabled, false, true);
         UserSetup.DeleteAll();
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         GenJournalTemplate.DeleteAll();
         if IsInitialized then
             exit;
@@ -54,7 +54,7 @@ codeunit 134323 "Approval History Tests"
         // [WHEN] The gen. jnl line is posted.
         // [THEN] The approval entries and comments are posted as well.
 
-        Initialize;
+        Initialize();
 
         // Setup
         ExecuteApprovalWorkflowForJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
@@ -80,7 +80,7 @@ codeunit 134323 "Approval History Tests"
         // [WHEN] The gen. jnl line is posted.
         // [THEN] The approval entries and comments are posted as well.
 
-        Initialize;
+        Initialize();
 
         // Setup
         ExecuteApprovalWorkflowForJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
@@ -107,7 +107,7 @@ codeunit 134323 "Approval History Tests"
         // [WHEN] The gen. jnl line is posted.
         // [THEN] The approval entries and comments are posted as well.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -135,7 +135,7 @@ codeunit 134323 "Approval History Tests"
         // [WHEN] The gen. jnl line is posted.
         // [THEN] The approval entries and comments are posted as well.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
@@ -162,7 +162,7 @@ codeunit 134323 "Approval History Tests"
         // [WHEN] The gen. jnl line is posted.
         // [THEN] The approval entries and comments are posted as well.
 
-        Initialize;
+        Initialize();
 
         // Setup
         ExecuteApprovalWorkflowForJournalLine(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo);
@@ -189,7 +189,7 @@ codeunit 134323 "Approval History Tests"
         // [WHEN] The gen. jnl batch is posted.
         // [THEN] The approval entries and comments are posted as well.
 
-        Initialize;
+        Initialize();
 
         // Setup
         ExecuteApprovalWorkflowForJournalBatch(GenJournalLine);
@@ -220,7 +220,7 @@ codeunit 134323 "Approval History Tests"
         LinkId: Integer;
     begin
         // [SCENARIO 415640] Links should copy from approval entry to posted approval entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Line, Approval Entry with Link
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -242,7 +242,7 @@ codeunit 134323 "Approval History Tests"
         // [THEN] Posted Approval Entry has Link
         CustLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         LibraryDocumentApprovals.GetPostedApprovalEntries(PostedApprovalEntry, CustLedgerEntry.RecordId);
         PostedApprovalEntry.FindFirst();
         RecordLink.SetRange("Record ID", PostedApprovalEntry.RecordId);
@@ -380,7 +380,7 @@ codeunit 134323 "Approval History Tests"
     begin
         CustLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         LibraryDocumentApprovals.GetPostedApprovalEntries(PostedApprovalEntry, CustLedgerEntry.RecordId);
         Assert.AreEqual(1, PostedApprovalEntry.Count, 'Unexpected posted approval entries.');
@@ -397,7 +397,7 @@ codeunit 134323 "Approval History Tests"
     begin
         VendorLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         LibraryDocumentApprovals.GetPostedApprovalEntries(PostedApprovalEntry, VendorLedgerEntry.RecordId);
         Assert.AreEqual(1, PostedApprovalEntry.Count, 'Unexpected posted approval entries.');
@@ -414,7 +414,7 @@ codeunit 134323 "Approval History Tests"
     begin
         BankAccountLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         BankAccountLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        BankAccountLedgerEntry.FindFirst;
+        BankAccountLedgerEntry.FindFirst();
 
         LibraryDocumentApprovals.GetPostedApprovalEntries(PostedApprovalEntry, BankAccountLedgerEntry.RecordId);
         Assert.AreEqual(1, PostedApprovalEntry.Count, 'Unexpected posted approval entries.');
@@ -431,7 +431,7 @@ codeunit 134323 "Approval History Tests"
     begin
         GLEntry.SetRange("Document Type", GenJournalLine."Document Type");
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         LibraryDocumentApprovals.GetPostedApprovalEntries(PostedApprovalEntry, GLEntry.RecordId);
         Assert.AreEqual(1, PostedApprovalEntry.Count, 'Unexpected posted approval entries.');
@@ -447,7 +447,7 @@ codeunit 134323 "Approval History Tests"
         PostedApprovalCommentLine: Record "Posted Approval Comment Line";
     begin
         GLRegister.SetRange("Journal Batch Name", GenJournalBatchName);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         LibraryDocumentApprovals.GetPostedApprovalEntries(PostedApprovalEntry, GLRegister.RecordId);
         Assert.AreEqual(1, PostedApprovalEntry.Count, 'Unexpected posted approval entries.');

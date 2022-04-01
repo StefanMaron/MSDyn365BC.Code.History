@@ -450,8 +450,8 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
     local procedure CreateAnyPurchaseHeaderEvent(var WorkflowEvent: Record "Workflow Event")
     begin
         WorkflowEvent.Init();
-        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
-        WorkflowEvent.Description := LibraryUtility.GenerateGUID;
+        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
+        WorkflowEvent.Description := LibraryUtility.GenerateGUID();
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";
         WorkflowEvent."Request Page ID" := REPORT::"Workflow Event Simple Args";
         WorkflowEvent.Insert(true);

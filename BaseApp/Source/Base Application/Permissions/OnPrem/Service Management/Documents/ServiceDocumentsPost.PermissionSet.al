@@ -43,6 +43,7 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "General Posting Setup" = R,
                   tabledata "IC G/L Account" = R,
                   tabledata "IC Partner" = R,
+                  tabledata "IC Setup" = R,
                   tabledata "Interaction Log Entry" = RIMD,
                   tabledata "Interaction Template" = R,
                   tabledata "Interaction Tmpl. Language" = R,

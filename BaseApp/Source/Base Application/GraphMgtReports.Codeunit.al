@@ -25,7 +25,7 @@ codeunit 5488 "Graph Mgt - Reports"
             DateFilter := Format(Today);
 
         GLAccount.SetFilter("Date Filter", DateFilter);
-        if GLAccount.FindSet then begin
+        if GLAccount.FindSet() then begin
             repeat
                 GLAccount.CalcFields("Debit Amount", "Balance at Date");
                 GLAccount.CalcFields("Credit Amount", "Balance at Date");
@@ -105,7 +105,7 @@ codeunit 5488 "Graph Mgt - Reports"
 
         AccScheduleLine.SetFilter("Date Filter", DateFilter);
         AccScheduleLine.SetRange("Schedule Name", CurrentSchedName);
-        if AccScheduleLine.FindSet then begin
+        if AccScheduleLine.FindSet() then begin
             AccSchedManagement.CopyColumnsToTemp(CurrentColumnName, TempColumnLayout);
             AccSchedManagement.OpenSchedule(CurrentSchedName, AccScheduleLine);
             AccSchedManagement.OpenColumns(CurrentColumnName, TempColumnLayout);
@@ -119,7 +119,7 @@ codeunit 5488 "Graph Mgt - Reports"
 
             repeat
                 ColumnNo := 0;
-                if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet then
+                if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet() then
                     repeat
                         Evaluate(AccScheduleLineEntity."Net Change", DelChr(Format(0.0, 15, FormatStr(1)), '<', ' '));
                         ColumnNo := ColumnNo + 1;
@@ -137,7 +137,7 @@ codeunit 5488 "Graph Mgt - Reports"
                             BalanceSheetBuffer.Id := AccScheduleLine.SystemId;
                             BalanceSheetBuffer."Line No." := AccScheduleLine."Line No.";
                             BalanceSheetBuffer.Description := AccScheduleLine.Description;
-                            if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet then
+                            if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet() then
                                 Evaluate(BalanceSheetBuffer.Balance, DelChr(Format(ColumnValues[1], 15, FormatStr(ColumnNo)), '<', ' '));
                             Evaluate(BalanceSheetBuffer."Date Filter", DateFilter);
                             if (AccScheduleLine.Description = '') and (AccScheduleLine.Totaling = '') then
@@ -161,7 +161,7 @@ codeunit 5488 "Graph Mgt - Reports"
                             AccScheduleLineEntity.Id := AccScheduleLine.SystemId;
                             AccScheduleLineEntity."Line No." := AccScheduleLine."Line No.";
                             AccScheduleLineEntity.Description := AccScheduleLine.Description;
-                            if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet then
+                            if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet() then
                                 Evaluate(AccScheduleLineEntity."Net Change", DelChr(Format(ColumnValues[1], 15, FormatStr(ColumnNo)), '<', ' '));
                             AccScheduleLineEntity."Date Filter" := GetDateRangeMax(DateFilter);
                             if ReportType = ReportType::"Income Statement" then
@@ -227,7 +227,7 @@ codeunit 5488 "Graph Mgt - Reports"
         case ReportType of
             ReportType::"Aged Accounts Receivable":
                 begin
-                    if Customer.FindSet then
+                    if Customer.FindSet() then
                         repeat
                             CustLedgerEntry.Reset();
                             CustLedgerEntry.SetRange("Customer No.", Customer."No.");
@@ -257,7 +257,7 @@ codeunit 5488 "Graph Mgt - Reports"
                 end;
             ReportType::"Aged Accounts Payable":
                 begin
-                    if Vendor.FindSet then
+                    if Vendor.FindSet() then
                         repeat
                             VendorLedgerEntry.Reset();
                             VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
@@ -384,7 +384,7 @@ codeunit 5488 "Graph Mgt - Reports"
                         DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
                         DetailedCustLedgEntry.SetRange("Initial Entry Due Date", PeriodStartDate[i + 1], PeriodStartDate[i] - 1);
 
-                        if DetailedCustLedgEntry.FindFirst then
+                        if DetailedCustLedgEntry.FindFirst() then
                             CalculateLineTotalAmount(AgedReportEntity, LineTotalAmountDue, DetailedCustLedgEntry, i);
                     end;
                 DATABASE::Vendor:
@@ -395,7 +395,7 @@ codeunit 5488 "Graph Mgt - Reports"
                         DetailedVendorLedgEntry.SetRange("Vendor No.", Vendor."No.");
                         DetailedVendorLedgEntry.SetRange("Initial Entry Due Date", PeriodStartDate[i + 1], PeriodStartDate[i] - 1);
 
-                        if DetailedVendorLedgEntry.FindFirst then
+                        if DetailedVendorLedgEntry.FindFirst() then
                             CalculateLineTotalAmount(AgedReportEntity, LineTotalAmountDue, DetailedVendorLedgEntry, i);
                     end;
             end;

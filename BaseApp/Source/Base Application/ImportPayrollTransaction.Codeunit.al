@@ -89,7 +89,7 @@ codeunit 1202 "Import Payroll Transaction"
 
             GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-            if GenJournalLine.FindLast then begin
+            if GenJournalLine.FindLast() then begin
                 "Line No." := GenJournalLine."Line No.";
                 "Document No." := IncStr(GenJournalLine."Document No.");
             end else

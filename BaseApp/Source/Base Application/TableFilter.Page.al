@@ -97,7 +97,7 @@
         SourceTableNumber := NewTableNumber;
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object ID", NewTableNumber);
-        if AllObj.FindFirst then
+        if AllObj.FindFirst() then
             SourceTableName := AllObj."Object Name";
         SourceTableCaption := NewTableCaption;
         InitSourceTable;
@@ -321,7 +321,7 @@
         FieldTable.Reset();
         FieldTable.SetRange(TableNo, "Table Number");
         FieldTable.SetRange("Field Caption", FieldName2);
-        FieldTable.FindFirst;
+        FieldTable.FindFirst();
         FillSourceRecord(FieldTable);
         "Line No." := 0;
     end;
@@ -364,7 +364,7 @@
         FldRef: FieldRef;
     begin
         RecRef.Open("Table Number");
-        if FindSet then
+        if FindSet() then
             repeat
                 FldRef := RecRef.Field("Field Number");
                 FldRef.SetFilter("Field Filter");
@@ -376,7 +376,7 @@
     begin
         TempTableFilter.Reset();
         TempTableFilter.DeleteAll();
-        if FindSet then
+        if FindSet() then
             repeat
                 TempTableFilter.Init();
                 TempTableFilter.TransferFields(Rec);

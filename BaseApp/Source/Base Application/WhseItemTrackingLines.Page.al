@@ -557,7 +557,7 @@ page 6550 "Whse. Item Tracking Lines"
         FormUpdated := true;
         if not Rec.TrackingExists() then
             exit(false);
-        if WhseItemTrackingLine2.FindLast then;
+        if WhseItemTrackingLine2.FindLast() then;
         Rec."Entry No." := WhseItemTrackingLine2."Entry No." + 1;
         exit(true);
     end;

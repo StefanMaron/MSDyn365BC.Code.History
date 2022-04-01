@@ -90,7 +90,7 @@ codeunit 134112 "Test Sales Header Work Descr."
     begin
         // Init
         LibrarySales.CreateCustomer(Customer);
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         Assert.AreEqual('', SalesQuote.WorkDescription.Value, '');
 
@@ -120,12 +120,12 @@ codeunit 134112 "Test Sales Header Work Descr."
 
         // [GIVEN] Page Sales Order with empty "Work Description"
         LibrarySales.CreateCustomer(Customer);
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
         SalesOrder.WorkDescription.AssertEquals('');
 
         // [WHEN] Set value of "Work Description" = 'Hello World!'
-        ExpectedResult := LibraryUtility.GenerateGUID;
+        ExpectedResult := LibraryUtility.GenerateGUID();
         SalesOrder.WorkDescription.SetValue(ExpectedResult);
         SalesOrderNo := SalesOrder."No.".Value;
         SalesOrder.Close;

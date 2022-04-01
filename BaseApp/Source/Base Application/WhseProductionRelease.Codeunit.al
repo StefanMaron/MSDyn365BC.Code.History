@@ -66,7 +66,7 @@ codeunit 5774 "Whse.-Production Release"
         ProdOrderComp2.Copy(ProdOrderComp);
         ProdOrderComp2.SetRange("Location Code", ProdOrderComp."Location Code");
         ProdOrderComp2.SetRange("Unit of Measure Code", '');
-        if ProdOrderComp2.FindFirst then
+        if ProdOrderComp2.FindFirst() then
             ProdOrderComp2.TestField("Unit of Measure Code");
 
         if Location."Require Shipment" then begin

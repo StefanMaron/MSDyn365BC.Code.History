@@ -170,7 +170,7 @@ report 99000789 "Subcontractor - Dispatch List"
                             PurchLine.SetRange("No.", "Item No.");
                             PurchLine.SetRange("Routing No.", "Prod. Order Routing Line"."Routing No.");
                             PurchLine.SetRange("Operation No.", "Prod. Order Routing Line"."Operation No.");
-                            if not PurchLine.FindFirst then
+                            if not PurchLine.FindFirst() then
                                 Clear(PurchLine);
                         end;
 

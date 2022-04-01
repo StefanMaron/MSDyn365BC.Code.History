@@ -146,7 +146,7 @@ page 700 "Error Messages"
 
     procedure SetRecords(var TempErrorMessage: Record "Error Message" temporary)
     begin
-        if TempErrorMessage.FindFirst then;
+        if TempErrorMessage.FindFirst() then;
         if TempErrorMessage.IsTemporary then
             Copy(TempErrorMessage, true)
         else

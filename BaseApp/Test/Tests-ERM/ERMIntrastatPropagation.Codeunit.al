@@ -49,7 +49,7 @@ codeunit 134149 "ERM Intrastat Propagation"
     begin
         // [FEATURE] [Service] [Order]
         // [SCENARIO 295133] Intrastat Setup field "Default Trans. - Purchase" gets auto-filled in in new Service Orders
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusinessPremium;
 
         // [WHEN] Service Order is created
@@ -67,7 +67,7 @@ codeunit 134149 "ERM Intrastat Propagation"
     begin
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 295133] Intrastat Setup field "Default Trans. - Purchase" gets auto-filled in in new Service Invoices
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusinessPremium;
 
         // [WHEN] Service Invoice is created
@@ -85,7 +85,7 @@ codeunit 134149 "ERM Intrastat Propagation"
     begin
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 295133] Intrastat Setup field "Default Trans. - Return" gets auto-filled in in new Service Credit Memos
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusinessPremium;
 
         // [WHEN] Service Credit Memo is created
@@ -107,7 +107,7 @@ codeunit 134149 "ERM Intrastat Propagation"
         IsInitialized := true;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Intrastat Propagation");
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
         LibraryERM.FindIntrastatSetup(IntrastatSetup);
         LibraryERM.SetDefaultTransactionTypesInIntrastatSetup;
 

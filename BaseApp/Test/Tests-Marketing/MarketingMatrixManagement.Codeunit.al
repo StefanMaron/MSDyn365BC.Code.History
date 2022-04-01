@@ -28,12 +28,12 @@ codeunit 136211 "Marketing Matrix Management"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Matrix Management");
         InitGlobalVariables;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Matrix Management");
 
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Matrix Management");
@@ -53,7 +53,7 @@ codeunit 136211 "Marketing Matrix Management"
         // Test Tasks matrix with Show as Lines Salesperson after creation of Task for Salesperson.
 
         // 1. Setup: Create Salesperson and Task for Salesperson.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         Commit();
 
@@ -87,7 +87,7 @@ codeunit 136211 "Marketing Matrix Management"
         // Test Tasks matrix with Show as Lines Team after creation of Task for Team.
 
         // 1. Setup: Create Team and Task for Team.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateTeam(Team);
         Commit();
 
@@ -122,7 +122,7 @@ codeunit 136211 "Marketing Matrix Management"
         // Test Tasks matrix with Show as Lines Campaign after creation of Task for Campaign.
 
         // 1. Setup: Create Salesperson, Campaign with Salesperson Code and Task for Campaign.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         CampaignNo := CreateCampaign(SalespersonPurchaser.Code);
         Commit();
@@ -157,7 +157,7 @@ codeunit 136211 "Marketing Matrix Management"
         // Test Tasks matrix with Show as Lines Contact after creation of Task for Contact.
 
         // 1. Setup: Create Contact and Task for Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         Commit();
 
@@ -192,7 +192,7 @@ codeunit 136211 "Marketing Matrix Management"
         // Test Tasks matrix with Show as Lines Salesperson and Status Filter Not Started after creation of Task for Salesperson.
 
         // 1. Setup: Create Salesperson and Task for Salesperson.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         Commit();
 
@@ -276,13 +276,13 @@ codeunit 136211 "Marketing Matrix Management"
         TableOption: Option Salesperson,Team,Campaign,Contact;
     begin
         // 1. Setup: Create Salesperson, Task for Salesperson and Change the Status of to-do as per parameter.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         Commit();
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         TempTask.CreateTaskFromTask(Task);
-        Task.FindFirst;
+        Task.FindFirst();
         ChangeStatusOfTask(Task, Status);
 
         // 2. Exercise: Run Show Matrix from Tasks page with Show as Lines Salesperson, Salesperson filter and Status filter as
@@ -317,13 +317,13 @@ codeunit 136211 "Marketing Matrix Management"
         // the  created Task for Salesperson.
 
         // 1. Setup: Create Salesperson, Task for Salesperson and Change the Status of to-do to Completed.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         Commit();
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         TempTask.CreateTaskFromTask(Task);
-        Task.FindFirst;
+        Task.FindFirst();
         ChangeStatusOfTask(Task, Task.Status::Completed);
 
         // 2. Exercise: Run Show Matrix from Tasks page with Show as Lines Salesperson, Salesperson filter, Status filter as Completed
@@ -361,7 +361,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 1. Setup: Create Salesperson, Contact with Salesperson, Sales Cycle, Sales Cycle Stage, Create and Update Opportunity for
         // Contact.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         ContactNo := CreateContactWithSalesperson(SalespersonPurchaser.Code);
         LibraryMarketing.CreateSalesCycle(SalesCycle);
@@ -397,7 +397,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 1. Setup: Create Salesperson, Contact with Salesperson, Sales Cycle, Sales Cycle Stage, Create and Update Opportunity for
         // Contact.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         ContactNo := CreateContactWithSalesperson(SalespersonPurchaser.Code);
         LibraryMarketing.CreateSalesCycle(SalesCycle);
@@ -436,7 +436,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 1. Setup: Create Salesperson, Contact with Salesperson, Campaign, Sales Cycle, Sales Cycle Stage, Create Opportunity,
         // Update Campaign on Opportunity and Update Opportunity.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         ContactNo := CreateContactWithSalesperson(SalespersonPurchaser.Code);
         LibraryMarketing.CreateCampaign(Campaign);
@@ -479,7 +479,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 1. Setup: Create Salesperson, Contact with Salesperson, Sales Cycle, Sales Cycle Stage, Create and Update Opportunity for
         // Contact.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         ContactNo := CreateContactWithSalesperson(SalespersonPurchaser.Code);
         LibraryMarketing.CreateSalesCycle(SalesCycle);
@@ -517,7 +517,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 1. Setup: Create Salesperson, Contact with Salesperson, Sales Cycle, Sales Cycle Stage, Create and Update Opportunity for
         // Contact.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         ContactNo := CreateContactWithSalesperson(SalespersonPurchaser.Code);
         LibraryMarketing.CreateSalesCycle(SalesCycle);
@@ -556,7 +556,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 1. Setup: Create Salesperson, Contact with Salesperson, Sales Cycle, Sales Cycle Stage, Create and Update Opportunities for
         // Contact.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         ContactNo := CreateContactWithSalesperson(SalespersonPurchaser.Code);
         LibraryMarketing.CreateSalesCycle(SalesCycle);
@@ -598,7 +598,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 1. Setup: Create Salesperson, Contact with Salesperson, Sales Cycle, Sales Cycle Stage, Create and Update Opportunities for
         // Contact.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         ContactNo := CreateContactWithSalesperson(SalespersonPurchaser.Code);
         LibraryMarketing.CreateSalesCycle(SalesCycle);
@@ -655,7 +655,7 @@ codeunit 136211 "Marketing Matrix Management"
         Task: Record "To-do";
     begin
         // Check Program populates Contact No. on Task Matrix.
-        Initialize;
+        Initialize();
         TaskShowMatrix(CreateContactAndTask(Task), Task."No.");
     end;
 
@@ -667,7 +667,7 @@ codeunit 136211 "Marketing Matrix Management"
         Task: Record "To-do";
     begin
         // Check Program Do not populates Contact No. on Task Matrix.
-        Initialize;
+        Initialize();
         Task.CreateTaskFromTask(Task);
         TaskShowMatrix('', Task."No.");
     end;
@@ -684,7 +684,7 @@ codeunit 136211 "Marketing Matrix Management"
     begin
         // 1. Setup: Create Salesperson, Contact with Salesperson, Sales Cycle, Sales Cycle Stage, Create, Update Opportunity for
         // Contact and Close the Opportunity.
-        Initialize;
+        Initialize();
         CreateSalespersonWithEmail(SalespersonPurchaser);
         ContactNo := CreateContactWithSalesperson(SalespersonPurchaser.Code);
         LibraryMarketing.CreateSalesCycle(SalesCycle);
@@ -696,7 +696,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         CreateAndUpdateOpportunity(ContactNo);
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CloseOpportunity;
         Commit();
 
@@ -750,7 +750,7 @@ codeunit 136211 "Marketing Matrix Management"
         Opportunity.SetRange("Contact No.", ContactNo);
         TempOpportunity.CreateOppFromOpp(Opportunity);
 
-        Opportunity.FindLast;
+        Opportunity.FindLast();
         Opportunity.UpdateOpportunity;
         Commit();
     end;
@@ -873,7 +873,7 @@ codeunit 136211 "Marketing Matrix Management"
 
     local procedure UpdateCampaignOnOpportunity(var Opportunity: Record Opportunity; CampaignNo: Code[20])
     begin
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.Validate("Campaign No.", CampaignNo);
         Opportunity.Modify(true);
     end;

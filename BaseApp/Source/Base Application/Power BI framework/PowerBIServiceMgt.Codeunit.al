@@ -11,7 +11,8 @@ codeunit 6301 "Power BI Service Mgt."
 #endif
         GenericErr: Label 'An error occurred while trying to get reports from the Power BI service. Please try again or contact your system administrator if the error persists.';
         PowerBiResourceNameTxt: Label 'Power BI Services';
-        ReportPageSizeTxt: Label '16:9', Locked = true;
+        MainPageRatioTxt: Label '16:9', Locked = true;
+        FactboxRatioTxt: Label '4:3', Locked = true;
         UnauthorizedErr: Label 'You do not have a Power BI account. If you have just activated a license, it might take several minutes for the changes to be effective in Power BI.';
         DataNotFoundErr: Label 'The report(s) you are trying to load do not exist.';
         NavAppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862351', Locked = true;
@@ -29,14 +30,15 @@ codeunit 6301 "Power BI Service Mgt."
         JobQueueCategoryDescriptionTxt: Label 'Synchronize Power BI reports', Comment = 'At most 30 characters long';
         // Telemetry constants
         PowerBiTelemetryCategoryLbl: Label 'PowerBI', Locked = true;
-        GetReportsForContextTelemetryMsg: Label 'Empty report URL when loading Power BI reports. Context: %1, ReportId: %2.', Locked = true;
+        GetReportsForContextTelemetryMsg: Label 'Empty report URL when loading Power BI reports (but the report ID is not empty).', Locked = true;
         GhostReportTelemetryMsg: Label 'Power BI Report Configuration has an entry without URL and with null ID.', Locked = true;
         OngoingDeploymentTelemetryMsg: Label 'Setting Power BI Ongoing Deployment record for user. Field: %1; Value: %2.', Locked = true;
-        ErrorWebResponseTelemetryMsg: Label 'Getting data failed with status code: %1. Exception Message: %2. Exception Details: %3.', Locked = true;
+        ErrorWebResponseTelemetryMsg: Label 'GetData failed with an error. The status code is: %1.', Locked = true;
         RetryAfterNotSatisfiedTelemetryMsg: Label 'PowerBI service not ready. Will retry after: %1.', Locked = true;
+        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token.', Locked = true;
 #if not CLEAN19
         ParseReportsWarningTelemetryMsg: Label 'Parse reports encountered an unexpected token.', Locked = true;
-        UrlTooLongTelemetryMsg: Label 'Parsing reports encountered a URL that is too long to be saved to ReportEmbedUrl. Json message: %1.', Locked = true;
+        UrlTooLongTelemetryMsg: Label 'Parsing reports encountered a URL that is too long to be saved to ReportEmbedUrl. Length: %1.', Locked = true;
 #endif
         DeploymentDisabledTelemetryMsg: Label 'Report deployment is disabled (tenant: %1, app service: %2)', Locked = true;
         ServiceCallsDisabledTelemetryMsg: Label 'Service calls are disabled for the tenant.', Locked = true;
@@ -108,7 +110,7 @@ codeunit 6301 "Power BI Service Mgt."
                     if TempPowerBIReportBuffer.Insert() then;
                 end else
                     if not IsNullGuid(PowerBIReportConfiguration."Report ID") then
-                        Session.LogMessage('0000B6Z', StrSubstNo(GetReportsForContextTelemetryMsg, EnglishContext, Format(PowerBIReportConfiguration."Report ID")), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl)
+                        Session.LogMessage('0000B6Z', GetReportsForContextTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl)
                     else
                         Session.LogMessage('0000EDL', GhostReportTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
             until PowerBIReportConfiguration.Next() = 0;
@@ -171,9 +173,22 @@ codeunit 6301 "Power BI Service Mgt."
         exit(GenericErr);
     end;
 
+#if not CLEAN20
+    [Obsolete('Use GetFactboxRatio or GetMainPageRatio instead.', '20.0')]
     procedure GetReportPageSize(): Text
     begin
-        exit(ReportPageSizeTxt);
+        exit('16:9');
+    end;
+#endif
+
+    procedure GetFactboxRatio(): Text
+    begin
+        exit(FactboxRatioTxt);
+    end;
+
+    procedure GetMainPageRatio(): Text
+    begin
+        exit(MainPageRatioTxt);
     end;
 
     procedure GetUnauthorizedErrorText(): Text
@@ -370,7 +385,7 @@ codeunit 6301 "Power BI Service Mgt."
         ResponseText := GetDataCatchErrors(ExceptionMessage, ExceptionDetails, HttpStatusCode, Url);
 
         if ExceptionMessage <> '' then begin
-            Session.LogMessage('0000BJL', StrSubstNo(ErrorWebResponseTelemetryMsg, HttpStatusCode, ExceptionMessage, ExceptionDetails), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
+            Session.LogMessage('0000BJL', StrSubstNo(ErrorWebResponseTelemetryMsg, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
 
             case true of
                 HttpStatusCode = 401:
@@ -384,6 +399,7 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetDataCatchErrors(var ExceptionMessage: Text; var ExceptionDetails: Text; var ErrorStatusCode: Integer; Url: Text): Text
     var
         DotNetExceptionHandler: Codeunit "DotNet Exception Handler";
@@ -392,14 +408,23 @@ codeunit 6301 "Power BI Service Mgt."
         WebException: DotNet WebException;
         Exception: DotNet Exception;
         ResponseText: Text;
+        AccessToken: Text;
     begin
         Clear(ErrorStatusCode);
         Clear(ExceptionMessage);
         Clear(ExceptionDetails);
 
-        if not WebRequestHelper.GetResponseTextUsingCharset(
-             'GET', Url, AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false), ResponseText)
-        then begin
+        AccessToken := AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false);
+
+        if AccessToken = '' then begin
+            Session.LogMessage('0000FT6', EmptyAccessTokenTelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
+            ExceptionMessage := UnauthorizedErr;
+            ExceptionDetails := UnauthorizedErr;
+            ErrorStatusCode := 401;
+            exit('');
+        end;
+
+        if not WebRequestHelper.GetResponseTextUsingCharset('GET', Url, AccessToken, ResponseText) then begin
             Exception := GetLastErrorObject();
             ExceptionMessage := Exception.Message;
             ExceptionDetails := Exception.ToString();
@@ -438,7 +463,7 @@ codeunit 6301 "Power BI Service Mgt."
         JObj.SelectToken('embedUrl', JToken);
         if JToken.IsValue() then
             if StrLen(JToken.AsValue().AsText()) > MaxStrLen(TempPowerBIReportBuffer.ReportEmbedUrl) then
-                Session.LogMessage('0000BAV', StrSubstNo(UrlTooLongTelemetryMsg, JObj), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
+                Session.LogMessage('0000BAV', StrSubstNo(UrlTooLongTelemetryMsg, StrLen(JToken.AsValue().AsText())), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
         TempPowerBIReportBuffer.Validate(ReportEmbedUrl,
             CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(TempPowerBIReportBuffer.ReportEmbedUrl)));
 

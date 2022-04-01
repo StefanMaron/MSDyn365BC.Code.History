@@ -91,7 +91,7 @@ page 8614 "Config. Package Card"
                     begin
                         CurrPage.SaveRecord;
                         GetPackageTables.Set(Code);
-                        GetPackageTables.RunModal;
+                        GetPackageTables.RunModal();
                         Clear(GetPackageTables);
                     end;
                 }
@@ -222,7 +222,7 @@ page 8614 "Config. Package Card"
                     begin
                         TestField(Code);
                         CopyPackage.Set(Rec);
-                        CopyPackage.RunModal;
+                        CopyPackage.RunModal();
                         Clear(CopyPackage);
                     end;
                 }
@@ -323,7 +323,7 @@ page 8614 "Config. Package Card"
     begin
         ConfigPackageTable.SetRange("Package Code", Code);
         ConfigPackageTable.SetFilter("Processing Report ID", '<>0', 0);
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 REPORT.RunModal(ConfigPackageTable."Processing Report ID", false, false, ConfigPackageTable)
             until ConfigPackageTable.Next() = 0;

@@ -114,6 +114,19 @@ table 728 "Copy Item Parameters"
         {
             Caption = 'Item Cross References';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'Replaced with parameter Item References';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
+        }
+        field(28; "Item References"; Boolean)
+        {
+            Caption = 'Item References';
+            DataClassification = SystemMetadata;
         }
         field(1000; "User ID"; Code[50])
         {

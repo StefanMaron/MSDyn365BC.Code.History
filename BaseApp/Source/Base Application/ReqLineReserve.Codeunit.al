@@ -526,7 +526,7 @@ codeunit 99000833 "Req. Line-Reserve"
     begin
         TrackingSpecification.InitFromReqLine(ReqLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ReqLine."Due Date");
-        ItemTrackingLines.RunModal;
+        ItemTrackingLines.RunModal();
     end;
 
     local procedure VerifyBinInReqLine(var NewReqLine: Record "Requisition Line"; var OldReqLine: Record "Requisition Line"; var HasError: Boolean)
@@ -599,7 +599,7 @@ codeunit 99000833 "Req. Line-Reserve"
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailableRequisitionLines);
             AvailableRequisitionLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailableRequisitionLines.RunModal;
+            AvailableRequisitionLines.RunModal();
         end;
     end;
 

@@ -99,7 +99,7 @@ codeunit 134305 "Workflow Delete Tests"
         // [WHEN] The user archives the active instance.
         // [THEN] All the steps of that instance will be archived.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.DeleteAllExistingWorkflows;
@@ -142,7 +142,7 @@ codeunit 134305 "Workflow Delete Tests"
         // [WHEN] The user navigates to the active workflow instances page.
         // [THEN] The Workflow Step Instances action is enabled.
         // [THEN] The user can see all the active instances.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.DeleteAllExistingWorkflows;
@@ -185,7 +185,7 @@ codeunit 134305 "Workflow Delete Tests"
         // [GIVEN] There is a workflow starting from Incoming Document, and there is an instance of a workflow.
         // [WHEN] The user wants to delete the workflow template.
         // [THEN] The workflow cannot be deleted because there are existing workflow instances.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.DeleteAllExistingWorkflows;

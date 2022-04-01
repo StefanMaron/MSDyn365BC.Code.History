@@ -46,12 +46,12 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
         if not CODEUNIT.Run(CODEUNIT::"Cancel Posted Sales Cr. Memo", SalesCrMemoHeader) then begin
             SalesInvHeader.SetRange("Applies-to Doc. No.", SalesCrMemoHeader."No.");
-            if SalesInvHeader.FindFirst then begin
+            if SalesInvHeader.FindFirst() then begin
                 if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedInvQst, GetLastErrorText)) then
                     PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
             end else begin
                 SalesHeader.SetRange("Applies-to Doc. No.", SalesCrMemoHeader."No.");
-                if SalesHeader.FindFirst then begin
+                if SalesHeader.FindFirst() then begin
                     if Confirm(StrSubstNo(PostingCreditMemoFailedOpenInvQst, GetLastErrorText)) then
                         PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
                 end else
@@ -98,7 +98,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         CancelledDocument: Record "Cancelled Document";
     begin
         SalesInvHeader.SetRange("Applies-to Doc. No.", SalesCrMemoHeader."No.");
-        if SalesInvHeader.FindLast then
+        if SalesInvHeader.FindLast() then
             CancelledDocument.InsertSalesCrMemoToInvCancelledDocument(SalesCrMemoHeader."No.", SalesInvHeader."No.");
     end;
 
@@ -248,9 +248,12 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
 
     local procedure TestIfAnyFreeNumberSeries(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
+        PostingNoSeries: Code[20];
     begin
         PostingDate := WorkDate;
         SalesReceivablesSetup.Get();
@@ -258,7 +261,13 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Invoice Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumInv, SalesCrMemoHeader);
 
-        if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Posted Invoice Nos.", PostingDate) = '' then
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Journal Templ. Name Mandatory" then begin
+            GenJournalTemplate.Get(SalesReceivablesSetup."S. Invoice Template Name");
+            PostingNoSeries := GenJournalTemplate."Posting No. Series"
+        end else
+            PostingNoSeries := SalesReceivablesSetup."Posted Invoice Nos.";
+        if NoSeriesManagement.TryGetNextNo(PostingNoSeries, PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumPostInv, SalesCrMemoHeader);
     end;
 
@@ -277,7 +286,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     begin
         InventoryPeriod.SetRange(Closed, true);
         InventoryPeriod.SetFilter("Ending Date", '>=%1', SalesCrMemoHeader."Posting Date");
-        if InventoryPeriod.FindFirst then
+        if InventoryPeriod.FindFirst() then
             ErrorHelperHeader(ErrorType::InventoryPostClosed, SalesCrMemoHeader);
     end;
 
@@ -345,6 +354,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
 
     local procedure UnapplyEntries(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         CustLedgEntry: Record "Cust. Ledger Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
@@ -355,8 +365,9 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
             exit;
 
         FindDetailedApplicationEntry(DetailedCustLedgEntry, CustLedgEntry);
-        CustEntryApplyPostedEntries.PostUnApplyCustomer(
-          DetailedCustLedgEntry, DetailedCustLedgEntry."Document No.", DetailedCustLedgEntry."Posting Date");
+        ApplyUnapplyParameters."Document No." := DetailedCustLedgEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := DetailedCustLedgEntry."Posting Date";
+        CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, ApplyUnapplyParameters);
         TestIfUnapplied(SalesCrMemoHeader);
     end;
 
@@ -364,7 +375,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     begin
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
         CustLedgEntry.SetRange("Document No.", DocNo);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
     end;
 
     local procedure FindDetailedApplicationEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgEntry: Record "Cust. Ledger Entry")
@@ -374,7 +385,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         DetailedCustLedgEntry.SetRange("Document No.", CustLedgEntry."Document No.");
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
         DetailedCustLedgEntry.SetRange(Unapplied, false);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
     end;
 
     local procedure AnyDtldCustLedgEntriesExceptInitialAndApplicaltionExists(CustLedgEntryNo: Integer): Boolean

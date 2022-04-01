@@ -161,7 +161,7 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         DocServPage."Set Password".Invoke;
         DocServPage.OK.Invoke;
 
-        DocumentService.FindFirst;
+        DocumentService.FindFirst();
         Assert.AreEqual('Password', DocumentService.Password, 'Password was not saved.');
     end;
 
@@ -174,7 +174,7 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         DocServPage: TestPage "Document Service Config";
     begin
         InitializeConfig;
-        DocumentService.FindFirst;
+        DocumentService.FindFirst();
         DocumentService.Validate(Password, 'Password');
         DocumentService.Modify();
         Commit();
@@ -183,7 +183,7 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         DocServPage."Set Password".Invoke;
         DocServPage.OK.Invoke;
 
-        DocumentService.FindFirst;
+        DocumentService.FindFirst();
         Assert.AreEqual('', DocumentService.Password, 'Password was not cleared.');
     end;
 
@@ -196,7 +196,7 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         DocServPage: TestPage "Document Service Config";
     begin
         InitializeConfig;
-        DocumentService.FindFirst;
+        DocumentService.FindFirst();
         DocumentService.Validate(Password, 'OldPwd');
         DocumentService.Modify();
         Commit();
@@ -205,7 +205,7 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         DocServPage."Set Password".Invoke;
         DocServPage.OK.Invoke;
 
-        DocumentService.FindFirst;
+        DocumentService.FindFirst();
         Assert.AreEqual('OldPwd', DocumentService.Password, 'Password change should have been declined.');
     end;
 

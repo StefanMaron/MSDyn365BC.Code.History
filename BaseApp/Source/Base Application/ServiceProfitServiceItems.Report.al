@@ -108,7 +108,7 @@ report 5938 "Service Profit (Service Items)"
                   ServLedgerEntry."Entry Type"::Consume);
                 ServLedgerEntry.SetFilter("Posting Date", GetFilter("Date Filter"));
                 ServLedgerEntry.SetRange(Open, false);
-                if ServLedgerEntry.FindSet then
+                if ServLedgerEntry.FindSet() then
                     repeat
                         DiscountAmount := DiscountAmount + -ServLedgerEntry."Discount Amount";
                         ContractDiscAmount := ContractDiscAmount + -ServLedgerEntry."Contract Disc. Amount";

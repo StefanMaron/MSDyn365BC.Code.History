@@ -1,6 +1,10 @@
+#if not CLEAN20
 codeunit 2850 "Native API - Language Handler"
 {
     EventSubscriberInstance = Manual;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -40,9 +44,9 @@ codeunit 2850 "Native API - Language Handler"
         // <returns>The code of the selected language. If no language was selected, then it returns the code of the current user's language.</returns>
 
         UserPersonalization.SetRange("User ID", UserId);
-        if not UserPersonalization.FindFirst then begin
+        if not UserPersonalization.FindFirst() then begin
             UserPersonalization.SetRange("User ID", '');
-            if not UserPersonalization.FindFirst then;
+            if not UserPersonalization.FindFirst() then;
         end;
 
         LanguageId := UserPersonalization."Language ID";
@@ -52,4 +56,4 @@ codeunit 2850 "Native API - Language Handler"
         exit(Language.GetLanguageCode(LanguageId));
     end;
 }
-
+#endif

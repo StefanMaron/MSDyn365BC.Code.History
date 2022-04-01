@@ -190,15 +190,6 @@ table 9650 "Custom Report Layout"
         exit(CustomReportLayout.Code);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by CopyBuildInReportLayout()', '17.0')]
-    [Scope('OnPrem')]
-    procedure CopyBuiltInLayout()
-    begin
-        CopyBuiltInReportLayout();
-    end;
-#endif
-
     procedure CopyBuiltInReportLayout()
     var
         ReportLayoutLookup: Page "Report Layout Lookup";
@@ -224,7 +215,9 @@ table 9650 "Custom Report Layout"
         end;
     end;
 
+#if not CLEAN20
     [Scope('OnPrem')]
+    [Obsolete('This procedure is replaced by the report event FetchReportLayoutByCode. Subscribe to it to retrieve a selected custom layout.', '20.0')]
     procedure GetCustomRdlc(ReportID: Integer) RdlcTxt: Text
     var
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -251,14 +244,6 @@ table 9650 "Custom Report Layout"
         end;
 
         OnAfterReportGetCustomRdlc(ReportID, RdlcTxt);
-    end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by CopyReportLayout()', '17.0')]
-    [Scope('OnPrem')]
-    procedure CopyRecord(): Code[20]
-    begin
-        exit(CopyReportLayout());
     end;
 #endif
 
@@ -289,15 +274,6 @@ table 9650 "Custom Report Layout"
 
         exit(Code);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by ImportReportLayout()', '17.0')]
-    [Scope('OnPrem')]
-    procedure ImportLayout(DefaultFileName: Text)
-    begin
-        ImportReportLayout(DefaultFileName);
-    end;
-#endif
 
     procedure ImportReportLayout(DefaultFileName: Text)
     var
@@ -385,15 +361,6 @@ table 9650 "Custom Report Layout"
             Message(ErrorMessage);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by ExportReportLayout()', '17.0')]
-    [Scope('OnPrem')]
-    procedure ExportLayout(DefaultFileName: Text; ShowFileDialog: Boolean): Text
-    begin
-        exit(ExportReportLayout(DefaultFileName, ShowFileDialog));
-    end;
-#endif
-
     procedure ExportReportLayout(DefaultFileName: Text; ShowFileDialog: Boolean): Text
     var
         TempBlob: Codeunit "Temp Blob";
@@ -449,15 +416,6 @@ table 9650 "Custom Report Layout"
 
         exit(true);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by UpdateReportLayout()', '17.0')]
-    [Scope('OnPrem')]
-    procedure UpdateLayout(ContinueOnError: Boolean; IgnoreDelete: Boolean) LayoutUpdated: Boolean
-    begin
-        exit(UpdateReportLayout(ContinueOnError, IgnoreDelete));
-    end;
-#endif
 
     procedure UpdateReportLayout(ContinueOnError: Boolean; IgnoreDelete: Boolean) LayoutUpdated: Boolean
     var
@@ -566,30 +524,6 @@ table 9650 "Custom Report Layout"
         if TempBlob.HasValue then
             exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by EditReportLayout()', '17.0')]
-    [Scope('OnPrem')]
-    procedure EditLayout()
-    begin
-        EditReportLayout();
-    end;
-
-    [Obsolete('The codeunits run in this procedure are being removed as they use .NET which do not work on the web client. The procedure will be removed.', '17.3')]
-    procedure EditReportLayout()
-    begin
-        if CanBeModified then begin
-            UpdateReportLayout(true, true); // Don't block on errors (return false) as we in all cases want to have an export file to edit.
-
-            case Type of
-                Type::Word:
-                    CODEUNIT.Run(CODEUNIT::"Edit MS Word Report Layout", Rec);
-                Type::RDLC:
-                    CODEUNIT.Run(CODEUNIT::"Edit RDLC Report Layout", Rec);
-            end;
-        end;
-    end;
-#endif
 
     local procedure GetFileExtension() FileExt: Text[4]
     begin
@@ -712,7 +646,7 @@ table 9650 "Custom Report Layout"
     begin
         CustomReportLayout.SetRange("Report ID", ReportID);
         CustomReportLayout.SetFilter(Code, StrSubstNo('%1-*', ReportID));
-        if CustomReportLayout.FindLast then
+        if CustomReportLayout.FindLast() then
             NewCode := IncStr(CustomReportLayout.Code)
         else
             NewCode := StrSubstNo('%1-000001', ReportID);
@@ -757,7 +691,7 @@ table 9650 "Custom Report Layout"
         if not LayoutDataTable.Columns.Contains('Code') then begin
             LayoutCode := 'MS-EXT-0000000001';
             CustomReportLayout.SetFilter(Code, 'MS-EXT-*');
-            if CustomReportLayout.FindLast then
+            if CustomReportLayout.FindLast() then
                 LayoutCode := IncStr(CustomReportLayout.Code);
         end else
             LayoutCode := Row.Item('Code');
@@ -832,7 +766,7 @@ table 9650 "Custom Report Layout"
         SetNonBuiltInCustomXmlPart('');
     end;
 
-    local procedure CanModify(): Boolean
+    procedure CanModify(): Boolean
     var
         User: Record User;
     begin
@@ -1060,10 +994,19 @@ table 9650 "Custom Report Layout"
             Rec.Modify();
     end;
 
+#if not CLEAN20
     [IntegrationEvent(false, false)]
+    [Obsolete('This event is replaced by the report event FetchReportLayoutByCode. Subscribe to it to retrieve a selected custom layout.', '20.0')]
     local procedure OnAfterReportGetCustomRdlc(ReportId: Integer; var RdlcText: Text)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    [Obsolete('This event is replaced by the report event SelectReportLayoutCode. Subscribe to it to select a custom layout.', '20.0')]
+    local procedure OnGetCustomRdlcOnAfterSelectCustomLayoutCode(ReportID: Integer; var CustomLayoutCode: Code[20])
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateLayout(var LayoutUpdated: Boolean; var IsHandled: Boolean)
@@ -1112,11 +1055,6 @@ table 9650 "Custom Report Layout"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupLayoutOKOnBeforePageRun(var CustomReportLayout: Record "Custom Report Layout")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnGetCustomRdlcOnAfterSelectCustomLayoutCode(ReportID: Integer; var CustomLayoutCode: Code[20])
     begin
     end;
 }

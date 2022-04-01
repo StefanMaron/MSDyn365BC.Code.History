@@ -242,7 +242,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         if MfgSetup."Use Forecast on Variants" then
             Item.CopyFilter("Variant Filter", ForecastEntry."Variant Code");
         ForecastEntry.SetRange("Item No.", Item."No.");
-        if ForecastEntry.FindFirst then begin
+        if ForecastEntry.FindFirst() then begin
             ForecastEntry.CalcSums("Forecast Quantity (Base)");
             if ForecastEntry."Forecast Quantity (Base)" > 0 then
                 exit(MPS);

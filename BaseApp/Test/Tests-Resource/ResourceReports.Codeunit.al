@@ -30,8 +30,8 @@ codeunit 136902 "Resource Reports"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Reports");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
 
         isInitialized := true;
         Commit();
@@ -54,7 +54,7 @@ codeunit 136902 "Resource Reports"
 
         // 1. Setup: Create two Resource, Resource Journal Batch,
         // Create and Post two Resource Journal Lines with different Resource No.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         CreateResource(Resource2);
 
@@ -68,7 +68,7 @@ codeunit 136902 "Resource Reports"
         Clear(ResourceRegisterReport);
         ResourceRegister.SetRange("Journal Batch Name", ResJournalBatch.Name);
         ResourceRegisterReport.SetTableView(ResourceRegister);
-        ResourceRegisterReport.Run;
+        ResourceRegisterReport.Run();
 
         // 3. Verify: Verify values on Resource Register Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -92,7 +92,7 @@ codeunit 136902 "Resource Reports"
 
         // 1. Setup: Create Resource, two Work Type, Resource Journal Batch,
         // Create and Post two Resource Journal Lines with same Resource No. and different Work Type Code.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         LibraryResource.CreateWorkType(WorkType);
         LibraryResource.CreateWorkType(WorkType2);
@@ -109,7 +109,7 @@ codeunit 136902 "Resource Reports"
         Clear(ResourceCostBreakdown);
         Resource.SetRange("No.", Resource."No.");
         ResourceCostBreakdown.SetTableView(Resource);
-        ResourceCostBreakdown.Run;
+        ResourceCostBreakdown.Run();
 
         // 3. Verify: Verify values on Resource - Cost Breakdown Report.
         VerifyResourceCostBreakDown(Resource."No.", WorkType.Code, WorkType2.Code);
@@ -128,7 +128,7 @@ codeunit 136902 "Resource Reports"
         // Test and verify Resource Usage Report.
 
         // 1. Setup: Create Resource, Resource Journal Batch and Create and Post Resource Journal Line with Resource.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
 
         CreateResourceJournalBatch(ResJournalBatch, false);
@@ -139,7 +139,7 @@ codeunit 136902 "Resource Reports"
         Clear(ResourceUsage);
         Resource.SetRange("No.", Resource."No.");
         ResourceUsage.SetTableView(Resource);
-        ResourceUsage.Run;
+        ResourceUsage.Run();
 
         // 3. Verify: Verify values on Resource Usage Report.
         VerifyResourceUsage(Resource);
@@ -160,7 +160,7 @@ codeunit 136902 "Resource Reports"
 
         // 1. Setup: Create two Resource, Resource Journal Batch,
         // Create and Post Resource Journal Lines with different Resource No. and Entry Type.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         CreateResource(Resource2);
 
@@ -176,7 +176,7 @@ codeunit 136902 "Resource Reports"
         Clear(ResourceStatistics);
         Resource.SetFilter("No.", '%1|%2', Resource."No.", Resource2."No.");
         ResourceStatistics.SetTableView(Resource);
-        ResourceStatistics.Run;
+        ResourceStatistics.Run();
 
         // 3. Verify: Verify values on Resource Statistics Report.
         VerifyResourceStatistics(Resource, Resource2);
@@ -195,7 +195,7 @@ codeunit 136902 "Resource Reports"
         // Test and verify Resource Journal - Test Report.
 
         // 1. Setup: Create two Resource, Resource Journal Batch and Resource Journal Lines with different Resource No.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         CreateResource(Resource2);
 
@@ -227,7 +227,7 @@ codeunit 136902 "Resource Reports"
         // Test and verify Resource Journal - Test Report with Show Dimension as True.
 
         // 1. Setup: Create Resource, Default Dimension for Resource, Resource Journal Batch and Resource Journal Line.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
@@ -241,7 +241,7 @@ codeunit 136902 "Resource Reports"
         Commit();
         ResourceJournalTest.SetTableView(ResJournalBatch);
         ResourceJournalTest.InitializeRequest(true);
-        ResourceJournalTest.Run;
+        ResourceJournalTest.Run();
 
         // 3. Verify: Verify values on Resource Journal - Test Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -264,7 +264,7 @@ codeunit 136902 "Resource Reports"
 
         // 1. Setup: Create Resource, Resource Journal Batch with Recurring Resource Journal Template
         // Create Resource Journal Line.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         CreateResourceJournalBatch(ResJournalBatch, true);
         CreateResourceJournalLine(ResJournalLine, ResJournalBatch, Resource."No.", '', ResJournalLine."Entry Type"::Usage);
@@ -290,7 +290,7 @@ codeunit 136902 "Resource Reports"
         // Test and verify Resource List Report.
 
         // 1. Setup: Create Resource, Attach Resource Group and Global Dimensions.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         InputResourceGroupOnResource(Resource);
         AttachResourceGlobalDimensions(Resource);
@@ -300,7 +300,7 @@ codeunit 136902 "Resource Reports"
         Clear(ResourceList);
         Resource.SetRange("No.", Resource."No.");
         ResourceList.SetTableView(Resource);
-        ResourceList.Run;
+        ResourceList.Run();
 
         // 3. Verify: Verify values on Resource List Report.
         VerifyResource(Resource);
@@ -320,7 +320,7 @@ codeunit 136902 "Resource Reports"
         // Test and verify Resource - Price List Report.
 
         // 1. Setup: Create Resource, Work Type and Resource Price.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         LibraryResource.CreateWorkType(WorkType);
         CreateResourcePrice(ResourcePrice, Resource."No.", WorkType.Code);
@@ -330,7 +330,7 @@ codeunit 136902 "Resource Reports"
         Clear(ResourcePriceList);
         Resource.SetRange("No.", Resource."No.");
         ResourcePriceList.SetTableView(Resource);
-        ResourcePriceList.Run;
+        ResourcePriceList.Run();
 
         // 3. Verify: Verify values on Resource - Price List Report.
         VerifyResourcePriceList(ResourcePrice, Resource."Unit Price");
@@ -350,7 +350,7 @@ codeunit 136902 "Resource Reports"
         // Test and verify Resource - Price List Report with Currency.
 
         // 1. Setup: Create Resource, Currency and Currency Exchange Rate.
-        Initialize;
+        Initialize();
         CreateResource(Resource);
         LibraryERM.CreateCurrency(Currency);
         CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code);
@@ -478,7 +478,7 @@ codeunit 136902 "Resource Reports"
         ResJournalBatch.SetRange(Name, Name);
         ResourceJournalTest.SetTableView(ResJournalBatch);
         ResourceJournalTest.InitializeRequest(ShowDimensions);
-        ResourceJournalTest.Run;
+        ResourceJournalTest.Run();
     end;
 
 #if not CLEAN19
@@ -492,7 +492,7 @@ codeunit 136902 "Resource Reports"
         Resource.SetRange("No.", No);
         ResourcePriceList.SetTableView(Resource);
         ResourcePriceList.InitializeRequest(CurrencyCode);
-        ResourcePriceList.Run;
+        ResourcePriceList.Run();
     end;
 #endif
 
@@ -524,12 +524,12 @@ codeunit 136902 "Resource Reports"
 
         // Verify First Row Values on Resource - Cost Breakdown Report.
         ResLedgerEntry.SetRange("Work Type Code", WorkTypeCode);
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         VerifyResourceCostBreakDownRow(ResLedgerEntry);
 
         // Verify Second Row Values on Resource - Cost Breakdown Report.
         ResLedgerEntry.SetRange("Work Type Code", WorkTypeCode2);
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         VerifyResourceCostBreakDownRow(ResLedgerEntry);
     end;
 
@@ -551,12 +551,12 @@ codeunit 136902 "Resource Reports"
 
         // Verify First Row Values on Resource Journal - Test Report.
         ResJournalLine.SetRange("Resource No.", ResourceNo);
-        ResJournalLine.FindFirst;
+        ResJournalLine.FindFirst();
         VerifyResourceJournalTestRow(ResJournalLine);
 
         // Verify Second Row Values on Resource Journal - Test Report.
         ResJournalLine.SetRange("Resource No.", ResourceNo2);
-        ResJournalLine.FindFirst;
+        ResJournalLine.FindFirst();
         VerifyResourceJournalTestRow(ResJournalLine);
     end;
 
@@ -591,7 +591,7 @@ codeunit 136902 "Resource Reports"
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         ResLedgerEntry.SetRange("Resource No.", ResourceNo);
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
 
         LibraryReportDataset.SetRange('Res__Ledger_Entry__Resource_No__', ResourceNo);
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the resource no');

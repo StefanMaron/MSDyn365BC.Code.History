@@ -23,7 +23,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         ItemNo: array[20] of Code[20];
     begin
         // Setup: Dynamic Low-Level Code set to true in Manufacturing setup.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetup(TempManufacturingSetup, true);
 
         // Exercise: Create Item.
@@ -47,7 +47,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         ItemNo: array[20] of Code[20];
     begin
         // Setup: Dynamic Low-Level Code set to true in Manufacturing setup.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetup(TempManufacturingSetup, true);
 
         // Exercise: Create Item and Production BOM.Update Item with Production BOM.
@@ -81,7 +81,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         ItemNo: array[20] of Code[20];
     begin
         // Setup: Dynamic Low-Level Code set to true in Manufacturing setup.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetup(TempManufacturingSetup, true);
 
         // Exercise: Create Item and Production BOM.Update Item with Production BOM.
@@ -116,7 +116,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         ItemNo: array[20] of Code[20];
     begin
         // Setup: Dynamic Low-Level Code set to true in Manufacturing setup.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetup(TempManufacturingSetup, true);
 
         // Exercise: Create Item and Production BOM one of them with line type as 'Production BOM'.
@@ -153,7 +153,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         ItemNo: array[20] of Code[20];
     begin
         // Setup: Dynamic Low-Level Code set to true in Manufacturing setup.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetup(TempManufacturingSetup, true);
 
         // Exercise: Create Item and Production BOM one of them with line type as both 'Production BOM' and Item.
@@ -192,7 +192,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Manuf Low Level Code");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -257,7 +257,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         ProductionBOMHeader.Modify(true);
 
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
-        ProductionBOMLine.FindLast;
+        ProductionBOMLine.FindLast();
 
         LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, 1);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);

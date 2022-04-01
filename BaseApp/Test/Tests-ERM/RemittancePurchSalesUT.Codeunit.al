@@ -29,7 +29,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
     begin
         // [SCENARIO] PrintLoop - OnAfterGetRecord Trigger of Report 399 - Remittance Advice - Journal.
         // [GIVEN] Create General Journal Line and Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLine(GenJournalLine);
         CreateVendorLedgerEntry(
           VendorLedgerEntry, GenJournalLine."Applies-to ID", GenJournalLine."Account No.", false, GenJournalLine.Amount,
@@ -58,7 +58,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         Amount: Decimal;
     begin
         // [SCENARIO 363914] TotalAmount is printed as summarized amount per Vendor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Gen. Journal lines with Amounts = "X" and "Y" for the same Vendor
         CreateGenJournalTemplateAndBatch(GenJournalBatch);
@@ -101,7 +101,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         AmountCur: Decimal;
     begin
         // [SCENARIO 380297] Remittance Advice - Journal with two invoices when Original Amount of first invoice in currency greater than Payment Amount
-        Initialize;
+        Initialize();
 
         CreateGenJournalTemplateAndBatch(GenJournalBatch);
         VendorNo := CreateVendor;
@@ -152,7 +152,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // [SCENARIO] validate PrintLoop - OnAfterGetRecord Trigger of Report 399 - Remittance Advice - Journal.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create General Journal Line and Vendor Ledger Entry.
         CreateGeneralJournalLine(GenJournalLine);
@@ -184,7 +184,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // [SCENARIO] verify vendor No. after run report - 400 - Remittance Advice - Entries.
-        Initialize;
+        Initialize();
         // [GIVEN] Create Vendor and Detailed Vendor Ledger Entry.
         CreateVendorLedgerEntry(
           VendorLedgerEntry, '', CreateVendor, false, LibraryRandom.RandDec(10, 2), VendorLedgerEntry."Document Type"::Payment);  // Print Vendor Ledger Details - False and using partial Amount to Apply.
@@ -306,7 +306,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
     end;
 
@@ -386,7 +386,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
         GLEntry."Document No." := LibraryUTUtility.GetNewCode;
@@ -487,7 +487,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetCurrentKey("Transaction No.");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Transaction No." + 1);
     end;
 

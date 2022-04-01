@@ -32,7 +32,7 @@ codeunit 138028 "O365 Adjust Inventory"
         Item: Record Item;
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
 
@@ -53,7 +53,7 @@ codeunit 138028 "O365 Adjust Inventory"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
 
@@ -74,7 +74,7 @@ codeunit 138028 "O365 Adjust Inventory"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
 
@@ -96,7 +96,7 @@ codeunit 138028 "O365 Adjust Inventory"
         ItemCard: TestPage "Item Card";
         NewInventory: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
 
@@ -121,7 +121,7 @@ codeunit 138028 "O365 Adjust Inventory"
         NewInventory: Decimal;
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableLocationsSetup;
 
         CreateAndPostItem(Item, LocationCode);
@@ -148,7 +148,7 @@ codeunit 138028 "O365 Adjust Inventory"
         NewInventory: Decimal;
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableLocationsSetup;
 
         CreateAndPostItem(Item, LocationCode);
@@ -179,7 +179,7 @@ codeunit 138028 "O365 Adjust Inventory"
         FirstLocationCode: Code[10];
         SecondLocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableLocationsSetup;
 
         CreateNumberOfItem(Item);
@@ -215,7 +215,7 @@ codeunit 138028 "O365 Adjust Inventory"
         ItemCard: TestPage "Item Card";
         NewInventory: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
 
@@ -239,7 +239,7 @@ codeunit 138028 "O365 Adjust Inventory"
         NewInventory: Decimal;
         OldInventory: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
         OldInventory := LibraryRandom.RandIntInRange(20, 30);
@@ -265,7 +265,7 @@ codeunit 138028 "O365 Adjust Inventory"
         NewInventory: Decimal;
         OldInventory: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
         OldInventory := LibraryRandom.RandIntInRange(20, 30);
@@ -291,7 +291,7 @@ codeunit 138028 "O365 Adjust Inventory"
         NewInventory: Decimal;
         OldInventory: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
         OldInventory := -LibraryRandom.RandIntInRange(20, 30);
@@ -317,7 +317,7 @@ codeunit 138028 "O365 Adjust Inventory"
         NewInventory: Decimal;
         OldInventory: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
         OldInventory := -LibraryRandom.RandIntInRange(20, 30);
@@ -342,7 +342,7 @@ codeunit 138028 "O365 Adjust Inventory"
         ItemCard: TestPage "Item Card";
         OldInventory: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
         OldInventory := LibraryRandom.RandIntInRange(20, 30);
@@ -367,7 +367,7 @@ codeunit 138028 "O365 Adjust Inventory"
         NewInventory: Decimal;
         OldInventory: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
         OldInventory := LibraryRandom.RandIntInRange(20, 30);
@@ -393,7 +393,7 @@ codeunit 138028 "O365 Adjust Inventory"
         NewInventory: Decimal;
         OldInventory: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateNumberOfItem(Item);
         OldInventory := -LibraryRandom.RandIntInRange(20, 30);
@@ -420,10 +420,10 @@ codeunit 138028 "O365 Adjust Inventory"
         // [FEATURE] [Foundation]
         // [SCENARIO 265064] DrillDown button in the "Inventory" field of the item card opens the list of item ledger entries copmosing the inventory value, when "Basic" application area is enabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable #Basic application area
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] Open item card and navigate to an item with posted item ledger entries
         MockItemLedgerEntry(ItemLedgerEntry);
@@ -447,7 +447,7 @@ codeunit 138028 "O365 Adjust Inventory"
     begin
         // [SCENARIO 265064] DrillDown button in the "Inventory" field of the item card opens the list of item ledger entries copmosing the inventory value, when application area setup is disabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Disable application area setup
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -474,7 +474,7 @@ codeunit 138028 "O365 Adjust Inventory"
     begin
         // [FEATURE] [Location] [Bin] [UT] [UI]
         // [SCENARIO 319788] You cannot update inventory via Adjust Inventory on a location with mandatory bin.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableLocationsSetup;
 
         LibraryInventory.CreateItem(Item);
@@ -500,15 +500,15 @@ codeunit 138028 "O365 Adjust Inventory"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Adjust Inventory");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Adjust Inventory");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
         Commit();

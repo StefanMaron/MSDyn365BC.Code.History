@@ -68,7 +68,7 @@ codeunit 99000770 "Where-Used Management"
             ItemAssembly.SetCurrentKey("Production BOM No.");
             ItemAssembly.SetRange("Production BOM No.", No);
             OnBuildWhereUsedListOnAfterItemAssemblySetFilters(ItemAssembly, No);
-            if ItemAssembly.FindSet then
+            if ItemAssembly.FindSet() then
                 repeat
                     WhereUsedList."Entry No." := NextWhereUsedEntryNo;
                     WhereUsedList."Item No." := ItemAssembly."No.";
@@ -105,7 +105,7 @@ codeunit 99000770 "Where-Used Management"
             ProdBOMComponent.SetFilter("Ending Date", '%1|%2..', 0D, CalcDate);
         end;
 
-        if ProdBOMComponent.FindSet then
+        if ProdBOMComponent.FindSet() then
             repeat
                 if VersionMgt.GetBOMVersion(
                      ProdBOMComponent."Production BOM No.", CalcDate, true) =

@@ -12,6 +12,7 @@ table 9889 "SmartList Import Results"
     ObsoleteTag = '22.0';
 #endif
     ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ReplicateData = false;
 
     fields
     {

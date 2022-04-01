@@ -7847,12 +7847,6 @@ End Function
         <Field Name="ItemNo_Line_Lbl">
           <DataField>ItemNo_Line_Lbl</DataField>
         </Field>
-        <Field Name="CrossReferenceNo_Line">
-          <DataField>CrossReferenceNo_Line</DataField>
-        </Field>
-        <Field Name="CrossReferenceNo_Line_Lbl">
-          <DataField>CrossReferenceNo_Line_Lbl</DataField>
-        </Field>
         <Field Name="ItemReferenceNo_Line">
           <DataField>ItemReferenceNo_Line</DataField>
         </Field>

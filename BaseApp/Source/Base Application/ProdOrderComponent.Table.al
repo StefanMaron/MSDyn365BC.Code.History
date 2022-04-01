@@ -44,7 +44,7 @@ table 5407 "Prod. Order Component"
                 TestField("Reserved Qty. (Base)", 0);
                 TestField("Remaining Qty. (Base)", "Expected Qty. (Base)");
                 if "Item No." = '' then begin
-                    CreateDim(DATABASE::Item, "Item No.");
+                    CreateDimFromDefaultDim();
                     exit;
                 end;
 
@@ -61,7 +61,7 @@ table 5407 "Prod. Order Component"
                 UpdateUOMFromItem(Item);
                 OnValidateItemNoOnAfterUpdateUOMFromItem(Rec, xRec, Item);
                 GetUpdateFromSKU;
-                CreateDim(DATABASE::Item, "Item No.");
+                CreateDimFromDefaultDim();
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
@@ -79,7 +79,7 @@ table 5407 "Prod. Order Component"
                 WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
 
                 Item.Get("Item No.");
-                GetGLSetup;
+                GetGLSetup();
 
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
@@ -136,7 +136,7 @@ table 5407 "Prod. Order Component"
                     ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
                     ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
                     ProdOrderRtngLine.SetRange("Routing Link Code", "Routing Link Code");
-                    if ProdOrderRtngLine.FindFirst then begin
+                    if ProdOrderRtngLine.FindFirst() then begin
                         "Due Date" := ProdOrderRtngLine."Starting Date";
                         "Due Time" := ProdOrderRtngLine."Starting Time";
                     end;
@@ -362,6 +362,7 @@ table 5407 "Prod. Order Component"
                 end;
                 ProdOrderCompReserve.VerifyChange(Rec, xRec);
                 GetUpdateFromSKU;
+                CreateDimFromDefaultDim();
             end;
         }
         field(31; "Shortcut Dimension 1 Code"; Code[20])
@@ -531,7 +532,7 @@ table 5407 "Prod. Order Component"
                 TestField("Item No.");
 
                 Item.Get("Item No.");
-                GetGLSetup;
+                GetGLSetup();
                 if Item."Costing Method" = Item."Costing Method"::Standard then begin
                     if CurrFieldNo = FieldNo("Unit Cost") then
                         Error(
@@ -598,7 +599,9 @@ table 5407 "Prod. Order Component"
             CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Prod. Order No."),
                                                                             "Source Ref. No." = FIELD("Line No."),
                                                                             "Source Type" = CONST(5407),
+#pragma warning disable
                                                                             "Source Subtype" = FIELD(Status),
+#pragma warning restore
                                                                             "Source Batch Name" = CONST(''),
                                                                             "Source Prod. Order Line" = FIELD("Prod. Order Line No."),
                                                                             "Reservation Status" = CONST(Reservation)));
@@ -612,7 +615,9 @@ table 5407 "Prod. Order Component"
             CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Prod. Order No."),
                                                                    "Source Ref. No." = FIELD("Line No."),
                                                                    "Source Type" = CONST(5407),
+#pragma warning disable
                                                                    "Source Subtype" = FIELD(Status),
+#pragma warning restore
                                                                    "Source Batch Name" = CONST(''),
                                                                    "Source Prod. Order Line" = FIELD("Prod. Order Line No."),
                                                                    "Reservation Status" = CONST(Reservation)));
@@ -705,7 +710,9 @@ table 5407 "Prod. Order Component"
         {
             CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = FILTER(<> "Put-away"),
                                                                                   "Source Type" = CONST(5407),
+#pragma warning disable
                                                                                   "Source Subtype" = FIELD(Status),
+#pragma warning restore
                                                                                   "Source No." = FIELD("Prod. Order No."),
                                                                                   "Source Line No." = FIELD("Prod. Order Line No."),
                                                                                   "Source Subline No." = FIELD("Line No."),
@@ -747,7 +754,9 @@ table 5407 "Prod. Order Component"
         {
             CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(<> "Put-away"),
                                                                                          "Source Type" = CONST(5407),
+#pragma warning disable
                                                                                          "Source Subtype" = FIELD(Status),
+#pragma warning restore
                                                                                          "Source No." = FIELD("Prod. Order No."),
                                                                                          "Source Line No." = FIELD("Prod. Order Line No."),
                                                                                          "Source Subline No." = FIELD("Line No."),
@@ -867,7 +876,7 @@ table 5407 "Prod. Order Component"
             ItemLedgEntry.SetRange("Order Line No.", "Prod. Order Line No.");
             ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Consumption);
             ItemLedgEntry.SetRange("Prod. Order Comp. Line No.", "Line No.");
-            if ItemLedgEntry.FindFirst then
+            if ItemLedgEntry.FindFirst() then
                 Error(Text99000000, ItemLedgEntry."Item No.", "Line No.");
         end;
 
@@ -1000,7 +1009,7 @@ table 5407 "Prod. Order Component"
         ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
         if "Routing Link Code" <> '' then
             ProdOrderRtngLine.SetRange("Routing Link Code", "Routing Link Code");
-        if ProdOrderRtngLine.FindFirst then
+        if ProdOrderRtngLine.FindFirst() then
             NeededQty :=
               ProdOrderLine.Quantity * (1 + ProdOrderLine."Scrap %" / 100) *
               (1 + ProdOrderRtngLine."Scrap Factor % (Accumulated)") * (1 + "Scrap %" / 100) +
@@ -1042,7 +1051,7 @@ table 5407 "Prod. Order Component"
             if not ProdOrderRtngLine.FindFirst or ("Routing Link Code" = '') then begin
                 ProdOrderRtngLine.SetRange("Routing Link Code");
                 ProdOrderRtngLine.SetFilter("Next Operation No.", '%1', '');
-                if not ProdOrderRtngLine.FindFirst then
+                if not ProdOrderRtngLine.FindFirst() then
                     ProdOrderRtngLine."Operation No." := '';
                 OnGetNeededQtyOnAfterLastOperationFound(Rec, ProdOrderRtngLine);
             end;
@@ -1183,22 +1192,43 @@ table 5407 "Prod. Order Component"
         ProdOrderCompReserve.Block(Blocked);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         ProdOrderLine: Record "Prod. Order Line";
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         ProdOrderLine.Get(Status, "Prod. Order No.", "Prod. Order Line No.");
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, '',
+            Rec, CurrFieldNo, DefaultDimSource, '',
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ProdOrderLine."Dimension Set ID", DATABASE::Item);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        ProdOrderLine.Get(Status, "Prod. Order No.", "Prod. Order Line No.");
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, '',
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ProdOrderLine."Dimension Set ID", DATABASE::Item);
     end;
 
@@ -1485,7 +1515,11 @@ table 5407 "Prod. Order Component"
             exit;
 
         CalculateQuantity(CalculatedQuantity);
-        Validate("Expected Quantity", CalculatedQuantity * ProdOrderNeeds());
+        if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
+            Validate("Expected Quantity", CalculatedQuantity)
+        else
+            Validate("Expected Quantity", CalculatedQuantity * ProdOrderNeeds());
+
     end;
 
     procedure CheckBin()
@@ -1688,7 +1722,6 @@ table 5407 "Prod. Order Component"
         SetRange("Prod. Order No.", OrderNo);
     end;
 
-    [Scope('OnPrem')]
     procedure SetFilterFromProdBOMLine(ProdBOMLine: Record "Production BOM Line")
     begin
         SetRange("Item No.", ProdBOMLine."No.");
@@ -1750,6 +1783,22 @@ table 5407 "Prod. Order Component"
             "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
     local procedure CalculateQuantity(var CalculatedQuantity: Decimal)
     var
         OldQuantity: Decimal;
@@ -1765,6 +1814,8 @@ table 5407 "Prod. Order Component"
                 CalculatedQuantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
             "Calculation Formula"::Weight:
                 CalculatedQuantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+            "Calculation Formula"::"Fixed Quantity":
+                CalculatedQuantity := "Quantity per";
             else begin
                     OldQuantity := Quantity;
                     OnValidateCalculationFormulaEnumExtension(Rec);
@@ -1773,7 +1824,54 @@ table 5407 "Prod. Order Component"
                 end;
         end;
     end;
-    
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Prod. Order Component", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Prod. Order Component", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Prod. Order Component") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var ProdOrderComponent: Record "Prod. Order Component"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var ProdOrderComponent: Record "Prod. Order Component"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutoReserve(var Item: Record Item; var ProdOrderComp: Record "Prod. Order Component")
     begin
@@ -1789,11 +1887,13 @@ table 5407 "Prod. Order Component"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ProdOrderComponent: Record "Prod. Order Component"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var ProdOrderComponent: Record "Prod. Order Component"; var Item: Record Item; IncludeFirmPlanned: Boolean)
     begin

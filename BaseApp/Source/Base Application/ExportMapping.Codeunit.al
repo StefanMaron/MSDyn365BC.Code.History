@@ -37,7 +37,7 @@ codeunit 1269 "Export Mapping"
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDefCode);
 
-        if not DataExchMapping.FindFirst then
+        if not DataExchMapping.FindFirst() then
             Error(MappingNotFoundErr, DataExchDefCode, DataExchLineDefCode);
     end;
 
@@ -46,7 +46,7 @@ codeunit 1269 "Export Mapping"
         RecRef.Open(TableID);
         RecRef.SetView(Filters);
 
-        if not RecRef.FindSet then
+        if not RecRef.FindSet() then
             Error(RecordsNotFoundErr, TableID, RecRef.GetView);
     end;
 

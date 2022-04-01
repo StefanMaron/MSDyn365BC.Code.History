@@ -369,7 +369,7 @@ table 454 "Approval Entry"
         WorkflowRecordChange.SetRange("Record ID", "Record ID to Approve");
         WorkflowRecordChange.SetRange("Workflow Step Instance ID", "Workflow Step Instance ID");
 
-        if WorkflowRecordChange.FindSet then
+        if WorkflowRecordChange.FindSet() then
             repeat
                 WorkflowRecordChange.CalcFields("Field Caption");
                 NewValue := WorkflowRecordChange.GetFormattedNewValue(true);
@@ -404,7 +404,7 @@ table 454 "Approval Entry"
         FilterGroup(-1); // Used to support the cross-column search
         SetRange("Approver ID", UserId);
         SetRange("Sender ID", UserId);
-        if FindSet then
+        if FindSet() then
             repeat
                 Mark(true);
             until Next() = 0;

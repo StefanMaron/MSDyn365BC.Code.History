@@ -31,9 +31,9 @@ codeunit 136128 "Service Navigate Form"
 
         LibrarySales.SetCreditWarningsToNoWarnings;
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -52,14 +52,14 @@ codeunit 136128 "Service Navigate Form"
         // This test case checks the Navigate functionality for Posted Service Invoice.
 
         // 1. Setup: Create Service Header, Service Item Line, Service Line, Customer and Item.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         CreateServiceOrder(ServiceHeader);
 
         // 2. Exercise: Post the Service Order as Invoice and open Navigate form.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
 
         // Set global variable for form handler.
         PostingDate := ServiceInvoiceHeader."Posting Date";
@@ -83,14 +83,14 @@ codeunit 136128 "Service Navigate Form"
         // This test case checks the Navigate functionality for Posted Service Shipment.
 
         // 1. Setup: Create Service Header, Service Item Line, Service Line, Customer and Item.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         CreateServiceOrder(ServiceHeader);
 
         // 2. Exercise: Post the Service Order as Ship and open Navigate form.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
 
         // Set global variable for form handler.
         PostingDate := ServiceShipmentHeader."Posting Date";
@@ -114,7 +114,7 @@ codeunit 136128 "Service Navigate Form"
         // This test case checks the Navigate functionality for posted Service Credit Memo.
 
         // 1. Setup: Create Service Header, Service Line, Customer and Item.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         CreateServiceCreditMemo(ServiceHeader);
 
@@ -122,7 +122,7 @@ codeunit 136128 "Service Navigate Form"
         ExecuteConfirmHandlerInvoiceES;
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
 
         // Set global variable for form handler.
         PostingDate := ServiceCrMemoHeader."Posting Date";
@@ -243,7 +243,7 @@ codeunit 136128 "Service Navigate Form"
     local procedure VerifyNavigateRecords(var TempDocumentEntry2: Record "Document Entry" temporary; TableID: Integer; NoOfRecords: Integer)
     begin
         TempDocumentEntry2.SetRange("Table ID", TableID);
-        TempDocumentEntry2.FindFirst;
+        TempDocumentEntry2.FindFirst();
         TempDocumentEntry2.TestField("No. of Records", NoOfRecords);
     end;
 

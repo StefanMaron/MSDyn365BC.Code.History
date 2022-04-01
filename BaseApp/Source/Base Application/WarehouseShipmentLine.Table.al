@@ -568,7 +568,7 @@ table 7321 "Warehouse Shipment Line"
         "No." := DocNo;
         SetRange("No.", "No.");
         LockTable();
-        if FindLast then;
+        if FindLast() then;
 
         Init;
         SetIgnoreErrors;
@@ -859,7 +859,7 @@ table 7321 "Warehouse Shipment Line"
             WhseShipmentCreatePick.SetWhseShipmentLine(WhseShptLine, WhseShptHeader);
             WhseShipmentCreatePick.SetHideValidationDialog(HideValidationDialog);
             WhseShipmentCreatePick.UseRequestPage(not HideValidationDialog);
-            WhseShipmentCreatePick.RunModal;
+            WhseShipmentCreatePick.RunModal();
             WhseShipmentCreatePick.GetResultMessage;
             Clear(WhseShipmentCreatePick);
         end;
@@ -947,11 +947,11 @@ table 7321 "Warehouse Shipment Line"
 
         NonATOWhseShptLine.Copy(WhseShptLine);
         NonATOWhseShptLine.SetRange("Assemble to Order", false);
-        NonATOLineFound := NonATOWhseShptLine.FindFirst;
+        NonATOLineFound := NonATOWhseShptLine.FindFirst();
 
         ATOWhseShptLine.Copy(WhseShptLine);
         ATOWhseShptLine.SetRange("Assemble to Order", true);
-        ATOLineFound := ATOWhseShptLine.FindFirst;
+        ATOLineFound := ATOWhseShptLine.FindFirst();
     end;
 
     procedure FullATOPosted(): Boolean
@@ -964,7 +964,7 @@ table 7321 "Warehouse Shipment Line"
         SalesLine.SetRange("Document Type", "Source Subtype");
         SalesLine.SetRange("Document No.", "Source No.");
         SalesLine.SetRange("Line No.", "Source Line No.");
-        if not SalesLine.FindFirst then
+        if not SalesLine.FindFirst() then
             exit(true);
         if SalesLine."Qty. Shipped (Base)" >= SalesLine."Qty. to Asm. to Order (Base)" then
             exit(true);
@@ -992,7 +992,7 @@ table 7321 "Warehouse Shipment Line"
     begin
         SetRange("No.", ShipmentNo);
         SetSourceFilter(SourceType, SourceSubtype, SourceNo, SourceLineNo, false);
-        if FindFirst then
+        if FindFirst() then
             exit(true);
     end;
 

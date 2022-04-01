@@ -49,7 +49,7 @@ page 9185 "Generic Chart Text Editor"
         Copy(TempGenericChartCaptionsBuf, true);
         SetRange(Code, CaptionCode);
         if Get(CaptionCode, Language.GetUserLanguageCode) then;
-        CurrPage.RunModal;
+        CurrPage.RunModal();
         exit(GetCaption(CaptionCode, Language.GetUserLanguageCode))
     end;
 }

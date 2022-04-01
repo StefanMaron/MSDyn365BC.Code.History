@@ -44,7 +44,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure ReceiptDateOnTransferOrderWithInboundWarehouseHandlingTime()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithAvailableToPromiseUsingTransferOrder(false);  // Use AvailableToPromise as False.
     end;
 
@@ -54,7 +54,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure AvailableToPromiseOnSalesOrderWithTransferOrderUsingBothWarehouseHandlingTime()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithAvailableToPromiseUsingTransferOrder(true);  // Use AvailableToPromise as True.
     end;
 
@@ -105,7 +105,7 @@ codeunit 137157 "SCM Order Promising II"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create Sales Order. Run Capable To Promise from Sales Order. Find Currency.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateSalesOrder(SalesHeader, SalesLine, WorkDate, 0D, Item."No.", LocationBlue.Code, LibraryRandom.RandDec(100, 2));  // Use 0D for Requested Delivery Date.
         RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, true);  // Use True for Accept.
@@ -133,7 +133,7 @@ codeunit 137157 "SCM Order Promising II"
         CalculatedDate: Date;
     begin
         // Setup: Create Item with Lead Time Calculation. Create Sales Order.
-        Initialize;
+        Initialize();
         CreateItemWithLeadTimeCalculation(Item);
         CalculatedDate := GetEarliestDeliveryDate(Item, '', false);
         CreateSalesOrder(
@@ -158,7 +158,7 @@ codeunit 137157 "SCM Order Promising II"
         CalculatedDate: Date;
     begin
         // Setup: Create Item with Lead Time Calculation. Update Outbound Warehouse Handling Time on Location. Create Sales Order.
-        Initialize;
+        Initialize();
         CreateItemWithLeadTimeCalculation(Item);
         UpdateOutboundWarehouseHandlingTimeOnLocation(LocationRed);
         CalculatedDate := GetEarliestDeliveryDate(Item, LocationRed.Code, false);
@@ -188,7 +188,7 @@ codeunit 137157 "SCM Order Promising II"
         Quantity: Decimal;
     begin
         // Setup: Update Outbound Warehouse Handling Time on Location. Create Purchase and Sales Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateOutboundWarehouseHandlingTimeOnLocation(LocationRed);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -217,7 +217,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderBeforeFullyAvailableToPromiseQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithFullyAvailableToPromiseQuantity(false);  // Use AvailableToPromise as False.
     end;
 
@@ -227,7 +227,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderAfterFullyAvailableToPromiseQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithFullyAvailableToPromiseQuantity(true);  // Use AvailableToPromise as True.
     end;
 
@@ -271,7 +271,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderBeforePartialAvailableToPromiseQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithPartialAvailableToPromiseQuantity(false);  // Use AvailableToPromise as False.
     end;
 
@@ -281,7 +281,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderAfterPartialAvailableToPromiseQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithPartialAvailableToPromiseQuantity(true);  // Use AvailableToPromise as True.
     end;
 
@@ -325,7 +325,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderBeforeFullyCapableToPromiseQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithFullyCapableToPromiseQuantity(false);  // Use CapableToPromise as False.
     end;
 
@@ -335,7 +335,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderAfterFullyCapableToPromiseQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithFullyCapableToPromiseQuantity(true);  // Use CapableToPromise as True.
     end;
 
@@ -379,7 +379,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderBeforePartialCapableToPromiseQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithPartialCapableToPromiseQuantity(false);  // Use CapableToPromise as False.
     end;
 
@@ -389,7 +389,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderAfterPartialCapableToPromiseQuantity()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithPartialCapableToPromiseQuantity(true);  // Use CapableToPromise as True.
     end;
 
@@ -448,7 +448,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderWithShippingTimeUsingShippingAgentAndBaseCalendar()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate, 0, LibraryRandom.RandInt(5), '');  // Use 0 for Warehouse Outbound Handling Time and blank for Location.
     end;
 
@@ -457,7 +457,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderWithOutboundWarehouseHandlingTimeUsingShippingAgentAndBaseCalendar()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate, LibraryRandom.RandInt(5), 0, '');  // Use 0 for Shipping Time and blank for Location.
     end;
 
@@ -466,7 +466,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderWithOutboundWarehouseHandlingTimeAndShipmentDateAsNonWorkingDateUsingShippingAgentAndBaseCalendar()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderUsingShippingAgentAndBaseCalendar(GetNonWorkingDateUsingBaseCalendar, LibraryRandom.RandInt(5), 0, '');  // Use 0 for Shipping Time and blank for Location.
     end;
 
@@ -475,7 +475,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderWithOutboundWarehouseHandlingTimeAndShippingTimeUsingShippingAgentAndBaseCalendar()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), '');  // Use blank for Location.
     end;
 
@@ -484,7 +484,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderWithLocationUsingShippingAgentAndBaseCalendar()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UpdateBaseCalendarOnLocation(LocationBlue);
         SalesOrderUsingShippingAgentAndBaseCalendar(
           WorkDate, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), LocationBlue.Code);
@@ -527,7 +527,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure OrderPromisingWithoutCompanyBaseCalendar()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderPromisingBySalesOrderWithCompanyBaseCalendar(false);  // Use False for Company Base Calendar.
     end;
 
@@ -537,7 +537,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure OrderPromisingWithCompanyBaseCalendar()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderPromisingBySalesOrderWithCompanyBaseCalendar(true);  // Use True for Company Base Calendar.
     end;
 
@@ -578,7 +578,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderWithoutShippingTime()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithShippingTimeAndRequestedDeliveryDate(0, false);  // Use 0 for Shipping Time and False for Update Requested DeliveryDate.
     end;
 
@@ -587,7 +587,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderRequestedDeliveryDateWithoutShippingTime()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithShippingTimeAndRequestedDeliveryDate(0, true);  // Use 0 for Shipping Time and True for Update Requested Delivery Date.
     end;
 
@@ -596,7 +596,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderWithShippingTime()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithShippingTimeAndRequestedDeliveryDate(LibraryRandom.RandInt(5), false);  // Use False for Update Requested Delivery Date.
     end;
 
@@ -605,7 +605,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderRequestedDeliveryDateWithShippingTime()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithShippingTimeAndRequestedDeliveryDate(LibraryRandom.RandInt(5), true);  // Use True for Update Requested Delivery Date.
     end;
 
@@ -644,7 +644,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderWithShippingTimeAndBaseCalendar()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithBaseCalendarAndShippingTime(false);  // Use False for without Requested Delivery Date.
     end;
 
@@ -653,7 +653,7 @@ codeunit 137157 "SCM Order Promising II"
     procedure SalesOrderRequestedDeliveryDateWithBaseCalendar()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesOrderWithBaseCalendarAndShippingTime(true);  // Use True for with Requested Delivery Date.
     end;
 
@@ -815,7 +815,7 @@ codeunit 137157 "SCM Order Promising II"
         TransferRoute: Record "Transfer Route";
     begin
         // Verify Planned Delivery Date when Item with SKUs by locations and inter-location transfer
-        Initialize;
+        Initialize();
         LocationBlue.Find;
         LocationRed.Find;
 
@@ -847,7 +847,7 @@ codeunit 137157 "SCM Order Promising II"
         OrderPromisingLine: Record "Order Promising Line";
     begin
         // [SCENARIO 381557] Order Promising page should have a temporary table as its source, no record should be saved to the database.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order.
         CreateSalesOrder(SalesHeader, SalesLine, WorkDate, WorkDate, LibraryInventory.CreateItemNo, '', 10);
@@ -875,7 +875,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // [FEATURE] [Planning Worksheet] [Capable to Promise] [Production Order] [No. Series]
         // [SCENARIO 205943] Planned production orders in Planning Worksheet should be numbered consequently when the requisition lines are created using Capable-to-Promise.
-        Initialize;
+        Initialize();
 
         // [GIVEN] No. Series for planned production orders is created.
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
@@ -909,7 +909,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // [FEATURE] [Drop Shipment] [Reservation]
         // [SCENARIO 231925] Sales line with drop shipment is not reserved from requisition line generated with Order Promising functionality.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales line set up for drop shipment.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -923,7 +923,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [THEN] Requisition line is created.
         RequisitionLine.SetRange("No.", SalesLine."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
 
         // [THEN] The sales line is not reserved from requisition line.
         SalesLine.Find;
@@ -946,7 +946,7 @@ codeunit 137157 "SCM Order Promising II"
         // [FEATURE] [Check-Avail. Period]
         // [SCENARIO 269042] Blank "Check-Avail. Period Calc." does not limit lookahead period when calculating availability ate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "Check-Avail. Period Calc." in "Company Information" to blank
         UpdateCheckAvailPeriodCalculation('');
@@ -981,7 +981,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // [FEATURE] [Check-Avail. Period]
         // [SCENARIO 269042] "Item-Check Avail." does not look ahead when calculating availability if "Check-Avail. Period Calc." is explicitly set to '0D'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "Check-Avail. Period Calc." in "Company Information" to '<0D>'
         UpdateCheckAvailPeriodCalculation('<0D>');
@@ -1017,7 +1017,7 @@ codeunit 137157 "SCM Order Promising II"
         // [FEATURE] [Check-Avail. Period]
         // [SCENARIO 269042] Item availability warning considers future requirements when "Check-Avail. Period Calc." is blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "Check-Avail. Period Calc." in "Company Information" to blank value
         UpdateCheckAvailPeriodCalculation('');
@@ -1057,8 +1057,8 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // [FEATURE] [Available to Promise] [Earliest Shipment Date]
         // [SCENARIO 320770] When Requested Delivery Date is populated in Sales then ATP returns Earliest Shipment Date = Requested Shipment Date
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         LocationCode := CreateLocationCode;
         BaseQty := LibraryRandom.RandInt(10);
 
@@ -1095,8 +1095,8 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Service]
         // [SCENARIO 320770] When Requested Delivery Date is populated in Service then ATP returns Earliest Shipment Date = Requested Shipment Date
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         LocationCode := CreateLocationCode;
         BaseQty := LibraryRandom.RandInt(10);
 
@@ -1133,8 +1133,8 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Job Planning]
         // [SCENARIO 320770] When Requested Delivery Date is populated in Job Planning then ATP returns Earliest Shipment Date = Requested Shipment Date
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         LocationCode := CreateLocationCode;
         BaseQty := LibraryRandom.RandInt(10);
 
@@ -1170,7 +1170,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Special Order]
         // [SCENARIO 320770] When Special Order pair exists, then ATP shows Earliest Shipment Date = Expected Receipt Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Special Order Sales Order with <blank> Requested Delivery Date
         CreateSpecialOrderSalesOrder(
@@ -1203,7 +1203,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Special Order]
         // [SCENARIO 320770] Requested Delivery Date in Sales Special Order overrides Expected Receipt Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Special Order Sales Order with Requested Delivery Date = 20/1/2021
         CreateSpecialOrderSalesOrder(
@@ -1233,7 +1233,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Special Order]
         // [SCENARIO 320770] When Special Order Sales is not linked to Purchase, then ATP shows <blank> Earliest Shipment Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Special Order Sales Order
         CreateSpecialOrderSalesOrder(
@@ -1485,8 +1485,8 @@ codeunit 137157 "SCM Order Promising II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Order Promising II");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         ResetLocationSetup(LocationBlue.Code);
         ResetLocationSetup(LocationRed.Code);
 
@@ -1494,13 +1494,13 @@ codeunit 137157 "SCM Order Promising II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Order Promising II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
-        NoSeriesSetup;
-        LocationSetup;
+        NoSeriesSetup();
+        LocationSetup();
         ItemJournalSetup;
 
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
@@ -1646,7 +1646,7 @@ codeunit 137157 "SCM Order Promising II"
         LibraryPurchase.GetSpecialOrder(PurchaseHeader);
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Expected Receipt Date", ExpectedReceiptDate);
         PurchaseLine.Modify(true);
     end;
@@ -1746,7 +1746,7 @@ codeunit 137157 "SCM Order Promising II"
         SalesLine: Record "Sales Line";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         ItemNo := Item."No.";
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -1826,7 +1826,7 @@ codeunit 137157 "SCM Order Promising II"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Shipment Date", ShipmentDate);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure GetDateOutsideOfAvailabilityTimeBucket(AvailabilityDate: Date): Date
@@ -1835,7 +1835,7 @@ codeunit 137157 "SCM Order Promising II"
         AvailableToPromise: Codeunit "Available to Promise";
     begin
         CompanyInformation.Get();
-        exit(AvailableToPromise.AdjustedEndingDate(AvailabilityDate, CompanyInformation."Check-Avail. Time Bucket") + 1);
+        exit(AvailableToPromise.GetPeriodEndingDate(AvailabilityDate, CompanyInformation."Check-Avail. Time Bucket") + 1);
     end;
 
     local procedure GetDefaultSafetyLeadTime() DefaultSafetyLeadTime: Code[10]
@@ -1881,7 +1881,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         Date.SetFilter("Period Start", '>=%1', WorkDate);
         Date.SetRange("Period Name", Format(BaseCalendarChange.Day::Sunday));
-        Date.FindFirst;
+        Date.FindFirst();
         exit(Date."Period Start");
     end;
 
@@ -2032,7 +2032,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         RequisitionLine.SetRange("No.", ItemNo);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, Quantity);
         RequisitionLine.TestField("Due Date", DueDate);
     end;

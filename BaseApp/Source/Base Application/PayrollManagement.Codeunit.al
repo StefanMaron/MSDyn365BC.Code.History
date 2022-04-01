@@ -82,7 +82,7 @@ codeunit 1660 "Payroll Management"
 
         TempServiceConnection.SetCurrentKey(Name);
         TempServiceConnection.SetAscending(Name, true);
-        TempServiceConnection.FindFirst;
+        TempServiceConnection.FindFirst();
         repeat
             if ServiceList = '' then
                 ServiceList := ConvertStr(TempServiceConnection.Name, ',', ' ')
@@ -92,7 +92,7 @@ codeunit 1660 "Payroll Management"
         SelectedServiceIndex := StrMenu(ServiceList, 1, Instruction);
 
         if SelectedServiceIndex > 0 then begin
-            TempServiceConnection.FindFirst;
+            TempServiceConnection.FindFirst();
             if SelectedServiceIndex > 1 then
                 TempServiceConnection.Next(SelectedServiceIndex - 1);
         end;

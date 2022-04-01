@@ -22,7 +22,6 @@ codeunit 134610 "Test User Group Permissions"
         WrongRoleIDErr: Label 'Wrong Role ID for User Group.';
         SubscriptionPlanTok: Label 'My subscription plan';
         XTestPermissionTxt: Label 'TEST PERMISSION';
-        InvalidPermissionSetErr: Label 'User Group Permission Set table can only reference permission sets present in the system.';
         LibrarySingleServer: Codeunit "Library - Single Server";
 
     [Test]
@@ -84,7 +83,6 @@ codeunit 134610 "Test User Group Permissions"
         UserGroupMember: Record "User Group Member";
     begin
         // Verify that the OnDelete trigger of table 9000 prevents deletion if there are members.
-
         // Init
         LibraryPermissions.CreateUserGroup(UserGroup, '');
         LibraryPermissions.CreateUserGroupMember(UserGroup, UserGroupMember);
@@ -168,7 +166,7 @@ codeunit 134610 "Test User Group Permissions"
     begin
         // Tests the lookup and addition of a user as a new member.
         // Init
-        Initialize;
+        Initialize();
         LibraryPermissions.CreateUserGroup(UserGroup, '');
         LibraryPermissions.CreateUser(User, '', false);
         UserGroupMember.SetRange("User Group Code", UserGroup.Code);
@@ -428,7 +426,7 @@ codeunit 134610 "Test User Group Permissions"
         // Tests that invoking action Copy Permission Set starts report 9802.
         // Init
         CopyToUserGroup := CopyStr(GetGuidString, 1, 20);
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', CreateGuid());
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
         LibraryPermissions.CreateUserGroup(UserGroup, '');
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, TenantPermissionSet."App ID", TenantPermissionSet."Role ID");
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroup.Code);
@@ -443,68 +441,10 @@ codeunit 134610 "Test User Group Permissions"
         UserGroup.Get(CopyToUserGroup);
         UserGroupPermissionSet.SetRange("User Group Code", UserGroup.Code);
         Assert.RecordCount(UserGroupPermissionSet, 1);
-        UserGroupPermissionSet.FindFirst;
+        UserGroupPermissionSet.FindFirst();
         Assert.AreEqual(TenantPermissionSet."Role ID", UserGroupPermissionSet."Role ID", '');
         TestCleanup;
     end;
-
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('ImportedMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure TestUserGroupExportImport()
-    var
-        TenantPermissionSet1: Record "Tenant Permission Set";
-        TenantPermissionSet2: Record "Tenant Permission Set";
-        UserGroup: Record "User Group";
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        AggregatePermissionSet1: Record "Aggregate Permission Set";
-        AggregatePermissionSet2: Record "Aggregate Permission Set";
-        FileManagement: Codeunit "File Management";
-        FileName: Text;
-        UserGroupCount: Integer;
-        UserGroupPermissionSetCount: Integer;
-        i: Integer;
-    begin
-        // Exports and imports via xml port 9000
-        // Verify preconditions: Tables are empty
-        TestCleanup;
-        Assert.AreEqual(0, UserGroup.Count, '');
-        Assert.AreEqual(0, UserGroupPermissionSet.Count, '');
-
-        // Init
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet1, '', CreateGuid());
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet2, '', CreateGuid());
-        AggregatePermissionSet1.Get(AggregatePermissionSet1.Scope::Tenant, TenantPermissionSet1."App ID", TenantPermissionSet1."Role ID");
-        AggregatePermissionSet2.Get(AggregatePermissionSet2.Scope::Tenant, TenantPermissionSet2."App ID", TenantPermissionSet2."Role ID");
-        for i := 1 to 3 do begin
-            LibraryPermissions.CreateUserGroup(UserGroup, '');
-            LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet1, UserGroup.Code);
-            LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet2, UserGroup.Code);
-        end;
-
-        UserGroupCount := UserGroup.Count();
-        UserGroupPermissionSetCount := UserGroupPermissionSet.Count();
-        Assert.AreEqual(3, UserGroupCount, '');
-        Assert.AreEqual(6, UserGroupPermissionSetCount, '');
-        FileName := FileManagement.ServerTempFileName('xml');
-
-        // Execute
-        FileName := UserGroup.ExportUserGroups(FileName);
-        TestCleanup;
-        Assert.AreEqual(0, UserGroup.Count, '');
-        Assert.AreEqual(0, UserGroupPermissionSet.Count, '');
-        UserGroup.ImportUserGroups(FileName);
-
-        // Verify
-        Assert.AreEqual(UserGroupCount, UserGroup.Count, '');
-        Assert.AreEqual(UserGroupPermissionSetCount, UserGroupPermissionSet.Count, '');
-
-        TestCleanup;
-    end;
-#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -556,7 +496,7 @@ codeunit 134610 "Test User Group Permissions"
         Permissions: TestPage Permissions;
     begin
         // Init;
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', CreateGuid());
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
         TenantPermission.SetRange("Role ID", TenantPermissionSet."Role ID");
         Assert.AreEqual(0, TenantPermission.Count, '');
 
@@ -679,7 +619,7 @@ codeunit 134610 "Test User Group Permissions"
     begin
         // Tests that invoking action Copy Permission Set starts report 9802.
         // Init
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         CopyToPermissionSet := CopyStr(GetGuidString, 1, 20);
 
@@ -716,7 +656,7 @@ codeunit 134610 "Test User Group Permissions"
         // Test page 9837 which is a 'matrix'-like presentation of permission sets by user groups.
         // Init
         CreateUsersUserGroupsPermissionSets();
-        UserGroup.FindFirst;
+        UserGroup.FindFirst();
         LibraryPermissions.GetMyUser(User);
 
         // Execute
@@ -758,7 +698,7 @@ codeunit 134610 "Test User Group Permissions"
 
         // Validate
         Assert.AreEqual(UserGroup.Code, FirstUserGroupCode, '');
-        UserGroup.FindLast;
+        UserGroup.FindLast();
         Assert.AreEqual(UserGroup.Code, LastUserGroupCode, '');
         Assert.AreEqual(UserGroup.Count, UserGroupPermissionSet.Count, '');
         PermissionSetbyUserGroup.AllUsersHavePermission.SetValue(false);
@@ -815,15 +755,11 @@ codeunit 134610 "Test User Group Permissions"
         // Init
 
         CreateUsersUserGroupsPermissionSets();
-        UserGroup.FindFirst;
+        UserGroup.FindFirst();
         LibraryPermissions.GetMyUser(User);
         PlanID := AzureADPlanTestLibrary.CreatePlan(SubscriptionPlanTok);
 
-        // find all permissions and give them to the user's plan
-        if PermissionSet.FindSet then
-            repeat
-                LibraryPermissions.AddPermissionSetToPlan(PermissionSet."Role ID", PlanID);
-            until PermissionSet.Next = 0;
+        // Add user to plan
         LibraryPermissions.AddUserToPlan(User."User Security ID", PlanID);
 
         // Execute
@@ -863,7 +799,7 @@ codeunit 134610 "Test User Group Permissions"
 
         // Validate
         Assert.AreEqual(UserGroup.Code, FirstUserGroupCode, '');
-        UserGroup.FindLast;
+        UserGroup.FindLast();
         Assert.AreEqual(UserGroup.Code, LastUserGroupCode, '');
         Assert.AreEqual(UserGroup.Count, UserGroupMember.Count, '');
         UserbyUserGroup.MemberOfAllGroups.SetValue(false);
@@ -945,7 +881,7 @@ codeunit 134610 "Test User Group Permissions"
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGuid, DestTenantPermissionSet."Role ID");
         GlobalSourcePermissionSetRoleID := SourceTenantPermissionSet."Role ID";
         AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
-        AddSubtractPermissionSet.RunModal; // triggers AddSubractPermissionSetHandler
+        AddSubtractPermissionSet.RunModal(); // triggers AddSubractPermissionSetHandler
 
         // Verify
         Assert.AreEqual(2, TenantPermission.Count, '');
@@ -968,7 +904,7 @@ codeunit 134610 "Test User Group Permissions"
     begin
         // [SCENARIO 292106] Add tenant permission set to system permission set via report 9000 "Add/Subtract Permission Set"
         // [GIVEN] System permission set "PS1"
-        LibraryPermissions.CreateTenantPermissionSet(DestTenantPermissionSet, '', CreateGuid());
+        LibraryPermissions.CreateTenantPermissionSet(DestTenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
         // [GIVEN] Tenant permission set "PS2" with permissions "PS2_1", "PS2_2", "PS2_3"
         LibraryPermissions.CreateTenantPermissionSet(SourceTenantPermissionSet, '', ZeroGuid);
         LibraryPermissions.AddTenantPermission(
@@ -979,7 +915,7 @@ codeunit 134610 "Test User Group Permissions"
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, DestTenantPermissionSet."App ID", DestTenantPermissionSet."Role ID");
         GlobalSourcePermissionSetRoleID := SourceTenantPermissionSet."Role ID";
         AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
-        AddSubtractPermissionSet.RunModal; // triggers AddSubractPermissionSetHandler
+        AddSubtractPermissionSet.RunModal(); // triggers AddSubractPermissionSetHandler
         // [THEN] "PS1" has permissions "PS1_1", "PS1_2", "PS1_3" equal to "PS2_1", "PS2_2", "PS2_3"
         DestTenantPermission.SetRange("Role ID", DestTenantPermissionSet."Role ID");
         DestTenantPermission.SetRange("App ID", DestTenantPermissionSet."App ID");
@@ -1017,7 +953,7 @@ codeunit 134610 "Test User Group Permissions"
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGuid, DestTenantPermissionSet."Role ID");
         GlobalSourcePermissionSetRoleID := SourceTenantPermissionSet."Role ID";
         AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
-        AddSubtractPermissionSet.RunModal; // triggers AddSubractPermissionSetHandler
+        AddSubtractPermissionSet.RunModal(); // triggers AddSubractPermissionSetHandler
 
         // Verify
         Assert.AreEqual(1, TenantPermission.Count, '');
@@ -1057,15 +993,15 @@ codeunit 134610 "Test User Group Permissions"
 
         TestCleanup;
         // [GIVEN] First User Group "UG1" with User Group Permission Set "UGPS1"
-        UserGroupCode[1] := LibraryUtility.GenerateGUID;
+        UserGroupCode[1] := LibraryUtility.GenerateGUID();
         CreateUserGroupWithPermissionSet(RoleID[1], UserGroupCode[1]);
 
         // [GIVEN] Second User Group "UG2" without User Group Permission Set
-        UserGroupCode[2] := LibraryUtility.GenerateGUID;
+        UserGroupCode[2] := LibraryUtility.GenerateGUID();
         LibraryPermissions.CreateUserGroup(UserGroup, UserGroupCode[2]);
 
         // [GIVEN] Third User Group "UG3" with User Group Permission Set "UGPS3"
-        UserGroupCode[3] := LibraryUtility.GenerateGUID;
+        UserGroupCode[3] := LibraryUtility.GenerateGUID();
         CreateUserGroupWithPermissionSet(RoleID[3], UserGroupCode[3]);
 
         // [WHEN] Export User groups to XML
@@ -1116,7 +1052,7 @@ codeunit 134610 "Test User Group Permissions"
         // sets the Customized field to TRUE
         // [GIVEN] A User Group and a permission set
         LibraryPermissions.CreateUserGroup(UserGroup, '');
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', CreateGuid());
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, TenantPermissionSet."App ID", TenantPermissionSet."Role ID");
 
         // Execute
@@ -1139,7 +1075,7 @@ codeunit 134610 "Test User Group Permissions"
         // sets the Customized field to TRUE
         // [GIVEN] A User Group and a permission set
         LibraryPermissions.CreateUserGroup(UserGroup, '');
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', CreateGuid());
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
 
         // Execute
         LibraryPermissions.RemovePermissionSetFromUserGroup(TenantPermissionSet."Role ID", UserGroup.Code);
@@ -1378,7 +1314,7 @@ codeunit 134610 "Test User Group Permissions"
         AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
         LibraryPermissions.CreateUserGroup(UserGroup, UserGroupCode);
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', CreateGuid());
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
         RoleID := TenantPermissionSet."Role ID";
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, TenantPermissionSet."App ID", TenantPermissionSet."Role ID");
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroup.Code);
@@ -1477,8 +1413,7 @@ codeunit 134610 "Test User Group Permissions"
         PlanID := AzureADPlanTestLibrary.CreatePlan(SubscriptionPlanTok);
         LibraryPermissions.AddUserToPlan(User."User Security ID", PlanID);
         LibraryPermissions.CreateUserGroup(UserGroup, '');
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'My permission set', CreateGuid());
-        LibraryPermissions.AddPermissionSetToPlan('My permission set', PlanID);
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'My permission set', LibrarySingleServer.GetAppIdGuid());
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, TenantPermissionSet."App ID", TenantPermissionSet."Role ID");
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroup.Code);
 
@@ -1718,7 +1653,7 @@ codeunit 134610 "Test User Group Permissions"
         User: Record User;
         UserPersonalization: Record "User Personalization";
     begin
-        if User.FindFirst then begin
+        if User.FindFirst() then begin
             if UserPersonalization.Get(User."User Security ID") then
                 UserPersonalization.Delete();
             User.Delete();
@@ -1797,7 +1732,9 @@ codeunit 134610 "Test User Group Permissions"
         UserGroupPermissionSet: Record "User Group Permission Set";
         UserGroupPlan: Record "User Group Plan";
         Plan: Query Plan;
+#if not CLEAN20
         PlanPermissionSet: Record "Plan Permission Set";
+#endif
     begin
         // verify User Group Plan exists
         UserGroupPlan.SetRange("Plan ID", PlanID);
@@ -1816,8 +1753,10 @@ codeunit 134610 "Test User Group Permissions"
         Plan.Read();
         LibraryXMLRead.VerifyNodeValue('roleCenterId', Plan.Role_Center_ID);
 
+#if not CLEAN20
         // verify PlanPermissionset
         Assert.IsTrue(PlanPermissionSet.Get(PlanID, XTestPermissionTxt), 'PlanPermissionset doesn''t exist');
+#endif
     end;
 
     local procedure WriteLine(OutStream: OutStream; Text: Text)

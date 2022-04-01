@@ -2,10 +2,7 @@ table 5509 "Attachment Entity Buffer"
 {
     Caption = 'Attachment Entity Buffer';
     ReplicateData = false;
-    // TableType = Temporary;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure  you are not using this table to store records';
-    ObsoleteTag = '17.0';
+    TableType = Temporary;
 
     fields
     {

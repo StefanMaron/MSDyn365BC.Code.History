@@ -381,7 +381,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         ItemAnalysisViewToExcel.SetCommonFilters(
                           CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode,
                           ItemAnalysisViewEntry, DateFilter, ItemFilter, Dim1Filter, Dim2Filter, Dim3Filter, LocationFilter);
-                        ItemAnalysisViewEntry.FindFirst;
+                        ItemAnalysisViewEntry.FindFirst();
                         ItemAnalysisViewToExcel.ExportData(
                           ItemAnalysisViewEntry, ShowColumnName, DateFilter, ItemFilter, BudgetFilter,
                           Dim1Filter, Dim2Filter, Dim3Filter, ShowActualBudget.AsInteger(), LocationFilter, ShowOppositeSign);
@@ -412,7 +412,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         ValueType, ItemAnalysisView, CurrentItemAnalysisViewCode,
                         ItemFilter, LocationFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter, ShowOppositeSign);
                     OnShowMatrixActionOnBeforeRunMatrixForm(MatrixForm, ItemAnalysisView);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")
@@ -484,7 +484,6 @@ page 7159 "Invt. Analysis by Dimensions"
     var
         MATRIX_MatrixRecords: array[32] of Record "Dimension Code Buffer";
         GLSetup: Record "General Ledger Setup";
-        ItemAnalysisView: Record "Item Analysis View";
         ItemStatisticsBuffer: Record "Item Statistics Buffer";
         ItemAnalysisMgt: Codeunit "Item Analysis Management";
         MATRIX_CaptionSet: array[32] of Text[80];
@@ -501,8 +500,6 @@ page 7159 "Invt. Analysis by Dimensions"
         ValueType: Enum "Item Analysis Value Type";
         ShowActualBudget: Enum "Item Analysis Show Type";
         RoundingFactor: Enum "Analysis Rounding Factor";
-        LineDimType: Enum "Item Analysis Dimension Type";
-        ColumnDimType: Enum "Item Analysis Dimension Type";
         PeriodType: Enum "Analysis Period Type";
         Dim1Filter: Code[250];
         Dim2Filter: Code[250];
@@ -523,7 +520,12 @@ page 7159 "Invt. Analysis by Dimensions"
         [InDataSet]
         Dim3FilterEnable: Boolean;
 
-    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
+    protected var
+        ItemAnalysisView: Record "Item Analysis View";
+        LineDimType: Enum "Item Analysis Dimension Type";
+        ColumnDimType: Enum "Item Analysis Dimension Type";
+
+    protected procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MATRIX_PeriodRecords: array[32] of Record Date;
         Location: Record Location;

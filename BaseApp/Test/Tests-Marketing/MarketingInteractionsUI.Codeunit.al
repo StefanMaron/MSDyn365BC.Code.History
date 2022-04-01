@@ -72,7 +72,7 @@ codeunit 136215 "Marketing Interactions UI"
         InteractionLogEntriesPage: TestPage "Interaction Log Entries";
     begin
         // [FEATURE] [Opportunity] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] Contact
         LibraryMarketing.CreatePersonContact(Contact);
         // [GIVEN] Interaction Log Entry, where "Opportunity No." is <blank>
@@ -156,7 +156,7 @@ codeunit 136215 "Marketing Interactions UI"
         PersonContact: Record Contact;
     begin
         // [FEATURE] [Create Interaction] [Contact] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"
         CreateCompanyWithContact(CompanyContact, PersonContact);
 
@@ -179,7 +179,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [Create Interaction] [Salesperson] [Person] [UI]
         // [SCENARIO 175341] Opportunity list page should include records, where "Closed" is 'No'.
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; Person Contact "C" belongs to Company "D"
         // [GIVEN] 6 Opportunities: Salesperson "AH" with "A", "B", "C"; Salesperson "RL" with "A", "C", "D"
         CreateContactsWithOpportunities(CompanyContact, PersonContact);
@@ -212,7 +212,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [Create Interaction] [Salesperson] [Company] [UI]
         // [SCENARIO 175341] Opportunity list page should include records related to the chosen Contact and Salesperson pair.
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; Person Contact "C" belongs to Company "D"
         // [GIVEN] 6 Opportunities: Salesperson "AH" with "A", "B", "C"; Salesperson "RL" with "A", "C", "D"
         CreateContactsWithOpportunities(CompanyContact, PersonContact);
@@ -242,7 +242,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [Create Interaction] [Salesperson] [Person] [UI]
         // [SCENARIO 175341] Opportunity list page should include records related to the chosen Contact and Salesperson pair.
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; Person Contact "C" belongs to Company "D"
         // [GIVEN] 6 Opportunities: Salesperson "AH" with "A", "B", "C"; Salesperson "RL" with "A", "C", "D"
         CreateContactsWithOpportunities(CompanyContact, PersonContact);
@@ -271,7 +271,7 @@ codeunit 136215 "Marketing Interactions UI"
         PersonContact: Record Contact;
     begin
         // [SCENARIO 175341] Opportunity is created from data on Create Interaction page, if "Create Opportunity" notification confirmed
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; No related opportunities
         CreateCompanyWithContact(CompanyContact, PersonContact);
         // [GIVEN] Open "Create Interaction" page from Person Contact "A" and set Salesperson "AH"
@@ -298,7 +298,7 @@ codeunit 136215 "Marketing Interactions UI"
         PersonContact: Record Contact;
     begin
         // [SCENARIO 175341] Opportunity is not created from data on Create Interaction page, if "Create Opportunity" notification not confirmed.
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; No related opportunities
         CreateCompanyWithContact(CompanyContact, PersonContact);
         // [GIVEN] Open "Create Interaction" page from Person Contact "A" and set Salesperson "AH"
@@ -325,7 +325,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [Make Phone Call] [Salesperson] [Company] [UI]
         // [SCENARIO 175341] Opportunity list page should include records related to the chosen Contact and Salesperson pair.
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; Person Contact "C" belongs to Company "D"
         // [GIVEN] 6 Opportunities: Salesperson "AH" with "A", "B", "C"; Salesperson "RL" with "A", "C", "D"
         CreateContactsWithOpportunities(CompanyContact, PersonContact);
@@ -352,7 +352,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [Make Phone Call] [Salesperson] [Person] [UI]
         // [SCENARIO 175341] Opportunity list page should include records related to the chosen Contact, while Salesperson is not defined.
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; Person Contact "C" belongs to Company "D"
         // [GIVEN] 6 Opportunities: Salesperson "AH" with "A", "B", "C"; Salesperson "RL" with "A", "C", "D"
         CreateContactsWithOpportunities(CompanyContact, PersonContact);
@@ -382,7 +382,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [Make Phone Call] [Salesperson] [Person] [UI]
         // [SCENARIO 175341] Opportunity list page should include records related to the chosen Contact and Salesperson pair.
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; Person Contact "C" belongs to Company "D"
         // [GIVEN] 6 Opportunities: Salesperson "AH" with "A", "B", "C"; Salesperson "RL" with "A", "C", "D"
         CreateContactsWithOpportunities(CompanyContact, PersonContact);
@@ -409,7 +409,7 @@ codeunit 136215 "Marketing Interactions UI"
         PersonContact: Record Contact;
     begin
         // [SCENARIO 175341] Opportunity is created from data on Make Phone Call page, if confirmed
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; No related opportunities
         CreateCompanyWithContact(CompanyContact, PersonContact);
         // [GIVEN] Open "Make Phone Call" page from Person Contact "A" and set Salesperson "AH"
@@ -434,7 +434,7 @@ codeunit 136215 "Marketing Interactions UI"
         PersonContact: Record Contact;
     begin
         // [SCENARIO 175341] Opportunity is NOT created from data on Make Phone Call page, if not confirmed
-        Initialize;
+        Initialize();
         // [GIVEN] Person Contact "A" belongs to Company "B"; No related opportunities
         CreateCompanyWithContact(CompanyContact, PersonContact);
         // [GIVEN] Open "Make Phone Call" page from Person Contact "A" and set Salesperson "AH"
@@ -460,7 +460,7 @@ codeunit 136215 "Marketing Interactions UI"
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
         // [FEATURE] [Make Phone Call] [UI] [CLIENTTYPE::Windows]
-        Initialize;
+        Initialize();
         // [GIVEN] User is on the "Desktop" client
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Windows);
@@ -493,7 +493,7 @@ codeunit 136215 "Marketing Interactions UI"
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
         // [FEATURE] [Make Phone Call] [UI] [CLIENTTYPE::Phone]
-        Initialize;
+        Initialize();
         // [GIVEN] User is on the "Phone" client
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
@@ -525,7 +525,7 @@ codeunit 136215 "Marketing Interactions UI"
         SegmentLine: Record "Segment Line";
     begin
         // [FEATURE] [Segment Line] [UT]
-        Initialize;
+        Initialize();
         SegmentLine.DeleteAll();
         // [GIVEN] Interaction Template "GOLF", where Description = 'Golf event'
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -552,7 +552,7 @@ codeunit 136215 "Marketing Interactions UI"
         ExpectedDescription: Text[50];
     begin
         // [FEATURE] [Segment Line] [UT]
-        Initialize;
+        Initialize();
         SegmentLine.DeleteAll();
         // [GIVEN] Interaction Template "GOLF", where Description = 'Golf event'
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -579,7 +579,7 @@ codeunit 136215 "Marketing Interactions UI"
         ExpectedTimeAsText: Text;
     begin
         // [FEATURE] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] Current time is '12:33:59'
         ExpectedTimeAsText := Format(DT2Time(RoundDateTime(CurrentDateTime + 1000, 60000, '>')), 0, 9);
 
@@ -603,7 +603,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 221715] "TAPIManagement"."ShowNumbers" must open page with phone numbers of Contact and Contact's Company
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact of Company "CC" with "Phone No." = "789654123", "Mobile Phone No." = "987456321"
         LibraryMarketing.CreateCompanyContact(CompanyContact);
@@ -650,7 +650,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 392150] Correspondence Type = empty when user creates interaction from template with "Ignore Contact Corres. Type" = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "Marketing Setup"."Default Correspondence Type" = Email
         UpdateMarketingSetupDefaultCorrType("Correspondence Type"::Email);
@@ -683,7 +683,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 392150] Create interaction with Email "Correspondence Type" without attachment leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Person Contact "A" 
         LibraryMarketing.CreatePersonContact(PersonContact);
@@ -708,8 +708,8 @@ codeunit 136215 "Marketing Interactions UI"
         Opportunity: Record Opportunity;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Interactions UI");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         Opportunity.DeleteAll();
         FillMarketingSetupDefaultSalesCycleCode();
 
@@ -819,7 +819,7 @@ codeunit 136215 "Marketing Interactions UI"
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
         InteractionLogEntry.SetRange("Contact No.", Contact."No.");
-        InteractionLogEntry.FindLast;
+        InteractionLogEntry.FindLast();
         InteractionLogEntry.TestField("Opportunity No.");
         VerifyOpportunity(Contact, InteractionLogEntry."Opportunity No.");
     end;
@@ -829,7 +829,7 @@ codeunit 136215 "Marketing Interactions UI"
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
         InteractionLogEntry.SetRange("Contact No.", Contact."No.");
-        InteractionLogEntry.FindLast;
+        InteractionLogEntry.FindLast();
         InteractionLogEntry.TestField("Opportunity No.", '');
         asserterror VerifyOpportunity(Contact, '');
         Assert.ExpectedError('There is no Opportunity within the filter.');
@@ -841,7 +841,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         Opportunity.SetRange("Contact No.", Contact."No.");
         Opportunity.SetRange("Salesperson Code", Contact."Salesperson Code");
-        Opportunity.FindLast;
+        Opportunity.FindLast();
         Opportunity.TestField("No.", OpportunityNo);
         Opportunity.TestField("Sales Cycle Code");
     end;
@@ -975,7 +975,7 @@ codeunit 136215 "Marketing Interactions UI"
     [Scope('OnPrem')]
     procedure ModalHandlerOpportunityList(var OpportunityListPage: TestPage "Opportunity List")
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if OpportunityListPage.First then
             repeat
                 LibraryVariableStorage.Enqueue(OpportunityListPage."No.".Value);

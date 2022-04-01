@@ -458,7 +458,7 @@ page 952 "Manager Time Sheet"
 
         Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
         Calendar.SetRange("Period Start", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
-        if Calendar.FindSet then
+        if Calendar.FindSet() then
             repeat
                 NoOfColumns += 1;
                 ColumnRecords[NoOfColumns]."Period Start" := Calendar."Period Start";
@@ -527,7 +527,7 @@ page 952 "Manager Time Sheet"
         end;
         OnProcessOnAfterTimeSheetLinesFiltered(TimeSheetLine, Action);
         TimeSheetMgt.CopyFilteredTimeSheetLinesToBuffer(TimeSheetLine, TempTimeSheetLine);
-        if TimeSheetLine.FindSet then
+        if TimeSheetLine.FindSet() then
             repeat
                 case Action of
                     Action::"Approve Selected",

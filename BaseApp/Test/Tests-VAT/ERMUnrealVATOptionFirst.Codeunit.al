@@ -29,14 +29,14 @@ codeunit 134014 "ERM Unreal VAT Option First"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Unreal VAT Option First");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Unreal VAT Option First");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERM.SetUnrealizedVAT(true);
 
         IsInitialized := true;
@@ -53,7 +53,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Check that correct VAT Amount Applied after posting Sales Invoice and making Payment against it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         PartialUnrealizedVATSales(GenJournalLine, SalesInvoiceHeader, VATPostingSetup);
 
@@ -69,7 +69,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check that Half VAT Amount Applied after posting Sales Invoice and making Payment against it.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         HalfUnrealizedVATSales(GenJournalLine, VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
 
@@ -87,7 +87,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Check that correct VAT Amount Applied after posting Sales Invoice and making Payment against it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         PartialUnrealizedVATSales(GenJournalLine, SalesInvoiceHeader, VATPostingSetup);
 
@@ -111,7 +111,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         // Check that correct VAT Amount Applied after posting Purchase Invoice and making Payment against it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, '');
 
@@ -127,7 +127,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check that Half VAT Amount Applied after posting Purchase Invoice and making Payment against it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         HalfUnrealizedVATPurchase(GenJournalLine, VATPostingSetup);
 
@@ -145,7 +145,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // Check that correct VAT Amount Applied after posting Purchase Invoice and making Payment against it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, '');
 
@@ -168,7 +168,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         // Check that correct VAT Amount Applied after posting Purchase Invoice with Currency and making Payment against it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, CreateCurrency);
 
@@ -187,7 +187,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // Check that correct VAT Amount Applied after posting Purchase Invoice with Currency and making Payment against it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, CreateCurrency);
 
@@ -198,7 +198,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
 
         // Verify: Verify the Remaining VAT Amount in VAT Entry.
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         VerifyVATEntry(
           GenJournalLine, PurchInvHeader."Currency Code",
           (PurchInvLine."Amount Including VAT" - PurchInvLine.Amount) - GenJournalLine.Amount);
@@ -213,7 +213,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Check that no VAT Entry exists after posting Sales Invoice and Applying Payment over it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
         PartialUnrealizedVATSales(GenJournalLine, SalesInvoiceHeader, VATPostingSetup);
 
@@ -231,7 +231,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Check that Full VAT Amount exists in VAT Entry after posting Sales Invoice and Applying Payment over it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
         PartialUnrealizedVATSales(GenJournalLine, SalesInvoiceHeader, VATPostingSetup);
 
@@ -254,7 +254,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         // Check that no VAT Entry exists after posting Purchase Invoice and Applying Payment over it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
         PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, '');
 
@@ -272,7 +272,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // Check that full VAT Amount exists in VAT Entry after posting Purchase Invoice and Applying Payment over it.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
         PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, '');
 
@@ -295,7 +295,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
     begin
         // Check that correct Amount,VAT Amount, Additional-Currency Amount Applied after posting General Journal with Document Type
         // Invoice and making Payment.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);  // Using Random Number Generator for Amount.
         UnrealizedVATDocument(VATPostingSetup, InvoiceAmount, -InvoiceAmount);
@@ -309,7 +309,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
     begin
         // Check that correct Amount,VAT Amount, Additional-Currency Amount Applied after posting General Journal with Document Type
         // Invoice and making Payment below VAT Amount.
-        Initialize;
+        Initialize();
         PartialPaymentWithVAT(VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
     end;
 
@@ -322,7 +322,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         // Check that correct Amount,VAT Amount, Additional-Currency Amount Applied after posting General Journal with Document Type
         // Invoice and Partial making Payment.
 
-        Initialize;
+        Initialize();
         PartialPaymentWithVAT(VATPostingSetup."Unrealized VAT Type"::First);
     end;
 
@@ -355,7 +355,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
 
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type First, Create and
         // Post Sales Credit Memo.Take Random Quantity greater than 100 to avoid rounding issues.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
@@ -393,7 +393,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type First, Create and
         // Post Sales Credit Memo, Create and Post General Journal Line with Document Type as Refund and Apply it on Credit Memo.
         // Take Random Quantity greater than 100 to avoid rounding issues.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
@@ -454,7 +454,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
     begin
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type First, Create and
         // Post Purchase Credit Memo with Currency.Take Random Quantity greater than 100 to avoid rounding issues.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         CreateAndUpdatePurchaseHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CurrencyCode, VATPostingSetup."VAT Bus. Posting Group");
@@ -508,7 +508,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         // using page testability.
 
         // Setup: Update General Ledger Setup and VAT Setup, Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         DocumentNo := PostSalesInvoiceWithUnrealVAT(VATPostingSetup);
         HalfVATAmount := CalculateHalfSalesVATAmount(DocumentNo);
         SalesInvoiceHeader.Get(DocumentNo);
@@ -539,7 +539,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
 
         // Setup: Update General Ledger Setup and VAT Setup, Create and Post Sales Invoice.
         // Payment against Invoice with Half VAT Amount and Apply the Payment over Invoice.
-        Initialize;
+        Initialize();
         DocumentNo := PostSalesInvoiceWithUnrealVAT(VATPostingSetup);
         SalesInvoiceHeader.Get(DocumentNo);
 
@@ -571,7 +571,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         // using page testability.
 
         // Setup: Update General Ledger Setup and VAT Setup, Create and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         PostedDocumentNo := PostPurchInvoiceWithUnrealVAT(VATPostingSetup, '');
         FindPurchaseInvoiceLine(PurchInvLine, PostedDocumentNo);
         HalfVATAmount := CalculateHalfPurchaseVATAmount(PostedDocumentNo);
@@ -600,7 +600,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
 
         // Setup: Update General Ledger Setup and VAT Setup, Create and Post Sales Invoice.
         // Payment against Invoice with Half VAT Amount and Apply the Payment over Invoice.
-        Initialize;
+        Initialize();
         PostedDocumentNo := PostPurchInvoiceWithUnrealVAT(VATPostingSetup, '');
         FindPurchaseInvoiceLine(PurchInvLine, PostedDocumentNo);
         HalfVATAmount := CalculateHalfPurchaseVATAmount(PostedDocumentNo);
@@ -631,7 +631,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         // using page testability.
 
         // Setup: Update General Ledger Setup and VAT Setup, Create Currency, Create and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         PostedDocumentNo := PostPurchInvoiceWithUnrealVAT(VATPostingSetup, CurrencyCode);
         FindPurchaseInvoiceLine(PurchInvLine, PostedDocumentNo);
@@ -662,7 +662,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
 
         // Setup: Update General Ledger Setup and VAT Setup, Create and Post Sales Invoice.
         // Payment against Invoice with Half VAT Amount and Apply the Payment over Invoice.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         PostedDocumentNo := PostPurchInvoiceWithUnrealVAT(VATPostingSetup, CurrencyCode);
         FindPurchaseInvoiceLine(PurchInvLine, PostedDocumentNo);
@@ -690,7 +690,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
     begin
         // 1. Setup: Update Unrealized VAT as True on General Ledger Setup, VAT Posting Setup with Unrealized VAT Type First, Create and
         // Post Purchase Credit Memo.Take Random Quantity greater than 100 to avoid rounding issues.
-        Initialize;
+        Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         CreateAndUpdatePurchaseHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CurrencyCode, VATPostingSetup."VAT Bus. Posting Group");
@@ -830,7 +830,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
 
         // Set Applies-to ID.
         CustLedgerEntry2.SetRange("Document No.", DocumentNo2);
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
 
         // Post Application Entries.
@@ -849,7 +849,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
 
         // Set Applies-to ID.
         VendorLedgerEntry2.SetRange("Document No.", DocumentNo2);
-        VendorLedgerEntry2.FindFirst;
+        VendorLedgerEntry2.FindFirst();
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry2);
 
         // Post Application Entries.
@@ -973,7 +973,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         // Return Payment Amount less than VAT Amount to use it as partial Amount.
         GeneralLedgerSetup.Get();
@@ -988,7 +988,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         // Return Payment Amount Half of the VAT Amount.
         exit((SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount) / 2);
@@ -1000,7 +1000,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         // Return Payment Amount less than VAT Amount to use it as partial Amount.
         GeneralLedgerSetup.Get();
@@ -1013,20 +1013,20 @@ codeunit 134014 "ERM Unreal VAT Option First"
     local procedure FindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; DocumentNo: Code[20])
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     local procedure FindPurchaseInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; DocumentNo: Code[20])
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", DocumentType);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure CalculateHalfPurchaseVATAmount(DocumentNo: Code[20]): Decimal
@@ -1034,7 +1034,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         // Return Payment Amount Half of the VAT Amount.
         exit((PurchInvLine."Amount Including VAT" - PurchInvLine.Amount) / 2);
@@ -1229,7 +1229,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         VATEntry.SetRange("Bill-to/Pay-to No.", GenJournalLine."Account No.");
         VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VATEntry.SetRange("Document Type", GenJournalLine."Document Type");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Currency.InitRoundingPrecision;
         if CurrencyCode <> '' then
             Amount := Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate));

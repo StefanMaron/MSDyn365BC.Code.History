@@ -33,14 +33,14 @@ codeunit 137410 "Extended Text Documents"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Extended Text Documents");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibrarySetupStorage.Restore();
         if IsInitialzied then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Extended Text Documents");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         IsInitialzied := true;
@@ -59,7 +59,7 @@ codeunit 137410 "Extended Text Documents"
         Quantity: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandIntInRange(1, 10);
         CreateItemwithStock(Item, ExtendedTxt, Quantity);
         LibraryPatterns.MAKESalesQuote(SalesHeader, SalesLine, Item, '', '',
@@ -89,7 +89,7 @@ codeunit 137410 "Extended Text Documents"
         Quantity: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandIntInRange(1, 10);
         CreateItemwithStock(Item, ExtendedTxt, Quantity);
         LibraryPatterns.MAKESalesBlanketOrder(SalesHeader, SalesLine, Item, '', '',
@@ -117,7 +117,7 @@ codeunit 137410 "Extended Text Documents"
     begin
         // [FEATURE] [Blanket Sales Order]
         // [SCENARIO 379977] Extended Text for Blanket Sales Order Line with "Qty. to Ship" = 0 should not be transferred to Sales Order Line.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Items "I1" and "I2" with Extended Texts "ET1" and "ET2" respectively.
@@ -153,7 +153,7 @@ codeunit 137410 "Extended Text Documents"
         Quantity: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandIntInRange(1, 10);
         LibraryPatterns.MAKEItemWithExtendedText(Item, ExtendedTxt, Item."Costing Method"::FIFO, 0);
         LibraryPatterns.MAKEPurchaseQuote(PurchaseHeader, PurchaseLine,
@@ -179,7 +179,7 @@ codeunit 137410 "Extended Text Documents"
         Quantity: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandIntInRange(1, 10);
         LibraryPatterns.MAKEItemWithExtendedText(Item, ExtendedTxt, Item."Costing Method"::FIFO, 0);
         LibraryPatterns.MAKEPurchaseBlanketOrder(PurchaseHeader, PurchaseLine,
@@ -207,7 +207,7 @@ codeunit 137410 "Extended Text Documents"
     begin
         // [FEATURE] [Blanket Purchase Order]
         // [SCENARIO 379977] Extended Text for Blanket Purchase Order Line with "Qty. to Receive" = 0 should not be transferred to Purchase Order Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Items "I1" and "I2" with Extended Texts "ET1" and "ET2" respectively.
         ExtText := LibraryUtility.GenerateRandomText(30);
@@ -533,7 +533,7 @@ codeunit 137410 "Extended Text Documents"
     begin
         ItemSalesLine.SetRange("Document Type", ItemSalesLine."Document Type"::Order);
         ItemSalesLine.SetRange("No.", ItemNo);
-        ItemSalesLine.FindFirst;
+        ItemSalesLine.FindFirst();
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", ItemSalesLine."Document No.");
@@ -548,7 +548,7 @@ codeunit 137410 "Extended Text Documents"
     begin
         ItemPurchLine.SetRange("Document Type", ItemPurchLine."Document Type"::Order);
         ItemPurchLine.SetRange("No.", ItemNo);
-        ItemPurchLine.FindFirst;
+        ItemPurchLine.FindFirst();
 
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchLine.SetRange("Document No.", ItemPurchLine."Document No.");

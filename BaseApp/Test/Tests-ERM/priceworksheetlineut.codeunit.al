@@ -3016,13 +3016,14 @@ codeunit 134198 "Price Worksheet Line UT"
     local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price Worksheet Line UT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryPriceCalculation.EnableExtendedPriceCalculation(Enable);
 
         if isInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Price Worksheet Line UT");
+        LibraryERM.SetBlockDeleteGLAccount(false);
         isInitialized := true;
         Commit;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Price Worksheet Line UT");

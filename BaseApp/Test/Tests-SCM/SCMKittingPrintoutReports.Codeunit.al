@@ -41,14 +41,14 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - Printout Reports");
         // Initialize setup.
         ClearLastError;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - Printout Reports");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
@@ -132,7 +132,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, AssemblyHeader."Dimension Set ID");
         DimensionSetEntry.SetRange("Dimension Code", ShortcutDimensionCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
 
         if Num = 1 then
             AssemblyHeader.Validate(
@@ -152,7 +152,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     begin
         BOMComponent.SetRange("Parent Item No.", Item."No.");
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 LibraryInventory.CreateItemVariant(ItemVariant, BOMComponent."No.");
                 BOMComponent.Validate("Variant Code", ItemVariant.Code);
@@ -183,14 +183,14 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     begin
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         AssemblyLine.Validate(Description, PadStr(LibraryUtility.GenerateGUID, 49, '.') + '!');
         AssemblyLine.Modify(true);
 
         TempAssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         TempAssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         TempAssemblyLine.SetRange("No.", AssemblyLine."No.");
-        TempAssemblyLine.FindFirst;
+        TempAssemblyLine.FindFirst();
         TempAssemblyLine.Validate(Description, AssemblyLine.Description);
         TempAssemblyLine.Modify(true);
     end;
@@ -265,7 +265,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         if SalesOrderNo <> '' then begin
             PostedSalesShipmentHeader.SetRange("Order No.", SalesOrderNo);
-            PostedSalesShipmentHeader.FindFirst;
+            PostedSalesShipmentHeader.FindFirst();
             LibraryReportDataset.AssertCurrentRowValueEquals('LinkedSalesShipment', PostedSalesShipmentHeader."No.");
         end;
 
@@ -430,7 +430,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesOrderNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         AssemblyHeaderNo := CreateATS(ItemATS, WorkDate2);
         PostATS(AssemblyHeaderNo);
@@ -449,7 +449,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesOrderNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         AssemblyHeaderNo := CreateATO(ItemATO, WorkDate2, SalesHeader);
         PostATO(SalesHeader);
@@ -467,7 +467,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesOrderNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         AssemblyHeaderNo := CreateATS(ItemATS, WorkDate2);
         PostATS(AssemblyHeaderNo);
@@ -486,7 +486,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesOrderNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         AssemblyHeaderNo := CreateATS(ItemATS, WorkDate2 + 1);
         PostATS(AssemblyHeaderNo);
@@ -511,7 +511,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesOrderNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         LibraryAssembly.SetupAssemblyItem(
           TestItemATS, ItemATS."Costing Method"::Standard, ItemATS."Costing Method"::Standard, ItemATS."Replenishment System"::Assembly,
@@ -537,7 +537,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         AssemblyHeaderNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         AssemblyHeaderNo := CreateATS(ItemATS, WorkDate2);
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, AssemblyHeaderNo);
@@ -561,7 +561,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         AssemblyHeaderNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         AssemblyHeaderNo := CreateATO(ItemATO, WorkDate2, SalesHeader);
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, AssemblyHeaderNo);
@@ -583,7 +583,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         AssemblyHeaderNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         LibraryAssembly.SetupAssemblyItem(
           TestItemATS, ItemATS."Costing Method"::Standard, ItemATS."Costing Method"::Standard, ItemATS."Replenishment System"::Assembly,
@@ -613,7 +613,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesHeader: Record "Sales Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         CreateATO(ItemATO, WorkDate2, SalesHeader);
 
@@ -642,7 +642,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         "Count": Integer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         LibraryAssembly.SetupAssemblyItem(
           TestItemATO, ItemATO."Costing Method"::Standard, ItemATO."Costing Method"::Standard, ItemATO."Replenishment System"::Assembly,
@@ -691,7 +691,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesHeader: Record "Sales Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // CREATE: Sales order with all line types and verify report
         LibraryInventory.CreateItem(Item);
@@ -731,7 +731,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         TestItemATO: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // SETUP: Create the ATO item and a regular item
         LibraryInventory.CreateItem(Item);
@@ -761,7 +761,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("No.", TestItemATO."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         SalesLine.Validate(Quantity, 0);
         SalesLine.Modify(true);

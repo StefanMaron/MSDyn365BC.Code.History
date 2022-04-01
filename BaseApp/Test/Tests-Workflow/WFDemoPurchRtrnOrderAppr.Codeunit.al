@@ -44,7 +44,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [THEN] The user will get an error that he cannot post a purchase return order that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
@@ -75,7 +75,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [THEN] The user will get an error that he cannot release a purchase return order that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
@@ -108,7 +108,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [THEN] The user will get an error that he cannot release the purchase return order that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -154,7 +154,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [THEN] The user will get an error that he cannot reopen the purchase return order.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -199,7 +199,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [WHEN] Purchaser approves the approval request.
         // [THEN] Purchase return order is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
@@ -257,7 +257,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [WHEN] Purchaser rejects the approval request.
         // [THEN] Purchase return order is reopened and approval entries are marked as rejected.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
@@ -319,7 +319,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [WHEN] Approval Request is approved.
         // [THEN] Purchase return order is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
@@ -397,7 +397,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [WHEN] Sender cancels the approval request.
         // [THEN] Purchase return order is opend and approval requests are marked as cancelled.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
@@ -447,7 +447,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Purchase Header approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchaseReturnOrder(PurchHeader);
@@ -526,7 +526,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] PurchHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchaseReturnOrder(PurchHeader);
@@ -592,7 +592,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [WHEN] Purchaser approves the approval request.
         // [THEN] Purchase Return Order is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
@@ -659,7 +659,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
 
@@ -727,10 +727,10 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         UserSetup: Record "User Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Purch Rtrn Order Appr.");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
@@ -778,7 +778,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.SetRecFilter;
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure VerifyPurchaseReturnOrderIsReleased(var PurchaseHeader: Record "Purchase Header")

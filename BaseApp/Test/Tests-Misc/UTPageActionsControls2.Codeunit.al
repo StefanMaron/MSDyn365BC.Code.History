@@ -562,7 +562,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         Initialize();
 
-        LibraryPurchase.CreateVendorNo;
+        LibraryPurchase.CreateVendorNo();
 
         VendorList.OpenView();
         Assert.AreEqual(GetExpectedDateFilter(), VendorList.FILTER.GetFilter("Date Filter"), 'Vendor List');

@@ -2,10 +2,7 @@ table 5510 "Employee Time Reg Buffer"
 {
     Caption = 'Employee Time Reg Buffer';
     ReplicateData = false;
-    //TableType = Temporary;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Table will be marked with - TableType = Temporary. Make sure you are not saving any data to this table.';
-    ObsoleteTag = '17.0';
+    TableType = Temporary;
 
     fields
     {
@@ -239,9 +236,9 @@ table 5510 "Employee Time Reg Buffer"
         if DateFilter <> '' then begin
             Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
             Calendar.SetFilter("Period Start", DateFilter);
-            if Calendar.FindFirst then begin
+            if Calendar.FindFirst() then begin
                 FirstDate := Calendar."Period Start";
-                Calendar.FindLast;
+                Calendar.FindLast();
                 LastDate := Calendar."Period Start";
             end else
                 Error(StrSubstNo(DateFilterIsInvalidErr, MaxDateFilterRange));
@@ -265,7 +262,7 @@ table 5510 "Employee Time Reg Buffer"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         TimeSheetDetail.SetFilter(SystemId, IdFilter);
-        if not TimeSheetDetail.FindFirst then
+        if not TimeSheetDetail.FindFirst() then
             exit;
 
         TimeSheetLine.Get(TimeSheetDetail."Time Sheet No.", TimeSheetDetail."Time Sheet Line No.");
@@ -303,14 +300,14 @@ table 5510 "Employee Time Reg Buffer"
         UnitOfMeasureFound: Boolean;
     begin
         Employee.SetFilter(SystemId, EmployeeIdFilter);
-        if not Employee.FindFirst then
+        if not Employee.FindFirst() then
             exit;
 
         if not Resource.Get(Employee."Resource No.") then
             exit;
 
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
-        if not TimeSheetHeader.FindSet then
+        if not TimeSheetHeader.FindSet() then
             exit;
 
         if UnitOfMeasure.Get(Resource."Base Unit of Measure") then
@@ -319,11 +316,11 @@ table 5510 "Employee Time Reg Buffer"
         repeat
             TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
             TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Resource);
-            if TimeSheetLine.FindSet then begin
+            if TimeSheetLine.FindSet() then begin
                 repeat
                     TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetHeader."No.");
                     TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
-                    if TimeSheetDetail.FindSet then begin
+                    if TimeSheetDetail.FindSet() then begin
                         repeat
                             TransferFields(TimeSheetDetail, true);
                             Id := TimeSheetDetail.SystemId;
@@ -360,7 +357,7 @@ table 5510 "Employee Time Reg Buffer"
         UnitOfMeasureFound: Boolean;
     begin
         TimeSheetDetail.SetFilter(Date, DateFilter);
-        if not TimeSheetDetail.FindSet then
+        if not TimeSheetDetail.FindSet() then
             exit;
 
         repeat

@@ -60,7 +60,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Receipt Date on Transfer Line.
 
         // Setup: Create Transfer Header and Line with Base Calendar.
-        Initialize;
+        Initialize();
         CreateTransferOrderWithBaseCalendar(TransferLine);
 
         // Exercise.
@@ -82,7 +82,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Shipment Date on Transfer Line with updated Transfer Header's Shipment Date.
 
         // Setup: Create Transfer Header and Line with Base Calendar.
-        Initialize;
+        Initialize();
         CreateTransferOrderWithBaseCalendar(TransferLine);
         TransferHeader.Get(TransferLine."Document No.");
         ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', TransferHeader."Receipt Date");  // Random value is taken for Shipment Date and 'D' is used for Day.
@@ -106,7 +106,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Working Day on Base Calendar Changes must not exist.
 
         // Setup: Create Base Calendar and Base Calendar Change.
-        Initialize;
+        Initialize();
         LibraryService.CreateBaseCalendar(BaseCalendar);
         CreateBaseCalendarChange(BaseCalendarChange, BaseCalendar.Code, BaseCalendarChange.Day::Tuesday, BaseCalendarChange.Day::Wednesday);
         CreateBaseCalendarChange(BaseCalendarChange, BaseCalendar.Code, BaseCalendarChange.Day::Thursday, BaseCalendarChange.Day::Friday);
@@ -115,7 +115,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         BaseCalendarChange.SetRange(Day, BaseCalendarChange.Day::Saturday);  // 'Saturday' is taken as Working Day in Base Calendar Change.
 
         // Exercise.
-        asserterror BaseCalendarChange.FindFirst;
+        asserterror BaseCalendarChange.FindFirst();
 
         // Verify: Verify that Working Day must not exist in Base Calendar Changes.
         Assert.ExpectedError(StrSubstNo(BaseCalendarError));
@@ -133,7 +133,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Application using Appl.-from Item Entry field on Service Line.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order and Create Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None), LibraryRandom.RandDec(10, 2),
           false);  // Using Random value for Quantity.
@@ -160,7 +160,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Application using Appl.-to Item Entry field on Purchase Return Order.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order and Create Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None), LibraryRandom.RandDec(10, 2),
           false);  // Using Random value for Quantity.
@@ -194,7 +194,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Adjusted Cost Amount in Value Entry.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order and Create Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None), LibraryRandom.RandDec(10, 2),
           false);  // Using Random value for Quantity.
@@ -215,7 +215,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify: Verify Adjusted Cost Amount in Value Entry.
         ValueEntry.SetRange("Item No.", PurchaseLine."No.");
         ValueEntry.SetRange(Adjustment, true);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(CostAmountExpected, ValueEntry."Cost Amount (Expected)", CostAmountMustBeSame);
     end;
 
@@ -231,7 +231,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Error while applying on Service Credit Memo.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order and Create Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem(Item."Costing Method"::LIFO, Item."Order Tracking Policy"::None), LibraryRandom.RandDec(10, 2),
           false);  // Using Random value for Quantity.
@@ -256,7 +256,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Error while posting Service Order with Item Tracking Lot Number.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(AvailabilityWarning);
         ServiceDocumentWithPurchaseOrder(
           ServiceLine, GlobalItemTrackingAction::AssignLotNo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
@@ -284,7 +284,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Error while Applying Return Order with 'Entry No.' from  Item Ledger Entry.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order with Item Tracking.
-        Initialize;
+        Initialize();
         ServiceDocumentWithPurchaseOrder(
           ServiceLine, GlobalItemTrackingAction::SelectEntriesLotNo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -314,7 +314,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Error while posting Service Credit Memo.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order and Create Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None), LibraryRandom.RandDec(10, 2),
           false);  // Using Random value for Quantity.
@@ -346,7 +346,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Order Tracking page values using Item Ledger Entries.
 
         // Setup: Create and Receive Purchase Order and Return Order.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(TrackingAndActionMessage);
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::"Tracking & Action Msg."),
@@ -373,7 +373,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Tracking Message using Order Tracking Policy as 'Tracking & Action Msg.'.
 
         // Setup: Create and Receive Purchase Order.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(TrackingAndActionMessage);
         LibraryVariableStorage.Enqueue(OrderTrackingMessage);
         CreateAndPostPurchaseDocument(
@@ -402,7 +402,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Reservation error while posting Purchase Return Order with Appl.-to Item Entry.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order and create a Purchase Return Order and perform Reservation.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(TrackingAndActionMessage);
         LibraryVariableStorage.Enqueue(UndoShipmentLine);
         CreateAndPostPurchaseDocument(
@@ -431,7 +431,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     procedure PostValueEntryToGLWithZeroPurchaseCost()
     begin
         // Post Value Entry to G/L is correct with Zero Cost - Purchase and Verify Quantity, Actual/Expected Cost in Item Ledger Entry.
-        Initialize;
+        Initialize();
         PostValueEntryToGLWithZeroCost;
     end;
 
@@ -444,7 +444,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // This test case verifies Post Value Entry to G/L and ACY Cost Amount is correct with Zero costs in Purchase transaction.
 
         // Setup: Create Currency and updated then same on General Ledger Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateAddCurrencySetup(CreateCurrency);
         PostValueEntryToGLWithZeroCost;
@@ -518,7 +518,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Reservation using Item with Order Tracking Policy as Tracking Only.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.",
@@ -537,7 +537,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify: Verify Revaluated value in the Revaluation Journal.
         Item.Get(PurchaseLine."No.");
         ItemJournalLine.SetRange("Item No.", PurchaseLine."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Unit Cost (Revalued)", Item."Last Direct Cost");
         ItemJournalLine.TestField("Inventory Value (Revalued)", Round(Item."Last Direct Cost" * PurchaseLine.Quantity));
     end;
@@ -557,7 +557,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Variance entry from Value Entry using Item with Standard Cost.
 
         // Setup: Create and Receive Purchase Invoice, Create and Ship Service Order.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::Invoice, Vendor."No.",
@@ -580,7 +580,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify: Verify Variance entry from Value Entry using Item with Standard Cost.
         ValueEntry.SetRange("Item No.", ServiceLine."No.");
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(ValueEntry."Cost Amount (Actual)", -Round(Item."Last Direct Cost" * PurchaseLine.Quantity), CostAmountMustBeSame);
     end;
 
@@ -601,7 +601,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify that there should be showing all value entries for Direct Cost, Variance, Service Shipment, Service Credit Memo and Adjustment.
 
         // Setup: Create and post Purchase Invoice, Create and Ship Service Order and Create Service Credit Memo.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::Invoice, Vendor."No.",
@@ -656,7 +656,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Close Inventory Period error.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.",
@@ -691,7 +691,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Item Ledger Entry for Positive and Negative Adjustment and Item Application Entry.
 
         // Setup: Create Item and Item Journal Line for Positive and Negative Adjustment.
-        Initialize;
+        Initialize();
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
         ItemNo := CreateItem(Item."Costing Method"::Average, Item."Order Tracking Policy"::None);
         CreateItemJournalLine(
@@ -727,7 +727,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Adjusted Cost Amount in Value Entry.
 
         // Setup: Create Item and Item Journal Line for Positive and Negative Adjustment.
-        Initialize;
+        Initialize();
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
         ItemNo := CreateItem(Item."Costing Method"::Average, Item."Order Tracking Policy"::None);
         CreateItemJournalLine(
@@ -745,7 +745,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify: Verify Adjusted Cost Amount in Value Entry.
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange(Adjustment, true);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Cost Amount (Actual)", Round(ValueEntry."Valued Quantity" * ValueEntry."Cost per Unit"));
     end;
 
@@ -763,7 +763,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Applied Quantity on View Applied Entries page.
 
         // Setup: Create Item, post Item Journal Line for Positive and Negative Adjustment and open Application Worksheet page.
-        Initialize;
+        Initialize();
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
         GlobalItemNo := CreateItem(Item."Costing Method"::Average, Item."Order Tracking Policy"::None);
         LibraryInventory.CreateItemJournalLine(
@@ -802,7 +802,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Post Value Entry to G/L is correct with Zero Cost - Sales and Verify Item in Post Value Entry To G/L.
 
         // Setup: Create Item Journal for Positive Entry, Make Sales Order Post as Ship and Update Unit Cost with 0 value.Again Post same Order as Invoice.
-        Initialize;
+        Initialize();
         UpdateInventorySetup(false, false, "Average Cost Calculation Type"::Item);
         ItemNo := SetupProductionItem(Item."Costing Method"::FIFO, Item."Replenishment System"::Purchase, 0);  // Using 0 for Standard Cost.
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
@@ -839,7 +839,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     begin
         // Verify Unit Cost on the Item Card with Unit Cost (Calculated) on Revaluation Journal.
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
@@ -858,7 +858,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify: Verify Unit Cost on the Item Card with Unit Cost (Calculated) on Revaluation Journal.
         Item.Get(PurchaseLine."No.");
         ItemJournalLine.SetRange("Item No.", PurchaseLine."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Unit Cost (Calculated)", Item."Unit Cost");
         ItemJournalLine.TestField("Inventory Value (Revalued)", Round(Item."Unit Cost" * PurchaseLine.Quantity));
     end;
@@ -874,7 +874,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Applies-to Entry Reclassification Journal and Invoiced Quantity must be same as Item Ledger Entry.
 
         // Setup: Update Inventory Setup, create Reclassification Journal Line for Positive and Negative Adjustment and find Item Ledger Entry.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         UpdateInventorySetup(true, true, "Average Cost Calculation Type"::"Item & Location & Variant");
         ReclassificationJournalUsingAdjustment(ReclassificationItemJournalLine);
@@ -903,7 +903,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Cost Amount Expected is reversed when Sales Return Order is not fully Invoiced using Get Posted Document Lines To Reverse.
 
         // Setup: Create and post Purchase Order, Sales Order.Create and post Sales Return Order with partial Quantity.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(false, true, "Average Cost Calculation Type"::Item);
         CreateAndPostPurchaseDocument(
@@ -941,7 +941,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Suggest Sales Price on Worksheet function with Create New Prices FALSE.
 
         // Setup: Create Items, Customer Price Group ,Sales Prices and using Random value for Unit Price.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None);
         UnitPrice := LibraryRandom.RandDec(100, 1);
         CustomerPriceGroup := CreateCustomerPriceGroup;
@@ -969,7 +969,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Suggest Sales Price not Created if New Prices FALSE and apply Filter with different Ending Date.
 
         // Setup: Create Items, Customer Price Group ,Sales Prices and using Random value for Unit Price.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None);
         UnitPrice := LibraryRandom.RandDec(100, 1);
         CustomerPriceGroup := CreateCustomerPriceGroup;
@@ -1001,7 +1001,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Suggest Sales Price on Worksheet function with Create New Prices TRUE.
 
         // Setup: Create Items, Customer Price Group ,Sales Prices and using Random value for Unit Price.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None);
         UnitPrice := LibraryRandom.RandDec(100, 1);
         CustomerPriceGroup := CreateCustomerPriceGroup;
@@ -1030,7 +1030,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         // Verify Suggest Sales Price not Created if New Prices TRUE and apply Filter with different Customer Price Group.
 
         // Setup: Create Items, Customer Price Group ,Sales Prices and using Random value for Unit Price.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None);
         UnitPrice := LibraryRandom.RandDec(100, 1);
         CustomerPriceGroup := CreateCustomerPriceGroup;
@@ -1066,7 +1066,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         DocumentNo: Code[20];
     begin
         // Verify Line Discount and Unit Price on posted Sales Invoice created from Drop Shipment and Special Order.
-        Initialize;
+        Initialize();
         PriceListLine.DeleteAll();
 
         // Setup: Create Item, create Vendor, Customer and update Line Discount, Unit Price.
@@ -1095,7 +1095,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
 
         // Receive Purchase Order.
         PurchaseHeader.SetRange("Buy-from Vendor No.", Item."Vendor No.");
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // Get Drop Shipment order in new Purchase Order.
@@ -1129,7 +1129,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     begin
         // [FEATURE] [Adjust Cost] [Purchase] [Order] [Return Order] [Expected Cost]
         // [SCENARIO 304178] Total cost (actual + expected cost) of partially invoiced purchase return matches the total cost of the purchase order it is applied to.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with "FIFO" costing method.
         Item.Get(CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None));
@@ -1192,7 +1192,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     begin
         // [FEATURE] [Adjust Cost] [Purchase] [Order] [Return Order] [Expected Cost]
         // [SCENARIO 304178] Adjust Cost batch job handles value entries for expected cost before ones for actual cost.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with "FIFO" costing method.
         Item.Get(CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::None));
@@ -1217,9 +1217,9 @@ codeunit 137292 "SCM Inventory Costing Orders"
 
         // [GIVEN] Set "Invoice No." and "Return Shipment No." so that the number of invoice goes alphabetically before the number of return shipment.
         ReturnPurchaseHeader.Validate("Posting No. Series", '');
-        ReturnPurchaseHeader.Validate("Posting No.", LibraryUtility.GenerateGUID);
+        ReturnPurchaseHeader.Validate("Posting No.", LibraryUtility.GenerateGUID());
         ReturnPurchaseHeader.Validate("Return Shipment No. Series", '');
-        ReturnPurchaseHeader.Validate("Return Shipment No.", LibraryUtility.GenerateGUID);
+        ReturnPurchaseHeader.Validate("Return Shipment No.", LibraryUtility.GenerateGUID());
         ReturnPurchaseHeader.Modify(true);
 
         // [GIVEN] Post the purchase return shipment.
@@ -1263,7 +1263,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         Qty: Decimal;
     begin
         // [FEATURE] [Adjust Cost] [Purchase] [Sales] [Order] [Expected Cost]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Setup -> Automatic Cost Adjustment = Always and Costing Period as Accounting Period
         InventorySetup.FindFirst();
@@ -1404,21 +1404,23 @@ codeunit 137292 "SCM Inventory Costing Orders"
         GlobalItemNo := '';
         GlobalVendorNo := '';
         GlobalQuantity := 0;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing Orders");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();
@@ -1809,7 +1811,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetFilter(Type, '<>''''');
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity.
         SalesLine.Modify(true);
     end;
@@ -1825,7 +1827,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ItemTrackingCode.SetRange("SN Specific Tracking", SerialNoSpecificTracking);
         ItemTrackingCode.SetRange("SN Sales Inbound Tracking", SerialNoSpecificTracking);
         ItemTrackingCode.SetRange("SN Sales Outbound Tracking", SerialNoSpecificTracking);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         exit(ItemTrackingCode.Code);
     end;
 
@@ -1833,14 +1835,14 @@ codeunit 137292 "SCM Inventory Costing Orders"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Positive, Positive);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLine: Record "Purchase Line")
@@ -1854,7 +1856,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure GetSalesOrderOnReqWkshtAndCarryOutActionMsg(ItemNo: Code[20])
@@ -1864,7 +1866,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.GetSpecialOrder(RequisitionLine, ItemNo);
@@ -1905,14 +1907,14 @@ codeunit 137292 "SCM Inventory Costing Orders"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
 
         ProductionJournalMgt.InitSetupValues;
         ProductionJournalMgt.SetTemplateAndBatchName;
         ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Document No.", ProductionOrder."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
     end;
 
@@ -1994,7 +1996,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         SalesPrice.SetRange("Ending Date", EndingDate);
         SuggestSalesPriceOnWksh.SetTableView(SalesPrice);
         SuggestSalesPriceOnWksh.UseRequestPage(true);
-        SuggestSalesPriceOnWksh.RunModal;
+        SuggestSalesPriceOnWksh.RunModal();
     end;
 #endif
 
@@ -2092,7 +2094,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
         ServiceShipmentLine.SetRange("Order No.", OrderNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         LibraryService.UndoShipmentLinesByServiceDocNo(ServiceShipmentLine."Document No.");
     end;
 
@@ -2167,13 +2169,13 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ValueEntry.SetRange("Entry Type", EntryType);
         ValueEntry.SetRange("Document Type", DocumentType);
         ValueEntry.SetRange(Adjustment, Adjustment);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure VerifyItemLedgerCostAmount(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; Quantity: Decimal; CostAmountActual: Decimal; Positive: Boolean)
     begin
         FindItemLedgerEntry(ItemLedgerEntry, ItemNo, Positive);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         ItemLedgerEntry.TestField(Quantity, Quantity);
         ItemLedgerEntry.TestField("Cost Amount (Actual)", CostAmountActual);
@@ -2185,7 +2187,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     begin
         ItemApplicationEntry.SetRange("Item Ledger Entry No.", EntryNo);
         ItemApplicationEntry.SetRange("Cost Application", false);
-        ItemApplicationEntry.FindFirst;
+        ItemApplicationEntry.FindFirst();
         ItemApplicationEntry.TestField(Quantity, Quantity);
     end;
 
@@ -2208,7 +2210,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange("Drop Shipment", DropShipment);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         SalesInvoiceLine.TestField("Unit Price", UnitPrice);
         SalesInvoiceLine.TestField("Line Discount %", LineDiscountPct);

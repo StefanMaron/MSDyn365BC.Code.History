@@ -30,7 +30,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         // OTHERWISE the incoming document should still have status = new
 
         // Setup
-        Initialize;
+        Initialize();
 
         EnableDisableOCRSetup(true);
 
@@ -75,7 +75,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         // THEN incoming document should have status = new
 
         // Setup
-        Initialize;
+        Initialize();
 
         EnableDisableOCRSetup(false);
 
@@ -105,7 +105,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         // THEN the incoming document with should have status = new
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateEnabledWorkflow(Workflow);
 
@@ -140,8 +140,8 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         UserSetup: Record "User Setup";
     begin
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
     end;
 
@@ -180,7 +180,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         LibraryWorkflow.CopyWorkflow(
           Workflow, WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.IncomingDocumentOCRWorkflowCode));
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
-        if WorkflowStep.FindFirst then
+        if WorkflowStep.FindFirst() then
             if WorkflowStepArgument.Get(WorkflowStep.Argument) then begin
                 WorkflowStepArgument."Notification User ID" := UserId;
                 WorkflowStepArgument.Modify(true);

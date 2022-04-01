@@ -30,7 +30,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
         TotalSize := 0;
 
         IncomingDocumentAttachment.SetAutoCalcFields(Content);
-        if IncomingDocumentAttachment.FindSet then
+        if IncomingDocumentAttachment.FindSet() then
             repeat
                 if IncomingDocumentAttachment.Content.HasValue then
                     TotalSize += IncomingDocumentAttachment.Content.Length;

@@ -415,7 +415,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [Approval Request] [Purchases] [Prepayment]
         // [SCENARIO 379881] Purchase Order with not invoiced prepayment can be approved
-        Initialize;
+        Initialize();
 
         // [GIVEN] Approvals are set for the current User
         EnableAllApprovalsWorkflows;
@@ -449,7 +449,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [Approval Request] [Sales] [Prepayment]
         // [SCENARIO 379881] Sales Order with not invoiced prepayment can be approved
-        Initialize;
+        Initialize();
 
         // [GIVEN] Approvals are set for the current User
         EnableAllApprovalsWorkflows;
@@ -483,8 +483,8 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval Comment] [Sales] [Post Document]
         // [SCENARIO 381208] Delete approval comments for Sales Order when post it
-        Initialize;
-        LibraryERMCountryData.CreateVATData;
+        Initialize();
+        LibraryERMCountryData.CreateVATData();
 
         // [GIVEN] Sales Order with Approval Entry and Comment
         LibrarySales.CreateSalesDocumentWithItem(
@@ -511,7 +511,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval Comment] [Purchase] [Post Document]
         // [SCENARIO 381208] Delete approval comments for Sales Order when post it
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with Approval Entry and Comment
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -537,7 +537,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval Comment] [Sales] [Copy Document]
         // [SCENARIO 381208] Delete approval comments when copy Sales Quote into Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote with Approval Entry and Comment
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -562,7 +562,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval Comment] [Purchase] [Copy Document]
         // [SCENARIO 381208] Delete approval comments when copy Purchase Quote into Purchase Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Quote with Approval Entry and Comment
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, LibraryPurchase.CreateVendorNo);
@@ -586,7 +586,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval Comment] [Service] [Copy Document]
         // [SCENARIO 381208] Delete approval comments when copy Service Quote into Service Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Quote with Approval Entry and Comment
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -611,7 +611,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Purchase] [Order]
         // [SCENARIO 382318] The Purchase Order approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with two approval entrires - first Open and second Rejected
         CreatePurchaseDocWithTwoApprovalEntries(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -636,7 +636,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Purchase] [Quote]
         // [SCENARIO 382318] The Purchase Quote approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Quote with two approval entrires - first Open and second Rejected
         CreatePurchaseDocWithTwoApprovalEntries(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
@@ -661,7 +661,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Purchase] [Blanket Order]
         // [SCENARIO 382318] The Blanket Purchase Order approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Purchase Order with two approval entrires - first Open and second Rejected
         CreatePurchaseDocWithTwoApprovalEntries(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order");
@@ -686,7 +686,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Purchase] [Invoice]
         // [SCENARIO 382318] The Purchase Invioce approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with two approval entrires - first Open and second Rejected
         CreatePurchaseDocWithTwoApprovalEntries(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -711,7 +711,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Purchase] [Credit Memo]
         // [SCENARIO 382318] The Purchase Credit Memo approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with two approval entrires - first Open and second Rejected
         CreatePurchaseDocWithTwoApprovalEntries(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
@@ -736,7 +736,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Purchase] [Return Order]
         // [SCENARIO 382318] The Purchase Return Order approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order with two approval entrires - first Open and second Rejected
         CreatePurchaseDocWithTwoApprovalEntries(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
@@ -761,7 +761,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Sales] [Order]
         // [SCENARIO 382318] The approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with two approval entrires - first Open and second Rejected
         CreateSalesDocWithTwoApprovalEntries(SalesHeader, SalesHeader."Document Type"::Order);
@@ -786,7 +786,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Sales] [Quote]
         // [SCENARIO 382318] The approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote with two approval entrires - first Open and second Rejected
         CreateSalesDocWithTwoApprovalEntries(SalesHeader, SalesHeader."Document Type"::Quote);
@@ -811,7 +811,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Sales] [Blanket Order]
         // [SCENARIO 382318] The approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Sales Order with two approval entrires - first Open and second Rejected
         CreateSalesDocWithTwoApprovalEntries(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
@@ -836,7 +836,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Sales] [Invoice]
         // [SCENARIO 382318] The approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invioice with two approval entrires - first Open and second Rejected
         CreateSalesDocWithTwoApprovalEntries(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -861,7 +861,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Sales] [Credit Memo]
         // [SCENARIO 382318] The Sales Credit Memo approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with two approval entrires - first Open and second Rejected
         CreateSalesDocWithTwoApprovalEntries(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -886,7 +886,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox] [Sales] [Return Order]
         // [SCENARIO 382318] The Sales Return Order approval factbox shows last entry if you have several approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order with two approval entrires - first Open and second Rejected
         CreateSalesDocWithTwoApprovalEntries(SalesHeader, SalesHeader."Document Type"::"Return Order");
@@ -911,7 +911,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox]
         // [SCENARIO 382318] The approval factbox is Empty if you haven't associated approval entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order without Approvals
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -937,7 +937,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         // [FEATURE] [UT] [Approval FactBox]
         // [SCENARIO 382318] The approval factbox is Empty if Sender is equal to Approver
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Approval Entry Sender equal Approval Entry Approver
         SetupDocumentApprovals(UserSetup, '');
@@ -1143,7 +1143,7 @@ codeunit 134203 "Document Approval - Documents"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         VATPostingSetup.SetRange("VAT Bus. Posting Group", SalesLine."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
         VATPostingSetup.DeleteAll();
@@ -1214,7 +1214,7 @@ codeunit 134203 "Document Approval - Documents"
 
     local procedure SetupPurchApproval(var ApprovalEntry: Record "Approval Entry"; var PurchHeader: Record "Purchase Header"; var UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type")
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         if UserSetup."User ID" = '' then
@@ -1229,7 +1229,7 @@ codeunit 134203 "Document Approval - Documents"
 
     local procedure SetupSalesApproval(var ApprovalEntry: Record "Approval Entry"; var SalesHeader: Record "Sales Header"; var UserSetup: Record "User Setup"; DocumentType: Enum "Sales Document Type")
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         if UserSetup."User ID" = '' then
@@ -1272,7 +1272,7 @@ codeunit 134203 "Document Approval - Documents"
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", DocumentType);
         ApprovalEntry.SetRange("Document No.", DocumentNo);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
     end;
 
     local procedure MockApprovalEntry(SrcDocType: Enum "Approval Document Type"; SrcDocNo: Code[20]; SourceRecordID: RecordID; DestinationStatus: Enum "Approval Status"; SenderID: Code[50]; ApproverID: Code[50])
@@ -1299,7 +1299,7 @@ codeunit 134203 "Document Approval - Documents"
         ApprovalEntry.Validate("Record ID to Approve", SourceRecordID);
         ApprovalEntry.Insert(true);
 
-        AddComment(ApprovalEntry, SourceRecordID, LibraryUtility.GenerateGUID);
+        AddComment(ApprovalEntry, SourceRecordID, LibraryUtility.GenerateGUID());
         ApprovalCommentLine.SetRange("Record ID to Approve", SourceRecordID);
         Assert.RecordIsNotEmpty(ApprovalCommentLine);
     end;
@@ -1326,7 +1326,7 @@ codeunit 134203 "Document Approval - Documents"
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
         ApprovalCommentLine.SetRange("Document Type", ApprovalEntry."Document Type");
         ApprovalCommentLine.SetRange("Document No.", ApprovalEntry."Document No.");
-        ApprovalCommentLine.FindFirst;
+        ApprovalCommentLine.FindFirst();
         exit(ApprovalCommentLine.Comment);
     end;
 
@@ -1335,8 +1335,8 @@ codeunit 134203 "Document Approval - Documents"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         BindSubscription(LibraryJobQueue);
         IsInitialized := true;
     end;
@@ -1390,7 +1390,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
-        if WorkflowStep.FindFirst then
+        if WorkflowStep.FindFirst() then
             if WorkflowStepArgument.Get(WorkflowStep.Argument) then begin
                 WorkflowStepArgument."Notification User ID" := UserID;
                 WorkflowStepArgument.Modify(true);

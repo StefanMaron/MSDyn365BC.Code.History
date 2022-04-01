@@ -407,7 +407,7 @@ page 179 "Reverse Entries"
 
     local procedure InitializeFilter()
     begin
-        FindFirst;
+        FindFirst();
         ReversalEntry := Rec;
         if "Reversal Type" = "Reversal Type"::Transaction then begin
             CurrPage.Caption := Text000;

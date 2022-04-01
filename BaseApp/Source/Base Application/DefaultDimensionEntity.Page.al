@@ -1,4 +1,4 @@
-#if not CLEAN18
+#if not CLEAN20
 page 5509 "Default Dimension Entity"
 {
     Caption = 'defaultDimension', Locked = true;

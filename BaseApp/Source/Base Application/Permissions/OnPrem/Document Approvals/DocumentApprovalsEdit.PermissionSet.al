@@ -13,7 +13,6 @@ permissionset 7111 "Document Approvals - Edit"
                   tabledata "Posted Approval Entry" = RI,
                   tabledata "Restricted Record" = Rimd,
                   tabledata "Sent Notification Entry" = Rimd,
-                  tabledata "SMTP Mail Setup" = R,
                   tabledata "Workflow - Record Change" = Rimd,
                   tabledata "Workflow - Table Relation" = R,
                   tabledata Workflow = R,

@@ -213,10 +213,10 @@ table 1230 "SEPA Direct Debit Mandate"
             SetFilter("Valid To", '%1|>=%2', 0D, DueDate);
             SetRange(Blocked, false);
             SetRange(Closed, false);
-            if FindFirst then;
+            if FindFirst() then;
             if Customer.Get(CustomerNo) and (Customer."Preferred Bank Account Code" <> '') then
                 SetRange("Customer Bank Account Code", Customer."Preferred Bank Account Code");
-            if FindFirst then;
+            if FindFirst() then;
             exit(ID);
         end;
     end;

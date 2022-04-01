@@ -176,7 +176,7 @@ page 528 "Posted Purchase Receipt Lines"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Process;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -196,7 +196,7 @@ page 528 "Posted Purchase Receipt Lines"
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         CurrPage.SetSelectionFilter(PurchRcptLine);
-        if PurchRcptLine.FindSet then
+        if PurchRcptLine.FindSet() then
             repeat
                 TempPurchRcptLine := PurchRcptLine;
                 TempPurchRcptLine.Insert();

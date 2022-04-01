@@ -71,6 +71,13 @@ page 128 "Vend. Ledg. Entries Preview"
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
+                field("Vendor Posting Group"; "Vendor Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
+                    Visible = false;
+                }
                 field("IC Partner Code"; "IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
@@ -421,13 +428,13 @@ page 128 "Vend. Ledg. Entries Preview"
 
     procedure Set(var TempVendLedgerEntry: Record "Vendor Ledger Entry" temporary; var TempDetailedVendLedgEntry2: Record "Detailed Vendor Ledg. Entry" temporary)
     begin
-        if TempVendLedgerEntry.FindSet then
+        if TempVendLedgerEntry.FindSet() then
             repeat
                 Rec := TempVendLedgerEntry;
                 Insert;
             until TempVendLedgerEntry.Next() = 0;
 
-        if TempDetailedVendLedgEntry2.FindSet then
+        if TempDetailedVendLedgEntry2.FindSet() then
             repeat
                 TempDetailedVendLedgEntry := TempDetailedVendLedgEntry2;
                 TempDetailedVendLedgEntry.Insert();
@@ -444,7 +451,7 @@ page 128 "Vend. Ledg. Entries Preview"
         OriginalAmountFCY := 0;
 
         TempDetailedVendLedgEntry.SetRange("Vendor Ledger Entry No.", "Entry No.");
-        if TempDetailedVendLedgEntry.FindSet then
+        if TempDetailedVendLedgEntry.FindSet() then
             repeat
                 if TempDetailedVendLedgEntry."Entry Type" = TempDetailedVendLedgEntry."Entry Type"::"Initial Entry" then begin
                     OriginalAmountFCY += TempDetailedVendLedgEntry.Amount;
@@ -475,7 +482,7 @@ page 128 "Vend. Ledg. Entries Preview"
                 TempDetailedVendLedgEntry.SetRange("Entry Type");
         end;
         DetailedVendEntriesPreview.Set(TempDetailedVendLedgEntry);
-        DetailedVendEntriesPreview.RunModal;
+        DetailedVendEntriesPreview.RunModal();
         Clear(DetailedVendEntriesPreview);
     end;
 }

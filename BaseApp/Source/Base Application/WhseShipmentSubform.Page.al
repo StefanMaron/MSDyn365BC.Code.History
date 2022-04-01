@@ -269,7 +269,7 @@ page 7336 "Whse. Shipment Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Shift+Ctrl+I'; // bug 427462
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -385,11 +385,6 @@ page 7336 "Whse. Shipment Subform"
         CreatePickDoc(WhseShptLine, WhseShptHeader);
 
         OnAfterPickCreate(WhseShptLine);
-    end;
-
-    local procedure OpenItemTrackingLines()
-    begin
-        OpenItemTrackingLines();
     end;
 
     protected procedure BinCodeOnAfterValidate()

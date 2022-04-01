@@ -82,7 +82,7 @@ table 442 "IC Document Dimension"
         SetRange("Line No.", LineNo);
         Clear(ICDocDimensions);
         ICDocDimensions.SetTableView(Rec);
-        ICDocDimensions.RunModal;
+        ICDocDimensions.RunModal();
     end;
 }
 

@@ -42,7 +42,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Qty: Decimal;
         QtyPer: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         Qty := LibraryRandom.RandDec(100, 2);
@@ -57,7 +57,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
 
         // Invoice a purchase charge to the component item.
         PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderInv, PurchaseHeaderInv."Document Type"::Invoice, Vendor."No.");
         LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(PurchaseHeaderInv, PurchRcptLine, 1, LibraryRandom.RandDec(10, 2));
@@ -88,7 +88,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Qty: Decimal;
         QtyPer: Decimal;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDecInRange(10, 100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         EndingDate := WorkDate + LibraryRandom.RandInt(10);
@@ -128,7 +128,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Qty: Decimal;
         QtyPer: Decimal;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         OutputDate := WorkDate + LibraryRandom.RandInt(5);
@@ -174,7 +174,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Qty: Decimal;
         QtyPer: Decimal;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         ExecuteUIHandlers;
@@ -226,7 +226,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         TempDate: Date;
     begin
         // Also for SICILY 46166, 48268
-        Initialize;
+        Initialize();
         LibraryERM.SetAllowPostingFromTo(0D, 0D);
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
@@ -305,7 +305,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         TempDate: Date;
     begin
         // Also for SICILY 46166, 48268
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         LibraryInventory.UpdateInventorySetup(InventorySetup, true, true,
@@ -398,7 +398,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         TempDate: Date;
     begin
         // Also for VSTF 329005
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         DirectUnitCost := LibraryRandom.RandDec(5, 2);
@@ -485,7 +485,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         TempDate: Date;
     begin
         // Also for 285890
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         DirectUnitCost := LibraryRandom.RandDec(5, 2);
@@ -507,7 +507,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         // Setup. Post additional outputs (positive extra and then negative to undo it)
         PostExplodedOutput(ProdOrderLine, WorkDate, ProdOrderLine.Quantity, 0);
         ItemLedgerEntry.SetRange("Item No.", ParentItem."No.");
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         PostExplodedOutput(ProdOrderLine, WorkDate, -ProdOrderLine.Quantity, ItemLedgerEntry."Entry No.");
 
         // Setup. Finish the released production order
@@ -546,7 +546,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         TempDate: Date;
         OrigWorkDate: Date;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         LibraryInventory.UpdateInventorySetup(InventorySetup, true, true,
@@ -623,7 +623,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         CalculatePer: Option "Item Ledger Entry",Item;
         TempDate: Date;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         LibraryInventory.UpdateInventorySetup(InventorySetup, true, true,
@@ -686,7 +686,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         FirstOutputDate: Date;
         TempDate: Date;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         LibraryInventory.UpdateInventorySetup(InventorySetup, false, true,
@@ -783,7 +783,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         QtyPer: Decimal;
         TempDate: Date;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         LibraryInventory.UpdateInventorySetup(InventorySetup, true, true,
@@ -847,7 +847,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         // For bug 49838 on Sicily.
 
         // Verify the Openning Balance on period 3 on Inventory Valuation - WIP Report after making output on period 1 & 3 but invoicing on period 4.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         LibraryInventory.UpdateInventorySetup(
@@ -916,7 +916,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     begin
         // [FEATURE] [Production Order] [Inventory Valuation Report]
         // [SCENARIO 376048] The Inventory Valuation Report should show balance for Finished Production Orders that are not Completely Invoiced
-        Initialize;
+        Initialize();
 
         // [GIVEN] Not Completely Invoiced Finished Production Order for Item with "Unit Cost" = "X" and Quantity = "Y"
         Qty := LibraryRandom.RandInt(100);
@@ -948,7 +948,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     begin
         // [SCENARIO] Report "Inventory Valuation - WIP" should show opening balance when there are consumption entries posted before the reporting period, and no value entries posted within the period
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a manufactured item with one component.
         // [GIVEN] Purchase component with unit cost = "X"
@@ -982,8 +982,8 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Valuation - WIP");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then begin
@@ -992,10 +992,10 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         end;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Valuation - WIP");
         OriginalWorkDate := WorkDate;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryPatterns.SETNoSeries;
         isInitialized := true;
         Commit();
@@ -1051,7 +1051,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Direct Unit Cost",
           PurchaseLine."Direct Unit Cost" + LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify();
@@ -1075,12 +1075,12 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
             SetRange("Order Type", "Order Type"::Production);
             SetRange("Order No.", ProdOrderLine."Prod. Order No.");
             SetRange("Order Line No.", ProdOrderLine."Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     ProdOrderRoutingLine.SetRange(Status, ProdOrderLine.Status);
                     ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
                     ProdOrderRoutingLine.SetRange("Operation No.", "Operation No.");
-                    if ProdOrderRoutingLine.FindFirst then begin
+                    if ProdOrderRoutingLine.FindFirst() then begin
                         Validate("Setup Time", ProdOrderRoutingLine."Setup Time");
                         Validate("Run Time", ProdOrderRoutingLine."Run Time");
                         Validate("Output Quantity", OutputQty);
@@ -1170,7 +1170,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
 
         ValueEntry.SetFilter("Posting Date", '<%1', StartDate);
         ValueEntry.SetRange("Item Ledger Entry Type");
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::" " then
                     Sign := -1 // negating the capacity cost.
@@ -1189,7 +1189,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         with ValueEntry do begin
             SetRange("Order No.", OrderNo);
             SetRange("Posting Date", PostingDate);
-            FindFirst;
+            FindFirst();
             if "Item Ledger Entry Type" = "Item Ledger Entry Type"::Output then
                 exit("Cost Amount (Expected)");
             exit("Cost Amount (Actual)");
@@ -1222,7 +1222,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
           Qty, ReceiptDate);
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure SetupInventoryForReportWithoutPurchOrder(var ParentItem: Record Item; var ChildItem: Record Item; var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; ParentCostingMethod: Enum "Costing Method"; ChildCostingMethod: Enum "Costing Method"; Invoice: Boolean; Qty: Decimal; QtyPer: Decimal; ReceiptDate: Date)

@@ -125,7 +125,7 @@ table 293 "Reminder Level"
         CurrencyForReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
         CurrencyForReminderLevel.SetRange("No.", "No.");
         CurrencyForReminderLevel.SetRange("Currency Code", CurrencyCode);
-        if CurrencyForReminderLevel.FindFirst then begin
+        if CurrencyForReminderLevel.FindFirst() then begin
             if ChargePerLine then
                 exit(CurrencyForReminderLevel."Add. Fee per Line");
 
@@ -144,7 +144,7 @@ table 293 "Reminder Level"
     procedure NewRecord()
     begin
         ReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
-        if ReminderLevel.FindLast then
+        if ReminderLevel.FindLast() then
             "No." := ReminderLevel."No.";
         "No." += 1;
     end;

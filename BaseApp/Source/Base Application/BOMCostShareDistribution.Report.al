@@ -208,7 +208,7 @@ report 5872 "BOM Cost Share Distribution"
     begin
         CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate, 2);
         with TempBOMBuffer do begin
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     IsKeepOnlyMfgOvhd := KeepOnlyMfgOvhdCost;
                     IsTransferCostToMaterial := TransferCostToMaterial;
@@ -287,7 +287,7 @@ report 5872 "BOM Cost Share Distribution"
         CopyOfBOMBuffer: Record "BOM Buffer";
     begin
         with TempBOMBuffer do
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     if Indentation <> 0 then begin
                         CopyOfBOMBuffer.Copy(TempBOMBuffer);

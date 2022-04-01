@@ -19,8 +19,8 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
     var
         UserSetup: Record "User Setup";
     begin
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
 
         UserSetup.DeleteAll();
@@ -39,7 +39,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // [THEN] An xml file is created to contains the workflow details.
 
         // Setup - Create a Workflow
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
         // Excercise - Export the Workflow
@@ -65,7 +65,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // [THEN] An xml file is created to contains the details of all the selected workflows.
 
         // Setup - Create 2 Workflows
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
@@ -92,7 +92,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // [THEN] The xml file is imported and the workflow is created.
 
         // Setup - Create a Workflow and export it to a file
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         WorkflowCode := Workflow.Code;
         Workflow.SetRecFilter;
@@ -123,7 +123,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // [THEN] The xml file is imported and the workflows are created.
 
         // Setup - Create a Workflow and export it to a file
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         Workflow.SetFilter(Code, '%1|%2', Workflow1.Code, Workflow2.Code);
@@ -156,7 +156,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // [THEN] The xml file is imported and the current workflow name and description is saved.
 
         // Setup - Create a Workflow and export it to a file
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         WorkflowCode := Workflow.Code;
         Workflow.SetRecFilter;
@@ -185,7 +185,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // [THEN] The xml file is imported and the workflow and workflow steps are created.
 
         // Setup - Create a Workflow and export it to a file
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         Workflow.SetRecFilter;
         Workflow.ExportToBlob(TempBlob);
@@ -218,7 +218,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // [THEN] The xml file is imported and the workflow is created.
 
         // Setup - Create a Workflow and export it to a file
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
         Workflow.SetFilter(Code, '%1|%2', Workflow1.Code, Workflow2.Code);
@@ -246,7 +246,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
     begin
         // [FEATURE] [UT] [User Setup]
         // [SCENARIO 304701] Workflow with Specific Approver exported and imported when User Setup contains User ID for Specific Approver
-        Initialize;
+        Initialize();
 
         // [GIVEN] User Setup for "User"
         LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup);
@@ -286,7 +286,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
     begin
         // [FEATURE] [UT] [User Setup]
         // [SCENARIO 304701] Workflow with Specific Approver exported and imported when User Setup does not contain User ID for Specific Approver
-        Initialize;
+        Initialize();
 
         // [GIVEN] User Setup for "User"
         LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup);
@@ -325,7 +325,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 309205] Workflow XML file with empty Workflow Code is not imported with error
-        Initialize;
+        Initialize();
 
         TempBlob.CreateOutStream(OutStream);
         OutStream.WriteText(
@@ -347,7 +347,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         LibraryXPathXMLReader.GetNodeList('/Root/Workflow', NodeList);
 
         NodeIndex := 0;
-        if Workflow.FindSet then
+        if Workflow.FindSet() then
             repeat
                 Node := NodeList.Item(NodeIndex);
                 NodeIndex += 1;
@@ -373,7 +373,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         LibraryXPathXMLReader.GetNodeListInCurrNode(CurrNode, './/WorkflowStep', NodeList);
         Assert.AreEqual(WorkflowStep.Count, NodeList.Count, 'Expected number of workflow steps not found.');
         NodeIndex := 0;
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 Node := NodeList.Item(NodeIndex);
                 NodeIndex += 1;
@@ -412,7 +412,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         WorkflowRule.SetRange("Workflow Code", WorkflowStep."Workflow Code");
         WorkflowRule.SetRange("Workflow Step ID", WorkflowStep.ID);
         NodeIndex := 0;
-        if WorkflowRule.FindSet then begin
+        if WorkflowRule.FindSet() then begin
             LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
             LibraryXPathXMLReader.GetNodeListInCurrNode(CurrNode, '/Root/Workflow/WorkflowStep/WorkflowRule', NodeList);
             repeat
@@ -491,7 +491,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         CompareToWorkflowStep.SetRange("Workflow Code", CompareToWorkflow.Code);
         Assert.AreEqual(WorkflowStep.Count, CompareToWorkflowStep.Count, 'Number of workflow steps are not same');
 
-        if WorkflowStep.FindSet then begin
+        if WorkflowStep.FindSet() then begin
             CompareToWorkflowStep.FindSet();
             repeat
                 if not IsNullGuid(WorkflowStep.Argument) then begin
@@ -570,7 +570,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         CompareToWorkflowRule.SetRange("Workflow Step ID", CompareToWorkflowStepId);
         Assert.AreEqual(WorkflowRule.Count, CompareToWorkflowRule.Count, 'Number of rules are different');
 
-        if WorkflowRule.FindSet then begin
+        if WorkflowRule.FindSet() then begin
             CompareToWorkflowRule.FindSet();
             repeat
                 Assert.AreEqual(WorkflowRule."Field No.", CompareToWorkflowRule."Field No.", 'Field No. are different');

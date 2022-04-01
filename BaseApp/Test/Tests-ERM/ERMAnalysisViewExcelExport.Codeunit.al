@@ -128,7 +128,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export analysis view entry with zero identation G/L Account and 4 single-level-dimentions
 
         // [GIVEN] Single-level G/L Account
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] 4 new dimensions with values
         CreateDimsWithValuesForAnalysisView(DimensionValue);
@@ -295,7 +295,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export analysis view entry with zero identation G/L Account and indented dimention
 
         // [GIVEN] Single-level G/L Account
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] New dimension DIM with intended values
         MaxDimLevel := LibraryRandom.RandIntInRange(2, 5);
@@ -336,7 +336,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export analysis view budget entry with zero identation G/L Account and 4 single-level-dimentions
 
         // [GIVEN] Single-level G/L Account
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] 4 new dimensions with values
         CreateDimsWithValuesForAnalysisView(DimensionValue);
@@ -421,7 +421,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export with indented G/L Account and indented dimensions makes proper column captions on data sheet
 
         // [GIVEN] New item
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
 
         // [GIVEN] New dimension DIM with intended values
         MaxDimLevel := LibraryRandom.RandIntInRange(2, 5);
@@ -466,7 +466,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export item analysis view entry with indented dimention
 
         // [GIVEN] New item
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
 
         // [GIVEN] New dimension DIM with intended values
         MaxDimLevel := LibraryRandom.RandIntInRange(2, 5);
@@ -512,7 +512,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export item analysis view budget entry with indented dimention
 
         // [GIVEN] New item
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
 
         // [GIVEN] New dimension DIM with intended values
         MaxDimLevel := LibraryRandom.RandIntInRange(2, 5);
@@ -551,7 +551,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         SetCommonFiltersAnalysisViewEntry(
           AnalysisView, AnalysisViewEntry, DateFilter, AccFilter,
           Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, BusUnitFilter);
-        AnalysisViewEntry.FindFirst;
+        AnalysisViewEntry.FindFirst();
         ExportAnalysisView.SetSkipDownload;
         MakeAnalysisByDimParameters(AnalysisByDimParameters, AmountField, DateFilter, AccFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter,
           Dim4Filter, AmountType, ClosingEntryFilter, ShowActualBudg, BusUnitFilter);
@@ -674,9 +674,9 @@ codeunit 134236 "ERM Analysis View Excel Export"
         EndAccountNo: Code[20];
     begin
         GLAccountNo[1] := CreateBeginTotalGLAccountNo;
-        GLAccountNo[2] := LibraryERM.CreateGLAccountNo;
+        GLAccountNo[2] := LibraryERM.CreateGLAccountNo();
         GLAccountNo[3] := CreateBeginTotalGLAccountNo;
-        GLAccountNo[4] := LibraryERM.CreateGLAccountNo;
+        GLAccountNo[4] := LibraryERM.CreateGLAccountNo();
         CreateEndTotalGLAccountNo;
         EndAccountNo := CreateEndTotalGLAccountNo;
         GLAccountIndent.Indent;
@@ -706,7 +706,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         for i := 1 to MaxLevel do
             GLAccountNo[i] := CreateBeginTotalGLAccountNo;
 
-        GLAccountNo[MaxLevel + 1] := LibraryERM.CreateGLAccountNo;
+        GLAccountNo[MaxLevel + 1] := LibraryERM.CreateGLAccountNo();
 
         for i := 1 to MaxLevel do
             EndAccountNo := CreateEndTotalGLAccountNo;
@@ -875,7 +875,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         if DimensionCode <> '' then begin
             DimensionValue.SetRange("Dimension Code", DimensionCode);
             DimensionValue.SetFilter(Code, DimValueFilter);
-            if DimensionValue.FindFirst then
+            if DimensionValue.FindFirst() then
                 if DimensionValue.Totaling <> '' then
                     exit(DimensionValue.Totaling);
         end;
@@ -890,7 +890,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         SetCommonFiltersItemAnalysisViewEntry(
           ItemAnalysisView, ItemAnalysisViewEntry, DateFilter, ItemFilter,
           Dim1Filter, Dim2Filter, Dim3Filter, LocationFilter);
-        ItemAnalysisViewEntry.FindFirst;
+        ItemAnalysisViewEntry.FindFirst();
         ExportItemAnalysisView.SetSkipDownload;
         ExportItemAnalysisView.ExportData(
           ItemAnalysisViewEntry, false,

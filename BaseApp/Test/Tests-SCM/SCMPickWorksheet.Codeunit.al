@@ -42,7 +42,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment2No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
         WhseWorksheetLine.DeleteAll();
@@ -92,7 +92,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment2No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
         WhseWorksheetLine.DeleteAll();
@@ -142,7 +142,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment3No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
         WhseWorksheetLine.DeleteAll();
@@ -192,7 +192,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment2No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
         WhseWorksheetLine.DeleteAll();
@@ -231,7 +231,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment2No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
         WhseWorksheetLine.DeleteAll();
@@ -275,7 +275,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment4No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
         WhseWorksheetLine.DeleteAll();
@@ -315,7 +315,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment4No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
         WhseWorksheetLine.DeleteAll();
@@ -355,7 +355,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment3No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
         WhseWorksheetLine.DeleteAll();
@@ -393,7 +393,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment3No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, false, true, false);
         WhseWorksheetLine.DeleteAll();
@@ -431,7 +431,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Shipment3No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, false, true, false);
         WhseWorksheetLine.DeleteAll();
@@ -466,7 +466,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         // [FEATURE] [Whse. Worksheet Line]
         // [SCENARIO 378631] Procedure "GetBin" of "Whse. Worksheet Line" table should clear global variable Bin if Bin code is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with Adjustment Bin Code "X"
         GetPickWksheetTemplate(WhseWorksheetTemplate);
@@ -500,7 +500,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         // [FEATURE] [Pick Worksheet]
         // [SCENARIO 204644] It should be possible to set "Qty. to Handle" in the pick worksheet when item is reserved for the line's source document, and stock is partially allocated in a non-pickable bin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.CreateFullWMSLocation(Location, 1);
@@ -513,12 +513,12 @@ codeunit 137015 "SCM Pick Worksheet"
         WarehouseActivityLine.SetRange("Location Code", Location.Code);
         WarehouseActivityLine.SetRange("Item No.", Item."No.");
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
 
         // [GIVEN] Put-away remaining 10 pcs into a put-away bin (non-pickable)
         Bin.SetRange("Location Code", Location.Code);
         Bin.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(false, false, true, false));
-        Bin.FindFirst;
+        Bin.FindFirst();
 
         WarehouseActivityLine.Validate("Zone Code", Bin."Zone Code");
         WarehouseActivityLine.Validate("Bin Code", Bin.Code);
@@ -558,7 +558,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         // [FEATURE] [Pick Worksheet] [Reservation]
         // [SCENARIO 204644] "Available Qty. to Pick" should be 0 in the pick worksheet when all stock is either reserved or pick, but not yet shipped
-        Initialize;
+        Initialize();
 
         ResetDefaultSafetyLeadTime;
 
@@ -659,7 +659,7 @@ codeunit 137015 "SCM Pick Worksheet"
         // [FEATURE] [Reservation] [Pick Worksheet]
         // [SCENARIO 227780] It should be possible to pick quantity for a sales order when the sales document is reserved against the inventory and Location has no Bins
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a new location
         LibraryWarehouse.CreateLocationWMS(LocationYellow, false, true, true, true, true);
@@ -695,7 +695,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         // [FEATURE] [Reservation] [Pick Worksheet]
         // [SCENARIO 270423] It should be possible to pick quantity for a sales order, when the sales document is reserved against the inventory and bin is mandatory for the location.
-        Initialize;
+        Initialize();
 
         Quantity := LibraryRandom.RandIntInRange(50, 100);
 
@@ -726,7 +726,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         // [FEATURE] [Reservation] [Pick Worksheet]
         // [SCENARIO 270423] "Qty. to Handle" and "Available Qty. to Pick" on pick worksheet line are correct for lines, representing reserved and not reserved sales shipment at location with directed put-away and pick.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "White" set up for directed put-away and pick.
         LibraryInventory.CreateItem(Item);
@@ -762,7 +762,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         // [FEATURE] [Reservation] [Pick Worksheet]
         // [SCENARIO 270423] "Qty. to Handle" and "Available Qty. to Pick" on pick worksheet line are correct for lines, representing reserved and not reserved sales shipment at location with mandatory bin, but disabled directed put-away and pick.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "Orange" with mandatory bin and required all warehouse documents, but disabled directed put-away and pick.
         LibraryInventory.CreateItem(Item);
@@ -803,7 +803,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         // [FEATURE] [Reservation] [Pick Worksheet]
         // [SCENARIO 270423] "Qty. to Handle" and "Available Qty. to Pick" on pick worksheet line are correct for lines, representing reserved and not reserved sales shipment at location with no bins.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "Green" with no bins, but set up for required receive, ship, put-away and pick.
         LibraryInventory.CreateItem(Item);
@@ -845,7 +845,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         // [FEATURE] [Available Qty. To Pick]
         // [SCENARIO 297609] Whse. Worksheet Line AvailableQtyToPickExcludingQCBins when QC Bin
-        Initialize;
+        Initialize();
         Qty[1] := LibraryRandom.RandDec(100, 2);
         Qty[2] := LibraryRandom.RandDec(100, 2);
 
@@ -903,7 +903,7 @@ codeunit 137015 "SCM Pick Worksheet"
         // [FEATURE] [Available Qty. To Pick] [Qty. to Handle]
         // [SCENARIO 309257] Whse. Worksheet Line AvailableQtyToPickExcludingQCBins when Put-away Bin
         // [SCENARIO 312457] Whse. Worksheet Line Qty. to Handle doesn't exceed availability when Whse. Worksheet Line created from Whse. Pick Request
-        Initialize;
+        Initialize();
         Qty[1] := LibraryRandom.RandDec(100, 2);
         Qty[2] := LibraryRandom.RandDec(100, 2);
 
@@ -973,16 +973,16 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Pick Worksheet");
         // Initialize setup.
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Pick Worksheet");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
         IsInitialized := true;
@@ -994,14 +994,14 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
         WhsePickRequest.SetRange("Document No.", WarehouseShipmentHeaderNo);
-        WhsePickRequest.FindFirst;
+        WhsePickRequest.FindFirst();
     end;
 
     local procedure CreateWhseWorksheetLineFromWhsePickRequest(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhsePickRequest: Record "Whse. Pick Request")
     begin
-        LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWorksheetLine, WhsePickRequest, LibraryUtility.GenerateGUID);
+        LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWorksheetLine, WhsePickRequest, LibraryUtility.GenerateGUID());
         WhseWorksheetLine.SetRange("Location Code", WhsePickRequest."Location Code");
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
     end;
 
     local procedure CreateTwoWarehouseJnlLinesWithBinsAndZones(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; ItemNo: Code[20]; BinCode: array[2] of Code[20]; ZoneCode: array[2] of Code[10]; Qty: array[2] of Decimal)
@@ -1043,7 +1043,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Bin.SetFilter(Code, BinCodeFilter);
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetFilter("Bin Type Code", BinTypeCodeFilter);
-        Bin.FindFirst;
+        Bin.FindFirst();
         BinCode := Bin.Code;
         ZoneCode := Bin."Zone Code";
     end;
@@ -1071,7 +1071,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetFilter("Bin Type Code", CreatePick.GetBinTypeFilter(3));
-        Bin.FindFirst;
+        Bin.FindFirst();
         BinCode := Bin.Code;
         ZoneCode := Bin."Zone Code";
     end;
@@ -1131,17 +1131,17 @@ codeunit 137015 "SCM Pick Worksheet"
         GetOutboundSourceDocuments.SetPickWkshName(WkshTemplateName, Name, Location);
         WhsePickRqst.SetRange("Document Type", DocType);
         WhsePickRqst.SetRange("Document No.", DocNo);
-        WhsePickRqst.FindFirst;
+        WhsePickRqst.FindFirst();
         GetOutboundSourceDocuments.SetHideDialog(true);
         GetOutboundSourceDocuments.UseRequestPage(false);
         GetOutboundSourceDocuments.SetTableView(WhsePickRqst);
-        GetOutboundSourceDocuments.RunModal;
+        GetOutboundSourceDocuments.RunModal();
     end;
 
     local procedure PickWorkSheetValidateLine(WhseWorksheetLine: Record "Whse. Worksheet Line"; LineNo: Integer; Qty: Decimal; QtyToHandle: Decimal; QtyAvailToPick: Decimal)
     begin
         WhseWorksheetLine.SetRange("Line No.", LineNo);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         Assert.AreEqual(Qty, WhseWorksheetLine.Quantity, ErrorDifferentQty);
         Assert.AreEqual(QtyToHandle, WhseWorksheetLine."Qty. to Handle", ErrorDifferentQtyToHandle);
         Assert.AreEqual(QtyAvailToPick, WhseWorksheetLine.AvailableQtyToPick, ErrorDifferentAvailQty);
@@ -1150,7 +1150,7 @@ codeunit 137015 "SCM Pick Worksheet"
     local procedure PickWorksheetUpdateQtyToHandle(WhseWorksheetLine: Record "Whse. Worksheet Line"; LineNo: Integer; QtyToHandle: Decimal)
     begin
         WhseWorksheetLine.SetRange("Line No.", LineNo);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.Validate("Qty. to Handle", QtyToHandle);
         WhseWorksheetLine.Modify(true);
     end;
@@ -1220,7 +1220,7 @@ codeunit 137015 "SCM Pick Worksheet"
           PerZone, PerBin, PerWhseDoc, PerDate, PrintPick, false, false);
         CreatePick.UseRequestPage(false);
         CreatePick.SetWkshPickLine(WhseWorksheetLine2);
-        CreatePick.RunModal;
+        CreatePick.RunModal();
         Clear(CreatePick);
 
         WhseWorksheetLine := WhseWorksheetLine2;
@@ -1249,7 +1249,7 @@ codeunit 137015 "SCM Pick Worksheet"
 
         WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
         WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
-        WhseReceiptLine.FindFirst;
+        WhseReceiptLine.FindFirst();
 
         WhseReceiptHeader.Get(WhseReceiptLine."No.");
     end;
@@ -1262,7 +1262,7 @@ codeunit 137015 "SCM Pick Worksheet"
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
         WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
-        WhseShipmentLine.FindFirst;
+        WhseShipmentLine.FindFirst();
         WhseShipmentHeader.Get(WhseShipmentLine."No.");
         LibraryWarehouse.ReleaseWarehouseShipment(WhseShipmentHeader);
     end;
@@ -1279,7 +1279,7 @@ codeunit 137015 "SCM Pick Worksheet"
         GetSourceDocOutbound.GetSingleWhsePickDoc(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode);
         WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetTemplate.Name);
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
     end;
 
     local procedure ValidatePick(LineType: Enum "Warehouse Action Type"; ShipmentNo: Code[20]; ExpectedQty: Decimal)
@@ -1291,7 +1291,7 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseActivityLine.SetRange("Source Document", WhseActivityLine."Source Document"::"Sales Order");
         WhseActivityLine.SetRange("Whse. Document No.", ShipmentNo);
         WhseActivityLine.SetRange("Action Type", LineType);
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
         Assert.AreEqual(ExpectedQty, WhseActivityLine.Quantity, ErrorDifferentQtyOnPickLine);
     end;
 
@@ -1307,7 +1307,7 @@ codeunit 137015 "SCM Pick Worksheet"
             Location.SetRange("Require Pick", true);
             Location.SetRange("Require Put-away", true);
             Location.SetRange("Directed Put-away and Pick", IsDirected);
-            if not Location.FindFirst then begin
+            if not Location.FindFirst() then begin
                 LibraryWarehouse.CreateLocation(Location);
                 Location.Validate("Require Put-away", true);
                 Location.Validate("Require Pick", true);
@@ -1321,7 +1321,7 @@ codeunit 137015 "SCM Pick Worksheet"
             end;
         end else begin
             Location.SetRange("Directed Put-away and Pick", IsDirected);
-            Location.FindFirst;
+            Location.FindFirst();
         end;
         Location.Validate("Always Create Pick Line", false);
         Location.Modify(true);
@@ -1364,7 +1364,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Clear(WhseActivityHeader);
         WhseActivityHeader.SetRange(Type, ActivityType);
         WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
-        WhseActivityHeader.FindFirst;
+        WhseActivityHeader.FindFirst();
         if (ActivityType = ActivityType::"Put-away") or (ActivityType = ActivityType::Pick) then begin
             LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
         end else
@@ -1383,13 +1383,13 @@ codeunit 137015 "SCM Pick Worksheet"
     local procedure GetPickWksheetTemplate(var WhseWorksheetTemplate: Record "Whse. Worksheet Template")
     begin
         WhseWorksheetTemplate.SetRange(Type, WhseWorksheetTemplate.Type::Pick);
-        WhseWorksheetTemplate.FindFirst;
+        WhseWorksheetTemplate.FindFirst();
     end;
 
     local procedure GetPickWksheetName(var WhseWorksheetName: Record "Whse. Worksheet Name")
     begin
         WhseWorksheetName.SetRange("Template Type", WhseWorksheetName."Template Type"::Pick);
-        WhseWorksheetName.FindFirst;
+        WhseWorksheetName.FindFirst();
     end;
 
     local procedure GetBin(LocationCode: Code[10]; Receive: Boolean; Ship: Boolean; Putaway: Boolean; Pick: Boolean): Code[10]
@@ -1398,7 +1398,7 @@ codeunit 137015 "SCM Pick Worksheet"
     begin
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(Receive, Ship, Putaway, Pick));
-        if Bin.FindFirst then
+        if Bin.FindFirst() then
             exit(Bin.Code);
 
         exit('');
@@ -1411,7 +1411,7 @@ codeunit 137015 "SCM Pick Worksheet"
         WhsePickRequest: Record "Whse. Pick Request";
     begin
         WhsePickRequest.SetRange("Location Code", LibraryVariableStorage.DequeueText);
-        WhsePickRequest.FindFirst;
+        WhsePickRequest.FindFirst();
         PickSelection.SetRecord(WhsePickRequest);
         Response := ACTION::LookupOK;
     end;

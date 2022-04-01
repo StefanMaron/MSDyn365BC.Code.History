@@ -8,38 +8,41 @@ codeunit 132475 "Assisted Setup Mock Events"
         SecondTestPageNameTxt: Label 'SECOND TEST Page';
         BaseAppID: Codeunit "BaseApp ID";
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnRegister', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     [Normal]
     procedure HandleOnRegisterFirstExtensionAssistedSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         AssistedSetupGroup: Enum "Assisted Setup Group";
+        VideoCategory: Enum "Video Category";
     begin
-        AssistedSetup.Add(BaseAppID.Get(), PAGE::"Item List", FirstTestPageNameTxt, AssistedSetupGroup::Uncategorized);
+        GuidedExperience.InsertAssistedSetup(FirstTestPageNameTxt, CopyStr(FirstTestPageNameTxt, 1, 50), '', 5,
+            ObjectType::Page, Page::"Item List", AssistedSetupGroup::Uncategorized, '', VideoCategory::Uncategorized, '');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnRegister', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     [Normal]
     procedure HandleOnRegisterSecondExtensionAssistedSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         AssistedSetupGroup: Enum "Assisted Setup Group";
+        VideoCategory: Enum "Video Category";
     begin
-        AssistedSetup.Add(BaseAppID.Get(), PAGE::"Customer List", SecondTestPageNameTxt, AssistedSetupGroup::Uncategorized);
+        GuidedExperience.InsertAssistedSetup(SecondTestPageNameTxt, CopyStr(SecondTestPageNameTxt, 1, 50), '', 5,
+            ObjectType::Page, Page::"Customer List", AssistedSetupGroup::Uncategorized, '', VideoCategory::Uncategorized, '');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnAfterRun', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnAfterRunAssistedSetup', '', false, false)]
     [Normal]
-    procedure HandleOnUpdateAssistedSetupStatus(ExtensionId: Guid; PageID: Integer)
+    procedure OnAfterRunAssistedSetup(ExtensionId: Guid; ObjectType: ObjectType; ObjectID: Integer)
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         BaseAppID: Codeunit "BaseApp ID";
     begin
-        if ExtensionId <> BaseAppID.Get() then
+        if (ObjectID <> PAGE::"Item List") or (ObjectType <> ObjectType::Page) then
             exit;
-        if PageID <> PAGE::"Item List" then
-            exit;
-        AssistedSetup.Complete(PageID);
-    end;    
+
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, ObjectID);
+    end;
 }
 

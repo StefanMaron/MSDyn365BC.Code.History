@@ -3,6 +3,7 @@ table 1220 "Data Exch."
     Caption = 'Data Exch.';
     Permissions = TableData "Data Exch." = i,
                   TableData "Data Exch. Field" = rimd;
+    ReplicateData = false;
 
     fields
     {
@@ -85,7 +86,7 @@ table 1220 "Data Exch."
         CopyStream(OutStream, FileContent);
         Validate("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
-        if DataExchLineDef.FindFirst then
+        if DataExchLineDef.FindFirst() then
             Validate("Data Exch. Line Def Code", DataExchLineDef.Code);
         Insert;
     end;
@@ -97,7 +98,7 @@ table 1220 "Data Exch."
     begin
         RelatedRecord := "Related Record";
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        if DataExchLineDef.FindFirst then;
+        if DataExchLineDef.FindFirst() then;
 
         Init;
         "Data Exch. Def Code" := DataExchDef.Code;

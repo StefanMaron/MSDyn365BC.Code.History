@@ -227,7 +227,7 @@ page 1001 "Job Task Lines Subform"
                             JobPlanningLine.FilterGroup(0);
                             JobPlanningLines.SetTableView(JobPlanningLine);
                             JobPlanningLines.Editable := true;
-                            JobPlanningLines.Run;
+                            JobPlanningLines.Run();
                         end;
                     }
                 }
@@ -261,7 +261,7 @@ page 1001 "Job Task Lines Subform"
                         begin
                             CurrPage.SetSelectionFilter(JobTask);
                             JobTaskDimensionsMultiple.SetMultiJobTask(JobTask);
-                            JobTaskDimensionsMultiple.RunModal;
+                            JobTaskDimensionsMultiple.RunModal();
                         end;
                     }
                 }
@@ -308,7 +308,7 @@ page 1001 "Job Task Lines Subform"
                             JobInvoices: Page "Job Invoices";
                         begin
                             JobInvoices.SetPrJobTask(Rec);
-                            JobInvoices.RunModal;
+                            JobInvoices.RunModal();
                         end;
                     }
                 }
@@ -413,7 +413,7 @@ page 1001 "Job Task Lines Subform"
                             begin
                                 TestField("Job Task Type", "Job Task Type"::Posting);
                                 CopyJobPlanningLines.SetToJobTask(Rec);
-                                CopyJobPlanningLines.RunModal;
+                                CopyJobPlanningLines.RunModal();
                             end;
                         }
                         action("Copy Job Planning Lines &to...")
@@ -432,7 +432,7 @@ page 1001 "Job Task Lines Subform"
                             begin
                                 TestField("Job Task Type", "Job Task Type"::Posting);
                                 CopyJobPlanningLines.SetFromJobTask(Rec);
-                                CopyJobPlanningLines.RunModal;
+                                CopyJobPlanningLines.RunModal();
                             end;
                         }
                     }

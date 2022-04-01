@@ -25,7 +25,7 @@ codeunit 132904 UserRenameTest
     var
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
-        Initialize;
+        Initialize();
         BindSubscription(LibraryJobQueue);
         RenameUser(ChangeByPage::Card);
     end;
@@ -37,7 +37,7 @@ codeunit 132904 UserRenameTest
     var
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
-        Initialize;
+        Initialize();
         BindSubscription(LibraryJobQueue);
         RenameUser(ChangeByPage::List);
     end;
@@ -71,7 +71,7 @@ codeunit 132904 UserRenameTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".SetValue(NewUserName);
         UserCardPage.Close;
     end;
@@ -104,12 +104,12 @@ codeunit 132904 UserRenameTest
         Field.SetRange(RelationTableNo, DATABASE::User);
         Field.SetRange(RelationFieldNo, User.FieldNo("User Name"));
         Field.SetFilter(Type, '%1|%2', Field.Type::Code, Field.Type::Text);
-        if TempInteger.FindSet then
+        if TempInteger.FindSet() then
             repeat
                 RecRef.Open(TempInteger.Number);
                 RecRef.Init();
                 Field.SetRange(TableNo, TempInteger.Number);
-                if Field.FindSet then
+                if Field.FindSet() then
                     repeat
                         FieldRef := RecRef.Field(Field."No.");
                         FieldRef.Value := CopyStr(GivenUserName, 1, Field.Len);
@@ -126,7 +126,7 @@ codeunit 132904 UserRenameTest
     begin
         Field.SetRange(RelationTableNo, DATABASE::User);
         Field.SetRange(RelationFieldNo, User.FieldNo("User Name"));
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 if not TempInteger.Get(Field.TableNo) then begin
                     TempInteger.Number := Field.TableNo;
@@ -181,7 +181,7 @@ codeunit 132904 UserRenameTest
         Field.SetRange(RelationTableNo, DATABASE::User);
         Field.SetRange(RelationFieldNo, User.FieldNo("User Name"));
         Field.SetFilter(Type, '%1|%2', Field.Type::Code, Field.Type::Text);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 RecRef.Open(Field.TableNo);
                 FieldRef := RecRef.Field(Field."No.");

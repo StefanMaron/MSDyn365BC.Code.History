@@ -138,7 +138,7 @@ codeunit 139180 "CRM Entity Synch Test"
         NameFieldRef := CustomerRecordRef.Field(Customer.FieldNo(Name));
         NameFieldRef.SetFilter('TestCust*');
         SynchDirection := SynchDirection::ToCRM;
-        CustomerRecordRef.FindFirst;
+        CustomerRecordRef.FindFirst();
         CRMIntegrationManagement.UpdateMultipleNow(CustomerRecordRef);
         // Direction selected in TestSyncMultipleCustomersStrMenuHandler
 
@@ -458,7 +458,7 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser[1], CRMSystemuser[1]);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMSystemuser[1].SystemUserId, true, false);
         CRMSystemuser[1].Find;
-        CRMSystemuser[1].FullName := LibraryUtility.GenerateGUID;
+        CRMSystemuser[1].FullName := LibraryUtility.GenerateGUID();
         CRMSystemuser[1].Modify();
         // Mock CRM user Modified On changed
         MockCRMIntegrationRecordsLastSync(SalespersonPurchaser[1].RecordId, CRMSystemuser[1].ModifiedOn + 100);
@@ -468,7 +468,7 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMSystemuser[2].SystemUserId, true, false);
         Sleep(50);
         SalespersonPurchaser[2].Find;
-        SalespersonPurchaser[2].Name := LibraryUtility.GenerateGUID;
+        SalespersonPurchaser[2].Name := LibraryUtility.GenerateGUID();
         SalespersonPurchaser[2].Modify();
 
         // [GIVEN] Synchronizing the first salesperson
@@ -1715,7 +1715,7 @@ codeunit 139180 "CRM Entity Synch Test"
 
         // [GIVEN] Modified field "E-mail address 3" in CRM which is not mapped with NAV Account
         CRMAccount.Find;
-        CRMAccount.Validate(EMailAddress3, LibraryUtility.GenerateGUID);
+        CRMAccount.Validate(EMailAddress3, LibraryUtility.GenerateGUID());
         CRMAccount.Modify(true);
 
         // Modify "Last Synch. CRM Modified On" and "Modified One" with one day back to make sure that both Source and Destination are changed and in conflict
@@ -1777,9 +1777,9 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.RecordCount(CRMProductpricelevel, 2);
         IntegrationTableMapping[2].SetRange("Table ID", DATABASE::"Sales Price");
         IntegrationTableMapping[2].SetRange("Integration Table ID", DATABASE::"CRM Productpricelevel");
-        IntegrationTableMapping[2].FindFirst;
+        IntegrationTableMapping[2].FindFirst();
         IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMapping[2].Name);
-        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.FindLast();
         IntegrationSynchJob.TestField(Inserted, 2);
         // [THEN] "Product ID" and "Amount" are synched
         CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevel.PriceLevelId);
@@ -1840,9 +1840,9 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevel.PriceLevelId);
         Assert.RecordCount(CRMProductpricelevel, 2);
         IntegrationTableMapping[2].SetRange("Integration Table ID", DATABASE::"CRM Productpricelevel");
-        IntegrationTableMapping[2].FindFirst;
+        IntegrationTableMapping[2].FindFirst();
         IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMapping[2].Name);
-        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.FindLast();
         IntegrationSynchJob.TestField(Inserted, 2);
         // [THEN] "Product ID" and "Amount" are synched
         CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevel.PriceLevelId);
@@ -1984,7 +1984,7 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob.SetRange("Integration Table Mapping Name", 'SALESPRC-PRODPRICE');
         Assert.RecordCount(IntegrationSynchJob, 2);
         IntegrationSynchJob.SetCurrentKey("Start Date/Time", ID);
-        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.FindLast();
         ExpectedIntegrationSynchJob.Inserted := 1;
         ExpectedIntegrationSynchJob.Unchanged := 1;
         LibraryCRMIntegration.VerifySyncRecCount(ExpectedIntegrationSynchJob, IntegrationSynchJob);
@@ -2049,7 +2049,7 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
         Assert.RecordCount(IntegrationSynchJob, 2);
         IntegrationSynchJob.SetCurrentKey("Start Date/Time", ID);
-        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.FindLast();
         ExpectedIntegrationSynchJob.Modified := 1;
         LibraryCRMIntegration.VerifySyncRecCount(ExpectedIntegrationSynchJob, IntegrationSynchJob);
     end;
@@ -2094,7 +2094,7 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.IsTrue(IntegrationSynchJob.FindLast, 'No IntegrationSynchJob for ' + IntegrationTableMappingName);
         IntegrationSynchJob.TestField(Failed, 1);
         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", IntegrationSynchJob.ID);
-        IntegrationSynchJobErrors.FindFirst;
+        IntegrationSynchJobErrors.FindFirst();
         Assert.ExpectedMessage(
           StrSubstNo(SalesCodeMustBeCoupledErr, CustomerPriceGroup.Code, CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
@@ -2141,7 +2141,7 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.IsTrue(IntegrationSynchJob.FindLast, 'No IntegrationSynchJob for ' + IntegrationTableMappingName);
         IntegrationSynchJob.TestField(Failed, 1);
         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", IntegrationSynchJob.ID);
-        IntegrationSynchJobErrors.FindFirst;
+        IntegrationSynchJobErrors.FindFirst();
         Assert.ExpectedMessage(
             StrSubstNo(PriceListMustBeCoupledErr, PriceListHeader.Code, CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
@@ -2279,7 +2279,7 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob.TestField(Failed, 1);
         // [THEN] Second line failed with error "Item '2' is not coupled."
         IntegrationSynchJobErrors.SetRange("Source Record ID", SalesPrice[2].RecordId);
-        IntegrationSynchJobErrors.FindFirst;
+        IntegrationSynchJobErrors.FindFirst();
         Assert.ExpectedMessage(
           StrSubstNo(ItemMustBeCoupledErr, SalesPrice[2].FieldCaption("Item No."), SalesPrice[2]."Item No.", CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
@@ -2330,7 +2330,7 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob.TestField(Failed, 1);
         // [THEN] Second line failed with error "Item '2' is not coupled."
         IntegrationSynchJobErrors.SetRange("Source Record ID", PriceListLine[2].RecordId);
-        IntegrationSynchJobErrors.FindFirst;
+        IntegrationSynchJobErrors.FindFirst();
         Assert.ExpectedMessage(
           StrSubstNo(ItemMustBeCoupledErr, PriceListLine[2].FieldCaption("Asset No."), PriceListLine[2]."Asset No.", CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
@@ -2718,7 +2718,7 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
         CRMIntegrationRecord.SetRange("CRM ID", CRMID);
-        CRMIntegrationRecord.FindFirst;
+        CRMIntegrationRecord.FindFirst();
         CRMIntegrationRecord."Last Synch. Modified On" := OneDayBefore(CRMIntegrationRecord."Last Synch. Modified On");
         CRMIntegrationRecord.Modify();
     end;
@@ -2768,7 +2768,7 @@ codeunit 139180 "CRM Entity Synch Test"
         with CRMProductpricelevel do begin
             SetRange(ProductId, CRMProductId);
             SetRange(PriceLevelId, CRMPriceLevelId);
-            FindFirst;
+            FindFirst();
             TestField(Amount, ExpectedAmount);
         end;
     end;
@@ -2817,7 +2817,7 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
         IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
         IntegrationSynchJob.TestField(Modified, Modified);
         IntegrationSynchJob.TestField(Unchanged, Unchanged);
     end;

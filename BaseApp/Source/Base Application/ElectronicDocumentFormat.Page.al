@@ -25,7 +25,7 @@ page 363 "Electronic Document Format"
                         TempElectronicDocumentFormat: Record "Electronic Document Format" temporary;
                         ElectronicDocumentFormatDefined: Record "Electronic Document Format";
                     begin
-                        if not ElectronicDocumentFormatDefined.FindSet then
+                        if not ElectronicDocumentFormatDefined.FindSet() then
                             exit;
 
                         repeat

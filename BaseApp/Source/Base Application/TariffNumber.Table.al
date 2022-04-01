@@ -31,6 +31,9 @@ table 260 "Tariff Number"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", Description)
+        {
+        }
     }
 }
 

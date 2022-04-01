@@ -267,7 +267,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         JsonArray: DotNet JArray;
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetId);
-        if not DimensionSetEntry.FindSet then
+        if not DimensionSetEntry.FindSet() then
             exit('');
 
         JSONManagement.InitializeEmptyCollection;

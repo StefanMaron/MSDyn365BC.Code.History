@@ -89,9 +89,6 @@ table 5103 "Interaction Tmpl. Language"
     var
         Attachment: Record Attachment;
         InteractTmplLanguage: Record "Interaction Tmpl. Language";
-#if not CLEAN17
-        WordManagement: Codeunit WordManagement;
-#endif
         NewAttachNo: Integer;
     begin
         if "Attachment No." <> 0 then begin
@@ -101,22 +98,11 @@ table 5103 "Interaction Tmpl. Language"
                 exit;
         end;
 
-#if CLEAN17
         if "Custom Layout Code" = '' then begin
             if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
                 if Attachment.ImportAttachmentFromClientFile('', false, false) then
                     NewAttachNo := Attachment."No.";
         end else
-#else
-        if "Custom Layout Code" = '' then
-            if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then begin
-                if Attachment.ImportAttachmentFromClientFile('', false, false) then
-                    NewAttachNo := Attachment."No.";
-            end else
-                NewAttachNo :=
-                    WordManagement.CreateWordAttachment("Interaction Template Code" + ' ' + Description, "Language Code")
-        else
-#endif
             NewAttachNo := CreateHTMLCustomLayoutAttachment;
 
         if NewAttachNo <> 0 then begin

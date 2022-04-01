@@ -85,6 +85,7 @@ page 193 "Incoming Doc. Attach. FactBox"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Incoming Document';
                 Image = Document;
+                Enabled = HasAttachments;
                 Scope = Repeater;
                 ToolTip = 'View or create an incoming document record that is linked to the entry or document.';
 
@@ -127,6 +128,33 @@ page 193 "Incoming Doc. Attach. FactBox"
                     DocumentServiceMgt.OpenInOneDrive(FileName, FileExtension, InStream);
                 end;
             }
+            action(ShareToOneDrive)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Share';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
+                Image = Share;
+                Enabled = ShareOptionsEnabled;
+                Promoted = true;
+                Scope = Repeater;
+                trigger OnAction()
+                var
+                    IncomingDocumentAttachment: Record "Incoming Document Attachment";
+                    FileManagement: Codeunit "File Management";
+                    DocumentServiceMgt: Codeunit "Document Service Management";
+                    FileName: Text;
+                    FileExtension: Text;
+                    InStream: InStream;
+                begin
+                    IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No.");
+                    IncomingDocumentAttachment.CalcFields(Content);
+                    IncomingDocumentAttachment.Content.CreateInStream(InStream);
+
+                    FileName := FileManagement.StripNotsupportChrInFileName(Rec.Name);
+                    FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
+                    DocumentServiceMgt.ShareWithOneDrive(FileName, FileExtension, InStream);
+                end;
+            }
             action(Export)
             {
                 ApplicationArea = Basic, Suite;
@@ -159,14 +187,17 @@ page 193 "Incoming Doc. Attach. FactBox"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        if LoadedDataFromRecord then
-            exit(FindFirst());
+        if LoadedDataFromRecord then begin
+            HasAttachments := FindFirst();
+            exit(HasAttachments);
+        end;
 
         if not FilterWasChanged() then
-            exit(true);
+            exit(HasAttachments);
 
         PreviousViewFilter := GetView();
-        exit(LoadDataFromOnFindRecord());
+        HasAttachments := LoadDataFromOnFindRecord();
+        exit(HasAttachments);
     end;
 
     var
@@ -176,6 +207,7 @@ page 193 "Incoming Doc. Attach. FactBox"
         FileExtensionLbl: Label '.%1', Locked = true;
         CreateMainDocumentFirstErr: Label 'You must fill in any field to create a main record before you try to attach a document. Refresh the page and try again.';
         LoadedDataFromRecord: Boolean;
+        HasAttachments: Boolean;
         ShareOptionsEnabled: Boolean;
         DownloadEnabled: Boolean;
         PreviousViewFilter: text;

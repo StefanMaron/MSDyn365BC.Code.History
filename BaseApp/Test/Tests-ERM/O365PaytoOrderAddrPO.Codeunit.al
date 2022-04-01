@@ -26,13 +26,13 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         // [SCENARIO] Pay-To is initialized to "Default (Vendor)" on a Purchase Order in new mode
         // [WHEN] Annie opens a new Purhase Order card
         // [THEN] Pay-To option is set to Default(Vendor)
-        Initialize;
+        Initialize();
 
         // Setup - Update address in Company Information
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise - Open a New Purchase Order
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor No.".SetValue(Vendor."No.");
 
         // Verify - PayToOptions is set to default
@@ -59,7 +59,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         // [SCENARIO] Pay-To address fields is in sync with another vendor address fields when PayToOption is set to a another vendor
         // [WHEN] Annie selects PayToOption as 'Another Vendor' and selects another Vendor on a Purchase Order
         // [THEN] Pay-To address fields are updated
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Invocie with default pay to option
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
@@ -96,7 +96,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         // [SCENARIO] Pay-to address fields are editable when the PayToOption is Custom Address on Purchase Order
         // [WHEN] Annie creates a Purchase Order and sets the PayToOption as Custom Address
         // [THEN] The Pay-to address fields on the Purchase Order page is editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Order
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
@@ -124,7 +124,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         // [SCENARIO] Pay-to address fields are not visible when the PayToOption is default on Purchase Order
         // [WHEN] Annie creates a Purchase Order and sets the PayToOption as default
         // [THEN] The Pay-to address fields on the Purchase Order page is not editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Order
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
@@ -148,7 +148,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         // [SCENARIO] PayToOption is set correctly when opening an existing Purchase Order
         // [WHEN] Annie opens a Purchase Order where the payto vendor is same as the buy-from vendor
         // [THEN] The Purchase Order page has the PayToOption set to "Default (Vendor)"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Order
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
@@ -173,7 +173,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         // [SCENARIO] PayToOption is set correctly when opening an existing Purchase Order
         // [WHEN] Annie opens a Purchase Order where the PAy-to vendor is not the same as buy-from vendor
         // [THEN] The Purchase Order page has the PayToOption set to 'Another Vendor'
-        Initialize;
+        Initialize();
 
         // Setup - Create a Vendor
         LibraryPurchase.CreateVendor(Vendor);
@@ -203,14 +203,14 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         // [SCENARIO] Buy-From address is set Order address of the vendor
         // [WHEN] Annie opens a Purhase Order card and sets the order address
         // [THEN] Buy-from address fields are updated to the address form the order address
-        Initialize;
+        Initialize();
 
         // Setup - Update address in Company Information
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateOrderAddress(OrderAddress, Vendor."No.");
 
         // Exercise - Open a New Purchase Order
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor No.".SetValue(Vendor."No.");
         PurchaseOrder."Order Address Code".SetValue(OrderAddress.Code);
 
@@ -234,7 +234,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Pay-to & Order Addr. P.O");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();

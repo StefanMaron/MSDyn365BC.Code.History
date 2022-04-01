@@ -25,7 +25,7 @@ codeunit 137461 "Phys. Invt. COD UT"
     begin
         // [SCENARIO] validate OnRun trigger of Codeunit - 5005361, Show Duplicate Order lines.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
 
         // Enqueue values for use in PhysInventoryOrderLinePageHandler.
@@ -141,7 +141,7 @@ codeunit 137461 "Phys. Invt. COD UT"
         // [SCENARIO] validate the SignFactor function of Codeunit - 99000830, Create Reserv. Entry.
         // Setup.
         NextEntryNo := 1;
-        if ReservationEntry.FindLast then
+        if ReservationEntry.FindLast() then
             NextEntryNo := ReservationEntry."Entry No." + 1;
         ReservationEntry."Entry No." := NextEntryNo;
         ReservationEntry."Source Type" := DATABASE::"Phys. Invt. Order Line";
@@ -157,7 +157,7 @@ codeunit 137461 "Phys. Invt. COD UT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(): Code[20]

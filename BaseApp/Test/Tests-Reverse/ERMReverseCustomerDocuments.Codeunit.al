@@ -25,7 +25,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Debit Amount LCY in Ledger Entries after Reversing Posted Invoice Entry for a Customer.
-        Initialize;
+        Initialize();
         ReverseDebitDocument(GenJournalLine."Document Type"::Invoice);
     end;
 
@@ -37,7 +37,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Debit Amount LCY in Ledger Entries after Reversing Posted Finance Charge Memo Entry for a Customer.
-        Initialize;
+        Initialize();
         ReverseDebitDocument(GenJournalLine."Document Type"::"Finance Charge Memo");
     end;
 
@@ -49,7 +49,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Debit Amount LCY in Ledger Entries after Reversing Posted Reminder Entry for a Customer.
-        Initialize;
+        Initialize();
         ReverseDebitDocument(GenJournalLine."Document Type"::Reminder);
     end;
 
@@ -61,7 +61,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Debit Amount LCY in Ledger Entries after Reversing Posted Refund Entry for a Customer.
-        Initialize;
+        Initialize();
         ReverseDebitDocument(GenJournalLine."Document Type"::Refund);
     end;
 
@@ -90,7 +90,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Credit Amount LCY in Ledger Entries after Reversing Posted Payment Entry for a Customer.
-        Initialize;
+        Initialize();
         ReverseCreditDocument(GenJournalLine."Document Type"::Payment);
     end;
 
@@ -102,7 +102,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Credit Amount LCY in Ledger Entries after Reversing Posted Credit Memo Entry for a Customer.
-        Initialize;
+        Initialize();
         ReverseCreditDocument(GenJournalLine."Document Type"::"Credit Memo");
     end;
 
@@ -132,7 +132,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse Customer Documents");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -151,7 +151,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Reverse posted Transaction.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -188,7 +188,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
     begin
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
-        DetailedCustLedgEntry.FindLast;
+        DetailedCustLedgEntry.FindLast();
     end;
 
     [ConfirmHandler]

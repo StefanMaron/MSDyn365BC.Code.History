@@ -1,4 +1,4 @@
-﻿codeunit 7017 "Price List Management"
+codeunit 7017 "Price List Management"
 {
     var
         PriceIsFound: Boolean;

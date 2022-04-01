@@ -84,7 +84,7 @@ page 99000882 "Change Status on Prod. Order"
 
         PostingDate := WorkDate;
 
-        OnAfterSet(ProdOrder);
+        OnAfterSet(ProdOrder, PostingDate, ReqUpdUnitCost);
     end;
 
     procedure ReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean)
@@ -108,7 +108,7 @@ page 99000882 "Change Status on Prod. Order"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterSet(ProdOrder: Record "Production Order")
+    local procedure OnAfterSet(ProdOrder: Record "Production Order"; var PostingDate: Date; var ReqUpdUnitCost: Boolean)
     begin
     end;
 

@@ -1,7 +1,8 @@
 codeunit 416 "Release Service Document"
 {
     TableNo = "Service Header";
-    Permissions = TableData "Service Header" = rm;
+    Permissions = TableData "Service Header" = rm,
+                  TableData "Service Line" = r;
 
     trigger OnRun()
     begin
@@ -47,7 +48,7 @@ codeunit 416 "Release Service Document"
             if InvtSetup."Location Mandatory" then begin
                 ServLine.SetCurrentKey(Type);
                 ServLine.SetRange(Type, ServLine.Type::Item);
-                if ServLine.FindSet then
+                if ServLine.FindSet() then
                     repeat
                         ServLine.TestField("Location Code");
                     until ServLine.Next() = 0;

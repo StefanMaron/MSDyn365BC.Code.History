@@ -28,7 +28,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         GetSourceDocuments.UseRequestPage(false);
         GetSourceDocuments.SetTableView(WarehouseRequest);
         GetSourceDocuments.SetHideDialog(true);
-        GetSourceDocuments.RunModal;
+        GetSourceDocuments.RunModal();
 
         OnAfterCreateWhseShipmentHeaderFromWhseRequest(WarehouseRequest);
 
@@ -46,7 +46,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         WhseGetSourceFilterRec.SetRange(Type, WhseGetSourceFilterRec.Type::Outbound);
         WhseGetSourceFilterRec.FilterGroup(0);
         WhseSourceFilterSelection.SetTableView(WhseGetSourceFilterRec);
-        WhseSourceFilterSelection.RunModal;
+        WhseSourceFilterSelection.RunModal();
 
         UpdateShipmentHeaderStatus(WhseShptHeader);
 
@@ -101,7 +101,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         GetSourceDocuments.UseRequestPage(false);
         WarehouseRequest.SetRange("Location Code", WarehouseShipmentHeader."Location Code");
         GetSourceDocuments.SetTableView(WarehouseRequest);
-        GetSourceDocuments.RunModal;
+        GetSourceDocuments.RunModal();
     end;
 
     procedure CreateFromSalesOrder(SalesHeader: Record "Sales Header")
@@ -194,7 +194,7 @@ codeunit 5752 "Get Source Doc. Outbound"
           CurrentWhseWkshTemplate, CurrentWhseWkshName, LocationCode);
         GetWhseSourceDocuments.UseRequestPage(false);
         GetWhseSourceDocuments.SetTableView(WhsePickRqst);
-        GetWhseSourceDocuments.RunModal;
+        GetWhseSourceDocuments.RunModal();
     end;
 
     procedure CheckSalesHeader(SalesHeader: Record "Sales Header"; ShowError: Boolean) Result: Boolean
@@ -234,7 +234,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             exit(Result);
 
         with SalesHeader do begin
-            if SalesLine.FindSet then begin
+            if SalesLine.FindSet() then begin
                 LocationCode := SalesLine."Location Code";
                 SetItemVariant(CurrItemVariant, SalesLine."No.", SalesLine."Variant Code");
                 TotalNoOfRecords := SalesLine.Count();
@@ -288,7 +288,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         if IsHandled then
             exit;
 
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if SalesLine.IsInventoriableItem then
                     SalesLine.Mark(true);
@@ -328,7 +328,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             TransferLine.SetCurrentKey("Item No.");
             TransferLine.SetRange("Document No.", "No.");
             OnCheckTransferHeaderOnAfterSetLineFilters(TransferLine, TransferHeader);
-            if TransferLine.FindSet then begin
+            if TransferLine.FindSet() then begin
                 SetItemVariant(CurrItemVariant, TransferLine."Item No.", TransferLine."Variant Code");
                 TotalNoOfRecords := TransferLine.Count();
                 repeat
@@ -385,7 +385,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             ReservEntry.SetRange("Location Code", LocationCode);
             ReservEntry.SetRange("Variant Code", CurrItemVariant.Code);
             ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
-            if ReservEntry.FindSet then
+            if ReservEntry.FindSet() then
                 repeat
                     ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
                     QtyReservedForOrder += ReservEntry2."Quantity (Base)";
@@ -436,7 +436,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         if IsHandled then
             exit;
 
-        if WhseRqst.FindSet then begin
+        if WhseRqst.FindSet() then begin
             repeat
                 if Location.RequireShipment(WhseRqst."Location Code") then
                     LocationCode += WhseRqst."Location Code" + '|';

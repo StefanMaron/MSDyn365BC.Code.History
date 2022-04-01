@@ -25,59 +25,70 @@ page 5500 "Aged AP Entity"
         {
             repeater(Group)
             {
-                field(vendorId; AccountId)
+                field(vendorId; Rec.AccountId)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies the Account ID.';
                     Caption = 'Id', Locked = true;
                 }
-                field(vendorNumber; "No.")
+                field(vendorNumber; Rec."No.")
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies the Vendor No.';
                     Caption = 'VendorNumber', Locked = true;
                 }
-                field(name; Name)
+                field(name; Rec.Name)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies the Vendor Name';
                     Caption = 'Name', Locked = true;
                 }
-                field(currencyCode; "Currency Code")
+                field(currencyCode; Rec."Currency Code")
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies the Currency Code';
                     Caption = 'CurrencyCode', Locked = true;
                 }
-                field(balanceDue; Balance)
+                field(balanceDue; Rec.Balance)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies the Vendor Balance';
                     Caption = 'Balance', Locked = true;
                 }
-                field(currentAmount; Before)
+                field(currentAmount; Rec.Before)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies Before';
                     Caption = 'Before', Locked = true;
                 }
-                field(period1Amount; "Period 1")
+                field(period1Amount; Rec."Period 1")
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies Period 1';
                     Caption = 'Period1', Locked = true;
                 }
-                field(period2Amount; "Period 2")
+                field(period2Amount; Rec."Period 2")
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies Period 2';
                     Caption = 'Period2', Locked = true;
                 }
-                field(period3Amount; "Period 3")
+                field(period3Amount; Rec."Period 3")
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies Period 3';
                     Caption = 'Period3', Locked = true;
                 }
-                field(agedAsOfDate; "Period Start Date")
+                field(agedAsOfDate; Rec."Period Start Date")
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies the Period Start Date';
                     Caption = 'PeriodStartDate', Locked = true;
                 }
-                field(periodLengthFilter; "Period Length")
+                field(periodLengthFilter; Rec."Period Length")
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Specifies the Period Length';
                     Caption = 'PeriodLength', Locked = true;
                 }
             }

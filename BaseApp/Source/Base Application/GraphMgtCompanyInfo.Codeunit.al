@@ -121,7 +121,7 @@ codeunit 5473 "Graph Mgt - Company Info."
         JSONMgt: Codeunit "JSON Management";
         JObject: DotNet JObject;
     begin
-        if O365SocialNetwork.FindSet then begin
+        if O365SocialNetwork.FindSet() then begin
             JSONMgt.InitializeEmptyCollection;
             repeat
                 JSONMgt.InitializeEmptyObject;
@@ -244,7 +244,7 @@ codeunit 5473 "Graph Mgt - Company Info."
                     O365SocialNetwork.FilterGroup(-1);
                     O365SocialNetwork.SetRange(Code, DisplayName);
                     O365SocialNetwork.SetRange(Name, DisplayName);
-                    if O365SocialNetwork.FindFirst then begin
+                    if O365SocialNetwork.FindFirst() then begin
                         O365SocialNetwork.Validate(URL, CopyStr(Address, 1, MaxStrLen(O365SocialNetwork.URL)));
                         O365SocialNetwork.Modify(true);
                     end else begin
@@ -263,7 +263,7 @@ codeunit 5473 "Graph Mgt - Company Info."
             end;
         end;
         O365SocialNetwork.Reset();
-        if O365SocialNetwork.FindSet then
+        if O365SocialNetwork.FindSet() then
             repeat
                 if not TempO365SocialNetwork.Get(O365SocialNetwork.Code) then
                     if O365SocialNetwork."Media Resources Ref" <> '' then begin

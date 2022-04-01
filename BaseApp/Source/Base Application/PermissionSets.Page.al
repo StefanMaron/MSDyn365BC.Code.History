@@ -212,7 +212,7 @@ page 9802 "Permission Sets"
                         AggregatePermissionSet.SetRange("Role ID", "Role ID");
 
                         CopyPermissionSet.SetTableView(AggregatePermissionSet);
-                        CopyPermissionSet.RunModal;
+                        CopyPermissionSet.RunModal();
 
                         if AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGuid, CopyPermissionSet.GetNewRoleID) then begin
                             Init;
@@ -294,7 +294,6 @@ page 9802 "Permission Sets"
                     trigger OnAction()
                     var
                         TableMetadata: Record "Table Metadata";
-                        AllObj: Record AllObj;
                         Permission: Record Permission;
                         TenantPermission: Record "Tenant Permission";
                         PermissionsCount: Integer;

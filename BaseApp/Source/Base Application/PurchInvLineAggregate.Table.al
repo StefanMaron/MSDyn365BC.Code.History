@@ -1,10 +1,8 @@
 table 5478 "Purch. Inv. Line Aggregate"
 {
     Caption = 'Purch. Inv. Line Aggregate';
-    // TableType = Temporary;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records';
-    ObsoleteTag = '17.0';
+    TableType = Temporary;
+    ReplicateData = false;
 
     fields
     {

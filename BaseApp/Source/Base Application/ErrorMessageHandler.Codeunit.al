@@ -26,7 +26,7 @@ codeunit 29 "Error Message Handler"
 
             NextID := 0;
             TempErrorMessageBuf.Reset();
-            if TempErrorMessageBuf.FindLast then
+            if TempErrorMessageBuf.FindLast() then
                 NextID := TempErrorMessageBuf.ID;
             SetRange(Context, false);
             FindSet();
@@ -68,6 +68,16 @@ codeunit 29 "Error Message Handler"
             ShowNotification(RegisterErrorMessages);
     end;
 
+    procedure InformAboutErrors(ErrorHandlingOptions: Enum "Error Handling Options")
+    begin
+        case ErrorHandlingOptions of
+            "Error Handling Options"::"Show Notification":
+                NotifyAboutErrors();
+            "Error Handling Options"::"Show Error":
+                ShowErrors();
+        end;
+    end;
+
     local procedure ShowNotification(RegisterID: Guid)
     var
         ContextErrorMessage: Record "Error Message";
@@ -97,7 +107,7 @@ codeunit 29 "Error Message Handler"
         TempErrorMessage.LogLastError(ClearError);
 
         TempErrorMessage.SetRange(Context, false);
-        if not TempErrorMessage.FindSet then
+        if not TempErrorMessage.FindSet() then
             exit;
 
         TempErrorMessage.GetContext(ContextErrorMessage);
@@ -112,7 +122,6 @@ codeunit 29 "Error Message Handler"
 
     procedure WriteMessagesToFile(FileName: Text; ThrowLastError: Boolean) FileCreated: Boolean;
     var
-        ContextErrorMessage: Record "Error Message";
         ErrorCallStack: Text;
         ErrorText: Text;
     begin
@@ -123,7 +132,7 @@ codeunit 29 "Error Message Handler"
         TempErrorMessage.LogLastError;
 
         TempErrorMessage.SetRange(Context, false);
-        if TempErrorMessage.FindSet then
+        if TempErrorMessage.FindSet() then
             WriteMessagesToFile(TempErrorMessage, FileName, ErrorCallStack);
         IF ThrowLastError then
             Error('%1 %2', ErrorText, ErrorCallStack);
@@ -173,11 +182,11 @@ codeunit 29 "Error Message Handler"
             TempErrorMessage.SetCurrentKey(Context);
             TempErrorMessage.SetRange(Context, true);
             TempErrorMessage.SetRange("Context Record ID", ContextRecordID);
-            if TempErrorMessage.FindFirst then
+            if TempErrorMessage.FindFirst() then
                 ContextID := TempErrorMessage.ID
             else begin
                 TempErrorMessage.Reset();
-                if TempErrorMessage.FindLast then
+                if TempErrorMessage.FindLast() then
                     ContextID := TempErrorMessage.ID;
             end;
         end;
@@ -188,7 +197,7 @@ codeunit 29 "Error Message Handler"
     begin
         if Active then begin
             TempErrorMessage.CopyFilters(TempErrorMessageResult);
-            if TempErrorMessage.FindSet then
+            if TempErrorMessage.FindSet() then
                 repeat
                     TempErrorMessageResult := TempErrorMessage;
                     TempErrorMessageResult.SetErrorCallStack(TempErrorMessage.GetErrorCallStack());

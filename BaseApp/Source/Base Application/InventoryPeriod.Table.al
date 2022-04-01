@@ -89,7 +89,7 @@ table 5814 "Inventory Period"
         OnBeforeIsValidDate(EndingDate);
         InvtPeriod.SetFilter("Ending Date", '>=%1', EndingDate);
         InvtPeriod.SetRange(Closed, true);
-        if InvtPeriod.FindLast then
+        if InvtPeriod.FindLast() then
             EndingDate := InvtPeriod."Ending Date"
         else
             exit(true);

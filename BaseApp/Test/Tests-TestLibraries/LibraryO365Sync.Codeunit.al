@@ -68,7 +68,7 @@ codeunit 131013 "Library - O365 Sync"
     begin
         // Sets up the user if it doesn't exist (e.g. we're using Windows Auth and have no users defined)
         User.SetRange("User Name", UserId);
-        if not User.FindFirst then begin
+        if not User.FindFirst() then begin
             User.Init();
             User."User Security ID" := CreateGuid;
             User."User Name" := UserId;

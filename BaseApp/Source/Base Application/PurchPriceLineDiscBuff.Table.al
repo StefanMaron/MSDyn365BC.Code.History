@@ -112,12 +112,12 @@ table 1315 "Purch. Price Line Disc. Buff."
         PurchaseLineDiscount.SetRange("Item No.", "Item No.");
         LoadPurchaseLineDiscount(PurchaseLineDiscount);
 
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     local procedure LoadPurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     begin
-        if PurchaseLineDiscount.FindSet then
+        if PurchaseLineDiscount.FindSet() then
             repeat
                 Init;
                 "Line Type" := "Line Type"::"Purchase Line Discount";
@@ -137,7 +137,7 @@ table 1315 "Purch. Price Line Disc. Buff."
 
     local procedure LoadPurchasePrice(var PurchasePrice: Record "Purchase Price")
     begin
-        if PurchasePrice.FindSet then
+        if PurchasePrice.FindSet() then
             repeat
                 Init;
                 "Line Type" := "Line Type"::"Purchase Price";

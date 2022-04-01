@@ -123,12 +123,12 @@ table 225 "Post Code"
                 PostCodeRec.SetFilter("Search City", SearchCity)
             else
                 PostCodeRec.SetRange("Search City", SearchCity);
-            if not PostCodeRec.FindFirst then
+            if not PostCodeRec.FindFirst() then
                 exit;
 
             if CountryCode <> '' then begin
                 PostCodeRec.SetRange("Country/Region Code", CountryCode);
-                if not PostCodeRec.FindFirst then
+                if not PostCodeRec.FindFirst() then
                     PostCodeRec.SetRange("Country/Region Code");
             end;
 
@@ -162,12 +162,12 @@ table 225 "Post Code"
             else
                 PostCodeRec.SetRange(Code, PostCode);
             OnValidatePostCodeOnAfterSetFilters(PostCodeRec);
-            if not PostCodeRec.FindFirst then
+            if not PostCodeRec.FindFirst() then
                 exit;
 
             if CountryCode <> '' then begin
                 PostCodeRec.SetRange("Country/Region Code", CountryCode);
-                if not PostCodeRec.FindFirst then
+                if not PostCodeRec.FindFirst() then
                     PostCodeRec.SetRange("Country/Region Code");
             end;
 
@@ -214,7 +214,7 @@ table 225 "Post Code"
             exit;
 
         SetRange(Code, NewPostCode);
-        if FindFirst then begin
+        if FindFirst() then begin
             if PostCodeChanged then
                 exit; // If the post code was updated, then don't insert the city for the old post code into the new post code
             if (NewCity <> '') and (City <> NewCity) then
@@ -251,7 +251,7 @@ table 225 "Post Code"
 
         PostCodeRec.SetRange("Country/Region Code", CountryCode);
         PostCodeRec.SetRange(Code, PostCode);
-        if PostCodeRec.FindFirst then begin
+        if PostCodeRec.FindFirst() then begin
             PostCode := PostCodeRec.Code;
             CityTxt := PostCodeRec.City;
             CountryCode := PostCodeRec."Country/Region Code";

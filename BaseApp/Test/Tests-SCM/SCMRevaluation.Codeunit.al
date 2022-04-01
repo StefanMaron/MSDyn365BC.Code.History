@@ -48,7 +48,7 @@ codeunit 137010 "SCM Revaluation"
         // Covers documents TFS_TC_ID 6200,6201,6202 and 6203.
 
         // Create required Inventory setups and Location.
-        Initialize;
+        Initialize();
         LocationCode := CreateRequiredSetup;
 
         // Create Item and calculate standard cost.
@@ -113,7 +113,7 @@ codeunit 137010 "SCM Revaluation"
         // Covers documents TFS_TC_ID 6165.
 
         // Create required Inventory setups and Location.
-        Initialize;
+        Initialize();
         LocationCode := CreateRequiredSetup;
 
         // Create Item and calculate standard cost.
@@ -183,7 +183,7 @@ codeunit 137010 "SCM Revaluation"
         // Covers documents TFS_TC_ID 6211.
 
         // Create required Inventory setups and Location.
-        Initialize;
+        Initialize();
         LocationCode := CreateRequiredSetup;
 
         // Create Item and calculate standard cost.
@@ -243,7 +243,7 @@ codeunit 137010 "SCM Revaluation"
         // Covers documents TFS_TC_ID 6212,6213,6214 and 6215.
 
         // Create required Inventory setups and Location.
-        Initialize;
+        Initialize();
         LocationCode := CreateRequiredSetup;
 
         // Create Item and calculate standard cost.
@@ -308,7 +308,7 @@ codeunit 137010 "SCM Revaluation"
         // Covers documents TFS_TC_ID 6164,6166 and 6168.
 
         // Create required Inventory setups and Location.
-        Initialize;
+        Initialize();
         LocationCode := CreateRequiredSetup;
 
         // Create Item and calculate standard cost.
@@ -359,15 +359,15 @@ codeunit 137010 "SCM Revaluation"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Revaluation");
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Revaluation");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         isInitialized := true;
         Commit();
 
@@ -389,7 +389,7 @@ codeunit 137010 "SCM Revaluation"
         LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        InventoryPostingGroupRec.FindFirst;
+        InventoryPostingGroupRec.FindFirst();
         InventoryPostingGroup := InventoryPostingGroupRec.Code;
         exit(Location.Code);
     end;
@@ -448,10 +448,10 @@ codeunit 137010 "SCM Revaluation"
         if IsCostRevalued then
             PurchRcptHeader.FindLast
         else
-            PurchRcptHeader.FindFirst;
+            PurchRcptHeader.FindFirst();
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
     end;
 
@@ -462,10 +462,10 @@ codeunit 137010 "SCM Revaluation"
         ReturnReceiptLine: Record "Return Receipt Line";
     begin
         ReturnReceiptHeader.SetRange("Return Order No.", SalesReturnOrderNo);
-        ReturnReceiptHeader.FindFirst;
+        ReturnReceiptHeader.FindFirst();
         ReturnReceiptLine.SetRange("Document No.", ReturnReceiptHeader."No.");
         ReturnReceiptLine.SetRange("No.", ItemNo);
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
         LibrarySales.UndoReturnReceiptLine(ReturnReceiptLine);
     end;
 
@@ -475,7 +475,7 @@ codeunit 137010 "SCM Revaluation"
     begin
         PurchaseLine.SetRange("Document No.", PurchaseOrderNo);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
         PurchaseLine.Modify(true);
     end;
@@ -487,7 +487,7 @@ codeunit 137010 "SCM Revaluation"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
         SalesLine.SetRange("Document No.", SalesDocumentNo);
         SalesLine.SetRange("No.", ItemNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Return Qty. to Receive", SalesLine.Quantity);
         SalesLine.Modify(true);
     end;
@@ -543,7 +543,7 @@ codeunit 137010 "SCM Revaluation"
     begin
         // Select Item Journal Template Name for General Journal Line.
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Revaluation);
-        if not ItemJournalTemplate.FindFirst then begin
+        if not ItemJournalTemplate.FindFirst() then begin
             ItemJournalTemplate.Init();
             ItemJournalTemplate.Validate(
               Name, CopyStr(LibraryUtility.GenerateRandomCode(ItemJournalTemplate.FieldNo(Name), DATABASE::"Item Journal Template"), 1,
@@ -578,7 +578,7 @@ codeunit 137010 "SCM Revaluation"
         CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
         Item.SetRange("No.", Item."No.");
         CalculateInventoryValue.SetTableView(Item);
-        CalculateInventoryValue.RunModal;
+        CalculateInventoryValue.RunModal();
     end;
 
     [Normal]
@@ -589,7 +589,7 @@ codeunit 137010 "SCM Revaluation"
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalTemplateBatch);
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", OldUnitCost + LibraryRandom.RandInt(50));
         ItemJournalLine.Modify(true);
         exit(ItemJournalLine."Unit Cost (Revalued)");
@@ -601,7 +601,7 @@ codeunit 137010 "SCM Revaluation"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         TempPurchaseLine := PurchaseLine;
         TempPurchaseLine.Insert();
     end;
@@ -612,7 +612,7 @@ codeunit 137010 "SCM Revaluation"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         TempSalesLine := SalesLine;
         TempSalesLine.Insert();
     end;
@@ -646,7 +646,7 @@ codeunit 137010 "SCM Revaluation"
         until ItemLedgerEntry.Next = 0;
 
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
 
         Assert.AreEqual(Inventory, ItemJournalLine.Quantity, ErrorQtyMustBeEqual);
     end;
@@ -705,10 +705,10 @@ codeunit 137010 "SCM Revaluation"
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         PurchRcptHeader.SetRange("Order No.", PurchaseOrderNo);
-        PurchRcptHeader.FindLast;
+        PurchRcptHeader.FindLast();
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         asserterror UndoPurchaseReceipt(PurchaseOrderNo, ItemNo, true);
         Assert.AreEqual(
           StrSubstNo(UndoReceiptErrorMessage, PurchRcptLine."Line No."), GetLastErrorText,
@@ -722,10 +722,10 @@ codeunit 137010 "SCM Revaluation"
         ReturnReceiptLine: Record "Return Receipt Line";
     begin
         ReturnReceiptHeader.SetRange("Return Order No.", SalesReturnOrderNo);
-        ReturnReceiptHeader.FindFirst;
+        ReturnReceiptHeader.FindFirst();
         ReturnReceiptLine.SetRange("Document No.", ReturnReceiptHeader."No.");
         ReturnReceiptLine.SetRange("No.", ItemNo);
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
         asserterror UndoSalesReturnReceipt(SalesReturnOrderNo, ItemNo);
         Assert.AreEqual(
           ReturnReceiptAlreadyReversedErr, GetLastErrorText,

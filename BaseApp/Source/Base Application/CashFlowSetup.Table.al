@@ -386,35 +386,35 @@ table 843 "Cash Flow Setup"
             Modify;
     end;
 
-    local procedure CalculateTaxableDate(ReferenceDate: Date; FindLast: Boolean) Result: Date
+    local procedure CalculateTaxableDate(ReferenceDate: Date; FindLastRec: Boolean) Result: Date
     var
         AccountingPeriod: Record "Accounting Period";
     begin
         case "Taxable Period" of
             "Taxable Period"::Monthly:
-                if FindLast then
+                if FindLastRec then
                     Result := CalcDate('<CM>', ReferenceDate)
                 else
                     Result := CalcDate('<-CM>', ReferenceDate);
             "Taxable Period"::Quarterly:
-                if FindLast then
+                if FindLastRec then
                     Result := CalcDate('<CQ>', ReferenceDate)
                 else
                     Result := CalcDate('<-CQ>', ReferenceDate);
             "Taxable Period"::"Accounting Period":
-                if FindLast then begin
+                if FindLastRec then begin
                     // The end of the current accounting period is the start of the next acc. period - 1 day
                     AccountingPeriod.SetFilter("Starting Date", '>%1', ReferenceDate);
-                    AccountingPeriod.FindFirst;
+                    AccountingPeriod.FindFirst();
                     Result := AccountingPeriod."Starting Date" - 1;
                 end else begin
                     // The end of the current accounting period is the start of the next acc. period - 1 day
                     AccountingPeriod.SetFilter("Starting Date", '<=%1', ReferenceDate);
-                    AccountingPeriod.FindFirst;
+                    AccountingPeriod.FindFirst();
                     Result := AccountingPeriod."Starting Date";
                 end;
             "Taxable Period"::Yearly:
-                if FindLast then
+                if FindLastRec then
                     Result := CalcDate('<CY>', ReferenceDate)
                 else
                     Result := CalcDate('<-CY>', ReferenceDate);

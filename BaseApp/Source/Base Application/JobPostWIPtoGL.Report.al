@@ -15,6 +15,8 @@ report 1085 "Job Post WIP to G/L"
 
             trigger OnAfterGetRecord()
             begin
+                if GLSetup."Journal Templ. Name Mandatory" then
+                    JobCalculateWIP.SetGenJnlBatch(GenJnlBatch);
                 JobCalculateWIP.CalcGLWIP("No.", JustReverse, DocNo, PostingDate, ReplacePostDate);
             end;
         }
@@ -54,6 +56,41 @@ report 1085 "Job Post WIP to G/L"
                         Caption = 'Use Reversal Date';
                         ToolTip = 'Specifies if you want to use the reversal date as the posting date for both the reversal of the previous WIP calculation and the posting date for the new WIP calculation. This is useful when you want to calculate and post the historical WIP for a period that is already closed. You can reverse the old postings and post the new calculation in an open period by choosing a reversal date in the open period.';
                     }
+                    field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
+                    {
+                        ApplicationArea = Jobs;
+                        Caption = 'Journal Template Name';
+                        TableRelation = "Gen. Journal Template";
+                        ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnValidate()
+                        begin
+                            GenJnlLineReq."Journal Batch Name" := '';
+                        end;
+                    }
+                    field(JnlBatchName; GenJnlLineReq."Journal Batch Name")
+                    {
+                        ApplicationArea = Jobs;
+                        Caption = 'Journal Batch Name';
+                        ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
+                        begin
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                        end;
+
+                        trigger OnValidate()
+                        begin
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                            end;
+                        end;
+                    }
                 }
             }
         }
@@ -66,6 +103,14 @@ report 1085 "Job Post WIP to G/L"
         var
             NewNoSeriesCode: Code[20];
         begin
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                IsJournalTemplNameVisible := true;
+                GLSetup.TestField("Job WIP Jnl. Template Name");
+                GLSetup.TestField("Job WIP Jnl. Batch Name");
+                GenJnlBatch.Get(GLSetup."Job WIP Jnl. Template Name", GLSetup."Job WIP Jnl. Batch Name");
+            end;
+
             if PostingDate = 0D then
                 PostingDate := WorkDate;
             DocNo := '';
@@ -104,11 +149,19 @@ report 1085 "Job Post WIP to G/L"
         if PostingDate = 0D then
             PostingDate := WorkDate;
 
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            GenJnlBatch.TestField("No. Series");
+            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, true);
+        end;
+
         JobCalculateBatches.BatchError(PostingDate, DocNo);
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
         JobsSetup: Record "Jobs Setup";
+        GenJnlLineReq: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
         JobCalculateWIP: Codeunit "Job Calculate WIP";
         JobCalculateBatches: Codeunit "Job Calculate Batches";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -117,6 +170,7 @@ report 1085 "Job Post WIP to G/L"
         JustReverse: Boolean;
         WIPSuccessfullyPostedMsg: Label 'WIP was successfully posted to G/L.';
         ReplacePostDate: Boolean;
+        IsJournalTemplNameVisible: Boolean;
 
     procedure InitializeRequest(NewDocNo: Code[20])
     begin

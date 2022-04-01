@@ -39,7 +39,7 @@ codeunit 134919 "ERM Batch Job II"
         // Check Error Message when Copy From Budget Field is not filled up while running Copy GL Budget Batch Job.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Try to Run Copy GL Budget Batch job without Copy From GL Budget Name, GL Account No, Date Interval, Copy To GL Budget Name, Blank Rounding Method Code.
         asserterror RunCopyGLBudget(FromSource::"G/L Budget Entry", '', '', '', '', 1, '');  // Take 1 as Adjustment Factor.
@@ -57,7 +57,7 @@ codeunit 134919 "ERM Batch Job II"
         // Check Error Message when Copy From Date Field is not filled up while running Copy GL Budget Batch Job.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Try to Run Copy GL Budget Batch job without GL Account No, Date Interval, Copy To GL Budget Name and Blank Rounding Method Code, take 1 as Adjustment Factor.
         asserterror RunCopyGLBudget(FromSource::"G/L Entry", '', '', '', '', 1, '');
@@ -75,7 +75,7 @@ codeunit 134919 "ERM Batch Job II"
         // Check Error Message when Copy to Budget Field is not filled up while running Copy GL Budget Batch Job.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Try to Run Copy GL Budget Batch job without Copy From GL Budget Name, GL Account No, Copy To GL Budget Name and Blank Rounding Method Code.
         asserterror RunCopyGLBudget(FromSource::"G/L Entry", '', '', Format(WorkDate), '', 1, '');  // Take 1 as Adjustment Factor.
@@ -96,7 +96,7 @@ codeunit 134919 "ERM Batch Job II"
         // Check that new GL Budget created after confirming message asked to create GL Budget while running Copy GL Budget.
 
         // Setup: Take a Random Name for Copy To GL Budget Name.
-        Initialize;
+        Initialize();
         NewBudgetName := Format(LibraryRandom.RandInt(100));
 
         // Exercise: Run Copy GL Budget Using blank for Copy From GL Budget, Rounding Method and 1 for Adjustment Factor.
@@ -121,9 +121,9 @@ codeunit 134919 "ERM Batch Job II"
         // Check that GL Budget does not exist when creation confirmation message for GL Budget declined.
 
         // Setup: Create and Post General Journal Line for a GL Account with random Amount.
-        Initialize;
+        Initialize();
         NewBudgetName := Format(LibraryRandom.RandInt(100));  // Taking a Random Name for New Budget to be created.
-        GLBudgetName.FindFirst;
+        GLBudgetName.FindFirst();
 
         // Exercise: Run Copy GL Budget using blank for Rounding Method, GL Account No. and 1 for Adjustment Factor.
         RunCopyGLBudget(FromSource::"G/L Budget Entry", GLBudgetName.Name, '', Format(WorkDate), NewBudgetName, 1, '');
@@ -143,8 +143,8 @@ codeunit 134919 "ERM Batch Job II"
         // Check correct Amount copied to new GL Budget when Copy From Source is GL Entry.
 
         // Setup: Create and Post General Journal Line for a GL Account with random Amount.
-        Initialize;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;  // Assign GL Account No. to global variable.
+        Initialize();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();  // Assign GL Account No. to global variable.
         Amount := LibraryRandom.RandDec(100, 2);  // Assign Random Amount to global variable.
         CreateAndPostGenJournalLine(GLAccountNo, Amount);
         CopyGLBudgetFromDifferentSources(FromSource::"G/L Entry", '', 1, '');  // Passing blanks for Copy From GL Budget Name and Rounding Method, 1 for Adjustment Factor.
@@ -161,9 +161,9 @@ codeunit 134919 "ERM Batch Job II"
         // Check correct Amount copied on new GL Budget when Copy From Source is GL Budget Entry.
 
         // Setup: Create GL Budget Entry for a GL Account with random Amount.
-        Initialize;
-        GLBudgetName.FindFirst;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;  // Assign GL Account No. to  global variable.
+        Initialize();
+        GLBudgetName.FindFirst();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();  // Assign GL Account No. to  global variable.
         Amount := LibraryRandom.RandDec(100, 2);  // Assign Random Amount to global variable.
         CreateGLBudgetEntry(GLBudgetName.Name, GLAccountNo, Amount);
         CopyGLBudgetFromDifferentSources(FromSource::"G/L Budget Entry", GLBudgetName.Name, 1, '');  // Passing blank for Rounding Method, 1 for Adjustment Factor.
@@ -179,8 +179,8 @@ codeunit 134919 "ERM Batch Job II"
         // Check correct Amount copied on new GL Budget while Copy From Source is GL Entry and a Rounding Method used.
 
         // Setup: Create and Post General Journal Line with random Amount.
-        Initialize;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;  // Assign GL Account No. to global variable.
+        Initialize();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();  // Assign GL Account No. to global variable.
         Amount := LibraryRandom.RandDec(100, 2);  // Assign Random Amount to global variable.
         CreateAndPostGenJournalLine(GLAccountNo, Amount);
         CopyGLBudgetFromDifferentSources(FromSource::"G/L Entry", '', 1, CalculateAmountUsingRoundingMethod(Amount));  // Passing blank for Copy From GL Budget, 1 for Adjustment Factor.
@@ -197,9 +197,9 @@ codeunit 134919 "ERM Batch Job II"
         // Check correct Amount copied on new GL Budget while Copy From Source is GL Budget Entry and a Rounding Method Used.
 
         // Setup: Create GL Budget Entry for a GL Account with random Amount.
-        Initialize;
-        GLBudgetName.FindFirst;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;  // Assign GL Account No. to global variable.
+        Initialize();
+        GLBudgetName.FindFirst();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();  // Assign GL Account No. to global variable.
         Amount := LibraryRandom.RandDec(100, 2);  // Assign Random Amount to global variable.
         CreateGLBudgetEntry(GLBudgetName.Name, GLAccountNo, Amount);
         CopyGLBudgetFromDifferentSources(FromSource::"G/L Budget Entry", GLBudgetName.Name, 1, CalculateAmountUsingRoundingMethod(Amount));  // Passing 1 for Adjustment Factor.
@@ -216,8 +216,8 @@ codeunit 134919 "ERM Batch Job II"
         // Check correct Amount copied on new GL Budget while Copy From Source is GL Entry and random Adjustment Factor used.
 
         // Setup: Create and Post General Journal Line with random Amount, take random Adjustment Factor.
-        Initialize;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;  // Assign GL Account No. to global variable.
+        Initialize();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();  // Assign GL Account No. to global variable.
         Amount := LibraryRandom.RandDec(100, 2);  // Assign Random Amount to global variable.
         AdjustmentFactor := LibraryRandom.RandDec(10, 2);
         CreateAndPostGenJournalLine(GLAccountNo, Amount);
@@ -237,9 +237,9 @@ codeunit 134919 "ERM Batch Job II"
         // Check correct Amount copied on new GL Budget while Copy From Source is GL Budget Entry and random Adjustment Factor used.
 
         // Setup: Create GL Budget Entry for a GL Account with random Amount, take random Adjustment Factor.
-        Initialize;
-        GLBudgetName.FindFirst;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;  // Assign GL Account No. to global variable.
+        Initialize();
+        GLBudgetName.FindFirst();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();  // Assign GL Account No. to global variable.
         Amount := LibraryRandom.RandDec(100, 2);  // Assign Random Amount to global variable.
         AdjustmentFactor := LibraryRandom.RandDec(10, 2);
         CreateGLBudgetEntry(GLBudgetName.Name, GLAccountNo, Amount);
@@ -410,7 +410,7 @@ codeunit 134919 "ERM Batch Job II"
     var
         RoundingMethod: Record "Rounding Method";
     begin
-        RoundingMethod.FindFirst;
+        RoundingMethod.FindFirst();
         Amount := Round(OldAmount, RoundingMethod.Precision, InvoiceRoundingDirection(RoundingMethod.Type));  // Update the Amount as per Rounding Method and Assign it to global variable.
         exit(RoundingMethod.Code);
     end;
@@ -505,7 +505,7 @@ codeunit 134919 "ERM Batch Job II"
           FromSource, FromGLBudgetName, FromGLAccount, DateInterval, FromClosingEntryFilter::Include, '', ToGlBudgetName, '', AdjustmentFactor,
           RoundingMethodCode, DateChangeFormula, ToDateCompression::None);
         CopyGLBudget.UseRequestPage(false);
-        CopyGLBudget.Run;
+        CopyGLBudget.Run();
     end;
 
     [Scope('OnPrem')]

@@ -61,7 +61,7 @@ table 99000770 "Manufacturing Comment Line"
         ManufacturingCommentLine.SetRange("Table Name", "Table Name");
         ManufacturingCommentLine.SetRange("No.", "No.");
         ManufacturingCommentLine.SetRange(Date, WorkDate);
-        if not ManufacturingCommentLine.FindFirst then
+        if not ManufacturingCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, ManufacturingCommentLine);

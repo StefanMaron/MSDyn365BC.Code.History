@@ -40,7 +40,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Apply Customer Entries Page Fields with Posting Invoice and Apply Payment without Currency.
-        Initialize;
+        Initialize();
         ApplyCustEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, '', '');
     end;
 
@@ -52,7 +52,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Apply Customer Entries Page Fields with Posting Refund and Apply Credit Memo without Currency.
-        Initialize;
+        Initialize();
         ApplyCustEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", '', '');
     end;
 
@@ -64,7 +64,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Apply Customer Entries Page Fields with Posting Invoice and Apply Payment with different Currency.
-        Initialize;
+        Initialize();
         ApplyCustEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, CreateCurrency, CreateCurrency);
     end;
 
@@ -76,7 +76,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Apply Customer Entries Page Fields with Posting Refund and Apply Credit Memo with different Currency.
-        Initialize;
+        Initialize();
         ApplyCustEntry(
           GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", CreateCurrency, CreateCurrency);
     end;
@@ -123,7 +123,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Customer Ledger Entries for Remaining Amount after Posting and Apply Invoice and Payment through Page.
-        Initialize;
+        Initialize();
         ApplyAndPostCustEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment);
     end;
 
@@ -135,7 +135,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Customer Ledger Entries for Remaining Amount after Posting and Apply Refund and Credit Memo through Page.
-        Initialize;
+        Initialize();
         ApplyAndPostCustEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo");
     end;
 
@@ -180,7 +180,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Customer Ledger Entries for Original Payment Discount With Post and Apply Invoice.
 
         // Setup: Create Customer with Payment Terms and Post and Apply Invoice and Payment.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         CreatePaymentTerms(PaymentTerms, false);
         CreateGeneralJournalLines(
@@ -212,7 +212,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Customer Ledger Entries for Original Payment Discount With Post and Apply Credit Memo.
 
         // Setup: Create Customer with Payment Terms and Post and Apply Refund and Credit Memo.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         CreatePaymentTerms(PaymentTerms, true);
         CreateGeneralJournalLines(
@@ -239,7 +239,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Apply Vendor Entries Page Fields with Posting Invoice and Apply Payment without Currency.
-        Initialize;
+        Initialize();
         ApplyVendorEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, '', '');
     end;
 
@@ -251,7 +251,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Apply Vendor Entries Page Fields with Posting Refund and Apply Credit Memo without Currency.
-        Initialize;
+        Initialize();
         ApplyVendorEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", '', '');
     end;
 
@@ -263,7 +263,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Apply Vendor Entries Page Fields with Posting Invoice and Apply Payment with different Currency.
-        Initialize;
+        Initialize();
         ApplyVendorEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, CreateCurrency, CreateCurrency);
     end;
 
@@ -275,7 +275,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Apply Vendor Entries Page Fields with Posting Refund and Apply Credit Memo with different Currency.
-        Initialize;
+        Initialize();
         ApplyVendorEntry(
           GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", CreateCurrency, CreateCurrency);
     end;
@@ -322,7 +322,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Vendor Ledger Entries for Remaining Amount after Posting and Apply Invoice and Payment through Page.
-        Initialize;
+        Initialize();
         ApplyAndPostVendorEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment);
     end;
 
@@ -334,7 +334,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Vendor Ledger Entries for Remaining Amount after Posting and Apply Invoice and Payment through Page.
-        Initialize;
+        Initialize();
         ApplyAndPostVendorEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo");
     end;
 
@@ -381,7 +381,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Vendor Ledger Entries for Payment Discount after Posting and Apply Invoice.
 
         // Setup: Create Customer with Payment Terms, Post Invoice and Apply Payment.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         CreatePaymentTerms(PaymentTerms, false);
         CreateGeneralJournalLines(
@@ -413,7 +413,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Vendor Ledger Entries for Payment Discount after Posting and Apply Refund.
 
         // Setup: Create Vendor with Payment Terms, Post Refund and Apply Credit Memo.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         CreatePaymentTerms(PaymentTerms, true);
         CreateGeneralJournalLines(
@@ -447,7 +447,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // through Page.
 
         // Setup: Post Vendor Invoice and Payment with Random Amount.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, CreateVendor, GenJournalLine."Document Type"::Invoice,
@@ -486,7 +486,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Sales Analysis By Dimension Matrix by Item with Rounding Factor 1.
 
         // Setup: Create and Post Sales Invoice for Generating the Quantity and Sales Amount in Matrix.
-        Initialize;
+        Initialize();
         AnalysisViewCode := SetupSalesAnalysisMatrix(SalesLine);
         LibraryVariableStorage.Enqueue(SalesLine."No.");
         LibraryVariableStorage.Enqueue(Round(SalesLine.Quantity, 1));
@@ -510,7 +510,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Sales Analysis By Dimension Matrix by Item with Rounding Factor 1000.
 
         // Setup: Create and Post Sales Invoice for Generating the Quantity and Sales Amount in Matrix.
-        Initialize;
+        Initialize();
         AnalysisViewCode := SetupSalesAnalysisMatrix(SalesLine);
         LibraryVariableStorage.Enqueue(SalesLine."No.");
         LibraryVariableStorage.Enqueue(Round(SalesLine.Quantity / 1000, 0.1));
@@ -532,7 +532,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Apply Customer entries using Applies-to Doc. No. lookup when Applies-to Doc. Type field is blank on Journal line.
 
         // Setup: Create and post Customer Invoice and Credit Memo and create Customer Payment.
-        Initialize;
+        Initialize();
         CreateAndPostCustomerEntries(GenJournalLine);
 
         // Exercise: Open Apply Customer Entries page using Applies to Doc. No.
@@ -554,7 +554,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Apply Customer entries using Applies-to Doc. No. lookup when Applies-to Doc. Type field is not blank on Journal line.
 
         // Setup: Create and post Customer Invoice and Credit Memo and create Customer Payment and fill Applies-to Doc Type field.
-        Initialize;
+        Initialize();
         CreateAndPostCustomerEntries(GenJournalLine);
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.Modify(true);
@@ -581,7 +581,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // using Applies-to Doc. No. field lookup.
 
         // Setup: Create and post Customer Invoice, create Payment and Apply Payment using Applies to Doc. No.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, CreateCustomer, GenJournalLine."Document Type"::Invoice,
@@ -599,7 +599,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         LibraryVariableStorage.Enqueue(2); // used in ApplyCustEntriesOKPageHandler
         SetJournalLineAppliesToDocNo(GenJournalLine."Document Type", GenJournalLine."Document No.", GenJournalBatch.Name);
         GenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
 
         // Exercise.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -622,7 +622,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // Check that it is possible to enter an invoice number without having a customer number.
         // Setup: Create and post Customer Invoice, create Payment and Apply Payment using Applies to Doc. No.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, CreateCustomer, GenJournalLine."Document Type"::Invoice,
@@ -630,7 +630,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         ModifyGenLineBalAccountNo(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         // Retrieve the new invoice number
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         CustLedgerEntry.TestField("Document Type", CustLedgerEntry."Document Type"::Invoice);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalBatch."Journal Template Name");
@@ -656,7 +656,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // Check that it is possible to enter an invoice number without having a vendor number.
         // Setup: Create and post Vendor Invoice, create Payment and Apply Payment using Applies to Doc. No.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, CreateVendor, GenJournalLine."Document Type"::Invoice,
@@ -664,7 +664,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         ModifyGenLineBalAccountNo(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         // Retrieve the new invoice number
-        VendLedgerEntry.FindLast;
+        VendLedgerEntry.FindLast();
         VendLedgerEntry.TestField("Document Type", VendLedgerEntry."Document Type"::Invoice);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalBatch."Journal Template Name");
@@ -689,7 +689,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // Check Applies to ID field should be blank on Apply Customer Entries Page.
         // Verify With ApplyCustomerEntriesPageHandler.
-        Initialize;
+        Initialize();
         CreateGeneralLineAndApplyEntries(
           GenJournalLine."Account Type"::Customer, CreateCustomer, LibraryRandom.RandDec(100, 2));  // Take Random Amount for General Line.
     end;
@@ -703,7 +703,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // Check Applies to ID field should be blank on Apply Vendor Entries Page.
         // Verify with ApplyVendorEntriesPageHandler.
-        Initialize;
+        Initialize();
         CreateGeneralLineAndApplyEntries(GenJournalLine."Account Type"::Vendor, CreateVendor, -LibraryRandom.RandDec(100, 2)); // Take Random Amount for General Line.
     end;
 
@@ -742,7 +742,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Sales Journal Page's Caption with Created Batch Name.
 
         // Setup: Create New Sales General Batch and Template.
-        Initialize;
+        Initialize();
         BatchName := CreateGeneralBatchAndTemplate(GenJournalTemplate.Type::Sales);
         Commit(); // commit is required to save the DB State.
 
@@ -765,7 +765,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Purchase Journal Page's Caption with Created Batch Name.
 
         // Setup: Create New Purchase General Batch and Template.
-        Initialize;
+        Initialize();
         BatchName := CreateGeneralBatchAndTemplate(GenJournalTemplate.Type::Purchases);
         Commit(); // commit is required to save the DB State.
 
@@ -787,7 +787,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [SCENARIO] Verify Purchase Journal simple view defaults.
 
         // [GIVEN] Standard initialization
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Jouranl opened
         PurchaseJournal.OpenView;
@@ -812,7 +812,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [SCENARIO] Verify Purchase Journal Document Amount logic.
 
         // [GIVEN] Standard initialization
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Jouranl opened
         PurchaseJournal.OpenView;
@@ -872,7 +872,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [SCENARIO] Verify Sales Journal simple view defaults.
 
         // [GIVEN] Standard initialization
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Journal opened
         SalesJournal.OpenView;
@@ -898,12 +898,12 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // From ICM 99657780
 
         // [GIVEN] Standard initialization
-        Initialize;
+        Initialize();
 
         // Modify Sales General Journal Template to be a different type.  Customer can do this manually in the UI.
         GenJournalTemplate.Init();
         GenJournalTemplate.SetRange(Name, 'SALES');
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         GenJournalTemplate.Type := GenJournalTemplate.Type::General;
         GenJournalTemplate.Modify();
 
@@ -927,7 +927,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [SCENARIO] Verify Sales Journal Document Amount logic.
 
         // [GIVEN] Standard initialization
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Journal opened
         SalesJournal.OpenView;
@@ -990,7 +990,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [SCENARIO] Change field value in Customer Card invoked from filtered Customer List
         // [GIVEN] Customer "A" with Name "X1"
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(Name, LibraryUtility.GenerateGUID);
+        Customer.Validate(Name, LibraryUtility.GenerateGUID());
         Customer.Modify(true);
 
         // [GIVEN] Customer List filtered by Name = "X1"
@@ -1003,7 +1003,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         CustomerList.Edit.Invoke;
 
         // [GIVEN] Name changed to "X2" for Customer "A" in Customer Card
-        NewName := LibraryUtility.GenerateGUID;
+        NewName := LibraryUtility.GenerateGUID();
         CustomerCard.Name.SetValue(NewName);
 
         // [WHEN] Click OK on  Customer Card
@@ -1028,7 +1028,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [SCENARIO] Change field value in Vendor Card invoked from filtered Vendor List
         // [GIVEN] Vendor "A" with Name "X1"
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate(Name, LibraryUtility.GenerateGUID);
+        Vendor.Validate(Name, LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
 
         // [GIVEN] Vendor List filtered by Name = "X1"
@@ -1041,7 +1041,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         VendorList.Edit.Invoke;
 
         // [GIVEN] Name changed to "X2" for Vendor "A" in Vendor Card
-        VendorCard.Name.SetValue(LibraryUtility.GenerateGUID);
+        VendorCard.Name.SetValue(LibraryUtility.GenerateGUID());
 
         // [WHEN] Click OK on Vendor Card.
         VendorCard.OK.Invoke;
@@ -1076,7 +1076,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [FEATURE] [Vendor] [UI]
         // [SCENARIO] Change field value in Customer Card invoked from filtered Customer List
         // [GIVEN] A customer
-        OriginalName := LibraryUtility.GenerateGUID;
+        OriginalName := LibraryUtility.GenerateGUID();
         LibrarySales.CreateCustomer(Customer);
         Customer.Name := OriginalName;
         Customer.Address := 'Sesamestreet 42';
@@ -1117,7 +1117,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         CustomerList.Edit.Invoke;
 
         // [GIVEN] The customer's name is changed
-        NewName := LibraryUtility.GenerateGUID;
+        NewName := LibraryUtility.GenerateGUID();
         CustomerCard.Name.SetValue(NewName);
 
         // [WHEN] The customer card is closed
@@ -1142,10 +1142,10 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 376164] When apply Sales Payment to two Credit Memos and Invoice with total zero Amount all Customer Ledger Entries should be closed
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 Sales Credit Memos with Amounts = -10, -20, Payment with Amount = -30, Invoice with Amount = 60
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateAndPostCustMultipleJnlLines(PaymentNo, CustomerNo);
 
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
@@ -1172,10 +1172,10 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 376164] When apply Purchase Payment to two Credit Memos and Invoice with total zero Amount all Vendor Ledger Entries should be closed
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 Purchase Credit Memos with Amounts = 10, 20, Payment with Amount = 30, Invoice with Amount = -60
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreateAndPostVendMultipleJnlLines(PaymentNo, VendorNo);
 
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
@@ -1202,7 +1202,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 206799] "Applies-to ID" is cleared when previously non-zero "Amount to Apply" is set to zero in Apply Vendor Entries Page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with posted purchase invoice and credit memo.
         SetupVendorWithTwoPostedDocuments(Vendor);
@@ -1228,7 +1228,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 206799] "Applies-to ID" is cleared when previously non-zero "Amount to Apply" is set to zero in Apply Customer Entries Page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with posted sales invoice and credit memo.
         SetupCustomerWithTwoPostedDocuments(Customer);
@@ -1254,7 +1254,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 206799] "Amount to Apply" is not cleared when previously non-zero "Amount to Apply" was set to zero and then again to a value in Apply Vendor Entries Page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with posted purchase invoice and credit memo.
         SetupVendorWithTwoPostedDocuments(Vendor);
@@ -1281,7 +1281,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 206799] "Amount to Apply" is not cleared when previously non-zero "Amount to Apply" was set to zero and then again to a value in Apply Customer Entries Page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with posted sales invoice and credit memo.
         SetupCustomerWithTwoPostedDocuments(Customer);
@@ -1304,7 +1304,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJnlManagement: Codeunit "GenJnlManagement";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purchase Application");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
@@ -1313,12 +1313,12 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJnlManagement.SetJournalSimplePageModePreference(true, Page::"Purchase Journal");
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales/Purchase Application");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -1495,7 +1495,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Find existing Cash Receipt Templates.
         // Take CASHRCPT as Applies-to Doc. No. field is available on this journal.
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         exit(GenJournalTemplate.Name);
     end;
 
@@ -1596,7 +1596,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // Create and Post Sales Invoice and Update Item analysis through page.
         ItemAnalysisView.SetRange("Analysis Area", ItemAnalysisView."Analysis Area"::Sales);
-        ItemAnalysisView.FindFirst;
+        ItemAnalysisView.FindFirst();
 
         CreateAndPostSalesInvoice(SalesLine);
 

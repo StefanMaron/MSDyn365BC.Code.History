@@ -19,16 +19,16 @@ codeunit 1546 "Workflow Webhook Notify Task"
         // Fetch Subscription
         WorkflowWebhookSubscriptionTable.SetFilter("WF Definition Id", "Workflow Code");
         WorkflowWebhookSubscriptionTable.SetFilter(Enabled, '%1', true);
-        if not WorkflowWebhookSubscriptionTable.FindFirst then
+        if not WorkflowWebhookSubscriptionTable.FindFirst() then
             exit;
 
         // Fetch Entry
         WorkflowWebhookEntryTable.SetRange("Workflow Step Instance ID", ID);
-        if not WorkflowWebhookEntryTable.FindFirst then
+        if not WorkflowWebhookEntryTable.FindFirst() then
             exit;
 
         UserTable.SetRange("User Name", WorkflowWebhookEntryTable."Initiated By User ID");
-        if UserTable.FindFirst then
+        if UserTable.FindFirst() then
             ContactEmail := UserTable."Contact Email";
 
         // Send notification

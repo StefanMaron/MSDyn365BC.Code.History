@@ -344,7 +344,7 @@ codeunit 7153 "Item Analysis Management"
                     Clear(DimValList);
                     DimValList.SetTableView(DimVal);
                     DimValList.SetRecord(DimVal);
-                    DimValList.RunModal;
+                    DimValList.RunModal();
                 end;
         end;
 
@@ -471,7 +471,8 @@ codeunit 7153 "Item Analysis Management"
         exit(OldDimSelCode);
     end;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by ValidateLineDimTypeAndCode', '20.0')]
     procedure ValidateLineDimCode(ItemAnalysisView: Record "Item Analysis View"; var LineDimCode: Text[30]; var LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; ColumnDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; var InternalDateFilter: Text; var DateFilter: Text; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var PeriodInitialized: Boolean)
     begin
         ValidateLineDimTypeAndCode(
@@ -754,7 +755,8 @@ codeunit 7153 "Item Analysis Management"
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by CalculateAmount()', '20.0')]
     procedure CalcAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; SetColumnFilter: Boolean; CurrentAnalysisArea: Option; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; ItemFilter: Code[250]; LocationFilter: Code[250]; DateFilter: Text[30]; BudgetFilter: Code[250]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]; LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; LineDimCodeBuf: Record "Dimension Code Buffer"; ColDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; ColDimCodeBuf: Record "Dimension Code Buffer"; ShowActualBudget: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%"): Decimal
     begin
         CalculateAmount(

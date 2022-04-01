@@ -1,4 +1,4 @@
-﻿page 113 Budget
+page 113 Budget
 {
     Caption = 'Budget';
     DataCaptionExpression = BudgetName;
@@ -473,7 +473,7 @@
                         ImportBudgetfromExcel: Report "Import Budget from Excel";
                     begin
                         ImportBudgetfromExcel.SetParameters(BudgetName, 0);
-                        ImportBudgetfromExcel.RunModal;
+                        ImportBudgetfromExcel.RunModal();
                         UpdateMatrixSubform();
                     end;
                 }
@@ -719,7 +719,6 @@
 
     var
         GLSetup: Record "General Ledger Setup";
-        GLAccBudgetBuf: Record "G/L Acc. Budget Buffer";
         GLBudgetName: Record "G/L Budget Name";
         PrevGLBudgetName: Record "G/L Budget Name";
         MATRIX_MatrixRecords: array[32] of Record "Dimension Code Buffer";
@@ -757,6 +756,7 @@
         BudgetDim4FilterEnable: Boolean;
 
     protected var
+        GLAccBudgetBuf: Record "G/L Acc. Budget Buffer";
         BudgetName: Code[10];
         NewBudgetName: Code[10];
         LineDimType: Enum "G/L Budget Matrix Dimensions";
@@ -777,7 +777,7 @@
         BudgetDim3Filter: Text;
         BudgetDim4Filter: Text;
 
-    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
+    protected procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MATRIX_PeriodRecords: array[32] of Record Date;
         BusUnit: Record "Business Unit";
@@ -1012,7 +1012,7 @@
                     SetFilter("Budget Dimension 4 Code", BudgetDim4Filter);
                 OnDeleteBudgetOnAfterGLBudgetEntrySetFilters(GLBudgetEntry);
                 SetCurrentKey("Entry No.");
-                if FindFirst then
+                if FindFirst() then
                     UpdateAnalysisView.SetLastBudgetEntryNo("Entry No." - 1);
                 SetCurrentKey("Budget Name");
                 DeleteAll(true);

@@ -49,6 +49,8 @@ codeunit 137088 "SCM Order Planning - III"
         ReserveError: Label 'Reserve must be equal to ''%1''  in Requisition Line';
         LineExistErr: Label 'Requistion line in %1 worksheet should exist for item %2';
         PurchaseLineQuantityBaseErr: Label '%1.%2 must be nearly equal to %3.', Comment = '%1 : Purchase Line, %2 : Quantity (Base), %3 : Value.';
+        BOMFixedQtyCalcFormulaErr: Label 'BOM Fixed Quantity Calculation Formula should be used to calculate the values.';
+        BOMFixedQtyTypeErr: Label 'Type must be equal to ''Item''';
 
     [Test]
     [HandlerFunctions('MakeSupplyOrdersPageHandler')]
@@ -63,7 +65,7 @@ codeunit 137088 "SCM Order Planning - III"
         ChildItem2: Record Item;
     begin
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, false, ChildItem."Order Tracking Policy"::None);
         CreateProdItem(Item2, ChildItem2);
         CreateAndRefreshProdOrder(
@@ -92,7 +94,7 @@ codeunit 137088 "SCM Order Planning - III"
         ChildItem: Record Item;
     begin
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, false, ChildItem."Order Tracking Policy"::None);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationRed.Code, LibraryRandom.RandDec(10, 2));
@@ -123,7 +125,7 @@ codeunit 137088 "SCM Order Planning - III"
         Quantity2: Decimal;
     begin
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, false, ChildItem."Order Tracking Policy"::None);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationRed.Code, Quantity);
@@ -153,7 +155,7 @@ codeunit 137088 "SCM Order Planning - III"
         ChildItem: Record Item;
     begin
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, false, ChildItem."Order Tracking Policy"::None);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationRed.Code, LibraryRandom.RandDec(10, 2) +
@@ -188,7 +190,7 @@ codeunit 137088 "SCM Order Planning - III"
         OrderPlanning: TestPage "Order Planning";
     begin
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, false, ChildItem."Order Tracking Policy"::"Tracking Only");
         GlobalChildItemNo := ChildItem."No.";
         CreateAndRefreshProdOrder(
@@ -218,7 +220,7 @@ codeunit 137088 "SCM Order Planning - III"
         PurchaseOrderNo: Code[20];
     begin
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, false, ChildItem."Order Tracking Policy"::"Tracking Only");
         GlobalChildItemNo := ChildItem."No.";
         CreateAndRefreshProdOrder(
@@ -246,7 +248,7 @@ codeunit 137088 "SCM Order Planning - III"
     [Scope('OnPrem')]
     procedure PlanningForProdOrderPlanningComponent()
     begin
-        Initialize;
+        Initialize();
         PlanningForProductionOrder(false)
     end;
 
@@ -255,7 +257,7 @@ codeunit 137088 "SCM Order Planning - III"
     [Scope('OnPrem')]
     procedure PlanningForProdOrderPlanningRouting()
     begin
-        Initialize;
+        Initialize();
         PlanningForProductionOrder(true)
     end;
 
@@ -298,7 +300,7 @@ codeunit 137088 "SCM Order Planning - III"
         QuantityPer: Decimal;
     begin
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning and Add Planning Component.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, true, ChildItem."Order Tracking Policy"::None);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationRed.Code, LibraryRandom.RandDec(10, 2));  // Random value is Important For test.
@@ -330,7 +332,7 @@ codeunit 137088 "SCM Order Planning - III"
         OperationNo: Code[10];
     begin
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning and Add Planning Routing.
-        Initialize;
+        Initialize();
         CreateManufacturingSetup(ParentItem, ChildItem, true, ChildItem."Order Tracking Policy"::None);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationRed.Code, LibraryRandom.RandDec(10, 2));
@@ -367,7 +369,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         // [FEATURE] [Manufacturing]
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning ,Make Order and Open Production Order Statistics.
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnablePremiumSetup;
 
@@ -401,7 +403,7 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup : Create Item with Dimension, Create Sales  Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
         CreateDimensionWithValue(DimensionValue);
@@ -434,7 +436,7 @@ codeunit 137088 "SCM Order Planning - III"
         PurchaseOrderNo: Code[20];
     begin
         // Setup : Create Item with Dimension and Replenishment System Purchase, Create Sales  Order and Calculate Plan.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
         CreateDimensionWithValue(DimensionValue);
@@ -449,7 +451,7 @@ codeunit 137088 "SCM Order Planning - III"
         // Verify : Check That Dimension On Purchase Line Created From Make Order is same as dimension on Item.
         FindPurchaseLine(PurchaseLine, PurchaseOrderNo);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         VerifyDimensionSetEntry(DimensionValue."Dimension Code", DimensionValue.Code, PurchaseLine."Dimension Set ID");
 
         // Tear Down.
@@ -472,7 +474,7 @@ codeunit 137088 "SCM Order Planning - III"
         ProductionOrderNo: Code[20];
     begin
         // Setup : Create Item with Dimension and Replenishment System Production Order, Create Sales  Order and Calculate Plan.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateProdItem(Item, ChildItem);
         CreateDimensionWithValue(DimensionValue);
@@ -499,7 +501,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item: Record Item;
     begin
         // Check that Reserve is False While we create item with Reserve Never for Sales Order.
-        Initialize;
+        Initialize();
         ReserveSalesOrderPlanning(Item.Reserve::Never, true);
     end;
 
@@ -510,7 +512,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item: Record Item;
     begin
         // Check that Reserve is TRUE While we create item with Reserve Always for Sales Order.
-        Initialize;
+        Initialize();
         ReserveSalesOrderPlanning(Item.Reserve::Always, false);
     end;
 
@@ -552,7 +554,7 @@ codeunit 137088 "SCM Order Planning - III"
         ChildItem: Record Item;
     begin
         // Check That Reservation Entry Created after Make Supply Order for Sales Order when Child Item Reserve is Always.
-        Initialize;
+        Initialize();
         ReserveSalesOrderPlanMakeOrder(ChildItem.Reserve::Always);
     end;
 
@@ -564,7 +566,7 @@ codeunit 137088 "SCM Order Planning - III"
         ChildItem: Record Item;
     begin
         // Check That Reservation Entry not Created after Make Supply Order for Sales Order when Child Item Reserve is Never.
-        Initialize;
+        Initialize();
         ReserveSalesOrderPlanMakeOrder(ChildItem.Reserve::Never);
     end;
 
@@ -596,14 +598,14 @@ codeunit 137088 "SCM Order Planning - III"
         if ReserveOnItem = ChildItem.Reserve::Always then begin
             ReservationEntry.SetRange("Item No.", Item."No.");
             ReservationEntry.SetRange("Source Type", 39);  // Value important as it signifies Purchase Line Table ID.
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
             Assert.AreEqual(
               Quantity, ReservationEntry.Quantity,
               StrSubstNo(ValidationError, ReservationEntry.FieldCaption(Quantity), Quantity, ReservationEntry.TableCaption));
         end else begin
             // Verify : Check That Reservation Entry Not Created after Make Supply Order.
             ReservationEntry.SetRange("Item No.", Item."No.");
-            asserterror ReservationEntry.FindFirst;
+            asserterror ReservationEntry.FindFirst();
         end;
 
         // Tear Down.
@@ -670,7 +672,7 @@ codeunit 137088 "SCM Order Planning - III"
           RequisitionLine."Replenishment System"::Transfer, ReqWkshTemplate.Type::"Req.");
     end;
 
-    local procedure ReserveProdOrderPlanCopyToReq(Reserve: Enum "Reserve Method"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; ReqWkshTemplateType: Option)
+    local procedure ReserveProdOrderPlanCopyToReq(Reserve: Enum "Reserve Method"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; ReqWkshTemplateType: Enum "Req. Worksheet Template Type")
     var
         Item: Record Item;
         ProdItem: Record Item;
@@ -686,7 +688,7 @@ codeunit 137088 "SCM Order Planning - III"
         QtyPer: Decimal;
     begin
         // Setup : Create Production Order and Calculate Plan
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
         UpdateItemEx(Item, Reserve, ReorderingPolicy);
 
@@ -696,7 +698,7 @@ codeunit 137088 "SCM Order Planning - III"
         CreateAndRefreshProdOrder(ProdOrder, ProdOrder.Status::Released, ProdItem."No.", '', Qty);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrder."No.");
         ProdOrderComponent.SetRange("Item No.", Item."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.Validate("Location Code", LocationBlue.Code);
         ProdOrderComponent.Modify(true);
         ProdOrder.Get(ProdOrder.Status::Released, ProdOrder."No.");
@@ -718,20 +720,20 @@ codeunit 137088 "SCM Order Planning - III"
 
         // Tear Down
         ReservationEntry.SetRange("Item No.", Item."No.");
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 ReservationEntry.Delete();
             until ReservationEntry.Next = 0;
         ProdOrder.Delete();
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrder."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.Delete();
         ProdBOMLine.SetRange("Production BOM No.", ProdItem."Production BOM No.");
-        ProdBOMLine.FindFirst;
+        ProdBOMLine.FindFirst();
         ProdBOMLine.Delete();
 
         ProdBOMHeader.SetRange("No.", ProdItem."Production BOM No.");
-        ProdBOMHeader.FindFirst;
+        ProdBOMHeader.FindFirst();
         ProdBOMHeader.Delete();
         ProdItem.Delete();
         Item.Delete();
@@ -797,7 +799,7 @@ codeunit 137088 "SCM Order Planning - III"
           RequisitionLine."Replenishment System"::Transfer, ReqWkshTemplate.Type::"Req.");
     end;
 
-    local procedure ReserveSalesOrderPlanCopyToReq(Reserve: Enum "Reserve Method"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; ReqWkshTemplateType: Option)
+    local procedure ReserveSalesOrderPlanCopyToReq(Reserve: Enum "Reserve Method"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; ReqWkshTemplateType: Enum "Req. Worksheet Template Type")
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
@@ -810,7 +812,7 @@ codeunit 137088 "SCM Order Planning - III"
         Quantity: Decimal;
     begin
         // Setup : Create Sales Order and Calculate Plan
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
         UpdateItemEx(Item, Reserve, ReorderingPolicy);
@@ -836,13 +838,13 @@ codeunit 137088 "SCM Order Planning - III"
         // Tear Down
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
         ReservationEntry.SetRange("Item No.", Item."No.");
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 ReservationEntry.Delete();
             until ReservationEntry.Next = 0;
         SalesHeader.Delete();
         SalesLine.SetRange("No.", Item."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Delete();
         Item.Delete();
     end;
@@ -856,7 +858,7 @@ codeunit 137088 "SCM Order Planning - III"
             ReservationEntry.SetRange("Source ID", SourceID);
             ReservationEntry.SetRange("Source Type", SourceType);
             ReservationEntry.SetRange("Source Batch Name", SourceBatchName);
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
 
             Assert.AreEqual(
               Qty, ReservationEntry.Quantity,
@@ -864,7 +866,7 @@ codeunit 137088 "SCM Order Planning - III"
         end else begin
             // Verify : Check That Reservation Entry Not Created after Make Supply Order.
             ReservationEntry.SetRange("Item No.", ItemNo);
-            asserterror ReservationEntry.FindFirst;
+            asserterror ReservationEntry.FindFirst();
         end;
     end;
 
@@ -897,7 +899,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item: Record Item;
     begin
         // Check That Planning Component and Planning Routing Line created after change replenishment to Production Order.
-        Initialize;
+        Initialize();
         ChangeReplenishmentAndCheckComponent(Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -908,7 +910,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item: Record Item;
     begin
         // Check That Planning Component and Planning Routing Line Delete after change replenishment to Purchase Order.
-        Initialize;
+        Initialize();
         ChangeReplenishmentAndCheckComponent(Item."Replenishment System"::Purchase);
     end;
 
@@ -973,7 +975,7 @@ codeunit 137088 "SCM Order Planning - III"
         ItemVariant: Record "Item Variant";
     begin
         // Setup : Create Item, Item Variant, Sale Order And Calculate Plan.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
@@ -1000,7 +1002,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item: Record Item;
     begin
         // Check That Purchase Line Created form Make Order have same Variant Cade as on Sales Line.
-        Initialize;
+        Initialize();
         MakeOrderWithItemVariant(Item."Replenishment System"::Purchase);
     end;
 
@@ -1012,7 +1014,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item: Record Item;
     begin
         // Check That Production Order Line Created form Make Order have same Variant Cade as on Sales Line.
-        Initialize;
+        Initialize();
         MakeOrderWithItemVariant(Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -1042,12 +1044,12 @@ codeunit 137088 "SCM Order Planning - III"
             // Verify : Check That Purchase Line Created form Make Order have same Variant Cade as on Sales Line.
             PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
             PurchaseLine.SetRange("No.", Item."No.");
-            PurchaseLine.FindFirst;
+            PurchaseLine.FindFirst();
             PurchaseLine.TestField("Variant Code", ItemVariant.Code);
         end else begin
             // Verify : Check That Production Order Line Created form Make Order have same Variant Cade as on Sales Line.
             ProdOrderLine.SetRange("Item No.", Item."No.");
-            ProdOrderLine.FindFirst;
+            ProdOrderLine.FindFirst();
             ProdOrderLine.TestField("Variant Code", ItemVariant.Code);
         end;
 
@@ -1068,7 +1070,7 @@ codeunit 137088 "SCM Order Planning - III"
         Quantity: Decimal;
     begin
         // Setup : Create Item ,Sale order and Calculate Plan and Open Order Planning Page ,Change Quantity To Order close Order Planning Page and Calculate Plan.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
@@ -1101,7 +1103,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         // [FEATURE] [Unit of Measure] [Special Order]
         // [SCENARIO 207135] Updating of "Currency Code" in the Header of Purchase Order related with Sales Order with Special Order "Purchasing Code" retains the same "Unit of Measure Code" as it was created during Carry Out Action Message
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Vendor No." and "Purch. Unit of Measure";
         CreateItemWithVendorNoAndPurchUnitOfMeasure(Item);
@@ -1119,7 +1121,7 @@ codeunit 137088 "SCM Order Planning - III"
         // [THEN] "PL"."Unit of Measure Code" = "SL"."Unit of Measure Code", "PL"."Quantity (Base)" = "SL"."Quantity (Base)"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
-        PurchaseLine.FindFirst;  // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
+        PurchaseLine.FindFirst();  // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
         VerifyPurchaseLineUnitOfMeasureCodeAndQuantityBase(
           PurchaseLine, SalesLine."Unit of Measure Code", SalesLine."Quantity (Base)");
     end;
@@ -1138,7 +1140,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         // [FEATURE] [Unit of Measure] [Special Order]
         // [SCENARIO 207135] Updating of "Currency Code" in the Header of Purchase Order related with Sales Order with Drop Shipment "Purchasing Code" retains the same "Unit of Measure Code" as it was created during Carry Out Action Message
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Vendor No." and "Purch. Unit of Measure";
         CreateItemWithVendorNoAndPurchUnitOfMeasure(Item);
@@ -1156,7 +1158,7 @@ codeunit 137088 "SCM Order Planning - III"
         // [THEN] "PL"."Unit of Measure Code" = "SL"."Unit of Measure Code", "PL"."Quantity (Base)" = "SL"."Quantity (Base)"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
-        PurchaseLine.FindFirst;  // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
+        PurchaseLine.FindFirst();  // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
         VerifyPurchaseLineUnitOfMeasureCodeAndQuantityBase(
           PurchaseLine, SalesLine."Unit of Measure Code", SalesLine."Quantity (Base)");
     end;
@@ -1171,7 +1173,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         // [FEATURE] [Sales] [Purchase] [Order]
         // [SCENARIO 287131] Delete planning lines generated by "Purchase Order from Sales Order" functionality, if a user does not confirm creating a new purchase order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -1199,7 +1201,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         // [FEATURE] [Sales] [Purchase] [Order] [Non-Inventory Item]
         // [SCENARIO 315342] A user can create purchase order from a sales order with non-inventory item.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateNonInventoryTypeItem(Item);
         Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
@@ -1226,7 +1228,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         // [FEATURE] [Sales] [Purchase] [Order]
         // [SCENARIO 325237] Planning lines generated by "Purchase Order from Sales Order" functionality by another user, are not taken into consideration.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
@@ -1246,7 +1248,7 @@ codeunit 137088 "SCM Order Planning - III"
         CreatePurchaseOrderFromSalesOrder(SalesHeader[1]."No.", true);
 
         RequisitionLine.SetRange("Worksheet Template Name", '');
-        RequisitionLine.ModifyAll("User ID", LibraryUtility.GenerateGUID);
+        RequisitionLine.ModifyAll("User ID", LibraryUtility.GenerateGUID());
 
         // [GIVEN] User "B":
         // [WHEN] Create purchase order from sales order "SO2".
@@ -1270,7 +1272,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         // [FEATURE] [Item] [Sales] [Purchase] [Order]
         // [SCENARIO 337908] Other blocked items do not interfere with creating purchase from sales.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Items "A" and "B".
@@ -1697,7 +1699,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [WHEN] Make an assembly order to supply the service line.
         GetManufacturingUserTemplate(
-          ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order", 0);
+          ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order", "Planning Create Prod. Order"::" ");
         ManufacturingUserTemplate.Validate(
           "Create Assembly Order", ManufacturingUserTemplate."Create Assembly Order"::"Make Assembly Orders");
         ManufacturingUserTemplate.Modify(true);
@@ -1801,7 +1803,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [THEN] The job planning line is now reserved from production order with "Order-to-Order" binding.
         VerifyOrderToOrderBindingOnReservEntry(
-          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+          DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
           DATABASE::"Prod. Order Line");
     end;
 
@@ -1850,7 +1852,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [THEN] The job planning line is now reserved from transfer order with "Order-to-Order" binding.
         VerifyOrderToOrderBindingOnReservEntry(
-          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+          DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
           DATABASE::"Transfer Line");
     end;
 
@@ -1886,7 +1888,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [WHEN] Make an assembly order to supply the job planning line.
         GetManufacturingUserTemplate(
-          ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order", 0);
+          ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order", "Planning Create Prod. Order"::" ");
         ManufacturingUserTemplate.Validate(
           "Create Assembly Order", ManufacturingUserTemplate."Create Assembly Order"::"Make Assembly Orders");
         ManufacturingUserTemplate.Modify(true);
@@ -1894,7 +1896,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [THEN] The job planning line is now reserved from assembly order with "Order-to-Order" binding.
         VerifyOrderToOrderBindingOnReservEntry(
-          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+          DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
           DATABASE::"Assembly Header");
     end;
 
@@ -1941,7 +1943,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [THEN] The job planning line is now reserved from requisition worksheet line with "Order-to-Order" binding.
         VerifyOrderToOrderBindingOnReservEntry(
-          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+          DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
           DATABASE::"Requisition Line");
     end;
 
@@ -2203,6 +2205,370 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure BOMFixedQtyToCreateFirmPlannedOrderFromPlanWorksheet()
+    var
+        ComponentItem: Record Item;
+        ProductItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComp: Record "Prod. Order Component";
+        CompQtyPer: Decimal;
+        ProdQty: Decimal;
+        Scrap: Decimal;
+    begin
+        // [SCENARIO 317277] Fixed Quantity calculation formula is used to create firm planned order using planning worksheet.
+        // [GIVEN] Component item, Product item, quantities and Production BOM
+        Initialize();
+        LibraryInventory.CreateItem(ComponentItem);
+        CompQtyPer := LibraryRandom.RandInt(1000);
+        ProdQty := LibraryRandom.RandInt(1000);
+        Scrap := LibraryRandom.RandInt(100);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ComponentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", CompQtyPer);
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify();
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify();
+
+        LibraryInventory.CreateItem(ProductItem);
+        ProductItem.Validate("Replenishment System", ProductItem."Replenishment System"::"Prod. Order");
+        ProductItem.Validate("Scrap %", Scrap);
+        ProductItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProductItem.Modify();
+
+        // [WHEN] Creating and refreshing planning line in the planning worksheet.
+        CreateAndRefreshForwardPlanningLine(RequisitionLine, ProductItem."No.", ProdQty, WorkDate(), 090000T);
+        FindPlanningComponent(PlanningComponent, RequisitionLine);
+        PlanningComponent.FindFirst();
+
+        // [THEN] Planning component Calculation formula should be fixed quantity, quantity per and expected quantity should be same as CompQtyPer
+        Assert.AreEqual(ProductionBOMLine."Calculation Formula"::"Fixed Quantity", PlanningComponent."Calculation Formula", BOMFixedQtyCalcFormulaErr);
+        Assert.AreEqual(CompQtyPer, PlanningComponent."Quantity per", BOMFixedQtyCalcFormulaErr);
+        Assert.AreEqual(CompQtyPer, PlanningComponent."Expected Quantity", BOMFixedQtyCalcFormulaErr);
+
+        // [WHEN] Carry Out Action Message to create firm planned order. 
+        Commit();
+        RunRequisitionCarryOutReportProdOrder(RequisitionLine);
+        FindProdOrderLine(ProdOrderLine, ProdOrderLine.Status::"Firm Planned", ProductItem."No.");
+
+        // [THEN] Quantity of the created production order line should be equal to ProdQty and Scrap % should be equal to Scrap
+        Assert.AreEqual(ProdQty, ProdOrderLine.Quantity, BOMFixedQtyCalcFormulaErr);
+        Assert.AreEqual(Scrap, ProdOrderLine."Scrap %", BOMFixedQtyCalcFormulaErr);
+
+        // [WHEN] Update Quantity and Scrap
+        ProdOrderLine.Validate(Quantity, ProdQty + LibraryRandom.RandInt(10));
+        ProdOrderLine.Validate("Scrap %", Scrap + LibraryRandom.RandInt(10));
+        ProdOrderLine.Modify();
+
+        // [THEN] Line component should have calculation formula as fixed quantity, Qty Per and Expected Qty same as old CompQtyPer
+        FindProdOrderComponent(ProdOrderComp, ProdOrderLine."Prod. Order No.", ComponentItem."No.");
+        Assert.AreEqual(ProductionBOMLine."Calculation Formula"::"Fixed Quantity", ProdOrderComp."Calculation Formula", '');
+        Assert.AreEqual(CompQtyPer, ProdOrderComp."Quantity per", BOMFixedQtyCalcFormulaErr);
+        Assert.AreEqual(CompQtyPer, ProdOrderComp."Expected Quantity", BOMFixedQtyCalcFormulaErr);
+
+        // [WHEN] Update Quantity Per on Prod Order Component
+        CompQtyPer := CompQtyPer * LibraryRandom.RandIntInRange(1, 10);
+        ProdOrderComp.Validate("Quantity per", CompQtyPer);
+
+        // [THEN] Expected quantity is updated
+        Assert.AreEqual(CompQtyPer, ProdOrderComp."Expected Quantity", BOMFixedQtyCalcFormulaErr);
+    end;
+
+    [Test]
+    procedure BOMFixedQtyToCreateReleasedProdOrderManually()
+    var
+        ComponentItem: Record Item;
+        ProductItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComp: Record "Prod. Order Component";
+        CompQtyPer: Decimal;
+        ProdQty: Decimal;
+        Scrap: Decimal;
+    begin
+        // [SCENARIO 317277] Fixed Quantity calculation formula is used to create released production order manually.
+        // [GIVEN] Component item, Product item, quantities and Production BOM
+        Initialize();
+        LibraryInventory.CreateItem(ComponentItem);
+        CompQtyPer := LibraryRandom.RandInt(1000);
+        ProdQty := LibraryRandom.RandInt(1000);
+        Scrap := LibraryRandom.RandInt(100);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ComponentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", CompQtyPer);
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify();
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify();
+
+        LibraryInventory.CreateItem(ProductItem);
+        ProductItem.Validate("Replenishment System", ProductItem."Replenishment System"::"Prod. Order");
+        ProductItem.Validate("Scrap %", Scrap);
+        ProductItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProductItem.Modify();
+
+        // [WHEN] Create released order manually.
+        CreateAndRefreshProdOrder(ProdOrder, ProdOrder.Status::Released, ProductItem."No.", '', ProdQty);
+        FindProdOrderComponent(ProdOrderComp, ProdOrder."No.", ComponentItem."No.");
+
+        // [THEN] Production order component Calculation formula should be fixed quantity, quantity per and expected quantity should be same as CompQtyPer
+        Assert.AreEqual(ProductionBOMLine."Calculation Formula"::"Fixed Quantity", ProdOrderComp."Calculation Formula", BOMFixedQtyCalcFormulaErr);
+        Assert.AreEqual(CompQtyPer, ProdOrderComp."Quantity per", BOMFixedQtyCalcFormulaErr);
+        Assert.AreEqual(CompQtyPer, ProdOrderComp."Expected Quantity", BOMFixedQtyCalcFormulaErr);
+
+        // [WHEN] Update Quantity and Scrap
+        FindProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductItem."No.");
+        ProdOrderLine.Validate(Quantity, ProdQty + LibraryRandom.RandInt(10));
+        ProdOrderLine.Validate("Scrap %", Scrap + LibraryRandom.RandInt(10));
+        ProdOrderLine.Modify();
+
+        // [THEN] Line component should have calculation formula as fixed quantity, Qty Per and Expected Qty same as old CompQtyPer
+        FindProdOrderComponent(ProdOrderComp, ProdOrderLine."Prod. Order No.", ComponentItem."No.");
+        Assert.AreEqual(ProductionBOMLine."Calculation Formula"::"Fixed Quantity", ProdOrderComp."Calculation Formula", '');
+        Assert.AreEqual(CompQtyPer, ProdOrderComp."Quantity per", BOMFixedQtyCalcFormulaErr);
+        Assert.AreEqual(CompQtyPer, ProdOrderComp."Expected Quantity", BOMFixedQtyCalcFormulaErr);
+
+        // [WHEN] Update Quantity Per on Prod Order Component
+        CompQtyPer := CompQtyPer * LibraryRandom.RandIntInRange(1, 10);
+        ProdOrderComp.Validate("Quantity per", CompQtyPer);
+
+        // [THEN] Expected quantity is updated
+        Assert.AreEqual(CompQtyPer, ProdOrderComp."Expected Quantity", BOMFixedQtyCalcFormulaErr);
+    end;
+
+    [Test]
+    procedure BOMFixedQtyCalcFormulaNotAllowedForPhantomBOM()
+    var
+        ComponentItem: Record Item;
+        PhantomProdBOMHeader: Record "Production BOM Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [SCENARIO 317277] Fixed Quantity calculation formula is cannot be used for a phantom BOM.
+        // [GIVEN] Component item, quantities, Production BOM and 2nd production BOM of type production BOM 
+        Initialize();
+        LibraryInventory.CreateItem(ComponentItem);
+
+        LibraryManufacturing.CreateProductionBOMHeader(PhantomProdBOMHeader, ComponentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(PhantomProdBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", LibraryRandom.RandInt(1000));
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify();
+        PhantomProdBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        PhantomProdBOMHeader.Modify();
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ComponentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::"Production BOM", PhantomProdBOMHeader."No.", LibraryRandom.RandInt(1000));
+
+        // [WHEN] Change calculation formula to Fixed Quantity
+        asserterror ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+
+        // [THEN] Error is thrown as it is not allowed to use fixed quantity calculation formula for phantom BOM
+        Assert.ExpectedError(BOMFixedQtyTypeErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure BOMFixedQtyCalcFormulaForStandardCosting()
+    var
+        ComponentItem: Record Item;
+        ProductItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [SCENARIO 317277] Fixed Quantity calculation formula is used for standard costing method.
+        // [GIVEN] Component item, product item, Production BOM
+        Initialize();
+        LibraryInventory.CreateItem(ComponentItem);
+        ComponentItem.Validate("Unit Cost", LibraryRandom.RandIntInRange(51, 100));
+        ComponentItem.Modify();
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ComponentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", LibraryRandom.RandIntInRange(51, 100));
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify();
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify();
+
+        LibraryInventory.CreateItem(ProductItem);
+        ProductItem.Validate("Costing Method", ProductItem."Costing Method"::Standard);
+        ProductItem.Validate("Replenishment System", ProductItem."Replenishment System"::"Prod. Order");
+        ProductItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProductItem.Modify();
+
+        // [WHEN] Calculate Std Cost Batch Job
+        CalculateStdCost.CalcItem(ProductItem."No.", false);
+
+        // [THEN] Standard Cost = QtyPer * UnitCost
+        ProductItem.Find();
+        Assert.AreEqual(ProductionBOMLine."Quantity per" * ComponentItem."Unit Cost", ProductItem."Standard Cost", BOMFixedQtyCalcFormulaErr);
+
+        // [WHEN] Lot size on ProductItem is updated and Calculate Std Cost
+        ProductItem."Lot Size" := LibraryRandom.RandIntInRange(2, 20);
+        ProductItem.Modify();
+        CalculateStdCost.CalcItem(ProductItem."No.", false);
+
+        // [THEN] Standard Cost = QtyPer * UnitCost / Lot Size
+        ProductItem.Find();
+        Assert.AreEqual(Round(ProductionBOMLine."Quantity per" * ComponentItem."Unit Cost" / ProductItem."Lot Size", 0.00001), ProductItem."Standard Cost", BOMFixedQtyCalcFormulaErr);
+    end;
+
+    [Test]
+    procedure BOMFixedQtyItemAvailabilityByBOMLevelWindow()
+    var
+        ComponentMoreItem: Record Item;
+        ComponentLessItem: Record Item;
+        ProductItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ItemAvailByBOMLevelTestPage: TestPage "Item Availability by BOM Level";
+    begin
+        // [SCENARIO 317277] Fixed Quantity calculation formula is used during Item Availability by BOM Level Window. 
+        // [GIVEN] Component more item, component less item, Production BOM with these two items as Production BOM Lines
+        Initialize();
+        LibraryInventory.CreateItem(ComponentMoreItem);
+        LibraryInventory.CreateItem(ComponentLessItem);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ComponentMoreItem."No.", '', '', LibraryRandom.RandIntInRange(51, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ComponentLessItem."No.", '', '', LibraryRandom.RandIntInRange(1, 20));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ComponentMoreItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentMoreItem."No.", LibraryRandom.RandIntInRange(21, 50));
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify();
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentLessItem."No.", LibraryRandom.RandIntInRange(21, 50));
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify();
+
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify();
+
+        // [GIVEN] Product item with replenishment as Production and Production BOM as the created BOM.
+        LibraryInventory.CreateItem(ProductItem);
+        ProductItem.Validate("Replenishment System", ProductItem."Replenishment System"::"Prod. Order");
+        ProductItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProductItem.Modify();
+
+        // [WHEN] Check Item availability by BOM
+        ItemAvailByBOMLevelTestPage.Trap();
+        RunItemAvailByBOMLevelPage(ProductItem);
+
+        // [THEN] ComponentMore "Able to Make Parent" is empty, bottleneck is empty
+        // [THEN] ComponentLess "Able to Make Parent" is empty, bottleneck is true
+        ItemAvailByBOMLevelTestPage.Expand(true);
+        ItemAvailByBOMLevelTestPage.FILTER.SetFilter("No.", ComponentMoreItem."No.");
+        ItemAvailByBOMLevelTestPage."Able to Make Parent".AssertEquals(0);
+        ItemAvailByBOMLevelTestPage.Bottleneck.AssertEquals(false);
+
+        ItemAvailByBOMLevelTestPage.FILTER.SetFilter("No.", ComponentLessItem."No.");
+        ItemAvailByBOMLevelTestPage."Able to Make Parent".AssertEquals(0);
+        ItemAvailByBOMLevelTestPage.Bottleneck.AssertEquals(true);
+    end;
+
+    [Test]
+    procedure BOMFixedQtyFactBasedConsumption()
+    var
+        ComponentItem: Record Item;
+        ProductItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdOrder: Record "Production Order";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ConsumptionJournalLine: Record "Item Journal Line";
+        CalcBasedOn: Option "Actual Output","Expected Output";
+    begin
+        // [SCENARIO 317277] Fixed Quantity calculation formula is used for calculating consumption in consumption journal
+        // [GIVEN] Component item, product item, Production BOM
+        Initialize();
+        LibraryInventory.CreateItem(ComponentItem);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ComponentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", LibraryRandom.RandInt(100));
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify();
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify();
+
+        LibraryInventory.CreateItem(ProductItem);
+        ProductItem.Validate("Replenishment System", ProductItem."Replenishment System"::"Prod. Order");
+        ProductItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProductItem.Modify();
+
+        // [WHEN] Create released production order and refresh.
+        // [WHEN] Calculate consumption in consumption journal
+        CreateAndRefreshProdOrder(ProdOrder, ProdOrder.Status::Released, ProductItem."No.", '', LibraryRandom.RandInt(100));
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption);
+        ConsumptionJnlCalcForProdOrder(ProdOrder, ItemJournalBatch, CalcBasedOn::"Expected Output");
+
+        // [THEN]  New Item Journal Line for Component Item quantity = Production BOM Line Quantity Per.
+        FindLastJournalLine(ConsumptionJournalLine, ItemJournalBatch);
+        Assert.AreEqual(ComponentItem."No.", ConsumptionJournalLine."Item No.", BOMFixedQtyCalcFormulaErr);
+        Assert.AreEqual(ProductionBOMLine."Quantity per", ConsumptionJournalLine.Quantity, BOMFixedQtyCalcFormulaErr);
+    end;
+
+    local procedure FindLastJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
+    begin
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.FindLast();
+    end;
+
+    local procedure ConsumptionJnlCalcForProdOrder(var ProductionOrder: Record "Production Order"; ItemJournalBatch: Record "Item Journal Batch"; CalcBasedOn: Option "Actual Output","Expected Output")
+    var
+        CalcConsumption: Report "Calc. Consumption";
+    begin
+        Commit();
+        CalcConsumption.InitializeRequest(WorkDate(), CalcBasedOn);
+        CalcConsumption.SetTemplateAndBatchName(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+        ProductionOrder.SetRange(Status, ProductionOrder.Status);
+        ProductionOrder.SetRange("No.", ProductionOrder."No.");
+        CalcConsumption.SetTableView(ProductionOrder);
+        CalcConsumption.UseRequestPage(false);
+        CalcConsumption.RunModal();
+    end;
+
+    local procedure RunItemAvailByBOMLevelPage(var Item: Record Item)
+    var
+        ItemAvailabilityByBOMLevel: Page "Item Availability by BOM Level";
+    begin
+        ItemAvailabilityByBOMLevel.InitItem(Item);
+        ItemAvailabilityByBOMLevel.Run();
+    end;
+
+    local procedure RunRequisitionCarryOutReportProdOrder(RequisitionLine: Record "Requisition Line")
+    var
+        CarryOutActionMsgPlan: Report "Carry Out Action Msg. - Plan.";
+        ProdOrderChoice: Enum "Planning Create Prod. Order";
+    begin
+        CarryOutActionMsgPlan.SetReqWkshLine(RequisitionLine);
+        CarryOutActionMsgPlan.InitializeRequest(ProdOrderChoice::"Firm Planned".AsInteger(), 0, 0, 0);
+        CarryOutActionMsgPlan.UseRequestPage(false);
+        CarryOutActionMsgPlan.RunModal();
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ItemNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, ProdOrderStatus);
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2211,16 +2577,16 @@ codeunit 137088 "SCM Order Planning - III"
         ClearGlobals;
 
         LibraryApplicationArea.EnableEssentialSetup;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Order Planning - III");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         CreateLocationSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Order Planning - III");
@@ -2260,7 +2626,7 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("Replenishment System", OldReplenishmentSystem);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Replenishment System", NewReplenishmentSystem);
         RequisitionLine.Validate("Vendor No.", VendorNo);
         RequisitionLine.Modify(true);
@@ -2442,7 +2808,7 @@ codeunit 137088 "SCM Order Planning - III"
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
         ManufacturingUserTemplate.SetRange("User ID", UserId);
-        if ManufacturingUserTemplate.FindFirst then
+        if ManufacturingUserTemplate.FindFirst() then
             ManufacturingUserTemplate.Delete(true);
     end;
 
@@ -2668,7 +3034,7 @@ codeunit 137088 "SCM Order Planning - III"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -2679,7 +3045,7 @@ codeunit 137088 "SCM Order Planning - III"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; DemandOrderNo: Code[20]; No: Code[20]; LocationCode: Code[10])
@@ -2688,7 +3054,7 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
         RequisitionLine.SetRange("Location Code", LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindPurchaseOrderNo(): Code[20]
@@ -2706,7 +3072,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::"Firm Planned");
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         exit(ProdOrderLine."Prod. Order No.");
     end;
 
@@ -2721,7 +3087,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure FindPlanningComponent(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line")
@@ -2748,11 +3114,11 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
     end;
 
-    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Option)
+    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
     begin
         if not ManufacturingUserTemplate.Get(UserId) then
             LibraryPlanning.CreateManufUserTemplate(
@@ -2760,22 +3126,22 @@ codeunit 137088 "SCM Order Planning - III"
               CreateProductionOrder, ManufacturingUserTemplate."Create Transfer Order"::"Make Trans. Orders");
     end;
 
-    local procedure GetReqWkshTemplateName(TemplateType: Option): Code[10]
+    local procedure GetReqWkshTemplateName(TemplateType: Enum "Req. Worksheet Template Type"): Code[10]
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         ReqWkshTemplate.SetRange(Type, TemplateType);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         exit(ReqWkshTemplate.Name);
     end;
 
-    local procedure GetReqWkshName(TemplateName: Code[10]; TemplateType: Option): Code[10]
+    local procedure GetReqWkshName(TemplateName: Code[10]; TemplateType: Enum "Req. Worksheet Template Type"): Code[10]
     var
         ReqWkshName: Record "Requisition Wksh. Name";
     begin
         ReqWkshName.SetRange("Worksheet Template Name", TemplateName);
         ReqWkshName.SetRange("Template Type", TemplateType);
-        ReqWkshName.FindFirst;
+        ReqWkshName.FindFirst();
         exit(ReqWkshName.Name);
     end;
 
@@ -2785,7 +3151,7 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         MakeSupplyOrders(
           RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
           ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
@@ -2797,12 +3163,12 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         MakeSupplyOrdersCopyToWksh(
           RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order", WkshTemplateName, WkshName);
     end;
 
-    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Option)
+    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
     var
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
@@ -2898,7 +3264,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry.TestField("Dimension Value Code", DimensionValueCode);
     end;
 
@@ -2915,7 +3281,7 @@ codeunit 137088 "SCM Order Planning - III"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.TestField("Quantity per", QuantityPer);
         ProdOrderComponent.TestField("Unit of Measure Code", UnitOfMeasureCode);
     end;
@@ -2926,7 +3292,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         ProdOrderRoutingLine.SetRange("Operation No.", OperationNo);
         ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         ProdOrderRoutingLine.TestField(Type, ProdOrderRoutingLine.Type);
         ProdOrderRoutingLine.TestField("No.", PlanningRoutingLine."No.");
         ProdOrderRoutingLine.TestField("Setup Time", PlanningRoutingLine."Setup Time");
@@ -3034,7 +3400,7 @@ codeunit 137088 "SCM Order Planning - III"
         PlanningComponents.First;
         Item.Get(GlobalChildItemNo);
         ProductionBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
 
         // Verify That Operation No. And Type Is same as on Production BOM Line.
         PlanningComponents."Item No.".AssertEquals(ProductionBOMLine."No.");
@@ -3051,7 +3417,7 @@ codeunit 137088 "SCM Order Planning - III"
         PlanningRouting.First;
         Item.Get(GlobalChildItemNo);
         RoutingLine.SetRange("Routing No.", Item."Routing No.");
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
 
         // Verify That Operation No. And Type Is same as on Routing Line.
         PlanningRouting."Operation No.".AssertEquals(RoutingLine."Operation No.");

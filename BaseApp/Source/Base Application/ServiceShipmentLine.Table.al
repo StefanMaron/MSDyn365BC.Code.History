@@ -742,7 +742,7 @@ table 5991 "Service Shipment Line"
 
         FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
         ItemLedgEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ItemLedgEntry.FindFirst then begin
+        if ItemLedgEntry.FindFirst() then begin
             ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
             ValueEntry.SetFilter("Invoiced Quantity", '<>0');
@@ -816,7 +816,7 @@ table 5991 "Service Shipment Line"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "Document No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     [IntegrationEvent(false, false)]

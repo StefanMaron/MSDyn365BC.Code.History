@@ -167,7 +167,7 @@ table 64 "Merge Duplicates Buffer"
         TempMergeDuplicatesLineBuffer.Reset();
         TempMergeDuplicatesLineBuffer.SetRange("In Primary Key", TempMergeDuplicatesLineBuffer."In Primary Key"::Yes);
         TempMergeDuplicatesLineBuffer.SetFilter("Duplicate Count", '>0');
-        if TempMergeDuplicatesLineBuffer.FindSet then
+        if TempMergeDuplicatesLineBuffer.FindSet() then
             repeat
                 xConflicts := TempMergeDuplicatesLineBuffer.Conflicts;
                 if TempMergeDuplicatesLineBuffer.FindConflicts(Duplicate, Current, TempMergeDuplicatesConflict) <> xConflicts then
@@ -218,7 +218,7 @@ table 64 "Merge Duplicates Buffer"
         TempTableRelationsMetadata.DeleteAll();
         TableRelationsMetadata.SetRange("Related Table ID", "Table ID");
         TableRelationsMetadata.SetRange("Related Field No.", GetKeyFieldNo("Table ID"));
-        if TableRelationsMetadata.FindSet then
+        if TableRelationsMetadata.FindSet() then
             repeat
                 if TableMetadata.Get(TableRelationsMetadata."Table ID") and
                    (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed)
@@ -321,7 +321,7 @@ table 64 "Merge Duplicates Buffer"
         Validate("Table ID", TableID);
         Current := CurrentKey;
         MergeDuplicate.Set(Rec);
-        MergeDuplicate.Run;
+        MergeDuplicate.Run();
     end;
 
     procedure ShowConflicts()
@@ -329,7 +329,7 @@ table 64 "Merge Duplicates Buffer"
         MergeDuplicateConflicts: Page "Merge Duplicate Conflicts";
     begin
         MergeDuplicateConflicts.Set(TempMergeDuplicatesConflict);
-        MergeDuplicateConflicts.RunModal;
+        MergeDuplicateConflicts.RunModal();
         FindConflicts;
     end;
 
@@ -438,7 +438,7 @@ table 64 "Merge Duplicates Buffer"
             TempMergeDuplicatesLineBuffer.SetRange("In Primary Key", TempMergeDuplicatesLineBuffer."In Primary Key"::No);
             TempMergeDuplicatesLineBuffer.SetRange(Override, false);
         end;
-        if TempMergeDuplicatesLineBuffer.FindSet then begin
+        if TempMergeDuplicatesLineBuffer.FindSet() then begin
             repeat
                 FieldRef[1] := FromRecRef.Field(TempMergeDuplicatesLineBuffer.ID);
                 FieldRef[2] := ToRecRef.Field(TempMergeDuplicatesLineBuffer.ID);
@@ -576,12 +576,12 @@ table 64 "Merge Duplicates Buffer"
 
         TableRelationsMetadata.SetRange("Related Table ID", TableNo);
         TableRelationsMetadata.SetRange("Related Field No.", IdFieldNo);
-        if TableRelationsMetadata.FindSet then
+        if TableRelationsMetadata.FindSet() then
             repeat
                 RecRef.Open(TableRelationsMetadata."Table ID");
                 FieldRef := RecRef.Field(TableRelationsMetadata."Field No.");
                 FieldRef.SetRange(OldID);
-                if RecRef.FindSet then
+                if RecRef.FindSet() then
                     repeat
                         FieldRef.Value(NewID);
                         RecRef.Modify();

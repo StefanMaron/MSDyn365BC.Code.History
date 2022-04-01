@@ -37,7 +37,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, ChildLeaves, RoutingLines);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -78,7 +78,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, ChildLeaves, RoutingLines);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -120,7 +120,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, ChildLeaves, RoutingLines);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -162,7 +162,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, ChildLeaves, RoutingLines);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -204,7 +204,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, ChildLeaves, RoutingLines);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -246,7 +246,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, ChildLeaves, RoutingLines);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -288,7 +288,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, ChildLeaves, RoutingLines);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -332,7 +332,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         WarningText: Text[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, 2, 1, 1);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -452,9 +452,9 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         // [FEATURE] [Filter] [UT]
         // [SCENARIO 274335] Long compound filters on the Item table do not cause run-time error when calculating item's BOM structure
 
-        Initialize;
+        Initialize();
 
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item."Replenishment System" := Item."Replenishment System"::"Prod. Order";
         Item.Insert();
 
@@ -483,8 +483,8 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         // [FEATURE] [Filter] [UT]
         // [SCENARIO 274335] When calculating item's BOM structure and the "Item" table is filtered by location and variant, BOM buffer is initialized from the SKU on the location and variant taken from filters
 
-        Initialize;
-        Item."No." := LibraryUtility.GenerateGUID;
+        Initialize();
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
 
         SKU."Location Code" := LibraryUtility.GenerateRandomCode(SKU.FieldNo("Location Code"), DATABASE::"Stockkeeping Unit");
@@ -563,7 +563,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     begin
         // [FEATURE] [Production BOM]
         // [SCENARIO 286910] Scrap Qty is 0 in BOM Buffer when Production BOM Line uses Calculation for Quantity and Scrap % = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Prodiction BOM Line with Calculation = Width*Length and Scrap % = 0
         CreateProductionBOMLineWithCalculation(ProductionBOMLine);
@@ -591,7 +591,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     begin
         // [FEATURE] [Production BOM]
         // [SCENARIO 286910] Scrap Qty is calculated in BOM Buffer when Production BOM Line uses Calculation for Quantity and Scrap % not zero
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Prodiction BOM Line with Calculation = Width*Length and Scrap % not zero
         CreateProductionBOMLineWithCalculation(ProductionBOMLine);
@@ -620,8 +620,8 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - Cost Shares Tree");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -636,7 +636,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, 2, 2, 0);
         CalculateTree(BOMBuf, Item);
         SetQtyPerInTree(BOMBuf, BOMComponent.Type::Item, Indentation, IsLeaf, 0);
@@ -785,7 +785,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         Item.Get(Item."No.");
 
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::Item);
                 BOMBuf.SetRange("No.", TempItem."No.");
@@ -820,21 +820,21 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
                 until BOMBuf.Next = 0;
             until TempItem.Next = 0;
 
-        if TempResource.FindSet then
+        if TempResource.FindSet() then
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::Resource);
                 BOMBuf.SetRange("No.", TempResource."No.");
                 BOMBuf.FindSet();
             until TempResource.Next = 0;
 
-        if TempMachineCenter.FindSet then
+        if TempMachineCenter.FindSet() then
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::"Machine Center");
                 BOMBuf.SetRange("No.", TempMachineCenter."No.");
                 BOMBuf.FindSet();
             until TempMachineCenter.Next = 0;
 
-        if TempWorkCenter.FindSet then
+        if TempWorkCenter.FindSet() then
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::"Work Center");
                 BOMBuf.SetRange("No.", TempWorkCenter."No.");
@@ -860,7 +860,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
           SglLevelCapOvhd, SglLevelMfgOvhd, Item);
         BOMBuf.SetRange(Type, BOMBuf.Type::Item);
         BOMBuf.SetRange("No.", Item."No.");
-        BOMBuf.FindFirst;
+        BOMBuf.FindFirst();
 
         RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision;
         Assert.AreNearlyEqual(RolledUpMaterialCost, BOMBuf."Rolled-up Material Cost", RoundingFactor,
@@ -890,7 +890,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         LibraryTrees.GetTreeCostWithScrap(RolledUpTreeCostWithScrap, SglLevelScrapCost, Item);
         BOMBuf.SetRange(Type, BOMBuf.Type::Item);
         BOMBuf.SetRange("No.", Item."No.");
-        BOMBuf.FindFirst;
+        BOMBuf.FindFirst();
 
         // Seem the verification of Scrap cost is wrong here
         // Assert.AreNearlyEqual(SglLevelScrapCost,BOMBuf."Single-Level Scrap Cost",LibraryERM.GetAmountRoundingPrecision,

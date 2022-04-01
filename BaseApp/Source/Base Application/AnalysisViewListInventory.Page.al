@@ -106,7 +106,7 @@ page 9372 "Analysis View List Inventory"
                     InvtAnalysisbyDim: Page "Invt. Analysis by Dimensions";
                 begin
                     InvtAnalysisbyDim.SetCurrentAnalysisViewCode(Code);
-                    InvtAnalysisbyDim.Run;
+                    InvtAnalysisbyDim.Run();
                 end;
             }
             action("&Update")

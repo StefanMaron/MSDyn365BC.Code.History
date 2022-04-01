@@ -36,7 +36,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CreateWarehouseLocation");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
 
         SalesReceivablesSetup.Get();
@@ -52,7 +52,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
     [Scope('OnPrem')]
     procedure RP5756EmptyLocEmptyBin()
     begin
-        Initialize;
+        Initialize();
 
         ConvertLocationWithErrorTest('', '', ErrEnterLocationCode);
     end;
@@ -64,7 +64,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         Bin: Record Bin;
         NotExistingBinCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         NotExistingBinCode := CopyStr(LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin),
             1, LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code)));
 
@@ -78,7 +78,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         Bin: Record Bin;
         Location: Record Location;
     begin
-        Initialize;
+        Initialize();
         CreateLocationAndBin(Location, Bin);
 
         ConvertLocationWithErrorTest('', Bin.Code, ErrEnterLocationCode);
@@ -91,7 +91,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         Bin: Record Bin;
         Location: Record Location;
     begin
-        Initialize;
+        Initialize();
         CreateLocationAndBin(Location, Bin);
 
         ConvertLocationWithErrorTest(Location.Code, '', ErrEnterAdjCode);
@@ -106,12 +106,12 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         ItemLedgEntry: Record "Item Ledger Entry";
         NotExistingBinCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         NotExistingBinCode := CopyStr(LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin),
             1, LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code)));
         CreateLocationAndBin(Location, Bin);
 
-        ItemLedgEntry.FindFirst;
+        ItemLedgEntry.FindFirst();
         if ItemLedgEntry.SetCurrentKey("Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.") then
             ConvertLocationWithErrorTest(Location.Code, NotExistingBinCode, ErrBinDoesNotExist)
         else
@@ -127,17 +127,17 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         ItemLedgEntry: Record "Item Ledger Entry";
         CreateWarehouseLocation: Report "Create Warehouse Location";
     begin
-        Initialize;
+        Initialize();
         CreateLocationAndBin(Location, Bin);
 
-        ItemLedgEntry.FindFirst;
+        ItemLedgEntry.FindFirst();
         if ItemLedgEntry.SetCurrentKey("Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.") then begin
             Clear(CreateWarehouseLocation);
             CreateWarehouseLocation.SetHideValidationDialog(true);
             CreateWarehouseLocation.InitializeRequest(Location.Code, Bin.Code);
 
             CreateWarehouseLocation.UseRequestPage(false);
-            CreateWarehouseLocation.RunModal;
+            CreateWarehouseLocation.RunModal();
 
             Commit();  // commit is required
             Location.Get(Location.Code);
@@ -159,7 +159,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         Location: Record Location;
         NotExistingLocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         NotExistingLocationCode := CopyStr(LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location),
             1, LibraryUtility.GetFieldLength(DATABASE::Location, Location.FieldNo(Code)));
 
@@ -175,7 +175,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         NotExistingBinCode: Code[20];
         NotExistingLocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         NotExistingBinCode := CopyStr(LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin),
             1, LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code)));
 
@@ -193,7 +193,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         Location: Record Location;
         NotExistingLocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         NotExistingLocationCode := CopyStr(LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location),
             1, LibraryUtility.GetFieldLength(DATABASE::Location, Location.FieldNo(Code)));
 
@@ -212,7 +212,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
 
         CreateWarehouseLocation.UseRequestPage(false);
         Commit();
-        asserterror CreateWarehouseLocation.RunModal;
+        asserterror CreateWarehouseLocation.RunModal();
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
         ClearLastError;

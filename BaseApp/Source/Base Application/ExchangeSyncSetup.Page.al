@@ -166,7 +166,7 @@ page 6700 "Exchange Sync. Setup"
     begin
         with User do begin
             SetRange("User Name", UserId);
-            if FindFirst then
+            if FindFirst() then
                 exit(true);
         end;
     end;

@@ -40,7 +40,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Verify that usage link cannot be enabled for the created planning lines of type that exclude budget.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateJobWithTaskAndApplyUsageLink(JobTask);
 
@@ -61,7 +61,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         with JobPlanningLine do begin
             SetRange("Schedule Line", false);
-            FindFirst;
+            FindFirst();
             Assert.IsFalse("Usage Link", FieldCaption("Usage Link"));
             asserterror Validate("Usage Link", true);
         end;
@@ -81,7 +81,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Verify that usage link cannot be enabled for planning lines of type that excludes budget.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -102,7 +102,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         with JobPlanningLine do begin
             SetRange("Schedule Line", false);
-            FindFirst;
+            FindFirst();
             Assert.IsFalse("Usage Link", 'Usage link for line type that excludes budget');
             asserterror Validate("Usage Link", true);
         end;
@@ -241,9 +241,9 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         UseLinked(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, true, LibraryJob.JobConsumption);
 
-        JobLedgerEntry.FindLast;
+        JobLedgerEntry.FindLast();
         JobUsageLink.SetRange("Entry No.", JobLedgerEntry."Entry No.");
-        JobUsageLink.FindFirst;
+        JobUsageLink.FindFirst();
         JobPlanningLine.Get(JobUsageLink."Job No.", JobUsageLink."Job Task No.", JobUsageLink."Line No.");
         asserterror JobPlanningLine.Delete(true)
     end;
@@ -362,7 +362,7 @@ codeunit 136303 "Job Consumption - Usage Link"
           'Line type should include budget.');
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(ApplyUsageLink, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -402,7 +402,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - usage link has been created
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         // Verify - no new planning lines are created
@@ -549,7 +549,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Verify that the planning line's amounts and quantities are updated.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(ApplyUsageLink, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -583,7 +583,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - usage is linked
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         // Verify - no new planning lines are created
@@ -600,7 +600,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - usage is linked
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         // Verify - no new planning lines are created
@@ -829,7 +829,7 @@ codeunit 136303 "Job Consumption - Usage Link"
           'Line type should include budget.');
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(ApplyUsageLink, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -853,7 +853,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - usage is linked
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         // Verify - no new planning line are created
@@ -1084,7 +1084,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Verify that the planning line's amounts and quantities are updated.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(ApplyUsageLink, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -1108,7 +1108,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - usage is linked
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         // Verify - no new planning lines are created
@@ -1124,7 +1124,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - usage is linked
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         // Verfiy - no new planning lines are created
@@ -1251,7 +1251,7 @@ codeunit 136303 "Job Consumption - Usage Link"
           'Line type should include budget.');
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(ApplyUsageLink, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -1272,7 +1272,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - usage is linked
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         // Verify - the original planning line is completed
@@ -1335,7 +1335,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Verify that the planning line's amounts and quantities are updated.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(ApplyUsageLink, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -1357,7 +1357,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - the original two planning lines are linked to the ledger entry, and completely used
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         JobPlanningLine.SetRange(Description, JobPlanningLine.Description);
         Assert.AreEqual(LineCount, JobPlanningLine.Count, 'The original planning lines should be in the filter');
         JobPlanningLine.FindSet();
@@ -1368,7 +1368,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - the newly created line is linked to the ledger entry
         JobPlanningLine.SetRange(Description, JobJournalLine.Description);
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry)
     end;
 
@@ -1410,7 +1410,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Verify that usage link is enabled for the created planning line
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(true, false, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobJournalLineForType(UsageLineType, ConsumableType, JobTask, JobJournalLine);
@@ -1423,9 +1423,9 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobPlanningLine.SetRange(Description, TempJobJournalLine.Description);
         JobPlanningLine.SetFilter("Line Type", '%1|%2', LibraryJob.PlanningLineTypeSchedule, LibraryJob.PlanningLineTypeBoth);
         Assert.AreEqual(1, JobPlanningLine.Count, 'Only one line of type that includes budget should have been created');
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         JobLedgerEntry.SetRange(Description, TempJobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         // Verify - the created line is correct
@@ -1448,7 +1448,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         Message('');
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(true, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobTask, JobPlanningLine);
@@ -1624,7 +1624,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         QtyToMatch := Round(QtyToMatch, 0.00001);
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(true, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -1644,7 +1644,7 @@ codeunit 136303 "Job Consumption - Usage Link"
             // Before crediting, use item first
             JobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
             JobPlanningLine.Validate(Quantity, Abs(QtyToPost));
-            JobPlanningLine.Validate(Description, LibraryUtility.GenerateGUID);
+            JobPlanningLine.Validate(Description, LibraryUtility.GenerateGUID());
             JobPlanningLine.Insert(true);
             LineCount += 1;
             LibraryJob.UseJobPlanningLineExplicit(
@@ -1658,7 +1658,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify - usage is linked
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         if (QtyToPost > 0) <> (QtyToPost > 0) then begin
@@ -1810,7 +1810,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Consumption - Usage Link");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Consumption - Usage Link");
@@ -1822,10 +1822,10 @@ codeunit 136303 "Job Consumption - Usage Link"
         SalesLineDiscount.DeleteAll(true);
 #endif
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySales.SetCreditWarningsToNoWarnings;
         UpdateCustNoSeries; // required for FI
 
@@ -1857,7 +1857,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         QtyToMatch := Round(QtyToMatch, 0.00001);
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(true, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -1879,7 +1879,7 @@ codeunit 136303 "Job Consumption - Usage Link"
             // Before crediting, use item first
             JobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
             JobPlanningLine.Validate(Quantity, Abs(QtyToPost));
-            JobPlanningLine.Validate(Description, LibraryUtility.GenerateGUID);
+            JobPlanningLine.Validate(Description, LibraryUtility.GenerateGUID());
             JobPlanningLine.Insert(true);
             LineCount += 1;
             LibraryJob.UseJobPlanningLineExplicit(
@@ -1895,7 +1895,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // Verify
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         Assert.AreEqual(LineCount, JobPlanningLine.Count, 'No planning lines should have been created.');
@@ -1908,7 +1908,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure UseMoreSpecificItemLocation()
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(0, UseItemVariations('A', '', 'A', GetLocationA), 'No planning lines should have been created.')
     end;
 
@@ -1917,7 +1917,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure UseMoreSpecificItemVariant()
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(0, UseItemVariations('', GetLocationA, 'A', GetLocationA), 'No planning lines should have been created.')
     end;
 
@@ -1926,7 +1926,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure UseLessSpecificItemLocation()
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(1, UseItemVariations('A', GetLocationA, 'A', ''), 'One planning line should have been created.')
     end;
 
@@ -1935,7 +1935,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure UseLessSpecificItemVariant()
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(1, UseItemVariations('A', GetLocationA, '', GetLocationA), 'One planning line should have been created.')
     end;
 
@@ -1944,7 +1944,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure UseDifferentItemLocation()
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(1, UseItemVariations('A', GetLocationA, 'A', GetLocationB), 'One planning line should have been created.')
     end;
 
@@ -1953,7 +1953,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure UseDifferentItemVariant()
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(1, UseItemVariations('A', GetLocationA, 'B', GetLocationA), 'One planning line should have been created.')
     end;
 
@@ -1962,7 +1962,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure UseSameItemLocation()
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(0, UseItemVariations('', GetLocationA, '', GetLocationA), 'No planning lines should have been created.')
     end;
 
@@ -1971,7 +1971,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     [Scope('OnPrem')]
     procedure UseSameItemVariant()
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(0, UseItemVariations('A', '', 'A', ''), 'No planning lines should have been created.')
     end;
 
@@ -1988,7 +1988,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Verify that a line is matched or a new line is created.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(true, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -2004,16 +2004,16 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 1, JobJournalLine);
         JobJournalLine.Validate("Variant Code", CreateItemVariant(JobJournalLine."No.", VariantCodeUse));
         JobJournalLine.Validate("Location Code", LocationCodeUse);
-        JobJournalLine.Validate(Description, LibraryUtility.GenerateGUID);
+        JobJournalLine.Validate(Description, LibraryUtility.GenerateGUID());
         JobJournalLine.Modify(true);
         LibraryJob.PostJobJournal(JobJournalLine);
 
         // get the original or the newly created line (if one was created)
-        JobPlanningLine.FindLast;
+        JobPlanningLine.FindLast();
 
         // verify
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         exit(JobPlanningLine.Count - LineCount)
@@ -2065,7 +2065,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Return the number of planning lines created
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJob(true, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -2083,11 +2083,11 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryJob.PostJobJournal(JobJournalLine);
 
         // get the original or the newly created line (if one was created)
-        JobPlanningLine.FindLast;
+        JobPlanningLine.FindLast();
 
         // verify
         JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
 
         exit(JobPlanningLine.Count - LineCount)
@@ -2207,7 +2207,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO 380473] Confirmation is raised when post usage with blank "Line Type" and "Apply Usage Link"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Apply Usage Link"
         CreateJobWithTaskAndApplyUsageLink(JobTask);
@@ -2236,7 +2236,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [SCENARIO 380473] No entries are posted if cancel confirmation when post usage with blank "Line Type" and "Apply Usage Link"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Apply Usage Link"
         CreateJobWithTaskAndApplyUsageLink(JobTask);
@@ -2270,7 +2270,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 380845] Renaming of "Job" or "Job Task" causes proper update in "Job Usage Link" table
-        JobTaskNo := LibraryUtility.GenerateGUID;
+        JobTaskNo := LibraryUtility.GenerateGUID();
         JobPlanningLineNo := 10000;
         MockJobPlanningLine(Job1, JobTask1, JobPlanningLine1, JobTaskNo, JobPlanningLineNo);
         MockJobUsageLink(JobUsageLink, Job1."No.", JobTask1."Job Task No.", JobPlanningLine1."Line No.");
@@ -2278,7 +2278,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         MockJobPlanningLine(Job2, JobTask2, JobPlanningLine2, JobTaskNo, JobPlanningLineNo);
         MockJobUsageLink(JobUsageLink, Job2."No.", JobTask2."Job Task No.", JobPlanningLine2."Line No.");
 
-        Job2.Rename(LibraryUtility.GenerateGUID);
+        Job2.Rename(LibraryUtility.GenerateGUID());
 
         JobUsageLink.SetRange("Job No.", Job1."No.");
         Assert.AreEqual(1, JobUsageLink.Count, 'Wrong number of Job Usage Links');
@@ -2288,7 +2288,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobUsageLink.Reset();
 
         JobTask2.Get(Job2."No.", JobTask2."Job Task No.");
-        JobTask2.Rename(Job2."No.", LibraryUtility.GenerateGUID);
+        JobTask2.Rename(Job2."No.", LibraryUtility.GenerateGUID());
 
         JobUsageLink.SetRange("Job Task No.", JobTask1."Job Task No.");
         Assert.AreEqual(1, JobUsageLink.Count, 'Wrong number of Job Usage Links');
@@ -2466,7 +2466,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     local procedure MockJobPlanningLine(var Job: Record Job; var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; JobTaskNo: Code[20]; JobPlanningLineNo: Integer)
     begin
         Job.Init();
-        Job."No." := LibraryUtility.GenerateGUID;
+        Job."No." := LibraryUtility.GenerateGUID();
         Job.Insert();
 
         JobTask.Init();
@@ -2495,7 +2495,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     var
         Job: Record Job;
     begin
-        Initialize;
+        Initialize();
         CreateJob(true, true, Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateResourceWithWorkTypeCodeAndUOM(Resource, WorkTypeCode);

@@ -14,26 +14,19 @@ codeunit 9520 "Mail Management"
         TempEmailModuleAccount: Record "Email Account" temporary;
         TempEmailItem: Record "Email Item" temporary;
         GraphMail: Codeunit "Graph Mail";
-        SMTPMail: Codeunit "SMTP Mail";
-        EmailFeature: Codeunit "Email Feature";
         ClientTypeManagement: Codeunit "Client Type Management";
         InvalidEmailAddressErr: Label 'The email address "%1" is not valid.', Comment = '%1 - Recipient email address';
-        DoEdit: Boolean;
         HideMailDialog: Boolean;
         Cancelled: Boolean;
         MailSent: Boolean;
         MailingNotSupportedErr: Label 'The required email is not supported.';
         MailWasNotSendErr: Label 'The email was not sent.';
-        FromAddressWasNotFoundErr: Label 'An email from address was not found. Contact an administrator.';
         SaveFileDialogTitleMsg: Label 'Save PDF file';
         SaveFileDialogFilterMsg: Label 'PDF Files (*.pdf)|*.pdf';
         OutlookSupported: Boolean;
-        SMTPSupported: Boolean;
         CannotSendMailThenDownloadQst: Label 'Do you want to download the attachment?';
         CannotSendMailThenDownloadErr: Label 'You cannot send the email.\Verify that the email settings are correct.';
-        GraphSupported: Boolean;
         HideEmailSendingError: Boolean;
-        SMTPSetupTxt: Label 'SmtpSetup', Locked = true;
         NoScenarioDefinedErr: Label 'No email account defined for the scenario ''%1''. Please, register an account on the ''Email Accounts'' page and assign scenario ''%1'' to it on the ''Email Scenario Setup'' page. Mark one of the accounts as the default account to use it for all scenarios that are not explicitly defined.', Comment = '%1 - The email scenario, for example, Sales Invoice';
         NoDefaultScenarioDefinedErr: Label 'The default account is not selected. Please, register an account on the ''Email Accounts'' page and mark it as the default account on the ''Email Scenario Setup'' page.';
         EmailScenarioMsg: Label 'Sending email using scenario: %1.', Comment = '%1 - Email scenario (e. g. sales order)', Locked = true;
@@ -48,28 +41,6 @@ codeunit 9520 "Mail Management"
     procedure AddSendTo(EmailAddresses: Text)
     begin
         TempEmailItem."Send to" := CopyStr(EmailAddresses, 1, 250);
-    end;
-
-    local procedure RunMailDialog(): Boolean
-    var
-        EmailDialog: Page "Email Dialog";
-        IsHandled: Boolean;
-        ReturnValue: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeRunMailDialog(TempEmailItem, OutlookSupported, SMTPSupported, ReturnValue, IsHandled, DoEdit, Cancelled);
-        if IsHandled then
-            exit(ReturnValue);
-
-        EmailDialog.SetValues(TempEmailItem, OutlookSupported, SMTPSupported);
-
-        if not (EmailDialog.RunModal() = ACTION::OK) then begin
-            Cancelled := true;
-            exit(false);
-        end;
-        EmailDialog.GetRecord(TempEmailItem);
-        DoEdit := EmailDialog.GetDoEdit();
-        exit(true);
     end;
 
     local procedure SendViaEmailModule(): Boolean
@@ -97,9 +68,9 @@ codeunit 9520 "Mail Management"
         TempEmailItem.GetSourceDocuments(SourceTableIDs, SourceIDs, SourceRelationTypes);
         for Index := 1 to SourceTableIDs.Count() do
             if SourceRelationTypes.Count() < Index then
-                Email.AddRelation(Message, SourceTableIDs.Get(Index), SourceIDs.Get(Index), Enum::"Email Relation Type"::"Related Entity")
+                Email.AddRelation(Message, SourceTableIDs.Get(Index), SourceIDs.Get(Index), Enum::"Email Relation Type"::"Related Entity", Enum::"Email Relation Origin"::"Compose Context")
             else
-                Email.AddRelation(Message, SourceTableIDs.Get(Index), SourceIDs.Get(Index), Enum::"Email Relation Type".FromInteger(SourceRelationTypes.Get(Index)));
+                Email.AddRelation(Message, SourceTableIDs.Get(Index), SourceIDs.Get(Index), Enum::"Email Relation Type".FromInteger(SourceRelationTypes.Get(Index)), Enum::"Email Relation Origin"::"Compose Context");
 
         OnSendViaEmailModuleOnAfterCreateMessage(Message, TempEmailItem);
 
@@ -141,65 +112,6 @@ codeunit 9520 "Mail Management"
         Recipients := DelimitedRecipients.Split(Seperators.Split());
     end;
 
-    local procedure SendViaSMTP(): Boolean
-    var
-        ErrorMessageManagement: Codeunit "Error Message Management";
-        Attachments: Codeunit "Temp Blob List";
-        Attachment: Codeunit "Temp Blob";
-        AttachmentNames: List of [Text];
-        AttachmentStream: Instream;
-        Index: Integer;
-        HtmlFormated: Boolean;
-        SendToList: List of [Text];
-        SendToCcList: List of [Text];
-        SendToBccList: List of [Text];
-        Seperators: Text;
-    begin
-        Seperators := '; ,';
-        SendToList := TempEmailItem."Send to".Split(Seperators.Split());
-
-        if (TempEmailItem."Message Type" = TempEmailItem."Message Type"::"From Email Body Template")
-            or (not TempEmailItem.Body.HasValue() and (TempEmailItem."Body File Path" <> '') and Exists(TempEmailItem."Body File Path")) then
-            HtmlFormated := true;
-
-        if SMTPMail.CreateMessage(TempEmailItem."From Name", TempEmailItem."From Address", SendToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), HtmlFormated) then begin
-            OnSendViaSMTPOnBeforeSMTPMailAddAttachment(TempEmailItem, SMTPMail);
-
-            TempEmailItem.GetAttachments(Attachments, AttachmentNames);
-            for Index := 1 to Attachments.Count() do begin
-                Attachments.Get(Index, Attachment);
-                Attachment.CreateInStream(AttachmentStream);
-                SMTPMail.AddAttachmentStream(AttachmentStream, AttachmentNames.Get(Index));
-            end;
-
-            if TempEmailItem."Send CC" <> '' then begin
-                SendToCcList := TempEmailItem."Send CC".Split(Seperators.Split());
-                SMTPMail.AddCC(SendToCcList);
-            end;
-            if TempEmailItem."Send BCC" <> '' then begin
-                SendToBccList := TempEmailItem."Send BCC".Split(Seperators.Split());
-                SMTPMail.AddBCC(SendToBccList);
-            end;
-        end;
-
-        OnBeforeSentViaSMTP(TempEmailItem, SMTPMail);
-        MailSent := SMTPMail.Send();
-        OnAfterSentViaSMTP(TempEmailItem, SMTPMail, MailSent, HideEmailSendingError);
-        if not MailSent and not HideEmailSendingError then
-            ErrorMessageManagement.LogSimpleErrorMessage(SMTPMail.GetLastSendMailErrorText());
-        exit(MailSent);
-    end;
-
-    local procedure SendViaGraph(): Boolean
-    begin
-        MailSent := GraphMail.SendMail(TempEmailItem);
-
-        if not MailSent and not HideEmailSendingError then
-            Error(GraphMail.GetGraphError());
-
-        exit(MailSent);
-    end;
-
     procedure GetLastGraphError(): Text
     begin
         exit(GraphMail.GetGraphError());
@@ -214,12 +126,6 @@ codeunit 9520 "Mail Management"
     procedure SetHideMailDialog(NewHideMailDialog: Boolean)
     begin
         HideMailDialog := NewHideMailDialog;
-    end;
-
-    [Obsolete('Replaced with the SetHideEmailSendingError function', '17.0')]
-    procedure SetHideSMTPError(NewHideSMTPError: Boolean)
-    begin
-        SetHideEmailSendingError(NewHideSMTPError);
     end;
 
     procedure SetHideEmailSendingError(NewHideEmailSendingError: Boolean)
@@ -288,12 +194,6 @@ codeunit 9520 "Mail Management"
         CheckValidEmailAddress(EmailAddress);
     end;
 
-    [Obsolete('Replaced with the IsAnyAccountRegistered in "Email Account" codeunit from "System Application".', '17.0')]
-    procedure IsSMTPEnabled(): Boolean
-    begin
-        exit(SMTPMail.IsEnabled());
-    end;
-
     [Scope('OnPrem')]
     procedure IsGraphEnabled(): Boolean
     begin
@@ -312,20 +212,7 @@ codeunit 9520 "Mail Management"
         if IsHandled then
             exit(Result);
 
-        if EmailFeature.IsEnabled() then
-            exit(EmailAccount.IsAnyAccountRegistered());
-
-        OutlookSupported := false;
-
-        SMTPSupported := IsSMTPEnabled();
-        GraphSupported := IsGraphEnabled();
-
-        if ClientTypeManagement.GetCurrentClientType() <> Clienttype::Windows then
-            exit(SMTPSupported or GraphSupported);
-
-        // Assume Outlook is supported - a false check takes long time.
-        OutlookSupported := true;
-        exit(true);
+        exit(EmailAccount.IsAnyAccountRegistered());
     end;
 
     procedure IsCancelled(): Boolean
@@ -369,95 +256,26 @@ codeunit 9520 "Mail Management"
         if not CanSend() then
             exit(true);
 
-        if EmailFeature.IsEnabled() then begin
-            SendViaEmailModule();
-            if Cancelled then
-                exit(true);
-            exit(IsSent());
-        end;
-
-        if not HideMailDialog then begin
-            Cancelled := not RunMailDialog();
-            if Cancelled then
-                exit(true);
-        end;
-
-        if GraphSupported then
-            exit(SendViaGraph());
-
-        if SMTPSupported then
-            exit(SendViaSMTP());
-
-        exit(false);
+        SendViaEmailModule();
+        if Cancelled then
+            exit(true);
+        exit(IsSent());
     end;
 
     local procedure QualifyFromAddress(EmailScenario: Enum "Email Scenario")
     var
-        TempPossibleEmailNameValueBuffer: Record "Name/Value Buffer" temporary;
         EmailScenarios: Codeunit "Email Scenario";
-        MailForEmails: Codeunit Mail;
     begin
         OnBeforeQualifyFromAddress(TempEmailItem);
 
-        if EmailFeature.IsEnabled() then begin
-            // In case the email feature is enabled, try get the email account to use by the provided scenario
-            if not EmailScenarios.GetEmailAccount(EmailScenario, TempEmailModuleAccount) then
-                if EmailScenario = Enum::"Email Scenario"::Default then
-                    Error(NoDefaultScenarioDefinedErr)
-                else
-                    Error(NoScenarioDefinedErr, EmailScenario);
-            OnQualifyFromAddressOnAfterGetEmailAccount(TempEmailItem, EmailScenario, TempEmailModuleAccount);
-            exit;
-        end;
-
-        if TempEmailItem."From Address" <> '' then
-            exit;
-
-        MailForEmails.CollectCurrentUserEmailAddresses(TempPossibleEmailNameValueBuffer);
-
-        if GraphSupported then
-            if AssignFromAddressIfExist(TempPossibleEmailNameValueBuffer, 'GraphSetup') then
-                exit;
-
-        if SMTPSupported then begin
-            if AssignFromAddressIfExist(TempPossibleEmailNameValueBuffer, 'SMTPSetup') then
-                exit;
-            if AssignFromAddressIfExist(TempPossibleEmailNameValueBuffer, 'UserSetup') then
-                exit;
-            if AssignFromAddressIfExist(TempPossibleEmailNameValueBuffer, 'ContactEmail') then
-                exit;
-            if AssignFromAddressIfExist(TempPossibleEmailNameValueBuffer, 'AuthEmail') then
-                exit;
-            if AssignFromAddressIfExist(TempPossibleEmailNameValueBuffer, 'AD') then
-                exit;
-        end;
-
-        if TempPossibleEmailNameValueBuffer.IsEmpty() then begin
-            if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then
-                Error(FromAddressWasNotFoundErr);
-            TempEmailItem."From Address" := '';
-            exit;
-        end;
-
-        if AssignFromAddressIfExist(TempPossibleEmailNameValueBuffer, '') then
-            exit;
-    end;
-
-    [Obsolete('From address is decided by the email scenario when using the email feature is enabled.', '17.0')]
-    local procedure AssignFromAddressIfExist(var TempPossibleEmailNameValueBuffer: Record "Name/Value Buffer" temporary; FilteredName: Text): Boolean
-    begin
-        if FilteredName <> '' then
-            TempPossibleEmailNameValueBuffer.SetFilter(Name, FilteredName);
-        if not TempPossibleEmailNameValueBuffer.IsEmpty() then begin
-            TempPossibleEmailNameValueBuffer.FindFirst();
-            if TempPossibleEmailNameValueBuffer.Value <> '' then begin
-                TempEmailItem."From Address" := TempPossibleEmailNameValueBuffer.Value;
-                exit(true);
-            end;
-        end;
-
-        TempPossibleEmailNameValueBuffer.Reset();
-        exit(false);
+        // Try get the email account to use by the provided scenario
+        if not EmailScenarios.GetEmailAccount(EmailScenario, TempEmailModuleAccount) then
+            if EmailScenario = Enum::"Email Scenario"::Default then
+                Error(NoDefaultScenarioDefinedErr)
+            else
+                Error(NoScenarioDefinedErr, EmailScenario);
+        OnQualifyFromAddressOnAfterGetEmailAccount(TempEmailItem, EmailScenario, TempEmailModuleAccount);
+        exit;
     end;
 
     // Email Item needs to be passed by var so the attachments are available
@@ -572,13 +390,7 @@ codeunit 9520 "Mail Management"
     [Scope('OnPrem')]
     procedure TryGetSenderEmailAddress(var FromAddress: Text[250])
     begin
-        FromAddress := GetSenderEmailAddress();
-    end;
-
-    [Obsolete('Sender will be chosen based on the scenario parameter to the Send function when using the email feature is enabled. To control which account will be used, use the overload containing Email Scenario.', '17.0')]
-    procedure GetSenderEmailAddress(): Text[250]
-    begin
-        exit(GetSenderEmailAddress(Enum::"Email Scenario"::Default));
+        FromAddress := GetSenderEmailAddress(Enum::"Email Scenario"::Default);
     end;
 
     procedure GetSenderEmailAddress(EmailScenario: Enum "Email Scenario"): Text[250]
@@ -588,10 +400,7 @@ codeunit 9520 "Mail Management"
         QualifyFromAddress(EmailScenario);
 
         OnAfterGetSenderEmailAddress(TempEmailItem);
-        if EmailFeature.IsEnabled() then
-            exit(TempEmailModuleAccount."Email Address")
-        else
-            exit(TempEmailItem."From Address");
+        exit(TempEmailModuleAccount."Email Address");
     end;
 
     local procedure CanSend(): Boolean
@@ -605,82 +414,6 @@ codeunit 9520 "Mail Management"
     local procedure IsBackground(): Boolean
     begin
         exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Background]);
-    end;
-
-    [Obsolete('Not needed once email feature is enabled.', '17.0')]
-    [NonDebuggable]
-    [Scope('OnPrem')]
-    procedure GetSMTPCredentials(var SMTPMailSetup: Record "SMTP Mail Setup")
-    var
-        AzureKeyVault: Codeunit "Azure Key Vault";
-        SMTPSettingsList: JsonArray;
-        SMTPSettings: JsonObject;
-        RandomIndex: Integer;
-        JToken: JsonToken;
-        SMTPServerParameters: Text;
-        VaultAuthentication: Text;
-        VaultUserID: Text[250];
-        VaultSMTPServerPort: Text;
-        VaultSecureConnection: Text;
-        VaultPasswordKey: Text;
-    begin
-        if not AzureKeyVault.GetAzureKeyVaultSecret(SMTPSetupTxt, SMTPServerParameters) then
-            exit;
-
-        if not SMTPSettingsList.ReadFrom(SMTPServerParameters) then
-            exit;
-
-        if SMTPSettingsList.Count() = 0 then
-            exit;
-
-        RandomIndex := Random(SMTPSettingsList.Count()) - 1;
-
-        if not SMTPSettingsList.Get(RandomIndex, JToken) then
-            exit;
-
-        if not JToken.IsObject() then
-            exit;
-
-        SMTPSettings := JToken.AsObject();
-
-        GetAsText(SMTPSettings, 'Server', SMTPMailSetup."SMTP Server");
-        GetAsText(SMTPSettings, 'ServerPort', VaultSMTPServerPort);
-        if VaultSMTPServerPort <> '' then
-            Evaluate(SMTPMailSetup."SMTP Server Port", VaultSMTPServerPort);
-
-        GetAsText(SMTPSettings, 'Authentication', VaultAuthentication);
-        if VaultAuthentication <> '' then
-            Evaluate(SMTPMailSetup.Authentication, VaultAuthentication);
-
-        GetAsText(SMTPSettings, 'User', VaultUserID);
-        SMTPMailSetup.Validate("User ID", VaultUserID);
-
-        GetAsText(SMTPSettings, 'Password', VaultPasswordKey);
-        SMTPMailSetup.SetPassword(VaultPasswordKey);
-
-        GetAsText(SMTPSettings, 'SecureConnection', VaultSecureConnection);
-        if VaultSecureConnection <> '' then
-            Evaluate(SMTPMailSetup."Secure Connection", VaultSecureConnection);
-    end;
-
-    [NonDebuggable]
-    local procedure GetAsText(JObject: JsonObject; PropertyKey: Text; var Result: Text): Boolean
-    var
-        JToken: JsonToken;
-        JValue: JsonValue;
-    begin
-        if not JObject.Get(PropertyKey, JToken) then
-            exit(false);
-
-        if not JToken.IsValue() then
-            exit(false);
-
-        JValue := JToken.AsValue();
-        if JValue.IsUndefined() or JValue.IsNull() then
-            exit(false);
-
-        Result := JValue.AsText();
-        exit(true);
     end;
 
     procedure IsHandlingGetEmailBody(): Boolean
@@ -738,14 +471,6 @@ codeunit 9520 "Mail Management"
     local procedure OnSetIsHandlingGetEmailBodyVendor(var Result: Boolean)
     begin
     end;
-    
-#if not CLEAN19
-    [IntegrationEvent(false, false)]
-    [Obsolete('SMTP Mail codeunit has been obsolete', '19.3')]
-    local procedure OnAfterSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail"; var MailSent: Boolean; HideSMTPError: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckValidEmailAddresses(Recipients: Text; var IsHandled: Boolean)
@@ -777,15 +502,10 @@ codeunit 9520 "Mail Management"
     begin
     end;
 
+#if not CLEAN20
     [IntegrationEvent(false, false)]
+    [Obsolete('Email dialog has been removed, event no longer relevant.', '20.0')]
     local procedure OnBeforeRunMailDialog(var TempEmailItem: Record "Email Item"; OutlookSupported: Boolean; SMTPSupported: Boolean; var ReturnValue: Boolean; var IsHandled: Boolean; var DoEdit: Boolean; var Cancelled: Boolean);
-    begin
-    end;
-
-#if not CLEAN19
-    [IntegrationEvent(false, false)]
-    [Obsolete('SMTP Mail codeunit has been obsolete', '19.3')]
-    local procedure OnBeforeSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail")
     begin
     end;
 #endif
@@ -851,12 +571,4 @@ codeunit 9520 "Mail Management"
     local procedure OnSendViaEmailModuleOnAfterEmailSend(var Message: Codeunit "Email Message"; var TempEmailItem: Record "Email Item" temporary; var MailSent: Boolean; var Cancelled: Boolean; var HideEmailSendingError: Boolean)
     begin
     end;
-
-#if not CLEAN19
-    [IntegrationEvent(false, false)]
-    [Obsolete('SMTP Mail codeunit has been obsolete', '19.3')]
-    local procedure OnSendViaSMTPOnBeforeSMTPMailAddAttachment(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail")
-    begin
-    end;
-#endif
 }

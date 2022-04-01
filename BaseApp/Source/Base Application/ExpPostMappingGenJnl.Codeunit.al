@@ -17,7 +17,7 @@ codeunit 1275 "Exp. Post-Mapping Gen. Jnl."
         GenJnlLine.FindSet();
 
         CreditTransferRegister.SetRange("From Bank Account No.", GenJnlLine."Bal. Account No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
 
         Window.Open(ProgressMsg);
 

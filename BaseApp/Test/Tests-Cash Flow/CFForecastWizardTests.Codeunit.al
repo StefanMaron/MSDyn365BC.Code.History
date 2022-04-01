@@ -60,18 +60,18 @@ codeunit 139315 "CF Forecast Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The cash flow forecast wizard is run to the end but not finished
         RunWizardToCompletion(CashFlowForecastWizard, UpdateFrequency::Never);
         CashFlowForecastWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
     end;
 
     [Test]
@@ -80,11 +80,11 @@ codeunit 139315 "CF Forecast Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The Cash Flow Forecast Wizard is exited right away
         CashFlowForecastWizard.Trap;
@@ -92,25 +92,25 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowForecastWizard.Close;
 
         // [THEN] Status of Cash Flow Forecast remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure VerifyStatusCompletedWhenFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The Cash Flow Forecast Wizard is completed
         RunWizardToCompletion(CashFlowForecastWizard, UpdateFrequency::Never);
         CashFlowForecastWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should be completed.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should be completed.');
     end;
 
     [Test]
@@ -119,11 +119,11 @@ codeunit 139315 "CF Forecast Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The data migration wizard is closed but closing is not confirmed
         CashFlowForecastWizard.Trap;
@@ -131,7 +131,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowForecastWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
     end;
 
     [Test]
@@ -143,7 +143,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The setup page is shown
         CashFlowForecastWizard.Trap;
@@ -167,7 +167,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company (preconditions are verified)
-        Initialize;
+        Initialize();
         Assert.RecordIsEmpty(CashFlowForecast);
         Assert.RecordIsEmpty(CashFlowAccount);
         Assert.RecordIsEmpty(CashFlowSetup);
@@ -194,7 +194,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         // [THEN] "No." = '4-CASH FLOW MANUAL E' of CF Account with "Source Type" = "Cash Flow Manual Expense"
         // OptionString: ,Receivables,Payables,Liquid Funds,Cash Flow Manual Expense,Cash Flow Manual Revenue,Sales Orders,Purchase Orders,Fixed Assets Budget,Fixed Assets Disposal,Service Orders,G/L Budget,,,Job,Tax
         CashFlowAccount.SetRange("Source Type", CashFlowAccount."Source Type"::"Cash Flow Manual Expense");
-        CashFlowAccount.FindFirst;
+        CashFlowAccount.FindFirst();
         CashFlowAccount.TestField("No.", '4-CASH FLOW MANUAL E');
     end;
 
@@ -222,7 +222,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         GLAccountCategory: Record "G/L Account Category";
     begin
         GLAccountCategory.SetRange("Additional Report Definition", GLAccountCategory."Additional Report Definition"::"Cash Accounts");
-        if not GLAccountCategory.FindSet then
+        if not GLAccountCategory.FindSet() then
             exit;
 
         CashAccountFilter := GLAccountCategory.GetTotaling;

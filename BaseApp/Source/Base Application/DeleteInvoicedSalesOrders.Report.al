@@ -27,7 +27,8 @@ report 299 "Delete Invoiced Sales Orders"
                 if IsHandled then
                     CurrReport.Skip();
 
-                Window.Update(1, "No.");
+                if GuiAllowed() then
+                    Window.Update(1, "No.");
 
                 AllLinesDeleted := true;
                 ItemChargeAssgntSales.Reset();
@@ -109,7 +110,8 @@ report 299 "Delete Invoiced Sales Orders"
 
             trigger OnPreDataItem()
             begin
-                Window.Open(Text000);
+                if GuiAllowed() then
+                    Window.Open(Text000Txt);
             end;
         }
     }
@@ -131,7 +133,7 @@ report 299 "Delete Invoiced Sales Orders"
     }
 
     var
-        Text000: Label 'Processing sales orders #1##########';
+        Text000Txt: Label 'Processing sales orders #1##########';
         SalesOrderLine: Record "Sales Line";
         SalesShptHeader: Record "Sales Shipment Header";
         SalesInvHeader: Record "Sales Invoice Header";

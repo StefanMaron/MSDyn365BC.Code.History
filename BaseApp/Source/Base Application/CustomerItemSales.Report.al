@@ -110,7 +110,7 @@ report 113 "Customer/Item Sales"
                 begin
                     ValueEntryBuffer.Init();
                     ValueEntryBuffer.SetRange("Item No.", "Item No.");
-                    EntryInBufferExists := ValueEntryBuffer.FindFirst;
+                    EntryInBufferExists := ValueEntryBuffer.FindFirst();
 
                     if not EntryInBufferExists then
                         ValueEntryBuffer."Entry No." := "Item Ledger Entry No.";

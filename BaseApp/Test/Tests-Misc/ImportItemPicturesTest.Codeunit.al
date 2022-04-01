@@ -25,7 +25,7 @@ codeunit 139320 "Import Item Pictures Test"
         TotalCount: Integer;
     begin
         // [GIVEN] Create a ZIP archive add some pictures to the archive
-        Initialize;
+        Initialize();
         ArchiveFileName := CreateZIPArchiveWithPictures;
 
         // [GIVEN] Create two items with No. correspondiong to picture's file name from archive
@@ -69,7 +69,7 @@ codeunit 139320 "Import Item Pictures Test"
         TotalCount: Integer;
     begin
         // [GIVEN] Create a ZIP archive add some pictures to the archive
-        Initialize;
+        Initialize();
         ArchiveFileName := CreateZIPArchiveWithPictures;
 
         // [GIVEN] Create one item with No. corresponding to first picture file name from archive
@@ -107,7 +107,7 @@ codeunit 139320 "Import Item Pictures Test"
         TotalCount: Integer;
     begin
         // [GIVEN] Create a ZIP archive add some pictures to the archive
-        Initialize;
+        Initialize();
         ArchiveFileName := CreateZIPArchiveWithPictures;
 
         // [GIVEN] No items with No. corresponding to picture file name from archive exists
@@ -130,7 +130,7 @@ codeunit 139320 "Import Item Pictures Test"
         TotalCount: Integer;
     begin
         // [GIVEN] Create a ZIP archive add some pictures to the archive
-        Initialize;
+        Initialize();
         ArchiveFileName := CreateZIPArchiveWithPictures;
 
         // [GIVEN] Create two items with No. correspondiong to picture's file name from archive

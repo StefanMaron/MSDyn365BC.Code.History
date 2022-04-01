@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2870 "Native - Languages"
 {
     Caption = 'Native - Languages';
@@ -79,4 +80,4 @@ page 2870 "Native - Languages"
         LanguageCode: Text;
         Default: Boolean;
 }
-
+#endif

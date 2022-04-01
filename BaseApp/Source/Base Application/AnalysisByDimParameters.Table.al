@@ -10,16 +10,12 @@ table 361 "Analysis by Dim. Parameters"
             TableRelation = "Analysis View";
             DataClassification = SystemMetadata;
         }
-        field(3; "Line Dim Option"; Option)
+        field(3; "Line Dim Option"; Enum "Analysis Dimension Option")
         {
-            OptionCaption = 'G/L Account,Period,Business Unit,Dimension 1,Dimension 2,Dimension 3,Dimension 4,Cash Flow Account,Cash Flow Forecast';
-            OptionMembers = "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast";
             DataClassification = SystemMetadata;
         }
-        field(4; "Column Dim Option"; Option)
+        field(4; "Column Dim Option"; Enum "Analysis Dimension Option")
         {
-            OptionCaption = 'G/L Account,Period,Business Unit,Dimension 1,Dimension 2,Dimension 3,Dimension 4,Cash Flow Account,Cash Flow Forecast';
-            OptionMembers = "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast";
             DataClassification = SystemMetadata;
         }
         field(5; "Date Filter"; Text[250])

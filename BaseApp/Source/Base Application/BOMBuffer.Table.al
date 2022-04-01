@@ -348,6 +348,11 @@ table 5870 "BOM Buffer"
             Caption = 'Inventoriable';
             DataClassification = SystemMetadata;
         }
+        field(85; "Calculation Formula"; Enum "Quantity Calculation Formula")
+        {
+            Caption = 'Calculation Formula';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -533,6 +538,8 @@ table 5870 "BOM Buffer"
         "Lead-Time Offset" := ProdBOMLine."Lead-Time Offset";
         "Needed by Date" := NeedByDate;
         Indentation := NewIndentation;
+        if ProdBOMLine."Calculation Formula" = ProdBOMLine."Calculation Formula"::"Fixed Quantity" then
+            "Calculation Formula" := ProdBOMLine."Calculation Formula";
 
         OnTransferFromProdCompCopyFields(Rec, ProdBOMLine, ParentItem, ParentQtyPer);
         Insert(true);
@@ -895,7 +902,7 @@ table 5870 "BOM Buffer"
 
     local procedure RoundUnitAmt(Amt: Decimal; ShareOfCost: Decimal): Decimal
     begin
-        GetGLSetup;
+        GetGLSetup();
         exit(Round(Amt * ShareOfCost, GLSetup."Unit-Amount Rounding Precision"));
     end;
 
@@ -1184,7 +1191,7 @@ table 5870 "BOM Buffer"
         BOMWarningLog.DeleteAll();
 
         Reset;
-        if FindSet then
+        if FindSet() then
             repeat
                 if not IsLineOk(true, BOMWarningLog) then
                     IsOk := false;

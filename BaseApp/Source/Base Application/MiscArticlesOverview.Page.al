@@ -48,7 +48,7 @@ page 5228 "Misc. Articles Overview"
                     Clear(MatrixForm);
 
                     MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

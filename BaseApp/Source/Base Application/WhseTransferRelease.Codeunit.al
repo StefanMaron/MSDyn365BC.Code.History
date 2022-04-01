@@ -157,7 +157,7 @@ codeunit 5773 "Whse.-Transfer Release"
         TransLine.SetRange("Unit of Measure Code", '');
         TransLine.SetFilter("Item No.", '<>%1', '');
         OnCheckUnitOfMeasureCodeOnAfterTransLineSetFilters(TransLine, DocumentNo);
-        if TransLine.FindFirst then
+        if TransLine.FindFirst() then
             TransLine.TestField("Unit of Measure Code");
     end;
 

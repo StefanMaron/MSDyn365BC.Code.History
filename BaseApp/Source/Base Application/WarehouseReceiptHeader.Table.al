@@ -486,20 +486,22 @@ table 7316 "Warehouse Receipt Header"
         Location.FilterGroup := 0;
     end;
 
-    local procedure GetLocation(LocationCode: Code[10])
+    procedure GetLocation(LocationCode: Code[10]): Record Location
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeGetLocation(LocationCode, Rec, Location, IsHandled);
         if IsHandled then
-            exit;
+            exit(Location);
 
         if LocationCode = '' then
             Location.GetLocationSetup(LocationCode, Location)
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+
+        exit(Location);
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)

@@ -78,13 +78,13 @@ table 551 "VAT Rate Change Conversion"
         VATRateChangeConversion.Reset();
         VATRateChangeConversion.SetRange(Type, Type);
         VATRateChangeConversion.SetRange("From Code", "To Code");
-        if VATRateChangeConversion.FindFirst then
+        if VATRateChangeConversion.FindFirst() then
             Error(Text0001, FieldCaption("From Code"), VATRateChangeConversion."From Code");
 
         VATRateChangeConversion.Reset();
         VATRateChangeConversion.SetRange(Type, Type);
         VATRateChangeConversion.SetRange("To Code", "From Code");
-        if VATRateChangeConversion.FindFirst then
+        if VATRateChangeConversion.FindFirst() then
             Error(Text0001, FieldCaption("To Code"), VATRateChangeConversion."To Code");
     end;
 }

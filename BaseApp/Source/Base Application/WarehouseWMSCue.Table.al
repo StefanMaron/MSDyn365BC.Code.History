@@ -177,7 +177,7 @@ table 9051 "Warehouse WMS Cue"
         LocationString := '';
         if UserID <> '' then begin
             WhseEmployee.SetRange("User ID", UserID);
-            if WhseEmployee.FindSet then
+            if WhseEmployee.FindSet() then
                 repeat
                     if WhseEmployee."Location Code" <> '' then begin
                         Location.Get(WhseEmployee."Location Code");

@@ -104,7 +104,7 @@ codeunit 134444 "ERM Test Account Categories"
         // [SCENARIO 284151] Account Subcategory Lookup on G/L Account Card page doesn't insert current record
 
         // [GIVEN] G/L Account Card page was open
-        GLAccountCardPage.OpenNew;
+        GLAccountCardPage.OpenNew();
 
         // [WHEN] Lookup is invoked for Account Subcategory
         GLAccountCardPage.SubCategoryDescription.Lookup;
@@ -129,7 +129,7 @@ codeunit 134444 "ERM Test Account Categories"
         // [SCENARIO 284151] Account Subcategory Validate on G/L Account Card page doesn't insert current record
 
         // [GIVEN] G/L Account Card page was open
-        GLAccountCardPage.OpenNew;
+        GLAccountCardPage.OpenNew();
 
         // [GIVEN] A G/L Account Category
         CreateGLAccountCategory(GLAccountCategory);
@@ -289,7 +289,7 @@ codeunit 134444 "ERM Test Account Categories"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
 
         if IsInitialized then
@@ -302,7 +302,7 @@ codeunit 134444 "ERM Test Account Categories"
     local procedure CreateGLAccountCategory(var GLAccountCategory: Record "G/L Account Category")
     begin
         LibraryERM.CreateGLAccountCategory(GLAccountCategory);
-        GLAccountCategory.Validate(Description, LibraryUtility.GenerateGUID);
+        GLAccountCategory.Validate(Description, LibraryUtility.GenerateGUID());
         GLAccountCategory.Modify();
     end;
 

@@ -29,7 +29,7 @@ codeunit 5830 "Calc. Availability Overview"
                 if CheckItemInRange(Rec) then
                     if EntriesExist(Rec) then begin
                         Reset;
-                        if FindLast then;
+                        if FindLast() then;
                         SetEntryNo("Entry No.");
                         InsertEntry(Rec, Type::Item, 0D, '', '', 0, 0, 0, 0, '', Item.Description, 0);
                     end;
@@ -83,7 +83,7 @@ codeunit 5830 "Calc. Availability Overview"
             DeleteAll();
 
             Reset;
-            if FindLast then;
+            if FindLast() then;
             SetEntryNo("Entry No.");
 
             InsertEntry(AvailabilityCalcOverview, Type::Item, 0D, '', '', 0, 0, 0, 0, '', Item.Description, 0);
@@ -101,7 +101,7 @@ codeunit 5830 "Calc. Availability Overview"
             SetFilter(Date, CopyOfAvailabilityCalcOverview.GetFilter(Date));
             SetFilter("Location Code", CopyOfAvailabilityCalcOverview.GetFilter("Location Code"));
             SetFilter("Variant Code", CopyOfAvailabilityCalcOverview.GetFilter("Variant Code"));
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 SetRange(Date);
                 SetRange("Location Code");
                 SetRange("Variant Code");
@@ -138,7 +138,7 @@ codeunit 5830 "Calc. Availability Overview"
             DeleteAll();
 
             Reset;
-            if FindLast then;
+            if FindLast() then;
             SetEntryNo("Entry No.");
             TransferFields(CopyOfAvailabilityCalcOverview, false);
             FirstEntryNo := "Entry No.";
@@ -164,7 +164,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with ItemLedgEntry do begin
             FilterLinesWithItemToPlan(Item, false);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -176,7 +176,7 @@ codeunit 5830 "Calc. Availability Overview"
                       "Remaining Quantity", 0,
                       0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", AvailabilityCalcOverview.GetFilter("Location Code"));
                     SetFilter("Variant Code", AvailabilityCalcOverview.GetFilter("Variant Code"));
                     SetRange(Positive);
@@ -292,7 +292,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with PurchLine do begin
             FilterLinesWithItemToPlan(Item, "Document Type"::Order);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -302,7 +302,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Expected Receipt Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Expected Receipt Date", Item.GetFilter("Date Filter"));
@@ -316,7 +316,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with SalesLine do begin
             FilterLinesWithItemToPlan(Item, "Document Type"::"Return Order");
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -326,7 +326,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Shipment Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
@@ -340,7 +340,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with ProdOrderLine do begin
             FilterLinesWithItemToPlan(Item, true);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -350,7 +350,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Due Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Due Date", Item.GetFilter("Date Filter"));
@@ -364,7 +364,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with TransLine do begin
             FilterLinesWithItemToPlan(Item, true, false);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Transfer-to Code", "Transfer-to Code");
                     SetRange("Variant Code", "Variant Code");
@@ -374,7 +374,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Receipt Date", "Transfer-to Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Transfer-to Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Receipt Date", Item.GetFilter("Date Filter"));
@@ -388,7 +388,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with SalesLine do begin
             FilterLinesWithItemToPlan(Item, "Document Type"::Order);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -398,7 +398,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Shipment Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
@@ -412,7 +412,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with ServLine do begin
             FilterLinesWithItemToPlan(Item);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -422,7 +422,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Needed by Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Needed by Date", Item.GetFilter("Date Filter"));
@@ -436,7 +436,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with JobPlanningLine do begin
             FilterLinesWithItemToPlan(Item);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -446,7 +446,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Planning Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Planning Date", Item.GetFilter("Date Filter"));
@@ -460,7 +460,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with PurchLine do begin
             FilterLinesWithItemToPlan(Item, "Document Type"::"Return Order");
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -470,7 +470,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Expected Receipt Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Expected Receipt Date", Item.GetFilter("Date Filter"));
@@ -484,7 +484,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with ProdOrderComp do begin
             FilterLinesWithItemToPlan(Item, true);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -494,7 +494,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Due Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Due Date", Item.GetFilter("Date Filter"));
@@ -508,7 +508,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with TransLine do begin
             FilterLinesWithItemToPlan(Item, false, false);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Transfer-from Code", "Transfer-from Code");
                     SetRange("Variant Code", "Variant Code");
@@ -518,7 +518,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Shipment Date", "Transfer-from Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Transfer-to Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
@@ -542,7 +542,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Due Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Due Date", Item.GetFilter("Date Filter"));
@@ -556,7 +556,7 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         with AsmHeader do begin
             SetItemToPlanFilters(Item, "Document Type"::Order);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -566,7 +566,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::"As of Date", "Due Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast;
+                    FindLast();
                     SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     SetFilter("Due Date", Item.GetFilter("Date Filter"));
@@ -720,7 +720,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::Demand, "Planning Date", "Location Code", "Variant Code",
                       -"Remaining Qty. (Base)", -"Reserved Qty. (Base)",
-                      DATABASE::"Job Planning Line", Status, "Job No.", Job."Bill-to Name", DemandType::Job);
+                      DATABASE::"Job Planning Line", Status.AsInteger(), "Job No.", Job."Bill-to Name", DemandType::Job);
                 until Next() = 0;
         end;
     end;
@@ -897,7 +897,7 @@ codeunit 5830 "Calc. Availability Overview"
             SetRange("Variant Code", VariantCode);
             SetRange(Date, ClosingDate);
             SetRange(Type, NewType);
-            Found := FindFirst;
+            Found := FindFirst();
             CopyFilters(CopyOfAvailabilityCalcOverview);
         end;
     end;

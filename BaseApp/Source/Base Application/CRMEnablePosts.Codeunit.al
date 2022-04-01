@@ -16,7 +16,7 @@ codeunit 5353 "CRM Enable Posts"
     begin
         with CRMPostConfiguration do begin
             SetRange(msdyn_EntityName, CRMOrderEntityNameTxt);
-            if FindFirst then begin
+            if FindFirst() then begin
                 if (statecode = statecode::Active) and (statuscode = statuscode::Active) and msdyn_ConfigureWall then
                     exit;
                 statecode := statecode::Active;

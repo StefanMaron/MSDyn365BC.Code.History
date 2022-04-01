@@ -611,26 +611,19 @@ page 7138 "Purchase Budget Overview"
         MATRIX_PrimKeyFirstCaptionInCu: Text;
         MATRIX_CurrentNoOfColumns: Integer;
         CurrentAnalysisArea: Enum "Analysis Area Type";
-        CurrentBudgetName: Code[10];
         SourceTypeFilter: Enum "Analysis Source Type";
         SourceNoFilter: Text;
         ItemFilter: Text;
-        ValueType: Enum "Item Analysis Value Type";
-        RoundingFactor: Enum "Analysis Rounding Factor";
         LineDimType: Enum "Item Budget Dimension Type";
         ColumnDimType: Enum "Item Budget Dimension Type";
-        PeriodType: Enum "Analysis Period Type";
         GlobalDim1Filter: Text;
         GlobalDim2Filter: Text;
         BudgetDim1Filter: Text;
         BudgetDim2Filter: Text;
         BudgetDim3Filter: Text;
-        LineDimCode: Text[30];
-        ColumnDimCode: Text[30];
         DateFilter: Text;
         InternalDateFilter: Text;
         PeriodInitialized: Boolean;
-        ShowColumnName: Boolean;
         Text003: Label '1,6,,Budget Dimension 1 Filter';
         Text004: Label '1,6,,Budget Dimension 2 Filter';
         Text005: Label '1,6,,Budget Dimension 3 Filter';
@@ -642,6 +635,15 @@ page 7138 "Purchase Budget Overview"
         BudgetDim2FilterEnable: Boolean;
         [InDataSet]
         BudgetDim3FilterEnable: Boolean;
+
+    protected var
+        CurrentBudgetName: Code[10];
+        LineDimCode: Text[30];
+        ColumnDimCode: Text[30];
+        PeriodType: Enum "Analysis Period Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        ValueType: Enum "Item Analysis Value Type";
+        ShowColumnName: Boolean;
 
     local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var

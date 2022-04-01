@@ -32,7 +32,7 @@ codeunit 137043 "SCM General Journal"
     begin
         // Setup : Create General Journal Template and General Journal Batch.
         // Exercise : Create Multiple General Lines and save Them as standard Journal.
-        Initialize;
+        Initialize();
         CreateGenJournalTemplateBatch(GenJournalBatch);
         CreateGenJournalLines(GenJournalBatch, StandardGeneralJournalCode);
 
@@ -54,7 +54,7 @@ codeunit 137043 "SCM General Journal"
     begin
         // Setup : Create General Journal Template and General Journal Batch.
         // Create Multiple General Lines and save Them as standard Journal.
-        Initialize;
+        Initialize();
         CreateGenJournalTemplateBatch(GenJournalBatch);
         CreateGenJournalLines(GenJournalBatch, StandardGeneralJournalCode);
 
@@ -81,7 +81,7 @@ codeunit 137043 "SCM General Journal"
     begin
         // Setup : Create General Journal Template and General Journal Batch.
         // Create Multiple General Lines and save Them as standard Journal.
-        Initialize;
+        Initialize();
         CreateGenJournalTemplateBatch(GenJournalBatch);
         CreateGenJournalLines(GenJournalBatch, StandardGeneralJournalCode);
         DeleteAndGetStandardJournal(GenJournalLine, GenJournalBatch, StandardGeneralJournalCode);
@@ -110,7 +110,7 @@ codeunit 137043 "SCM General Journal"
     begin
         // Setup : Create General Journal Template and General Journal Batch.
         // Create Multiple General Lines and save Them as standard Journal.
-        Initialize;
+        Initialize();
         CreateGenJournalTemplateBatch(GenJournalBatch);
         CreateGenJournalLines(GenJournalBatch, StandardGeneralJournalCode);
         DeleteGenJournalLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
@@ -140,7 +140,7 @@ codeunit 137043 "SCM General Journal"
     begin
         // Setup : Create General Journal Template and General Journal Batch.
         // Create Two Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGenJournalTemplateBatch(GenJournalBatch);
         CreateGenJournalLines(GenJournalBatch, StandardGeneralJournalCode);
         CreateGenJournalLines(GenJournalBatch, StandardGeneralJournalCode2);
@@ -157,7 +157,7 @@ codeunit 137043 "SCM General Journal"
         StandardGeneralJournal.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         StandardGeneralJournal.SetFilter(
           Code, '%1|%2|%3', StandardGeneralJournalCode, StandardGeneralJournalCode2, StandardGeneralJournalCode3);
-        StandardGeneralJournal.FindFirst;
+        StandardGeneralJournal.FindFirst();
 
         // Tear Down : Delete General Lines Created.
         DeleteGenJournalLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
@@ -174,7 +174,7 @@ codeunit 137043 "SCM General Journal"
     begin
         // Setup : Create General Journal Template and General Journal Batch.
         // Create Two Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGenJournalTemplateBatch(GenJournalBatch);
         CreateGenJournalLines(GenJournalBatch, StandardGeneralJournalCode);
         DeleteAndGetStandardJournal(GenJournalLine, GenJournalBatch, StandardGeneralJournalCode);
@@ -203,7 +203,7 @@ codeunit 137043 "SCM General Journal"
     begin
         // Setup : Create General Journal Template and General Journal Batch.
         // Create Customer and Create General Journal Line.
-        Initialize;
+        Initialize();
         CreateGenJournalTemplateBatch(GenJournalBatch);
         LibrarySales.CreateCustomer(Customer);
         GLAccount.FilterGroup(2);
@@ -238,7 +238,7 @@ codeunit 137043 "SCM General Journal"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM General Journal");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -314,7 +314,7 @@ codeunit 137043 "SCM General Journal"
     begin
         StandardGeneralJournal.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         StandardGeneralJournal.SetRange(Code, Code);
-        StandardGeneralJournal.FindFirst;
+        StandardGeneralJournal.FindFirst();
         if PAGE.RunModal(PAGE::"Standard General Journals", StandardGeneralJournal) = ACTION::LookupOK then
             StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
     end;
@@ -329,7 +329,7 @@ codeunit 137043 "SCM General Journal"
         StandardGeneralJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardGeneralJournalCode);
         StandardGeneralJournalLine.SetRange("Account Type", StandardGeneralJournalLine."Account Type"::"G/L Account");
-        StandardGeneralJournalLine.FindFirst;
+        StandardGeneralJournalLine.FindFirst();
         StandardGeneralJournalLine.Validate("Account No.", GLAccount."No.");
         StandardGeneralJournalLine.Modify();
         Commit();
@@ -380,7 +380,7 @@ codeunit 137043 "SCM General Journal"
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(AccountNo, GenJournalLine."Account No.", 'Account No must be the Same');
     end;
 

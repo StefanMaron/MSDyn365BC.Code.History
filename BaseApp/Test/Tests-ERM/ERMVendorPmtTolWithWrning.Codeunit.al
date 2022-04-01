@@ -27,7 +27,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124391.
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date.
-        Initialize;
+        Initialize();
         OverPmtWithDiscount('', '');
     end;
 
@@ -40,7 +40,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124391.
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date with Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         OverPmtWithDiscount(CurrencyCode, CurrencyCode);
     end;
@@ -52,7 +52,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124391.
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date with New Currency.
-        Initialize;
+        Initialize();
         OverPmtWithDiscount(CreateCurrency, CreateCurrency);
     end;
 
@@ -85,7 +85,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124392.
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date.
-        Initialize;
+        Initialize();
         EqualPmtWithDiscount('', '');
     end;
 
@@ -98,7 +98,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124392.
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date with Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         EqualPmtWithDiscount(CurrencyCode, CurrencyCode);
     end;
@@ -110,7 +110,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124392.
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date with New Currency.
-        Initialize;
+        Initialize();
         EqualPmtWithDiscount(CreateCurrency, CreateCurrency);
     end;
 
@@ -139,7 +139,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124401,124402,124403.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and After Posting Date.
-        Initialize;
+        Initialize();
         LessPmtWithTolerance('', '');
     end;
 
@@ -153,7 +153,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124401,124402,124403.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and After Posting Date with Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         LessPmtWithTolerance(CurrencyCode, CurrencyCode);
     end;
@@ -166,7 +166,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124401,124402,124403.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and After Posting Date with New Currency.
-        Initialize;
+        Initialize();
         LessPmtWithTolerance(CreateCurrency, CreateCurrency);
     end;
 
@@ -201,7 +201,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390, 124393,124394,124395.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Less Posting Date.
-        Initialize;
+        Initialize();
         UnderAmtBfrDiscDate('', '');
     end;
 
@@ -215,7 +215,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390, 124393,124394,124395.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Less Posting Date with Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         UnderAmtBfrDiscDate(CurrencyCode, CurrencyCode);
     end;
@@ -228,7 +228,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390, 124393,124394,124395.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Less Posting Date with New Currency.
-        Initialize;
+        Initialize();
         UnderAmtBfrDiscDate(CreateCurrency, CreateCurrency);
     end;
 
@@ -257,7 +257,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124404,124405,124409,124410.
 
         // Check Payment Tolerance on various entries after Post General Lines with More Amount and After Posting Date.
-        Initialize;
+        Initialize();
         OverWithoutTolerance('', '');
     end;
 
@@ -271,7 +271,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124404,124405,124409,124410.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and After Posting Date with Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         OverWithoutTolerance(CurrencyCode, CurrencyCode);
     end;
@@ -284,7 +284,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124404,124405,124409,124410.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and After Posting Date with New Currency.
-        Initialize;
+        Initialize();
         OverWithoutTolerance(CreateCurrency, CreateCurrency);
     end;
 
@@ -317,7 +317,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124406,124407,124408.
 
         // Check Payment Tolerance on various entries after Post General Lines with Same Amount and After Posting Date.
-        Initialize;
+        Initialize();
         EqualWithoutDiscount('', '');
     end;
 
@@ -330,7 +330,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124406,124407,124408.
 
         // Check Payment Tolerance on various entries after Post General Lines with Same Amount and After Posting Date with Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         EqualWithoutDiscount(CurrencyCode, CurrencyCode);
     end;
@@ -342,7 +342,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390,124406,124407,124408.
 
         // Check Payment Tolerance on various entries after Post General Lines with Same Amount and After Posting Date with New Currency.
-        Initialize;
+        Initialize();
         EqualWithoutDiscount(CreateCurrency, CreateCurrency);
     end;
 
@@ -372,7 +372,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390, 124396,124397,124398,124399,124400.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Over Posting Date.
-        Initialize;
+        Initialize();
         LessPmtWithoutDiscount('', '');
     end;
 
@@ -386,7 +386,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390, 124396,124397,124398,124399,124400.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Over Posting Date with Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         LessPmtWithoutDiscount(CurrencyCode, CurrencyCode);
     end;
@@ -399,7 +399,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Covers documents TFS_TC_ID=124390, 124396,124397,124398,124399,124400.
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Over Posting Date with New Currency.
-        Initialize;
+        Initialize();
         LessPmtWithoutDiscount(CreateCurrency, CreateCurrency);
     end;
 
@@ -861,13 +861,13 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Vendor Pmt Tol With Wrning");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Vendor Pmt Tol With Wrning");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -1042,7 +1042,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         if CurrencyCode = '' then
             exit(Amount);
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         exit(Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount");
     end;
 
@@ -1096,7 +1096,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         GeneralLedgerSetup.Get();
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.AreNearlyEqual(
           ToleranceDiscount, VendorLedgerEntry."Original Pmt. Disc. Possible", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"),
@@ -1113,7 +1113,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         DetailedVendorLedgEntry.SetRange("Document Type", DocumentType);
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           ToleranceDiscount, DetailedVendorLedgEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, DetailedVendorLedgEntry.FieldCaption("Amount (LCY)"),

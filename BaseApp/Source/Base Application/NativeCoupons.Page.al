@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2815 "Native - Coupons"
 {
     Caption = 'Native - Coupons';
@@ -129,4 +130,4 @@ page 2815 "Native - Coupons"
             UpdateStatusText;
     end;
 }
-
+#endif

@@ -25,13 +25,13 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO] Show Type field in OnPrem environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] An OnPrem environment
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [WHEN] Opening a new Sales Quote
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [THEN] The Type field is visible and the Subtype field is not
         Assert.IsTrue(SalesQuote.SalesLines.Type.Visible, 'Regular type field should be visible for OnPrem');
@@ -45,10 +45,10 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO] Show the Subtype field in SaaS environment
-        Initialize;
+        Initialize();
 
         // [WHEN] Opening a new Sales Quote
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
         asserterror SalesQuote.SalesLines.Type.Activate;
@@ -65,10 +65,10 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO] The lookup on Subtype contains the expected values for Sales Quote and all values can be selected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Quote
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         TempOptionLookupBuffer.FindSet();
@@ -91,10 +91,10 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO] A partial Subtype is entered into the Subtype field triggers autocomplete
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Quote
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to ac
         SalesQuote.SalesLines.FilteredTypeField.SetValue(CopyStr(Format(SalesLine.Type::"G/L Account"), 1, 2));
@@ -120,10 +120,10 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO] A blank Subtype is entered into the Subtype field stays blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Quote
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to ' '
         SalesQuote.SalesLines.FilteredTypeField.SetValue(' ');
@@ -144,10 +144,10 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO] When invalid values are entered into Subtype, an error is raised
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Quote
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [WHEN] Setting the Subtype to Fixed Asset on the Sales Line
         SalesQuote.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::"Fixed Asset"));
@@ -160,7 +160,7 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
 
         // [WHEN] Setting the Subtype to a random value on the Sales Line
-        SalesQuote.SalesLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID);
+        SalesQuote.SalesLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID());
         // [THEN] The Subtype is set to Item
         SalesQuote.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
     end;
@@ -173,10 +173,10 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO 252686] When Subtype is blank and non standard value is entered into Subtype, Subtype = Item is assigned.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A blank Sales Quote.
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to "AAA".
         SalesQuote.SalesLines.FilteredTypeField.SetValue('AAA');
@@ -193,10 +193,10 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO 252686] When Subtype is not blank and non standard value is entered into Subtype, Subtype is not changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Quote with a line with Subtype = G/L Account.
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::"G/L Account"));
 
         // [WHEN] Setting the Subtype on the Sales Line to "AAA".
@@ -225,9 +225,9 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 S. Quote Type Lookup Test");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
         if IsInitialized then
             exit;

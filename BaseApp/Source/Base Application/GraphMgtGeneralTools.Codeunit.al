@@ -22,6 +22,7 @@ codeunit 5465 "Graph Mgt - General Tools"
         StartJobQueueNowQst: Label 'Would you like to run the job to update the records now?';
         JobQueueHasBeenStartedMsg: Label 'The job queue entry will start executing shortly.';
         JobQueueNotScheudledMsg: Label 'The job has been created and set to On Hold.';
+        APIDataUpgradeCategoryLbl: Label 'APIUpgrade', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetMandatoryStringPropertyFromJObject(var JsonObject: DotNet JObject; PropertyName: Text; var PropertyValue: Text)
@@ -52,14 +53,14 @@ codeunit 5465 "Graph Mgt - General Tools"
             FilterFieldRef.SetRange(NullGuid);
         end;
 
-        if SourceRecordRef.FindSet then
+        if SourceRecordRef.FindSet() then
             repeat
                 IDFieldRef := SourceRecordRef.Field(FieldNumber);
                 if not IntegrationRecord.Get(IDFieldRef.Value) then begin
                     IntegrationManagement.InsertUpdateIntegrationRecord(SourceRecordRef, CurrentDateTime);
                     if IsNullGuid(Format(IDFieldRef.Value)) then begin
                         UpdatedIntegrationRecord.SetRange("Record ID", SourceRecordRef.RecordId);
-                        UpdatedIntegrationRecord.FindFirst;
+                        UpdatedIntegrationRecord.FindFirst();
                         IDFieldRef.Value := IntegrationManagement.GetIdWithoutBrackets(UpdatedIntegrationRecord."Integration ID");
                     end;
 
@@ -149,7 +150,7 @@ codeunit 5465 "Graph Mgt - General Tools"
             exit;
 
         if ConfigTemplateManagement.ApplyTemplate(InsertedRecordRef, TempFieldSet, UpdatedRecRef, ConfigTemplateHeader) then
-            InsertedRecordRef := UpdatedRecRef.Duplicate();
+            InsertedRecordRef := UpdatedRecRef.Duplicate;
     end;
 
     procedure ErrorIdImmutable()
@@ -302,7 +303,7 @@ codeunit 5465 "Graph Mgt - General Tools"
     begin
         // We cannot use GETTABLE to set values back e.g. RecRef.GETTABLE(Customer) since it will interupt Insert/Modify transaction.
         // The Insert and Modify triggers will not run. We can assign the fields via FieldRef.
-        if not TempRelatedRecodIdsField.FindFirst then
+        if not TempRelatedRecodIdsField.FindFirst() then
             exit;
 
         repeat
@@ -327,12 +328,12 @@ codeunit 5465 "Graph Mgt - General Tools"
     begin
         FindOrCreateJobQueue(JobQueueEntry, CodeunitID);
         if Confirm(JobQEntriesCreatedQst) then begin
-            PAGE.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
+            Page.Run(Page::"Job Queue Entry Card", JobQueueEntry);
             exit;
         end;
 
         if Confirm(StartJobQueueNowQst) then begin
-            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+            Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
             Message(JobQueueHasBeenStartedMsg);
             exit;
         end;
@@ -357,6 +358,7 @@ codeunit 5465 "Graph Mgt - General Tools"
         JobQueueEntry."Recurring Job" := false;
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry.Description := CopyStr(JobQueueEntryUpdateRecordsDescTxt, 1, MaxStrLen(JobQueueEntry.Description));
+        JobQueueEntry."Job Queue Category Code" := APIDataUpgradeCategoryLbl;
         if not JobQueueExist then
             JobQueueEntry.Insert(true)
         else
@@ -365,7 +367,7 @@ codeunit 5465 "Graph Mgt - General Tools"
 
     procedure StripBrackets(StringWithBrackets: Text): Text
     begin
-        if StrPos(StringWithBrackets, '{') = 1 then
+        if StringWithBrackets[1] = '{' then
             exit(CopyStr(Format(StringWithBrackets), 2, 36));
         exit(StringWithBrackets);
     end;

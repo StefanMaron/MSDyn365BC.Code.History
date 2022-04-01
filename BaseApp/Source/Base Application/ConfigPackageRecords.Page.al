@@ -1489,7 +1489,7 @@ page 8626 "Config. Package Records"
         end;
         if not ShowDim then
             ConfigPackageField.SetRange(Dimension, false);
-        Result := ConfigPackageField.FindSet;
+        Result := ConfigPackageField.FindSet();
         OnAfterFindPackageFields(ConfigPackageField, Result);
     end;
 
@@ -1654,7 +1654,7 @@ page 8626 "Config. Package Records"
     var
         ConfigPackageMgt: Codeunit "Config. Package Management";
     begin
-        if ConfigPackageRecord.FindSet then
+        if ConfigPackageRecord.FindSet() then
             repeat
                 ConfigPackageMgt.CleanRecordError(ConfigPackageRecord);
             until ConfigPackageRecord.Next() = 0;

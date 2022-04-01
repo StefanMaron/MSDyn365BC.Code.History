@@ -34,7 +34,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateSalesInvoiceWithItemCharge(SalesLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -56,7 +56,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateSalesInvoiceWithItemCharge(SalesLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -78,7 +78,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateSalesInvoiceWithItemCharge(SalesLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -101,7 +101,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateSalesInvoiceWithItemCharge(SalesLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -124,7 +124,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateSalesInvoiceWithItemCharge(SalesLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -145,7 +145,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateOneLineSalesInvoiceWithItemCharge(SalesLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -166,7 +166,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchaseInvoiceWithItemCharge(PurchaseLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -188,7 +188,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchaseInvoiceWithItemCharge(PurchaseLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -210,7 +210,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchaseInvoiceWithItemCharge(PurchaseLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -233,7 +233,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchaseInvoiceWithItemCharge(PurchaseLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -256,7 +256,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePurchaseInvoiceWithItemCharge(PurchaseLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -277,7 +277,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateOneLinePurchaseInvoiceWithItemCharge(PurchaseLine, TotalQtyToAssign, TotalAmtToAssign);
@@ -301,7 +301,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Item Charge Extendibility");
 
         IsInitialized := true;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Item Charge Extendibility");
     end;

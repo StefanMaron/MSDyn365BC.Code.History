@@ -147,7 +147,7 @@ table 134 "Posted Docs. With No Inc. Buf."
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Posting Date", PostingDate);
         GLEntry.SetFilter(Description, '<>%1', '');
-        if GLEntry.FindFirst then
+        if GLEntry.FindFirst() then
             exit(GLEntry.Description);
         exit('');
     end;
@@ -159,13 +159,13 @@ table 134 "Posted Docs. With No Inc. Buf."
         GenJournalLine: Record "Gen. Journal Line";
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if PurchaseHeader.FindFirst then
+        if PurchaseHeader.FindFirst() then
             Error(AlreadyIncomingDocErr, PurchaseHeader."Document Type", PurchaseHeader."No.");
         SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             Error(AlreadyIncomingDocErr, SalesHeader."Document Type", SalesHeader."No.");
         GenJournalLine.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if GenJournalLine.FindFirst then
+        if GenJournalLine.FindFirst() then
             Error(AlreadyIncomingDocErr, GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name");
     end;
 }

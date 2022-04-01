@@ -349,7 +349,7 @@ codeunit 926 "Assembly Line-Reserve"
 
         for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
             OldReservEntry.SetRange("Reservation Status", ReservStatus);
-            if OldReservEntry.FindSet then
+            if OldReservEntry.FindSet() then
                 repeat
                     OldReservEntry.TestField("Item No.", OldAssemblyLine."No.");
                     OldReservEntry.TestField("Variant Code", OldAssemblyLine."Variant Code");
@@ -487,7 +487,7 @@ codeunit 926 "Assembly Line-Reserve"
             Clear(AvailableAssemblyLines);
             AvailableAssemblyLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
             AvailableAssemblyLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailableAssemblyLines.RunModal;
+            AvailableAssemblyLines.RunModal();
         end;
     end;
 
@@ -610,7 +610,7 @@ codeunit 926 "Assembly Line-Reserve"
 
         AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         AssemblyLine.FilterLinesForReservation(CalcReservEntry, DocumentType, AvailabilityFilter, Positive);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 AssemblyLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= AssemblyLine."Reserved Qty. (Base)";

@@ -89,7 +89,7 @@ codeunit 133 "Send Incoming Document to OCR"
         if IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Ready then begin
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
             IncomingDocumentAttachment.SetRange("Use for OCR", true);
-            if not IncomingDocumentAttachment.FindFirst then
+            if not IncomingDocumentAttachment.FindFirst() then
                 Error(NoAttachmentMarkedForOcrErr);
             IncomingDocumentAttachment.SendToOCR;
             IncomingDocument."OCR Status" := IncomingDocument."OCR Status"::Sent;
@@ -122,7 +122,7 @@ codeunit 133 "Send Incoming Document to OCR"
             Find;
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
             IncomingDocumentAttachment.SetRange("Use for OCR", true);
-            if IncomingDocumentAttachment.FindFirst then begin
+            if IncomingDocumentAttachment.FindFirst() then begin
                 OCRStatus := OCRServiceMgt.GetDocumentForAttachment(IncomingDocumentAttachment);
                 if not (OCRStatus in ["OCR Status"::Success, "OCR Status"::Error, "OCR Status"::"Awaiting Verification"]) then
                     Error('');
@@ -233,7 +233,7 @@ codeunit 133 "Send Incoming Document to OCR"
             if IncomingDocumentAttachment.IsEmpty() then begin
                 IncomingDocumentAttachment.SetRange("Use for OCR");
                 IncomingDocumentAttachment.SetRange("Main Attachment", true);
-                IncomingDocumentAttachment.FindFirst;
+                IncomingDocumentAttachment.FindFirst();
                 IncomingDocumentAttachment."Use for OCR" := true;
                 IncomingDocumentAttachment.Modify();
             end;

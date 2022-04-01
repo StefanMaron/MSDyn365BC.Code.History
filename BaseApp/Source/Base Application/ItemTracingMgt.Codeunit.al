@@ -89,7 +89,7 @@ codeunit 6520 "Item Tracing Mgt."
         Clear(FirstLevelEntries);
         FirstLevelEntries.DeleteAll();
         NextLineNo := 0;
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 NextLineNo += 1;
                 FirstLevelEntries."Line No." := NextLineNo;
@@ -131,10 +131,10 @@ codeunit 6520 "Item Tracing Mgt."
                         ItemApplnEntry.SetRange("Outbound Item Entry No.", ItemLedgEntry2."Entry No.");
                         ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
                         ItemApplnEntry.SetRange("Transferred-from Entry No.", 0);
-                        if ItemApplnEntry.FindFirst then begin
+                        if ItemApplnEntry.FindFirst() then begin
                             ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', ItemLedgEntry2."Entry No.");
                             ItemApplnEntry.SetRange("Transferred-from Entry No.", ItemApplnEntry."Inbound Item Entry No.");
-                            if ItemApplnEntry.FindFirst then begin
+                            if ItemApplnEntry.FindFirst() then begin
                                 ItemLedgEntry2.Reset();
                                 if not ItemLedgEntry2.Get(ItemApplnEntry."Item Ledger Entry No.") then
                                     ItemLedgEntry2 := ItemLedgEntry;
@@ -312,7 +312,7 @@ codeunit 6520 "Item Tracing Mgt."
             SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
 
             // Mark entry if already in search result
-            TempTrackEntry2."Already Traced" := FindFirst;
+            TempTrackEntry2."Already Traced" := FindFirst();
 
             if CurrentLevel = 1 then begin
                 SetRange("Parent Item Ledger Entry No.", ParentID);
@@ -321,7 +321,7 @@ codeunit 6520 "Item Tracing Mgt."
 
             InsertEntry := true;
             if CurrentLevel <= 1 then
-                InsertEntry := not FindFirst;
+                InsertEntry := not FindFirst();
 
             if InsertEntry then begin
                 TempTrackEntry2.Reset();
@@ -393,7 +393,7 @@ codeunit 6520 "Item Tracing Mgt."
         TempTrackEntry2.Reset();
         TempTrackEntry2.DeleteAll();
         TempTrackEntry.Reset();
-        if TempTrackEntry.FindSet then
+        if TempTrackEntry.FindSet() then
             repeat
                 TempTrackEntry2 := TempTrackEntry;
                 TempTrackEntry2.Insert();
@@ -463,7 +463,7 @@ codeunit 6520 "Item Tracing Mgt."
         ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Document No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-        if not ValueEntry.FindFirst then
+        if not ValueEntry.FindFirst() then
             Clear(ValueEntry);
         TempTrackEntry."Created by" := ValueEntry."User ID";
         TempTrackEntry."Created on" := ValueEntry."Posting Date";
@@ -693,7 +693,7 @@ codeunit 6520 "Item Tracing Mgt."
                     begin
                         ProductionOrder.SetFilter(Status, '>=%1', ProductionOrder.Status::Released);
                         ProductionOrder.SetRange("No.", "Document No.");
-                        if ProductionOrder.FindFirst then begin
+                        if ProductionOrder.FindFirst() then begin
                             RecRef.GetTable(ProductionOrder);
                             "Record Identifier" := RecRef.RecordId;
                         end;
@@ -1004,7 +1004,7 @@ codeunit 6520 "Item Tracing Mgt."
             Reset;
             SetCurrentKey("Entry No.", Level);
             SetRange("Entry No.", EntryNo);
-            if not FindSet then
+            if not FindSet() then
                 exit(false);
             repeat
                 if Level = 0 then begin

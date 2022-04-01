@@ -23,7 +23,7 @@ codeunit 139167 "Integration Record Mgmt. Test"
         CustomerRecordId: RecordID;
         IntegrationTableUid: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // Setup customer, integration record but no crm integration record
         IntegrationTableUid := CreateGuid;
@@ -47,7 +47,7 @@ codeunit 139167 "Integration Record Mgmt. Test"
         IntegrationTableUid: Guid;
         CustomerIntegrationTableUid: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // Setup customer, integration record but no crm integration record
         IntegrationTableUid := CreateGuid;

@@ -80,7 +80,7 @@ report 1086 "Job Calculate WIP"
     begin
         JobWIPEntry.SetCurrentKey("Job No.");
         JobWIPEntry.SetFilter("Job No.", Job.GetFilter("No."));
-        WIPPosted := JobWIPEntry.FindFirst;
+        WIPPosted := JobWIPEntry.FindFirst();
         Commit();
 
         if WIPPosted then begin

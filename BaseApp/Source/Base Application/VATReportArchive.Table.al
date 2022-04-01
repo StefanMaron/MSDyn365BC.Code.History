@@ -5,11 +5,9 @@ table 747 "VAT Report Archive"
 
     fields
     {
-        field(1; "VAT Report Type"; Option)
+        field(1; "VAT Report Type"; Enum "VAT Report Configuration")
         {
             Caption = 'VAT Report Type';
-            OptionCaption = 'EC Sales List,VAT Return';
-            OptionMembers = "EC Sales List","VAT Return";
         }
         field(2; "VAT Report No."; Code[20])
         {
@@ -72,7 +70,7 @@ table 747 "VAT Report Archive"
 
         VATReportArchive.Init();
         VATReportArchive."VAT Report No." := VATReportNoValue;
-        VATReportArchive."VAT Report Type" := VATReportTypeValue;
+        VATReportArchive."VAT Report Type" := "VAT Report Configuration".FromInteger(VATReportTypeValue);
         VATReportArchive."Submitted By" := UserId;
         VATReportArchive."Submittion Date" := Today;
         VATReportArchive.SetSubmissionMessageBLOBFromBlob(TempBlobSubmissionMessage);

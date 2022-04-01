@@ -24,7 +24,7 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationStatus: Record "Data Migration Status";
     begin
         // [SCENARIO] Test valid cases: Init a dashboard line, increment it, update the status
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
 
         // [WHEN] We init a dashboard line
         DataMigrationStatusFacade.InitStatusLine(
@@ -103,7 +103,7 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationStatus: Record "Data Migration Status";
     begin
         // [SCENARIO] Test error cases
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
 
         // [WHEN] We try to update a non-existing line
         // [THEN] It fails
@@ -124,14 +124,14 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationStatusFacade: Codeunit "Data Migration Status Facade";
     begin
         // [SCENARIO] Test error cases
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         DataMigrationError.DeleteAll();
 
         // [WHEN] we register an error for the non staging table case
         DataMigrationStatusFacade.RegisterErrorNoStagingTablesCase('Test', DATABASE::Item, 'Very bad error happened.');
 
         // [THEN] It is created correctly
-        DataMigrationError.FindFirst;
+        DataMigrationError.FindFirst();
         Assert.AreEqual('Very bad error happened.', DataMigrationError."Error Message", 'Unexpected error message');
     end;
 
@@ -146,7 +146,7 @@ codeunit 135023 "Data Migration Status Test"
     begin
         // [SCENARIO] HasMigratedChartOfAccounts function returns true if G/L Account Migration has been selected
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         // [GIVEN] G/L Account migration has been selected
         DataMigrationStatus.Init();
         DataMigrationStatus."Migration Type" := 'Migration1';
@@ -412,7 +412,7 @@ codeunit 135023 "Data Migration Status Test"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalBatch.SetRange(Name, 'GJB');
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
 
         GenJournalLine.Init();
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;

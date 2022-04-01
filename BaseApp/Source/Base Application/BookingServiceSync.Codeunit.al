@@ -1,13 +1,12 @@
 codeunit 6705 "Booking Service Sync."
 {
-
     trigger OnRun()
     var
         LocalBookingSync: Record "Booking Sync";
     begin
         LocalBookingSync.SetRange("Sync Services", true);
         LocalBookingSync.SetRange(Enabled, true);
-        if LocalBookingSync.FindFirst then
+        if LocalBookingSync.FindFirst() then
             O365SyncManagement.SyncBookingServices(LocalBookingSync);
     end;
 
@@ -83,7 +82,7 @@ codeunit 6705 "Booking Service Sync."
         TempBookingServiceMapping.Reset();
         TempBookingServiceMapping.DeleteAll();
 
-        if BookingService.FindSet then
+        if BookingService.FindSet() then
             repeat
                 Counter += 1;
                 Clear(TempItem);
@@ -140,7 +139,7 @@ codeunit 6705 "Booking Service Sync."
         LocalBookingService: Record "Booking Service";
         BookingServiceMapping: Record "Booking Service Mapping";
     begin
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 TempItem.Reset();
 
@@ -153,7 +152,7 @@ codeunit 6705 "Booking Service Sync."
                     else begin
                         Clear(LocalBookingService);
                         LocalBookingService.SetRange("Display Name", Item.Description);
-                        if LocalBookingService.FindFirst then
+                        if LocalBookingService.FindFirst() then
                             O365SyncManagement.LogActivityFailed(BookingSync.RecordId, BookingSync."User ID",
                               CreateBookingServiceTxt, BookingService."Display Name")
                         else begin
@@ -174,7 +173,7 @@ codeunit 6705 "Booking Service Sync."
         ItemRecRef: RecordRef;
         Found: Boolean;
     begin
-        if LocalItem.FindSet then begin
+        if LocalItem.FindSet() then begin
             Session.LogMessage('0000ACK', StrSubstNo(LocalCountTelemetryTxt, LocalItem.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
             repeat
                 Clear(Item);
@@ -207,7 +206,7 @@ codeunit 6705 "Booking Service Sync."
     begin
         BookingServiceMapping.SetRange("Item No.", ItemNo);
         BookingServiceMapping.SetRange("Booking Mailbox", BookingMailbox);
-        if BookingServiceMapping.FindFirst then
+        if BookingServiceMapping.FindFirst() then
             if TempBookingServiceMapping.Get(BookingServiceMapping."Service ID") then begin
                 TempItem.Get(TempBookingServiceMapping."Item No.");
                 TempItem.Delete();
@@ -220,7 +219,7 @@ codeunit 6705 "Booking Service Sync."
         BookingServiceMapping: Record "Booking Service Mapping";
     begin
         TempBookingServiceMapping.SetRange("Item No.", LocalItem."No.");
-        if TempBookingServiceMapping.FindFirst then
+        if TempBookingServiceMapping.FindFirst() then
             if BookingServiceMapping.Get(TempBookingServiceMapping."Service ID") then
                 Found := Item.Get(BookingServiceMapping."Item No.");
     end;
@@ -237,7 +236,7 @@ codeunit 6705 "Booking Service Sync."
         BookingService.Validate(Price, NavItem."Unit Price");
         BookingServiceMapping.SetRange("Item No.", NavItem."No.");
         BookingServiceMapping.SetRange("Booking Mailbox", BookingMailbox);
-        if BookingServiceMapping.FindFirst then
+        if BookingServiceMapping.FindFirst() then
             BookingService.Validate("Service ID", BookingServiceMapping."Service ID");
     end;
 

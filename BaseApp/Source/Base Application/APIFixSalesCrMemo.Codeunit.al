@@ -2,8 +2,8 @@ codeunit 5519 "API Fix Sales Cr. Memo"
 {
     trigger OnRun()
     var
-        UpgradeBaseApp: Codeunit "Upgrade - BaseApp";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
-        UpgradeBaseApp.UpgradeSalesCreditMemoReasonCode();
+        APIDataUpgrade.UpgradeSalesCreditMemoReasonCode(false);
     end;
 }

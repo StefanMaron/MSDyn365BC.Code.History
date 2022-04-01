@@ -75,7 +75,7 @@ page 1810 "Data Migration Entities"
     begin
         DeleteAll();
 
-        if TempDataMigrationEntity.FindSet then
+        if TempDataMigrationEntity.FindSet() then
             repeat
                 Init;
                 TransferFields(TempDataMigrationEntity);
@@ -88,7 +88,7 @@ page 1810 "Data Migration Entities"
         TempDataMigrationEntity.Reset();
         TempDataMigrationEntity.DeleteAll();
 
-        if FindSet then
+        if FindSet() then
             repeat
                 TempDataMigrationEntity.Init();
                 TempDataMigrationEntity.TransferFields(Rec);

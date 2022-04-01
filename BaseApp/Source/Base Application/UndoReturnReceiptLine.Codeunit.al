@@ -41,7 +41,6 @@ codeunit 5816 "Undo Return Receipt Line"
         Text003: Label 'Checking lines...';
         NextLineNo: Integer;
         Text004: Label 'This receipt has already been invoiced. Undo Return Receipt can be applied only to posted, but not invoiced receipts.';
-        Text005: Label 'Undo Return Receipt can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         AlreadyReversedErr: Label 'This return receipt has already been reversed.';
 
     procedure SetHideDialog(NewHideDialog: Boolean)
@@ -191,7 +190,6 @@ codeunit 5816 "Undo Return Receipt Line"
         SourceCodeSetup: Record "Source Code Setup";
         ReturnRcptHeader: Record "Return Receipt Header";
         TempApplyToEntryList: Record "Item Ledger Entry" temporary;
-        LineSpacing: Integer;
         ItemLedgEntryNo: Integer;
         IsHandled: Boolean;
     begin
@@ -307,7 +305,7 @@ codeunit 5816 "Undo Return Receipt Line"
         ItemApplicationEntry: Record "Item Application Entry";
     begin
         SalesLine.SetReservationFilters(ReservationEntry);
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 if ReservationEntry."Appl.-from Item Entry" <> 0 then
                     if ItemApplicationEntry.AppliedOutbndEntryExists(ReservationEntry."Item Ledger Entry No.", false, false) then begin

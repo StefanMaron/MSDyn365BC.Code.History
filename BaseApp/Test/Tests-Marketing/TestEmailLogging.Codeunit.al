@@ -27,7 +27,7 @@ codeunit 139012 "Test Email Logging"
     begin
         Contact.SetFilter("No.", '<>''''');
         Contact.SetFilter("Search E-Mail", '<>''''');
-        Contact.FindFirst;
+        Contact.FindFirst();
 
         ContactNo := Contact."No.";
         Email := Contact."Search E-Mail";
@@ -47,7 +47,7 @@ codeunit 139012 "Test Email Logging"
         ContactNo: Code[20];
         Result: Boolean;
     begin
-        ContactAltAddr.FindFirst;
+        ContactAltAddr.FindFirst();
         ContactNo := ContactAltAddr."Contact No.";
         if ContactAltAddr."Search E-Mail" = '' then begin
             ContactAltAddr."Search E-Mail" := 'xxlalt@candoxy.net';
@@ -73,7 +73,7 @@ codeunit 139012 "Test Email Logging"
     begin
         SalesPersonPurchaser.SetFilter(Code, '<>''''');
         SalesPersonPurchaser.SetFilter("Search E-Mail", '<>''''');
-        SalesPersonPurchaser.FindFirst;
+        SalesPersonPurchaser.FindFirst();
 
         SalesPersonCode := SalesPersonPurchaser.Code;
         Email := SalesPersonPurchaser."Search E-Mail";
@@ -108,7 +108,7 @@ codeunit 139012 "Test Email Logging"
     begin
         SegLine.SetFilter("Segment No.", '<>''''');
         SegLine.SetFilter("Line No.", '>0');
-        SegLine.FindFirst;
+        SegLine.FindFirst();
 
         DateTime := DateTime.Now;
         Date := DMY2Date(DateTime.Day, DateTime.Month, DateTime.Year);
@@ -153,7 +153,7 @@ codeunit 139012 "Test Email Logging"
         Assert.IsTrue(EmailLoggingDispatcher.AttachmentRecordAlreadyExists(AttachmentNo, Attachment), 'Existing attachment not found');
         Assert.AreEqual(Attachment."No.", No, 'Expected Attachment No. not retrieved');
 
-        Attachment.FindLast;
+        Attachment.FindLast();
         AttachmentNo := StrSubstNo('%1%2', Attachment."No.", '0');
         Evaluate(No, AttachmentNo);
         Attachment.Init();
@@ -198,7 +198,7 @@ codeunit 139012 "Test Email Logging"
         EntryId := 'AAXXCCDDFF==';
 
         No := 0;
-        if Attachment.FindLast then
+        if Attachment.FindLast() then
             No := Attachment."No." + 1;
 
         Attachment.Init();

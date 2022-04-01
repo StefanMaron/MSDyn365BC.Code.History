@@ -282,7 +282,7 @@ page 542 "Default Dimensions-Multiple"
                 SetRange("Dimension Code", Dim.Code);
                 if TempDefaultDim2.Find('-') then
                     repeat
-                        if FindFirst then begin
+                        if FindFirst() then begin
                             if "Dimension Value Code" <> TempDefaultDim2."Dimension Value Code" then
                                 if ("Multi Selection Action" <> 10) and
                                    ("Multi Selection Action" <> 21)
@@ -378,7 +378,7 @@ page 542 "Default Dimensions-Multiple"
 
         MasterRecordRef.GetTable(MasterRecord);
         NoFieldRef := MasterRecordRef.Field(NoField);
-        if MasterRecordRef.FindSet then
+        if MasterRecordRef.FindSet() then
             repeat
                 No := NoFieldRef.Value;
                 CopyDefaultDimToDefaultDim(MasterRecordRef.Number, No);

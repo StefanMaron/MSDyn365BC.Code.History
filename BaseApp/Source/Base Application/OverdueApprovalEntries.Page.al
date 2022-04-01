@@ -151,7 +151,7 @@ page 666 "Overdue Approval Entries"
                     if not UserSetup."Approval Administrator" then
                         Error(MustBeAdminErr);
                     CurrPage.SetSelectionFilter(OverdueEntry);
-                    if OverdueEntry.FindFirst then
+                    if OverdueEntry.FindFirst() then
                         OverdueEntry.DeleteAll();
                 end;
             }
@@ -192,7 +192,7 @@ page 666 "Overdue Approval Entries"
 
         AppEntryForm.CalledFrom;
         AppEntryForm.SetTableView(ApprovalEntry);
-        AppEntryForm.Run;
+        AppEntryForm.Run();
     end;
 }
 

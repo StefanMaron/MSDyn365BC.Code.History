@@ -224,7 +224,7 @@ codeunit 9180 "Generic Chart Mgt"
         end;
         SetObjTypeRange(ObjType, AllObjWithCaption);
         AllObjWithCaption.SetRange("Object ID", ObjID);
-        if AllObjWithCaption.FindFirst then
+        if AllObjWithCaption.FindFirst() then
             ObjName := AllObjWithCaption."Object Name";
     end;
 
@@ -250,7 +250,7 @@ codeunit 9180 "Generic Chart Mgt"
                     Field.SetRange(FieldName, FieldColumnName);
                     Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
                     FilterFieldCategory(Field, Category, FilteringLookup);
-                    Field.FindFirst;
+                    Field.FindFirst();
                     FieldColumnNo := Field."No.";
                 end;
             TempGenericChartSetup."Source Type"::Query:
@@ -258,7 +258,7 @@ codeunit 9180 "Generic Chart Mgt"
                     GetQueryColumnList(TempGenericChartQueryColumn, TempGenericChartSetup."Source ID", Category, FilteringLookup);
                     TempGenericChartQueryColumn.SetRange("Query No.", TempGenericChartSetup."Source ID");
                     TempGenericChartQueryColumn.SetRange("Column Name", FieldColumnName);
-                    TempGenericChartQueryColumn.FindFirst;
+                    TempGenericChartQueryColumn.FindFirst();
                     FieldColumnNo := TempGenericChartQueryColumn."Query Column No.";
                     FieldColumnName := TempGenericChartQueryColumn."Column Name";
                     Aggregation := TempGenericChartQueryColumn."Aggregation Type";
@@ -313,7 +313,7 @@ codeunit 9180 "Generic Chart Mgt"
                     Field.SetRange(TableNo, ObjID);
                     Field.SetRange(FieldName, Name);
                     Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-                    if Field.FindFirst then
+                    if Field.FindFirst() then
                         No := Field."No.";
                 end;
             ObjType::Query:
@@ -321,7 +321,7 @@ codeunit 9180 "Generic Chart Mgt"
                     GetQueryColumnList(TempGenericChartQueryColumn, ObjID, 0, true);
                     TempGenericChartQueryColumn.SetRange("Query No.", ObjID);
                     TempGenericChartQueryColumn.SetRange("Column Name", Name);
-                    if TempGenericChartQueryColumn.FindFirst then
+                    if TempGenericChartQueryColumn.FindFirst() then
                         No := TempGenericChartQueryColumn."Query Column No.";
                 end;
         end;
@@ -485,13 +485,13 @@ codeunit 9180 "Generic Chart Mgt"
                     AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Query);
             end;
             AllObjWithCaption.SetRange("Object ID", "Source ID");
-            AllObjWithCaption.FindFirst;
-            if TempGenericChartYAxis.FindSet then
+            AllObjWithCaption.FindFirst();
+            if TempGenericChartYAxis.FindSet() then
                 repeat
                     ValidateFieldColumn(
                       TempGenericChartSetup, DummyInt, TempGenericChartYAxis."Y-Axis Measure Field Name", DummyCaption, 2, false, DummyAggregation);
                 until TempGenericChartYAxis.Next() = 0;
-            if TempGenericChartFilter.FindSet then
+            if TempGenericChartFilter.FindSet() then
                 repeat
                     ValidateFieldColumn(
                       TempGenericChartSetup, DummyInt, TempGenericChartFilter."Filter Field Name", DummyCaption, 0, true, DummyAggregation);
@@ -640,7 +640,7 @@ codeunit 9180 "Generic Chart Mgt"
                             FieldColName := FieldName;
                     end else begin
                         SetRange(TableNo, SourceNo);
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 if UpperCase(FieldName) = UpperCase(FieldColName) then begin
                                     Found := true;
@@ -655,10 +655,10 @@ codeunit 9180 "Generic Chart Mgt"
                         if FieldColNo > 0 then begin
                             FieldColName := '';
                             SetRange("Query Column No.", FieldColNo);
-                            if FindFirst then
+                            if FindFirst() then
                                 FieldColName := "Column Name";
                         end else begin
-                            if FindSet then
+                            if FindSet() then
                                 repeat
                                     if UpperCase("Column Name") = UpperCase(FieldColName) then begin
                                         Found := true;
@@ -683,13 +683,13 @@ codeunit 9180 "Generic Chart Mgt"
             end;
             if SourceID > 0 then begin
                 SetRange("Object ID", SourceID);
-                FindFirst;
+                FindFirst();
                 SourceName := "Object Name";
                 exit;
             end;
             if SourceName <> '' then begin
                 SetRange("Object Name", SourceName);
-                FindFirst;
+                FindFirst();
                 SourceID := "Object ID";
             end;
         end;
@@ -749,7 +749,7 @@ codeunit 9180 "Generic Chart Mgt"
             SetRange("No.", FieldNumber);
             if FilterType > 0 then
                 SetFilter(Type, TypeFilterText(FilterType));
-            if FindFirst then begin
+            if FindFirst() then begin
                 FieldType.Type := Type;
                 exit(true);
             end;
@@ -792,7 +792,7 @@ codeunit 9180 "Generic Chart Mgt"
             exit('');
         GetQueryColumnList(TempGenericChartQueryColumn, TempGenericChartSetup."Source ID", 0, true);
         TempGenericChartQueryColumn.SetRange("Aggregation Type", TempGenericChartQueryColumn."Aggregation Type"::Count);
-        if not TempGenericChartQueryColumn.FindFirst then
+        if not TempGenericChartQueryColumn.FindFirst() then
             Error(Text004);
         exit(TempGenericChartQueryColumn."Column Name");
     end;
@@ -811,7 +811,7 @@ codeunit 9180 "Generic Chart Mgt"
                 exit;
             GetQueryColumnList(TempGenericChartQueryColumn, "Source ID", 0, false);
             TempGenericChartQueryColumn.SetRange("Column Name", ColumnName);
-            if not TempGenericChartQueryColumn.FindFirst then
+            if not TempGenericChartQueryColumn.FindFirst() then
                 exit;
             ValidateCompliance(TempGenericChartQueryColumn."Column Data Type", Aggregation);
         end;
@@ -846,7 +846,7 @@ codeunit 9180 "Generic Chart Mgt"
     begin
         MultilanguageText := MultilanguageText.BusinessChartMultiLanguageText;
         TempGenericChartCaptionsBuf.SetRange(Code, CaptionCode);
-        if TempGenericChartCaptionsBuf.FindSet then
+        if TempGenericChartCaptionsBuf.FindSet() then
             repeat
                 LanguageId := Language.GetLanguageId(TempGenericChartCaptionsBuf."Language Code");
                 if LanguageId <> 0 then
@@ -882,7 +882,7 @@ codeunit 9180 "Generic Chart Mgt"
     begin
         MultilanguageText := MultilanguageText.BusinessChartMultiLanguageText;
         TempGenericChartMemoBuf.SetRange(Code, MemoCode);
-        if TempGenericChartMemoBuf.FindSet then
+        if TempGenericChartMemoBuf.FindSet() then
             repeat
                 Language.GetLanguageId(TempGenericChartMemoBuf."Language Code");
                 if LanguageId <> 0 then

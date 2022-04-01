@@ -416,7 +416,7 @@ page 5496 "Sales Order Line Entity"
             DocumentIdFilter := GetFilter("Document Id");
             GraphMgtSalesOrderBuffer.LoadLines(Rec, DocumentIdFilter);
             SetView(FilterView);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             LinesLoaded := true;
         end;
@@ -477,7 +477,7 @@ page 5496 "Sales Order Line Entity"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);

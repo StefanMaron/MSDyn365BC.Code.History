@@ -55,17 +55,6 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-reference number of the item specified on the line.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -299,7 +288,7 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -383,6 +372,8 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
         FillExactCostReverse: Boolean;
         Visible: Boolean;
         ShowRec: Boolean;
+
+    protected var
         [InDataSet]
         DocumentNoHideValue: Boolean;
 
@@ -396,13 +387,13 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
         TempSalesInvLine.Reset();
         TempSalesInvLine.CopyFilters(Rec);
         TempSalesInvLine.SetRange("Document No.", "Document No.");
-        if not TempSalesInvLine.FindFirst then begin
+        if not TempSalesInvLine.FindFirst() then begin
             SalesInvHeader2 := SalesInvHeader;
             QtyNotReturned2 := QtyNotReturned;
             RevUnitCostLCY2 := RevUnitCostLCY;
             SalesInvLine2.CopyFilters(Rec);
             SalesInvLine2.SetRange("Document No.", "Document No.");
-            if not SalesInvLine2.FindSet then
+            if not SalesInvLine2.FindSet() then
                 exit(false);
             repeat
                 ShowRec := IsShowRec(SalesInvLine2);

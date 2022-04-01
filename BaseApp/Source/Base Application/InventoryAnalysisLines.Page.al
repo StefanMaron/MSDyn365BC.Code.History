@@ -211,7 +211,7 @@ page 7115 "Inventory Analysis Lines"
                     begin
                         CurrPage.SetSelectionFilter(AnalysisLine);
                         RenAnalysisLines.Init(AnalysisLine);
-                        RenAnalysisLines.RunModal;
+                        RenAnalysisLines.RunModal();
                     end;
                 }
             }

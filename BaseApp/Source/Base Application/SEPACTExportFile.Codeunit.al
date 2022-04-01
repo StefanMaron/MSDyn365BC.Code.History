@@ -30,7 +30,7 @@ codeunit 1220 "SEPA CT-Export File"
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPortID, OutStr, GenJnlLine);
 
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
         UseCommonDialog := not ExportToServerFile;
         OnBeforeBLOBExport(TempBlob, CreditTransferRegister, UseCommonDialog, FileCreated, IsHandled);
         if not IsHandled then

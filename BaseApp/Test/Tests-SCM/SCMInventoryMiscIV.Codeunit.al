@@ -671,7 +671,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [THEN] Verify Direct Cost on Purchase Line.
         PurchaseLine.SetRange("No.", PurchasePrice."Item No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Direct Unit Cost", PurchasePrice."Direct Unit Cost");
     end;
 
@@ -1526,7 +1526,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
 
         // [GIVEN] Vendor "V"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Purchase Line Discount "IPLD" for "V" and "I", "IPLD"."Minimum Quantity" = 0, "IPLD"."Variant Code" is blank, "IPLD"."Line Discount %" > 0;
         // [GIVEN] Purchase Line Discount "VPLD" for "V", "I" and "IV", "VPLD"."Minimum Quantity" = 0, "VPLD"."Variant Code" = "IV", "VPLD"."Line Discount %" = 0;
@@ -1556,7 +1556,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
 
         // [GIVEN] Customer "C"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Sales Line Discount "ISLD" for "C" and "I", "ISLD"."Minimum Quantity" = 0, "ISLD"."Variant Code" is blank, "ISLD"."Line Discount %" > 0;
         // [GIVEN] Sales Line Discount "VSLD" for "C", "I" and "IV", "VSLD"."Minimum Quantity" = 0, "VSLD"."Variant Code" = "IV", "VSLD"."Line Discount %" = 0;
@@ -1959,7 +1959,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Accept Action Message", true);
         RequisitionLine.Modify(true);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
@@ -1973,7 +1973,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         RequisitionLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
         RequisitionLine.SetRange("Order Promising ID", SalesHeader."No.");
         RequisitionLine.ModifyAll("Accept Action Message", true);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure CreateAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Invoice: Boolean): Code[20]
@@ -1992,7 +1992,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         Item.Get(ItemNo);
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
@@ -2317,7 +2317,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.Validate("Variant Code", VariantCode);
         ProdOrderComponent.Modify(true);
     end;
@@ -2326,7 +2326,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
         CapacityLedgerEntry.SetRange("Order No.", OrderNo);
-        CapacityLedgerEntry.FindFirst;
+        CapacityLedgerEntry.FindFirst();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; OrderNo: Code[20])
@@ -2334,7 +2334,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
         ItemLedgerEntry.SetRange("Order No.", OrderNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -2342,14 +2342,14 @@ codeunit 137296 "SCM Inventory Misc. IV"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; DocumentNo: Code[20])
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure GetNextCountingPeriod(Item: Record Item; var NextCountingStartDate: Date; var NextCountingEndDate: Date)
@@ -2376,7 +2376,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -2462,8 +2462,8 @@ codeunit 137296 "SCM Inventory Misc. IV"
         RoutingLink: Record "Routing Link";
         WorkCenter: Record "Work Center";
     begin
-        RoutingLink.FindFirst;
-        WorkCenter.FindFirst;
+        RoutingLink.FindFirst();
+        WorkCenter.FindFirst();
 
         // Create Production BOM with Raouting Link Code.
         CreateAndCertifyProductionBOM(ProductionBOMHeader, Item."Base Unit of Measure", ItemNo, RoutingLink.Code);
@@ -2536,7 +2536,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         with RequisitionLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             TestField(Description, Desc);
             TestField("Description 2", Desc2);
         end;
@@ -2563,7 +2563,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField("Direct Unit Cost", DirectUnitCost);
         PurchInvLine.TestField("Line Discount %", LineDiscountPct);
     end;

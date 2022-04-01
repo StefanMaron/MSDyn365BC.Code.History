@@ -10,8 +10,39 @@ codeunit 135953 "SmartList Designer Upg. Tests"
 
     var
         SmartListDesignerTok: Label 'SMARTLIST DESIGNER', Locked = true;
-        SmartListDesignerDescriptionTxt: Label 'SmartList Designer';
+#if not CLEAN20
+        SmartListDesignerDescriptionTxt: Label 'SmartList Designer (Obsolete)';
+#endif
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SmartListUserGroupAndPermissionsDontExist()
+    var
+#if CLEAN20
+        PermissionSetRec: Record "Permission Set";
+        Permission: Record Permission;
+#endif
+        UserGroup: Record "User Group";
+        UserGroupPermissionSet: Record "User Group Permission Set";
+        LibraryAssert: Codeunit "Library Assert";
+    begin
+#if CLEAN20
+        LibraryAssert.IsFalse(PermissionSetRec.Get(SmartListDesignerTok), 'Permission set should not be present');
+
+        Permission.SetRange("Role ID", SmartListDesignerTok);
+        LibraryAssert.RecordIsEmpty(Permission);
+        
+#endif
+        UserGroupPermissionSet.SetRange("Role ID", SmartListDesignerTok);
+        LibraryAssert.RecordIsEmpty(UserGroupPermissionSet);
+        UserGroupPermissionSet.Reset();
+        UserGroupPermissionSet.SetRange("User Group Code", SmartListDesignerTok);
+        LibraryAssert.RecordIsEmpty(UserGroupPermissionSet);
+
+        LibraryAssert.IsFalse(UserGroup.Get(SmartListDesignerTok), 'User group should not be present');
+    end;
+
+#if not CLEAN20
     [Test]
     [Scope('OnPrem')]
     procedure SmartListDesignerPermissionSetExists()
@@ -28,18 +59,6 @@ codeunit 135953 "SmartList Designer Upg. Tests"
         Permission.Get(SmartListDesignerTok, Permission."Object Type"::System, 9610);
         Permission.Get(SmartListDesignerTok, Permission."Object Type"::System, 9615);
         LibraryAssert.AreEqual(Permission."Execute Permission", Permission."Execute Permission"::Yes, 'Wrong value for Execute Permission');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SmartListDesignerUserGroupExists()
-    var
-        UserGroup: Record "User Group";
-        LibraryAssert: Codeunit "Library Assert";
-    begin
-        UserGroup.Get(SmartListDesignerTok);
-        LibraryAssert.AreEqual(UserGroup.Name, SmartListDesignerDescriptionTxt, 'Wrong value for UserGroup name');
-        LibraryAssert.IsFalse(UserGroup."Assign to All New Users", 'Wrong value for Assign to All New Users field');
     end;
 
     [Test]
@@ -69,5 +88,5 @@ codeunit 135953 "SmartList Designer Upg. Tests"
         LibraryAssert.IsFalse(GuidedExperience.Exists(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Page, Page::"SmartList Designer Setup"),
             'Manual setup for SmartList designer is not deleted.');
     end;
+#endif
 }
-

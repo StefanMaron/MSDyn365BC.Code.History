@@ -242,11 +242,11 @@ page 6036 "Service Lines Subform"
         TempServLine.CopyFilters(Rec);
         TempServLine.SetRange("Document Type", "Document Type");
         TempServLine.SetRange("Document No.", "Document No.");
-        if not TempServLine.FindFirst then begin
+        if not TempServLine.FindFirst() then begin
             ServLine.CopyFilters(Rec);
             ServLine.SetRange("Document Type", "Document Type");
             ServLine.SetRange("Document No.", "Document No.");
-            if not ServLine.FindFirst then
+            if not ServLine.FindFirst() then
                 exit(false);
             TempServLine := ServLine;
             TempServLine.Insert();

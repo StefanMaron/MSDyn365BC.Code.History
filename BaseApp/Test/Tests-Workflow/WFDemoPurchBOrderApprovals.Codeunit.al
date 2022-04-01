@@ -32,9 +32,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Purch BOrder Approvals");
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
         if IsInitialized then
@@ -64,7 +64,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [THEN] The user will get an error that he cannot release a purchase blanket order that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -103,7 +103,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [THEN] The user will get an error that he cannot release the blanket purchase order that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -149,7 +149,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [THEN] The user will get an error that he cannot reopen the blanket purchase order.
 
         // Setup
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -182,7 +182,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [WHEN] A user sends the purchase order for approval and all users in the group of approvals approve the document.
         // [THEN] The blanket purchase order is approved and released.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -232,7 +232,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [WHEN] A user sends the blanket purchase order for approval, the first approver approves it and last approver rejects it.
         // [THEN] The blanket purchase order is rejected and open.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -282,7 +282,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [WHEN] A user sends the Blanket purchase order for approval and the first approver rejects it.
         // [THEN] The Blanket purchase order is rejected and open.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -325,7 +325,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [WHEN] A user sends the Blanket purchase order for approval and then the user cancels it.
         // [THEN] The Blanket purchase order is canceled and open.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -366,7 +366,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [WHEN] A user sends the purchase order for approval and the second user delegates the approval to the 3rd user and the last user approves it.
         // [THEN] The Blanket purchase order is approved and released.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -422,7 +422,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Purchase Header approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -504,7 +504,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] PurchHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -572,7 +572,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [WHEN] Purchaser approves the approval request.
         // [THEN] Purchase Blanket Order is released.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchaseHeader);
 
@@ -625,7 +625,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchaseHeader);
 
@@ -771,7 +771,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
     local procedure VerifyPurchaseDocumentStatus(var PurchaseHeader: Record "Purchase Header"; Status: Enum "Purchase Document Status")
     begin
         PurchaseHeader.SetRecFilter;
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.TestField(Status, Status);
     end;
 

@@ -29,7 +29,7 @@ codeunit 134206 "Workflow Rule Tests"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     [Test]
@@ -40,7 +40,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftDecimal: Decimal;
         RightDecimal: Decimal;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Increased);
         WorkflowRule.Insert(true);
 
@@ -58,7 +58,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftDecimal: Decimal;
         RightDecimal: Decimal;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Decreased);
         WorkflowRule.Insert(true);
 
@@ -76,7 +76,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftDecimal: Decimal;
         RightDecimal: Decimal;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Changed);
         WorkflowRule.Insert(true);
 
@@ -96,7 +96,7 @@ codeunit 134206 "Workflow Rule Tests"
         RightDate: Date;
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Increased);
         WorkflowRule.Insert(true);
 
@@ -116,7 +116,7 @@ codeunit 134206 "Workflow Rule Tests"
         RightDate: Date;
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Decreased);
         WorkflowRule.Insert(true);
 
@@ -136,7 +136,7 @@ codeunit 134206 "Workflow Rule Tests"
         RightDate: Date;
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Changed);
         WorkflowRule.Insert(true);
 
@@ -155,7 +155,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftTime: Time;
         RightTime: Time;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Increased);
         WorkflowRule.Insert(true);
 
@@ -173,7 +173,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftTime: Time;
         RightTime: Time;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Decreased);
         WorkflowRule.Insert(true);
 
@@ -191,7 +191,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftTime: Time;
         RightTime: Time;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Changed);
         WorkflowRule.Insert(true);
 
@@ -209,7 +209,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftDateTime: DateTime;
         RightDateTime: DateTime;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Increased);
         WorkflowRule.Insert(true);
 
@@ -227,7 +227,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftDateTime: DateTime;
         RightDateTime: DateTime;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Decreased);
         WorkflowRule.Insert(true);
 
@@ -245,7 +245,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftDateTime: DateTime;
         RightDateTime: DateTime;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Changed);
         WorkflowRule.Insert(true);
 
@@ -263,7 +263,7 @@ codeunit 134206 "Workflow Rule Tests"
         LeftText: Text;
         RightText: Text;
     begin
-        Initialize;
+        Initialize();
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Changed);
         WorkflowRule.Insert(true);
 
@@ -283,7 +283,7 @@ codeunit 134206 "Workflow Rule Tests"
         RecRef: RecordRef;
         RecRef1: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -309,7 +309,7 @@ codeunit 134206 "Workflow Rule Tests"
         RecRef: RecordRef;
         RecRef1: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -335,7 +335,7 @@ codeunit 134206 "Workflow Rule Tests"
         RecRef: RecordRef;
         RecRef1: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -365,7 +365,7 @@ codeunit 134206 "Workflow Rule Tests"
         // [WHEN] The user changes the Customer record.
         // [THEN] The workflow is executed.
 
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -395,7 +395,7 @@ codeunit 134206 "Workflow Rule Tests"
         // [WHEN] The user changes the Customer record.
         // [THEN] The workflow is executed.
 
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -425,7 +425,7 @@ codeunit 134206 "Workflow Rule Tests"
         // [WHEN] The user changes the Customer record.
         // [THEN] The workflow is executed.
 
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -455,7 +455,7 @@ codeunit 134206 "Workflow Rule Tests"
         // [WHEN] The user changes the Customer record twice.
         // [THEN] The workflow is executed fully.
 
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateAndEnableWorkflow(Workflow, Customer.FieldNo("Credit Limit (LCY)"), WorkflowRule.Operator::Increased);
@@ -490,7 +490,7 @@ codeunit 134206 "Workflow Rule Tests"
         Result: Boolean;
     begin
         // Initialize
-        Initialize;
+        Initialize();
 
         // Setup
         WorkflowRule."Table ID" := DATABASE::Customer;

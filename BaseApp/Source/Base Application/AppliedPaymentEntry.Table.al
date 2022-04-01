@@ -238,9 +238,9 @@
             exit;
         BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
         ExistingAppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
-        if ExistingAppliedPmtEntry.FindFirst then
+        if ExistingAppliedPmtEntry.FindFirst() then
             CheckCurrentMatchesExistingAppln(ExistingAppliedPmtEntry);
-        if ExistingAppliedPmtEntry.FindLast then
+        if ExistingAppliedPmtEntry.FindLast() then
             CheckCurrentMatchesExistingAppln(ExistingAppliedPmtEntry);
     end;
 
@@ -873,7 +873,7 @@
         else
             TotalAmountIncludingPmtDisc := "Applied Amount" - "Applied Pmt. Discount";
 
-        if AppliedPaymentEntry.FindSet then
+        if AppliedPaymentEntry.FindSet() then
             repeat
                 TotalAmountIncludingPmtDisc += AppliedPaymentEntry."Applied Amount";
                 TotalAmountIncludingPmtDisc -= AppliedPaymentEntry."Applied Pmt. Discount";
@@ -912,7 +912,7 @@
         AppliedPaymentEntry.SetRange("Applies-to Entry No.", "Applies-to Entry No.");
         AppliedPaymentEntry.SetFilter("Applied Pmt. Discount", '<>0');
 
-        if AppliedPaymentEntry.FindFirst then
+        if AppliedPaymentEntry.FindFirst() then
             AppliedPaymentEntry.RemovePaymentDiscount;
 
         if PaymentDiscountAmount = 0 then
@@ -920,7 +920,7 @@
 
         AppliedPaymentEntry.SetRange("Applied Pmt. Discount");
 
-        if AppliedPaymentEntry.FindLast then
+        if AppliedPaymentEntry.FindLast() then
             if "Statement Line No." < AppliedPaymentEntry."Statement Line No." then begin
                 AppliedPaymentEntry.SetPaymentDiscount(PaymentDiscountAmount, true);
                 exit;

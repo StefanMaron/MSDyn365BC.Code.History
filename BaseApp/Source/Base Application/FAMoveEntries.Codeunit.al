@@ -31,7 +31,7 @@ codeunit 5623 "FA MoveEntries"
 
         AccountingPeriod.SetCurrentKey(Closed);
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             FiscalYearStartDate := AccountingPeriod."Starting Date"
         else
             FiscalYearStartDate := 0D;
@@ -48,16 +48,16 @@ codeunit 5623 "FA MoveEntries"
         if FA."Budgeted Asset" then
             DeleteNo(FADeprBook)
         else begin
-            if FALedgEntry.FindFirst then
+            if FALedgEntry.FindFirst() then
                 if FADeprBook."Disposal Date" = 0D then
                     Error(Text000);
 
             FALedgEntry.SetFilter("FA Posting Date", '>=%1', FiscalYearStartDate);
-            if FALedgEntry.FindFirst then
+            if FALedgEntry.FindFirst() then
                 CreateError(0);
 
             MaintenanceLedgEntry.SetFilter("FA Posting Date", '>=%1', FiscalYearStartDate);
-            if MaintenanceLedgEntry.FindFirst then
+            if MaintenanceLedgEntry.FindFirst() then
                 CreateError(0);
 
             FALedgEntry.SetRange("FA Posting Date");
@@ -68,10 +68,10 @@ codeunit 5623 "FA MoveEntries"
             MaintenanceLedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "Posting Date");
 
             FALedgEntry.SetFilter("Posting Date", '>=%1', FiscalYearStartDate);
-            if FALedgEntry.FindFirst then
+            if FALedgEntry.FindFirst() then
                 CreateError(0);
             MaintenanceLedgEntry.SetFilter("Posting Date", '>=%1', FiscalYearStartDate);
-            if MaintenanceLedgEntry.FindFirst then
+            if MaintenanceLedgEntry.FindFirst() then
                 CreateError(0);
 
             FALedgEntry.SetRange("Posting Date");
@@ -140,9 +140,9 @@ codeunit 5623 "FA MoveEntries"
         MaintenanceLedgEntry.SetRange("FA No.", FA."No.");
         InsCoverageLedgEntry.SetRange("FA No.", FA."No.");
 
-        if FALedgEntry.FindFirst then
+        if FALedgEntry.FindFirst() then
             CreateError(1);
-        if MaintenanceLedgEntry.FindFirst then
+        if MaintenanceLedgEntry.FindFirst() then
             CreateError(1);
         if InsCoverageLedgEntry.Find('-') then
             CreateError(2);

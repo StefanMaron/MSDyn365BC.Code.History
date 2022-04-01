@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 5440 "Business Profile Sync. Runner"
 {
     ObsoleteState = Pending;
@@ -11,4 +12,4 @@ codeunit 5440 "Business Profile Sync. Runner"
         GraphSyncRunner.RunFullSyncForEntity(DATABASE::"Company Information");
     end;
 }
-
+#endif

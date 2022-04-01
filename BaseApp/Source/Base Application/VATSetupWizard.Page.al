@@ -329,12 +329,12 @@ page 1877 "VAT Setup Wizard"
         VATSetupPostingGroups.SetRange(Selected, true);
         VATSetupPostingGroups.SetRange(Default, false);
 
-        if not VATAssistedSetupBusGrp.FindSet then
+        if not VATAssistedSetupBusGrp.FindSet() then
             Error(NoBusPostingGroupErr);
 
         repeat
             AddVATBusPostingGrp(VATAssistedSetupBusGrp.Code, VATAssistedSetupBusGrp.Description);
-            if VATSetupPostingGroups.FindSet then
+            if VATSetupPostingGroups.FindSet() then
                 repeat
                     CreateVATPostingSetupLines(VATSetupPostingGroups, VATAssistedSetupBusGrp.Code);
                 until VATSetupPostingGroups.Next() = 0;
@@ -601,7 +601,7 @@ page 1877 "VAT Setup Wizard"
         Item: Record Item;
     begin
         VATAssistedSetupTemplates.Reset();
-        if not VATAssistedSetupTemplates.FindSet then
+        if not VATAssistedSetupTemplates.FindSet() then
             exit;
 
         repeat
@@ -655,7 +655,7 @@ page 1877 "VAT Setup Wizard"
         VATSetupPostingGroups.SetRange(Selected, true);
         VATSetupPostingGroups.SetRange(Default, false);
 
-        if VATSetupPostingGroups.FindSet then
+        if VATSetupPostingGroups.FindSet() then
             repeat
                 CreateVATPostingSetupLines(VATSetupPostingGroups, '');
             until VATSetupPostingGroups.Next() = 0;
@@ -678,7 +678,7 @@ page 1877 "VAT Setup Wizard"
         ServiceLine: Record "Service Line";
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        if not VATProductPostingGroup.FindSet then
+        if not VATProductPostingGroup.FindSet() then
             exit;
 
         repeat
@@ -695,7 +695,7 @@ page 1877 "VAT Setup Wizard"
         Vendor: Record Vendor;
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
-        if not VATBusinessPostingGroup.FindSet then
+        if not VATBusinessPostingGroup.FindSet() then
             exit;
 
         repeat

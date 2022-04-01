@@ -24,10 +24,10 @@ codeunit 138011 "O365 Demo Templates Test"
         TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
         RecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-        if ConfigTemplateHeader.FindSet then
+        if ConfigTemplateHeader.FindSet() then
             repeat
                 Clear(Customer);
                 TempMiniCustomerTemplate.InsertCustomerFromTemplate(ConfigTemplateHeader, Customer);
@@ -45,10 +45,10 @@ codeunit 138011 "O365 Demo Templates Test"
         TempItemTemplate: Record "Item Template" temporary;
         RecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        if ConfigTemplateHeader.FindSet then
+        if ConfigTemplateHeader.FindSet() then
             repeat
                 Clear(Item);
                 TempItemTemplate.InsertItemFromTemplate(ConfigTemplateHeader, Item);
@@ -66,10 +66,10 @@ codeunit 138011 "O365 Demo Templates Test"
         TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
         RecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
-        if ConfigTemplateHeader.FindSet then
+        if ConfigTemplateHeader.FindSet() then
             repeat
                 Clear(Vendor);
                 TempMiniVendorTemplate.InsertVendorFromTemplate(ConfigTemplateHeader, Vendor);
@@ -86,7 +86,7 @@ codeunit 138011 "O365 Demo Templates Test"
     begin
         with ConfigTemplateLine do begin
             SetRange("Data Template Code", TemplateCode);
-            if FindSet then
+            if FindSet() then
                 repeat
                     FieldRef := RecRef.Field("Field ID");
                     Assert.AreEqual(
@@ -104,7 +104,7 @@ codeunit 138011 "O365 Demo Templates Test"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Demo Templates Test");
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         isInitialized := true;
 

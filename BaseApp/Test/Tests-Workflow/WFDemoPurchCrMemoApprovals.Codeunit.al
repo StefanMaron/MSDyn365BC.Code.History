@@ -44,7 +44,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [THEN] The user will get an error that he cannot post a purchase credit memo that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
@@ -75,7 +75,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [THEN] The user will get an error that he cannot release a purchase credit memo that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
@@ -108,7 +108,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [THEN] The user will get an error that he cannot release the purchase credit memo that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -154,7 +154,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [THEN] The user will get an error that he cannot reopen the purchase credit memo.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -199,7 +199,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [WHEN] Purchaser approves the approval request.
         // [THEN] Purchase credit memo is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
@@ -257,7 +257,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [WHEN] Purchaser rejects the approval request.
         // [THEN] Purchase credit memo is reopened and approval entries are marked as rejected.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
@@ -319,7 +319,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [WHEN] Approval Request is approved.
         // [THEN] Purchase credit memo is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
@@ -397,7 +397,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [WHEN] Sender cancels the approval request.
         // [THEN] Purchase credit memo is opend and approval requests are marked as cancelled.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
@@ -447,7 +447,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Purchase Header approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchaseCreditMemo(PurchHeader);
@@ -526,7 +526,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] PurchHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchaseCreditMemo(PurchHeader);
@@ -592,7 +592,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [WHEN] Purchaser approves the approval request.
         // [THEN] Purchase Credit Memo is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
@@ -659,7 +659,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
 
@@ -727,10 +727,10 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         UserSetup: Record "User Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Purch CrMemo Approvals");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
@@ -778,7 +778,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.SetRecFilter;
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure VerifyPurchaseCrMemoIsReleased(var PurchaseHeader: Record "Purchase Header")

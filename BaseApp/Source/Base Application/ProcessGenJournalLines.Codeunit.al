@@ -65,7 +65,7 @@ codeunit 1247 "Process Gen. Journal  Lines"
         ProgressWindow.Open(ProgressWindowMsg);
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
 
         DataExchMapping.Get(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Gen. Journal Line");
         DataExchMapping.TestField("Mapping Codeunit");
@@ -88,7 +88,7 @@ codeunit 1247 "Process Gen. Journal  Lines"
 
             GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-            if GenJournalLine.FindLast then begin
+            if GenJournalLine.FindLast() then begin
                 "Line No." := GenJournalLine."Line No.";
                 "Document No." := IncStr(GenJournalLine."Document No.");
             end else
@@ -109,12 +109,14 @@ codeunit 1247 "Process Gen. Journal  Lines"
         if IsHandled then
             exit;
 
+#if not CLEAN20
         OnBeforeUpdateGenJnlLines(GenJournalLineTemplate);
+#endif
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalLineTemplate."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLineTemplate."Journal Batch Name");
         GenJournalLine.SetFilter("Line No.", '>%1', GenJournalLineTemplate."Line No.");
-        if GenJournalLine.FindSet then begin
+        if GenJournalLine.FindSet() then begin
             DocNo := GenJournalLineTemplate."Document No.";
             repeat
                 GenJournalLine.Validate("Document No.", DocNo);
@@ -139,11 +141,13 @@ codeunit 1247 "Process Gen. Journal  Lines"
     begin
     end;
 
+#if not CLEAN20
     [Obsolete('Replaced by local OnBeforeUpdateGenJnlLinesProcedure().', '20.0')]
     [IntegrationEvent(false, false)]
     procedure OnBeforeUpdateGenJnlLines(var GenJournalLineTemplate: Record "Gen. Journal Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateGenJnlLinesProcedure(var GenJournalLineTemplate: Record "Gen. Journal Line"; var IsHandled: Boolean)

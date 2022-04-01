@@ -33,6 +33,12 @@ codeunit 9165 "Help & Support Management"
         PAGE.Run(PAGE::"Latest Error");
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetFindEntriesPageId', '', true, true)]
+    local procedure GetFindEntriesPage(var PageId: Integer)
+    begin
+        PageId := Page::Navigate;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSupportInformation(var SupportName: Text; var SupportEmail: Text; var SupportUrl: Text)
     begin

@@ -292,7 +292,8 @@ page 1130 "Cost Type Balance Matrix"
             SetRange("Date Filter", 0D, MatrixRecords[MATRIX_ColumnOrdinal]."Period End");
     end;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by LoadMatrix()', '20.0')]
     procedure Load(MatrixColumns1: array[12] of Text[80]; var MatrixRecords1: array[12] of Record Date; CurrentNoOfMatrixColumns: Integer; CostCenterFilter1: Code[20]; CostObjectFilter1: Code[20]; RoundingFactor1: Option "None","1","1000","1000000"; AmtType1: Option "Balance at Date","Net Change")
     begin
         LoadMatrix(

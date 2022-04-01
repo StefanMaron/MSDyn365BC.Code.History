@@ -1,4 +1,4 @@
-﻿table 743 "VAT Report Setup"
+table 743 "VAT Report Setup"
 {
     Caption = 'VAT Report Setup';
     LookupPageID = "VAT Report Setup";
@@ -38,13 +38,8 @@
             Caption = 'Period Reminder Time';
             MinValue = 0;
             ObsoleteReason = 'Redesigned to a new field "Period Reminder Calculation"';
-#if SLICE3771430
             ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
-#endif
+            ObsoleteTag = '20.0';
         }
         field(23; "Update Period Job Frequency"; Option)
         {
@@ -66,7 +61,7 @@
         }
         field(25; "Manual Receive Period CU Cap"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Manual Receive Period CU ID")));
             Caption = 'Manual Receive Period CU Cap';
             Editable = false;
@@ -86,7 +81,7 @@
         }
         field(27; "Auto Receive Period CU Cap"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Auto Receive Period CU ID")));
             Caption = 'Auto Receive Period CU Cap';
             Editable = false;
@@ -99,7 +94,7 @@
         }
         field(29; "Receive Submitted Return CUCap"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Receive Submitted Return CU ID")));
             Caption = 'Receive Submitted Return CUCap';
             Editable = false;

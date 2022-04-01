@@ -174,7 +174,7 @@ page 5881 "Phys. Invt. Recording Subform"
     procedure CopyLine()
     begin
         CopyPhysInvtRecording.SetPhysInvtRecordLine(Rec);
-        CopyPhysInvtRecording.RunModal;
+        CopyPhysInvtRecording.RunModal();
         Clear(CopyPhysInvtRecording);
     end;
 }

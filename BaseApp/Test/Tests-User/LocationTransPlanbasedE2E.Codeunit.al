@@ -45,7 +45,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         // [THEN] Susan transfers items from a location to another before selling them to customers.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -76,7 +76,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         // [THEN] Cassie transfers items from a location to another before selling them to customers.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
@@ -111,7 +111,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         // [THEN] Tricia transfers items from a location to another before selling them to customers.
 
         // Setup
-        Initialize;
+        Initialize();
 
         InitializePreExistingMasterDataForTeamMember(Item, Vendor, Customer);
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
@@ -154,7 +154,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         // [THEN] Susan transfers items from a location to another before selling them to customers.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
@@ -189,7 +189,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         // [THEN] Tricia transfers items from a location to another before selling them to customers.
 
         // Setup
-        Initialize;
+        Initialize();
 
         InitializePreExistingMasterDataForTeamMember(Item, Vendor, Customer);
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
@@ -232,7 +232,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         // [THEN] Susan transfers items from a location to another before selling them to customers.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
@@ -266,14 +266,14 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         // [THEN] Transfer order lines are also updated and still exists.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
         CreateAnItemAssociatedWithVendorAndSeveralLocationsForStorage(
           OrangeItemNo, VendorName, OrangeLocationCode, AppleLocationCode, FruitsLocationCode, InTransitLocationCode);
 
-        TransferOrder.OpenNew;
+        TransferOrder.OpenNew();
         TransferOrder."Transfer-from Code".SetValue(OrangeLocationCode);
         TransferOrder."Transfer-to Code".SetValue(AppleLocationCode);
         TransferOrderNo := TransferOrder."No.".Value;
@@ -287,7 +287,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         TransferOrder.OK.Invoke;
 
         TransferLine.SetRange("Document No.", TransferOrderNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         Assert.AreEqual(FruitsLocationCode, TransferLine."Transfer-from Code", TransferLineNotExistsErrorTxt);
 
         // Wrap-up
@@ -305,7 +305,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
@@ -316,8 +316,8 @@ codeunit 135402 "Location Trans. Plan-based E2E"
 
         LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         IsInitialized := true;
         Commit();
@@ -468,7 +468,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         LocationCard: TestPage "Location Card";
     begin
-        LocationCard.OpenNew;
+        LocationCard.OpenNew();
         LocationCard.Code.SetValue(Code);
         LocationCard.Name.SetValue(Name);
         LocationCard.OK.Invoke;
@@ -478,7 +478,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         LocationCard: TestPage "Location Card";
     begin
-        LocationCard.OpenNew;
+        LocationCard.OpenNew();
         LocationCard.Code.SetValue(Code);
         LocationCard.Name.SetValue(Name);
         LocationCard."Use As In-Transit".SetValue(true);
@@ -516,7 +516,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         VendorCard: TestPage "Vendor Card";
     begin
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(Name);
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
@@ -530,7 +530,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     begin
         UnitCost := LibraryRandom.RandDec(100, 2);
 
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(Description);
         ItemCard."Unit Cost".SetValue(UnitCost);
         ItemCard."Unit Price".SetValue(UnitCost + LibraryRandom.RandDec(100, 2));
@@ -588,7 +588,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorName);
         PurchaseInvoice."Vendor Invoice No.".SetValue(
           LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
@@ -618,7 +618,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         TransferOrder: TestPage "Transfer Order";
     begin
-        TransferOrder.OpenNew;
+        TransferOrder.OpenNew();
         TransferOrder."Transfer-from Code".SetValue(FromLocationCode);
         TransferOrder."Transfer-to Code".SetValue(ToLocationCode);
         TransferOrderNo := TransferOrder."No.".Value;
@@ -693,7 +693,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
         SalesInvoice.SalesLines.New;
         SalesInvoice.SalesLines."No.".SetValue(ItemNo);
@@ -709,7 +709,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     begin
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
 
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(CustomerName);
         CustomerCard.OK.Invoke;
     end;

@@ -6,7 +6,8 @@ permissionset 732 "D365 BASIC ISV"
 
     IncludedPermissionSets = "BaseApp Objects - Exec",
                              "System App - Basic",
-                             "Company - Edit";
+                             "Company - Edit",
+                             LOGIN;
 
     Permissions = system "Tools, Security, Roles" = X,
                   tabledata AllObjWithCaption = R,
@@ -45,6 +46,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Analysis by Dim. Parameters" = RIMD,
                   tabledata "Analysis by Dim. User Param." = RIMD,
                   tabledata "Analysis Report Chart Setup" = R,
+                  tabledata "API Data Upgrade" = RIMD,
                   tabledata "API Entities Setup" = RIMD,
                   tabledata "API Extension Upload" = rimd,
                   tabledata "Application Area Buffer" = RIMD,
@@ -239,6 +241,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Deferral Line Archive" = RIMD,
                   tabledata "Deferral Posting Buffer" = RIMD,
                   tabledata "Deferral Template" = RIMD,
+                  tabledata "Deposits Page Setup" = RIMD,
                   tabledata "Depreciation Book" = RIMD,
                   tabledata "Depreciation Table Buffer" = RIMD,
                   tabledata "Depreciation Table Header" = RIMD,
@@ -298,6 +301,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Excel Buffer" = RIMD,
                   tabledata "Excel Template Storage" = RIMD,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
+                  tabledata "Exch. Rate Adjmt. Ledg. Entry" = Rimd,
                   tabledata "Exchange Contact" = RIMD,
                   tabledata "Exchange Folder" = RIMD,
                   tabledata "Exchange Object" = RIMD,
@@ -378,16 +382,16 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Generic Chart Setup" = RIMD,
                   tabledata "Generic Chart Y-Axis" = RIMD,
                   tabledata Geolocation = RIMD,
-                  tabledata "Graph Business Profile" = RIMD,
-                  tabledata "Graph Contact" = RIMD,
-                  tabledata "Graph Integration Rec. Archive" = RIMD,
-                  tabledata "Graph Integration Record" = RIMD,
                   tabledata "Graph Mail Setup" = RIMD,
+#if not CLEAN20
                   tabledata "Graph Subscription" = RIMD,
+                  tabledata "Graph Business Setting" = RIMD,
+#endif                  
                   tabledata "Human Resource Comment Line" = RIMD,
                   tabledata "Human Resource Unit of Measure" = RIMD,
                   tabledata "Human Resources Setup" = RIMD,
                   tabledata "Hybrid Deployment Setup" = Rimd,
+                  tabledata "IC Setup" = RIMD,
                   tabledata "Image Analysis Setup" = RIMD,
                   tabledata "Import G/L Transaction" = RIMD,
                   tabledata "Inc. Doc. Attachment Overview" = RIMD,
@@ -553,10 +557,12 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "My Vendor" = RIMD,
                   tabledata "Name/Value Buffer" = RIMD,
                   tabledata "Named Forward Link" = RIMD,
+#if not CLEAN20
                   tabledata "Native - API Tax Setup" = RIMD,
                   tabledata "Native - Export Invoices" = RIMD,
                   tabledata "Native - Gen. Settings Buffer" = RIMD,
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "No. Series" = RIMD,
                   tabledata "No. Series Line" = RIMD,
                   tabledata "No. Series Relationship" = RIMD,
@@ -636,7 +642,9 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Payment Terms" = RIMD,
                   tabledata "Payroll Import Buffer" = RIMD,
                   tabledata "Payroll Setup" = RIMD,
+#if not CLEAN20
                   tabledata "Plan Permission Set" = Rimd,
+#endif
                   tabledata "Positive Pay Detail" = RIMD,
                   tabledata "Positive Pay Entry" = RIMD,
                   tabledata "Positive Pay Entry Detail" = RIMD,
@@ -809,9 +817,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Shipment Method" = RIMD,
                   tabledata "Shipment Method Translation" = RIMD,
                   tabledata "Skill Code" = RIMD,
-                  tabledata "SMTP Mail Setup" = RIMD,
-                  tabledata "Social Listening Search Topic" = RIMD,
-                  tabledata "Social Listening Setup" = Rimd,
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Source Code" = RIMD,
                   tabledata "Source Code Setup" = RIMD,
@@ -976,6 +981,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Workflow Webhook Sub Buffer" = RIMD,
                   tabledata "Workflow Webhook Subscription" = RIMD,
                   tabledata "Workflows Entries Buffer" = Rimd,
+#if not CLEAN20
                   tabledata "XBRL Comment Line" = RIMD,
                   tabledata "XBRL G/L Map Line" = RIMD,
                   tabledata "XBRL Line Constant" = RIMD,
@@ -985,6 +991,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "XBRL Taxonomy" = RIMD,
                   tabledata "XBRL Taxonomy Label" = RIMD,
                   tabledata "XBRL Taxonomy Line" = RIMD,
+#endif
                   tabledata "XML Buffer" = RIMD,
                   tabledata "XML Schema" = RIMD,
                   tabledata "XML Schema Element" = RIMD,

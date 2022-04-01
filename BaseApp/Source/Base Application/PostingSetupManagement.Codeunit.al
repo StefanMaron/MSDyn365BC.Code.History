@@ -167,6 +167,7 @@ codeunit 48 PostingSetupManagement
         GenPostingSetup.Init();
         GenPostingSetup.Validate("Gen. Bus. Posting Group", GenBusGroupCode);
         GenPostingSetup.Validate("Gen. Prod. Posting Group", GenProdGroupCode);
+        GenPostingSetup.Blocked := true;
         GenPostingSetup.Insert();
         exit(true);
     end;
@@ -178,6 +179,7 @@ codeunit 48 PostingSetupManagement
         VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusGroupCode);
         VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdGroupCode);
+        VATPostingSetup.Blocked := true;
         VATPostingSetup.Insert();
     end;
 
@@ -353,7 +355,7 @@ codeunit 48 PostingSetupManagement
             CustomerPostingGroups.SetRecord(CustomerPostingGroup);
         end;
         CustomerPostingGroups.SetTableView(CustomerPostingGroup);
-        CustomerPostingGroups.RunModal;
+        CustomerPostingGroups.RunModal();
     end;
 
     procedure ShowVendorPostingGroups(SetupNotification: Notification)
@@ -369,7 +371,7 @@ codeunit 48 PostingSetupManagement
             VendorPostingGroups.SetRecord(VendorPostingGroup);
         end;
         VendorPostingGroups.SetTableView(VendorPostingGroup);
-        VendorPostingGroups.RunModal;
+        VendorPostingGroups.RunModal();
     end;
 
     procedure ShowInventoryPostingSetup(SetupNotification: Notification)
@@ -387,7 +389,7 @@ codeunit 48 PostingSetupManagement
             InventoryPostingSetupPage.SetRecord(InventoryPostingSetupRec);
         end;
         InventoryPostingSetupPage.SetTableView(InventoryPostingSetupRec);
-        InventoryPostingSetupPage.RunModal;
+        InventoryPostingSetupPage.RunModal();
     end;
 
     procedure ShowGenPostingSetup(SetupNotification: Notification)
@@ -405,7 +407,7 @@ codeunit 48 PostingSetupManagement
             GenPostingSetupPage.SetRecord(GenPostingSetupRec);
         end;
         GenPostingSetupPage.SetTableView(GenPostingSetupRec);
-        GenPostingSetupPage.RunModal;
+        GenPostingSetupPage.RunModal();
     end;
 
     procedure ShowVATPostingSetup(SetupNotification: Notification)
@@ -423,7 +425,7 @@ codeunit 48 PostingSetupManagement
             VATPostingSetupPage.SetRecord(VATPostingSetupRec);
         end;
         VATPostingSetupPage.SetTableView(VATPostingSetupRec);
-        VATPostingSetupPage.RunModal;
+        VATPostingSetupPage.RunModal();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]

@@ -761,7 +761,7 @@ page 9229 "Res. Avail. (Service) Matrix"
           MatrixColumnDateFilters[Column]."Period End");
         ResAvailability.SetTableView(Res);
         ResAvailability.SetRecord(Res);
-        ResAvailability.RunModal;
+        ResAvailability.RunModal();
     end;
 
     procedure SetSkills()

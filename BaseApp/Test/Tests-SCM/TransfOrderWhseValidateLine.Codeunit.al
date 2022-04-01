@@ -33,7 +33,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"TransfOrder Whse Validate Line");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         DisableWarnings;
 
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
@@ -191,7 +191,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         if Reopen then begin
             ReleaseTransferDoc.Reopen(TransferHeader);
             TransferLine.SetRange("Document No.", TransferHeader."No.");
-            TransferLine.FindFirst;
+            TransferLine.FindFirst();
         end;
 
         ExpectedErrorMessage := StrSubstNo(ErrFieldMustNotBeChanged,
@@ -211,13 +211,13 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         Location: Record Location;
         ReleaseTransferDoc: Codeunit "Release Transfer Document";
     begin
-        Initialize;
+        Initialize();
         TestTransferOrderSetup(TransferHeader, TransferLine, Item, Location);
 
         if Reopen then begin
             ReleaseTransferDoc.Reopen(TransferHeader);
             TransferLine.SetRange("Document No.", TransferHeader."No.");
-            TransferLine.FindFirst;
+            TransferLine.FindFirst();
         end;
 
         asserterror TransferLine.DeleteAll(true);
@@ -234,7 +234,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         TestTransferOrderSetup(TransferHeader, TransferLine, Item, Location);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
@@ -248,7 +248,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestTransferOrderSetup(TransferHeader, TransferLine, Item, Location);
 
         TransferOrderFieldChange(Reopen, TransferHeader, TransferLine, TransferLine.FieldNo(Quantity), TransferLine.Quantity - 1);
@@ -262,7 +262,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
         TestTransferOrderSetup(TransferHeader, TransferLine, Item, Location);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
 

@@ -29,7 +29,7 @@ codeunit 132202 "Library - Manufacturing"
         ProductionOrder.SetRange("No.", ProductionOrderNo);
         CalcConsumption.SetTableView(ProductionOrder);
         CalcConsumption.UseRequestPage(false);
-        CalcConsumption.RunModal;
+        CalcConsumption.RunModal();
     end;
 
     procedure CalculateConsumptionForJournal(var ProductionOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component"; PostingDate: Date; ActualOutput: Boolean)
@@ -48,9 +48,9 @@ codeunit 132202 "Library - Manufacturing"
             CalcBasedOn := CalcBasedOn::"Expected Output";
         CalcConsumption.InitializeRequest(PostingDate, CalcBasedOn);
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Consumption);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
         CalcConsumption.SetTemplateAndBatchName(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         if ProductionOrder.HasFilter then
             TmpProductionOrder.CopyFilters(ProductionOrder)
@@ -72,7 +72,7 @@ codeunit 132202 "Library - Manufacturing"
         end;
         CalcConsumption.SetTableView(TmpProdOrderComponent);
         CalcConsumption.UseRequestPage(false);
-        CalcConsumption.RunModal;
+        CalcConsumption.RunModal();
     end;
 
     procedure CalculateMachCenterCalendar(var MachineCenter: Record "Machine Center"; StartingDate: Date; EndingDate: Date)
@@ -90,7 +90,7 @@ codeunit 132202 "Library - Manufacturing"
         end;
         CalcMachineCenterCalendar.SetTableView(TmpMachineCenter);
         CalcMachineCenterCalendar.UseRequestPage(false);
-        CalcMachineCenterCalendar.RunModal;
+        CalcMachineCenterCalendar.RunModal();
     end;
 
     procedure CalculateWorksheetPlan(var Item: Record Item; OrderDate: Date; ToDate: Date)
@@ -103,9 +103,9 @@ codeunit 132202 "Library - Manufacturing"
         Commit();
         CalculatePlanPlanWksh.InitializeRequest(OrderDate, ToDate, false);
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         RequisitionWkshName.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         CalculatePlanPlanWksh.SetTemplAndWorksheet(RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, true);
         if Item.HasFilter then
             TempItem.CopyFilters(Item)
@@ -115,7 +115,7 @@ codeunit 132202 "Library - Manufacturing"
         end;
         CalculatePlanPlanWksh.SetTableView(TempItem);
         CalculatePlanPlanWksh.UseRequestPage(false);
-        CalculatePlanPlanWksh.RunModal;
+        CalculatePlanPlanWksh.RunModal();
     end;
 
     procedure CalculateSubcontractOrder(var WorkCenter: Record "Work Center")
@@ -127,7 +127,7 @@ codeunit 132202 "Library - Manufacturing"
         CalculateSubcontracts.SetWkShLine(RequisitionLine);
         CalculateSubcontracts.SetTableView(WorkCenter);
         CalculateSubcontracts.UseRequestPage(false);
-        CalculateSubcontracts.RunModal;
+        CalculateSubcontracts.RunModal();
     end;
 
     procedure CalculateWorkCenterCalendar(var WorkCenter: Record "Work Center"; StartingDate: Date; EndingDate: Date)
@@ -145,7 +145,7 @@ codeunit 132202 "Library - Manufacturing"
         end;
         CalculateWorkCenterCalendar.SetTableView(TmpWorkCenter);
         CalculateWorkCenterCalendar.UseRequestPage(false);
-        CalculateWorkCenterCalendar.RunModal;
+        CalculateWorkCenterCalendar.RunModal();
     end;
 
     procedure CalculateSubcontractOrderWithProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
@@ -165,7 +165,7 @@ codeunit 132202 "Library - Manufacturing"
         CalculateSubcontracts.SetWkShLine(RequisitionLine);
         CalculateSubcontracts.SetTableView(TmpProdOrderRoutingLine);
         CalculateSubcontracts.UseRequestPage(false);
-        CalculateSubcontracts.RunModal;
+        CalculateSubcontracts.RunModal();
     end;
 
     procedure ChangeProdOrderStatus(var ProductionOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; PostingDate: Date; UpdateUnitCost: Boolean)
@@ -183,7 +183,7 @@ codeunit 132202 "Library - Manufacturing"
         ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
         exit(ProductionOrder."No.");
     end;
@@ -204,7 +204,7 @@ codeunit 132202 "Library - Manufacturing"
         ChangeProdOrderStatus(ProductionOrder, ToStatus, WorkDate, true);
         ProductionOrder.SetRange(Status, ToStatus);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         exit(ProductionOrder."No.");
     end;
 
@@ -313,7 +313,7 @@ codeunit 132202 "Library - Manufacturing"
         Item.Validate("Flushing Method", FlushingMethod);
 
         if ProductionBOMNo <> '' then begin
-            InventoryPostingSetup.FindLast;
+            InventoryPostingSetup.FindLast();
             Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
             Item.Validate("Routing No.", RoutingNo);
             Item.Validate("Production BOM No.", ProductionBOMNo);
@@ -384,7 +384,7 @@ codeunit 132202 "Library - Manufacturing"
         ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMLine."Production BOM No.");
         ProductionBOMCommentLine.SetRange("Version Code", ProductionBOMLine."Version Code");
         ProductionBOMCommentLine.SetRange("BOM Line No.", ProductionBOMLine."Line No.");
-        if ProductionBOMCommentLine.FindLast then;
+        if ProductionBOMCommentLine.FindLast() then;
         LineNo := ProductionBOMCommentLine."Line No." + 10000;
 
         ProductionBOMCommentLine.Init();
@@ -392,7 +392,7 @@ codeunit 132202 "Library - Manufacturing"
         ProductionBOMCommentLine.Validate("BOM Line No.", ProductionBOMLine."Line No.");
         ProductionBOMCommentLine.Validate("Version Code", ProductionBOMLine."Version Code");
         ProductionBOMCommentLine.Validate("Line No.", LineNo);
-        ProductionBOMCommentLine.Validate(Comment, LibraryUtility.GenerateGUID);
+        ProductionBOMCommentLine.Validate(Comment, LibraryUtility.GenerateGUID());
         ProductionBOMCommentLine.Insert(true);
     end;
 
@@ -752,9 +752,9 @@ codeunit 132202 "Library - Manufacturing"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Output);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::Output, '', 0);
@@ -770,9 +770,9 @@ codeunit 132202 "Library - Manufacturing"
         ItemJournalTemplate: Record "Item Journal Template";
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Output);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::Output, '', 0);
@@ -790,9 +790,9 @@ codeunit 132202 "Library - Manufacturing"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Consumption);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
@@ -802,9 +802,9 @@ codeunit 132202 "Library - Manufacturing"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Output);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
@@ -833,7 +833,7 @@ codeunit 132202 "Library - Manufacturing"
         RefreshProductionOrder.InitializeRequest(Direction, CalcLines, CalcRoutings, CalcComponents, CreateInbRqst);
         RefreshProductionOrder.SetTableView(TmpProductionOrder);
         RefreshProductionOrder.UseRequestPage := false;
-        RefreshProductionOrder.RunModal;
+        RefreshProductionOrder.RunModal();
 
         Commit();
         CurrentTransactionType(TempTransactionType);
@@ -855,7 +855,7 @@ codeunit 132202 "Library - Manufacturing"
         end;
         ReplanProductionOrder.SetTableView(TmpProductionOrder);
         ReplanProductionOrder.UseRequestPage(false);
-        ReplanProductionOrder.RunModal;
+        ReplanProductionOrder.RunModal();
     end;
 
     procedure RunRollUpStandardCost(var Item: Record Item; StandardCostWorksheetName: Code[10])
@@ -873,7 +873,7 @@ codeunit 132202 "Library - Manufacturing"
         RollUpStandardCost.SetTableView(Item2);
         RollUpStandardCost.SetStdCostWksh(StandardCostWorksheetName);
         RollUpStandardCost.UseRequestPage(false);
-        RollUpStandardCost.RunModal;
+        RollUpStandardCost.RunModal();
     end;
 
     local procedure RequisitionLineForSubcontractOrder(var RequisitionLine: Record "Requisition Line")
@@ -882,7 +882,7 @@ codeunit 132202 "Library - Manufacturing"
         JnlSelected: Boolean;
         Handled: Boolean;
     begin
-        ReqJnlManagement.TemplateSelection(PAGE::"Subcontracting Worksheet", false, 1, RequisitionLine, JnlSelected);
+        ReqJnlManagement.WkshTemplateSelection(PAGE::"Subcontracting Worksheet", false, "Req. Worksheet Template Type"::"For. Labor", RequisitionLine, JnlSelected);
         if not JnlSelected then
             Error('');
         RequisitionLine."Worksheet Template Name" := TemplateName;
@@ -922,7 +922,7 @@ codeunit 132202 "Library - Manufacturing"
                     ProdOrderRoutingLine.SetRange(Type, ProdOrderRoutingLine.Type::"Machine Center");
             end;
             ProdOrderRoutingLine.SetRange("No.", ItemJournalLine."No.");
-            ProdOrderRoutingLine.FindFirst;
+            ProdOrderRoutingLine.FindFirst();
             ItemJournalLine.Validate("Setup Time", ProdOrderRoutingLine."Setup Time");
             ItemJournalLine.Validate("Run Time", ProdOrderRoutingLine."Run Time");
             ItemJournalLine.Modify(true);

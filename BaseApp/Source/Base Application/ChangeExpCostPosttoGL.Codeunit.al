@@ -59,7 +59,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
         ValueEntry.LockTable();
         LastUpdateDateTime := CurrentDateTime;
 
-        if PostValueEntryToGL.FindSet then
+        if PostValueEntryToGL.FindSet() then
             repeat
                 ValueEntry.Get(PostValueEntryToGL."Value Entry No.");
                 UpdatePostValueEntryToGL(ValueEntry."Item Ledger Entry No.");

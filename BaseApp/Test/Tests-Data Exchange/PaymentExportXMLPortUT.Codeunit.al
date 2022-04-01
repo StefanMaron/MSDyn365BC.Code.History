@@ -30,7 +30,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertDataExchLineWithHeader(DataExch, LibraryRandom.RandInt(MaxNoOfColumns));
@@ -51,7 +51,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         Filename: Text[1024];
         DataExchEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertMultipleDataExchLinesVariableNoOfColumns(DataExch, LibraryRandom.RandIntInRange(2, 100));
@@ -74,7 +74,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertDataExchLineWithHeader(DataExch, 1);
@@ -93,7 +93,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertDataExchLineWithHeader(DataExch, LibraryRandom.RandIntInRange(2, MaxNoOfColumns - 1));
@@ -112,7 +112,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertDataExchLineWithHeader(DataExch, MaxNoOfColumns);
@@ -131,7 +131,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertDataExch(DataExch);
@@ -151,7 +151,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertMultipleDataExchLinesFixedNoOfColumns(DataExch, LibraryRandom.RandIntInRange(2, 100), 1);
@@ -172,7 +172,7 @@ codeunit 132573 "Payment Export XMLPort UT"
     begin
         // This test will verify that lines are cut off at right point, i.e. no trailing blank columns.
 
-        Initialize;
+        Initialize();
 
         // Setup
         InsertMultipleDataExchLinesFixedNoOfColumns(DataExch, LibraryRandom.RandIntInRange(2, 100),
@@ -192,7 +192,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertMultipleDataExchLinesFixedNoOfColumns(DataExch, LibraryRandom.RandIntInRange(2, 100), MaxNoOfColumns);
@@ -211,7 +211,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertMultipleDataExchLinesFixedNoOfColumns(DataExch, LibraryRandom.RandIntInRange(2, 100), MaxNoOfColumns + 1);
@@ -230,7 +230,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertMultipleDataExchLinesFixedNoOfColumns(DataExch, LibraryRandom.RandIntInRange(1, 10),
@@ -252,7 +252,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertMultipleDataExchLinesVariableNoOfColumns(DataExch, LibraryRandom.RandIntInRange(2, 100));
@@ -271,7 +271,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExch: Record "Data Exch.";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         InsertMultipleDataExchLinesVariableNoOfColumns(DataExch, LibraryRandom.RandIntInRange(2, 100));
@@ -585,7 +585,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         CurrentColumnNo: Integer;
     begin
         // [SCENARIO 381084] Run Positive Pay Export through Data Exch. Definition where File Type is set as Variable Text with a Column Separator
-        Initialize;
+        Initialize();
 
         // [GIVEN] DataExch. Definition with "File Type" as "Variable Text" and with "Column Separator" as "Comma"
         // [GIVEN] Mock data with text as an array of 100 columns and 10 lines
@@ -644,7 +644,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         j: Integer;
         NoOfColumns: Integer;
     begin
-        FixedId := LibraryUtility.GenerateGUID;
+        FixedId := LibraryUtility.GenerateGUID();
         for i := 1 to ArrayLen(ExportText, 1) do begin
             NoOfColumns := LibraryRandom.RandIntInRange(65, ArrayLen(ExportText, 2));
             for j := 1 to 5 do
@@ -762,7 +762,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExchField: Record "Data Exch. Field";
     begin
         DataExchField.SetRange("Data Exch. No.", DataExchNo);
-        if DataExchField.FindLast then;
+        if DataExchField.FindLast() then;
         exit(DataExchField."Line No.")
     end;
 
@@ -799,7 +799,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         LinesRead := ExportFile.ReadAllLines(Filename);
 
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
-        if DataExchField.FindSet then begin
+        if DataExchField.FindSet() then begin
             LineNo := DataExchField."Line No.";
             repeat
                 if DataExchField."Line No." <> LineNo then begin

@@ -187,7 +187,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         if First then
             ServiceLine.Next
         else
-            ServiceLine.FindFirst;
+            ServiceLine.FindFirst();
         ServiceLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         ServiceLine.Modify(true);
 
@@ -950,7 +950,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLine3: Record "Service Line";
     begin
         GetServiceLine(ServiceHeader, ServiceLine3);
-        ServiceLine3.FindLast;
+        ServiceLine3.FindLast();
 
         with ServiceLine do begin
             Init;
@@ -973,7 +973,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetFilter("Document No.", ServiceHeader."No.");
-        if ServiceLine.FindSet then
+        if ServiceLine.FindSet() then
             repeat
                 LibraryService.AutoReserveServiceLine(ServiceLine);
             until ServiceLine.Next = 0;
@@ -1022,7 +1022,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         if Order then begin
             ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
             ServiceItemLine.SetFilter("Document No.", ServiceHeader."No.");
-            ServiceItemLine.FindFirst;
+            ServiceItemLine.FindFirst();
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         end;
         ServiceLine.Validate(Quantity, Qty);
@@ -1089,10 +1089,10 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
         ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Item);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
     end;
 
     local procedure GetShipmentLineForServInvoice(var ServiceHeader: Record "Service Header"; var ServShipmentLine: Record "Service Shipment Line")
@@ -1109,7 +1109,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         exit(ServiceLine."VAT Prod. Posting Group");
     end;
 
@@ -1158,7 +1158,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         // SETTABLE call required for each record of the temporary table.
         TempRecRef.Reset();
-        if TempRecRef.FindSet then begin
+        if TempRecRef.FindSet() then begin
             TempServiceLn.SetView(TempRecRef.GetView);
             repeat
                 TempRecRef.SetTable(TempServiceLn);
@@ -1208,7 +1208,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLine.SetFilter("Document No.", ServiceHeader2."No.");
         // Do not include empty lines containing only Description.
         ServiceLine.SetFilter("Bill-to Customer No.", ServiceHeader2."Bill-to Customer No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
 
         TempRecRef.Open(DATABASE::"Service Line", true);
         RecRef.GetTable(ServiceLine);

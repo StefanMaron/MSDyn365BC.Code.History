@@ -548,7 +548,7 @@ page 190 "Incoming Documents"
                     Caption = 'Find entries...';
                     Image = Navigate;
                     Scope = Repeater;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                     trigger OnAction()
@@ -557,7 +557,7 @@ page 190 "Incoming Documents"
                     begin
                         TestField(Posted);
                         NavigatePage.SetDoc("Posting Date", "Document No.");
-                        NavigatePage.Run;
+                        NavigatePage.Run();
                     end;
                 }
                 group(Document)
@@ -776,7 +776,6 @@ page 190 "Incoming Documents"
         Camera: Codeunit Camera;
         [InDataSet]
         HasCamera: Boolean;
-        URL: Text;
         StatusStyleText: Text;
         MultiSelectAction: Option CreateGenJnlLine,CreatePurchInvoice,CreatePurchCreditMemo,CreateSalesInvoice,CreateSalesCreditMemo,Release,Reopen,Reject,CreateDocument,SetReadyForOcr,UndoReadyForOcr,SendToOcr,CreateGenJnlLineWithDataExchange,CreateManually;
         IsDataExchTypeEditable: Boolean;
@@ -798,7 +797,7 @@ page 190 "Incoming Documents"
             exit;
 
         CurrPage.SetSelectionFilter(IncomingDocument);
-        if IncomingDocument.FindSet then
+        if IncomingDocument.FindSet() then
             repeat
                 case ActionName of
                     MultiSelectAction::CreateDocument:

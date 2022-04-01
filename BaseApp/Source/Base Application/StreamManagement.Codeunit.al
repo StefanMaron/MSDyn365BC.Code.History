@@ -46,7 +46,7 @@ codeunit 705 "Stream Management"
         NrFiles := ZipArchive.Entries.Count();
         FileList := ZipArchive.Entries;
         for I := 0 to NrFiles - 1 do begin
-            if NameValueBufferOut.FindLast then
+            if NameValueBufferOut.FindLast() then
                 LastId := NameValueBufferOut.ID;
             ZipArchiveEntry := FileList.Item(I);
             FileStream := ZipArchiveEntry.Open;

@@ -31,7 +31,7 @@ codeunit 136351 "UT T Job Journal Line"
         JobPlanningLine: Record "Job Planning Line";
         JobJournalLine: Record "Job Journal Line";
     begin
-        Initialize;
+        Initialize();
         SetUp(JobTask, JobPlanningLine, JobJournalLine);
 
         // Verify that "Job Planning Line No." is initialized correctly.
@@ -51,7 +51,7 @@ codeunit 136351 "UT T Job Journal Line"
         JobPlanningLine: Record "Job Planning Line";
         JobJournalLine: Record "Job Journal Line";
     begin
-        Initialize;
+        Initialize();
         SetUp(JobTask, JobPlanningLine, JobJournalLine);
 
         // Verify that "Line Type" is set to the correct value when a "Job Planning Line No." is set.
@@ -77,7 +77,7 @@ codeunit 136351 "UT T Job Journal Line"
         TestJobPlanningLine: Record "Job Planning Line";
         JobJournalLine2: Record "Job Journal Line";
     begin
-        Initialize;
+        Initialize();
         SetUp(JobTask, JobPlanningLine, JobJournalLine);
 
         // Verify that you cannot set a Job Planning Line with a wrong Job No., Job Task No., Type or No. (Test of one is enough).
@@ -141,7 +141,7 @@ codeunit 136351 "UT T Job Journal Line"
         QtyDelta: Decimal;
         OldRemainingQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetUp(JobTask, JobPlanningLine, JobJournalLine);
 
         // Verify that "Remaining Qty." can't be set if not "Job Planning Line No." is set.
@@ -189,7 +189,7 @@ codeunit 136351 "UT T Job Journal Line"
         // [FEATURE] [Apply Usage Link]
         // [SCENARIO 374943] No Job Planning Lines are created when apply usage for Job with "Apply Usage Link" and Job Journal Line with blank "Line Type"
 
-        Initialize;
+        Initialize();
         // [GIVEN] Job with "Apply Usage Link" = Yes
         CreateJobWithApplyUsageLink(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -222,7 +222,7 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         // [FEATURE] [Apply Usage Link]
         // [SCENARIO 375866] Job Planning Line fields "Unit Cost (LCY)" and "Unit Price" remains when post Job Journal with Apply Usage Link and Quantity changing
-        Initialize;
+        Initialize();
         SetUp(JobTask, JobPlanningLine, JobJournalLine);
 
         // [GIVEN] Item with "Unit Cost" = 10, "Unit Price" = 20.
@@ -260,7 +260,7 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         // [SCENARIO 378016] "Line Discount Amount (LCY)" should be blank when validate "Unit Price" with zero value in Job Journal Line
 
-        Initialize;
+        Initialize();
         SetUp(JobTask, JobPlanningLine, JobJnlLine);
         JobJnlLine.Validate("Line Discount Amount (LCY)", LibraryRandom.RandDec(200, 2));
 
@@ -281,7 +281,7 @@ codeunit 136351 "UT T Job Journal Line"
         // [FEATURE] [Purchase]
         // [SCENARIO 378016] "Job Line Amount (LCY)" should be blank when validate "Job Unit Price" with zero value in Purchase Line
 
-        Initialize;
+        Initialize();
         SetUp(JobTask, JobPlanningLine, JobJnlLine);
 
         MockPurchLineWithJobAmounts(PurchLine, JobTask);
@@ -303,7 +303,7 @@ codeunit 136351 "UT T Job Journal Line"
         // [FEATURE] [Purchase]
         // [SCENARIO 378016] "Job Line Disc. Amount (LCY)" should be blank when validate "Job Unit Price" with zero value in Purchase Line
 
-        Initialize;
+        Initialize();
         SetUp(JobTask, JobPlanningLine, JobJnlLine);
 
         MockPurchLineWithJobAmounts(PurchLine, JobTask);
@@ -323,7 +323,7 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         // [SCENARIO 258997] Country/Region code assigns from Job to Job Journal Line
 
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         Job.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -379,7 +379,7 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         // [FEATURE] [Job Journal Line - Rounding Precision]
         // [SCENARIO] Error is thrown when rounding precision causes the base quantity to be rounded to 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -427,7 +427,7 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         // [FEATURE] [Job Journal Line - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -475,7 +475,7 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         // [FEATURE] [Job Journal Line - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
@@ -523,7 +523,7 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         // [FEATURE] [Job Journal Line - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -566,7 +566,7 @@ codeunit 136351 "UT T Job Journal Line"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Job Journal Line");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job Journal Line");
@@ -645,7 +645,7 @@ codeunit 136351 "UT T Job Journal Line"
         PurchLine."Document No." := PurchHeader."No.";
         PurchLine."Line No." := LibraryUtility.GetNewRecNo(PurchLine, PurchLine.FieldNo("Line No."));
         PurchLine.Type := PurchLine.Type::Item;
-        PurchLine."No." := LibraryInventory.CreateItemNo;
+        PurchLine."No." := LibraryInventory.CreateItemNo();
         PurchLine."Job No." := JobTask."Job No.";
         PurchLine."Job Task No." := JobTask."Job Task No.";
         PurchLine.Quantity := LibraryRandom.RandDecInRange(1, 200, 2);

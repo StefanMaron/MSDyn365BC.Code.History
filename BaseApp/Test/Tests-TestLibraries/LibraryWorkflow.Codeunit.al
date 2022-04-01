@@ -92,21 +92,6 @@ codeunit 131101 "Library - Workflow"
         WorkflowStepArgument.Modify();
     end;
 
-    procedure SetUpSMTPEmailSetup()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-    begin
-        SMTPMailSetup.DeleteAll();
-
-        SMTPMailSetup.Init();
-        SMTPMailSetup."SMTP Server" := 'localhost';
-        SMTPMailSetup."SMTP Server Port" := 8081;
-        SMTPMailSetup."User ID" := 'testuser@microsoft.com';
-        SMTPMailSetup.SetPassword('TestPassword');
-        SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
-        SMTPMailSetup.Insert();
-    end;
-
     procedure SetUpEmailAccount()
     var
         TempAccount: Record "Email Account" temporary;
@@ -266,7 +251,7 @@ codeunit 131101 "Library - Workflow"
         LibraryERM: Codeunit "Library - ERM";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         GeneralJnlTemplateCode := GenJournalTemplate.Name;
 
@@ -335,7 +320,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Previous Workflow Step ID", PreviousStepID);
         WorkflowStep.SetCurrentKey("Sequence No.");
-        if WorkflowStep.FindLast then
+        if WorkflowStep.FindLast() then
             exit(WorkflowStep."Sequence No." + 1);
         exit(1);
     end;
@@ -385,7 +370,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
     end;
 
     procedure UpdateWorkflowStepArgumentWithDirectApproverLimitType(Argument: Guid)
@@ -478,7 +463,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowStepArgument.SetEventFilters(EventConditions);
 
         WorkflowStep.SetRange(ID, WorkflowStepID);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowStep.Validate(Argument, WorkflowStepArgument.ID);
         WorkflowStep.Modify(true);
     end;
@@ -545,7 +530,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowStep: Record "Workflow Step";
     begin
         WorkflowStep.SetRange(ID, WorkflowStepID);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         if WorkflowStepArgument.Get(WorkflowStep.Argument) then
             exit;
@@ -565,7 +550,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowEvent: Record "Workflow Event";
     begin
         WorkflowStep.SetRange(ID, WorkflowStepId);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         WorkflowRule.Init();
         WorkflowRule."Workflow Code" := WorkflowStep."Workflow Code";
@@ -649,7 +634,7 @@ codeunit 131101 "Library - Workflow"
         ToWorkflowStep.DeleteAll(true);
 
         FromWorkflowStep.SetRange("Workflow Code", FromTemplateCode);
-        if FromWorkflowStep.FindSet then
+        if FromWorkflowStep.FindSet() then
             repeat
                 ToWorkflowStep.Copy(FromWorkflowStep);
 
@@ -668,7 +653,7 @@ codeunit 131101 "Library - Workflow"
         ToWorkflowRule: Record "Workflow Rule";
     begin
         FromWorkflowStep.FindWorkflowRules(FromWorkflowRule);
-        if FromWorkflowRule.FindSet then
+        if FromWorkflowRule.FindSet() then
             repeat
                 ToWorkflowRule.Copy(FromWorkflowRule);
                 ToWorkflowRule.ID := 0;

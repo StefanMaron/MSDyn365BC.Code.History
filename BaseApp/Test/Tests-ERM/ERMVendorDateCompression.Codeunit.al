@@ -35,7 +35,7 @@ codeunit 134033 "ERM Vendor Date Compression"
         // Create Vendor and Create multiple Invoice and Payment entries on General Journal Line and Post them. Date Compress by Week and
         // verify the Amount and No. of Entries in Vendor Ledger Entries. Take 1 Week Interval between posting dates to test date
         // compression on lower and upper bounds randomly.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
         FirstPostingDate := LibraryFiscalYear.GetFirstPostingDate(true);
         LastPostingDate := VendorDateCompression(VendorNo, DateComprRegister."Period Length"::Week, FirstPostingDate, '<1W>');
@@ -55,7 +55,7 @@ codeunit 134033 "ERM Vendor Date Compression"
 
         // Date Compress by Month and verify No. of Entries and Amount in Vendor Ledger Entries. Pass 2 to fetch Entries for Month.
         // Take 10 Days interval between entries to test Date Compression on Upper and Lower boundaries randomly.
-        Initialize;
+        Initialize();
         DateCompressionMonthYear(DateComprRegister."Period Length"::Month, '<10D>', 2)
     end;
 
@@ -69,7 +69,7 @@ codeunit 134033 "ERM Vendor Date Compression"
 
         // Date Compress by Year and verify No. of Entries and Amount in Vendor Ledger Entries. Pass 3 to fetch Entries for Year.
         // Take 3 Months interval between entries to test Date Compression on Upper and Lower boundaries randomly.
-        Initialize;
+        Initialize();
         DateCompressionMonthYear(DateComprRegister."Period Length"::Year, '<3M>', 3)
     end;
 
@@ -102,9 +102,9 @@ codeunit 134033 "ERM Vendor Date Compression"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Vendor Date Compression");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         IsInitialized := true;
         Commit();
@@ -182,14 +182,19 @@ codeunit 134033 "ERM Vendor Date Compression"
     local procedure DateCompressForVendor(GenJournalLine: Record "Gen. Journal Line"; StartingDate: Date; PeriodLength: Option)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressVendorLedger: Report "Date Compress Vendor Ledger";
     begin
         // Run the Date Compress Vendor Ledger Report with a closed Accounting Period.
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
+        DateComprRetainFields."Retain Document No." := false;
+        DateComprRetainFields."Retain Buy-from Vendor No." := false;
+        DateComprRetainFields."Retain Purchaser Code" := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;
         DateCompressVendorLedger.SetTableView(VendorLedgerEntry);
-        DateCompressVendorLedger.InitializeRequest(StartingDate, GenJournalLine."Posting Date", PeriodLength, '', false, false, false, '');
+        DateCompressVendorLedger.InitializeRequest(StartingDate, GenJournalLine."Posting Date", PeriodLength, '', DateComprRetainFields, '', false);
         DateCompressVendorLedger.UseRequestPage(false);
-        DateCompressVendorLedger.Run;
+        DateCompressVendorLedger.Run();
     end;
 
     local procedure GetVendorLedgerEntries(VendorNo: Code[20]): Integer
@@ -218,7 +223,7 @@ codeunit 134033 "ERM Vendor Date Compression"
     begin
         Date.SetRange("Period Type", Date."Period Type"::Date);
         Date.SetRange("Period Start", PeriodStart);
-        Date.FindFirst;
+        Date.FindFirst();
         StartingDate := CalcDate('<-' + Format(Date."Period No." - 1) + 'D>', Date."Period Start");
     end;
 

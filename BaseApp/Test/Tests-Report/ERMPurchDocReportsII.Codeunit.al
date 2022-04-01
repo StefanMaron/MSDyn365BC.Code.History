@@ -28,7 +28,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
     begin
         // Check Vendor Label Report with Label Format 36 x 70 mm (3 columns).
-        Initialize;
+        Initialize();
         asserterror VendorLabelReport(LabelFormat::"36 x 70 mm (3 columns)", 3);
     end;
 
@@ -40,7 +40,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
     begin
         // Check Vendor Label Report with Label Format 37 x 70 mm (3 columns).
-        Initialize;
+        Initialize();
         asserterror VendorLabelReport(LabelFormat::"37 x 70 mm (3 columns)", 3);
     end;
 
@@ -52,7 +52,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
     begin
         // Check Vendor Label Report with Label Format 36 x 105 mm (2 columns).
-        Initialize;
+        Initialize();
         asserterror VendorLabelReport(LabelFormat::"36 x 105 mm (2 columns)", 2);
     end;
 
@@ -64,7 +64,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
     begin
         // Check Vendor Label Report with Label Format 37 x 105 mm (2 columns).
-        Initialize;
+        Initialize();
         asserterror VendorLabelReport(LabelFormat::"37 x 105 mm (2 columns)", 2);
     end;
 
@@ -76,7 +76,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         VendorLabels: Report "Vendor - Labels";
     begin
         // Setup: Create Three Vendor with Complete Address.
-        Initialize;
+        Initialize();
         CreateVendorWithAddress(Vendor);
         CreateVendorWithAddress(Vendor2);
         CreateVendorWithAddress(Vendor3);
@@ -87,7 +87,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         Vendor.SetFilter("No.", '%1|%2|%3', Vendor."No.", Vendor2."No.", Vendor3."No.");
         VendorLabels.SetTableView(Vendor);
         VendorLabels.InitializeRequest(LabelFormat);
-        VendorLabels.Run;
+        VendorLabels.Run();
 
         // Verify: Verify All Vendor with Different Label Format.
         LibraryReportDataset.LoadDataSetFile;
@@ -107,7 +107,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         // Check Purchase Invoice Nos. Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
         // Exercise.
@@ -130,7 +130,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
 
         // Setup: Create and Post two Purchase Invoices on different Posting Dates. Take second Posting Date lesser than first
         // Invoice Posting Date to generate warning on Report. Take random difference between Dates.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         DocumentNo2 := UpdateAndPostPurchaseDocument(PurchaseHeader."Document Type"::Invoice);
 
@@ -153,7 +153,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         // Check Purchase Credit Memo Nos. Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
 
         // Exercise.
@@ -176,7 +176,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
 
         // Setup: Create and Post two Purchase Credit Memo on different Posting Dates. Take second Posting Date lesser than first
         // Credit Memo Posting Date to generate warning on Report. Take random difference between Dates.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         DocumentNo2 := UpdateAndPostPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo");
 
@@ -199,7 +199,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         // Check Vendor Document Nos. Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // Exercise.
@@ -222,7 +222,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
 
         // Setup: Create and Post two Purchase Invoice on different Posting Dates. Take second Posting Date lesser than first
         // Invoice Posting Date to generate warning on Report. Take random difference between Dates.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         DocumentNo2 := UpdateAndPostPurchaseDocument(PurchaseHeader."Document Type"::Invoice);
 
@@ -243,10 +243,10 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purch. Doc. Reports - II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
 
         isInitialized := true;
         Commit();
@@ -301,7 +301,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         CountryRegion: Record "Country/Region";
     begin
         LibraryERM.CreatePostCode(PostCode);  // Creation of Post Code is required to avoid special characters in existing ones.
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         Vendor.Get(CreateVendor);
         Vendor.Validate(
           Address, CopyStr(LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Address), DATABASE::Vendor), 1,
@@ -322,7 +322,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         PurchInvHeader.SetFilter("No.", '%1|%2', No, No2);
         Clear(PurchaseInvoiceNos);
         PurchaseInvoiceNos.SetTableView(PurchInvHeader);
-        PurchaseInvoiceNos.Run;
+        PurchaseInvoiceNos.Run();
     end;
 
     local procedure SavePurchCreditMemoNosReport(No: Code[20]; No2: Code[20])
@@ -333,7 +333,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         PurchCrMemoHdr.SetFilter("No.", '%1|%2', No, No2);
         Clear(PurchaseCreditMemoNos);
         PurchaseCreditMemoNos.SetTableView(PurchCrMemoHdr);
-        PurchaseCreditMemoNos.Run;
+        PurchaseCreditMemoNos.Run();
     end;
 
     local procedure SaveVendorDocumentsNosReport(DocumentNo: Code[20]; DocumentNo2: Code[20])
@@ -344,7 +344,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         VendorLedgerEntry.SetFilter("Document No.", '%1|%2', DocumentNo, DocumentNo2);
         Clear(VendorDocumentNos);
         VendorDocumentNos.SetTableView(VendorLedgerEntry);
-        VendorDocumentNos.Run;
+        VendorDocumentNos.Run();
     end;
 
     local procedure UpdateAndPostPurchaseDocument(DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
@@ -417,7 +417,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
 
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('VendLedgerEntry__Vendor_No__', VendorLedgerEntry."Vendor No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('VendLedgerEntry__Source_Code_', VendorLedgerEntry."Source Code");

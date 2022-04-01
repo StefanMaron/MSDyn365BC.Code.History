@@ -94,7 +94,7 @@ table 5967 "Contract Change Log"
         ContractChangeLog.Reset();
         ContractChangeLog.LockTable();
         ContractChangeLog.SetRange("Contract No.", ContractNo);
-        if ContractChangeLog.FindLast then
+        if ContractChangeLog.FindLast() then
             NextChangeNo := ContractChangeLog."Change No." + 1
         else
             NextChangeNo := 1;

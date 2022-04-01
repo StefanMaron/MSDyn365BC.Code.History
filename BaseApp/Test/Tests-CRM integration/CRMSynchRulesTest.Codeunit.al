@@ -88,7 +88,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         JobID: Guid;
     begin
         // [SCENARIO] New CRM Contact should not create new couped NAV Contact if parent CRM account is not coupled.
-        Initialize;
+        Initialize();
         // [GIVEN] The new CRM Contact, where parent CRM Account is not coupled.
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
@@ -106,7 +106,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         IntegrationSynchJob.Get(JobID);
         IntegrationSynchJob.TestField(Failed, 1);
         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", JobID);
-        IntegrationSynchJobErrors.FindFirst;
+        IntegrationSynchJobErrors.FindFirst();
         Assert.ExpectedMessage(ContactMissingCompanyErr, IntegrationSynchJobErrors.Message);
     end;
 
@@ -122,7 +122,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         ContactRecRef: RecordRef;
     begin
         // [SCENARIO] New CRM Contact should be synched to new couped NAV Contact, if parent CRM account is coupled.
-        Initialize;
+        Initialize();
         // [GIVEN] The new CRM Contact, where parent CRM Account is coupled to the NAV Customer.
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
@@ -152,7 +152,7 @@ codeunit 139181 "CRM Synch. Rules Test"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Coupling a company type Contact from the Contact Card/List pages
-        Initialize;
+        Initialize();
         // [GIVEN] A company type Contact
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Type := Contact.Type::Company;
@@ -183,7 +183,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         CRMAccount: Record "CRM Account";
     begin
         // [SCENARIO] Coupling a company type Contact
-        Initialize;
+        Initialize();
 
         // [GIVEN] A company type Contact
         LibrarySales.CreateCustomer(Customer);
@@ -205,7 +205,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
 
         // [THEN] Integration Sync. Job is created, where Modified = 0, Failed = 0.
-        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.FindLast();
         Assert.AreEqual(0, IntegrationSynchJob.Modified, 'A contact of type Company should not be modified');
         Assert.AreEqual(0, IntegrationSynchJob.Failed, ConstructAllFailuresMessage);
     end;
@@ -223,7 +223,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
     begin
         // [SCENARIO] Synchronizing a Contact of type Company with CRM Contact while parents Customer and CRM Account are not coupled
-        Initialize;
+        Initialize();
         IntegrationTableMapping.DeleteAll();
 
         // [GIVEN] A synchronized Contact of type Person with a parent Customer coupled with a CRM Contact
@@ -240,7 +240,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         IntegrationTableMapping.Modify(true);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Contact.RecordId, true, false);
 
-        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.FindLast();
         Assert.AreEqual(1, IntegrationSynchJob.Modified,
           StrSubstNo(
             'Expected one row to be inserted. Modified: %1, Unchanged: %2, Failed: %3\', IntegrationSynchJob.Modified,
@@ -254,7 +254,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [WHEN] Synchronize the Contact
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] Integration Sync. Job is created, where Modified = 0 , Failed = 0.
-        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.FindLast();
         Assert.AreEqual(0, IntegrationSynchJob.Modified, 'A contact of type Company should not be modified');
         Assert.AreEqual(0, IntegrationSynchJob.Failed, ConstructAllFailuresMessage);
     end;
@@ -269,7 +269,7 @@ codeunit 139181 "CRM Synch. Rules Test"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Coupling a Contact with no parent company Contact
-        Initialize;
+        Initialize();
         // [GIVEN] A Contact with no parent company Contact
         LibraryCRMIntegration.CreateContact(Contact);
         Contact."Company No." := '';
@@ -296,7 +296,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LogId: Guid;
     begin
         // [SCENARIO] Synchronizing a Contact with no parent company Contact
-        Initialize;
+        Initialize();
         // [GIVEN] A Contact with no parent company Contact
         LibraryCRMIntegration.CreateContact(Contact);
         Contact."Company No." := '';
@@ -323,7 +323,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LogId: Guid;
     begin
         // [SCENARIO] Coupling a Contact with no parent Customer
-        Initialize;
+        Initialize();
         // [GIVEN] A Contact with no parent Customer (no parent company type Contact, no Company No.)
         LibraryCRMIntegration.CreateContact(Contact);
         Contact."Company No." := '';
@@ -359,7 +359,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LogId: Guid;
     begin
         // [SCENARIO] Synchronizing a Contact with a parent Customer which is not coupled
-        Initialize;
+        Initialize();
 
         LibraryCRMIntegration.RegisterTestTableConnection;
 
@@ -375,7 +375,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [THEN] Synchronization skips the record
         IntegrationSynchJob.Get(LogId);
         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", LogId);
-        if IntegrationSynchJobErrors.FindFirst then
+        if IntegrationSynchJobErrors.FindFirst() then
             Assert.Fail('An unexpected error occured: ' + IntegrationSynchJobErrors.Message);
         Assert.AreEqual(1, IntegrationSynchJob.Skipped,
           StrSubstNo('Expected a synchronization job for a Contact with an uncoupled parent Customer results in a skip action.' +
@@ -396,7 +396,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LogId: Guid;
     begin
         // [SCENARIO] Synchronizing a Contact and CRM Contact whose parent Customer and CRM Account are not coupled to anything
-        Initialize;
+        Initialize();
 
         LibraryCRMIntegration.RegisterTestTableConnection;
 
@@ -436,7 +436,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LogId: Guid;
     begin
         // [SCENARIO 235867] Synchronizing a CRM Contact with a parent CRM Account, that is not Customer, should not create Customer
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.RegisterTestTableConnection;
         // [GIVEN] CRM Account 'X', where "Relationship Type" is not 'Customer'
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
@@ -483,14 +483,14 @@ codeunit 139181 "CRM Synch. Rules Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 235867] Synchronizing a Sales Invoice Header with a Customer, that is out of CUSTOMER map filter.
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.RegisterTestTableConnection;
         InitCRMBaseCurrency;
 
         // [GIVEN] Customer 'A'
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Sales Invoice Header, where "Sell-to Customer No." is 'A'
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Sell-to Customer No." := Customer."No.";
         SalesInvoiceHeader.Insert();
 
@@ -533,7 +533,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         CRMOrganization: Record "CRM Organization";
     begin
         LibraryCRMIntegration.CreateCRMOrganization;
-        CRMOrganization.FindFirst;
+        CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CRMConnectionSetup.Modify();
     end;
@@ -546,7 +546,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         MarketingSetup.Get();
         NoSeriesLine.SetRange("Series Code", MarketingSetup."Contact Nos.");
         NoSeriesLine.SetRange(Open, true);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         exit(NoSeriesLine."Last No. Used");
     end;
 
@@ -583,7 +583,7 @@ codeunit 139181 "CRM Synch. Rules Test"
     var
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
     begin
-        if not IntegrationSynchJobErrors.FindSet then
+        if not IntegrationSynchJobErrors.FindSet() then
             exit('');
 
         repeat

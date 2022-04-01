@@ -461,7 +461,7 @@ table 5468 "Picture Entity"
 
         if IntegrationManagement.GetIntegrationIsEnabledOnTheSystem() then begin
             IntegrationRecord.SetFilter("Integration ID", IDFilter);
-            if not IntegrationRecord.FindFirst then
+            if not IntegrationRecord.FindFirst() then
                 Error(RequestedRecordDoesNotExistErr);
         end else begin
             if not GetRecordRefFromFilter(IDFilter, ParentRecordRef) then
@@ -478,7 +478,7 @@ table 5468 "Picture Entity"
     begin
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
         AllObjWithCaption.SetRange("Object ID", TableID);
-        if AllObjWithCaption.FindFirst then;
+        if AllObjWithCaption.FindFirst() then;
         Error(StrSubstNo(RequestedRecordIsNotSupportedErr, AllObjWithCaption."Object Caption"));
     end;
 

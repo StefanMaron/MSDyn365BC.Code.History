@@ -30,7 +30,7 @@ codeunit 1215 "Data Exch. Type Selector"
         BestDataExchCode: Code[20];
         BestDataExchValue: Integer;
     begin
-        if DataExchangeType.FindSet then
+        if DataExchangeType.FindSet() then
             repeat
                 if DataExchDefUsesIntermediate(DataExchangeType."Data Exch. Def. Code") then begin
                     DataExchDef.Get(DataExchangeType."Data Exch. Def. Code");
@@ -90,7 +90,7 @@ codeunit 1215 "Data Exch. Type Selector"
             exit;
 
         DataExchangeType.SetRange("Data Exch. Def. Code", DataExchTypeCode);
-        DataExchangeType.FindFirst;
+        DataExchangeType.FindFirst();
 
         IncomingDocument.Get(IncomingDocCode);
         IncomingDocument.Validate("Data Exchange Type", DataExchangeType.Code);

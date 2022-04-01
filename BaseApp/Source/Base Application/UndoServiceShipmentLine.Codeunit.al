@@ -93,7 +93,7 @@ codeunit 5818 "Undo Service Shipment Line"
         with ServShptLine do begin
             Clear(ItemJnlPostLine);
             SetRange(Correction, false);
-            FindFirst;
+            FindFirst();
             repeat
                 if not HideDialog then
                     Window.Open(Text003);
@@ -105,7 +105,7 @@ codeunit 5818 "Undo Service Shipment Line"
             ServItem.SetRange("Sales/Serv. Shpt. Line No.", "Line No.");
             ServItem.SetRange("Shipment Type", ServItem."Shipment Type"::Service);
 
-            if ServItem.FindFirst then
+            if ServItem.FindFirst() then
                 if not HideDialog then
                     DeleteServItems := ConfirmManagement.GetResponseOrDefault(Text005, true)
                 else

@@ -39,7 +39,7 @@ page 9834 "User Group Permission Sets"
                         AggregatePermissionSet: Record "Aggregate Permission Set";
                     begin
                         AggregatePermissionSet.SetRange("Role ID", "Role ID");
-                        AggregatePermissionSet.FindFirst;
+                        AggregatePermissionSet.FindFirst();
                         Scope := AggregatePermissionSet.Scope;
                         "App ID" := AggregatePermissionSet."App ID";
                         CalcFields("Extension Name", "Role Name");

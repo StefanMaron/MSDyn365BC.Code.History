@@ -91,7 +91,7 @@ page 1327 "Adjust Inventory"
         Item.SetFilter("Location Filter", '%1', Code);
         Item.CalcFields(Inventory);
         TempItemJournalLine.SetRange("Location Code", Code);
-        TempItemJournalLine.FindFirst;
+        TempItemJournalLine.FindFirst();
     end;
 
     trigger OnOpenPage()
@@ -116,7 +116,7 @@ page 1327 "Adjust Inventory"
             LineNo := LineNo + 1;
         until Next() = 0;
 
-        FindFirst;
+        FindFirst();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

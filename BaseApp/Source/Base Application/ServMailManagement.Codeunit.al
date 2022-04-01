@@ -6,15 +6,10 @@ codeunit 5916 ServMailManagement
     var
         TempEmailItem: Record "Email Item" temporary;
         MailManagement: Codeunit "Mail Management";
-        EmailFeature: Codeunit "Email Feature";
     begin
-        if EmailFeature.IsEnabled() then begin
-            // do not silently exit if the sending failed
-            if not MailManagement.IsEnabled() then
-                Error(EmailSendErr, "To Address", "Subject Line")
-        end else
-            if not MailManagement.IsEnabled() then
-                exit;
+        // do not silently exit if the sending failed
+        if not MailManagement.IsEnabled() then
+            Error(EmailSendErr, "To Address", "Subject Line");
 
         InitTempEmailItem(TempEmailItem, Rec);
 
@@ -32,7 +27,7 @@ codeunit 5916 ServMailManagement
         ServerFile: File;
         InStream: Instream;
     begin
-        TempEmailItem.Initialize;
+        TempEmailItem.Initialize();
         if File.Exists(ServiceEmailQueue."Attachment Filename") then begin
             ServerFile.Open(ServiceEmailQueue."Attachment Filename");
             ServerFile.CreateInStream(InStream);

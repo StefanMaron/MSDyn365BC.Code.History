@@ -50,7 +50,7 @@ codeunit 132903 UserCardTest
     var
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         if isInitialized then
@@ -66,7 +66,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AddGoodPassword()
     begin
-        Initialize;
+        Initialize();
         PwErrorInMain := false;
         PwErrorInRepeat := false;
         PasswordComplexityHelper('Password1@', 'Password1@', '');
@@ -77,7 +77,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AddSimplePassword()
     begin
-        Initialize;
+        Initialize();
         PwErrorInMain := true;
         PwErrorInRepeat := false;
         PasswordComplexityHelper('password', 'password', PasswordsError003Err);
@@ -88,7 +88,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AddShortPassword()
     begin
-        Initialize;
+        Initialize();
         PwErrorInMain := true;
         PwErrorInRepeat := false;
         PasswordComplexityHelper('pass', 'pass', PasswordsError003Err);
@@ -99,7 +99,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AddJustNumbersPassword()
     begin
-        Initialize;
+        Initialize();
         PwErrorInMain := true;
         PwErrorInRepeat := false;
         PasswordComplexityHelper('12345678', '12345678', PasswordsError003Err);
@@ -110,7 +110,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AddNoNumbersPassword()
     begin
-        Initialize;
+        Initialize();
         PwErrorInMain := true;
         PwErrorInRepeat := false;
         PasswordComplexityHelper('passWORD', 'passWORD', PasswordsError003Err);
@@ -121,7 +121,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AddJustUppercasePassword()
     begin
-        Initialize;
+        Initialize();
         PwErrorInMain := true;
         PwErrorInRepeat := false;
         PasswordComplexityHelper('PASSWORD', 'PASSWORD', PasswordsError003Err);
@@ -132,7 +132,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AddNoUppercasePassword()
     begin
-        Initialize;
+        Initialize();
         PwErrorInMain := true;
         PwErrorInRepeat := false;
         PasswordComplexityHelper('passw0rd', 'passw0rd', PasswordsError003Err);
@@ -143,7 +143,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AddNoLowercasePassword()
     begin
-        Initialize;
+        Initialize();
         PwErrorInMain := true;
         PwErrorInRepeat := false;
         PasswordComplexityHelper('PASSW0RD', 'PASSW0RD', PasswordsError003Err);
@@ -154,7 +154,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AddPasswordNotMatching()
     begin
-        Initialize;
+        Initialize();
         PwErrorInMain := false;
         PwErrorInRepeat := true;
         PasswordComplexityHelper('Something1@', 'SomethingElse', PasswordsError001Err);
@@ -262,8 +262,8 @@ codeunit 132903 UserCardTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        Initialize;
-        UserCardPage.OpenNew;
+        Initialize();
+        UserCardPage.OpenNew();
         asserterror UserCardPage."User Name".Value := User001Msg;
         if UserCardPage.GetValidationError <> UserAlReadyExist001Err then begin
             ValidationError := UserCardPage.GetValidationError;
@@ -457,13 +457,13 @@ codeunit 132903 UserCardTest
         UserCard: TestPage "User Card";
         IsMapped: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // [FEATURE] [Office Authentication]
         // [SCENARIO] Verify User card reflects if a User has Exchange Identifier.
         // [GIVEN] New uncommitted Blank User
         // [WHEN] Opening the User card
-        UserCard.OpenNew;
+        UserCard.OpenNew();
         // [THEN] Mapped To Exchange Identifier is not checked
         Evaluate(IsMapped, Format(UserCard.MappedToExchangeIdentifier.Value));
         Assert.IsFalse(IsMapped, 'Did not expect Mapped to Exchange Identifier to be true for a new user.');
@@ -472,7 +472,7 @@ codeunit 132903 UserCardTest
         // [GIVEN] Give an existing user
         // [GIVEN] The Exchange Identifier Field is not populated
         User.SetRange("User Name", User001Msg);
-        User.FindFirst;
+        User.FindFirst();
         if User."Exchange Identifier" <> '' then begin
             Clear(User."Exchange Identifier");
             User.Modify(true);
@@ -490,7 +490,7 @@ codeunit 132903 UserCardTest
         // [GIVEN] Give an existing user
         // [GIVEN] The Exchange Identifier Field is populated
         User.SetRange("User Name", User001Msg);
-        User.FindFirst;
+        User.FindFirst();
         User."Exchange Identifier" := 'Something @ somewhere';
         User.Modify(true);
         // [WHEN] Opening the User card
@@ -511,13 +511,13 @@ codeunit 132903 UserCardTest
         User: Record User;
         UserCard: TestPage "User Card";
     begin
-        Initialize;
+        Initialize();
         // [FEATURE] [Office Authentication]
         // [SCENARIO] Verify Delete Exchange Identifier Mapping action can delete Exchange Identifier value
 
         // [GIVEN] A User without Exchange Identifier set
         User.SetRange("User Name", User001Msg);
-        User.FindFirst;
+        User.FindFirst();
         if User."Exchange Identifier" <> '' then begin
             User."Exchange Identifier" := '';
             User.Modify(true);
@@ -546,7 +546,7 @@ codeunit 132903 UserCardTest
         UserCard.DeleteExchangeIdentifier.Invoke;
         // [THEN] The Exchange Identifier is deleted
         User.SetRange("User Name", User001Msg);
-        User.FindFirst;
+        User.FindFirst();
         Assert.AreEqual('', User."Exchange Identifier", 'Expected the Exchange Identifier to be cleared when invoking the action');
     end;
 
@@ -559,7 +559,7 @@ codeunit 132903 UserCardTest
         UserCardPage: TestPage "User Card";
     begin
         // [SCENARIO 169815] Lookup User Group Code from User Groups subpage opens page User Groups
-        Initialize;
+        Initialize();
 
         // [GIVEN] New user group "UserGroup"
         LibraryPermissions.CreateUserGroup(UserGroup, '');
@@ -594,7 +594,7 @@ codeunit 132903 UserCardTest
 
         // [WHEN] A new user card is opened, create new super user dialog
         // opens (for logged in user) and answered yes
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage.Close;
 
         // [THEN] a new user exists
@@ -619,7 +619,7 @@ codeunit 132903 UserCardTest
 
         // [WHEN] A new user card is opened, create new super user dialog
         // opens (for logged in user) and answered no
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage.Close;
 
         // [THEN] The number of users remains zero
@@ -688,7 +688,7 @@ codeunit 132903 UserCardTest
         UserGroupMembers: TestPage "User Group Members";
     begin
         // [SCENARIO 284626] No error thrown when user added to User Group by "User Name".
-        Initialize;
+        Initialize();
 
         // [GIVEN] "User Group" - "X"
         LibraryPermissions.CreateUserGroup(UserGroup, '');
@@ -726,7 +726,7 @@ codeunit 132903 UserCardTest
         UserGroupMembers: TestPage "User Group Members";
     begin
         // [SCENARIO 284626] No error thrown when user added to User Group on Lookup
-        Initialize;
+        Initialize();
 
         // [GIVEN] "User Group" - "X"
         LibraryPermissions.CreateUserGroup(UserGroup, '');
@@ -826,7 +826,7 @@ codeunit 132903 UserCardTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := UserName;
         UserCardPage.Close;
     end;
@@ -1005,7 +1005,7 @@ codeunit 132903 UserCardTest
         UserGroupMember: Record "User Group Member";
     begin
         User.SetRange("User Name", User001Msg);
-        User.FindFirst;
+        User.FindFirst();
         UserGroupMember.SetRange("User Security ID", User."User Security ID");
         UserGroupMember.SetRange("User Group Code", UserGroupCode);
         Assert.RecordIsNotEmpty(UserGroupMember);

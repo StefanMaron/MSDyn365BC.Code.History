@@ -413,7 +413,7 @@ table 7152 "Item Analysis View"
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         NoNotUpdated: Integer;
     begin
-        if ValueEntry.FindLast or ItemBudgetEntry.FindLast then begin
+        if ValueEntry.FindLast or ItemBudgetEntry.FindLast() then begin
             NoNotUpdated := 0;
             Reset;
             if Find('-') then

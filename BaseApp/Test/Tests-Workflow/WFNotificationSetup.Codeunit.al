@@ -25,7 +25,7 @@ codeunit 134311 "WF Notification Setup"
     begin
         // [SCENARIO] When Notification Setup with Notification Schedule
         // is deleted then Notification Schedule is deleted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Notification Setup with Notification Schedule
         CreateNotificationSetup(NotificationSetup);
@@ -40,7 +40,7 @@ codeunit 134311 "WF Notification Setup"
 
     local procedure Initialize()
     begin
-        TestUserID := LibraryUtility.GenerateGUID;
+        TestUserID := LibraryUtility.GenerateGUID();
     end;
 
     local procedure CreateNotificationSetup(var NotificationSetup: Record "Notification Setup")

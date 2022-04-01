@@ -275,7 +275,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
             LinesNotCopied := LinesNotCopied + 1;
     end;
 
-    local procedure CheckItemAvailable(var ToInvtDocHeader: Record "Invt. Document Header"; var ToInvtDocLine: Record "Invt. Document Line")
+    procedure CheckItemAvailable(var ToInvtDocHeader: Record "Invt. Document Header"; var ToInvtDocLine: Record "Invt. Document Line")
     begin
         if HideDialog then
             exit;

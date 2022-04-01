@@ -1,9 +1,11 @@
 page 9174 "All Objects with Caption"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'All Objects with Caption';
     Editable = false;
     PageType = List;
     SourceTable = AllObjWithCaption;
+    UsageCategory = Tasks;
 
     layout
     {

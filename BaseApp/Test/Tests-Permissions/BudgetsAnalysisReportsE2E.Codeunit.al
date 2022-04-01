@@ -43,7 +43,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         // [SCENARIO] Setup and use Sales Budgets & Analysis Reports as Business Manager
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Business Manager plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -77,7 +77,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         // [SCENARIO] Setup and use Cost Accounting as Accountant
-        Initialize;
+        Initialize();
 
         // [GIVEN] The External Accountant plan
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
@@ -111,7 +111,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         // [SCENARIO] Setup and use Cost Accounting as Team Member
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Team Member plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -158,7 +158,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         // [SCENARIO] Setup and use Purchase Budgets & Analysis Reports as Business Manager
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Business Manager plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -191,7 +191,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         // [SCENARIO] Setup and use Purchase Budgets & Analysis Reports as External Accountant
-        Initialize;
+        Initialize();
 
         // [GIVEN] The External Accountant plan
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
@@ -224,7 +224,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         // [SCENARIO] Setup and use Purchase Budgets & Analysis Reports as Team Member
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Team Member plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -290,7 +290,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
@@ -325,7 +325,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     var
         AnalysisReportSale: TestPage "Analysis Report Sale";
     begin
-        AnalysisReportSale.OpenNew;
+        AnalysisReportSale.OpenNew();
         AnalysisReportSale.Name.SetValue(SalesTok);
         AnalysisReportSale.Description.SetValue(SalesSelectedItemsTxt);
         AnalysisReportSale."Analysis Line Template Name".SetValue(SelectedTok);
@@ -337,7 +337,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     var
         AnalysisReportPurchase: TestPage "Analysis Report Purchase";
     begin
-        AnalysisReportPurchase.OpenNew;
+        AnalysisReportPurchase.OpenNew();
         AnalysisReportPurchase.Name.SetValue(SalesTok);
         AnalysisReportPurchase.Description.SetValue(SalesSelectedItemsTxt);
         AnalysisReportPurchase."Analysis Line Template Name".SetValue(SelectedTok);
@@ -559,13 +559,13 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         PurchaseAnalysisReport.ShowMatrix.Invoke;
     end;
 
-    [ModalPageHandler]
+    [PageHandler]
     [Scope('OnPrem')]
     procedure SalesAnalysisMatrixModalPageHandler(var SalesAnalysisMatrix: TestPage "Sales Analysis Matrix")
     begin
     end;
 
-    [ModalPageHandler]
+    [PageHandler]
     [Scope('OnPrem')]
     procedure PurchaseAnalysisMatrixModalPageHandler(var PurchaseAnalysisMatrix: TestPage "Purchase Analysis Matrix")
     begin

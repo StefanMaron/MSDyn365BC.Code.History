@@ -36,7 +36,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -65,7 +65,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -94,7 +94,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -123,7 +123,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -153,7 +153,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -182,7 +182,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -210,7 +210,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -239,7 +239,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -266,7 +266,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -294,7 +294,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalLine: Record "Cost Journal Line";
         Amount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -326,7 +326,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -354,7 +354,7 @@ codeunit 134811 "ERM CA Cost Journal"
     var
         CostJnlBatchPage: TestPage "Cost Journal Batches";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CostJnlBatchPage.OpenEdit;
@@ -375,7 +375,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -399,7 +399,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -428,7 +428,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalLine: Record "Cost Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -455,7 +455,7 @@ codeunit 134811 "ERM CA Cost Journal"
     var
         CostJournalPage: TestPage "Cost Journal";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CostJournalPage.OpenEdit;
@@ -478,7 +478,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostJournalBatch: Record "Cost Journal Batch";
         CostJournalPage: TestPage "Cost Journal";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
@@ -578,7 +578,7 @@ codeunit 134811 "ERM CA Cost Journal"
         CostRegister: Record "Cost Register";
     begin
         // Validate cost register
-        CostRegister.FindLast;
+        CostRegister.FindLast();
         Assert.AreEqual(CostRegister.Source::"Cost Journal", CostRegister.Source, CostRegisterSourceCodeError);
         // active bug id 252400
         Assert.AreEqual(CostRegister."No. of Entries", CostRegister."To Cost Entry No." - CostRegister."From Cost Entry No." + 1,
@@ -644,7 +644,7 @@ codeunit 134811 "ERM CA Cost Journal"
     local procedure CopyCostJnlTemplate(var CostJnlTemplateFrom: Record "Cost Journal Template"; var CostJnlTemplateTo: Record "Cost Journal Template")
     begin
         CostJnlTemplateTo.DeleteAll();
-        if CostJnlTemplateFrom.FindSet then
+        if CostJnlTemplateFrom.FindSet() then
             repeat
                 CostJnlTemplateTo.Copy(CostJnlTemplateFrom);
                 CostJnlTemplateTo.Insert();

@@ -56,7 +56,7 @@ codeunit 130011 "Backup Management"
         if not IsEnabled then
             exit;
 
-        Initialize;
+        Initialize();
 
         IsRestoring := true;
         BackupStorage.RestoreTaintedTables(BackupNameToNo(DefaultFixtureName), true);
@@ -68,14 +68,14 @@ codeunit 130011 "Backup Management"
     begin
         // Backup the tables within the filter as a shared fixture to a reserved backup.
 
-        Initialize;
+        Initialize();
         BackupRegister[2] := SharedFixtureName;
 
         // Set shared fixture name and filter
         SharedFixtureFilter := Filter;
 
         TempTableMetadata.SetFilter(ID, SharedFixtureFilter);
-        if TempTableMetadata.FindSet then begin
+        if TempTableMetadata.FindSet() then begin
             repeat
                 DeleteTableFromBackupNo(2, TempTableMetadata.ID);
                 BackupTable(SharedFixtureName, TempTableMetadata.ID)
@@ -93,7 +93,7 @@ codeunit 130011 "Backup Management"
             exit;
 
         TempTableMetadata.SetFilter(ID, SharedFixtureFilter);
-        if TempTableMetadata.FindSet then
+        if TempTableMetadata.FindSet() then
             repeat
                 BackupStorage.RestoreTableFromBackupNo(2, CompanyName, TempTableMetadata.ID)
             until TempTableMetadata.Next = 0
@@ -107,12 +107,12 @@ codeunit 130011 "Backup Management"
         // Create a backup of the current database named <Backup>.
         // An error is thrown if backup <Backup> already exists.
 
-        Initialize;
+        Initialize();
 
         BackupNo := InitBackup(Backup);
         TempTableMetadata.Reset();
 
-        if TempTableMetadata.FindSet then
+        if TempTableMetadata.FindSet() then
             repeat
                 BackupStorage.BackupTableInBackupNo(BackupNo, CompanyName, TempTableMetadata.ID);
             until TempTableMetadata.Next = 0;
@@ -141,7 +141,7 @@ codeunit 130011 "Backup Management"
         TempTableMetadata.Reset();
 
         Increment := 9998 / (TempTableMetadata.Count - 1);
-        if TempTableMetadata.FindSet then
+        if TempTableMetadata.FindSet() then
             repeat
                 if Abs(Time - WindowsUpdateTime) > 1000 then begin
                     ProgressDialog.Update(1, Round(Progress, 1));
@@ -166,7 +166,7 @@ codeunit 130011 "Backup Management"
         // If a backup of table <TableNo> already exists in backup <Backup>
         // nothing happens.
 
-        Initialize;
+        Initialize();
 
         BackupNo := GetBackupNo(Backup);
         if BackupNo = 0 then
@@ -372,7 +372,7 @@ codeunit 130011 "Backup Management"
         TableMetadata.SetFilter(ObsoleteState, '<>%1', TableMetadata.ObsoleteState::Removed);
         TableMetadata.SetRange(DataIsExternal, false);
 
-        if TableMetadata.FindSet then
+        if TableMetadata.FindSet() then
             repeat
                 // open a record ref to the table
                 RecRef.Open(TableMetadata.ID);
@@ -423,7 +423,7 @@ codeunit 130011 "Backup Management"
             exit;
 
         if not BackupExists(DefaultFixtureName) then
-            Initialize;
+            Initialize();
 
         BackupNo := BackupNameToNo(DefaultFixtureName);
 

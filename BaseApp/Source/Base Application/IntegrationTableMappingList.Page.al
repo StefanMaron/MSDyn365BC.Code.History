@@ -246,12 +246,16 @@ page 5335 "Integration Table Mapping List"
 
                 trigger OnAction()
                 var
+                    Field: Record Field;
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                 begin
                     if IsEmpty() then
                         exit;
 
-                    SynchronizeNow(false);
+                    if "Int. Table UID Field Type" = Field.Type::Option then
+                        SynchronizeOptionNow(false, false)
+                    else
+                        SynchronizeNow(false);
                     Message(SynchronizeModifiedScheduledMsg, IntegrationSynchJobList.Caption);
                 end;
             }
@@ -267,6 +271,7 @@ page 5335 "Integration Table Mapping List"
 
                 trigger OnAction()
                 var
+                    Field: Record Field;
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                 begin
                     if IsEmpty() then
@@ -274,7 +279,11 @@ page 5335 "Integration Table Mapping List"
 
                     if not Confirm(StartFullSynchronizationQst) then
                         exit;
-                    SynchronizeNow(true);
+
+                    if "Int. Table UID Field Type" = Field.Type::Option then
+                        SynchronizeOptionNow(true, false)
+                    else
+                        SynchronizeNow(true);
                     Message(FullSynchronizationScheduledMsg, IntegrationSynchJobList.Caption);
                 end;
             }
@@ -289,6 +298,7 @@ page 5335 "Integration Table Mapping List"
 
                 trigger OnAction()
                 var
+                    Field: Record Field;
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                 begin
                     if IsEmpty() then
@@ -296,7 +306,11 @@ page 5335 "Integration Table Mapping List"
 
                     if not Confirm(StartUnconditionalFullSynchronizationQst) then
                         exit;
-                    SynchronizeNow(true, true);
+
+                    if "Int. Table UID Field Type" = Field.Type::Option then
+                        SynchronizeOptionNow(true, true)
+                    else
+                        SynchronizeNow(true, true);
                     Message(FullSynchronizationScheduledMsg, IntegrationSynchJobList.Caption);
                 end;
             }
@@ -355,6 +369,8 @@ page 5335 "Integration Table Mapping List"
                 var
                     IntegrationTableMapping: Record "Integration Table Mapping";
                     FilteredIntegrationTableMapping: Record "Integration Table Mapping";
+                    CRMOptionMapping: Record "CRM Option Mapping";
+                    Field: Record Field;
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                     ForegroundCount: Integer;
@@ -379,7 +395,12 @@ page 5335 "Integration Table Mapping List"
                         exit;
 
                     repeat
-                        CRMIntegrationManagement.RemoveCoupling(IntegrationTableMapping."Table ID", IntegrationTableMapping."Integration Table ID");
+                        if IntegrationTableMapping."Int. Table UID Field Type" = Field.Type::Option then begin
+                            CRMOptionMapping.SetRange("Table ID", IntegrationTableMapping."Table ID");
+                            CRMOptionMapping.SetRange("Integration Table ID", IntegrationTableMapping."Integration Table ID");
+                            CRMOptionMapping.DeleteAll();
+                        end else
+                            CRMIntegrationManagement.RemoveCoupling(IntegrationTableMapping."Table ID", IntegrationTableMapping."Integration Table ID");
                         if IntegrationTableMapping."Uncouple Codeunit ID" = Codeunit::"CDS Int. Table Uncouple" then
                             JobCount += 1
                         else

@@ -233,12 +233,12 @@ codeunit 5520 "Get Unplanned Demand"
                     UpdateWindow;
                     DemandQtyBase := GetJobPlanningLineNeededQty(JobPlanningLine);
                     if DemandQtyBase > 0 then begin
-                        if not ((JobPlanningLine.Status = "Demand SubType") and
+                        if not ((JobPlanningLine.Status.AsInteger() = "Demand SubType") and
                                 (JobPlanningLine."Job No." = "Demand Order No."))
                         then begin
                             Job.Get(JobPlanningLine."Job No.");
                             InsertUnplannedDemand(
-                              UnplannedDemand, "Demand Type"::Job, JobPlanningLine.Status, JobPlanningLine."Job No.", Job.Status.AsInteger());
+                              UnplannedDemand, "Demand Type"::Job, JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", Job.Status.AsInteger());
                             OnGetUnplannedJobPlanningLineOnAfterInsertUnplannedDemand(UnplannedDemand);
                         end;
                         InsertJobPlanningLine(UnplannedDemand);

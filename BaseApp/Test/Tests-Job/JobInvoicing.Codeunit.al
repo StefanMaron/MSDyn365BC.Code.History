@@ -196,7 +196,7 @@ codeunit 136306 "Job Invoicing"
         // Verify created sales invoice
 
         // Setup
-        Initialize;
+        Initialize();
         Plan(LineType, ConsumableType, JobPlanningLine);
 
         // Exercise
@@ -223,7 +223,7 @@ codeunit 136306 "Job Invoicing"
         // Verify "Qty. Transferred to Invoice", "Qty. to Transfer to Invoice"
 
         // Setup
-        Initialize;
+        Initialize();
         Plan(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, JobPlanningLine);
 
         // Exercise
@@ -262,7 +262,7 @@ codeunit 136306 "Job Invoicing"
         // Verify 2 invoices have been created
 
         // Setup
-        Initialize;
+        Initialize();
         Plan(LineType, ConsumableType, JobPlanningLine);
 
         // Exercise
@@ -429,7 +429,7 @@ codeunit 136306 "Job Invoicing"
         // Create Job and Job Planning Line and Create Job Journal with Line Type Blank and Create - Post Sales Invoice and Verify GL Entry.
 
         // Setup: Create Job and Job Planning Line and Create sales Invoice.
-        Initialize;
+        Initialize();
         JobNo := CreateSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, false, false);
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
         LineAmount := SalesLine."Line Amount";
@@ -454,7 +454,7 @@ codeunit 136306 "Job Invoicing"
         // Create Job and Job Planning Line and Create Job Journal with Line Type Blank and Create - Post Sales Invoice and Verify Line Type Billable in Job Ledger Entry.
 
         // Setup: Create Job and Job Planning Line and Create sales Invoice.
-        Initialize;
+        Initialize();
         JobNo := CreateSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, false, false);
         // Exercise: Post sales Invoice.
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -496,7 +496,7 @@ codeunit 136306 "Job Invoicing"
         // Create Customer & Job with Dimension and Create - Sales Invoice from Job Planning Line and Verify Sales Line Dimension Set ID.
 
         // Setup: Create Customer & Job with Dimension.
-        Initialize;
+        Initialize();
         CreateJobPlanningLineWithDimension(JobPlanningLine);
 
         // Exercise: Create sales Invoice from Job Planning Line and find related Sales Line.
@@ -519,7 +519,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // Create Job and Job Planning Line and Create Job Journal with Line Type Blank and Create - Post Sales Invoice and Verify Job Ledger Entry.
         // Setup: Create Job and Job Planning Line and Create sales Invoice.
-        Initialize;
+        Initialize();
         JobNo := CreateSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, true, false);
         // Exercise: Post sales Invoice.
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -541,7 +541,7 @@ codeunit 136306 "Job Invoicing"
         // Verify dimension value on Job Journal Line when Job Journal line created with Job and Job Task.
 
         // Setup: Create Job and Job task with dimension.
-        Initialize;
+        Initialize();
         DimensionValueCode := CreateJobTaskWithDimension(JobTask);
 
         // Exercise: Create Job Journal Line.
@@ -565,7 +565,7 @@ codeunit 136306 "Job Invoicing"
         // Verify dimension value on Job Ledger Entry when Job Journal line posted with Job and Job Task.
 
         // Setup: Create Job and Job task with dimension.
-        Initialize;
+        Initialize();
         CreateJobTaskWithDimension(JobTask);
 
         // Exercise: Create and post Job Journal Line.
@@ -588,7 +588,7 @@ codeunit 136306 "Job Invoicing"
         // Verify dimension on Job WIP Entry after running the report Job calculate WIP.
 
         // Setup: Create Job and Job task with dimension and create Post Job Journal Line.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(true);
         CreateJobTaskWithDimension(JobTask);
         CreateAndPostJobJournalLineWithTypeItem(JobJournalLine, JobTask);
@@ -620,7 +620,7 @@ codeunit 136306 "Job Invoicing"
         // Verify Item dimension on Job journal line when Job jounal line created from Job Planning line.
 
         // Setup: Create Item With Dimension and Create Job Planning Line.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         LibraryDimension.CreateDefaultDimensionItem(
@@ -652,7 +652,7 @@ codeunit 136306 "Job Invoicing"
         // Check that dimensions are successfully combined from job journal line and job task dimensions
 
         // Setup: Create job task, job task dimenion, item and item default dimension.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         CreateJobTaskDim(JobTaskDim, JobTask);
         LibraryInventory.CreateItem(Item);
@@ -740,7 +740,7 @@ codeunit 136306 "Job Invoicing"
         // Create Job and Job Planning Line and Create Job Journal with Line Type Billable and Manually set Dimension and Create Sales Invoice and Verify Dimensions.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         CreateJobTaskGlobalDim(JobTaskDim, JobTask);
         LibraryInventory.CreateItem(Item);
@@ -772,7 +772,7 @@ codeunit 136306 "Job Invoicing"
         // Verify Qty. Invoiced, Qty. to Invoice
 
         // Setup
-        Initialize;
+        Initialize();
         with JobPlanningLine do begin
             // Plan
             Plan(LineType, ConsumableType, JobPlanningLine);
@@ -804,7 +804,7 @@ codeunit 136306 "Job Invoicing"
         JobJnlLine: Record "Job Journal Line";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateJobTaskWithDimensions(JobTask);
         LibraryJob.CreateJobJournalLine(JobJnlLine."Line Type"::Billable, JobTask, JobJnlLine);
 
@@ -830,7 +830,7 @@ codeunit 136306 "Job Invoicing"
         JobJournalLine: Record "Job Journal Line";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateJobPlanningLineWithItem(JobPlanningLine);
         CreateJobJnlLineFromJobPlanningLine(JobJournalLine, JobPlanningLine);
 
@@ -857,7 +857,7 @@ codeunit 136306 "Job Invoicing"
         JobJournalLineDimSetID: Integer;
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreatePostJobJnlLineWithDimJobPlanningLine(JobPlanningLine, DimensionCode, JobJournalLineDimSetID);
         // EXERCISE: Create Job Sales Line
         TransferJobPlanningLine(JobPlanningLine, 1, false, SalesHeader);
@@ -878,7 +878,7 @@ codeunit 136306 "Job Invoicing"
         ExpectedUnitPrice: Decimal;
     begin
         // [SCENARIO] Verifies Job Journal Line's Unit Price properly calculated after line's quantity update
-        Initialize;
+        Initialize();
         // [GIVEN] Create Job Journal Line with Item and Job Item Price setup
         ExpectedUnitPrice := CreateJobJnlLine(JobJournalLine);
         // [WHEN] Quantity updated in Job Journal Line
@@ -896,7 +896,7 @@ codeunit 136306 "Job Invoicing"
         ExpectedUnitPrice: Decimal;
     begin
         // [SCENARIO] Verifies Job Journal Line's Unit Price properly calculated after line's location update
-        Initialize;
+        Initialize();
         // [GIVEN] Create Job Journal Line with Item and Job Item Price setup
         // [GIVEN] Create new location for update Job Journal Line
         ExpectedUnitPrice := CreateJobJnlLine(JobJournalLine);
@@ -919,7 +919,7 @@ codeunit 136306 "Job Invoicing"
         DocumentNo: Code[20];
     begin
         // [SCENARIO] Verifies that Sales Invoice can be posted after changing Description
-        Initialize;
+        Initialize();
         // [GIVEN] Create Job Journal Line
         CreateJobPlanningLineWithResource(JobTask);
         // [GIVEN] Create Sales Invoice and change Description
@@ -943,7 +943,7 @@ codeunit 136306 "Job Invoicing"
         JobNo: Code[20];
     begin
         // [SCENARIO 120828] Sales Invoice's "Prices Incl. VAT" value should not affect Job Ledger Entry fields "Line Amount" and "Unit Price". Sale is in LCY.
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Invoice (LCY, Prices Incl. VAT = true) created from Job Planning Line
         JobNo := CreateSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, false, true);
         // [WHEN] Sales Invoice posted
@@ -965,7 +965,7 @@ codeunit 136306 "Job Invoicing"
         JobNo: Code[20];
     begin
         // [SCENARIO 120828] Sales Invoice's "Prices Incl. VAT" value should not affect Job Ledger Entry fields "Line Amount" and "Unit Price". Sale is in FCY.
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Invoice (FCY, Prices Incl. VAT = true) created from Job Planning Line
         JobNo := CreateSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, true, true);
         // [WHEN] Sales Invoice posted
@@ -988,7 +988,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [FCY]
         // [SCENARIO 375614] Sales Invoice created from Job with FCY and Job Planning Line with Type = Text
 
-        Initialize;
+        Initialize();
         // [GIVEN] Job with Currency Code
         CreateJobWithCurrency(Job);
 
@@ -1019,7 +1019,7 @@ codeunit 136306 "Job Invoicing"
         // [SCENARIO 376225] Document Date should be transfered from Sales Invoice to Job Ledger Entry
 
         // [GIVEN] Sales Invoice with "Posting Date" = 15.01 and "Document Date" = 10.01
-        Initialize;
+        Initialize();
         Plan(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, JobPlanningLine);
         TransferJobPlanningLine(JobPlanningLine, 1, false, SalesHeader);
 
@@ -1046,7 +1046,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Currency] [Purchase]
         // [SCNEARIO 377381] "Job Currency Factor" should not be updated in Purchase Line when cancel exchange rate update on Purchase Order
 
-        Initialize;
+        Initialize();
         // [GIVEN] Job Task with Currency
         CreateJobWithCurrency(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -1084,7 +1084,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [SCENARIO 380416] Job Ledger Entry is pointing to a correct General Ledger Entry when Sales Invoice has been posted with various VAT Production Posting Groups.
 
-        Initialize;
+        Initialize();
         CreateGenPostingGroups(GenProdPostingGroupCode, GenBusPostingGroupCode);
         CreateVATPostingGroupsArray(VATBusPostingGroup, VATProdPostingGroupArray, VATPostingSetupArray);
         GLAccountNo := SetupGLAccount(VATPostingSetupArray[1], GenBusPostingGroupCode, GenProdPostingGroupCode);
@@ -1118,7 +1118,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Currency] [UI]
         // [SCENARIO 201069] Isaac can create Sales Invoice from Job Planning Line twice for Job with "Currency Code"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Currency Code"
         CreateJobWithCurrency(Job);
@@ -1154,7 +1154,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Undo Receipt]
         // [SCENARIO 209289] Cost Amount is actual when undo the receipt of Purchase Order with Job
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Receive Purchase Order with Item "X", Job and Cost Amount = 100
         CreatePurchaseOrderWithJob(PurchaseHeader, PurchaseLine);
@@ -1182,7 +1182,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [SCENARIO 209289] Cost amount is actual when post Credit Memo with lines to reverse from Purchase Order with Job
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Item "X", Job and Cost Amount = 100
         CreatePurchaseOrderWithJob(PurchaseHeader, PurchaseLine);
@@ -1215,7 +1215,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Undo Receipt]
         // [SCENARIO 209289] Cost Amount is actual when undo the receipt of Purchase Order with Job and Lot tracking
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Receive Purchase Order with Item "X", Lot Tracking, Job and Cost Amount = 100
         LibraryItemTracking.CreateLotItem(Item);
@@ -1246,7 +1246,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Undo Receipt]
         // [SCENARIO 209289] Cost Amount is actual when undo the receipt of Purchase Order with Job and Serial No. tracking
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Receive Purchase Order with Item "X", Serial No. Tracking, Job and Cost Amount = 100
         LibraryItemTracking.CreateSerialItem(Item);
@@ -1276,7 +1276,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Undo Receipt]
         // [SCENARIO 209289] Item Ledger Entries after undo the receipt are reopen for adjustment
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Receive Purchase Order with Item "X", Job and Cost Amount = 100
         PostedRcptNo := PostPurchaseOrderWithJob(true, false);
@@ -1309,7 +1309,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Undo Receipt]
         // [SCENARIO 209289] Cost Amount is actual when undo the receipt of Purchase Order with Job on later "Posting Date"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Receive Purchase Order with "Posting Date" = 01.01, Item "X", Job and Cost Amount = 100
         PostedRcptNo := PostPurchaseOrderWithJob(true, false);
@@ -1339,7 +1339,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Undo Receipt]
         // [SCENARIO 209289] Item Register is created when undo the receipt of Purchase Order with Job
-        Initialize;
+        Initialize();
 
         // [GIVEN] Receive Purchase Order with Item and Job
         PostedRcptNo := PostPurchaseOrderWithJob(true, false);
@@ -1367,7 +1367,7 @@ codeunit 136306 "Job Invoicing"
         JobInvoicesTestPage.Trap;
 
         JobInvoicesPage.SetShowDetails(false);
-        JobInvoicesPage.Run;
+        JobInvoicesPage.Run();
 
         Assert.IsFalse(JobInvoicesTestPage."Transferred Date".Visible, JobInvoicesTestPage."Transferred Date".Caption);
         Assert.IsFalse(JobInvoicesTestPage."Invoiced Date".Visible, JobInvoicesTestPage."Invoiced Date".Caption);
@@ -1386,7 +1386,7 @@ codeunit 136306 "Job Invoicing"
         JobInvoicesTestPage.Trap;
 
         JobInvoicesPage.SetShowDetails(true);
-        JobInvoicesPage.Run;
+        JobInvoicesPage.Run();
 
         Assert.IsTrue(JobInvoicesTestPage."Transferred Date".Visible, JobInvoicesTestPage."Transferred Date".Caption);
         Assert.IsTrue(JobInvoicesTestPage."Invoiced Date".Visible, JobInvoicesTestPage."Invoiced Date".Caption);
@@ -1474,7 +1474,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice]
         // [SCENARIO 208992] Cancel Invoice action from posted sales invoice card leads to creating job planning lines and posting appropriate credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with job
         CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, 1);
@@ -1514,7 +1514,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice]
         // [SCENARIO 208992] Job Planning Line for credit memo (created during cancel sales invoice) has same quantity which were used for creation sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job planning line with Quantity = 100, "Qty. to Transfer to Invoice" = 50
         CreateSimpleSalesInvoiceFromJobPlanningLine(
@@ -1548,7 +1548,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice]
         // [SCENARIO 208992] Job Planning Line for credit memo (created during cancel sales invoice) has same quantity which were used for creation sales invoice when there is a nonposted second invoice create from same job planing line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job planning line with Quantity = 100, "Qty. to Transfer to Invoice" = 60
         CreateSimpleSalesInvoiceFromJobPlanningLine(
@@ -1588,7 +1588,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice]
         // [SCENARIO 208992] Job Planning Line for credit memo (created during cancel of second sales invoice) has same quantity which were used for creation sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job planning line with Quantity = 100, "Qty. to Transfer to Invoice" = 60
         CreateSimpleSalesInvoiceFromJobPlanningLine(
@@ -1627,7 +1627,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice]
         // [SCENARIO 208992] Cancel Invoice action from posted sales invoice card leads to creating job planning lines with line type = "Billable" and posting appropriate credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with job, line type of job planning line = "Both Budget and Billable"
         CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeBoth, 1);
@@ -1656,7 +1656,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice] [UI]
         // [SCENARIO 208992] The confirmation message for Cancel Invoice action for document with job does not contain old job related part
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with job
         // [GIVEN] Open posted invoice card page
@@ -1683,7 +1683,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice]
         // [SCENARIO 208992] Resource unit cost for the reversing job planning line is copied from initial job planning line while canceling the sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with job and resource with Unit Cost = 100
         CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, 1);
@@ -1717,7 +1717,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice]
         // [SCENARIO 208992] Sales invoice can be canceled if it was created from job planning line with Text type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice made from job planning lines with resource and text types
         CreateSalesInvoiceWithResourceAndTextTypes(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract);
@@ -1746,7 +1746,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice]
         // [SCENARIO 208992] User is not able to cancel posted sales invoice if it contains reference to the blocked job
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with job
         CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, 1);
@@ -1782,7 +1782,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Correct Invoice]
         // [SCENARIO 208992] Correct Invoice action from posted sales invoice card leads to creating job planning lines and posting appropriate credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with job
         CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, 1);
@@ -1805,7 +1805,7 @@ codeunit 136306 "Job Invoicing"
         SalesLine.SetRange("Document No.", NewSalesInvoiceHeader."No.");
         SalesLine.SetFilter(Type, '<>0');
         SalesLine.SetFilter("Job Contract Entry No.", '<>%1', JobPlanningLine."Job Contract Entry No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Job Contract Entry No.");
 
         // [THEN] Job planning line for new invoice created
@@ -1828,7 +1828,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Cancel Invoice] [UI]
         // [SCENARIO 208992] The confirmation message for Correct Invoice action for document with job does not contain old job related part
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with job
         // [GIVEN] Open posted invoice card page
@@ -1854,7 +1854,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Invoice] [Sales] [UT]
         // [SCENARIO 225966] COD1002.FindInvoices function transfers copies "Transfered Date" and "Invoiced Date" to output temporary record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice "I" created from job "X" with the job planning line
         // [GIVEN] Created "Job Planning Line Invoice" for "I" has "Transfered Date" and "Invoiced Date" = WORKDATE
@@ -1891,7 +1891,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [SCENARIO 235814] Sales Invoice created for two Job Planning Lines with G/L Account has correct Job Ledger Entry No. in Job Planning Line Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with two identical Job Planning Lines with G/L Accounts
         CreateJob(Job, '', false);
@@ -1929,7 +1929,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [SCENARIO 235814] Sales Credit Memo created for two Job Planning Lines with G/L Account has correct Job Ledger Entry No. in Job Planning Line Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with two identical Job Planning Lines with G/L Accounts
         CreateJob(Job, '', false);
@@ -1968,7 +1968,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Adjust Cost Item Entries] [Update Job Item Cost]
         // [SCENARIO 234898] Cost amount in job ledger entries should be updated when item cost is automatically adjusted on invoice posting, and automatic update of job item cost is enabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable automatic cost adjustment and automatic update job item cost
         LibraryInventory.SetAutomaticCostAdjmtAlways;
@@ -2020,7 +2020,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Service Item] [Non-Inventoriable] [Update Job Item Cost]
         // [SCENARIO 252306] "Update Job Item Cost" batch job should copy non-inventoriable cost amount to job ledger entries when updating entries for an item with Type = Service
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Type" = "Service"
         LibraryInventory.CreateServiceTypeItem(Item);
@@ -2053,7 +2053,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Service Item] [Non-Inventoriable] [Update Job Item Cost]
         // [SCENARIO 252306] "Update Job Item Cost" batch job should update job entries for an item with Type = Service when it is received, then invoiced
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Type" = "Service"
         LibraryInventory.CreateServiceTypeItem(Item);
@@ -2099,7 +2099,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Update Job Item Cost] [Item Charge]
         // [SCENARIO 252306] "Update Job Item Cost" should carry item charge amount from purchase entry to the applied job consumption entry
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Type" = "Inventory"
         LibraryInventory.CreateItem(Item);
@@ -2111,7 +2111,7 @@ codeunit 136306 "Job Invoicing"
 
         PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
         PurchRcptLine.SetRange("No.", Item."No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         // [GIVEN] Assign item charge to the posted purchase receipt. Charge amount is "Y".
         CreateItemCharge(ItemCharge, PurchaseHeader."Buy-from Vendor No.");
@@ -2154,7 +2154,7 @@ codeunit 136306 "Job Invoicing"
         // [FEATURE] [Service Item] [Non-Inventoriable] [Update Job Item Cost] [Job Journal]
         // [SCENARIO 252306] "Update Job Item Cost" batch job should copy non-inventoriable cost amount to job ledger entries when for an item with Type = Service when usage is posted via job journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Type" = "Service"
         LibraryInventory.CreateServiceTypeItem(Item);
@@ -2190,7 +2190,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Invoice] [Job Planning] [Sales]
         // [SCENARIO 316575] Sales invoice lines are created for multiple Job Planning Lines sorted by "Qty. to Transfer to Invoice" descending
-        Initialize;
+        Initialize();
 
         // [GIVEN] Crated Job with two Job planning Lines, Quantity on JobPlanningLine2 is greater
         CreateJobWithJobTask(JobTask);
@@ -2213,7 +2213,7 @@ codeunit 136306 "Job Invoicing"
         SalesLine.SetRange("Job No.", JobTask."Job No.");
         Assert.AreEqual(2, SalesLine.Count, '');
         SalesLine.SetRange("No.", JobPlanningLine1."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(JobPlanningLine1.Quantity, SalesLine."Qty. to Invoice", '');
     end;
 
@@ -2229,7 +2229,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 292637] Job related fields are copied to sales archive
-        Initialize;
+        Initialize();
 
         // [GIVEN] Crated Job with Job task "JT"
         CreateJobWithJobTask(JobTask);
@@ -2265,7 +2265,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 292637] Job Task No. field is copied to purchase archive
-        Initialize;
+        Initialize();
 
         // [GIVEN] Crated Job with Job task "JT"
         CreateJobWithJobTask(JobTask);
@@ -2333,23 +2333,45 @@ codeunit 136306 "Job Invoicing"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
         SalesHeader: Record "Sales Header";
-        CountryRegion: Record "Country/Region";
         JobCreateInvoice: Codeunit "Job Create-Invoice";
-        CountyCode: Code[10];
+        BillToCountryRegion: Record "Country/Region";
+        BillToCountyCode: Code[10];
+        SellToCountryRegion: Record "Country/Region";
+        SellToCountyCode: Code[10];
+        ShipToCountryRegion: Record "Country/Region";
+        ShipToCountyCode: Code[10];
     begin
         // [SCENARIO 385236] Sales Invoice created for  Job Planning Lines has correct County and Country/Region Code
         Initialize();
 
         // [GIVEN] Create Country Region and County Code
-        LibraryERM.CreateCountryRegion(CountryRegion);
-        CountryRegion.Validate("Address Format", CountryRegion."Address Format"::"City+County+Post Code");
-        CountryRegion.Modify(true);
-        CountyCode := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(CountyCode));
+        LibraryERM.CreateCountryRegion(BillToCountryRegion);
+        BillToCountryRegion.Validate("Address Format", BillToCountryRegion."Address Format"::"City+County+Post Code");
+        BillToCountryRegion.Modify(true);
+        BillToCountyCode := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(BillToCountyCode));
+
+        LibraryERM.CreateCountryRegion(SellToCountryRegion);
+        SellToCountryRegion.Validate("Address Format", SellToCountryRegion."Address Format"::"City+County+Post Code");
+        SellToCountryRegion.Modify(true);
+        SellToCountyCode := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(SellToCountyCode));
+
+        LibraryERM.CreateCountryRegion(ShipToCountryRegion);
+        ShipToCountryRegion.Validate("Address Format", ShipToCountryRegion."Address Format"::"City+County+Post Code");
+        ShipToCountryRegion.Modify(true);
+        ShipToCountyCode := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(ShipToCountyCode));
 
         // [GIVEN] Job with Country Region and County Code, two identical Job Planning Lines with G/L Accounts
         CreateJob(Job, '', false);
-        Job.Validate("Bill-to Country/Region Code", CountryRegion.Code);
-        Job.Validate("Bill-to County", CountyCode);
+
+        Job.Validate("Sell-to Country/Region Code", SellToCountryRegion.Code);
+        Job.Validate("Sell-to County", SellToCountyCode);
+
+        Job.Validate("Bill-to Country/Region Code", BillToCountryRegion.Code);
+        Job.Validate("Bill-to County", BillToCountyCode);
+
+        Job.Validate("Ship-to Country/Region Code", ShipToCountryRegion.Code);
+        Job.Validate("Ship-to County", ShipToCountyCode);
+
         Job.Modify(true);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
@@ -2367,12 +2389,12 @@ codeunit 136306 "Job Invoicing"
         // [THEN] Field "Bill-to Country/Region Code" is filled from Job in Sales Header
         // [THEN] Field "Sell-to Country/Region Code" is filled from Job in Sales Header
         // [THEN] Field "Ship-to Country/Region Code" is filled from Job in Sales Header
-        SalesHeader.TestField("Bill-to County", CountyCode);
-        SalesHeader.TestField("Sell-to County", CountyCode);
-        SalesHeader.TestField("Ship-to County", CountyCode);
-        SalesHeader.TestField("Bill-to Country/Region Code", CountryRegion.Code);
-        SalesHeader.TestField("Sell-to Country/Region Code", CountryRegion.Code);
-        SalesHeader.TestField("Ship-to Country/Region Code", CountryRegion.Code);
+        SalesHeader.TestField("Bill-to County", BillToCountyCode);
+        SalesHeader.TestField("Sell-to County", SellToCountyCode);
+        SalesHeader.TestField("Ship-to County", ShipToCountyCode);
+        SalesHeader.TestField("Bill-to Country/Region Code", BillToCountryRegion.Code);
+        SalesHeader.TestField("Sell-to Country/Region Code", SellToCountryRegion.Code);
+        SalesHeader.TestField("Ship-to Country/Region Code", ShipToCountryRegion.Code);
     end;
 
     [Test]
@@ -2527,6 +2549,89 @@ codeunit 136306 "Job Invoicing"
     end;
 
     [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceUsesSellToBillToShipToFields()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SellToCustomer: Record Customer;
+        BillToCustomer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+    begin
+        // [SCENARIO] When creating Sales Invoice from Job Planning line the sell-to/bill-to/ship-to fields from the job
+        //  should be used for filling out the sales invoice.
+        Initialize();
+
+        // [GIVEN] Sell-to customer with a shipping address and a bill-to customer.
+        LibrarySales.CreateCustomer(SellToCustomer);
+        LibrarySales.CreateCustomerAddress(SellToCustomer);
+        LibrarySales.CreateCustomer(BillToCustomer);
+
+        // [GIVEN] Job for a customers created
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Sell-to Customer No.", SellToCustomer."No.");
+        Job.Validate("Bill-to Customer No.", BillToCustomer."No.");
+        Job.Modify(true);
+
+        // [GIVEN] Job Task with Item job planning line
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        Commit();
+
+        // [WHEN] Create Sales Invoice for job planning line
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [THEN] Sell-to, bill-to and ship-to fields from the job are used.
+        GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
+        SalesHeader.TestField("Sell-to Customer No.", SellToCustomer."No.");
+        SalesHeader.TestField("Bill-to Customer No.", BillToCustomer."No.");
+        SalesHeader.TestField("Ship-to Address", SellToCustomer.Address);
+    end;
+
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceUsesPaymentFields()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        PaymentMethod: Record "Payment Method";
+        PaymentTerms: Record "Payment Terms";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+    begin
+        // [SCENARIO] When creating Sales Invoice from Job Planning line the payment fields from the job
+        //  should be used for filling out the sales invoice.
+        Initialize();
+
+        // [GIVEN] Job with payment fields set.
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Payment Method Code", PaymentMethod.Code);
+        Job.Validate("Payment Terms Code", PaymentTerms.Code);
+        Job.Modify(true);
+
+        // [GIVEN] Job Task with Item job planning line
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        Commit();
+
+        // [WHEN] Create Sales Invoice for job planning line
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [THEN] Payment fields from the job are used.
+        GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
+        SalesHeader.TestField("Payment Method Code", PaymentMethod.Code);
+        SalesHeader.TestField("Payment Terms Code", PaymentTerms.Code);
+    end;
+
+    [Test]
     [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandler')]
     procedure JobLedgerEntryNoWhenPostSalesInvoiceForMultJobPlanLinesWithGLAccount()
     var
@@ -2547,7 +2652,7 @@ codeunit 136306 "Job Invoicing"
         CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 3 do begin
             LibraryJob.CreateJob(Job);
-            UpdateBillToCustomerNoOnJob(Job, CustomerNo);
+            UpdateSellBillToCustomerNoOnJob(Job, CustomerNo);
             LibraryJob.CreateJobTask(Job, JobTask);
             LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine[i]);
         end;
@@ -2593,7 +2698,7 @@ codeunit 136306 "Job Invoicing"
         CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 3 do begin
             LibraryJob.CreateJob(Job);
-            UpdateBillToCustomerNoOnJob(Job, CustomerNo);
+            UpdateSellBillToCustomerNoOnJob(Job, CustomerNo);
             LibraryJob.CreateJobTask(Job, JobTask);
             LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine[i]);
             JobPlanningLine[i].Validate(Quantity, -JobPlanningLine[i].Quantity);
@@ -2641,7 +2746,7 @@ codeunit 136306 "Job Invoicing"
         CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 3 do begin
             LibraryJob.CreateJob(Job);
-            UpdateBillToCustomerNoOnJob(Job, CustomerNo);
+            UpdateSellBillToCustomerNoOnJob(Job, CustomerNo);
             LibraryJob.CreateJobTask(Job, JobTask);
             LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine[i]);
         end;
@@ -2687,7 +2792,7 @@ codeunit 136306 "Job Invoicing"
         CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 3 do begin
             LibraryJob.CreateJob(Job);
-            UpdateBillToCustomerNoOnJob(Job, CustomerNo);
+            UpdateSellBillToCustomerNoOnJob(Job, CustomerNo);
             LibraryJob.CreateJobTask(Job, JobTask);
             LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine[i]);
             JobPlanningLine[i].Validate(Quantity, -JobPlanningLine[i].Quantity);
@@ -2747,7 +2852,7 @@ codeunit 136306 "Job Invoicing"
         // [GIVEN] Job with Job Task and Job Planning Line and Default Dimension Value = "DDV2"
         CreateJobWithJobTask(JobTask);
         Job.Get(JobTask."Job No.");
-        Job.Validate("Bill-to Customer No.", Customer."No.");
+        Job.Validate("Sell-to Customer No.", Customer."No.");
         Job.Modify();
         CreateJobTaskGlobalDim(JobTaskDimension, JobTask);
         LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine);
@@ -2791,18 +2896,18 @@ codeunit 136306 "Job Invoicing"
         JobBatchJobs: Codeunit "Job Batch Jobs";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Invoicing");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Invoicing");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateVATPostingSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
@@ -2813,7 +2918,7 @@ codeunit 136306 "Job Invoicing"
         // Have to set report layout for 1306 to use RDLC, or else report won't export to excel.
         ReportLayoutSelection.SetRange("Report ID", 1306);
         ReportLayoutSelection.SetRange("Company Name", CompanyName);
-        if ReportLayoutSelection.FindFirst then begin
+        if ReportLayoutSelection.FindFirst() then begin
             ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
             ReportLayoutSelection."Custom Report Layout Code" := '';
             ReportLayoutSelection.Modify();
@@ -2893,7 +2998,7 @@ codeunit 136306 "Job Invoicing"
             SetRange("Job No.", JobTask."Job No.");
             SetRange("Job Task No.", JobTask."Job Task No.");
             SetRange("Line Type", "Line Type"::Billable);
-            FindLast;
+            FindLast();
             TransferJobPlanningLine(JobPlanningLine, 1, false, SalesHeader);
         end;
     end;
@@ -2948,7 +3053,7 @@ codeunit 136306 "Job Invoicing"
     local procedure CreateJobForCustomer(var Job: Record Job; CustomerNo: Code[20])
     begin
         LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", CustomerNo);
+        Job.Validate("Sell-to Customer No.", CustomerNo);
         Job.Modify(true);
     end;
 
@@ -3051,11 +3156,11 @@ codeunit 136306 "Job Invoicing"
         SalesHeader.Reset();
         SalesHeader.SetRange("Bill-to Customer No.", CustomerNo);
         SalesHeader.SetRange("Posting Date", WorkDate);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if CurrentArrayNo < ArrayLen(VATProdPostingGroupArray) then
                     CurrentArrayNo += 1;
@@ -3107,14 +3212,14 @@ codeunit 136306 "Job Invoicing"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         UnitOfMeasure.SetFilter(Code, '<>%1', Item."Base Unit of Measure");
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, LibraryRandom.RandIntInRange(2, 10));
         exit(ItemUnitOfMeasure.Code);
     end;
 
     local procedure PrepareJobForSalesInvoice(var JobTask: Record "Job Task"; var Item: Record Item)
     begin
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         LibraryInventory.CreateItem(Item);
         SetItemStandardCost(Item, LibraryRandom.RandDecInRange(1, 10, 2));
@@ -3223,7 +3328,7 @@ codeunit 136306 "Job Invoicing"
             Validate(Quantity, LibraryRandom.RandIntInRange(10, 50));
             Validate("Unit Cost", LibraryRandom.RandIntInRange(10, 100));
             Validate("Unit Price", "Unit Cost" * (LibraryRandom.RandIntInRange(2, 10) / 10));
-            Validate(Description, LibraryUtility.GenerateGUID);
+            Validate(Description, LibraryUtility.GenerateGUID());
             Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
             Validate("Gen. Prod. Posting Group", GenProdPostingGroupCode);
             Modify(true);
@@ -3292,7 +3397,7 @@ codeunit 136306 "Job Invoicing"
     local procedure CreateJobWithCustomer(var Job: Record Job)
     begin
         LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", CreateCustomerwithDimension);
+        Job.Validate("Sell-to Customer No.", CreateCustomerwithDimension);
         Job.Modify(true);
     end;
 
@@ -3480,7 +3585,7 @@ codeunit 136306 "Job Invoicing"
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", EntryType);
             SetRange(Positive, IsPositive);
-            FindFirst;
+            FindFirst();
 
             exit("Entry No.");
         end;
@@ -3499,7 +3604,7 @@ codeunit 136306 "Job Invoicing"
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3507,14 +3612,14 @@ codeunit 136306 "Job Invoicing"
     begin
         JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
         JobLedgerEntry.SetRange("Job Task No.", JobTask."Job Task No.");
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindReversedJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; var ReversedJobPlanningLine: Record "Job Planning Line"): Boolean
@@ -3543,7 +3648,7 @@ codeunit 136306 "Job Invoicing"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindFirst;
+            FindFirst();
             exit("Dimension Set ID");
         end;
     end;
@@ -3556,7 +3661,7 @@ codeunit 136306 "Job Invoicing"
         DimensionValueCode: Code[20];
     begin
         // Setup: Create Job Planning Line with Dimesion.
-        Initialize;
+        Initialize();
         DimensionValueCode := CreateJobTaskWithDimension(JobTask);
         LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine);
 
@@ -3607,7 +3712,7 @@ codeunit 136306 "Job Invoicing"
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         PurchaseHeader.Validate("Posting Date", LibraryRandom.RandDateFrom(WorkDate, 5));
@@ -3617,13 +3722,13 @@ codeunit 136306 "Job Invoicing"
     local procedure FindPurchaseReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PostedRcptNo: Code[20])
     begin
         PurchRcptLine.SetRange("Document No.", PostedRcptNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; DocumentNo: Code[20])
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
 #if not CLEAN19
@@ -3661,13 +3766,14 @@ codeunit 136306 "Job Invoicing"
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.FindFirst();
-        SalesLine.Validate(Description, LibraryUtility.GenerateGUID);
+        SalesLine.Validate(Description, LibraryUtility.GenerateGUID());
         SalesLine.Modify(true);
         exit(SalesLine.Description);
     end;
 
-    local procedure UpdateBillToCustomerNoOnJob(var Job: Record Job; CustomerNo: Code[20])
+    local procedure UpdateSellBillToCustomerNoOnJob(var Job: Record Job; CustomerNo: Code[20])
     begin
+        Job.Validate("Sell-to Customer No.", CustomerNo);
         Job.Validate("Bill-to Customer No.", CustomerNo);
         Job.Modify(true);
     end;
@@ -3678,7 +3784,7 @@ codeunit 136306 "Job Invoicing"
     begin
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
         JobLedgerEntry.SetRange("Job No.", JobNo);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         JobLedgerEntry.TestField("Line Type", JobLedgerEntry."Line Type"::Billable);
     end;
 
@@ -3690,7 +3796,7 @@ codeunit 136306 "Job Invoicing"
         GetSalesDocument(JobPlanningLine, DocumentType, SalesHeader);
         with DimensionSetEntry do begin
             SetRange("Dimension Set ID", GetDimensionSetIdFromSalesLine(SalesHeader));
-            FindFirst;
+            FindFirst();
             Assert.AreEqual("Dimension Value Code", DimensionValueCode, 'Dimension value mismatch');
         end;
     end;
@@ -3702,7 +3808,7 @@ codeunit 136306 "Job Invoicing"
         with JobJournalLine do begin
             SetRange("Job No.", JobNo);
             SetRange("Job Task No.", JobTaskNo);
-            FindFirst;
+            FindFirst();
             TestField("Shortcut Dimension 1 Code", DimensionValueCode);
         end;
     end;
@@ -3721,7 +3827,7 @@ codeunit 136306 "Job Invoicing"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindFirst;
+            FindFirst();
             TestField(Type, LibraryJob.Job2SalesConsumableType(JobPlanningLine.Type));
             TestField("No.", JobPlanningLine."No.");
             TestField(Quantity, JobPlanningLine."Qty. Transferred to Invoice");
@@ -3741,7 +3847,7 @@ codeunit 136306 "Job Invoicing"
                 SetRange("Document Type", "Document Type"::Invoice)
             else
                 SetRange("Document Type", "Document Type"::"Credit Memo");
-            FindFirst;
+            FindFirst();
             SalesHeader.Get(DocumentType, "Document No.")
         end
     end;
@@ -3775,7 +3881,7 @@ codeunit 136306 "Job Invoicing"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Job No.", JobNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 
@@ -3810,7 +3916,7 @@ codeunit 136306 "Job Invoicing"
     begin
         with JobWIPEntry do begin
             SetRange("Job No.", JobNo);
-            FindFirst;
+            FindFirst();
             TestField("Global Dimension 1 Code", DimensionValueCode);
             TestField("Dimension Set ID", DimensionSetID);
         end;
@@ -3824,7 +3930,7 @@ codeunit 136306 "Job Invoicing"
     begin
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
         JobLedgerEntry.SetRange("Job No.", JobNo);
-        JobLedgerEntry.FindLast;
+        JobLedgerEntry.FindLast();
         RecRef.GetTable(JobLedgerEntry);
         FieldRef := RecRef.Field(FieldNo);
         Assert.AreEqual(FieldRef.Value, Amount, StrSubstNo(JobLedgerEntryFieldErr, FieldRef.Name));
@@ -3878,7 +3984,7 @@ codeunit 136306 "Job Invoicing"
     begin
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
         PurchLine.TestField("Job Currency Factor", PurchHeader."Currency Factor");
     end;
 
@@ -3897,7 +4003,7 @@ codeunit 136306 "Job Invoicing"
             with JobLedgerEntry do begin
                 SetRange("Ledger Entry No.", GLEntry."Entry No.");
                 SetRange("Ledger Entry Type", "Ledger Entry Type"::"G/L Account");
-                FindFirst;
+                FindFirst();
                 CalcSums("Line Amount (LCY)");
                 TestField("Line Amount (LCY)", GLEntry.Amount);
             end;
@@ -3913,7 +4019,7 @@ codeunit 136306 "Job Invoicing"
             SetRange("Job Task No.", JobTask."Job Task No.");
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
 
             TestField("Unit Cost", ExpectedCost);
         end;
@@ -3988,14 +4094,14 @@ codeunit 136306 "Job Invoicing"
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetFilter("Cost Amount (Actual)", '<>%1', 0);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         FromEntryNo := ValueEntry."Entry No.";
-        ValueEntry.FindLast;
+        ValueEntry.FindLast();
         ToEntryNo := ValueEntry."Entry No.";
 
         ItemRegister.SetRange("From Value Entry No.", FromEntryNo);
         ItemRegister.SetRange("To Value Entry No.", ToEntryNo);
-        ItemRegister.FindFirst;
+        ItemRegister.FindFirst();
         ItemRegister.TestField("From Entry No.", 0);
         ItemRegister.TestField("To Entry No.", 0);
     end;
@@ -4123,7 +4229,7 @@ codeunit 136306 "Job Invoicing"
     var
         StandardText: Record "Standard Text";
     begin
-        StandardText.FindFirst;
+        StandardText.FindFirst();
         LibraryJob.CreateJobPlanningLine(LineType, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
         JobPlanningLine.Validate(Type, JobPlanningLine.Type::Text);
         JobPlanningLine.Validate("No.", StandardText.Code);
@@ -4148,7 +4254,7 @@ codeunit 136306 "Job Invoicing"
     begin
         JobLedgerEntry.SetRange("Job No.", JobNo);
         JobLedgerEntry.SetRange("No.", JobPlanningLineNo);
-        JobLedgerEntry.FindLast;
+        JobLedgerEntry.FindLast();
     end;
 
     local procedure CreateJobJournalLineWithDim(var JobJnlLine: Record "Job Journal Line")
@@ -4179,7 +4285,7 @@ codeunit 136306 "Job Invoicing"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobNo: Code[20]; JobTaskNo: Code[20])
@@ -4189,7 +4295,7 @@ codeunit 136306 "Job Invoicing"
             SetRange("Job Task No.", JobTaskNo);
             SetRange(Type, LibraryJob.GLAccountType);
             SetRange("Line Type", LibraryJob.PlanningLineTypeContract);
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -4197,7 +4303,7 @@ codeunit 136306 "Job Invoicing"
     begin
         PurchLine.SetRange("Document Type", DocType);
         PurchLine.SetRange("Document No.", DocNo);
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
     end;
 
     local procedure CreatePostJobJnlLineWithDimJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var DimensionCode: Code[20]; var JobJournalLineDimSetID: Integer)
@@ -4210,7 +4316,7 @@ codeunit 136306 "Job Invoicing"
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, JobJournalLine."Dimension Set ID");
         DimensionCode := DimensionSetEntry."Dimension Code";
         JobJournalLineDimSetID := JobJournalLine."Dimension Set ID";
-        JobPostingGroup.FindLast;
+        JobPostingGroup.FindLast();
         JobPostingGroup.Validate("G/L Expense Acc. (Contract)", LibraryJob.FindConsumable(LibraryJob.GLAccountType));
         JobPostingGroup.Modify(true);
         LibraryJob.PostJobJournal(JobJournalLine);

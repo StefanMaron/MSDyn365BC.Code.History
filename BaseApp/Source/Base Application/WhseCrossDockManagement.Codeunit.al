@@ -91,7 +91,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
         QtyPickedBase: Decimal;
         NewItemVariant: Boolean;
     begin
-        if TempItemVariant.FindSet then begin
+        if TempItemVariant.FindSet() then begin
             FilterWhseRcptLine(TempWhseRcptLine);
             repeat
                 NewItemVariant := true;
@@ -302,7 +302,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
             SetRange("Variant Code", VariantCode);
             SetFilter(Status, '%1|%2', Status::" ", Status::"Partially Put Away");
             SetFilter("Cross-Dock Bin Code", '<>%1', '');
-            if FindSet then
+            if FindSet() then
                 repeat
                     // calculate received, yet not put-away quantity, that is assumed to be put-away in a cross-dock bin
                     ReceivedCrossDockedQty := CalcCrossDockedQtyInPostedReceipt(PostedWhseReceiptLine);
@@ -387,7 +387,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     begin
         FilterWhseRcptLine(WhseRcptLine);
         with WhseRcptLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     GetSourceLine("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     if HasSpecialOrder then begin

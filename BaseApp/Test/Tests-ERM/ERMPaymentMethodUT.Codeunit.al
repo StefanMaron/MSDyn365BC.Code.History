@@ -24,7 +24,7 @@ codeunit 134405 "ERM Payment Method UT"
         PaymentMethod: Record "Payment Method";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -47,7 +47,7 @@ codeunit 134405 "ERM Payment Method UT"
         PaymentMethod: Record "Payment Method";
         BankAccount: Record "Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -68,7 +68,7 @@ codeunit 134405 "ERM Payment Method UT"
         PaymentMethod: Record "Payment Method";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -90,7 +90,7 @@ codeunit 134405 "ERM Payment Method UT"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -110,7 +110,7 @@ codeunit 134405 "ERM Payment Method UT"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -132,7 +132,7 @@ codeunit 134405 "ERM Payment Method UT"
         PaymentMethod: Record "Payment Method";
         PaymentTerms: Record "Payment Terms";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -157,7 +157,7 @@ codeunit 134405 "ERM Payment Method UT"
         DataExchLineDef: Record "Data Exch. Line Def";
         TestPaymentMethods: TestPage "Payment Methods";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -189,8 +189,8 @@ codeunit 134405 "ERM Payment Method UT"
         ExpectedPaymentMethodCode: Code[10];
     begin
         // [SCENARIO 272933] Open page "Payment Method Translations" from page "Payment Methods"
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] "Payment Method" - "PM1" with "Payment Method Translation" - "PMT1"
         // [GIVEN] "Payment Method" - "PM2" with "Payment Method Translation" - "PMT2"
@@ -223,7 +223,7 @@ codeunit 134405 "ERM Payment Method UT"
     begin
         // [FEATURE] [UT] [Payment Method Translation]
         // [SCENARIO 278606] SetPaymentMethod from codeunit "Format Document" changes Description in Payment Method with respect to its Translation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Method with Description
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -248,7 +248,7 @@ codeunit 134405 "ERM Payment Method UT"
     begin
         // [FEATURE] [UT] [Payment Method Translation]
         // [SCENARIO 278606] SetPaymentMethod from codeunit "Format Document" doesn't change Description when Translation doesn't exist for Payment Method
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Method with Description "D"
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -333,7 +333,7 @@ codeunit 134405 "ERM Payment Method UT"
 
         // [THEN] PurchaseHeader."Payment Method Code" = Vendor."Payment Method Code"
         Vendor.SetFilter("No.", VendorNo);
-        Vendor.FindFirst;
+        Vendor.FindFirst();
         PurchaseHeader.TestField("Payment Method Code", Vendor."Payment Method Code");
     end;
 
@@ -361,7 +361,7 @@ codeunit 134405 "ERM Payment Method UT"
 
         // [THEN] PurchaseHeader."Payment Method Code" = Vendor."Payment Method Code"
         Vendor.SetFilter("No.", VendorNo);
-        Vendor.FindFirst;
+        Vendor.FindFirst();
         PurchaseHeader.TestField("Payment Method Code", Vendor."Payment Method Code");
     end;
 
@@ -394,7 +394,7 @@ codeunit 134405 "ERM Payment Method UT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Method UT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account")

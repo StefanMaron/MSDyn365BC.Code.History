@@ -119,7 +119,7 @@ table 300 "Reminder/Fin. Charge Entry"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     local procedure GetCurrencyCode(): Code[10]

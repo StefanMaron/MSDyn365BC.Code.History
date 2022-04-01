@@ -661,7 +661,7 @@ page 5740 "Transfer Order"
                         BinContent.SetRange("Location Code", "Transfer-from Code");
                         GetBinContent.SetTableView(BinContent);
                         GetBinContent.InitializeTransferHeader(Rec);
-                        GetBinContent.RunModal;
+                        GetBinContent.RunModal();
                     end;
                 }
                 action(GetReceiptLines)

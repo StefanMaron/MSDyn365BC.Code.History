@@ -119,14 +119,14 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesLine.SetRange("Document Type", Rec."Document Type");
         SalesLine.SetRange("Recalculate Invoice Disc.", true);
 
-        if SalesLine.FindFirst then begin
+        if SalesLine.FindFirst() then begin
             ModifyTotalsSalesLine(SalesLine, true);
             exit;
         end;
 
         SalesLine.SetRange("Recalculate Invoice Disc.");
 
-        if not SalesLine.FindFirst then
+        if not SalesLine.FindFirst() then
             BlankTotals(Rec."Document No.", false);
     end;
 
@@ -414,12 +414,12 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        if SalesHeader.FindSet then
+        if SalesHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
             until SalesHeader.Next() = 0;
 
-        if SalesInvoiceHeader.FindSet then
+        if SalesInvoiceHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesInvoiceHeader(SalesInvoiceHeader);
             until SalesInvoiceHeader.Next() = 0;
@@ -643,7 +643,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
 
-        if not SalesLine.FindFirst then begin
+        if not SalesLine.FindFirst() then begin
             BlankTotals(SalesLine."Document No.", false);
             exit;
         end;
@@ -657,7 +657,7 @@ codeunit 5477 "Sales Invoice Aggregator"
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
 
-        if not SalesInvoiceLine.FindFirst then begin
+        if not SalesInvoiceLine.FindFirst() then begin
             BlankTotals(SalesInvoiceLine."Document No.", true);
             exit;
         end;
@@ -794,14 +794,13 @@ codeunit 5477 "Sales Invoice Aggregator"
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        IntegrationManagement: Codeunit "Integration Management";
         IsRenameAllowed: Boolean;
     begin
         if IsNullGuid(SalesHeader.SystemId) then
             exit;
 
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        if not SalesInvoiceHeader.FindFirst then
+        if not SalesInvoiceHeader.FindFirst() then
             exit;
 
         if SalesInvoiceHeader."Draft Invoice SystemId" = SalesHeader.SystemId then
@@ -831,7 +830,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesInvoiceEntityAggregate."No.");
         SalesLine.SetRange("Recalculate Invoice Disc.", true);
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
 
         SalesInvoiceEntityAggregate.Get(SalesInvoiceEntityAggregate."No.", SalesInvoiceEntityAggregate.Posted);
@@ -845,7 +844,7 @@ codeunit 5477 "Sales Invoice Aggregator"
             Error(DocumentIDNotSpecifiedForLinesErr);
 
         SalesInvoiceEntityAggregate.SetFilter(Id, DocumentIdFilter);
-        if not SalesInvoiceEntityAggregate.FindFirst then
+        if not SalesInvoiceEntityAggregate.FindFirst() then
             exit;
 
         if SalesInvoiceEntityAggregate.Posted then
@@ -942,7 +941,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         if SalesInvoiceLineAggregate."Line No." = 0 then begin
             LastUsedSalesLine.SetRange("Document No.", SalesInvoiceEntityAggregate."No.");
             LastUsedSalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-            if LastUsedSalesLine.FindLast then
+            if LastUsedSalesLine.FindLast() then
                 SalesInvoiceLineAggregate."Line No." := LastUsedSalesLine."Line No." + 10000
             else
                 SalesInvoiceLineAggregate."Line No." := 10000;
@@ -1003,12 +1002,12 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         SalesLine: Record "Sales Line";
         TempAllFieldBuffer: Record "Field Buffer" temporary;
-        NativeEDMTypes: Codeunit "Native - EDM Types";
+        GraphMgtSalesQuoteBuffer: Codeunit "Graph Mgt - Sales Quote Buffer";
     begin
         VerifyCRUDIsPossibleForLine(TempNewSalesInvoiceLineAggregate, SalesInvoiceEntityAggregate);
-        NativeEDMTypes.GetFieldSetBufferWithAllFieldsSet(TempAllFieldBuffer);
+        GraphMgtSalesQuoteBuffer.GetFieldSetBufferWithAllFieldsSet(TempAllFieldBuffer);
 
-        if not TempNewSalesInvoiceLineAggregate.FindFirst then begin
+        if not TempNewSalesInvoiceLineAggregate.FindFirst() then begin
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
             SalesLine.SetRange("Document No.", SalesInvoiceEntityAggregate."No.");
             SalesLine.DeleteAll(true);
@@ -1027,7 +1026,7 @@ codeunit 5477 "Sales Invoice Aggregator"
             until TempCurrentSalesInvoiceLineAggregate.Next() = 0;
 
         // Update Lines
-        TempNewSalesInvoiceLineAggregate.FindFirst;
+        TempNewSalesInvoiceLineAggregate.FindFirst();
 
         repeat
             if not TempCurrentSalesInvoiceLineAggregate.Get(
@@ -1052,7 +1051,7 @@ codeunit 5477 "Sales Invoice Aggregator"
                 Error(DocumentIDNotSpecifiedForLinesErr);
             SalesInvoiceEntityAggregate.SetFilter(Id, DocumentIDFilter);
 
-            if not SalesInvoiceEntityAggregate.FindFirst then
+            if not SalesInvoiceEntityAggregate.FindFirst() then
                 Error(DocumentDoesNotExistErr);
         end else begin
             SalesInvoiceEntityAggregate.SetRange(Id, SalesInvoiceLineAggregate."Document Id");

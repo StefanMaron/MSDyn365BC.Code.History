@@ -176,7 +176,7 @@ page 123 "VAT Entries Preview"
 
     procedure Set(var TempVATEntry: Record "VAT Entry" temporary)
     begin
-        if TempVATEntry.FindSet then
+        if TempVATEntry.FindSet() then
             repeat
                 Rec := TempVATEntry;
                 Insert;

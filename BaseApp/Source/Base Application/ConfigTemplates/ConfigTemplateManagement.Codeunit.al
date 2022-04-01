@@ -57,7 +57,7 @@ codeunit 8612 "Config. Template Management"
     begin
         OnBeforeInsertTemplate(ConfigTemplateLine, ConfigTemplateHeader);
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        if ConfigTemplateLine.FindSet then
+        if ConfigTemplateLine.FindSet() then
             repeat
                 case ConfigTemplateLine.Type of
                     ConfigTemplateLine.Type::Field:
@@ -151,7 +151,7 @@ codeunit 8612 "Config. Template Management"
         GetHierarchicalLines(TempConfigTemplateLine, ConfigTemplateLine);
         with TempConfigTemplateLine do begin
             SetFilter("Field ID", '>%1', 0); // exclude config. lines not handled yet
-            if FindSet then
+            if FindSet() then
                 repeat
                     SetRange("Field ID", "Field ID");
                     SetRange("Table ID", "Table ID");
@@ -170,7 +170,7 @@ codeunit 8612 "Config. Template Management"
     begin
         with CurrConfigTemplateLine do begin
             SetRange("Data Template Code", ConfigTemplateLine."Data Template Code");
-            if FindSet then
+            if FindSet() then
                 repeat
                     // get current version of record because it's may not be in DB yet
                     if "Line No." = ConfigTemplateLine."Line No." then
@@ -204,7 +204,7 @@ codeunit 8612 "Config. Template Management"
         for KeyFieldCount := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(KeyFieldCount);
             ConfigTemplateLine.SetRange("Field ID", FieldRef.Number);
-            if ConfigTemplateLine.FindFirst then
+            if ConfigTemplateLine.FindFirst() then
                 ConfigValidateMgt.ValidateFieldValue(
                   RecRef, FieldRef, ConfigTemplateLine."Default Value", false, ConfigTemplateLine."Language ID")
             else
@@ -275,7 +275,7 @@ codeunit 8612 "Config. Template Management"
         FieldRef: FieldRef;
     begin
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        if ConfigTemplateLine.FindSet then
+        if ConfigTemplateLine.FindSet() then
             repeat
                 if ConfigTemplateLine.Type = ConfigTemplateLine.Type::Field then
                     if RecordRef.FieldExist(ConfigTemplateLine."Field ID") then begin
@@ -295,7 +295,7 @@ codeunit 8612 "Config. Template Management"
         TplExists: Boolean;
     begin
         ConfigTemplateHeader.SetRange("Table ID", TableID);
-        TplExists := ConfigTemplateHeader.FindLast;
+        TplExists := ConfigTemplateHeader.FindLast();
 
         if TplExists and (IncStr(ConfigTemplateHeader.Code) <> '') then
             NextCode := ConfigTemplateHeader.Code
@@ -338,7 +338,7 @@ codeunit 8612 "Config. Template Management"
         ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::"Related Template");
         ConfigTemplateLine.SetRange("Template Code", RelatedTemplateCode);
 
-        if ConfigTemplateLine.FindFirst then
+        if ConfigTemplateLine.FindFirst() then
             ConfigTemplateLine.Delete(true);
     end;
 
@@ -350,7 +350,7 @@ codeunit 8612 "Config. Template Management"
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeaderCode);
         ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::"Related Template");
 
-        if ConfigTemplateLine.FindSet then
+        if ConfigTemplateLine.FindSet() then
             repeat
                 RelatedConfigTemplateHeader.Get(ConfigTemplateLine."Template Code");
                 if RelatedConfigTemplateHeader."Table ID" = TableID then begin
@@ -366,7 +366,7 @@ codeunit 8612 "Config. Template Management"
         ConfigTemplateLine: Record "Config. Template Line";
     begin
         ConfigTemplateHeader.SetRange("Table ID", TableID);
-        if ConfigTemplateHeader.FindSet then
+        if ConfigTemplateHeader.FindSet() then
             repeat
                 ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
                 ConfigTemplateLine.SetRange("Field ID", FieldID);
@@ -406,7 +406,7 @@ codeunit 8612 "Config. Template Management"
         ConfigTemplateLine: Record "Config. Template Line";
     begin
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeaderCode);
-        if ConfigTemplateLine.FindLast then
+        if ConfigTemplateLine.FindLast() then
             exit(ConfigTemplateLine."Line No." + 10000);
 
         exit(10000);
@@ -418,7 +418,7 @@ codeunit 8612 "Config. Template Management"
         FieldRef: FieldRef;
     begin
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        if ConfigTemplateLine.FindSet then
+        if ConfigTemplateLine.FindSet() then
             repeat
                 if ConfigTemplateLine.Type = ConfigTemplateLine.Type::Field then
                     if ConfigTemplateLine."Field ID" <> 0 then begin
@@ -484,7 +484,7 @@ codeunit 8612 "Config. Template Management"
         LookupPageId := TableMetadata.LookupPageID;
 
         TableRelationsMetadata.SetRange("Related Table ID", TableMetadata.ID);
-        if not TableRelationsMetadata.FindFirst then
+        if not TableRelationsMetadata.FindFirst() then
             exit;
         LookupFieldId := TableRelationsMetadata."Related Field No.";
     end;
@@ -498,7 +498,7 @@ codeunit 8612 "Config. Template Management"
     begin
         ConfigTemplateLine.SetRange("Data Template Code", SourceConfigTemplateLine."Data Template Code");
         ConfigTemplateLine.SetFilter("Field ID", '<>%1', SourceConfigTemplateLine."Field ID");
-        if ConfigTemplateLine.FindSet then begin
+        if ConfigTemplateLine.FindSet() then begin
             repeat
                 FieldRef := RecRef.Field(ConfigTemplateLine."Field ID");
                 Field.Get(ConfigTemplateLine."Table ID", ConfigTemplateLine."Field ID");
@@ -524,7 +524,7 @@ codeunit 8612 "Config. Template Management"
         ConfigTemplateLine.SetFilter("Field ID", '=%1', FieldRef.Number);
         ConfigTemplateLine.SetFilter("Table ID", '=%1', TableID);
 
-        if ConfigTemplateLine.FindLast then begin
+        if ConfigTemplateLine.FindLast() then begin
             Value := Format(FieldRef.Value);
             if Value <> ConfigTemplateLine."Default Value" then begin
                 ConfigTemplateLine."Default Value" := Value;

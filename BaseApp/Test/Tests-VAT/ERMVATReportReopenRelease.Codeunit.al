@@ -119,7 +119,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
                 Init;
                 "VAT Report Config. Code" := "VAT Report Config. Code"::"EC Sales List";
                 "VAT Report Type" := "VAT Report Type"::Corrective;
-                "No." := LibraryUtility.GenerateGUID;
+                "No." := LibraryUtility.GenerateGUID();
                 "Start Date" := WorkDate;
                 "End Date" := WorkDate;
                 Insert;
@@ -137,7 +137,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
     begin
         VATReportSetup.Get();
         NoSeries.Init();
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         VATReportSetup."No. Series" := NoSeries.Code;
         VATReportSetup.Modify();
 

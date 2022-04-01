@@ -23,7 +23,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Active job becomes inactive for a period if the sync didn't change anything
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         // [GIVEN] the Item is coupled to the CRM Product, but unchanged.
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
@@ -51,7 +51,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Active job becomes inactive if the sync didn't change anything
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         // [GIVEN] the Item is coupled to the CRM Product, but unchanged.
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
@@ -80,11 +80,11 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Active job stays active if the run resulted in some activity.
-        Initialize;
+        Initialize();
         // [GIVEN] the Item is coupled to the CRM Product.
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         // [GIVEN] the CRM product got new "Name"
-        Item.Description := LibraryUtility.GenerateGUID;
+        Item.Description := LibraryUtility.GenerateGUID();
         Item.Modify();
         MockRecordNeedsSync(Item.RecordId); // to avoid adding SLEEP
         // [GIVEN] Active recurring job 'ITEM-PRODUCT' is executed
@@ -108,9 +108,9 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Inactive job becomes active on manual record modification.
-        Initialize;
+        Initialize();
         // [GIVEN] The Item
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
         // [GIVEN] Job 'ITEM', where Status "On Hold with Inactivity period"
         FindJobQueueEntryForMapping(JobQueueEntry[1], DATABASE::Item, JobQueueEntry[1].Status::"On Hold with Inactivity Timeout", 5);
@@ -150,7 +150,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         // [SCENARIO 211307] "Inactive" jobs are activated on Company opening if source tables are modified
         // [SCENARIO 222608] "Inactive" jobs are rescheduled on company open
         // [SCENARIO 310997] "Error" jobs are not started on company open
-        Initialize;
+        Initialize();
         // [GIVEN] the Item is coupled to the CRM Product
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         // [GIVEN] Jobs 'A' and 'B', executed and got Status "On Hold with Inactivity period"
@@ -197,10 +197,10 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
     begin
         // [FEATURE] [UT] [CRM Account Statistics]
         // [SCENARIO] Inactive CRM Statistics job becomes active on insert of a new Dtld. Customer Ledger Entry
-        Initialize;
+        Initialize();
         // [GIVEN] 'CRM Statistics' Job, with Status "On Hold with Inactivity period"
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Statistics Job");
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold with Inactivity Timeout";
         JobQueueEntry."System Task ID" := CreateGuid; // As if TASKSCHEDULER defined it
         JobQueueEntry.Modify();
@@ -234,12 +234,12 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
     begin
         // [FEATURE] [UT] [CRM Account Statistics]
         // [SCENARIO] Active CRM Statistics Job becomes inactive if no statistics updated
-        Initialize;
+        Initialize();
         // [GIVEN] Customer 'A' is coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] 'CRM Statistics' Job, where Status "Ready",
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Statistics Job");
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
         JobQueueEntry.Validate("Inactivity Timeout Period", 10);
         JobQueueEntry.Modify();
@@ -261,12 +261,12 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         // [THEN] CRM Synch. Log Entry for Account Statistics update, where "Unchanged" = 1
         Assert.RecordCount(IntegrationSynchJob[1], 2);
         IntegrationSynchJob[1].SetRange(Message, CRMStatisticsJob.GetAccStatsUpdateFinalMessage);
-        IntegrationSynchJob[1].FindFirst;
+        IntegrationSynchJob[1].FindFirst();
         IntegrationSynchJob[1].TestField(Unchanged, 0);
         IntegrationSynchJob[1].TestField(Inserted, 0);
         // [THEN] CRM Synch. Log Entry for Invoice Status update, where "Modified" = 0
         IntegrationSynchJob[2].SetRange(Message, CRMStatisticsJob.GetInvStatusUpdateFinalMessage);
-        IntegrationSynchJob[2].FindFirst;
+        IntegrationSynchJob[2].FindFirst();
         IntegrationSynchJob[2].TestField(Modified, 0);
         IntegrationSynchJob[2].TestField(Inserted, 0);
     end;
@@ -287,7 +287,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         LibraryCRMIntegration.CreateCRMOrganization;
-        CRMOrganization.FindFirst;
+        CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
         CDSConnectionSetup.SetClientSecret('ClientSecret');
@@ -301,11 +301,11 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         IntegrationTableMapping.SetRange("Table ID", TableNo);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
         IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrentDateTime - 10000L;
         IntegrationTableMapping.Modify();
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         JobQueueEntry.Status := JobStatus;
         JobQueueEntry."Inactivity Timeout Period" := InactivityPeriod;
         JobQueueEntry."System Task ID" := CreateGuid; // As if TASKSCHEDULER defined it

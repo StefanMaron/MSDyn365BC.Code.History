@@ -37,7 +37,7 @@ codeunit 135501 "AccountEntity E2E Test"
     begin
         // [SCENARIO] Create an account and verify it has Id and LastDateTimeModified
         // [GIVEN] a modified G/L Account
-        Initialize;
+        Initialize();
         AccountNo := CreateAccount;
         Commit();
 
@@ -62,7 +62,7 @@ codeunit 135501 "AccountEntity E2E Test"
     begin
         // [SCENARIO] Create accounts and use a GET method to retrieve them
         // [GIVEN] 2 accounts in the G/L Account Table with positive balance
-        Initialize;
+        Initialize();
         AccountNo[1] := CreateAccount;
         AccountNo[2] := CreateAccount;
         Commit();

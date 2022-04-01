@@ -160,7 +160,7 @@ codeunit 5063 ArchiveManagement
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 with SalesLineArchive do begin
                     Init;
@@ -209,7 +209,7 @@ codeunit 5063 ArchiveManagement
 
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 with PurchLineArchive do begin
                     Init;
@@ -276,13 +276,13 @@ codeunit 5063 ArchiveManagement
         ReservEntry.SetRange("Source ID", SalesHeader."No.");
         ReservEntry.SetRange("Source Type", DATABASE::"Sales Line");
         ReservEntry.SetRange("Source Subtype", SalesHeader."Document Type");
-        if ReservEntry.FindFirst then
+        if ReservEntry.FindFirst() then
             ConfirmRequired := true;
 
         ItemChargeAssgntSales.Reset();
         ItemChargeAssgntSales.SetRange("Document Type", SalesHeader."Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", SalesHeader."No.");
-        if ItemChargeAssgntSales.FindFirst then
+        if ItemChargeAssgntSales.FindFirst() then
             ConfirmRequired := true;
 
         RestoreDocument := false;
@@ -359,7 +359,7 @@ codeunit 5063 ArchiveManagement
         SalesLineArchive.SetRange("Doc. No. Occurrence", SalesHeaderArchive."Doc. No. Occurrence");
         SalesLineArchive.SetRange("Version No.", SalesHeaderArchive."Version No.");
         OnRestoreSalesLinesOnAfterSalesLineArchiveSetFilters(SalesLineArchive, SalesHeaderArchive, SalesHeader);
-        if SalesLineArchive.FindSet then
+        if SalesLineArchive.FindSet() then
             repeat
                 with SalesLine do begin
                     Init;
@@ -415,7 +415,7 @@ codeunit 5063 ArchiveManagement
                     SalesHeaderArchive.LockTable();
                     SalesHeaderArchive.SetRange("Document Type", DocType);
                     SalesHeaderArchive.SetRange("No.", DocNo);
-                    if SalesHeaderArchive.FindLast then
+                    if SalesHeaderArchive.FindLast() then
                         exit(SalesHeaderArchive."Doc. No. Occurrence" + 1);
 
                     exit(1);
@@ -425,7 +425,7 @@ codeunit 5063 ArchiveManagement
                     PurchHeaderArchive.LockTable();
                     PurchHeaderArchive.SetRange("Document Type", DocType);
                     PurchHeaderArchive.SetRange("No.", DocNo);
-                    if PurchHeaderArchive.FindLast then
+                    if PurchHeaderArchive.FindLast() then
                         exit(PurchHeaderArchive."Doc. No. Occurrence" + 1);
 
                     exit(1);
@@ -455,7 +455,7 @@ codeunit 5063 ArchiveManagement
                     SalesHeaderArchive.SetRange("Document Type", DocType);
                     SalesHeaderArchive.SetRange("No.", DocNo);
                     SalesHeaderArchive.SetRange("Doc. No. Occurrence", DocNoOccurrence);
-                    if SalesHeaderArchive.FindLast then
+                    if SalesHeaderArchive.FindLast() then
                         exit(SalesHeaderArchive."Version No." + 1);
 
                     exit(1);
@@ -466,7 +466,7 @@ codeunit 5063 ArchiveManagement
                     PurchHeaderArchive.SetRange("Document Type", DocType);
                     PurchHeaderArchive.SetRange("No.", DocNo);
                     PurchHeaderArchive.SetRange("Doc. No. Occurrence", DocNoOccurrence);
-                    if PurchHeaderArchive.FindLast then
+                    if PurchHeaderArchive.FindLast() then
                         exit(PurchHeaderArchive."Version No." + 1);
 
                     exit(1);
@@ -499,7 +499,7 @@ codeunit 5063 ArchiveManagement
     begin
         SalesCommentLine.SetRange("Document Type", DocType);
         SalesCommentLine.SetRange("No.", DocNo);
-        if SalesCommentLine.FindSet then
+        if SalesCommentLine.FindSet() then
             repeat
                 SalesCommentLineArch.Init();
                 SalesCommentLineArch.TransferFields(SalesCommentLine);
@@ -516,7 +516,7 @@ codeunit 5063 ArchiveManagement
     begin
         PurchCommentLine.SetRange("Document Type", DocType);
         PurchCommentLine.SetRange("No.", DocNo);
-        if PurchCommentLine.FindSet then
+        if PurchCommentLine.FindSet() then
             repeat
                 PurchCommentLineArch.Init();
                 PurchCommentLineArch.TransferFields(PurchCommentLine);
@@ -556,7 +556,7 @@ codeunit 5063 ArchiveManagement
             DeferralLine.SetRange("Document Type", DocType);
             DeferralLine.SetRange("Document No.", DocNo);
             DeferralLine.SetRange("Line No.", LineNo);
-            if DeferralLine.FindSet then
+            if DeferralLine.FindSet() then
                 repeat
                     DeferralLineArchive.Init();
                     DeferralLineArchive.TransferFields(DeferralLine);
@@ -597,7 +597,7 @@ codeunit 5063 ArchiveManagement
             DeferralLineArchive.SetRange("Doc. No. Occurrence", DocNoOccurrence);
             DeferralLineArchive.SetRange("Version No.", VersionNo);
             DeferralLineArchive.SetRange("Line No.", LineNo);
-            if DeferralLineArchive.FindSet then
+            if DeferralLineArchive.FindSet() then
                 repeat
                     DeferralLine.Init();
                     DeferralLine.TransferFields(DeferralLineArchive);
@@ -618,7 +618,7 @@ codeunit 5063 ArchiveManagement
         SalesCommentLineArchive.SetRange("No.", SalesHeaderArchive."No.");
         SalesCommentLineArchive.SetRange("Doc. No. Occurrence", SalesHeaderArchive."Doc. No. Occurrence");
         SalesCommentLineArchive.SetRange("Version No.", SalesHeaderArchive."Version No.");
-        if SalesCommentLineArchive.FindSet then
+        if SalesCommentLineArchive.FindSet() then
             repeat
                 SalesCommentLine.Init();
                 SalesCommentLine.TransferFields(SalesCommentLineArchive);
@@ -628,7 +628,7 @@ codeunit 5063 ArchiveManagement
         SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesCommentLine.SetRange("No.", SalesHeader."No.");
         SalesCommentLine.SetRange("Document Line No.", 0);
-        if SalesCommentLine.FindLast then
+        if SalesCommentLine.FindLast() then
             NextLine := SalesCommentLine."Line No.";
         NextLine += 10000;
         SalesCommentLine.Init();
@@ -648,7 +648,7 @@ codeunit 5063 ArchiveManagement
         AmtToDeferACY: Decimal;
     begin
         SalesLine.SetFilter("Deferral Code", '<>%1', '');
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if DeferralHeader.Get("Deferral Document Type"::Sales, '', '',
                      SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.")
@@ -668,7 +668,7 @@ codeunit 5063 ArchiveManagement
         AmtToDeferACY: Decimal;
     begin
         PurchaseLine.SetFilter("Deferral Code", '<>%1', '');
-        if PurchaseLine.FindSet then
+        if PurchaseLine.FindSet() then
             repeat
                 if DeferralHeader.Get("Deferral Document Type"::Purchase, '', '',
                      PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.")

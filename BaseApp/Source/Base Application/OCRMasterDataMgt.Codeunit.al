@@ -25,14 +25,14 @@ codeunit 883 "OCR Master Data Mgt."
         if OnlyRecordsWithoutID then
             Vendor.SetRange(Id, NullGuid);
 
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 if not IntegrationRecord.Get(Vendor.SystemId) then begin
                     VendorRecordRef.GetTable(Vendor);
                     IntegrationManagement.InsertUpdateIntegrationRecord(VendorRecordRef, CurrentDateTime);
                     if IsNullGuid(Format(Vendor.SystemId)) then begin
                         UpdatedIntegrationRecord.SetRange("Record ID", Vendor.RecordId);
-                        UpdatedIntegrationRecord.FindFirst;
+                        UpdatedIntegrationRecord.FindFirst();
                         Vendor.SystemId := IntegrationManagement.GetIdWithoutBrackets(UpdatedIntegrationRecord."Integration ID");
                     end;
                     Vendor.Modify(false);

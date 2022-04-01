@@ -119,11 +119,11 @@ codeunit 130401 "CAL Test Management"
         TestCodeunitsNumber: Integer;
     begin
         AllObj.SetFilter("Object Type", '<>%1', AllObj."Object Type"::TableData);
-        if AllObj.FindSet then begin
+        if AllObj.FindSet() then begin
             TestCodeunitsNumber := GetTotalTestCodeunitIDs(AllObj, TempTestCodeunitID);
             OpenWindow(StrSubstNo(AddingTestsBasedOnChurnMsg, TestCodeunitsNumber), TestCodeunitsNumber);
             TestLineNo := GetLastTestLineNo(CALTestSuiteName);
-            if TempTestCodeunitID.FindSet then
+            if TempTestCodeunitID.FindSet() then
                 repeat
                     if DoesTestCodeunitExist(TempTestCodeunitID.Number) then begin
                         if not TestLineExists(CALTestSuiteName, TempTestCodeunitID.Number) then begin
@@ -143,7 +143,7 @@ codeunit 130401 "CAL Test Management"
         if not TempMissingCUId.IsEmpty() then begin
             Commit();
             CALTestMissingCodeunits.Initialize(TempMissingCUId, CALTestSuiteName);
-            CALTestMissingCodeunits.RunModal;
+            CALTestMissingCodeunits.RunModal();
         end;
     end;
 
@@ -168,7 +168,7 @@ codeunit 130401 "CAL Test Management"
             CALTestCoverageMap.Reset();
             CALTestCoverageMap.SetRange("Object ID", AllObj."Object ID");
             CALTestCoverageMap.SetRange("Object Type", AllObj."Object Type");
-            if CALTestCoverageMap.FindSet then
+            if CALTestCoverageMap.FindSet() then
                 repeat
                     if not TestCodeunitID.Get(CALTestCoverageMap."Test Codeunit ID") then begin
                         TestCodeunitID.Number := CALTestCoverageMap."Test Codeunit ID";
@@ -184,7 +184,7 @@ codeunit 130401 "CAL Test Management"
         CALTestLine: Record "CAL Test Line";
     begin
         CALTestLine.SetRange("Test Suite", TestSuiteName);
-        if CALTestLine.FindLast then
+        if CALTestLine.FindLast() then
             LineNo := CALTestLine."Line No.";
     end;
 
@@ -251,7 +251,7 @@ codeunit 130401 "CAL Test Management"
         repeat
             AllObj.SetRange("Object Type", AllObj."Object Type"::Codeunit);
             AllObj.SetRange("Object ID", TestCodeunitIds.Number);
-            if AllObj.FindFirst then begin
+            if AllObj.FindFirst() then begin
                 TestLineNo := TestLineNo + 10000;
                 AddTestLine(TestSuiteName, AllObj."Object ID", TestLineNo);
                 UpdateWindow;
@@ -287,7 +287,7 @@ codeunit 130401 "CAL Test Management"
                 CodeunitIsValid := true;
 
             if not CodeunitIsValid then
-                CodeunitIsValid := AllObj.FindFirst;
+                CodeunitIsValid := AllObj.FindFirst();
 
             if CodeunitIsValid then begin
                 SETPUBLISHMODE;
@@ -316,7 +316,7 @@ codeunit 130401 "CAL Test Management"
         CALTestCoverageMap: Record "CAL Test Coverage Map";
     begin
         CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Object);
-        if CodeCoverage.FindSet then
+        if CodeCoverage.FindSet() then
             repeat
                 if not CALTestCoverageMap.Get(TestCodeunitId, CodeCoverage."Object Type", CodeCoverage."Object ID") then begin
                     CALTestCoverageMap.Init();
@@ -462,7 +462,7 @@ codeunit 130401 "CAL Test Management"
         CALTestEnabledCodeunit.DeleteAll();
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Codeunit);
         AllObjWithCaption.SetRange("Object Subtype", 'Test');
-        if AllObjWithCaption.FindSet then
+        if AllObjWithCaption.FindSet() then
             repeat
                 CALTestEnabledCodeunit."No." := 0;
                 CALTestEnabledCodeunit."Test Codeunit ID" := AllObjWithCaption."Object ID";

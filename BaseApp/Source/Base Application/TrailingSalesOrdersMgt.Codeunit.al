@@ -56,7 +56,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
     begin
         TrailingSalesOrdersSetup.Get(UserId);
         with BusChartBuf do begin
-            Initialize;
+            Initialize();
             "Period Length" := TrailingSalesOrdersSetup."Period Length";
             SetPeriodXAxis;
 

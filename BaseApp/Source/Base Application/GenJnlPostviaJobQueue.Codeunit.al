@@ -101,14 +101,14 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
             "Object ID to Run" := CODEUNIT::"Gen. Jnl.-Post via Job Queue";
             "Record ID to Process" := GenJrnlLine.RecordId;
             "Earliest Start Date/Time" := CreateDateTime(Today(), Time());
-            FillJobEntryFromGeneralLedgerSetup(JobQueueEntry, GenJrnlLine."Print Posted Documents");
+            FillJobEntryFromGeneralLedgerSetup(JobQueueEntry);
             FillJobEntryGeneralLedgerDescription(JobQueueEntry, GenJrnlLine);
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
             exit(ID);
         end;
     end;
 
-    local procedure FillJobEntryFromGeneralLedgerSetup(var JobQueueEntry: Record "Job Queue Entry"; PostAndPrint: Boolean)
+    local procedure FillJobEntryFromGeneralLedgerSetup(var JobQueueEntry: Record "Job Queue Entry")
     var
         GeneralLedgerSetup: record "General Ledger Setup";
     begin
@@ -132,8 +132,6 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
     end;
 
     procedure CancelQueueEntry(var GenJrnlLine: Record "Gen. Journal Line")
-    var
-        AllGenJrnlLine: Record "Gen. Journal Line";
     begin
         with GenJrnlLine do
             if "Job Queue Status" <> "Job Queue Status"::" " then begin
@@ -172,7 +170,7 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         PostingDateError: Label 'is not within your range of allowed posting dates';
     begin
-        if GenJnlCheckLine.DateNotAllowed(GenJrnlLine."Posting Date") then begin
+        if GenJnlCheckLine.DateNotAllowed(GenJrnlLine."Posting Date", GenJrnlLine."Journal Template Name") then begin
             SetJobQueueStatus(GenJrnlLine, GenJrnlLine."Job Queue Status"::Error);
             GenJrnlLine.FieldError("Posting Date", PostingDateError);
         end;

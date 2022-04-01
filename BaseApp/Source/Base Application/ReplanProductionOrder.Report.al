@@ -1,4 +1,4 @@
-﻿report 99001026 "Replan Production Order"
+report 99001026 "Replan Production Order"
 {
     Caption = 'Replan Production Order';
     ProcessingOnly = true;
@@ -325,10 +325,10 @@
 
         ProdOrderComponent.SetRange(Status, ProdOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrder."No.");
-        if ProdOrderComponent.FindSet then
+        if ProdOrderComponent.FindSet() then
             repeat
                 ProdOrder.SetRange("Source No.", ProdOrderComponent."Item No.");
-                if ProdOrder.FindFirst then begin
+                if ProdOrder.FindFirst() then begin
                     if AllLevels then
                         DeleteProdOrders(ProdOrder, LowLevelCode + 1, AllLevels);
                     ProdOrder.Delete(true);

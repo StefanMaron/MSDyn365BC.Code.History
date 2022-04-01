@@ -362,7 +362,7 @@ codeunit 925 "Assembly Header-Reserve"
             Clear(AvailableAssemblyHeaders);
             AvailableAssemblyHeaders.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
             AvailableAssemblyHeaders.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailableAssemblyHeaders.RunModal;
+            AvailableAssemblyHeaders.RunModal();
         end;
     end;
 
@@ -483,7 +483,7 @@ codeunit 925 "Assembly Header-Reserve"
 
         AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         AssemblyHeader.FilterLinesForReservation(CalcReservEntry, DocumentType, AvailabilityFilter, Positive);
-        if AssemblyHeader.FindSet then
+        if AssemblyHeader.FindSet() then
             repeat
                 AssemblyHeader.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" += AssemblyHeader."Reserved Qty. (Base)";

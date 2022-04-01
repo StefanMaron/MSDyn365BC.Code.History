@@ -71,7 +71,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Unit Of Measure and Quantity on Item Ledger Entry after posting Item Journal with different Unit Of Measure Code.
 
         // [GIVEN] Create Item, Item unit Of Measure and two Item Journal Lines with different Unit Of Measure Code and Quantity.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Costing Method"::FIFO);
         UnitOfMeasureCode := CreateItemUnitOfMeasure(Item."No.");
         CreateItemJournalLine(
@@ -87,7 +87,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [THEN] Verify Item Ledger Entry for Quantity.
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Unit of Measure Code", ItemJournalLine."Unit of Measure Code");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField(Quantity, ItemJournalLine.Quantity);
     end;
 
@@ -101,7 +101,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] New Expiration Date and New Serial No. on Item Tracking Lines page.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::AssignSerialNo, LibraryUtility.GetGlobalNoSeriesCode, false, true,
           GlobalItemTrackingAction::AssignSerialNo);
@@ -122,7 +122,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Serial No. Information List page caption.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditItemTrackingSerialNo, LibraryUtility.GetGlobalNoSeriesCode,
           false, true, GlobalItemTrackingAction::AssignSerialNo);
@@ -143,7 +143,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Posting of Item Reclass. Journal.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditItemTrackingSerialNo, LibraryUtility.GetGlobalNoSeriesCode,
           false, true, GlobalItemTrackingAction::AssignSerialNo);
@@ -167,7 +167,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Error message after Posting Item Reclass. Journal while updating New Serial No. with existing Serial Number.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditNewSerialNo, LibraryUtility.GetGlobalNoSeriesCode, false, true,
           GlobalItemTrackingAction::AssignSerialNo);
@@ -191,7 +191,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] New Lot No. on Item Tracking Lines page.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item without Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::AssignLotNo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -212,7 +212,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Lot No. Information List page caption.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditItemTrackingLotNo, LibraryUtility.GetGlobalNoSeriesCode, true,
           false, GlobalItemTrackingAction::AssignLotNo);
@@ -233,7 +233,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Posting of Item Reclass. Journal with Item Tracking Lot Number.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditItemTrackingLotNo, LibraryUtility.GetGlobalNoSeriesCode, true,
           false, GlobalItemTrackingAction::AssignLotNo);
@@ -258,7 +258,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Error message after Posting Item Reclass. Journal while updating New Lot No. with existing Lot Number.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditNewLotNo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -290,7 +290,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Error message on Lot No. Information Card using Copy Info.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::CopyInfo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -311,7 +311,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Lot No. Availability warning.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::LotNoAvailability, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -332,7 +332,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Error message after Posting Item Reclass. Journal while updating Lot Number.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditLotNo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -357,7 +357,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Error message while posting Item Reclass. Journal using page.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::SelectEntriesLotNo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -382,7 +382,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] values on Lot No. Information after posting Recalss. Journal.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditItemTrackingLotNo, LibraryUtility.GetGlobalNoSeriesCode, true,
           false, GlobalItemTrackingAction::AssignLotNo);
@@ -411,7 +411,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] values on Item Tracking Comment using Recalss. Journal.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::ItemTrackingSerialAndLot, LibraryUtility.GetGlobalNoSeriesCode, true,
           false, GlobalItemTrackingAction::AssignLotNo);
@@ -438,7 +438,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Corrections error message on Item Tracking Lines page while taking greater Quantity (Base).
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::ModifyQuantity, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -460,7 +460,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] posting Recalss. Journal with Blocked TRUE on Lot No. Information Card page.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditLotNoInformation, LibraryUtility.GetGlobalNoSeriesCode, true,
           false, GlobalItemTrackingAction::AssignLotNo);
@@ -488,7 +488,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] message on Lot No. Information Card using Copy Info and verify value of Lot No on Lot No. Information same as Item Tracking Line.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::CopyInfo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -509,7 +509,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] error message while taking negative Quantity (Base) in Item Tracking Line.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditTrackedQuantity, LibraryUtility.GetGlobalNoSeriesCode, true,
           false, GlobalItemTrackingAction::AssignLotNo);
@@ -531,7 +531,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] error message while posting Reclassification Journal with Lot Number.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::ModifyQuantity, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -556,7 +556,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] error message while taking less Quantity (Base) on Item Tracking Line than Reclass Journal Quantity.
 
         // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        Initialize;
+        Initialize();
         ReclassificationJournalWithPurchaseOrder(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::EditQuantityBase, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
@@ -586,7 +586,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Dimension on Revaluation Journal after posting Transfer Order and running Calculate Inventory Value Report.
 
         // [GIVEN] Create Item with Dimension, Create and post Transfer Order.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Costing Method"::FIFO);
         UpdateItemDimension(DefaultDimension, Item."No.");
         CreateAndPostTransferOrder(Item."No.");
@@ -610,7 +610,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] error message while posting Reclassfication Journal with Location and without New Location Code.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(10, 2);
         CreateItemReclassJournal(ReclassificationItemJournalLine, '', '', Qty, Qty + LibraryRandom.RandDec(10, 2));  // Use value blank for Location Code.
 
@@ -633,7 +633,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] error message while posting Reclassfication Journal with New Location Code.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(10, 2);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateItemReclassJournal(ReclassificationItemJournalLine, Location.Code, '', Qty, Qty + LibraryRandom.RandDec(10, 2));
@@ -661,7 +661,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] updated Unit cost on Item when Inventory is negative.
 
         // [GIVEN] Create Item and Stockkeeping Unit, create Location, post Sales entry.
-        Initialize;
+        Initialize();
 
         LibraryInventory.SetAutomaticCostAdjmtAlways;
         LibraryInventory.SetAverageCostSetup(
@@ -695,7 +695,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] Item Variant Description is updated in Phys. Inventory Ledger when Calculate Inventory on Phys. Inventory Journal.
 
         // [GIVEN] Create Item with Variant and update Inventory by posting Item Journal.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Costing Method"::FIFO);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         UpdateItemInventory(
@@ -707,7 +707,7 @@ codeunit 137275 "SCM Inventory Journals"
 
         // [THEN] Check Item Variant Description on Phys. Inventory Ledger.
         PhysInventoryLedgerEntry.SetRange("Item No.", ItemVariant."Item No.");
-        PhysInventoryLedgerEntry.FindFirst;
+        PhysInventoryLedgerEntry.FindFirst();
         PhysInventoryLedgerEntry.TestField(Description, ItemVariant.Description);
     end;
 
@@ -727,7 +727,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] No Dimension is populated when Calculate Inventory on Phys. Inventory Journal with Bin Mandatory Location.
 
         // [GIVEN] Create Item with different Dimensions, Create and post Item Journal.
-        Initialize;
+        Initialize();
         BinCode := CreateLocationAndBin(Location);
         CreateItem(Item, Item."Costing Method"::FIFO);
         UpdateItemDimension(DefaultDimension, Item."No.");
@@ -761,7 +761,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Dimensions] [Calculate Inventory] [Default Dimension]
         // [SCENARIO 381581] Calculate Inventory report for Item where Default dimension value is not specified
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item where default dimension "Dim1" with value "Val1", second default dimension "Dim2" with value empty but mandatory
         CreateItem(Item, Item."Costing Method"::FIFO);
@@ -808,7 +808,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Dimensions] [Physical Inventory]
         // [SCENARIO 362270] Dimensions are copied to Item Journal Line from Item's Default Dimensions by "Calculate Inventory" job ran with blank "By Dimension" with Bin Mandatory Location
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Ledger Entry with "Dimension Code" = "D" for Bin Mandatory Location
         // [GIVEN] Bin Mandatory Location
@@ -839,7 +839,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Dimensions] [Physical Inventory]
         // [SCENARIO 361495] Dimensions are copied to Item Journal Line from Item's Default Dimensions by "Calculate Inventory" job ran with blank "By Dimension"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Default Dimension "D" = "X"
         CreateItem(Item, Item."Costing Method"::FIFO);
@@ -870,7 +870,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Dimensions] [Physical Inventory]
         // [SCENARIO 361495] Dimensions are copied through Item Journal Line by "Calculate Inventory" job ran with "By Dimension" not blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Ledger Entry 1 with "Dimension Code" = "D" and "Dimension Value Code" = "C1"
         // [GIVEN] Item Ledger Entry 2 with Dimension Code = "D" and "Dimension Value Code" = "C2"
@@ -906,7 +906,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Physical Inventory]
         // [SCENARIO 378919] Two lines should be added in Phys. Inventory Journal after setting Location Filter = "L1|L2" in Calculate Inventory page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item.
         LibraryInventory.CreateItem(Item);
@@ -933,7 +933,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Physical Inventory]
         // [SCENARIO 378919] "Location Code" field in Phys. Inventory Journal Line should be empty after Calculate Inventory if filter is blank.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item.
         LibraryInventory.CreateItem(Item);
@@ -956,7 +956,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Physical Inventory]
         // [SCENARIO 378919] "Location Code" field in Phys. Inventory Journal line should be empty after Calculate Inventory if transit location is selected in Location Filter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item.
         LibraryInventory.CreateItem(Item);
@@ -984,7 +984,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [THEN] Verify we can use Item Reclass. Journal to transfer item from non Bin Mandatory Location to Bin Mandatory Location.
 
         // [GIVEN] Create Location with Bin.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandDec(10, 2);
         BinCode := CreateLocationAndBin(Location);
 
@@ -1015,7 +1015,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [SCENARIO] all inventory are calculated for item when inventory exists multiple variants and locations.
 
         // [GIVEN] Create Item with two Variants and create two Locations with Bins.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Costing Method"::FIFO);
         for i := 1 to 2 do begin
@@ -1055,16 +1055,16 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Physical Inventory] [Item Variant]
         // [SCENARIO 253621] When one item does have a variant and another one does not, Calculate Inventory run with "Include items without transaction" setting, creates two lines, one per each item, without errors.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Location "L".
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         // [GIVEN] Item "I1" with variant "V1", item "I2" with no variants.
-        ItemNo[1] := LibraryInventory.CreateItemNo;
+        ItemNo[1] := LibraryInventory.CreateItemNo();
         LibraryInventory.CreateItemVariant(ItemVariant, ItemNo[1]);
-        ItemNo[2] := LibraryInventory.CreateItemNo;
+        ItemNo[2] := LibraryInventory.CreateItemNo();
 
         // [GIVEN] Post positive adjustment for item "I1" and variant "V1".
         CreateAndPostItemJournal(
@@ -1090,11 +1090,11 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Physical Inventory] [Item Variant]
         // [SCENARIO 253621] When you set "Variant filter" and enable "Include items without transaction" on Calculate Inventory, the job creates lines for all variants of all items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three items "I1", "I2", "I3", each item has three variants.
         for i := 1 to ArrayLen(ItemNo) do begin
-            ItemNo[i] := LibraryInventory.CreateItemNo;
+            ItemNo[i] := LibraryInventory.CreateItemNo();
             ItemNoFilter := ItemNoFilter + '|' + ItemNo[i];
             for j := 1 to ArrayLen(ItemVariant[i]) do
                 LibraryInventory.CreateItemVariant(ItemVariant[i] [j], ItemNo[i]);
@@ -1125,7 +1125,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [FEATURE] [Physical Inventory] [Item Variant]
         // [SCENARIO 253621] When you set "Location Filter" and "Variant filter" and enable "Include items without transaction" on Calculate Inventory, the job creates lines for all combinations of locations, variants and items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three locations "L1", "L2", "L3".
         for k := 1 to ArrayLen(Location) do begin
@@ -1136,7 +1136,7 @@ codeunit 137275 "SCM Inventory Journals"
 
         // [GIVEN] Three items "I1", "I2", "I3", each item has three variants.
         for i := 1 to ArrayLen(ItemNo) do begin
-            ItemNo[i] := LibraryInventory.CreateItemNo;
+            ItemNo[i] := LibraryInventory.CreateItemNo();
             ItemNoFilter := ItemNoFilter + '|' + ItemNo[i];
             for j := 1 to ArrayLen(ItemVariant[i]) do
                 LibraryInventory.CreateItemVariant(ItemVariant[i] [j], ItemNo[i]);
@@ -1258,8 +1258,8 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Journals");
         ClearGlobalVariable;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
 
@@ -1268,10 +1268,10 @@ codeunit 137275 "SCM Inventory Journals"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Journals");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         ReclassificationJournalSetup;
         SetGlobalDescriptionAndComments;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
@@ -1510,7 +1510,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindItemTrackingCode(LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean): Code[10]
@@ -1524,7 +1524,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemTrackingCode.SetRange("SN Specific Tracking", SerialNoSpecificTracking);
         ItemTrackingCode.SetRange("SN Sales Inbound Tracking", SerialNoSpecificTracking);
         ItemTrackingCode.SetRange("SN Sales Outbound Tracking", SerialNoSpecificTracking);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         exit(ItemTrackingCode.Code);
     end;
 
@@ -1542,7 +1542,7 @@ codeunit 137275 "SCM Inventory Journals"
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
         ItemLedgerEntry.SetRange("Item No.", GlobalItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindItemLedgerEntryWithLocation(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10])
@@ -1551,7 +1551,7 @@ codeunit 137275 "SCM Inventory Journals"
             SetRange("Entry Type", EntryType);
             SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1559,7 +1559,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         ItemTrackingComment.SetRange(Type, CommentType);
         ItemTrackingComment.SetRange("Item No.", ItemNo);
-        ItemTrackingComment.FindFirst;
+        ItemTrackingComment.FindFirst();
     end;
 
     local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20])
@@ -1568,14 +1568,14 @@ codeunit 137275 "SCM Inventory Journals"
             SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", ItemJournalBatch.Name);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
     local procedure FindLotNoInformation(var LotNoInformation: Record "Lot No. Information"; ItemNo: Code[20])
     begin
         LotNoInformation.SetRange("Item No.", ItemNo);
-        LotNoInformation.FindFirst;
+        LotNoInformation.FindFirst();
     end;
 
     local procedure ModifyUnitOfMeasureOnItemJournal(var ItemJournalLine: Record "Item Journal Line"; UnitOfMeasureCode: Code[10])
@@ -1673,7 +1673,7 @@ codeunit 137275 "SCM Inventory Journals"
         end;
         CalculateInventory.SetItemJnlLine(ItemJournalLine);
         Commit();
-        CalculateInventory.RunModal;
+        CalculateInventory.RunModal();
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
@@ -1791,7 +1791,7 @@ codeunit 137275 "SCM Inventory Journals"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry.TestField("Dimension Code", DefaultDimension."Dimension Code");
         DimensionSetEntry.TestField("Dimension Value Code", DefaultDimension."Dimension Value Code");
     end;
@@ -1802,7 +1802,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         ItemLedgerEntry.SetRange("Item No.", GlobalItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Serial No.");
     end;
 
@@ -1812,7 +1812,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         ItemLedgerEntry.SetRange("Item No.", GlobalItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Lot No.");
     end;
 

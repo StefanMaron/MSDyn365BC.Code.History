@@ -36,10 +36,10 @@ codeunit 137089 "SCM Kitting - Planning"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - Planning");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
 
         IsInitialized := true;
         Commit();
@@ -195,7 +195,7 @@ codeunit 137089 "SCM Kitting - Planning"
           Item."Costing Method"::Standard, ParentItem."No.", true, 1, 0, 0, 1, SelectGenProdPostingGroupCode, InventoryPostingGroupCode);
 
         BOMCompItem.SetRange("Parent Item No.", ParentItem."No.");
-        BOMCompItem.FindFirst;
+        BOMCompItem.FindFirst();
         Item.Get(BOMCompItem."No.");
 
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -239,7 +239,7 @@ codeunit 137089 "SCM Kitting - Planning"
         with GeneralPostingSetup do begin
             SetFilter("Gen. Prod. Posting Group", GenProdPostingGroupCode);
             SetFilter("Gen. Bus. Posting Group", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit("Gen. Bus. Posting Group");
         end;
     end;
@@ -287,7 +287,7 @@ codeunit 137089 "SCM Kitting - Planning"
         VerifyReqLineExists2(No, VariantCode, ActionMessage, OriginalQuantity, DueDate);
 
         ReqLine.SetRange("No.", No);
-        ReqLine.FindFirst;
+        ReqLine.FindFirst();
         Assert.AreEqual(Quantity, ReqLine.Quantity, 'Quantity on requisition line didn''t have expected value');
     end;
 
@@ -345,7 +345,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 0;
         ChildQtyOnAO := 5;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -380,7 +380,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 0;
         ChildQtyOnAO := 0;
 
-        Initialize;
+        Initialize();
 
         SetupItemsVariant(ParentNo, ChildNo, QtyPer, VarCode);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, VarCode);
@@ -415,7 +415,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 0;
         ChildQtyOnAO := 0;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -446,7 +446,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 4;
         ChildQtyOnAO := 0;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -480,7 +480,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 0;
         ChildQtyOnAO := 3;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -516,7 +516,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 4;
         ChildQtyOnAO := 1;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -552,7 +552,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 4;
         ChildQtyOnAO := 1;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -588,7 +588,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 0;
         ChildQtyOnAO := 0;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -619,7 +619,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 4;
         ChildQtyOnAO := 0;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -654,7 +654,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 4;
         ChildQtyOnAO := 2;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -689,7 +689,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 0;
         ChildQtyOnAO := 0;
 
-        Initialize;
+        Initialize();
 
         SetupItemsVariant(ParentNo, ChildNo, QtyPer, VarCode);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, VarCode);
@@ -719,7 +719,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 0;
         ChildQtyOnAO := 2;
 
-        Initialize;
+        Initialize();
 
         SetupItems(ParentNo, ChildNo, QtyPer);
         SetupSupplyDemand(ParentNo, QtyOnSalesOrder, QtyOnInventory, '');
@@ -749,7 +749,7 @@ codeunit 137089 "SCM Kitting - Planning"
         QtyOnSalesOrder := 10;
         ParentQtyOnAO := 10;
 
-        Initialize;
+        Initialize();
 
         // A kit item, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly
         CreateKitItem(ParentAssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
@@ -792,7 +792,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         QtyOnSalesOrder := 10;
 
-        Initialize;
+        Initialize();
 
         // A kit item, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO
         CreateKitItem(ParentAssemblyItem, "Assembly Policy"::"Assemble-to-Order");
@@ -828,7 +828,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         QtyOnSalesOrder := 10;
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, BOM=1xTS1-COMP1
         CreateKitItem(ParentAssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
@@ -871,7 +871,7 @@ codeunit 137089 "SCM Kitting - Planning"
         QtyOnSalesOrder := 10;
         QtyToAssembleToOrder := 7;
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(ParentAssemblyItem, "Assembly Policy"::"Assemble-to-Order");
@@ -918,7 +918,7 @@ codeunit 137089 "SCM Kitting - Planning"
         // Kit-in-kit scenario. 1500 (ie. plenty) components on inventory, 5 parent items on AO.
         // Tests that the Order planning doesn't create unnecessary AOs.
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATS, BOM=1xTS1-COMP1
         CreateKitItem(ParentAssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
@@ -952,7 +952,7 @@ codeunit 137089 "SCM Kitting - Planning"
         // Purchased item in assembly variant. 7 child item on inventory. 10 parent items on AO. No SO.
         // Tests the Order planning with variants and demand partially covered by inventory.
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATS, BOM=1xTS1-COMP1
         CreateKitItem(ParentAssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
@@ -990,7 +990,7 @@ codeunit 137089 "SCM Kitting - Planning"
         // Produced items in assembly. 0 item on inventory. 10 parent items on AO. No SO.
         // Tests the Order planning with two produced components.
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATS, BOM=1xTS1-COMP1
         CreateKitItem(ParentAssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
@@ -1052,7 +1052,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ParentQtyOnAO := 10;
         NewQtyOnAO := 5;
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATS, BOM=1xTS1-COMP1
         CreateKitItem(ParentAssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
@@ -1082,7 +1082,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         CarryOutActionMsgPlan.SetReqWkshLine(ReqLine);
         CarryOutActionMsgPlan.UseRequestPage := false;
-        asserterror CarryOutActionMsgPlan.Run;
+        asserterror CarryOutActionMsgPlan.Run();
         Assert.IsTrue(
           StrPos(GetLastErrorText, 'Demand Quantity (Base) must be equal to ') = 1, 'Carry out did not give the expected error message');
         ClearLastError;
@@ -1100,7 +1100,7 @@ codeunit 137089 "SCM Kitting - Planning"
         // Kit-in-ATOKit scenario in Order Planning. 10 parent items on SO.
         // AO for the parent item will be created automatically for the SO, so order planning should only suggest an AO for the child item.
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(ParentAssemblyItem, "Assembly Policy"::"Assemble-to-Order");
@@ -1130,7 +1130,7 @@ codeunit 137089 "SCM Kitting - Planning"
     begin
         // 5 items on inventory and non on AO. SO of 10. ATP should not be able not produce an earliest shipment date because the demand cannot be met without creating additional orders.
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
@@ -1161,7 +1161,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         AODueDate := WorkDate + 3;
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
@@ -1194,7 +1194,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         SODueDate := WorkDate + 5;
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Order");
@@ -1224,7 +1224,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         AODueDate := WorkDate + 2;
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Order");
@@ -1258,7 +1258,7 @@ codeunit 137089 "SCM Kitting - Planning"
     begin
         // 5 items on inventory and non on AO. SO of 10. CTP should be able to produce an earliest shipment date because it can suggest an AO of the missing items.
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
@@ -1293,7 +1293,7 @@ codeunit 137089 "SCM Kitting - Planning"
     begin
         // 5 ATO items on inventory and non on AO. SO of 10, QtATO=3. CTP should be able to produce an earliest shipment date and the appropriate req line should be generated.
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Order");
@@ -1338,7 +1338,7 @@ codeunit 137089 "SCM Kitting - Planning"
         QtyOnSalesOrder := 20;
         QtyOnInventory := 5;
 
-        Initialize;
+        Initialize();
 
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Stock");

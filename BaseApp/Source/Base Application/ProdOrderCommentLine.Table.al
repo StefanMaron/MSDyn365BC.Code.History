@@ -71,7 +71,7 @@ table 5414 "Prod. Order Comment Line"
         ProdOrderCommentLine.SetRange(Status, Status);
         ProdOrderCommentLine.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderCommentLine.SetRange(Date, WorkDate);
-        if not ProdOrderCommentLine.FindFirst then
+        if not ProdOrderCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, ProdOrderCommentLine);

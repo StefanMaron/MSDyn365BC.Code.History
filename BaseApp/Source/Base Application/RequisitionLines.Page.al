@@ -179,6 +179,9 @@ page 517 "Requisition Lines"
                 Image = Line;
                 action("Show Worksheet")
                 {
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
                     ApplicationArea = Planning;
                     Caption = 'Show Worksheet';
                     Image = ViewWorksheet;
@@ -197,6 +200,9 @@ page 517 "Requisition Lines"
                 }
                 action("Reservation Entries")
                 {
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
                     AccessByPermission = TableData Item = R;
                     ApplicationArea = Reservation;
                     Caption = 'Reservation Entries';
@@ -210,6 +216,9 @@ page 517 "Requisition Lines"
                 }
                 action(Dimensions)
                 {
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
                     AccessByPermission = TableData Dimension = R;
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
@@ -225,10 +234,13 @@ page 517 "Requisition Lines"
                 }
                 action("Item &Tracking Lines")
                 {
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

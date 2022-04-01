@@ -1,6 +1,7 @@
 codeunit 134605 "Test Report Layout Selection"
 {
     Subtype = Test;
+    EventSubscriberInstance = Manual;
     TestPermissions = Disabled;
 
     trigger OnRun()
@@ -15,7 +16,7 @@ codeunit 134605 "Test Report Layout Selection"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySmtpMailHandler: Codeunit "Library - SMTP Mail Handler";
         OneRecordWillBeSentQst: Label 'Only the first of the selected documents can be scheduled in the job queue.\\Do you want to continue?';
-        DefaultLbl: Label 'Default';
+        DefaultLbl: Label '(Default)';
 
     [Test]
     [HandlerFunctions('NotificationHandler')]
@@ -135,9 +136,11 @@ codeunit 134605 "Test Report Layout Selection"
 
         // Execute. Opens modal pages.
         ReportLayoutSelectionPage.Type.SetValue(Format(ReportLayoutSelection.Type::"Custom Layout")); // Opens lookup
+        ReportLayoutSelectionPage.CustomLayoutDescription.SetValue('Test');
         Assert.AreEqual('Test', ReportLayoutSelectionPage.CustomLayoutDescription.Value, '');
 
         ReportLayoutSelectionPage.CustomLayoutDescription.Lookup; // lookup from description
+        ReportLayoutSelectionPage.CustomLayoutDescription.SetValue('Test');
         Assert.AreEqual('Test', ReportLayoutSelectionPage.CustomLayoutDescription.Value, '');
 
         ReportLayoutSelectionPage.CustomLayoutDescription.SetValue('built'); // finds closest match
@@ -171,7 +174,6 @@ codeunit 134605 "Test Report Layout Selection"
     end;
 
     [Test]
-    [HandlerFunctions('BuiltinLayoutHandlerModal')]
     [Scope('OnPrem')]
     procedure TestReportLayoutPageBuiltinLookup()
     var
@@ -181,11 +183,13 @@ codeunit 134605 "Test Report Layout Selection"
         ReportId: Integer;
         TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
         PublishedApplication: Record "Published Application";
+        TestReportLayoutSelection: Codeunit "Test Report Layout Selection";
     begin
         // Combined tests due to expensive initialization (>5 sec.)
         // [GIVEN] No existing built-in layout selected for test report
         TenantReportLayoutSelection.SetRange("Report ID", 134600);
         TenantReportLayoutSelection.DeleteAll();
+        BindSubscription(TestReportLayoutSelection);
 
         // [WHEN] Invoking the description lookup for the built-in word layout on the test report
         ReportLayoutSelectionPage.OpenView;
@@ -216,7 +220,118 @@ codeunit 134605 "Test Report Layout Selection"
         Assert.AreEqual(DefaultLbl, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'Correct layout should be set');
         // [THEN] The tenant layout selection is deleted
         Assert.RecordIsEmpty(TenantReportLayoutSelection);
+    end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestReportLayoutPageSelectLayout()
+    var
+        ReportLayoutSelection: Record "Report Layout Selection";
+        ReportLayoutSelectionPage: TestPage "Report Layout Selection";
+        ReportLayoutList: Record "Report Layout List";
+        ReportId: Integer;
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
+        PublishedApplication: Record "Published Application";
+        TestReportLayoutSelection: Codeunit "Test Report Layout Selection";
+    begin
+        // Combined tests due to expensive initialization (>5 sec.)
+        // [GIVEN] No existing built-in layout selected for test report
+        TenantReportLayoutSelection.SetRange("Report ID", 134600);
+        TenantReportLayoutSelection.DeleteAll();
+        BindSubscription(TestReportLayoutSelection);
+
+        // [WHEN] Invoking the description lookup for the built-in word layout on the test report
+        ReportLayoutSelectionPage.OpenView;
+        ReportLayoutSelectionPage.First;
+        Assert.AreNotEqual(0, ReportLayoutSelectionPage."Report ID".AsInteger, '');
+        ReportLayoutSelectionPage.GoToKey(134600, '');
+        ReportLayoutSelectionPage.Type.SetValue(Format(ReportLayoutSelection.Type::"Word (built-in)"));
+        ReportLayoutSelectionPage.SelectLayout.Invoke();
+
+        ReportLayoutList.SetRange("Report ID", 134600);
+        ReportLayoutList.SetRange("Layout Format", ReportLayoutList."Layout Format"::Word);
+        ReportLayoutList.FindFirst();
+        PublishedApplication.Get(ReportLayoutList."Runtime Package ID");
+
+        // [THEN] The layout selection list shows the name of the built-in layout
+        Assert.AreEqual(ReportLayoutList.Name, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'Correct layout should be set');
+
+        // [THEN] A tenant layout selection record is inserted for the report
+        TenantReportLayoutSelection.FindFirst();
+        Assert.AreEqual(ReportLayoutList.Name, TenantReportLayoutSelection."Layout Name", 'Layout should be selected in tenant report layout selection');
+        Assert.AreEqual(ReportLayoutSelectionPage.SelectedCompany.Value, TenantReportLayoutSelection."Company Name", 'Layout should be inserted for correct company');
+        Assert.AreEqual(PublishedApplication.ID, TenantReportLayoutSelection."App ID", 'Layout should be inserted for correct app id');
+
+        // [WHEN] The report layout description is cleared
+        ReportLayoutSelectionPage.CustomLayoutDescription.SetValue('');
+
+        // [THEN] The layout goes back to default
+        Assert.AreEqual(DefaultLbl, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'Correct layout should be set');
+        // [THEN] The tenant layout selection is deleted
+        Assert.RecordIsEmpty(TenantReportLayoutSelection);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomLayoutHandlerModal,NewLayoutHandlerModal')]
+    [Scope('OnPrem')]
+    procedure TestReportLayoutSelectCustomLayout()
+    var
+        ReportLayoutSelection: Record "Report Layout Selection";
+        ReportLayoutSelectionPage: TestPage "Report Layout Selection";
+    begin
+        // [GIVEN] Custom Layouts page will contain 2 custom layouts for report 134600
+        ReportLayoutSelectionPage.OpenView;
+        ReportLayoutSelectionPage.First;
+        Assert.AreNotEqual(0, ReportLayoutSelectionPage."Report ID".AsInteger, '');
+
+        ReportLayoutSelection."Report ID" := 134600;
+        ReportLayoutSelectionPage.GotoRecord(ReportLayoutSelection);
+
+        // [When] Lookup page opens and the 'Test' layout is selected
+        ReportLayoutSelectionPage.Type.SetValue(Format(ReportLayoutSelection.Type::"Custom Layout")); // Opens lookup
+
+        // [Expected] The test layout actually runs
+        Assert.AreEqual('Test', ReportLayoutSelectionPage.CustomLayoutDescription.Value, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestReportLayoutRestoreDefaultLayout()
+    var
+        ReportLayoutSelection: Record "Report Layout Selection";
+        ReportLayoutSelectionPage: TestPage "Report Layout Selection";
+        ReportLayoutList: Record "Report Layout List";
+        ReportId: Integer;
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
+        PublishedApplication: Record "Published Application";
+        TestReportLayoutSelection: Codeunit "Test Report Layout Selection";
+    begin
+        // Combined tests due to expensive initialization (>5 sec.)
+        // [GIVEN] No existing built-in layout selected for test report
+        TenantReportLayoutSelection.SetRange("Report ID", 134600);
+        TenantReportLayoutSelection.DeleteAll();
+        BindSubscription(TestReportLayoutSelection);
+
+        // [WHEN] Invoking the description lookup for the built-in word layout on the test report
+        // and then invoking ResetDefaultLayout
+        ReportLayoutSelectionPage.OpenView;
+        ReportLayoutSelectionPage.First;
+        Assert.AreNotEqual(0, ReportLayoutSelectionPage."Report ID".AsInteger, '');
+        ReportLayoutSelectionPage.GoToKey(134600, '');
+        ReportLayoutSelectionPage.Type.SetValue(Format(ReportLayoutSelection.Type::"Word (built-in)"));
+        ReportLayoutSelectionPage.SelectLayout.Invoke();
+
+        ReportLayoutList.SetRange("Report ID", 134600);
+        ReportLayoutList.SetRange("Layout Format", ReportLayoutList."Layout Format"::Word);
+        ReportLayoutList.FindFirst();
+        PublishedApplication.Get(ReportLayoutList."Runtime Package ID");
+
+        Assert.AreEqual(ReportLayoutList.Name, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'Correct layout should be set');
+
+        ReportLayoutSelectionPage.RestoreDefaultLayout.Invoke();
+
+        // [THEN] The layout selection should be set to default
+        Assert.AreEqual(DefaultLbl, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'The default layout should have been restored.');
     end;
 
     [Test]
@@ -239,7 +354,7 @@ codeunit 134605 "Test Report Layout Selection"
         JobQueueEntryCard: TestPage "Job Queue Entry Card";
     begin
         // Init
-        JobQueueEntryCard.OpenNew;
+        JobQueueEntryCard.OpenNew();
         JobQueueEntryCard."Earliest Start Date/Time".Value := Format(CreateDateTime(22221212D, 121200T));
 
         // Execute
@@ -260,7 +375,7 @@ codeunit 134605 "Test Report Layout Selection"
         JobQueueEntryCard: TestPage "Job Queue Entry Card";
     begin
         // Init
-        JobQueueEntryCard.OpenNew;
+        JobQueueEntryCard.OpenNew();
         JobQueueEntryCard."Expiration Date/Time".Value := Format(CreateDateTime(22221212D, 121200T));
 
         // Execute
@@ -299,22 +414,8 @@ codeunit 134605 "Test Report Layout Selection"
     [HandlerFunctions('SelectSendingOptionModalPageHandler')]
     [Test]
     [Scope('OnPrem')]
-    procedure SendTwoSalesInvoicesInJobQueueSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        SendTwoSalesInvoicesInJobQueueInternal();
-    end;
-
-    [HandlerFunctions('SelectSendingOptionModalPageHandler')]
-    [Test]
-    [Scope('OnPrem')]
     procedure SendTwoSalesInvoicesInJobQueue()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         SendTwoSalesInvoicesInJobQueueInternal();
     end;
 
@@ -328,14 +429,10 @@ codeunit 134605 "Test Report Layout Selection"
         ReportSelections: Record "Report Selections";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryWorkflow: Codeunit "Library - Workflow";
-        EmailFeature: Codeunit "Email Feature";
     begin
         // [FEATURE] [Email] [Document Sending Profile] [Sales]
         // [SCENARIO 334364] Stan can "Send" to email posted sales invoice and "print" them via job queue.
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount()
-        else
-            MockSMTPMailServerSetup();
+        LibraryWorkflow.SetUpEmailAccount();
         LibrarySmtpMailHandler.SetDisableSending(true);
         FilterJobQueueEntryDocumentMailing(JobQueueEntry);
         JobQueueEntry.DeleteAll();
@@ -365,22 +462,8 @@ codeunit 134605 "Test Report Layout Selection"
     [HandlerFunctions('SelectSendingOptionModalPageHandler')]
     [Test]
     [Scope('OnPrem')]
-    procedure SendTwoPurchaseInvoicesInJobQueueSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        SendTwoPurchaseInvoicesInJobQueueInternal();
-    end;
-
-    [HandlerFunctions('SelectSendingOptionModalPageHandler')]
-    [Test]
-    [Scope('OnPrem')]
     procedure SendTwoPurchaseInvoicesInJobQueue()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         SendTwoPurchaseInvoicesInJobQueueInternal();
     end;
 
@@ -394,14 +477,10 @@ codeunit 134605 "Test Report Layout Selection"
         ReportSelections: Record "Report Selections";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryWorkflow: Codeunit "Library - Workflow";
-        EmailFeature: Codeunit "Email Feature";
     begin
         // [FEATURE] [Email] [Document Sending Profile] [Sales]
         // [SCENARIO 334364] Stan can "Send" to email posted sales invoice and "print" them via job queue.
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount()
-        else
-            MockSMTPMailServerSetup();
+        LibraryWorkflow.SetUpEmailAccount();
         LibrarySmtpMailHandler.SetDisableSending(true);
         FilterJobQueueEntryDocumentMailing(JobQueueEntry);
         JobQueueEntry.DeleteAll();
@@ -492,14 +571,6 @@ codeunit 134605 "Test Report Layout Selection"
         PurchaseHeader.Insert();
     end;
 
-    local procedure MockSMTPMailServerSetup()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-    begin
-        SMTPMailSetup.DeleteAll();
-        SMTPMailSetup."SMTP Server" := LibraryUtility.GenerateGUID();
-        SMTPMailSetup.Insert();
-    end;
 
     local procedure VerifyJobQueueEntry(ExpectedRecID: RecordID)
     var
@@ -554,13 +625,6 @@ codeunit 134605 "Test Report Layout Selection"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure BuiltinLayoutHandlerModal(var BuildinReportLayouts: TestPage "Built-in Report Layouts")
-    begin
-        BuildinReportLayouts.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure NewLayoutHandlerModal(var ReportLayoutLookup: TestPage "Report Layout Lookup")
     begin
         ReportLayoutLookup.AddRDLC.SetValue(true);
@@ -607,6 +671,13 @@ codeunit 134605 "Test Report Layout Selection"
     [Scope('OnPrem')]
     procedure NotificationHandler(var Notification: Notification): Boolean
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Report Layout Selection", 'OnSelectReportLayout', '', false, false)]
+    local procedure SelectReportLayout(var ReportLayoutList: Record "Report Layout List"; var Handled: Boolean)
+    begin
+        ReportLayoutList.FindFirst();
+        Handled := true;
     end;
 }
 

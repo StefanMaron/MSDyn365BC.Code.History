@@ -384,7 +384,7 @@ page 1804 "Approval Workflow Setup Wizard"
 
         ApprovalUserSetup.SetRange("Unlimited Sales Approval", true);
         ApprovalUserSetup.SetRange("Unlimited Purchase Approval", true);
-        if ApprovalUserSetup.FindFirst then
+        if ApprovalUserSetup.FindFirst() then
             "Approver ID" := ApprovalUserSetup."User ID";
 
         "Purch Amount Approval Limit" := ApprovalUserSetup.GetDefaultPurchaseAmountApprovalLimit;

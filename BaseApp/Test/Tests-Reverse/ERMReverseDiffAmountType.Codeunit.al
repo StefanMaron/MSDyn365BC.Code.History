@@ -125,7 +125,7 @@ codeunit 134145 "ERM Reverse Diff Amount Type"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", AccountNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
     end;
 
     local procedure VerifyBalanceAndDebitAmount(GenJournalLine: Record "Gen. Journal Line")

@@ -110,7 +110,7 @@ page 2145 "O365 VAT Posting Setup Card"
         VATPostingSetup.Validate("VAT %", VATPercentage);
         VATPostingSetup.Modify(true);
         SalesLine.SetRange("VAT Prod. Posting Group", Code);
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 SalesLine.Validate("VAT Prod. Posting Group");
                 SalesLine.Modify(true);

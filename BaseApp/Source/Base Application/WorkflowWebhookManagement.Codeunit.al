@@ -1,4 +1,4 @@
-﻿codeunit 1543 "Workflow Webhook Management"
+codeunit 1543 "Workflow Webhook Management"
 {
     Permissions = TableData "Workflow Webhook Entry" = imd;
 
@@ -10,14 +10,19 @@
         ResponseAlreadyReceivedErr: Label 'A response has already been received.';
         ResponseNotExpectedErr: Label 'A response is not expected.';
         UnsupportedRecordTypeErr: Label 'Record type %1 is not supported.', Comment = 'Record type Customer is not supported by this workflow response.';
-        UserUnableToCancelErr: Label 'User %1 does not have the permission necessary to cancel the item.', Comment = '%1 = NAV USERID';
-        UserUnableToContinueErr: Label 'User %1 does not have the permission necessary to continue the item.', Comment = '%1 = NAV USERID';
-        UserUnableToDeleteErr: Label 'User %1 does not have the permission necessary to delete the item.', Comment = '%1 = NAV USERID';
-        UserUnableToRejectErr: Label 'User %1 does not have the permission necessary to reject the item.', Comment = '%1 = NAV USERID';
-        WorkflowStepInstanceIdNotFoundErr: Label 'The workflow step instance id %1 was not found.', Comment = '%1=Id value of a record.';
+        UserUnableToCancelErr: Label 'User %1 does not have the permission necessary to cancel the item.', Comment = '%1 = a NAV user ID, for example "MEGANB"';
+        EntryIsNotPendingErr: Label 'The %1 you are trying to act on is not in a pending state.', Comment = '%1 = the table caption for "Workflow Webhook Entry"';
+        UserNotSetAsApproverErr: Label 'User %1 does not have the permission necessary to act on the item. Make sure the user is set as approver or substitute in page %2, or check the "Workflows" section of the documentation.', Comment = '%1 = a NAV user ID, for example "MEGANB"; %2 = the page caption for "Approval User Setup"';
+        UserUnableToDeleteErr: Label 'User %1 does not have the permission necessary to delete the item.', Comment = '%1 = a NAV user ID, for example "MEGANB"';
+        DifferentUserExpectedErr: Label 'User %1 cannot act on this step. Make sure the user who created the webhook (%2) is the same who is trying to act.', Comment = '%1, %2 = two distinct NAV user IDs, for example "MEGANB" and "WILLIAMC"';
+        WorkflowStepInstanceIdNotFoundErr: Label 'The workflow step instance id %1 was not found.', Comment = '%1 = Id value of a record.';
+        WorkflowNotWaitingForUserErr: Label 'The requested action cannot be completed because the %1 is not waiting for a user.', Comment = '%1 = the table caption for "Workflow Step Argument"';
+        TelemetryCategoryTxt: Label 'AL Workflow Webhook', Locked = true;
+        CheckingUserActionsTelemetryMsg: Label 'Checking if the user can act on the webhook. Response type: %1. Response argument null: %2.', Locked = true;
+        CanActFinishedTelemetryMsg: Label 'Checking if the list of users is empty: %1.', Locked = true;
 
     [IntegrationEvent(false, FALSE)]
-    local procedure OnCancelWorkflow(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
+    local procedure OnCancelWorkflow(WorkflowWebhookEntry: Record "Workflow Webhook Entry"; OnDeletion: Boolean)
     begin
     end;
 
@@ -96,6 +101,11 @@
 
     procedure Cancel(var WorkflowWebhookEntry: Record "Workflow Webhook Entry")
     begin
+        Cancel(WorkflowWebhookEntry, false);
+    end;
+
+    procedure Cancel(var WorkflowWebhookEntry: Record "Workflow Webhook Entry"; OnDeletion: Boolean)
+    begin
         VerifyResponseExpected(WorkflowWebhookEntry);
 
         if not CanCancel(WorkflowWebhookEntry) then
@@ -104,7 +114,7 @@
         WorkflowWebhookEntry.Validate(Response, WorkflowWebhookEntry.Response::Cancel);
         WorkflowWebhookEntry.Modify(true);
 
-        OnCancelWorkflow(WorkflowWebhookEntry);
+        OnCancelWorkflow(WorkflowWebhookEntry, OnDeletion);
     end;
 
     procedure CancelByStepInstanceId(Id: Guid)
@@ -119,20 +129,30 @@
 
     procedure CanContinue(WorkflowWebhookEntry: Record "Workflow Webhook Entry"): Boolean
     begin
-        exit(CanAct(WorkflowWebhookEntry));
+        exit(TryCheckCanContinue(WorkflowWebhookEntry));
+    end;
+
+    [TryFunction]
+    local procedure TryCheckCanContinue(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
+    begin
+        VerifyCanAct(WorkflowWebhookEntry);
     end;
 
     procedure CanReject(WorkflowWebhookEntry: Record "Workflow Webhook Entry"): Boolean
     begin
-        exit(CanAct(WorkflowWebhookEntry));
+        exit(TryCheckCanReject(WorkflowWebhookEntry));
+    end;
+
+    [TryFunction]
+    local procedure TryCheckCanReject(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
+    begin
+        VerifyCanAct(WorkflowWebhookEntry);
     end;
 
     procedure Continue(var WorkflowWebhookEntry: Record "Workflow Webhook Entry")
     begin
         VerifyResponseExpected(WorkflowWebhookEntry);
-
-        if not CanContinue(WorkflowWebhookEntry) then
-            Error(UserUnableToContinueErr, UserId);
+        TryCheckCanContinue(WorkflowWebhookEntry);
 
         WorkflowWebhookEntry.Validate(Response, WorkflowWebhookEntry.Response::Continue);
         WorkflowWebhookEntry.Modify(true);
@@ -163,8 +183,7 @@
     begin
         VerifyResponseExpected(WorkflowWebhookEntry);
 
-        if not CanReject(WorkflowWebhookEntry) then
-            Error(UserUnableToRejectErr, UserId);
+        TryCheckCanReject(WorkflowWebhookEntry);
 
         WorkflowWebhookEntry.Validate(Response, WorkflowWebhookEntry.Response::Reject);
         WorkflowWebhookEntry.Modify(true);
@@ -199,34 +218,39 @@
             CODEUNIT.Run(CODEUNIT::"Workflow Webhook Notify Task", WorkflowStepInstance);
     end;
 
-    local procedure CanAct(WorkflowWebhookEntry: Record "Workflow Webhook Entry"): Boolean
+    local procedure VerifyCanAct(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
     var
         UserSetup: Record "User Setup";
         WorkflowStepArgument: Record "Workflow Step Argument";
+        DummyApprovalUserSetup: Page "Approval User Setup";
     begin
+        Session.LogMessage('0000G8Y', StrSubstNo(CheckingUserActionsTelemetryMsg, WorkflowWebhookEntry.Response, IsNullGuid(WorkflowWebhookEntry."Response Argument")), Verbosity::Normal,
+            DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
+
         if WorkflowWebhookEntry.Response <> WorkflowWebhookEntry.Response::Pending then
-            exit(false);
+            Error(EntryIsNotPendingErr, WorkflowWebhookEntry.TableCaption());
 
-        if IsNullGuid(WorkflowWebhookEntry."Response Argument") then
-            exit(false);
-
-        if not WorkflowStepArgument.Get(WorkflowWebhookEntry."Response Argument") then
-            exit(false);
+        WorkflowStepArgument.Get(WorkflowWebhookEntry."Response Argument");
 
         case WorkflowStepArgument."Response Type" of
             WorkflowStepArgument."Response Type"::"User ID":
                 begin
                     if WorkflowStepArgument."Response User ID" <> UserId then
-                        exit(false);
+                        Error(DifferentUserExpectedErr, UserId, WorkflowStepArgument."Response User ID");
 
                     UserSetup.Init();
                     UserSetup.FilterGroup(-1);
                     UserSetup.SetFilter("Approver ID", '%1', UserId);
                     UserSetup.SetFilter(Substitute, '%1', UserId);
-                    exit(UserSetup.FindFirst)
+
+                    Session.LogMessage('0000G8Z', StrSubstNo(CanActFinishedTelemetryMsg, UserSetup.IsEmpty()), Verbosity::Normal,
+                        DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
+
+                    if UserSetup.IsEmpty() then
+                        Error(UserNotSetAsApproverErr, UserId, DummyApprovalUserSetup.Caption());
                 end
             else
-                exit(false)
+                Error(WorkflowNotWaitingForUserErr, WorkflowStepArgument.TableCaption());
         end;
     end;
 
@@ -313,7 +337,7 @@
             WorkflowStepInstance.SetRange(ID, WorkflowStepInstanceID);
             WorkflowStepInstance.SetRange("Workflow Code", WorkflowCode);
 
-            if WorkflowStepInstance.FindSet then begin
+            if WorkflowStepInstance.FindSet() then begin
                 repeat
                     if WorkflowStep.Get(WorkflowStepInstance."Workflow Code", WorkflowStepInstance."Workflow Step ID") then begin
                         if WorkflowStep."Function Name" = WorkflowWebhookEvents.WorkflowWebhookResponseReceivedEventCode then
@@ -352,6 +376,11 @@
     end;
 
     procedure FindAndCancel(RecordId: RecordID)
+    begin
+        FindAndCancel(RecordId, false);
+    end;
+
+    procedure FindAndCancel(RecordId: RecordID; OnDeletion: Boolean)
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
@@ -360,7 +389,7 @@
         if FindWorkflowWebhookEntryByRecordIdAndResponse(WorkflowWebhookEntry, RecordId, WorkflowWebhookEntry.Response::Pending) and
            CanCancel(WorkflowWebhookEntry)
         then
-            Cancel(WorkflowWebhookEntry);
+            Cancel(WorkflowWebhookEntry, OnDeletion);
     end;
 
     procedure DeleteWorkflowWebhookEntries(RecordId: RecordID)
@@ -374,7 +403,7 @@
                 Error(UserUnableToDeleteErr, UserId);
 
             WorkflowWebhookEntry.SetRange("Record ID", RecordId);
-            if WorkflowWebhookEntry.FindFirst then
+            if WorkflowWebhookEntry.FindFirst() then
                 WorkflowWebhookEntry.DeleteAll();
         end;
     end;
@@ -384,7 +413,7 @@
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
         WorkflowWebhookEntry.SetRange("Record ID", OldRecordId);
-        if WorkflowWebhookEntry.FindFirst then
+        if WorkflowWebhookEntry.FindFirst() then
             WorkflowWebhookEntry.ModifyAll("Record ID", NewRecordId, true);
     end;
 

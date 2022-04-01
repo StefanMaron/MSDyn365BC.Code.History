@@ -160,7 +160,7 @@ page 2155 "O365 Sales Invoice Discount"
         GetTotalSalesHeader;
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
-        if SalesLine.FindFirst then begin
+        if SalesLine.FindFirst() then begin
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
 
             DocumentTotals.CalculateSalesTotals(TotalSalesLine, VATAmount, SalesLine);

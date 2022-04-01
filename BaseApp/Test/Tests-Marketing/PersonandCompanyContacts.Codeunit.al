@@ -10,7 +10,6 @@ codeunit 134626 "Person and Company Contacts"
 
     var
         Assert: Codeunit Assert;
-        LibraryGraphSync: Codeunit "Library - Graph Sync";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryUtility: Codeunit "Library - Utility";
         CompanyNameMissingErr: Label 'Company No. must have a value in Contact: No.=%1. It cannot be zero or empty.', Comment = 'Company No. must have a value in Contact: No.=CT000258. It cannot be zero or empty.';
@@ -61,8 +60,6 @@ codeunit 134626 "Person and Company Contacts"
 
         // Setup
         CreateContactUsingContactCard(Contact);
-        LibraryGraphSync.EditContactBasicDetails(Contact);
-        LibraryGraphSync.EditContactAddressDetails(Contact);
 
         // Exercise
         CreateCustomerFromContactUsingContactCard(Contact);
@@ -230,7 +227,7 @@ codeunit 134626 "Person and Company Contacts"
         LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] Customer and Contact with No. "X"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         Contact.Init();
         Contact."No." := CustomerNo;
         Contact.Insert(true);
@@ -263,11 +260,11 @@ codeunit 134626 "Person and Company Contacts"
         LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] New Contact Card page opened with "Type" set to 'Person' and "Name" field set to 'X Y Z'
-        FirstName := LibraryUtility.GenerateGUID;
-        MiddleName := LibraryUtility.GenerateGUID;
-        Surname := LibraryUtility.GenerateGUID;
+        FirstName := LibraryUtility.GenerateGUID();
+        MiddleName := LibraryUtility.GenerateGUID();
+        Surname := LibraryUtility.GenerateGUID();
 
-        ContactCard.OpenNew;
+        ContactCard.OpenNew();
         ContactCard.Type.SetValue(Contact.Type::Person);
         ContactCard.Name.SetValue(StrSubstNo('%1 %2 %3', FirstName, MiddleName, Surname));
 
@@ -367,7 +364,7 @@ codeunit 134626 "Person and Company Contacts"
 
         CompanyName := LibraryUtility.GenerateGUID();
 
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(1);
 
         ContactCard.OpenNew();
@@ -678,7 +675,6 @@ codeunit 134626 "Person and Company Contacts"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Person and Company Contacts");
         LibraryVariableStorage.Clear();
-        LibraryGraphSync.DisableGraphSync();
         LibraryTemplates.EnableTemplatesFeature();
     end;
 

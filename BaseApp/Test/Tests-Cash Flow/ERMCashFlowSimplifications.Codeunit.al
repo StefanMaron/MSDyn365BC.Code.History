@@ -68,7 +68,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         CashFlowManagement: Codeunit "Cash Flow Management";
     begin
         // [SCENARIO 168420] The simplified Cash Flow Forecast Setup is functional
-        Initialize;
+        Initialize();
 
         // [GIVEN] A newly setup company without any cash flow forecast setup
         Assert.RecordIsEmpty(CashFlowSetup);
@@ -111,7 +111,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         CashFlowForecastEntryCount: Integer;
     begin
         // [SCENARIO 168420] Enabling the "Move Overdue Cash Flow Dates to Work Date" moves all overdue cash flow dates to workdate
-        Initialize;
+        Initialize();
 
         // [GIVEN] A working cash flow forecast setup where "Move Overdue Cash Flow Dates to Work Date" is enabled (default)
         CashFlowManagement.SetupCashFlow(CopyStr(CashFlowManagement.GetCashAccountFilter, 1, 250));
@@ -137,7 +137,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         Assert.RecordIsNotEmpty(CashFlowForecastEntry);
 
         // [WHEN] "Move Overdue Cash Flow Dates to Work Date" is disabled
-        CashFlowForecast.FindFirst;
+        CashFlowForecast.FindFirst();
         CashFlowForecast.Validate("Overdue CF Dates to Work Date", false);
         CashFlowForecast.Modify();
 
@@ -166,7 +166,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
     begin
         // [SCENARIO 216343] Cash Flow Forecast Entry created with G/L Budget equal "Default G/L Budget" of Cash Flow Forecast after running "Recalculate Forecast"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cash Flow Forecast with "Default G/L Budget Name" = "X"
         CashFlowManagement.SetupCashFlow(CopyStr(CashFlowManagement.GetCashAccountFilter, 1, 250));
@@ -220,7 +220,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
     begin
         CashFlowForecastEntry.SetRange("Source Type", CashFlowForecastEntry."Source Type"::"G/L Budget");
         CashFlowForecastEntry.SetRange("Cash Flow Forecast No.", CFNo);
-        CashFlowForecastEntry.FindFirst;
+        CashFlowForecastEntry.FindFirst();
         CashFlowForecastEntry.TestField("G/L Budget Name", GLBudgetName);
     end;
 }

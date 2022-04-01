@@ -256,6 +256,11 @@ table 304 "Issued Fin. Charge Memo Header"
             Caption = 'Canceled By Document No.';
             DataClassification = CustomerContent;
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -330,7 +335,7 @@ table 304 "Issued Fin. Charge Memo Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure IncrNoPrinted()

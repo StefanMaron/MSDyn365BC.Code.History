@@ -200,7 +200,7 @@ table 1504 "Workflow Step Instance"
         WorkflowInstance: Query "Workflow Instance";
     begin
         WorkflowTableRelation.SetRange("Table ID", RecRef.Number);
-        if WorkflowTableRelation.FindSet then
+        if WorkflowTableRelation.FindSet() then
             repeat
                 WorkflowInstance.SetRange(Code, "Workflow Code");
                 WorkflowInstance.SetRange(Instance_ID, ID);
@@ -223,7 +223,7 @@ table 1504 "Workflow Step Instance"
         WorkflowTableRelationValue.SetRange("Workflow Code", "Workflow Code");
         WorkflowTableRelationValue.SetRange("Workflow Step ID", "Workflow Step ID");
         WorkflowTableRelationValue.SetRange("Related Table ID", RecRef.Number);
-        if WorkflowTableRelationValue.FindSet then begin
+        if WorkflowTableRelationValue.FindSet() then begin
             repeat
                 FieldRef := RecRef.Field(WorkflowTableRelationValue."Related Field ID");
                 if WorkflowTableRelationValue."Field ID" <> 0 then
@@ -244,7 +244,7 @@ table 1504 "Workflow Step Instance"
         WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
     begin
         Workflow.CopyFilter(Code, "Workflow Code");
-        if not FindSet then
+        if not FindSet() then
             Message(NothingToArchiveMsg)
         else
             if Confirm(ActiveInstancesWillBeArchivedQst) then begin
@@ -312,7 +312,7 @@ table 1504 "Workflow Step Instance"
 
         SetRange(ID, WorkflowInstanceId);
         SetRange("Workflow Step ID");
-        if FindSet then;
+        if FindSet() then;
     end;
 
     local procedure CreateTree(var TempWorkflowStepInstance: Record "Workflow Step Instance" temporary; WorkflowInstanceId: Guid; OriginalStepId: Integer; var NewStepId: Integer)
@@ -327,7 +327,7 @@ table 1504 "Workflow Step Instance"
         WorkflowStepInstance.SetRange("Previous Workflow Step ID", OriginalStepId);
         WorkflowStepInstance.SetCurrentKey("Sequence No.");
 
-        if WorkflowStepInstance.FindSet then
+        if WorkflowStepInstance.FindSet() then
             repeat
                 NewStepId += 1;
                 CreateTree(TempWorkflowStepInstance, WorkflowInstanceId, WorkflowStepInstance."Workflow Step ID", NewStepId);
@@ -340,7 +340,7 @@ table 1504 "Workflow Step Instance"
     begin
         SrcWorkflowStepInstance.SetRange(ID, WorkflowInstanceId);
         SrcWorkflowStepInstance.SetRange("Workflow Step ID", OriginalStepId);
-        SrcWorkflowStepInstance.FindFirst;
+        SrcWorkflowStepInstance.FindFirst();
 
         Clear(TempWorkflowStepInstance);
         TempWorkflowStepInstance.Init();

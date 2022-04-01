@@ -76,7 +76,7 @@ codeunit 132534 "Snapshot Management Test"
     [Scope('OnPrem')]
     procedure IncrementalSnapshotRestoreOneStep()
     begin
-        Initialize;
+        Initialize();
         IncrementalSnapshotRestore(true, 'S1', 'S2');
         Teardown;
     end;
@@ -85,7 +85,7 @@ codeunit 132534 "Snapshot Management Test"
     [Scope('OnPrem')]
     procedure IncrementalSnapshotRestoreMultiStep()
     begin
-        Initialize;
+        Initialize();
         IncrementalSnapshotRestore(false, 'S1', 'S2');
         Teardown;
     end;
@@ -94,7 +94,7 @@ codeunit 132534 "Snapshot Management Test"
     [Scope('OnPrem')]
     procedure IncrementalSnapshotRestoreRepeatably()
     begin
-        Initialize;
+        Initialize();
         IncrementalSnapshotRestore(true, 'S1', 'S2');
         IncrementalSnapshotRestore(false, 'S2', 'S3');
         IncrementalSnapshotRestore(true, 'S3', 'S4');
@@ -106,7 +106,7 @@ codeunit 132534 "Snapshot Management Test"
     [Scope('OnPrem')]
     procedure MixingSnapshots()
     begin
-        Initialize;
+        Initialize();
         SnapshotManagement.InitSnapshot('S1', false);
         asserterror SnapshotManagement.InitSnapshot('S2', true);
 
@@ -125,7 +125,7 @@ codeunit 132534 "Snapshot Management Test"
         SnapshotNo: Integer;
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         SnapshotNo := SnapshotManagement.InitSnapshot('S1', false);
 
@@ -152,7 +152,7 @@ codeunit 132534 "Snapshot Management Test"
         CustomerNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         SnapshotNo := SnapshotManagement.InitSnapshot('S1', false);
 
@@ -192,7 +192,7 @@ codeunit 132534 "Snapshot Management Test"
         CustomerNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         SnapshotNo := SnapshotManagement.InitSnapshot('S1', false);
 

@@ -313,15 +313,17 @@ page 1817 "CRM Connection Setup Wizard"
 
         Init;
         if CRMConnectionSetup.Get then begin
+            "Proxy Version" := CRMConnectionSetup."Proxy Version";
             "Authentication Type" := CRMConnectionSetup."Authentication Type";
             "Server Address" := CRMConnectionSetup."Server Address";
             "User Name" := CRMConnectionSetup."User Name";
             "User Password Key" := CRMConnectionSetup."User Password Key";
             Password := CRMConnectionSetup.GetPassword();
             ConnectionStringFieldsEditable := false;
-        end else
+        end else begin
             InitializeDefaultAuthenticationType();
-        InitializeDefaultProxyVersion;
+            InitializeDefaultProxyVersion();
+        end;
         Insert;
         Step := Step::Start;
         EnableControls;
@@ -330,7 +332,6 @@ page 1817 "CRM Connection Setup Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         GuidedExperience: Codeunit "Guided Experience";
-        Info: ModuleInfo;
     begin
         if CloseAction = ACTION::OK then
             if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"CRM Connection Setup Wizard") then

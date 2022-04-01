@@ -22,7 +22,7 @@ codeunit 132203 "Library - Planning"
         Clear(ProductionOrder);
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindLast;
+        ProductionOrder.FindLast();
     end;
 
     [Normal]
@@ -44,7 +44,7 @@ codeunit 132203 "Library - Planning"
         CalcLowLevelCode: Codeunit "Calc. Low-level code";
     begin
         Clear(CalcLowLevelCode);
-        CalcLowLevelCode.Run;
+        CalcLowLevelCode.Run();
     end;
 
     procedure CalculateOrderPlanProduction(var RequisitionLine: Record "Requisition Line")
@@ -102,7 +102,7 @@ codeunit 132203 "Library - Planning"
         end;
         CalculatePlanReqWksh.SetTableView(TmpItem);
         CalculatePlanReqWksh.UseRequestPage(false);
-        CalculatePlanReqWksh.RunModal;
+        CalculatePlanReqWksh.RunModal();
     end;
 
     procedure CalcRequisitionPlanForReqWksh(var Item: Record Item; StartDate: Date; EndDate: Date)
@@ -141,7 +141,7 @@ codeunit 132203 "Library - Planning"
         end;
         CalculatePlanPlanWksh.SetTableView(TmpItemRec);
         CalculatePlanPlanWksh.UseRequestPage(false);
-        CalculatePlanPlanWksh.RunModal;
+        CalculatePlanPlanWksh.RunModal();
     end;
 
     procedure CalcRegenPlanForPlanWksh(var ItemRec: Record Item; OrderDate: Date; ToDate: Date)
@@ -178,7 +178,7 @@ codeunit 132203 "Library - Planning"
         CarryOutActionMsgPlan.SetReqWkshLine(ReqLineRec);
         CarryOutActionMsgPlan.SetTableView(TmpReqLineRec);
         CarryOutActionMsgPlan.UseRequestPage(false);
-        CarryOutActionMsgPlan.RunModal;
+        CarryOutActionMsgPlan.RunModal();
     end;
 
     procedure CarryOutPlanWksh(var RequisitionLine: Record "Requisition Line"; NewProdOrderChoice: Option; NewPurchOrderChoice: Option; NewTransOrderChoice: Option; NewAsmOrderChoice: Option; NewReqWkshTemp: Code[10]; NewReqWksh: Code[10]; NewTransWkshTemp: Code[10]; NewTransWkshName: Code[10])
@@ -191,7 +191,7 @@ codeunit 132203 "Library - Planning"
           NewReqWkshTemp, NewReqWksh, NewTransWkshTemp, NewTransWkshName);
         CarryOutActionMsgPlan.SetTableView(RequisitionLine);
         CarryOutActionMsgPlan.UseRequestPage(false);
-        CarryOutActionMsgPlan.Run;
+        CarryOutActionMsgPlan.Run();
     end;
 
     procedure CarryOutReqWksh(var RequisitionLine: Record "Requisition Line"; ExpirationDate: Date; OrderDate: Date; PostingDate: Date; ExpectedReceiptDate: Date; YourRef: Text[50])
@@ -201,7 +201,7 @@ codeunit 132203 "Library - Planning"
         CarryOutActionMsgReq.SetReqWkshLine(RequisitionLine);
         CarryOutActionMsgReq.InitializeRequest(ExpirationDate, OrderDate, PostingDate, ExpectedReceiptDate, YourRef);
         CarryOutActionMsgReq.UseRequestPage(false);
-        CarryOutActionMsgReq.Run;
+        CarryOutActionMsgReq.Run();
         CarryOutActionMsgReq.GetReqWkshLine(RequisitionLine);
     end;
 
@@ -211,10 +211,10 @@ codeunit 132203 "Library - Planning"
     begin
         CarryOutActionMsgReq.SetReqWkshLine(RequisitionLine);
         CarryOutActionMsgReq.UseRequestPage(false);
-        CarryOutActionMsgReq.RunModal;
+        CarryOutActionMsgReq.RunModal();
     end;
 
-    procedure CreateManufUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; UserID: Code[50]; MakeOrders: Option; CreatePurchaseOrder: Option; CreateProductionOrder: Option; CreateTransferOrder: Option)
+    procedure CreateManufUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; UserID: Code[50]; MakeOrders: Option; CreatePurchaseOrder: Enum "Planning Create Purchase Order"; CreateProductionOrder: Enum "Planning Create Prod. Order"; CreateTransferOrder: Enum "Planning Create Transfer Order")
     begin
         ManufacturingUserTemplate.Init();
         ManufacturingUserTemplate."User ID" := UserID;
@@ -266,7 +266,7 @@ codeunit 132203 "Library - Planning"
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     procedure GetActionMessages(var Item: Record Item)
@@ -285,7 +285,7 @@ codeunit 132203 "Library - Planning"
             TmpItem.SetRange("No.", Item."No.");
         end;
         GetActionMessages.SetTableView(TmpItem);
-        GetActionMessages.Run;
+        GetActionMessages.Run();
     end;
 
     procedure GetSalesOrders(SalesLine: Record "Sales Line"; RequisitionLine: Record "Requisition Line"; RetrieveDimensionsFrom: Option)
@@ -299,7 +299,7 @@ codeunit 132203 "Library - Planning"
         GetSalesOrders.InitializeRequest(RetrieveDimensionsFrom);
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 0);
         GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.RunModal;
+        GetSalesOrders.RunModal();
     end;
 
     procedure GetSpecialOrder(var RequisitionLine: Record "Requisition Line"; No: Code[20])
@@ -313,7 +313,7 @@ codeunit 132203 "Library - Planning"
         GetSalesOrders.SetTableView(SalesLine);
         GetSalesOrders.InitializeRequest(NewRetrieveDimensionsFrom::Item);
         GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.Run;
+        GetSalesOrders.Run();
     end;
 
     procedure MakeSupplyOrders(var ManufacturingUserTemplate: Record "Manufacturing User Template"; var RequisitionLine: Record "Requisition Line")
@@ -341,7 +341,7 @@ codeunit 132203 "Library - Planning"
         end;
         RefreshPlanningDemand.SetTableView(TmpRequisitionLine);
         RefreshPlanningDemand.UseRequestPage(false);
-        RefreshPlanningDemand.RunModal;
+        RefreshPlanningDemand.RunModal();
     end;
 
     procedure SelectRequisitionTemplateName(): Code[10]
@@ -350,7 +350,7 @@ codeunit 132203 "Library - Planning"
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning);
         ReqWkshTemplate.SetRange(Recurring, false);
-        if not ReqWkshTemplate.FindFirst then begin
+        if not ReqWkshTemplate.FindFirst() then begin
             ReqWkshTemplate.Init();
             ReqWkshTemplate.Validate(
               Name, LibraryUtility.GenerateRandomCode(ReqWkshTemplate.FieldNo(Name), DATABASE::"Req. Wksh. Template"));
@@ -361,11 +361,11 @@ codeunit 132203 "Library - Planning"
         exit(ReqWkshTemplate.Name);
     end;
 
-    procedure SelectRequisitionWkshName(var RequisitionWkshName: Record "Requisition Wksh. Name"; TemplateType: Option)
+    procedure SelectRequisitionWkshName(var RequisitionWkshName: Record "Requisition Wksh. Name"; TemplateType: Enum "Req. Worksheet Template Type")
     begin
         RequisitionWkshName.SetRange("Template Type", TemplateType);
         RequisitionWkshName.SetRange(Recurring, false);
-        if not RequisitionWkshName.FindFirst then
+        if not RequisitionWkshName.FindFirst() then
             CreateRequisitionWkshName(RequisitionWkshName, SelectRequisitionTemplateName);
     end;
 }

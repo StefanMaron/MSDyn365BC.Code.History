@@ -58,7 +58,7 @@ table 248 "VAT Reg. No. Srv Config"
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
     begin
         VATRegNoSrvConfig.SetRange(Enabled, true);
-        if not VATRegNoSrvConfig.FindFirst then
+        if not VATRegNoSrvConfig.FindFirst() then
             Error(VATRegNoVIESSettingIsNotEnabledErr);
 
         VATRegNoSrvConfig.TestField("Service Endpoint");

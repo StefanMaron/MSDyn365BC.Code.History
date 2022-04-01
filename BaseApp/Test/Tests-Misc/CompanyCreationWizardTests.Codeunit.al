@@ -231,7 +231,7 @@ codeunit 139316 "Company Creation Wizard Tests"
 
         // [WHEN] The company is deleted
         Company.SetRange(Name, NewCompanyName);
-        if Company.FindFirst then
+        if Company.FindFirst() then
             Company.Delete(true);
 
         // [WHEN] The company is created again with same name

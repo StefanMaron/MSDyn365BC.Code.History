@@ -305,8 +305,6 @@ report 5198 "Add Contacts"
 
     var
         Text000: Label 'Inserting contacts @1@@@@@@@@@@@@@';
-        TempCont: Record Contact temporary;
-        TempCont2: Record Contact temporary;
         Cont: Record Contact;
         SegLine: Record "Segment Line";
         SegmentHistoryMgt: Codeunit SegHistoryManagement;
@@ -327,6 +325,8 @@ report 5198 "Add Contacts"
         NewProgress: Integer;
 
     protected var
+        TempCont: Record Contact temporary;
+        TempCont2: Record Contact temporary;
         ContactOK: Boolean;
 
     procedure SetOptions(OptionAllowExistingContact: Boolean; OptionExpandCompanies: Boolean; OptionAllowCoRepdByContPerson: Boolean; OptionIgnoreExclusion: Boolean)
@@ -337,7 +337,7 @@ report 5198 "Add Contacts"
         IgnoreExclusion := OptionIgnoreExclusion;
     end;
 
-    local procedure InsertContact(var CheckedCont: Record Contact)
+    procedure InsertContact(var CheckedCont: Record Contact)
     begin
         TempCont := CheckedCont;
         if TempCont.Insert() then;
@@ -404,7 +404,7 @@ report 5198 "Add Contacts"
             exit;
 
         SegLine.SetRange("Segment No.", "Segment Header"."No.");
-        if SegLine.FindLast then
+        if SegLine.FindLast() then
             NextLineNo := SegLine."Line No." + 10000
         else
             NextLineNo := 10000;
@@ -420,7 +420,7 @@ report 5198 "Add Contacts"
                     SegLine.SetCurrentKey("Contact No.", "Segment No.");
                     SegLine.SetRange("Contact No.", TempCont."No.");
                     SegLine.SetRange("Segment No.", "Segment Header"."No.");
-                    if SegLine.FindFirst then
+                    if SegLine.FindFirst() then
                         ContactOK := false;
                 end;
 

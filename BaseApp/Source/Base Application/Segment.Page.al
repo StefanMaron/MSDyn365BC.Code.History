@@ -341,7 +341,7 @@ page 5091 Segment
                     LogSegment: Report "Log Segment";
                 begin
                     LogSegment.SetSegmentNo("No.");
-                    LogSegment.RunModal;
+                    LogSegment.RunModal();
                     if not Get("No.") then begin
                         Message(Text011, "No.");
                         CurrPage.Close();
@@ -608,7 +608,7 @@ page 5091 Segment
                         SegHeader.SetRecFilter;
                         ContactCoverSheet.SetRunFromSegment;
                         ContactCoverSheet.SetTableView(SegHeader);
-                        ContactCoverSheet.RunModal;
+                        ContactCoverSheet.RunModal();
                     end;
                 }
                 action("Print &Labels")

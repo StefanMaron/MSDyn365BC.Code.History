@@ -1,10 +1,8 @@
 table 5476 "Sales Invoice Line Aggregate"
 {
     Caption = 'Sales Invoice Line Aggregate';
-    // TableType = Temporary;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records';
-    ObsoleteTag = '17.0';
+    TableType = Temporary;
+    ReplicateData = false;
 
     fields
     {

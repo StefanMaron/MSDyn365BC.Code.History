@@ -23,7 +23,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         TempWorkflowBuffer: Record "Workflow Buffer" temporary;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         // Exercise
@@ -44,7 +44,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         WorkflowCategory: Record "Workflow Category";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow1);
         LibraryWorkflow.CreateWorkflow(Workflow2);
 
@@ -78,7 +78,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         TempWorkflowBuffer: Record "Workflow Buffer" temporary;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow1);
         LibraryWorkflow.CreateWorkflow(Workflow2);
         Workflow2.Category := Workflow1.Category;
@@ -104,7 +104,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         TempWorkflowBuffer: Record "Workflow Buffer" temporary;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         TempWorkflowBuffer.InitBufferForWorkflows(TempWorkflowBuffer);
 
@@ -124,7 +124,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         TempWorkflowBuffer: Record "Workflow Buffer" temporary;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         Workflow.Enabled := true;
         Workflow.Modify();
@@ -146,7 +146,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         TempWorkflowBuffer: Record "Workflow Buffer" temporary;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         TempWorkflowBuffer.InitBufferForWorkflows(TempWorkflowBuffer);
 
@@ -170,7 +170,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         TempWorkflowBuffer: Record "Workflow Buffer" temporary;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
 
         // Exercise
@@ -189,7 +189,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         TempWorkflowBuffer: Record "Workflow Buffer" temporary;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
         TempWorkflowBuffer.InitBufferForTemplates(TempWorkflowBuffer);
 
@@ -214,7 +214,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         WorkflowPage: TestPage Workflow;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.CreateWorkflow(Workflow);
         WorkflowsPage.OpenView;
@@ -239,7 +239,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         WorkflowPage: TestPage Workflow;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetApplicationArea;
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -266,7 +266,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         WorkflowCode: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetApplicationArea;
         WorkflowCode := LibraryUtility.GenerateRandomCode(Workflow.FieldNo(Code), DATABASE::Workflow);
         WorkflowsPage.OpenView;
@@ -295,7 +295,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         WorkflowCode: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetApplicationArea;
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -324,7 +324,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         Workflow: Record Workflow;
     begin
         // setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
 
         // Exercise
@@ -344,7 +344,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         Workflow: Record Workflow;
     begin
         // setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
 
         // Exercise
@@ -362,7 +362,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         Workflow: Record Workflow;
     begin
         // setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
 
         // Exercise
@@ -383,7 +383,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         WorkflowPage: TestPage Workflow;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
         WorkflowTemplatesPage.OpenView;
@@ -409,7 +409,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         NewDescription: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         WorkflowsPage.OpenView;
         // Place focus to the Workflow
@@ -419,7 +419,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         WorkflowPage.Trap;
         WorkflowsPage.EditAction.Invoke;
 
-        NewDescription := LibraryUtility.GenerateGUID;
+        NewDescription := LibraryUtility.GenerateGUID();
         WorkflowPage.Description.SetValue(NewDescription);
         WorkflowPage.OK.Invoke;
 
@@ -440,9 +440,9 @@ codeunit 134340 "WF Buffer Table/Page UT"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 235022] You cannot create Workflow Category with blank Code.
-        Initialize;
+        Initialize();
 
-        WorkflowCategories.OpenNew;
+        WorkflowCategories.OpenNew();
         asserterror WorkflowCategories.Code.SetValue('');
 
         Assert.ExpectedErrorCode('TestValidation');

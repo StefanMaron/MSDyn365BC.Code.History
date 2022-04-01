@@ -65,7 +65,7 @@ report 7398 "Date Compress Whse. Entries"
                         Window.Update(3, DateComprReg."No. Records Deleted");
                         if UseDataArchive then
                             DataArchive.SaveRecord(WhseEntry2);
-                    until not FindFirst;
+                    until not FindFirst();
 
                     if PosQtyBaseonBin > 0 then begin
                         InsertNewEntry(

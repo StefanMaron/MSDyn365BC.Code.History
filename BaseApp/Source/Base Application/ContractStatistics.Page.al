@@ -370,7 +370,7 @@ page 6059 "Contract Statistics"
             else
                 SetRange("Type Filter", i);
             ServLedgerEntry.SetRange(Type, i);
-            if ServLedgerEntry.FindSet then
+            if ServLedgerEntry.FindSet() then
                 repeat
                     OnAfterGetRecordOnBeforeCalcTotalDiscount(ServLedgerEntry);
                     TotalDiscount[i] := TotalDiscount[i] - ServLedgerEntry."Discount Amount";

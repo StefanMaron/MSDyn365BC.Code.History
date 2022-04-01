@@ -48,7 +48,7 @@ page 7 "Customer Price Groups"
                 field("VAT Bus. Posting Gr. (Price)"; "VAT Bus. Posting Gr. (Price)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT business group code for this price group. The code to find the VAT percentage rate in the VAT Posting Setup window that it uses to calculate the unit price.';
+                    ToolTip = 'Specifies the VAT business posting group that determines the default VAT percentage to add to sales prices for customers in this group.';
                 }
                 field("Coupled to CRM"; "Coupled to CRM")
                 {
@@ -80,7 +80,7 @@ page 7 "Customer Price Groups"
             group("Cust. &Price Group")
             {
                 Caption = 'Cust. &Price Group';
-#if not CLEAN17
+#if not CLEAN19
                 action(SalesPrices)
                 {
                     ApplicationArea = Basic, Suite;

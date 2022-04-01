@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2821 "Native - PDFs"
 {
     Caption = 'nativeInvoicingPDFs', Locked = true;
@@ -84,11 +85,11 @@ page 2821 "Native - PDFs"
             Error(DocumentIDNotSpecifiedForAttachmentsErr);
 
         SalesHeader.SetFilter(SystemId, DocumentIdFilter);
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             DocumentRecordRef.GetTable(SalesHeader)
         else begin
             SalesInvoiceHeader.SetFilter(SystemId, DocumentIdFilter);
-            if SalesInvoiceHeader.FindFirst then
+            if SalesInvoiceHeader.FindFirst() then
                 DocumentRecordRef.GetTable(SalesInvoiceHeader)
             else
                 Error(DocumentDoesNotExistErr);
@@ -100,4 +101,4 @@ page 2821 "Native - PDFs"
         exit(DocumentId);
     end;
 }
-
+#endif

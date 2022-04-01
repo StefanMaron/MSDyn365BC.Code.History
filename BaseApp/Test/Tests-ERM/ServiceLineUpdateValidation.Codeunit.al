@@ -40,9 +40,9 @@ codeunit 136113 "Service Line Update Validation"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Line Update Validation");
 
         // Create Demonstration Database
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Line Update Validation");
@@ -1074,7 +1074,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 2. Exercise: Undo Shipment Service Shipment Line.
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindLast;
+        ServiceShipmentHeader.FindLast();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
         CODEUNIT.Run(CODEUNIT::"Undo Service Shipment Line", ServiceShipmentLine);
 
@@ -1108,7 +1108,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 2. Exercise: Undo Consumption from Service Shipment Line.
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindLast;
+        ServiceShipmentHeader.FindLast();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
         CODEUNIT.Run(CODEUNIT::"Undo Service Consumption Line", ServiceShipmentLine);
 
@@ -1122,7 +1122,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         // Create Service Header with Document Type Order and Create Service Item Line, Create Service Line with Type Item, Resource, Update
         // Qty. to Ship and Post as Ship, Update Qty to Invoice and Post as Invoice, Update Qty. to Consume and Post as Ship and Consume.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         CreateServiceItemLine(ServiceHeader);
         CreateServiceLineForItem(ServiceHeader);
@@ -1143,7 +1143,7 @@ codeunit 136113 "Service Line Update Validation"
     local procedure CreateAndPostServiceOrder(var ServiceHeader: Record "Service Header")
     begin
         // 1. Setup: Create Service Header with Document Type Order and Create Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         CreateServiceItemLine(ServiceHeader);
 
@@ -1170,7 +1170,7 @@ codeunit 136113 "Service Line Update Validation"
         ServiceLine: Record "Service Line";
     begin
         // 1. Setup: Create Service Header with Document Type Order and Create Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
 
@@ -1186,7 +1186,7 @@ codeunit 136113 "Service Line Update Validation"
         Customer: Record Customer;
     begin
         // 1. Create Service Order - Service Header, Service Item Line and Service Line for Type Item.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
         Customer.Modify(true);
@@ -1199,7 +1199,7 @@ codeunit 136113 "Service Line Update Validation"
     local procedure CreateServiceOrderWithItem(var ServiceHeader: Record "Service Header")
     begin
         // Create Service Order - Service Header, Service Item Line and Service Line for Type Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         CreateServiceItemLine(ServiceHeader);
         CreateServiceLineForItem(ServiceHeader);
@@ -1963,7 +1963,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceShipmentHeader.FindLast;
+        ServiceShipmentHeader.FindLast();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
         repeat
             TotalQuantity := 0;

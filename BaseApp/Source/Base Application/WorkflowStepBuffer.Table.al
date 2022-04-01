@@ -35,7 +35,7 @@ table 1507 "Workflow Step Buffer"
                 WorkflowStep: Record "Workflow Step";
             begin
                 WorkflowEvent.SetRange(Description, "Event Description");
-                if not WorkflowEvent.FindFirst then begin
+                if not WorkflowEvent.FindFirst() then begin
                     WorkflowEvent.SetFilter(Description, '%1', '@*' + "Event Description" + '*');
                     if not LookupEvents(WorkflowEvent.GetView, WorkflowEvent) then
                         Error(EventNotExistErr, "Event Description");
@@ -43,10 +43,10 @@ table 1507 "Workflow Step Buffer"
 
                 WorkflowStep.SetRange("Workflow Code", "Workflow Code");
                 WorkflowStep.SetRange(ID, "Event Step ID");
-                if not WorkflowStep.FindFirst then begin
+                if not WorkflowStep.FindFirst() then begin
                     Insert(true);
                     WorkflowStep.SetRange(ID, "Event Step ID");
-                    WorkflowStep.FindFirst;
+                    WorkflowStep.FindFirst();
                 end;
 
                 WorkflowStep.Validate("Function Name", WorkflowEvent."Function Name");
@@ -79,7 +79,7 @@ table 1507 "Workflow Step Buffer"
                 end;
 
                 WorkflowResponse.SetRange(Description, "Response Description");
-                if not WorkflowResponse.FindFirst then begin
+                if not WorkflowResponse.FindFirst() then begin
                     WorkflowResponse.SetFilter(Description, '%1', '@*' + "Response Description" + '*');
                     if not ResponseDescriptionLookup(WorkflowResponse.GetView, WorkflowResponse) then
                         Error(ResponseNotExistErr, "Response Description");
@@ -87,10 +87,10 @@ table 1507 "Workflow Step Buffer"
 
                 WorkflowStep.SetRange("Workflow Code", "Workflow Code");
                 WorkflowStep.SetRange(ID, "Response Step ID");
-                if not WorkflowStep.FindFirst then begin
+                if not WorkflowStep.FindFirst() then begin
                     Insert(true);
                     WorkflowStep.SetRange(ID, "Response Step ID");
-                    WorkflowStep.FindFirst;
+                    WorkflowStep.FindFirst();
                 end;
 
                 WorkflowStep.Validate("Function Name", WorkflowResponse."Function Name");
@@ -305,7 +305,7 @@ table 1507 "Workflow Step Buffer"
     begin
         OrderVar := 10000;
         CreateTree(WorkflowCode, OrderVar, 0, 0, false);
-        if FindSet then;
+        if FindSet() then;
     end;
 
     local procedure CreateTree(WorkflowCode: Code[20]; var OrderVar: Integer; NodeId: Integer; CurrIndent: Integer; ForLookup: Boolean)
@@ -319,7 +319,7 @@ table 1507 "Workflow Step Buffer"
         WorkflowStep.SetRange("Previous Workflow Step ID", NodeId);
         WorkflowStep.SetCurrentKey("Sequence No.");
 
-        if not WorkflowStep.FindSet then
+        if not WorkflowStep.FindSet() then
             exit;
 
         repeat
@@ -345,7 +345,7 @@ table 1507 "Workflow Step Buffer"
         LastThen: Text[250];
     begin
         TempWorkflowStepBuffer.PopulateTableFromEvent("Workflow Code", "Event Step ID");
-        if TempWorkflowStepBuffer.FindFirst then;
+        if TempWorkflowStepBuffer.FindFirst() then;
         case TempWorkflowStepBuffer.Count of
             0:
                 begin
@@ -369,7 +369,7 @@ table 1507 "Workflow Step Buffer"
 
         Modify;
 
-        if TempWorkflowStepBuffer.FindLast then
+        if TempWorkflowStepBuffer.FindLast() then
             exit(TempWorkflowStepBuffer."Response Step ID");
 
         exit("Event Step ID")
@@ -383,7 +383,7 @@ table 1507 "Workflow Step Buffer"
         SetRange("Parent Event Step ID", WorkflowEventID);
         OrderVar := 10000;
         CreateResponseTree(WorkflowCode, OrderVar, WorkflowEventID);
-        if FindSet then;
+        if FindSet() then;
     end;
 
     local procedure CreateResponseTree(WorkflowCode: Code[20]; var OrderVar: Integer; NodeId: Integer): Integer
@@ -397,7 +397,7 @@ table 1507 "Workflow Step Buffer"
             WorkflowStep.SetRange("Workflow Code", WorkflowCode);
             WorkflowStep.SetRange("Previous Workflow Step ID", NodeId);
 
-            if not WorkflowStep.FindFirst then
+            if not WorkflowStep.FindFirst() then
                 exit(NodeId);
 
             if WorkflowStep.Type <> WorkflowStep.Type::Response then
@@ -438,7 +438,7 @@ table 1507 "Workflow Step Buffer"
     begin
         OrderVar := 10000;
         CreateTree(WorkflowCode, OrderVar, 0, 0, true);
-        if FindSet then;
+        if FindSet() then;
     end;
 
     local procedure CreateWorkflowStep(var WorkflowStep: Record "Workflow Step"; WorkflowCode: Code[20]; PreviousStepID: Integer)
@@ -506,11 +506,11 @@ table 1507 "Workflow Step Buffer"
     begin
         TempWorkflowStepBuffer.Copy(Rec, true);
         if BelowxRec then begin
-            if TempWorkflowStepBuffer.FindLast then;
+            if TempWorkflowStepBuffer.FindLast() then;
             Order := TempWorkflowStepBuffer.Order + 10000;
         end else begin
             TempWorkflowStepBuffer.SetFilter(Order, '<%1', xRec.Order);
-            if TempWorkflowStepBuffer.FindLast then;
+            if TempWorkflowStepBuffer.FindLast() then;
             Order := Round((xRec.Order - TempWorkflowStepBuffer.Order) / 2, 1) + TempWorkflowStepBuffer.Order;
         end;
     end;
@@ -551,7 +551,7 @@ table 1507 "Workflow Step Buffer"
         TempWorkflowStepBuffer.SetRange("Previous Workflow Step ID", "Previous Workflow Step ID");
         TempWorkflowStepBuffer.SetFilter("Sequence No.", '>=%1', "Sequence No.");
 
-        if not TempWorkflowStepBuffer.FindSet then
+        if not TempWorkflowStepBuffer.FindSet() then
             exit;
 
         i := "Sequence No.";
@@ -609,7 +609,7 @@ table 1507 "Workflow Step Buffer"
 
         FindSiblingEvents(TempSiblingWorkflowStepBuffer);
         TempSiblingWorkflowStepBuffer.SetFilter(Order, '<%1', Order);
-        if not TempSiblingWorkflowStepBuffer.FindLast then
+        if not TempSiblingWorkflowStepBuffer.FindLast() then
             exit;
 
         ParentEventWorkflowStep.Get(TempSiblingWorkflowStepBuffer."Workflow Code", TempSiblingWorkflowStepBuffer."Event Step ID");
@@ -669,7 +669,7 @@ table 1507 "Workflow Step Buffer"
         WorkflowStep.SetRange("Workflow Code", ParentWorkflowStep."Workflow Code");
         WorkflowStep.SetRange("Previous Workflow Step ID", ParentWorkflowStep.ID);
         WorkflowStep.SetRange(Type, ParentWorkflowStep.Type::Response);
-        if WorkflowStep.FindLast then begin
+        if WorkflowStep.FindLast() then begin
             ChildWorkflowStep.Init();
             if FindLastResponseDescendant(WorkflowStep, ChildWorkflowStep) then
                 WorkflowStep := ChildWorkflowStep;
@@ -714,7 +714,7 @@ table 1507 "Workflow Step Buffer"
         FindSiblingEvents(TempWorkflowStepBuffer);
         TempWorkflowStepBuffer.SetRange("Previous Workflow Step ID", 0);
         TempWorkflowStepBuffer.SetFilter(Order, '<%1', WorkflowStepBuffer.Order);
-        if TempWorkflowStepBuffer.FindLast then
+        if TempWorkflowStepBuffer.FindLast() then
             exit(RootWorkflowStep.Get(TempWorkflowStepBuffer."Workflow Code", TempWorkflowStepBuffer."Event Step ID"));
     end;
 
@@ -811,7 +811,7 @@ table 1507 "Workflow Step Buffer"
             TempWorkflowStepBuffer.SetFilter(Order, '<%1', Order);
             if Indent > 0 then
                 TempWorkflowStepBuffer.SetFilter(Indent, '<%1', Indent);
-            if TempWorkflowStepBuffer.FindLast then
+            if TempWorkflowStepBuffer.FindLast() then
                 ParentEventWorkflowStep.Get(TempWorkflowStepBuffer."Workflow Code", TempWorkflowStepBuffer."Event Step ID");
         end;
 
@@ -836,7 +836,7 @@ table 1507 "Workflow Step Buffer"
         WFEventResponseCombination.SetRange(Type, WFEventResponseCombination.Type::"Event");
         WFEventResponseCombination.SetRange("Predecessor Type", WFEventResponseCombination."Predecessor Type"::"Event");
         WFEventResponseCombination.SetRange("Predecessor Function Name", PredecessorFunctionName);
-        if WFEventResponseCombination.FindSet then
+        if WFEventResponseCombination.FindSet() then
             repeat
                 if WorkflowEvent.Get(WFEventResponseCombination."Function Name") then begin
                     TempWorkflowEvent := WorkflowEvent;
@@ -854,7 +854,7 @@ table 1507 "Workflow Step Buffer"
         WFEventResponseCombination.SetRange(Type, WFEventResponseCombination.Type::Response);
         WFEventResponseCombination.SetRange("Predecessor Type", WFEventResponseCombination."Predecessor Type"::"Event");
         WFEventResponseCombination.SetRange("Predecessor Function Name", PredecessorFunctionName);
-        if WFEventResponseCombination.FindSet then
+        if WFEventResponseCombination.FindSet() then
             repeat
                 if WorkflowResponse.Get(WFEventResponseCombination."Function Name") then begin
                     TempWorkflowResponse := WorkflowResponse;
@@ -868,7 +868,7 @@ table 1507 "Workflow Step Buffer"
     var
         WorkflowEvent: Record "Workflow Event";
     begin
-        if WorkflowEvent.FindSet then
+        if WorkflowEvent.FindSet() then
             repeat
                 if not WorkflowEvent.HasPredecessors then begin
                     TempWorkflowEvent := WorkflowEvent;
@@ -882,7 +882,7 @@ table 1507 "Workflow Step Buffer"
     var
         WorkflowResponse: Record "Workflow Response";
     begin
-        if WorkflowResponse.FindSet then
+        if WorkflowResponse.FindSet() then
             repeat
                 if not WorkflowResponse.HasPredecessors then begin
                     TempWorkflowResponse := WorkflowResponse;

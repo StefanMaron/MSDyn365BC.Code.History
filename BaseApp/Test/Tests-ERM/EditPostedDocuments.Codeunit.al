@@ -719,7 +719,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -833,7 +833,7 @@ codeunit 134658 "Edit Posted Documents"
         SalesShptHeader.Init();
         SalesShptHeader."Shipping Agent Code" := ShippingAgent.Code;
         SalesShptHeader."Shipping Agent Service Code" := ShippingAgentServices.Code;
-        SalesShptHeader."Package Tracking No." := LibraryUtility.GenerateGUID;
+        SalesShptHeader."Package Tracking No." := LibraryUtility.GenerateGUID();
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedSalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -867,7 +867,7 @@ codeunit 134658 "Edit Posted Documents"
         LibrarySales.CreateShipToAddress(ShipToAddress, PurchInvHeader."Sell-to Customer No.");
         PurchInvHeader."Payment Reference" := PaymentReference;
         PurchInvHeader."Payment Method Code" := PaymentMethod.Code;
-        PurchInvHeader."Creditor No." := LibraryUtility.GenerateGUID;
+        PurchInvHeader."Creditor No." := LibraryUtility.GenerateGUID();
         PurchInvHeader."Ship-to Code" := ShipToAddress.Code;
     end;
 
@@ -878,7 +878,7 @@ codeunit 134658 "Edit Posted Documents"
         LibraryERM.CreateCountryRegion(CountryRegion);
 
         ReturnShptHeader.Init();
-        ReturnShptHeader."Ship-to County" := LibraryUtility.GenerateGUID;
+        ReturnShptHeader."Ship-to County" := LibraryUtility.GenerateGUID();
         ReturnShptHeader."Ship-to Country/Region Code" := CountryRegion.Code;
     end;
 
@@ -891,10 +891,10 @@ codeunit 134658 "Edit Posted Documents"
         LibraryInventory.CreateShippingAgent(ShippingAgent);
 
         ReturnRcptHeader.Init();
-        ReturnRcptHeader."Bill-to County" := LibraryUtility.GenerateGUID;
+        ReturnRcptHeader."Bill-to County" := LibraryUtility.GenerateGUID();
         ReturnRcptHeader."Bill-to Country/Region Code" := CountryRegion.Code;
         ReturnRcptHeader."Shipping Agent Code" := ShippingAgent.Code;
-        ReturnRcptHeader."Package Tracking No." := LibraryUtility.GenerateGUID;
+        ReturnRcptHeader."Package Tracking No." := LibraryUtility.GenerateGUID();
     end;
 
     local procedure PrepareEnqueueValuesForPostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")

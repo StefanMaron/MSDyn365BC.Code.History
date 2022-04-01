@@ -250,11 +250,11 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         // [SCENARIO 377115] If not all lines of Recurring General Journal's Batch are shown after applying a filter, then in case of posting, only shown entries must be posted
 
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         FindGLAccount(GLAccount);
         LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
 
         // [GIVEN] The 1st Line of Batch having "Amount" = 100 and G/L Account
         Amount := LibraryRandom.RandDec(100, 2);
@@ -312,11 +312,11 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [Preview Posting]
         // [SCENARIO 377115] If not all lines of Recurring General Journal's Batch are shown after applying a filter, then in case of posting, only shown entries must be posted
 
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         FindGLAccount(GLAccount);
         LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
 
         // [GIVEN] The 1st Line of Batch having "Amount" = 100 and G/L Account
         Amount := LibraryRandom.RandDec(100, 2);
@@ -438,7 +438,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         CreateRecurringGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"B  Balance", 0, GLAccountA."No.");
         GLAccountB.Copy(GLAccountA);
-        GLAccountB."No." := LibraryUtility.GenerateGUID;
+        GLAccountB."No." := LibraryUtility.GenerateGUID();
         GLAccountB.Insert();
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"B  Balance", 0, GLAccountB."No.");
 
@@ -460,7 +460,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [THEN] Recurring Journal Line[1]."Posting Date" = 01/02/2017 (1st February 2017)
         // [THEN] Recurring Journal Line[2]."Posting Date" = 01/02/2017 (1st February 2017)
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Posting Date", CalcDate(GenJournalLine."Recurring Frequency", WorkDate));
         GenJournalLine.Next;
         GenJournalLine.TestField("Posting Date", CalcDate(GenJournalLine."Recurring Frequency", WorkDate));
@@ -707,7 +707,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         VerifyGLEntriesWithNotAllowedPostingDate(DocumentNo);
 
         // Tear down
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
     end;
 
     [Test]
@@ -1018,8 +1018,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
 
         // [GIVEN] Four recurring Gen. Journal lines, balanced by Document No., but created with Document No. in order TEST1, TEST2, TEST1, TEST2.
-        DocumentNo[1] := LibraryUtility.GenerateGUID;
-        DocumentNo[2] := LibraryUtility.GenerateGUID;
+        DocumentNo[1] := LibraryUtility.GenerateGUID();
+        DocumentNo[2] := LibraryUtility.GenerateGUID();
         Amount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
         Amount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
         CreateJournalLineWithDocumentNo(
@@ -1060,8 +1060,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
 
         // [GIVEN] Four recurring Gen. Journal lines, unbalanced by Document No. and created with Document No. in order TEST1, TEST2, TEST1, TEST2.
-        DocumentNo[1] := LibraryUtility.GenerateGUID;
-        DocumentNo[2] := LibraryUtility.GenerateGUID;
+        DocumentNo[1] := LibraryUtility.GenerateGUID();
+        DocumentNo[2] := LibraryUtility.GenerateGUID();
         Amount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
         Amount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
         CreateJournalLineWithDocumentNo(
@@ -1202,7 +1202,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         DocumentNo: Code[20];
         Counter: Integer;
     begin
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         CreateRecurringGenJournalBatch(GenJournalBatch);
         FindGLAccount(GLAccount);
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
@@ -1351,7 +1351,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            FindFirst;
+            FindFirst();
             Validate("Allow Posting From", AllowedPostingFrom);
             Validate("Allow Posting To", AllowedPostingTo);
             Modify(true)
@@ -1415,7 +1415,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure VerifyGenJnlAllocationAmount(GenJournalLine: Record "Gen. Journal Line"; AllocationLineNo: Integer; ExpectedAmount: Decimal)
@@ -1495,7 +1495,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
             TestField("Purchase (LCY)", ExpectedAmount);
         end;
     end;
@@ -1506,7 +1506,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         with CustLedgerEntry do begin
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             TestField("Sales (LCY)", ExpectedAmount);
         end;
     end;

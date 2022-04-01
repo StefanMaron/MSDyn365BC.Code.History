@@ -20,6 +20,7 @@ codeunit 134449 "County Visibility Test"
         IsInitialized: Boolean;
         CountyVisibleTxt: Label 'County field %1 should be visible';
         CountyNotVisibleTxt: Label 'County field %1 should not be visible';
+        CountyTxt: Label 'County';
 
     [Test]
     [HandlerFunctions('TemplatePageHandler')]
@@ -1376,16 +1377,20 @@ codeunit 134449 "County Visibility Test"
         ServiceHeader: Record "Service Header";
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 413649] The field "County" must be empty after validate country without county
+        // [SCENARIO 413649] The fields "County" and "Bill-to County" must be empty after validate country without county
         Initialize();
 
         ServiceHeader.Init();
         ServiceHeader.Validate("Country/Region Code", CountryWithCounty.Code);
         ServiceHeader.Validate(County, LibraryUtility.GenerateGUID());
+        ServiceHeader.Validate("Bill-to Country/Region Code", CountryWithCounty.Code);
+        ServiceHeader.Validate("Bill-to County", LibraryUtility.GenerateGUID());
 
         ServiceHeader.Validate("Country/Region Code", CountryWithoutCounty.Code);
+        ServiceHeader.Validate("Bill-to Country/Region Code", CountryWithoutCounty.Code);
 
         ServiceHeader.TestField(County, '');
+        ServiceHeader.TestField("Bill-to County", '');
     end;
 
     [Test]
@@ -1500,6 +1505,20 @@ codeunit 134449 "County Visibility Test"
         ServiceItemCard."Customer No.".Value := CustomerWithCounty."No.";
         Assert.IsTrue(ServiceItemCard.County.Visible, StrSubstNo(CountyVisibleTxt, 'County'));
         ServiceItemCard.Close();
+    end;
+
+    [Test]
+    procedure CountyCaptionListPage()
+    var
+        CountyCaptionTestList: TestPage "County Caption Test List";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 413649] Field County with CaptionClass = '5,1,'... on the list page has caption "County"
+        Initialize();
+
+        CountyCaptionTestList.OpenView();
+        Assert.AreEqual(CountyTxt, CountyCaptionTestList.County.Caption, 'Invalid caption');
+        CountyCaptionTestList.Close();
     end;
 
     local procedure Initialize()

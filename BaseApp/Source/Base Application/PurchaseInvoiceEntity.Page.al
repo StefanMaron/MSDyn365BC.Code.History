@@ -323,7 +323,7 @@ page 5527 "Purchase Invoice Entity"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);
@@ -419,7 +419,7 @@ page 5527 "Purchase Invoice Entity"
         PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post");
         PurchInvHeader.SetCurrentKey("Pre-Assigned No.");
         PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
     end;
 
     local procedure SetActionResponse(var ActionContext: DotNet WebServiceActionContext; InvoiceId: Guid)

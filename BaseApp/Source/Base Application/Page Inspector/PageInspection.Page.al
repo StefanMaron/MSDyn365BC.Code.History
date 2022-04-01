@@ -351,7 +351,7 @@ page 9631 "Page Inspection"
 
         PageMetadata.Reset();
         PageMetadata.SetFilter(ID, '%1', "Page ID");
-        if PageMetadata.FindFirst then
+        if PageMetadata.FindFirst() then
             PageSourceTableIsTemporary := PageMetadata.SourceTableTemporary
         else
             PageSourceTableIsTemporary := false;

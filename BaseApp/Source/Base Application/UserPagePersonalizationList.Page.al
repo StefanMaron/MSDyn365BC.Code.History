@@ -191,14 +191,14 @@ page 9191 "User Page Personalization List"
             UserPageMetadata.SetFilter("User SID", "User SID");
             UserPageMetadata.SetFilter("Page ID", Format("Page ID"));
 
-            if UserPageMetadata.FindFirst then
+            if UserPageMetadata.FindFirst() then
                 UserPageMetadata.Delete(true);
         end else begin
             UserMetadata.SetFilter("User SID", "User SID");
             UserMetadata.SetFilter("Page ID", Format("Page ID"));
             UserMetadata.SetFilter("Personalization ID", "Personalization ID");
 
-            if UserMetadata.FindFirst then
+            if UserMetadata.FindFirst() then
                 UserMetadata.Delete(true);
         end;
 
@@ -218,7 +218,7 @@ page 9191 "User Page Personalization List"
             UserPageMetadata.SetFilter("User SID", FilterUserID);
         end;
 
-        if UserMetadata.FindSet then
+        if UserMetadata.FindSet() then
             repeat
                 "User SID" := UserMetadata."User SID";
                 "Page ID" := UserMetadata."Page ID";
@@ -229,7 +229,7 @@ page 9191 "User Page Personalization List"
                     Insert;
             until UserMetadata.Next() = 0;
 
-        if UserPageMetadata.FindSet then
+        if UserPageMetadata.FindSet() then
             repeat
                 "User SID" := UserPageMetadata."User SID";
                 "Page ID" := UserPageMetadata."Page ID";

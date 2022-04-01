@@ -37,7 +37,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         PriceName := LibraryInvoicingApp.CreateItemWithPrice;
 
         // [WHEN] The user creates a new invoice
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value := CustomerName;
         BCO365SalesInvoice.Lines.New;
 
@@ -108,7 +108,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         // [THEN] The unit of measure in the posted document is not affected
         SalesInvoiceLine.SetRange("Document No.", PostedInvoiceNo);
         SalesInvoiceLine.SetRange("Unit of Measure", OldUOMDescription);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     [Test]
@@ -174,13 +174,13 @@ codeunit 138935 "O365 Invoice Line Tests"
 
         // [WHEN] The user renames the unit of measure
         UnitOfMeasure.SetRange(Description, OldTranslatedUOMDescription);
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         RenameUnitOfMeasureFromPage(UOMCode);
 
         // [THEN] The unit of measure in the posted document is not affected
         SalesInvoiceLine.SetRange("Document No.", PostedInvoiceNo);
         SalesInvoiceLine.SetRange("Unit of Measure", OldTranslatedUOMDescription);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     [Test]
@@ -240,7 +240,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         CreateUnitOfMeasure(GetRandText10);
 
         // [WHEN] The user creates a new unit of measure
-        O365UnitOfMeasureCard.OpenNew;
+        O365UnitOfMeasureCard.OpenNew();
 
         // [THEN] The card page is empty
         Assert.AreEqual(O365UnitOfMeasureCard.DescriptionInCurrentLanguage.Value, '', 'Description should be empty in new mode.');
@@ -281,6 +281,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         TaxDetail: Record "Tax Detail";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
+        LibraryWorkflow: Codeunit "Library - Workflow";
     begin
         BindActiveDirectoryMockEvents;
 
@@ -303,7 +304,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
         TaxDetail.ModifyAll("Tax Below Maximum", 5); // Avoid notification in US without mod file
-        LibraryInvoicingApp.SetupEmail;
+        LibraryWorkflow.SetUpEmailAccount();
 
         WorkDate(Today);
         IsInitialized := true;
@@ -339,7 +340,7 @@ codeunit 138935 "O365 Invoice Line Tests"
 
         ItemDesc := LibraryInvoicingApp.CreateItem;
         Item.SetRange(Description, ItemDesc);
-        Item.FindFirst;
+        Item.FindFirst();
         Item.Validate("Base Unit of Measure", UOMCode);
         Item.Modify(true);
 

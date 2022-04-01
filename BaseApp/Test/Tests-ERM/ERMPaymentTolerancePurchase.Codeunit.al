@@ -112,7 +112,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Check Vendor Ledger Entry for Payment Tolerance after posting Purchase Credit Memo and Copy Document.
 
         // Setup: Update General ledger Setup and Create and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
 
         CreatePurchaseDocument(PurchaseHeader, '', PurchaseHeader."Document Type"::Invoice);
@@ -126,7 +126,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Exercise: Create and Post Purchase Credit Memo after Copy Document with Document Type Posted Invoice.
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", DocumentNo, true, true);
         PurchaseHeader.SetRange("Applies-to Doc. No.", DocumentNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.Validate("Vendor Cr. Memo No.", DocumentNo);
         PurchaseHeader.Modify(true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -150,7 +150,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Check Vendor Ledger Entry for Payment Tolerance after posting Purchase Credit Memo and Copy Document with Only Line.
 
         // Setup: Update General Ledger Setup and Create and Post Purchase invoice and take a Random quantity.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -189,7 +189,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Check Vendor Ledger Entry for Payment Tolerance after posting Purchase Credit Memo and Copy Document with Document Type Invoice.
 
         // Setup: Update General Ledger Setup and Create Purchase Invoice and Insert new record with Document Type Credit memo.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
         CreatePurchaseDocument(PurchaseHeader, '', PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -203,7 +203,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::Invoice, PurchaseHeader."No.", true, true);
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -219,7 +219,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Tolerance Purchase");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         ExecuteUIHandler;  // Need to invoke confirmation message everytime to prevent test failures in ES build.
 
         // Setup demo data.
@@ -227,11 +227,11 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance Purchase");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -243,7 +243,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup: Update General Ledger Setup and Create Purchase Document.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
         CreatePurchaseDocument(PurchaseHeader, CurrencyCode, DocType);
 
@@ -318,7 +318,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20])
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount);
     end;
 

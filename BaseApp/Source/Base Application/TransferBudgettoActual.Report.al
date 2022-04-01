@@ -112,7 +112,7 @@ report 1137 "Transfer Budget to Actual"
           Text005);
         if TempCostJnlLine.Count > 0 then
             JournalLineCount := 10000 * 100000 div TempCostJnlLine.Count();
-        if TempCostJnlLine.FindSet then
+        if TempCostJnlLine.FindSet() then
             repeat
                 CostJnlLineStep := CostJnlLineStep + JournalLineCount;
                 Window2.Update(1, CostJnlLineStep div 100000);

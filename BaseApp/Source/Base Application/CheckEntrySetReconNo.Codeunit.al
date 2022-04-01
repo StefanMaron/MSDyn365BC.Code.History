@@ -99,7 +99,7 @@ codeunit 376 "Check Entry Set Recon.-No."
           "Bank Account Ledger Entry No.", CheckLedgEntry."Bank Account Ledger Entry No.");
         CheckLedgEntry2.SetRange(
           "Statement Status", CheckLedgEntry."Statement Status"::"Check Entry Applied");
-        if not CheckLedgEntry2.FindFirst then begin
+        if not CheckLedgEntry2.FindFirst() then begin
             BankAccLedgEntry.Get(CheckLedgEntry."Bank Account Ledger Entry No.");
             BankAccLedgEntry.TestField(Open, true);
             if Test then begin

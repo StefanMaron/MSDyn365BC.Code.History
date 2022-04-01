@@ -309,7 +309,7 @@ codeunit 1806 "Excel Data Migrator"
         ConfigPackage.Get(PackageCodeTxt);
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
 
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 ConfigPackageField.Reset();
 
@@ -334,7 +334,7 @@ codeunit 1806 "Excel Data Migrator"
         ConfigPackage.Get(PackageCodeTxt);
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
 
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 ConfigPackageField.Reset();
 
@@ -369,13 +369,13 @@ codeunit 1806 "Excel Data Migrator"
 
         ColumnCount := 0;
 
-        if TempExcelBuffer.FindSet then
+        if TempExcelBuffer.FindSet() then
             repeat
                 if TempExcelBuffer."Row No." = ColumnHeaderRow then begin // Columns' header row
                     ConfigPackageField.SetRange("Field Caption", TempExcelBuffer."Cell Value as Text");
 
                     // Column can be mapped to a field, data will be imported to NAV
-                    if ConfigPackageField.FindFirst then begin
+                    if ConfigPackageField.FindFirst() then begin
                         FieldID[TempExcelBuffer."Column No."] := ConfigPackageField."Field ID";
                         ConfigPackageField."Include Field" := true;
                         ConfigPackageField.Modify();
@@ -461,7 +461,7 @@ codeunit 1806 "Excel Data Migrator"
         DataMigrationEntity.DeleteAll();
 
         with ConfigPackageTable do
-            if FindSet then
+            if FindSet() then
                 repeat
                     CalcFields("No. of Package Records");
                     DataMigrationEntity.InsertRecord("Table ID", "No. of Package Records");
@@ -618,7 +618,7 @@ codeunit 1806 "Excel Data Migrator"
         ConfigPackageManagement.SetHideDialog(true);
         ConfigPackageManagement.CleanPackageErrors(PackageCodeTxt, '');
         DataMigrationEntity.SetRange(Selected, true);
-        if DataMigrationEntity.FindSet then
+        if DataMigrationEntity.FindSet() then
             repeat
                 ConfigPackageTable.SetRange("Table ID", DataMigrationEntity."Table ID");
                 ConfigPackageManagement.ValidatePackageRelations(ConfigPackageTable, TempConfigPackageTable, true);
@@ -633,7 +633,7 @@ codeunit 1806 "Excel Data Migrator"
             if not Confirm(ValidateErrorsBeforeApplyQst) then
                 exit;
 
-        if DataMigrationEntity.FindSet then
+        if DataMigrationEntity.FindSet() then
             repeat
                 if not DataMigrationEntity.Selected then begin
                     ConfigPackageTable.Get(PackageCodeTxt, DataMigrationEntity."Table ID");
@@ -725,10 +725,10 @@ codeunit 1806 "Excel Data Migrator"
         if ConfigPackageTable.Get(PackageCodeTxt, DATABASE::"G/L Account") then begin
             ConfigPackageRecord.SetRange("Package Code", ConfigPackageTable."Package Code");
             ConfigPackageRecord.SetRange("Table ID", ConfigPackageTable."Table ID");
-            if ConfigPackageRecord.FindFirst then begin
+            if ConfigPackageRecord.FindFirst() then begin
                 ConfigPackageData.SetRange("Package Code", ConfigPackageRecord."Package Code");
                 ConfigPackageData.SetRange("Table ID", ConfigPackageRecord."Table ID");
-                if ConfigPackageData.FindFirst then
+                if ConfigPackageData.FindFirst() then
                     CODEUNIT.Run(CODEUNIT::"Data Migration Del G/L Account");
             end;
         end;

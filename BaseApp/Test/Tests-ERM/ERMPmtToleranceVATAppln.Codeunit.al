@@ -42,7 +42,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         VATEntry: Record "VAT Entry";
         PaymentToleranceAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupUnapplyPaymentWithPaymentToleranceScenario(
           Customer,
           GeneralPostingSetup,
@@ -79,7 +79,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         VendorPostingGroup: Record "Vendor Posting Group";
         PaymentToleranceAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupPaymentWithPaymentToleranceAndFullVATScenario(
           Vendor,
           GeneralPostingSetup,
@@ -116,7 +116,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         CustomerPostingGroup: Record "Customer Posting Group";
         PaymentToleranceAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupUnapplyPaymentWithPaymentToleranceScenario(
           Customer,
           GeneralPostingSetup,
@@ -152,7 +152,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     begin
         // Verify that payment applied to invoice with multiple Pmt. Discount entries can be unapplied successfully.
 
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         LibraryPmtDiscSetup.SetPmtTolerance(1);
         TotalAmount := PostPurchInvWithMultipleBalLines(GenJnlLine);
@@ -185,7 +185,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     begin
         // Verify that payment applied to invoice with multiple Pmt. Discount entries can be unapplied successfully.
 
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         LibraryPmtDiscSetup.SetPmtTolerance(1);
         TotalAmount := PostSalesInvWithMultipleBalLines(GenJnlLine);
@@ -222,7 +222,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         // [FEATURE] [Unapply] [Sales] [Payment Discount] [Payment Discount Tolerance]
         // [SCENARIO 376166] The equal VAT Amount from Payment Tolerance and Payment Discount should be adjusted correctly on unapplication with multiple invoices
 
-        Initialize;
+        Initialize();
         SetupUnapplyPaymentWithPaymentToleranceScenario(
           Customer,
           GeneralPostingSetup,
@@ -271,7 +271,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         // [FEATURE] [Unapply] [Purchase] [Payment Discount] [Payment Discount Tolerance]
         // [SCENARIO 376166] The equal VAT Amount from Payment Tolerance and Payment Discount should be adjusted correctly on unapplication with multiple invoices
 
-        Initialize;
+        Initialize();
         SetupPaymentWithPaymentToleranceAndFullVATScenario(
           Vendor,
           GeneralPostingSetup,
@@ -324,7 +324,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         // [FEATURE] [Unapply] [Sales] [Payment Discount]
         // [SCENARIO 378504] The equal VAT Amount from Payment Tolerance and Payment Discount should be adjusted correctly on unapplication with single invoice
 
-        Initialize;
+        Initialize();
         SetupUnapplyPaymentWithPaymentToleranceScenario(
           Customer,
           GeneralPostingSetup,
@@ -379,7 +379,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         // [FEATURE] [Unapply] [Purchase] [Payment Discount]
         // [SCENARIO 378504] The equal VAT Amount from Payment Tolerance and Payment Discount should be adjusted correctly on unapplication with single invoice
 
-        Initialize;
+        Initialize();
         SetupPaymentWithPaymentToleranceAndFullVATScenario(
           Vendor,
           GeneralPostingSetup,
@@ -433,7 +433,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     begin
         // [FEATURE] [Unapply] [Payment Discount] [Sales]
         // [SCENARIO 304555] Unapply VAT Entries for Payment with Payment Discount and Payment Tolerance applied to more than four sales invoices
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Tolerance in turned on in G/L setup
         SetupUnapplyPaymentWithPaymentToleranceScenario(
@@ -497,7 +497,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     begin
         // [FEATURE] [Unapply] [Payment Discount] [Purchase]
         // [SCENARIO 304555] Unapply VAT Entries for Payment with Payment Discount and Payment Tolerance applied to more than four purchase invoices
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Tolerance in turned on in G/L setup
         SetupPaymentWithPaymentToleranceAndFullVATScenario(
@@ -548,19 +548,19 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Pmt. Tolerance VAT Appln.");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         // Setup demo data.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Pmt. Tolerance VAT Appln.");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
 
         isInitialized := true;
         Commit();
@@ -813,7 +813,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplateType);
-        if not GenJournalTemplate.FindFirst then
+        if not GenJournalTemplate.FindFirst() then
             CreateGeneralJournalTemplate(GenJournalTemplate, GenJournalTemplateType);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -849,7 +849,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
             SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             SetRange("G/L Account No.", AccountNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -862,7 +862,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
             SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             SetRange("Document Type", GenJournalLine."Document Type");
             SetRange("Document No.", GenJournalLine."Document No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -910,7 +910,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         Clear(ChangePaymentTolerance);
         ChangePaymentTolerance.InitializeRequest(AllCurrency, '', PaymentTolerance, MaxPaymentToleranceAmount);
         ChangePaymentTolerance.UseRequestPage(false);
-        ChangePaymentTolerance.Run;
+        ChangePaymentTolerance.Run();
     end;
 
     local procedure RunCustomerLedgerEntriesPageToUnapply(CustomerNo: Code[20]; DocumentNo: Code[20])
@@ -1011,14 +1011,14 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
             FilterGroup(0);
             LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
             // Using assignment to avoid error in ES.
-            "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
-            "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
-            "Purch. Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo;
-            "Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo;
-            "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
-            "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
-            "Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo;
-            "Sales Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo;
+            "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+            "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
+            "Purch. Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
+            "Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
+            "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+            "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
+            "Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
+            "Sales Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
             Modify(true);
         end;
     end;
@@ -1329,7 +1329,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange(Unapplied, true);
-            FindFirst;
+            FindFirst();
             exit("Transaction No.");
         end;
     end;
@@ -1342,7 +1342,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange(Unapplied, true);
-            FindLast;
+            FindLast();
             exit("Transaction No.");
         end;
     end;

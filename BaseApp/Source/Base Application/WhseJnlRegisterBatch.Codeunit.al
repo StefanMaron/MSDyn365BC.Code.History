@@ -44,6 +44,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         RegisteringNoSeriesNo: Integer;
         Text005: Label 'Item tracking lines defined for the source line must account for the same quantity as you have entered.';
         Text006: Label 'Item tracking lines do not match the bin content.';
+        SuppressCommit: Boolean;
         PhysInvtCount: Boolean;
 
     local procedure "Code"()
@@ -53,11 +54,9 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
         HideDialog: Boolean;
-        SuppressCommit: Boolean;
         IsHandled: Boolean;
     begin
         HideDialog := false;
-        SuppressCommit := false;
         IsHandled := false;
         OnBeforeCode(WhseJnlLine, HideDialog, SuppressCommit, IsHandled);
         if IsHandled then
@@ -274,7 +273,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             // Not a recurring journal
             WhseJnlLine2.CopyFilters(WhseJnlLine);
             WhseJnlLine2.SetFilter("Item No.", '<>%1', '');
-            if WhseJnlLine2.FindLast then; // Remember the last line
+            if WhseJnlLine2.FindLast() then; // Remember the last line
 
             if Find('-') then begin
                 repeat
@@ -288,13 +287,13 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             WhseJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
             WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
             WhseJnlLine3.SetRange("Location Code", "Location Code");
-            if not WhseJnlLine3.FindLast then
+            if not WhseJnlLine3.FindLast() then
                 IncrBatchName := IncStr("Journal Batch Name") <> '';
             if WhseJnlTemplate."Increment Batch Name" then
                 IncreaseBatchName(IncrBatchName);
 
             WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-            if (WhseJnlBatch."No. Series" = '') and not WhseJnlLine3.FindLast then begin
+            if (WhseJnlBatch."No. Series" = '') and not WhseJnlLine3.FindLast() then begin
                 WhseJnlLine3.Init();
                 WhseJnlLine3."Journal Template Name" := "Journal Template Name";
                 WhseJnlLine3."Journal Batch Name" := "Journal Batch Name";
@@ -451,7 +450,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseEntry: Record "Warehouse Entry";
     begin
         WhseEntry.LockTable();
-        if WhseEntry.FindLast then;
+        if WhseEntry.FindLast() then;
         WhseReg.LockTable();
         exit(WhseReg.GetLastEntryNo() + 1);
     end;
@@ -478,7 +477,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseItemTrkgLine.SetRange("Source Ref. No.", WhseJnlLine2."Line No.");
         WhseItemTrkgLine.SetRange("Location Code", WhseJnlLine2."Location Code");
 
-        if WhseItemTrkgLine.FindSet then begin
+        if WhseItemTrkgLine.FindSet() then begin
             ItemJnlLine.Init();
             ItemJnlLine."Line No." := 0;
             ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
@@ -544,7 +543,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         QtyOnWarehouseEntries: Decimal;
     begin
         WhseJnlLineToPost.CopyFilters(WhseJnlLine);
-        if WhseJnlLineToPost.FindSet then
+        if WhseJnlLineToPost.FindSet() then
             repeat
                 if not TempSKU.Get(WhseJnlLineToPost."Location Code", WhseJnlLineToPost."Item No.", WhseJnlLineToPost."Variant Code") then begin
                     InsertTempSKU(TempSKU, WhseJnlLineToPost);
@@ -605,6 +604,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             "Variant Code" := WhseJnlLine."Variant Code";
             Insert;
         end;
+    end;
+
+    procedure SetSuppressCommit(NewSuppressCommit: Boolean)
+    begin
+        SuppressCommit := NewSuppressCommit;
     end;
 
     local procedure CalcRequiredQty(TempSKU: Record "Stockkeeping Unit" temporary; var WhseJnlLineFiltered: Record "Warehouse Journal Line"): Decimal

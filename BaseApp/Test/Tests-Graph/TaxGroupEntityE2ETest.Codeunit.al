@@ -40,7 +40,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
     begin
         // [SCENARIO] Create an Tax Group and verify it has Id and LastDateTimeModified
         // [GIVEN] a new Tax Group
-        Initialize;
+        Initialize();
         CreateTaxGroup(TaxGroupCode, TaxGroupGUID);
         Commit();
 
@@ -61,7 +61,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
     begin
         // [SCENARIO] Create Tax Groups and use a GET method to retrieve them
         // [GIVEN] 2 Tax Groups in the Tax Group Table
-        Initialize;
+        Initialize();
         CreateTaxGroup(TaxGroupCode[1], TaxGroupId);
         CreateTaxGroup(TaxGroupCode[2], TaxGroupId);
         Commit();
@@ -84,7 +84,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can retrieve the Tax Group record from the Tax Group API.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Tax Group exists in the Tax Group Table
         CreateTaxGroup(TaxGroupCode, TaxGroupId);
@@ -109,7 +109,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
         TaxGroupJSON: Text;
     begin
         // [SCENARIO] Create a Tax Group through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a Tax Group JSON object to send to the service.
         TaxGroupBuffer.Init();
@@ -139,7 +139,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
         TaxGroupJSON: Text;
     begin
         // [SCENARIO] User can modify a Tax Group through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An Tax Group exists.
         CreateTaxGroup(TaxGroupCode, TaxGroupId);
@@ -170,7 +170,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can delete a Tax Group by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Tax Group exists.
         CreateTaxGroup(TaxGroupCode, TaxGroupId);

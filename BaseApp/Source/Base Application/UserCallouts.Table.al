@@ -2,6 +2,7 @@ table 1552 "User Callouts"
 {
     Caption = 'User Callouts';
     DataPerCompany = false;
+    ReplicateData = false;
 #if not CLEAN19
     ObsoleteState = Pending;
     ObsoleteTag = '19.0';

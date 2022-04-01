@@ -49,7 +49,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
 
         OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("User ID", UserID);
-        if not OSynchUserSetup.FindFirst then
+        if not OSynchUserSetup.FindFirst() then
             exit;
 
         if IsNull(XMLTextReader) then
@@ -94,7 +94,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
                             OSynchLink.Reset();
                             OSynchLink.SetRange("User ID", UserID);
                             OSynchLink.SetRange("Outlook Entry ID Hash", EntryIDHash);
-                            if OSynchLink.FindFirst then begin
+                            if OSynchLink.FindFirst() then begin
                                 Evaluate(EntityRecID, Format(OSynchLink."Record ID"));
                                 if TagName = 'OutlookItem' then begin
                                     if EntityRecID.TableNo <> OSynchEntity."Table No." then begin
@@ -241,7 +241,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
             ChangeLogEntry.SetRange("Type of Change", ChangeLogEntry."Type of Change"::Deletion)
         else
             ChangeLogEntry.SetFilter("Type of Change", '<>%1', ChangeLogEntry."Type of Change"::Deletion);
-        if ChangeLogEntry.FindLast then
+        if ChangeLogEntry.FindLast() then
             LastModificationTime := ChangeLogEntry."Date and Time";
     end;
 

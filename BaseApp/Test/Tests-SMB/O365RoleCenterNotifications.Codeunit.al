@@ -24,10 +24,10 @@ codeunit 138073 "O365 Role Center Notifications"
         UserPreference: Record "User Preference";
         RoleCenterNotifications: Record "Role Center Notifications";
     begin
-        if RoleCenterNotifications.FindFirst then
+        if RoleCenterNotifications.FindFirst() then
             RoleCenterNotifications.DeleteAll();
 
-        if UserPreference.FindFirst then
+        if UserPreference.FindFirst() then
             UserPreference.DeleteAll();
 
         if IsInitialized then
@@ -88,7 +88,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
         RoleCenterNotificationMgt.ShowEvaluationNotification;
     end;
@@ -102,7 +102,7 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState: Record "Tenant License State";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
@@ -118,7 +118,7 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState: Record "Tenant License State";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Tablet);
@@ -132,7 +132,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow);
         RoleCenterNotificationMgt.ShowTrialNotification;
     end;
@@ -145,7 +145,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 16 * MillisecondsPerDay);
         RoleCenterNotificationMgt.ShowTrialNotification;
     end;
@@ -159,7 +159,7 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState: Record "Tenant License State";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 16 * MillisecondsPerDay);
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
@@ -177,7 +177,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow);
         SetLicenseState(TenantLicenseState.State::Suspended, GetUtcNow + MillisecondsPerDay);
         RoleCenterNotificationMgt.ShowTrialSuspendedNotification;
@@ -192,7 +192,7 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState: Record "Tenant License State";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow);
         SetLicenseState(TenantLicenseState.State::Suspended, GetUtcNow + MillisecondsPerDay);
         BindSubscription(TestClientTypeSubscriber);
@@ -211,7 +211,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 17 * MillisecondsPerDay);
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 16 * MillisecondsPerDay);
         RoleCenterNotificationMgt.ShowTrialExtendedNotification;
@@ -226,7 +226,7 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState: Record "Tenant License State";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 17 * MillisecondsPerDay);
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 16 * MillisecondsPerDay);
         BindSubscription(TestClientTypeSubscriber);
@@ -245,7 +245,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 3 * MillisecondsPerDay);
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 2 * MillisecondsPerDay);
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 1 * MillisecondsPerDay);
@@ -262,7 +262,7 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState: Record "Tenant License State";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
-        Initialize;
+        Initialize();
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 3 * MillisecondsPerDay);
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 2 * MillisecondsPerDay);
         SetLicenseState(TenantLicenseState.State::Trial, GetUtcNow - 1 * MillisecondsPerDay);
@@ -283,7 +283,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SimulateSecondLogon;
         SetLicenseState(TenantLicenseState.State::Paid, GetUtcNow - 1 * MillisecondsPerDay);
         SetLicenseState(TenantLicenseState.State::Warning, GetUtcNow);
@@ -298,7 +298,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SimulateSecondLogon;
         SetLicenseState(TenantLicenseState.State::Paid, GetUtcNow);
         SetLicenseState(TenantLicenseState.State::Warning, GetUtcNow + MillisecondsPerDay);
@@ -313,7 +313,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SimulateSecondLogon;
         SetLicenseState(TenantLicenseState.State::Paid, GetUtcNow - 1 * MillisecondsPerDay);
         SetLicenseState(TenantLicenseState.State::Suspended, GetUtcNow);
@@ -328,7 +328,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         SimulateSecondLogon;
         SetLicenseState(TenantLicenseState.State::Paid, GetUtcNow);
         SetLicenseState(TenantLicenseState.State::Suspended, GetUtcNow + MillisecondsPerDay);
@@ -342,7 +342,7 @@ codeunit 138073 "O365 Role Center Notifications"
     var
         TenantLicenseState: Record "Tenant License State";
     begin
-        Initialize;
+        Initialize();
         EnableSandbox;
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
         RoleCenterNotificationMgt.ShowEvaluationNotification;
@@ -358,7 +358,7 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState: Record "Tenant License State";
     begin
         // [SCENARIO 218238] User is getting notification when logs into a sandbox environment
-        Initialize;
+        Initialize();
         EnableSandbox;
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
         RoleCenterNotificationMgt.ShowSandboxNotification;
@@ -375,7 +375,7 @@ codeunit 138073 "O365 Role Center Notifications"
         MyNotifications: Record "My Notifications";
     begin
         // [SCENARIO 218896] User can disable sandbox notification by clicking on 'Don't show this again.'
-        Initialize;
+        Initialize();
         EnableSandbox;
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
         // [GIVEN] Open role center once and see the notification
@@ -393,90 +393,6 @@ codeunit 138073 "O365 Role Center Notifications"
         Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger, 'Notification should not be called.');
 
         DisableSandbox;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestNoChangeToPremiumExpNotification()
-    var
-        ExperienceTierSetup: Record "Experience Tier Setup";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        // [SCENARIO 218238] User is getting ChangeToPremiumExp notification, when the Experience is Essential
-        Initialize;
-        ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Premium));
-        SimulateSecondLogon;
-        RoleCenterNotificationMgt.ShowChangeToPremiumExpNotification;
-    end;
-
-    [Test]
-    [HandlerFunctions('SendChangeToPremiumExpNotificationHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestChangeToPremiumExpNotification()
-    var
-        ExperienceTierSetup: Record "Experience Tier Setup";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        // [SCENARIO 218238] User is getting ChangeToPremiumExp notification, when the Experience is Essential
-        Initialize;
-        ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        SimulateSecondLogon;
-        RoleCenterNotificationMgt.ShowChangeToPremiumExpNotification;
-    end;
-
-    [Test]
-    [HandlerFunctions('DontShowChangeToPremiumExpNotificationHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestChangeToPremiumExpNotificationDontShowAgain()
-    var
-        MyNotifications: Record "My Notifications";
-        ExperienceTierSetup: Record "Experience Tier Setup";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        // [SCENARIO 218896] User can disable ChangeToPremiumExp notification by clicking on 'Don't show this again.'
-        Initialize;
-        ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        // [GIVEN] Open role center once and see the notification
-        LibraryVariableStorage.Enqueue(0); // to count calls of ShowChangeToPremiumExpNotification
-        RoleCenterNotificationMgt.ShowChangeToPremiumExpNotification;
-        // [WHEN] Click on "Don't show this again." on the notification
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'Notification should be called once.');
-        // [THEN] ChangeToPremiumExp notification is disabled.
-        Assert.IsFalse(
-          MyNotifications.IsEnabled(RoleCenterNotificationMgt.GetChangeToPremiumExpNotificationId), 'Notification should be disabled');
-
-        // [WHEN] Open role center again
-        LibraryVariableStorage.Enqueue(0); // to count calls of DontShowChangeToPremiumExpNotificationHandler
-        RoleCenterNotificationMgt.ShowChangeToPremiumExpNotification;
-        // [THEN] see no notification
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger, 'Notification should not be called.');
-    end;
-
-    [Test]
-    [HandlerFunctions('SendNoNotificationHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestChangeToPremiumExpNotificationDontShowOnPrem()
-    var
-        ExperienceTierSetup: Record "Experience Tier Setup";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        LibraryPermissions: Codeunit "Library - Permissions";
-    begin
-        // [SCENARIO 318422] User is not getting ChangeToPremiumExp notification in OnPrem environments
-        Initialize;
-
-        // [GIVEN] Environment is OnPrem
-        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
-        ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        SimulateSecondLogon;
-
-        // [WHEN] Open role center with ChangeToPremiumExp notification
-        RoleCenterNotificationMgt.ShowChangeToPremiumExpNotification;
-
-        // [THEN] No notification is shown
     end;
 
     [SendNotificationHandler(true)]

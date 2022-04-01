@@ -579,42 +579,19 @@ table 5496 "Purchase Order Entity Buffer"
         UpdateCurrencyId();
         UpdatePaymentTermsId();
         UpdateShipmentMethodId();
-
+#if not CLEAN20
         UpdateGraphContactId();
+#endif        
     end;
 
+#if not CLEAN20
+    [Obsolete('The functionality that uses this was removed', '20.0')]
     procedure UpdateGraphContactId()
     var
         contactFound: Boolean;
     begin
-        if "Buy-from Contact No." = '' then
-            contactFound := UpdateContactIdFromVendor();
-
         if not contactFound then
             Clear("Contact Graph Id");
     end;
-
-    local procedure UpdateContactIdFromVendor(): Boolean
-    var
-        Vendor: Record Vendor;
-        Contact: Record Contact;
-        GraphIntContact: Codeunit "Graph Int. - Contact";
-        GraphID: Text[250];
-    begin
-        if IsNullGuid("Vendor Id") then
-            exit(false);
-
-        if not GraphIntContact.IsUpdateContactIdEnabled() then
-            exit(false);
-
-        if not Vendor.GetBySystemId("Vendor Id") then
-            exit(false);
-
-        if not GraphIntContact.FindGraphContactIdFromVendor(GraphID, Vendor, Contact) then
-            exit(false);
-
-        "Contact Graph Id" := GraphID;
-
-        exit(true);
-    end;
+#endif
 }

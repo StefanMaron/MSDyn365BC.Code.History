@@ -47,10 +47,10 @@ codeunit 137023 "SCM Timeline Visualization"
 
         RefNo := 'REF_NO_1';
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         TimelineSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Timeline Visualization");
@@ -70,7 +70,7 @@ codeunit 137023 "SCM Timeline Visualization"
 
     local procedure Setup(var Item: Record Item; var Location: Record Location)
     begin
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateItem(Item);
     end;
@@ -206,12 +206,12 @@ codeunit 137023 "SCM Timeline Visualization"
         end else begin
             Location.Reset();
             Location.SetFilter(Code, LocationFilter);
-            Location.FindFirst;
+            Location.FindFirst();
             LocationCode := Location.Code;
 
             ItemVariant.Reset();
             ItemVariant.SetFilter(Code, VariantFilter);
-            ItemVariant.FindFirst;
+            ItemVariant.FindFirst();
             VariantCode := ItemVariant.Code
         end;
 
@@ -992,7 +992,7 @@ codeunit 137023 "SCM Timeline Visualization"
         RecRef: RecordRef;
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateTransferLine(item, TransferLine);
 
         // EXCECUTE
@@ -1015,7 +1015,7 @@ codeunit 137023 "SCM Timeline Visualization"
         RecRef: RecordRef;
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateTransferLine(item, TransferLine);
 
         // EXCECUTE
@@ -1038,7 +1038,7 @@ codeunit 137023 "SCM Timeline Visualization"
         RecRef: RecordRef;
     begin
         // SETUP
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         SetPlanningParameters(Item, Item."Reordering Policy"::"Lot-for-Lot", LibraryRandom.RandInt(10) + 1, '');
@@ -1073,7 +1073,7 @@ codeunit 137023 "SCM Timeline Visualization"
         RecRef: RecordRef;
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateProductionOrder(Item, CompItem, CompItem2, ProdOrderLine, ProdOrderComponent);
 
         // EXECUTE Item
@@ -1121,7 +1121,7 @@ codeunit 137023 "SCM Timeline Visualization"
         RecRef: RecordRef;
     begin
         // SETUP
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateJobPlanningLine(Item, JobPlanningLine, WorkDate + LibraryRandom.RandInt(10), LibraryRandom.RandInt(20) + 1);
 
@@ -1261,7 +1261,7 @@ codeunit 137023 "SCM Timeline Visualization"
         PlanningComponent: Record "Planning Component";
         Date: Date;
     begin
-        Initialize;
+        Initialize();
         Date := WorkDate + LibraryRandom.RandInt(10);
 
         CreatePlanningComponent(BOMComponent, PlanningComponent, Date);
@@ -1441,7 +1441,7 @@ codeunit 137023 "SCM Timeline Visualization"
         AssemblyHeader.Modify(true);
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     local procedure CreateAssemblyOrderATO(KitItem: Record Item; var CompItem: Record Item; var SalesLine: Record "Sales Line"; var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Location: Code[10]; Date: Date)
@@ -1455,7 +1455,7 @@ codeunit 137023 "SCM Timeline Visualization"
         SalesLine.Modify(true);
 
         AssemblyHeader.SetRange("Item No.", KitItem."No.");
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
 
         CreateAssemblyLine(AssemblyHeader, AssemblyLine, CompItem, LibraryRandom.RandInt(40) + 1);
     end;
@@ -1472,7 +1472,7 @@ codeunit 137023 "SCM Timeline Visualization"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        AssemblyLine.FindLast;
+        AssemblyLine.FindLast();
     end;
 
     local procedure CreateILE(Item: Record Item; Location: Code[10]; Quantity: Integer)
@@ -1518,7 +1518,7 @@ codeunit 137023 "SCM Timeline Visualization"
         LibraryWarehouse.CreateLocation(LocationFrom);
         LibraryWarehouse.CreateLocation(LocationTo);
         LocationInTransit.SetRange("Use As In-Transit", true);
-        LocationInTransit.FindFirst;
+        LocationInTransit.FindFirst();
 
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
         LibraryWarehouse.CreateTransferLine(
@@ -1535,7 +1535,7 @@ codeunit 137023 "SCM Timeline Visualization"
         RequisitionLine.DeleteAll();
         LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(Item, StartDate, EndDate, false);
         RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure CreateJobPlanningLine(Item: Record Item; var JobPlanningLine: Record "Job Planning Line"; Date: Date; Quantity: Integer)
@@ -1633,7 +1633,7 @@ codeunit 137023 "SCM Timeline Visualization"
         LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(ItemBase, Date, Date + 1, true);
         RequisitionLine.SetRange("No.", ItemBase."No.");
         Assert.AreEqual(1, RequisitionLine.Count, 'Unexpected- or missing planning lines');
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
 
         PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
@@ -1675,7 +1675,7 @@ codeunit 137023 "SCM Timeline Visualization"
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Location Code", Location);
         Assert.AreEqual(1, ItemLedgerEntry.Count, 'Expects single posting per item');
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         RecRef.GetTable(ItemLedgerEntry);
         ExpectTimelineEvent(TimelineEvent, Show(RecRef), 0D, TimelineEvent."Transaction Type"::Initial, ItemLedgerEntry.Quantity);
@@ -1896,7 +1896,7 @@ codeunit 137023 "SCM Timeline Visualization"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;

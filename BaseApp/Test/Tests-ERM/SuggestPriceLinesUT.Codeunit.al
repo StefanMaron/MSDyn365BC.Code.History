@@ -2149,7 +2149,7 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceListHeader.DeleteAll(true);
         PriceWorksheetLine.DeleteAll();
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;

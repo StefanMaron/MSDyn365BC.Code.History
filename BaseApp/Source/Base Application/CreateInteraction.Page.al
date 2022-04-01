@@ -49,7 +49,7 @@ page 5077 "Create Interaction"
                         else begin
                             FilterWithoutQuotes := ConvertStr("Wizard Contact Name", '''', '?');
                             Contact.SetFilter(Name, '''@*' + FilterWithoutQuotes + '*''');
-                            if not Contact.FindFirst then
+                            if not Contact.FindFirst() then
                                 Clear(Contact);
                         end;
                         SetContactNo(Contact)

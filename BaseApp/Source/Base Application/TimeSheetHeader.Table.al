@@ -298,7 +298,7 @@ table 950 "Time Sheet Header"
     procedure Check()
     begin
         TimeSheetLine.SetRange("Time Sheet No.", "No.");
-        if TimeSheetLine.FindSet then begin
+        if TimeSheetLine.FindSet() then begin
             repeat
                 CheckTimeSheetLine(TimeSheetLine);
             until TimeSheetLine.Next() = 0;
@@ -323,7 +323,7 @@ table 950 "Time Sheet Header"
     begin
         TimeSheetLine.Reset();
         TimeSheetLine.SetRange("Time Sheet No.", "No.");
-        if TimeSheetLine.FindLast then;
+        if TimeSheetLine.FindLast() then;
         exit(TimeSheetLine."Line No.");
     end;
 
@@ -375,7 +375,7 @@ table 950 "Time Sheet Header"
         MyTimeSheets: Record "My Time Sheets";
     begin
         MyTimeSheets.SetRange("Time Sheet No.", "No.");
-        if MyTimeSheets.FindFirst then
+        if MyTimeSheets.FindFirst() then
             MyTimeSheets.DeleteAll();
     end;
 

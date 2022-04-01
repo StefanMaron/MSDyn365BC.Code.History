@@ -10,10 +10,10 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
         PaymentExportData: Record "Payment Export Data";
     begin
         GenJnlLine.SetRange("Data Exch. Entry No.", "Entry No.");
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         CreditTransferRegister.SetRange("From Bank Account No.", GenJnlLine."Bal. Account No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
         SetFileOnCreditTransferRegister(Rec, CreditTransferRegister);
         SetExportFlagOnGenJnlLine(GenJnlLine);
 
@@ -37,7 +37,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
         GenJnlLine2: Record "Gen. Journal Line";
     begin
         GenJnlLine2.CopyFilters(GenJnlLine);
-        if GenJnlLine2.FindSet then
+        if GenJnlLine2.FindSet() then
             repeat
                 SetExportFlagOnAppliedCustVendLedgerEntry(GenJnlLine2, Flag);
                 GenJnlLine2.Validate("Check Exported", Flag);
@@ -73,7 +73,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
             if GenJnlLine."Applies-to ID" <> '' then
                 VendLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
 
-            if VendLedgerEntry.FindSet then
+            if VendLedgerEntry.FindSet() then
                 repeat
                     VendLedgerEntry.Validate("Exported to Payment File", Flag);
                     CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgerEntry);
@@ -84,7 +84,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
         VendLedgerEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
         VendLedgerEntry.SetRange("Applies-to Doc. Type", GenJnlLine."Document Type");
         VendLedgerEntry.SetRange("Applies-to Doc. No.", GenJnlLine."Document No.");
-        if VendLedgerEntry.FindSet then
+        if VendLedgerEntry.FindSet() then
             repeat
                 VendLedgerEntry.Validate("Exported to Payment File", Flag);
                 CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgerEntry);
@@ -106,7 +106,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
             if GenJnlLine."Applies-to ID" <> '' then
                 CustLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
 
-            if CustLedgerEntry.FindSet then
+            if CustLedgerEntry.FindSet() then
                 repeat
                     CustLedgerEntry.Validate("Exported to Payment File", Flag);
                     CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
@@ -118,7 +118,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
         CustLedgerEntry.SetRange("Applies-to Doc. Type", GenJnlLine."Document Type");
         CustLedgerEntry.SetRange("Applies-to Doc. No.", GenJnlLine."Document No.");
 
-        if CustLedgerEntry.FindSet then
+        if CustLedgerEntry.FindSet() then
             repeat
                 CustLedgerEntry.Validate("Exported to Payment File", Flag);
                 CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);

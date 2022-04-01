@@ -234,7 +234,7 @@ page 7354 "Whse. Internal Put-away"
                         BinContent.SetRange("Location Code", "Location Code");
                         GetBinContent.SetTableView(BinContent);
                         GetBinContent.InitializeReport(DummyRec, Rec, 1);
-                        GetBinContent.Run;
+                        GetBinContent.Run();
                     end;
                 }
                 action(CreatePutAway)

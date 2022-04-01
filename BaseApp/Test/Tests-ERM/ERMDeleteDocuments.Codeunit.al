@@ -45,7 +45,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Check the functionality of Purchase Quote Archive.
 
         // [GIVEN] Create Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote);
 
         // [WHEN] Release and Archive Purchase Quote.
@@ -70,7 +70,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Check the functionality of Purchase Quote while making it into Order.
 
         // [GIVEN] Create Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote);
 
         // [WHEN] Release and Archive Purchase Quote and finally making an Order of it.
@@ -96,7 +96,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Test deletion of Archived version for a Purchase Quote that has been archived, released and converted to a Purchase Order.
 
         // [GIVEN] Create Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote);
 
         // [WHEN] Release and Archive Purchase Quote and finally making an Order of it and deleting Archived version of
@@ -122,7 +122,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Check the functionality of Purchase Order Archive.
 
         // [GIVEN] Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // [WHEN] Release and Archive Purchase Order.
@@ -147,7 +147,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Check the functionality of Purchase Order Archive while posting an Order.
 
         // [GIVEN] Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // [WHEN] Release and Archive Purchase Order and finally posting it.
@@ -173,7 +173,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Test deletion of Archived version for a Purchase Order that has been archived, released and Posted.
 
         // [GIVEN] Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // [WHEN] Release and Archive Purchase Order and posting it while deleting Archived version of Purchase Order.
@@ -201,7 +201,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Check the functionality of Sales Quote Archive.
 
         // [GIVEN] Create Sales Quote.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarning(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
 
@@ -228,7 +228,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Check the functionality of Sales Quote Archive while making it into Order.
 
         // [GIVEN] Create Sales Quote.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarning(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
 
@@ -259,7 +259,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Test deletion of Archived version for a Sales Quote that has been archived, released and converted to a Sales Order.
 
         // [GIVEN] Create Sales Quote.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarning(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
 
@@ -290,7 +290,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Check the functionality of Sales Order Archive.
 
         // [GIVEN] Create Sales Order.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarning(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
@@ -317,7 +317,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Check the functionality of Sales Order Archive while posting an Order.
 
         // [GIVEN] Create Sales Order.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarning(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
@@ -348,7 +348,7 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO] Test deletion of Archived version for a Sales Order that has been archived, released and Posted.
 
         // [GIVEN] Create Sales Order.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarning(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
@@ -375,7 +375,7 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Purchase] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invoiced Purch. Orders" deletes Approval Entries related to deleted Purchase Order
         // [GIVEN] Invoiced Purchase Order "O"
-        Initialize;
+        Initialize();
         DocumentType := PurchaseHeader."Document Type"::Order;
         ApprovedPurchaseDocumentScenario(DocumentType, PurchaseHeader);
         VerifyApprovalEntriesExist(PurchaseHeader.RecordId);
@@ -403,7 +403,7 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Sales] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invoiced Sales Orders" deletes Approval Entries related to deleted Sales Order
         // [GIVEN] Invoiced Sales Order "O"
-        Initialize;
+        Initialize();
         DocumentType := SalesHeader."Document Type"::Order;
         ApprovedSalesDocumentScenario(DocumentType, SalesHeader);
         VerifyApprovalEntriesExist(SalesHeader.RecordId);
@@ -431,7 +431,7 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Purchase] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invd Blnkt Purch Orders" deletes Approval Entries related to deleted Purchase Blanket Order
         // [GIVEN] Invoiced Purchase Blanket Order "O"
-        Initialize;
+        Initialize();
         DocumentType := PurchaseHeader."Document Type"::"Blanket Order";
         ApprovedPurchaseDocumentScenario(DocumentType, PurchaseHeader);
         VerifyApprovalEntriesExist(PurchaseHeader.RecordId);
@@ -459,7 +459,7 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Sales] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invd Blnkt Sales Orders" deletes Approval Entries related to deleted Sales Blanket Order
         // [GIVEN] Invoiced Sales Blanket Order "O"
-        Initialize;
+        Initialize();
         DocumentType := SalesHeader."Document Type"::"Blanket Order";
         ApprovedSalesDocumentScenario(DocumentType, SalesHeader);
         VerifyApprovalEntriesExist(SalesHeader.RecordId);
@@ -487,7 +487,7 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Purchase] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invd Purch. Ret. Orders" deletes Approval Entries related to deleted Purchase Return Order
         // [GIVEN] Invoiced Purchase Return Order "O"
-        Initialize;
+        Initialize();
         DocumentType := PurchaseHeader."Document Type"::"Return Order";
         ApprovedPurchaseDocumentScenario(DocumentType, PurchaseHeader);
         VerifyApprovalEntriesExist(PurchaseHeader.RecordId);
@@ -515,7 +515,7 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Sales] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invd Sales Ret. Orders" deletes Approval Entries related to deleted Sales Return Order
         // [GIVEN] Invoiced Sales Return Order "O"
-        Initialize;
+        Initialize();
         DocumentType := SalesHeader."Document Type"::"Return Order";
         ApprovedSalesDocumentScenario(DocumentType, SalesHeader);
         VerifyApprovalEntriesExist(SalesHeader.RecordId);
@@ -543,7 +543,7 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Services] [Approval Management]
         // [SCENARIO 363783] Report "Delete Invoiced Service Orders" deletes Approval Entries related to deleted Service Order
         // [GIVEN] Invoiced Service Order "O"
-        Initialize;
+        Initialize();
         DocumentType := ServiceHeader."Document Type"::Order;
         ApprovedServiceDocumentScenario(DocumentType, ServiceHeader);
         VerifyApprovalEntriesExist(ServiceHeader.RecordId);
@@ -571,7 +571,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Blanket Order] [Sales] [Assembly]
         // [SCENARIO 377504] Report "Delete Invd Blnkt Sales Orders" should delete Blanket Assembly Order related to deleted Sales Blanket Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Sales Order "S"
         MockSalesOrder(SalesHeader."Document Type"::"Blanket Order", SalesHeader);
@@ -599,7 +599,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Invoice. "Allow Document Deletion Before" is not set up.
-        Initialize;
+        Initialize();
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = 0D.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Sales Invoice.
@@ -623,7 +623,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Invoice. Posted Sales Invoice date is greater/equal than allowed deletion before date.
-        Initialize;
+        Initialize();
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate);
         SalesSetup.Get();
@@ -645,7 +645,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Invoice. Posted Sales Invoice date is less than allowed deletion before date.
-        Initialize;
+        Initialize();
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate);
         // [GIVEN] Posted Sales Invoice with "Posting Date" = WORKDATE - 1.
@@ -666,7 +666,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Credit Memo. "Allow Document Deletion Before" is not set up.
-        Initialize;
+        Initialize();
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = 0D.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Sales Credit Memo.
@@ -690,7 +690,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Credit Memo. Posted Sales Credit Memo date is greater/equal than allowed deletion before date.
-        Initialize;
+        Initialize();
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate);
         SalesSetup.Get();
@@ -712,7 +712,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Credit Memo. Posted Sales Credit Memo date is less than allowed deletion before date.
-        Initialize;
+        Initialize();
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate);
         // [GIVEN] Posted Sales Credit Memo with "Posting Date" = WORKDATE - 1.
@@ -733,7 +733,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Invoice. "Allow Document Deletion Before" is not set up.
-        Initialize;
+        Initialize();
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = 0D.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Purchase Invoice.
@@ -757,7 +757,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Invoice. Posted Purchase Invoice date is greater/equal than allowed deletion before date.
-        Initialize;
+        Initialize();
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate);
         PurchSetup.Get();
@@ -779,7 +779,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Invoice. Posted Purchase Invoice date is less than allowed deletion before date.
-        Initialize;
+        Initialize();
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate);
         // [GIVEN] Posted Purchase Invoice with "Posting Date" = WORKDATE - 1.
@@ -800,7 +800,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Credit Memo. "Allow Document Deletion Before" is not set up.
-        Initialize;
+        Initialize();
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = 0D.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Purchase Credit Memo.
@@ -824,7 +824,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Credit Memo. Posted Purchase Credit Memo date is greater/equal than allowed deletion before date.
-        Initialize;
+        Initialize();
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate);
         PurchSetup.Get();
@@ -846,7 +846,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Credit Memo. Posted Purchase Credit Memo date is less than allowed deletion before date.
-        Initialize;
+        Initialize();
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate);
         // [GIVEN] Posted Purchase Credit Memo with "Posting Date" = WORKDATE - 1.
@@ -866,7 +866,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Delete Documents] [Order] [Sales]
         // [SCENARIO 208384] Test where the "Delete Invoiced Sales Orders" batch job delete Sales Order with Charge(Item) which is shipped and Invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Charge(Item)
         // [GIVEN] Post Sales Order with only Ship option
@@ -890,7 +890,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Delete Documents] [Order] [Sales]
         // [SCENARIO 208384] Manually delete Sales Order with Charge(Item) which is shipped and Invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Charge(Item)
         // [GIVEN] Post Sales Order with only Ship option
@@ -914,7 +914,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Delete Documents] [Order] [Purchase]
         // [SCENARIO 208384] Test where the "Delete Invoiced Purchase Orders" batch job delete Purchase Order with Charge(Item) which is received and Invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with Charge(Item)
         // [GIVEN] Post Purchase Order with only Receive option
@@ -938,7 +938,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Delete Documents] [Order] [Purchase]
         // [SCENARIO 208384] Manually delete Purchase Order with Charge(Item) which is received and Invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with Charge(Item)
         // [GIVEN] Post Purchase Order with only Receive option
@@ -967,7 +967,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Delete Documents] [Order] [Sales] [Purchase] [Special Order]
         // [SCENARIO 266106] When you manually delete an invoiced purchase for special order, the related sales keeps the link to it, in order to prevent the sales be planned for a second time.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order set up for Special Order.
         CreateSalesOrderForSpecialOrder(SalesHeader);
@@ -975,7 +975,7 @@ codeunit 134417 "ERM Delete Documents"
         // [GIVEN] Purchase order is created from the sales line using "Get Special Order".
         CreatePurchOrderForSpecialOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
         FilterPurchaseLines(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         // [GIVEN] Receive the purchase order.
         ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -988,7 +988,7 @@ codeunit 134417 "ERM Delete Documents"
 
         // [THEN] The special order link on the sales line still points to the deleted purchase.
         FilterSalesLines(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Special Order Purchase No.", PurchaseLine."Document No.");
         SalesLine.TestField("Special Order Purch. Line No.", PurchaseLine."Line No.");
     end;
@@ -1004,7 +1004,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Delete Documents] [Order] [Sales] [Purchase] [Special Order]
         // [SCENARIO 266106] When you manually delete a purchase for special order, and the purchase has not been invoiced yet, this clears the special order link on the sales line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order set up for Special Order.
         CreateSalesOrderForSpecialOrder(SalesHeader);
@@ -1017,7 +1017,7 @@ codeunit 134417 "ERM Delete Documents"
 
         // [THEN] "Special Order Purchase No." and "Special Order Purch. Line No." fields are cleared on the sales line.
         FilterSalesLines(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Special Order Purchase No.", '');
         SalesLine.TestField("Special Order Purch. Line No.", 0);
     end;
@@ -1034,7 +1034,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Delete Documents] [Order] [Sales] [Purchase] [Special Order]
         // [SCENARIO 261010] Link to a sales line set up for Special Order is cleared on purchase line after you delete the sales line using "Delete Invoiced Sales Orders" batch job.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order line set up for Special Order.
         CreateSalesOrderForSpecialOrder(SalesHeader);
@@ -1053,7 +1053,7 @@ codeunit 134417 "ERM Delete Documents"
 
         // [THEN] "Special Order Sales No." and "Special Order Sales Line No." fields are cleared on the purchase line.
         FilterPurchaseLines(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Special Order Sales No.", '');
         PurchaseLine.TestField("Special Order Sales Line No.", 0);
     end;
@@ -1070,7 +1070,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Delete Documents] [Order] [Sales] [Purchase] [Drop Shipment]
         // [SCENARIO 261010] Link to a sales line set up for Drop Shipment is cleared on purchase line after you delete the sales line using "Delete Invoiced Sales Orders" batch job.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order line set up for Drop Shipment.
         CreateSalesOrderForDropShipment(SalesHeader);
@@ -1089,7 +1089,7 @@ codeunit 134417 "ERM Delete Documents"
 
         // [THEN] "Sales Order No." and "Sales Order Line No." fields are cleared on the purchase line.
         FilterPurchaseLines(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Sales Order No.", '');
         PurchaseLine.TestField("Sales Order Line No.", 0);
     end;
@@ -1108,7 +1108,7 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Delete Documents] [Order] [Sales] [Purchase] [Special Order]
         // [SCENARIO 261010] Link to a purchase line set up for Special Order is not cleared on sales line after you delete the purchase line using "Delete Invoiced Purchase Orders" batch job.
         // [SCENARIO 314595]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order line set up for Special Order.
         CreateSalesOrderForSpecialOrder(SalesHeader);
@@ -1117,7 +1117,7 @@ codeunit 134417 "ERM Delete Documents"
         CreatePurchOrderForSpecialOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         // [GIVEN] Receive the purchase order.
         ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1130,7 +1130,7 @@ codeunit 134417 "ERM Delete Documents"
 
         // [THEN] "Special Order Purchase No." = "PO" and "Special Order Purch. Line No." = 10000 in the sales line.
         FilterSalesLines(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Special Order Purchase No.", PurchaseHeader."No.");
         SalesLine.TestField("Special Order Purch. Line No.", PurchaseLine."Line No.");
     end;
@@ -1150,7 +1150,7 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Delete Documents] [Order] [Sales] [Purchase] [Special Order]
         // [SCENARIO 289945] Special Sales Order can be deleted if associated partially invoiced Special Purchase Order was already deleted
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Special Order Sales Order
         CreateSalesOrderForSpecialOrder(SalesHeader);
@@ -1160,7 +1160,7 @@ codeunit 134417 "ERM Delete Documents"
 
         // [GIVEN] "Qty. to Receive" on Purchase Line set to part of full Quantity
         FilterPurchaseLines(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         QtyToReceive := PurchaseLine.Quantity * LibraryRandom.RandDecInDecimalRange(0.2, 0.9, 2);
         PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
         PurchaseLine.Modify(true);
@@ -1170,7 +1170,7 @@ codeunit 134417 "ERM Delete Documents"
 
         // [GIVEN] "Qty. to Ship" on Sales Line set to half of full Quantity
         FilterSalesLines(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Qty. to Ship", QtyToReceive);
         SalesLine.Modify(true);
 
@@ -1199,7 +1199,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Document Archive] [Purchase] [Order]
         // [SCENARIO 290841] Meaningful message shows zero of deleted Archived versions for a Purchase Order that has been archived, but not released and Posted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
@@ -1227,7 +1227,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Document Archive] [Purchase] [Order]
         // [SCENARIO 290841] Meaningful message shows correct number of deleted Archived versions for a Purchase Order that has been archived, released and Posted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
@@ -1257,7 +1257,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Document Archive] [Purchase] [Quote]
         // [SCENARIO 290841] Meaningful message shows zero of deleted Archived versions for a Purchase Quote that has been archived, but not released and Posted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote);
@@ -1285,7 +1285,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Document Archive] [Purchase] [Quote]
         // [SCENARIO 290841] Meaningful message shows correct number of deleted Archived versions for a Purchase Quote that has been archived and Posted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote);
@@ -1315,7 +1315,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Document Archive] [Sales] [Order]
         // [SCENARIO 290841] Meaningful message shows zero of deleted Archived versions for a Sales Order that has been archived, but not released and Posted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
@@ -1343,7 +1343,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Document Archive] [Sales] [Order]
         // [SCENARIO 290841] Meaningful message shows correct number of deleted Archived versions for a Sales Order that has been archived, released and Posted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
@@ -1373,7 +1373,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Document Archive] [Sales] [Quote]
         // [SCENARIO 290841] Meaningful message shows zero of deleted Archived versions for a Sales Quote that has been archived, but not released and Posted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
@@ -1401,7 +1401,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Document Archive] [Sales] [Quote]
         // [SCENARIO 290841] Meaningful message shows correct number of deleted Archived versions for a Sales Quote that has been archived, released and Posted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
@@ -1435,7 +1435,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Sales] [Purchases] [FCY] [Drop Shipment]
         // [SCENARIO 299349] Stan can set "USD" in "Currency Code" of Purchase Order with Drop Shipment
-        Initialize;
+        Initialize();
 
         CreateSalesOrderForDropShipment(SalesHeader);
 
@@ -1468,7 +1468,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Sales] [Purchases] [FCY] [Drop Shipment]
         // [SCENARIO 299349] Stan can't set "USD" in "Currency Code" of Sales Order with Drop Shipment
-        Initialize;
+        Initialize();
 
         CreateSalesOrderForDropShipment(SalesHeader);
 
@@ -1491,7 +1491,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Sales] [Delete Documents]
         // [SCENARIO 302289] A user can delete a fully shipped and invoiced sales line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with two lines.
         // [GIVEN] Set "Qty. to Ship" on the second line to 0.
@@ -1524,7 +1524,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         // [FEATURE] [Purchase] [Delete Documents]
         // [SCENARIO 302289] A user can delete a fully received and invoiced purchase line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with two lines.
         // [GIVEN] Set "Qty. to Receive" on the second line to 0.
@@ -1673,18 +1673,18 @@ codeunit 134417 "ERM Delete Documents"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Delete Documents");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Delete Documents");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         isInitialized := true;
         Commit();
 
@@ -1816,7 +1816,7 @@ codeunit 134417 "ERM Delete Documents"
         PurchGetReceipt: Codeunit "Purch.-Get Receipt";
     begin
         PurchRcptLine.SetRange("Document No.", ReceiptNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, PurchRcptLine."Pay-to Vendor No.");
@@ -1879,7 +1879,7 @@ codeunit 134417 "ERM Delete Documents"
         SalesGetShipment: Codeunit "Sales-Get Shipment";
     begin
         SalesShipmentLine.SetRange("Document No.", ShipmentNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
 
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Invoice, SalesShipmentLine."Bill-to Customer No.");
@@ -1939,7 +1939,7 @@ codeunit 134417 "ERM Delete Documents"
     begin
         PurchaseHeaderArchive.SetRange("Document Type", DocumentType);
         PurchaseHeaderArchive.SetRange("No.", No);
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
     end;
 
     local procedure FindSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; DocumentType: Enum "Sales Document Type"; No: Code[20])
@@ -1947,7 +1947,7 @@ codeunit 134417 "ERM Delete Documents"
         SalesHeaderArchive.SetRange("Document Type", DocumentType);
         SalesHeaderArchive.SetRange("No.", No);
         SalesHeaderArchive.SetRange("Version No.", 1); // required for CH
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
     end;
 
     local procedure MockApprovalEntry(SourceRecordID: RecordID)
@@ -1996,7 +1996,7 @@ codeunit 134417 "ERM Delete Documents"
         with SalesLine do begin
             SetRange("Document Type", "Document Type"::"Blanket Order");
             SetRange("Document No.", SalesHeaderNo);
-            FindFirst;
+            FindFirst();
             "Qty. to Assemble to Order" := LibraryRandom.RandInt(10);
             Modify;
         end;
@@ -2004,7 +2004,7 @@ codeunit 134417 "ERM Delete Documents"
         with AssemblyHeader do begin
             Init;
             "Document Type" := "Document Type"::"Blanket Order";
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
         end;
 
@@ -2089,7 +2089,7 @@ codeunit 134417 "ERM Delete Documents"
         FindPurchaseHeaderArchive(PurchaseHeaderArchive, PurchaseHeaderArchive."Document Type"::Quote, PostedDocumentNo);
         DeletePurchaseQuoteVersions.UseRequestPage(false);
         DeletePurchaseQuoteVersions.SetTableView(PurchaseHeaderArchive);
-        DeletePurchaseQuoteVersions.Run;
+        DeletePurchaseQuoteVersions.Run();
     end;
 
     local procedure RunDeletePurchaseOrderVersion(PurchaseOrderNo: Code[20])
@@ -2100,7 +2100,7 @@ codeunit 134417 "ERM Delete Documents"
         FindPurchaseHeaderArchive(PurchaseHeaderArchive, PurchaseHeaderArchive."Document Type"::Order, PurchaseOrderNo);
         DeletePurchaseOrderVersions.UseRequestPage(false);
         DeletePurchaseOrderVersions.SetTableView(PurchaseHeaderArchive);
-        DeletePurchaseOrderVersions.Run;
+        DeletePurchaseOrderVersions.Run();
     end;
 
     local procedure RunDeleteSalesQuoteVersion(SalesQuoteNo: Code[20])
@@ -2111,7 +2111,7 @@ codeunit 134417 "ERM Delete Documents"
         FindSalesHeaderArchive(SalesHeaderArchive, SalesHeaderArchive."Document Type"::Quote, SalesQuoteNo);
         DeleteSalesQuoteVersions.UseRequestPage(false);
         DeleteSalesQuoteVersions.SetTableView(SalesHeaderArchive);
-        DeleteSalesQuoteVersions.Run;
+        DeleteSalesQuoteVersions.Run();
     end;
 
     local procedure RunDeleteSalesOrderVersion(SalesOrderNo: Code[20])
@@ -2122,7 +2122,7 @@ codeunit 134417 "ERM Delete Documents"
         FindSalesHeaderArchive(SalesHeaderArchive, SalesHeaderArchive."Document Type"::Order, SalesOrderNo);
         DeleteSalesOrderVersions.UseRequestPage(false);
         DeleteSalesOrderVersions.SetTableView(SalesHeaderArchive);
-        DeleteSalesOrderVersions.Run;
+        DeleteSalesOrderVersions.Run();
     end;
 #endif
 
@@ -2162,7 +2162,7 @@ codeunit 134417 "ERM Delete Documents"
         PurchaseLineArchive: Record "Purchase Line Archive";
     begin
         PurchaseLineArchive.SetRange("Document No.", PostedDocumentNo);
-        PurchaseLineArchive.FindFirst;
+        PurchaseLineArchive.FindFirst();
         PurchaseLineArchive.TestField("No.", PurchaseLine."No.");
         PurchaseLineArchive.TestField("Unit of Measure Code", PurchaseLine."Unit of Measure Code");
         PurchaseLineArchive.TestField(Quantity, PurchaseLine.Quantity);
@@ -2173,7 +2173,7 @@ codeunit 134417 "ERM Delete Documents"
         SalesLineArchive: Record "Sales Line Archive";
     begin
         SalesLineArchive.SetRange("Document No.", PostedDocumentNo);
-        SalesLineArchive.FindFirst;
+        SalesLineArchive.FindFirst();
         SalesLineArchive.TestField("No.", SalesLine."No.");
         SalesLineArchive.TestField("Unit of Measure Code", SalesLine."Unit of Measure Code");
         SalesLineArchive.TestField(Quantity, SalesLine.Quantity);
@@ -2373,7 +2373,7 @@ codeunit 134417 "ERM Delete Documents"
         SalesHeader.SetRange("No.", SalesHeader."No.");
         DeleteInvoicedSalesOrders.SetTableView(SalesHeader);
         DeleteInvoicedSalesOrders.UseRequestPage(false);
-        DeleteInvoicedSalesOrders.Run;
+        DeleteInvoicedSalesOrders.Run();
     end;
 
     local procedure DeleteInvoicePurchOrder(PurchaseHeader: Record "Purchase Header")
@@ -2384,7 +2384,7 @@ codeunit 134417 "ERM Delete Documents"
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
         DeleteInvoicedPurchOrders.SetTableView(PurchaseHeader);
         DeleteInvoicedPurchOrders.UseRequestPage(false);
-        DeleteInvoicedPurchOrders.Run;
+        DeleteInvoicedPurchOrders.Run();
     end;
 
     [ModalPageHandler]

@@ -26,7 +26,7 @@ codeunit 134370 "ERM No. Series Tests"
     var
         NoSeriesLine: Record "No. Series Line";
     begin
-        Initialize;
+        Initialize();
         CreateNewNumberSeries('TEST', 1, FALSE, NoSeriesLine);
         Assert.AreEqual('', NoSeriesLine.GetLastNoUsed, 'lastUsedNo function before taking a number');
 
@@ -48,7 +48,7 @@ codeunit 134370 "ERM No. Series Tests"
     var
         NoSeriesLine: Record "No. Series Line";
     begin
-        Initialize;
+        Initialize();
         CreateNewNumberSeries('TEST', 1, TRUE, NoSeriesLine);
         Assert.AreEqual('', NoSeriesLine.GetLastNoUsed, 'lastUsedNo function before taking a number');
         Assert.AreEqual(ToBigInt(10), NoSeriesLine."Starting Sequence No.", 'Starting Sequence No. is wrong');
@@ -74,7 +74,7 @@ codeunit 134370 "ERM No. Series Tests"
     var
         NoSeriesLine: Record "No. Series Line";
     begin
-        Initialize;
+        Initialize();
         CreateNewNumberSeries('TEST', 10, FALSE, NoSeriesLine);
         Assert.AreEqual('', NoSeriesLine.GetLastNoUsed, 'lastUsedNo function before taking a number');
         Assert.AreEqual(ToBigInt(0), NoSeriesLine."Starting Sequence No.", 'Starting Sequence No. is wrong');
@@ -108,7 +108,7 @@ codeunit 134370 "ERM No. Series Tests"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        Initialize;
+        Initialize();
         CreateNewNumberSeries('TEST', 10, FALSE, NoSeriesLine);
         NoSeries.Get('TEST');
         NoSeries."Date Order" := true;
@@ -129,7 +129,7 @@ codeunit 134370 "ERM No. Series Tests"
         NoSeriesLine: Record "No. Series Line";
         FormattedNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateNewNumberSeries('TEST', 10, FALSE, NoSeriesLine);
         NoSeriesLine."Starting No." := 'A000001';
         NoSeriesLine."Last No. Used" := 'A900001';
@@ -156,7 +156,7 @@ codeunit 134370 "ERM No. Series Tests"
         NoSeriesLine: Record "No. Series Line";
         FormattedNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateNewNumberSeries('TEST', 10, FALSE, NoSeriesLine);
         NoSeriesLine."Starting No." := 'ABC00000000000000001';
         NoSeriesLine."Last No. Used" := 'ABC10000000000000001';
@@ -219,7 +219,7 @@ codeunit 134370 "ERM No. Series Tests"
     var
         NoSeriesLine: Record "No. Series Line";
     begin
-        Initialize;
+        Initialize();
         CreateNewNumberSeries('TEST', 1, FALSE, NoSeriesLine);
         // Simulate that NoSeriesLine was inserted programmatically without triggering creation of Sequence
         NoSeriesLine."Allow Gaps in Nos." := true;
@@ -237,6 +237,139 @@ codeunit 134370 "ERM No. Series Tests"
         DeleteNumberSeries('TEST');
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestModifyNoGetNextWithoutGaps()
+    begin
+        ModifyNoGetNext(false);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestModifyNoGetNextWithGaps()
+    begin
+        ModifyNoGetNext(true);
+    end;
+
+    local procedure ModifyNoGetNext(AllowGaps: Boolean)
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        Initialize();
+        CreateNewNumberSeries('TEST', 1, AllowGaps, NoSeriesLine);
+
+        // test
+        Assert.AreEqual(StartingNumberTxt, NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", TODAY, false), 'Gaps diff - first');
+        Assert.AreEqual(INCSTR(StartingNumberTxt), NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", TODAY, false), 'Gaps diff - second');
+
+        // clean up
+        DeleteNumberSeries('TEST');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestSaveNoSeriesWithOutGaps()
+    begin
+        SaveNoSeries(false);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestSaveNoSeriesWithGaps()
+    begin
+        SaveNoSeries(true);
+    end;
+
+    local procedure SaveNoSeries(AllowGaps: Boolean)
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        Initialize();
+        CreateNewNumberSeries('TEST', 1, AllowGaps, NoSeriesLine);
+
+        // test
+        Assert.AreEqual(StartingNumberTxt, NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", TODAY, false), 'Gaps diff');
+        Assert.AreEqual(INCSTR(StartingNumberTxt), NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", TODAY, false), 'Gaps diff');
+        NoSeriesManagement.SaveNoSeries();
+        Clear(NoSeriesManagement);
+        NoSeriesLine.Find();
+        Assert.AreEqual(INCSTR(StartingNumberTxt), NoSeriesLine.GetLastNoUsed(), 'No. series not updated correctly');
+        Assert.AreEqual(INCSTR(INCSTR(StartingNumberTxt)), NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", TODAY, true), 'GetNext after Save');
+        // clean up
+        DeleteNumberSeries('TEST');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestCurrentAndNextDifferWithOutGaps()
+    begin
+        CurrentAndNextDiffer(false);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestCurrentAndNextDifferWithGaps()
+    begin
+        CurrentAndNextDiffer(true);
+    end;
+
+    local procedure CurrentAndNextDiffer(AllowGaps: Boolean)
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        Initialize();
+        CreateNewNumberSeries('TEST', 1, AllowGaps, NoSeriesLine);
+
+        // test
+        Assert.AreEqual('', NoSeriesLine.GetLastNoUsed(), 'Wrong last no.');
+        Assert.AreEqual(StartingNumberTxt, NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", TODAY, false), 'Wrong first no.');
+
+        // clean up
+        DeleteNumberSeries('TEST');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('SelectCustomerTemplateHandler')]
+    [Scope('OnPrem')]
+    procedure TestCreateCustomerWithGaps()
+    var
+        NoSeriesLine: Record "No. Series Line";
+        SalesSetup: Record "Sales & Receivables Setup";
+        Customer: Record Customer;
+    begin
+        Initialize();
+        CreateNewNumberSeries('TEST', 1, true, NoSeriesLine);
+        SalesSetup.LockTable();
+        SalesSetup.Get();
+        SalesSetup."Customer Nos." := NoSeriesLine."Series Code";
+        SalesSetup.Modify();
+
+        // Verify that customers will be created correctly        
+        CreateNewCustomer(Customer);
+        Assert.AreEqual(StartingNumberTxt, Customer."No.", 'Wrong first no.');
+        CreateNewCustomer(Customer);
+
+        // clean up
+        DeleteNumberSeries('TEST');
+    end;
+
+    local procedure CreateNewCustomer(var Customer: Record Customer)
+    var
+        CustomerCard: TestPage "Customer Card";
+    begin
+        CustomerCard.OpenNew();
+        CustomerCard.Name.SetValue('Test Customer');
+        Customer.Get(CustomerCard."No.");
+        CustomerCard.Close();
+        Customer.Find(); // refresh in case there is any onclosepage logic
+    end;
 
     local procedure CreateNewNumberSeries(NewName: Code[20]; IncrementBy: Integer; AllowGaps: Boolean; var NoSeriesLine: Record "No. Series Line")
     var
@@ -244,6 +377,7 @@ codeunit 134370 "ERM No. Series Tests"
     begin
         NoSeries.Code := NewName;
         NoSeries.Description := NewName;
+        NoSeries."Default Nos." := true;
         NoSeries.Insert();
 
         NoSeriesLine."Series Code" := NoSeries.Code;
@@ -274,7 +408,16 @@ codeunit 134370 "ERM No. Series Tests"
 
     local procedure Initialize()
     begin
+        Clear(NoSeriesManagement);
         LibraryLowerPermissions.SetO365BusFull;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectCustomerTemplateHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
+    begin
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK.Invoke();
     end;
 }
 

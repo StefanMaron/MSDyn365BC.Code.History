@@ -152,7 +152,7 @@ page 7372 "Bin Creation Worksheet"
                     trigger OnAction()
                     begin
                         BinCreateWksh.SetTemplAndWorksheet("Worksheet Template Name", Name, CurrentLocationCode);
-                        BinCreateWksh.RunModal;
+                        BinCreateWksh.RunModal();
                         Clear(BinCreateWksh);
                     end;
                 }

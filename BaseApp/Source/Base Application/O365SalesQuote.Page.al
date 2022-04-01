@@ -557,7 +557,7 @@ page 2141 "O365 Sales Quote"
     begin
         if Text <> '' then begin
             Customer.SetRange(Name, Text);
-            if Customer.FindFirst then;
+            if Customer.FindFirst() then;
             Customer.SetRange(Name);
         end;
 

@@ -62,9 +62,9 @@ codeunit 137097 "SCM Kitting - Undo"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - Undo");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         GlobalSetup;
 
@@ -270,7 +270,7 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryAssembly.AddAssemblyHeaderComment(AssemblyHeader, 0);
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if not AssemblyLine.FindSet then
+        if not AssemblyLine.FindSet() then
             exit;
 
         repeat
@@ -290,7 +290,7 @@ codeunit 137097 "SCM Kitting - Undo"
         // Lines
         TempPostedAssemblyLine.DeleteAll();
         PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
-        if not PostedAssemblyLine.FindSet then
+        if not PostedAssemblyLine.FindSet() then
             exit;
 
         repeat
@@ -313,7 +313,7 @@ codeunit 137097 "SCM Kitting - Undo"
         TempAssemblyLine.Reset();
         TempAssemblyLine.DeleteAll();
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if not AssemblyLine.FindSet then
+        if not AssemblyLine.FindSet() then
             exit;
 
         repeat
@@ -371,7 +371,7 @@ codeunit 137097 "SCM Kitting - Undo"
         // Consider the postings of this initial AO without the undone (reversed) orders - and assumes no posted AO has been deleted
         PostedAssemblyHeader.SetRange("Order No.", AssemblyOrderNo);
         PostedAssemblyHeader.SetRange(Reversed, false);
-        if not PostedAssemblyHeader.FindSet then
+        if not PostedAssemblyHeader.FindSet() then
             exit(Quantity);
 
         repeat
@@ -392,13 +392,13 @@ codeunit 137097 "SCM Kitting - Undo"
         // Consider the postings of this initial AO without the undone (reversed) orders - and assumes no posted AO has been deleted
         PostedAssemblyHeader.SetRange("Order No.", AssemblyOrderNo);
         PostedAssemblyHeader.SetRange(Reversed, false);
-        if not PostedAssemblyHeader.FindSet then
+        if not PostedAssemblyHeader.FindSet() then
             exit(Quantity);
 
         repeat
             PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
             PostedAssemblyLine.SetRange("Line No.", LineNo);
-            PostedAssemblyLine.FindFirst; // let it fail if doesn't exist
+            PostedAssemblyLine.FindFirst(); // let it fail if doesn't exist
             Quantity += PostedAssemblyLine."Quantity (Base)";
         until PostedAssemblyHeader.Next = 0;
 
@@ -413,7 +413,7 @@ codeunit 137097 "SCM Kitting - Undo"
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
 
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 AssemblyLine.Validate("Location Code", Bin."Location Code");
                 AssemblyLine.Validate("Bin Code", Bin.Code);
@@ -456,7 +456,7 @@ codeunit 137097 "SCM Kitting - Undo"
     begin
         AssemblyLine.SetRange("Document Type", DocumentType);
         AssemblyLine.SetRange("Document No.", DocumentNo);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     local procedure FindPostedAssemblyHeaderNotReversed(var PostedAssemblyHeader: Record "Posted Assembly Header"; SourceAssemblyHeaderNo: Code[20])
@@ -464,7 +464,7 @@ codeunit 137097 "SCM Kitting - Undo"
         Clear(PostedAssemblyHeader);
         PostedAssemblyHeader.SetRange("Order No.", SourceAssemblyHeaderNo);
         PostedAssemblyHeader.SetRange(Reversed, false);
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
     end;
 
     local procedure FindSalesShptLine(SalesLine: Record "Sales Line"; var SalesShptLine: Record "Sales Shipment Line")
@@ -473,7 +473,7 @@ codeunit 137097 "SCM Kitting - Undo"
         SalesShptLine.SetRange("Order No.", SalesLine."Document No.");
         SalesShptLine.SetRange("Order Line No.", SalesLine."Line No.");
         SalesShptLine.SetRange("Quantity Invoiced", 0);
-        SalesShptLine.FindFirst;
+        SalesShptLine.FindFirst();
     end;
 
     local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; AssemblyHeader: Record "Assembly Header")
@@ -487,7 +487,7 @@ codeunit 137097 "SCM Kitting - Undo"
             SetRange("Source Document", WarehouseRequest."Source Document"::"Assembly Consumption");
             SetRange("Source Type", DATABASE::"Assembly Line");
             SetRange("Source Subtype", AssemblyHeader."Document Type");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -533,7 +533,7 @@ codeunit 137097 "SCM Kitting - Undo"
         // Check Lines
         TempAssemblyLine.SetRange("Document Type", FinalAssemblyHeader."Document Type");
         TempAssemblyLine.SetRange("Document No.", FinalAssemblyHeader."No.");
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 FinalAssemblyLine.Get(TempAssemblyLine."Document Type", TempAssemblyLine."Document No.", TempAssemblyLine."Line No.");
                 TempPostedAssemblyLine.Get(TempPostedAssemblyHeader."No.", TempAssemblyLine."Line No.");
@@ -581,7 +581,7 @@ codeunit 137097 "SCM Kitting - Undo"
         // Check Lines
         TempPostedAssemblyLine.Reset();
         TempPostedAssemblyLine.SetRange("Document No.", TempPostedAssemblyHeader."No.");
-        if TempPostedAssemblyLine.FindSet then
+        if TempPostedAssemblyLine.FindSet() then
             repeat
                 FinalAssemblyLine.Get(
                   FinalAssemblyLine."Document Type"::Order, TempPostedAssemblyHeader."Order No.", TempPostedAssemblyLine."Line No.");
@@ -740,7 +740,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         Flow: Option PostOutput,ReserveOutput;
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoOutput('', Flow::PostOutput);
     end;
 
@@ -750,7 +750,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         Flow: Option PostOutput,ReserveOutput;
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoOutput(LocationBlue.Code, Flow::PostOutput);
     end;
 
@@ -760,7 +760,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         Flow: Option PostOutput,ReserveOutput;
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoOutput('', Flow::ReserveOutput);
     end;
 
@@ -770,7 +770,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         Flow: Option PostOutput,ReserveOutput;
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoOutput(LocationBlue.Code, Flow::ReserveOutput);
     end;
 
@@ -824,7 +824,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure CannotUndoATOBlank()
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoATO('', LibraryRandom.RandDec(100, 2));
     end;
 
@@ -832,7 +832,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure CannotUndoATOBlue()
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoATO(LocationBlue.Code, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -876,7 +876,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure CannotUndoReversedDocBlank()
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoUndoneDoc('');
     end;
 
@@ -884,7 +884,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure CannotUndoReversedDocBlue()
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoUndoneDoc(LocationBlue.Code);
     end;
 
@@ -922,7 +922,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', true, AssertOption::ReversedDocs, false);
     end;
 
@@ -932,7 +932,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, true, AssertOption::ReversedDocs, false);
     end;
 
@@ -942,7 +942,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', false, AssertOption::ReversedDocs, false);
     end;
 
@@ -952,7 +952,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, false, AssertOption::ReversedDocs, false);
     end;
 
@@ -962,7 +962,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', true, AssertOption::ILEs, false);
     end;
 
@@ -972,7 +972,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, true, AssertOption::ILEs, false);
     end;
 
@@ -982,7 +982,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', false, AssertOption::ILEs, false);
     end;
 
@@ -992,7 +992,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, false, AssertOption::ILEs, false);
     end;
 
@@ -1002,7 +1002,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', true, AssertOption::CapacityEntries, false);
     end;
 
@@ -1012,7 +1012,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, true, AssertOption::CapacityEntries, false);
     end;
 
@@ -1022,7 +1022,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', false, AssertOption::CapacityEntries, false);
     end;
 
@@ -1032,7 +1032,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, false, AssertOption::CapacityEntries, false);
     end;
 
@@ -1042,7 +1042,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', true, AssertOption::ReversedDocs, true);
     end;
 
@@ -1052,7 +1052,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, true, AssertOption::ReversedDocs, true);
     end;
 
@@ -1062,7 +1062,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', false, AssertOption::ReversedDocs, true);
     end;
 
@@ -1072,7 +1072,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, false, AssertOption::ReversedDocs, true);
     end;
 
@@ -1082,7 +1082,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', true, AssertOption::ILEs, true);
     end;
 
@@ -1092,7 +1092,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, true, AssertOption::ILEs, true);
     end;
 
@@ -1102,7 +1102,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', false, AssertOption::ILEs, true);
     end;
 
@@ -1112,7 +1112,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, false, AssertOption::ILEs, true);
     end;
 
@@ -1122,7 +1122,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', true, AssertOption::CapacityEntries, true);
     end;
 
@@ -1132,7 +1132,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, true, AssertOption::CapacityEntries, true);
     end;
 
@@ -1142,7 +1142,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc('', false, AssertOption::CapacityEntries, true);
     end;
 
@@ -1152,7 +1152,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option ReversedDocs,ILEs,CapacityEntries;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDoc(LocationBlue.Code, false, AssertOption::CapacityEntries, true);
     end;
 
@@ -1249,7 +1249,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc('', ChangeOption::"New Line");
     end;
 
@@ -1259,7 +1259,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc(LocationBlue.Code, ChangeOption::"New Line");
     end;
 
@@ -1269,7 +1269,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc('', ChangeOption::"Delete Line");
     end;
 
@@ -1279,7 +1279,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc(LocationBlue.Code, ChangeOption::"Delete Line");
     end;
 
@@ -1289,7 +1289,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc('', ChangeOption::"Change Location Lines");
     end;
 
@@ -1299,7 +1299,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc(LocationBlue.Code, ChangeOption::"Change Location Lines");
     end;
 
@@ -1309,7 +1309,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc(LocationSilver.Code, ChangeOption::"Change Bin Lines");
     end;
 
@@ -1320,7 +1320,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc('', ChangeOption::"Change Location");
     end;
 
@@ -1331,7 +1331,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc(LocationBlue.Code, ChangeOption::"Change Location");
     end;
 
@@ -1341,7 +1341,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ChangeOption: Option "New Line","Delete Line","Change Location","Change Bin","Change Location Lines","Change Bin Lines";
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoChangedDoc(LocationSilver.Code, ChangeOption::"Change Bin");
     end;
 
@@ -1429,7 +1429,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure UndoCheckCommentsBlank()
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckComments('');
     end;
 
@@ -1437,7 +1437,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure UndoCheckCommentsBlue()
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckComments(LocationBlue.Code);
     end;
 
@@ -1473,7 +1473,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure UndoCheckDimensionsBlank()
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDimensions('');
     end;
 
@@ -1481,7 +1481,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure UndoCheckDimensionsBlue()
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckDimensions(LocationBlue.Code);
     end;
 
@@ -1517,7 +1517,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure UndoMultipleCheckDocBlank()
     begin
-        Initialize;
+        Initialize();
         TCUndoMultipleCheckDoc('');
     end;
 
@@ -1525,7 +1525,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure UndoMultipleCheckDocBlue()
     begin
-        Initialize;
+        Initialize();
         TCUndoMultipleCheckDoc(LocationBlue.Code);
     end;
 
@@ -1582,7 +1582,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure UndoDontCreateAOBlank()
     begin
-        Initialize;
+        Initialize();
         TCUndoDontCreateAO('');
     end;
 
@@ -1590,7 +1590,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure UndoDontCreateAOBlue()
     begin
-        Initialize;
+        Initialize();
         TCUndoDontCreateAO(LocationBlue.Code);
     end;
 
@@ -1627,7 +1627,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option WhseEntries,BinContents;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckWhse(LocationSilver, true, AssertOption::WhseEntries);
     end;
 
@@ -1637,7 +1637,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option WhseEntries,BinContents;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckWhse(LocationSilver, true, AssertOption::BinContents);
     end;
 
@@ -1647,7 +1647,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option WhseEntries,BinContents;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckWhse(LocationSilver, false, AssertOption::WhseEntries);
     end;
 
@@ -1657,7 +1657,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option WhseEntries,BinContents;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckWhse(LocationSilver, false, AssertOption::BinContents);
     end;
 
@@ -1668,7 +1668,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option WhseEntries,BinContents;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckWhse(LocationWhite, true, AssertOption::WhseEntries);
     end;
 
@@ -1679,7 +1679,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option WhseEntries,BinContents;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckWhse(LocationWhite, true, AssertOption::BinContents);
     end;
 
@@ -1690,7 +1690,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option WhseEntries,BinContents;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckWhse(LocationWhite, false, AssertOption::WhseEntries);
     end;
 
@@ -1701,7 +1701,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         AssertOption: Option WhseEntries,BinContents;
     begin
-        Initialize;
+        Initialize();
         TCUndoCheckWhse(LocationWhite, false, AssertOption::BinContents);
     end;
 
@@ -1769,7 +1769,7 @@ codeunit 137097 "SCM Kitting - Undo"
     [Scope('OnPrem')]
     procedure CannotUndoWhseEntryNotAvailSilverPick()
     begin
-        Initialize;
+        Initialize();
         TCCannotUndoWhseEntryNotAvail(LocationSilverWithPick.Code);
     end;
 
@@ -1826,7 +1826,7 @@ codeunit 137097 "SCM Kitting - Undo"
         DueDate: Date;
     begin
         // run undo through codeunit 911 for codecoverage
-        Initialize;
+        Initialize();
 
         // Create AO
         CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Stock", LibraryRandom.RandInt(10),
@@ -1862,7 +1862,7 @@ codeunit 137097 "SCM Kitting - Undo"
     begin
         // [FEATURE] [Undo Assembly] [Warehouse]
         // [SCENARIO 378211] It should be possible to Undo partially Posted Assembly Order if it has Quantity less then in previous posted Assembly Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Assembly Order "A" with Quantity = "Q"
         OrderQty[3] := LibraryRandom.RandIntInRange(1, 10);
@@ -1891,7 +1891,7 @@ codeunit 137097 "SCM Kitting - Undo"
 
         // [WHEN] Undo Assembly "A2"
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
-        PostedAssemblyHeader.FindLast;
+        PostedAssemblyHeader.FindLast();
         LibraryAssembly.UndoPostedAssembly(PostedAssemblyHeader, true, '');
 
         // [THEN] Assembly Order A2 is Undone
@@ -1914,7 +1914,7 @@ codeunit 137097 "SCM Kitting - Undo"
         // [FEATURE] [Recreate Assembly Order] [Unit Cost]
         // [SCENARIO 278686] "Cost Amount" in assembly line should be recalculated when undoing a posted assembly order with "Recreate" option
 
-        Initialize;
+        Initialize();
 
         QtyToAssemble := LibraryRandom.RandDecInRange(10, 20, 2);
         OrderQty := QtyToAssemble + LibraryRandom.RandDecInRange(30, 50, 2);

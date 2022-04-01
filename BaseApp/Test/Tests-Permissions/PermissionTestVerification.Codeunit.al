@@ -20,7 +20,7 @@ codeunit 139430 "Permission Test Verification"
     begin
         // [GIVEN] Permission testing is enabled (by default O365 Full Access it applied)
 
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             GLEntry."Entry No." += 1;
         GLEntry.Init();
 

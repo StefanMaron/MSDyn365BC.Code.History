@@ -36,7 +36,7 @@ table 6080 "Service Price Group"
         ServPriceGrpSetup: Record "Serv. Price Group Setup";
     begin
         ServPriceGrpSetup.SetRange("Service Price Group Code", Code);
-        if ServPriceGrpSetup.FindFirst then
+        if ServPriceGrpSetup.FindFirst() then
             ServPriceGrpSetup.DeleteAll();
     end;
 }

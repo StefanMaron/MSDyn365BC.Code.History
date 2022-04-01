@@ -39,7 +39,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForSalesDocument(SalesHeader."Document Type"::Invoice);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, 1000);
         WorkflowEventHandling.RunWorkflowOnSendSalesDocForApproval(SalesHeader);
@@ -62,7 +62,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForSalesDocument(SalesHeader."Document Type"::Quote);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote, 1000);
         WorkflowEventHandling.RunWorkflowOnSendSalesDocForApproval(SalesHeader);
@@ -85,7 +85,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForSalesDocument(SalesHeader."Document Type"::Order);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, 1000);
         WorkflowEventHandling.RunWorkflowOnSendSalesDocForApproval(SalesHeader);
@@ -108,7 +108,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForSalesDocument(SalesHeader."Document Type"::"Credit Memo");
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", 1000);
         WorkflowEventHandling.RunWorkflowOnSendSalesDocForApproval(SalesHeader);
@@ -131,7 +131,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForSalesDocument(SalesHeader."Document Type"::"Return Order");
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order", 1000);
         WorkflowEventHandling.RunWorkflowOnSendSalesDocForApproval(SalesHeader);
@@ -154,7 +154,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForSalesDocument(SalesHeader."Document Type"::"Blanket Order");
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Blanket Order", 1000);
         WorkflowEventHandling.RunWorkflowOnSendSalesDocForApproval(SalesHeader);
@@ -177,7 +177,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForPurchaseDocument(PurchaseHeader."Document Type"::Invoice);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, 1000);
         WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader);
@@ -200,7 +200,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForPurchaseDocument(PurchaseHeader."Document Type"::Quote);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Quote, 1000);
         WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader);
@@ -223,7 +223,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForPurchaseDocument(PurchaseHeader."Document Type"::Order);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, 1000);
         WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader);
@@ -246,7 +246,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo");
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", 1000);
         WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader);
@@ -269,7 +269,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForPurchaseDocument(PurchaseHeader."Document Type"::"Return Order");
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", 1000);
         WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader);
@@ -292,7 +292,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] There is no error and the change is done.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateApprovalWorkflowForPurchaseDocument(PurchaseHeader."Document Type"::"Blanket Order");
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", 1000);
         WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader);
@@ -324,7 +324,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] The event to approve a record is executed from the sales order approval workflow, and not from the customer approval workflow.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
 
         LibraryWorkflow.CreateEnabledWorkflow(CustomerWorkflow, WorkflowSetup.CustomerWorkflowCode);
@@ -340,7 +340,7 @@ codeunit 134317 "Workflow Additional Scenarios"
 
         // Execute
         SalesDocApprovalEntry.SetRange("Record ID to Approve", SalesHeader.RecordId);
-        SalesDocApprovalEntry.FindFirst;
+        SalesDocApprovalEntry.FindFirst();
 
         SalesDocApprovalEntry."Approver ID" := UserId;
         SalesDocApprovalEntry.Modify();
@@ -380,9 +380,9 @@ codeunit 134317 "Workflow Additional Scenarios"
 
         WorkflowStep.SetRange("Entry Point", true);
         WorkflowStep.SetRange("Workflow Code", Workflow1.Code);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowEvent.SetRange("Function Name", WorkflowStep."Function Name");
-        WorkflowEvent.FindFirst;
+        WorkflowEvent.FindFirst();
         RecRef.Open(WorkflowEvent."Table ID");
 
         // Exercise
@@ -403,14 +403,14 @@ codeunit 134317 "Workflow Additional Scenarios"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // [SCENARIO 201613] Started but disabled workflow must be finished
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two users with the second one as the Direct Approver for the first one.
         // [GIVEN] Sales Document Approval Workflow "WF" with 3 events and responses, where every response matches the following event.
         // [GIVEN] "WF" has Approver as Approver Type and Direct Approver as Approver Limit Type.
         LibraryDocumentApprovals.SetupUsersForApprovals(UserSetup);
         CreateWorkflowTableRelationsFromApprovalEntryToSalesHeader;
-        CreateApprovalWorkflowForSalesDocWithThreeLinkedEventsAndResponses(LibraryUtility.GenerateGUID);
+        CreateApprovalWorkflowForSalesDocWithThreeLinkedEventsAndResponses(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Invoice "SI" created by initial user and send to approval
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -496,10 +496,10 @@ codeunit 134317 "Workflow Additional Scenarios"
         Workflow: Record Workflow;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Additional Scenarios");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Workflow.SetRange(Template, false);
         Workflow.ModifyAll(Enabled, false, true);
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Additional Scenarios");
@@ -552,7 +552,7 @@ codeunit 134317 "Workflow Additional Scenarios"
           LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode, EntryPointStepID);
 
         WorkflowStep.SetRange(ID, FirstResponse);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         LibraryWorkflow.UpdateWorkflowStepArgumentApproverLimitType(
           WorkflowStep.Argument, WorkflowStepArgument."Approver Type"::Approver,
           WorkflowStepArgument."Approver Limit Type"::"Direct Approver", '', '');
@@ -571,7 +571,7 @@ codeunit 134317 "Workflow Additional Scenarios"
           LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, ThirdStepID);
 
         WorkflowStep.SetRange(ID, FourthResponse);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowStepArgument.Get(WorkflowStep.Argument);
         WorkflowStepArgument.Message := Message;
         WorkflowStepArgument.Modify(true);
@@ -621,7 +621,7 @@ codeunit 134317 "Workflow Additional Scenarios"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        SalespersonPurchaser.FindFirst;
+        SalespersonPurchaser.FindFirst();
 
         SalesHeader.Validate("Salesperson Code", SalespersonPurchaser.Code);
         SalesHeader.Modify(true);
@@ -631,7 +631,7 @@ codeunit 134317 "Workflow Additional Scenarios"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        SalespersonPurchaser.FindFirst;
+        SalespersonPurchaser.FindFirst();
 
         PurchaseHeader.Validate("Purchaser Code", SalespersonPurchaser.Code);
         PurchaseHeader.Modify(true);

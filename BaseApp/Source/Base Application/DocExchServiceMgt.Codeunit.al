@@ -565,7 +565,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     end;
 
     [Scope('OnPrem')]
-    procedure SendUBLDocument(DocVariant: Variant; FileName: Text): Text
+    procedure SendUBLDocument(DocVariant: Variant; var TempBlob: Codeunit "Temp Blob"): Text
     var
         DocRecRef: RecordRef;
     begin
@@ -575,7 +575,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
 
         CheckDocumentStatus(DocRecRef);
 
-        if not ExecuteWebServicePostRequest(GetPostSalesURL(DocRecRef), FileName) then
+        if not ExecuteWebServicePostRequest(GetPostSalesURL(DocRecRef), TempBlob) then
             LogActivityFailedAndError(DocRecRef.RecordId, SendDocTxt, '');
 
         LogActivitySucceeded(DocRecRef.RecordId, SendDocTxt, DocSendSuccessMsg);
@@ -591,7 +591,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     end;
 
     [Scope('OnPrem')]
-    procedure SendDocument(DocVariant: Variant; FileName: Text): Text
+    procedure SendDocument(DocVariant: Variant; var TempBlob: Codeunit "Temp Blob"): Text
     var
         DocRecRef: RecordRef;
         DocIdentifier: Text;
@@ -603,7 +603,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
 
         CheckDocumentStatus(DocRecRef);
 
-        PutDocument(FileName, DocIdentifier, DocRecRef);
+        PutDocument(TempBlob, DocIdentifier, DocRecRef);
         DispatchDocument(DocIdentifier, DocRecRef);
 
         LogTelemetryDocumentSent();
@@ -614,6 +614,65 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         exit(DocIdentifier);
     end;
 
+#if not CLEAN20
+    [Scope('OnPrem')]
+    [Obsolete('Replaced by SendUBLDocument with TempBlob parameter.', '20.0')]
+    procedure SendUBLDocument(DocVariant: Variant; FileName: Text): Text
+    var
+        FileManagement: codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
+        DocRecRef: RecordRef;
+    begin
+        CheckServiceEnabled();
+
+        DocRecRef.GetTable(DocVariant);
+
+        CheckDocumentStatus(DocRecRef);
+
+        FileManagement.BLOBImportFromServerFile(TempBlob, FileName);
+        if not ExecuteWebServicePostRequest(GetPostSalesURL(DocRecRef), TempBlob) then
+            LogActivityFailedAndError(DocRecRef.RecordId, SendDocTxt, '');
+
+        LogActivitySucceeded(DocRecRef.RecordId, SendDocTxt, DocSendSuccessMsg);
+
+        DocExchLinks.UpdateDocumentRecord(DocRecRef, GLBLastUsedGUID, '');
+
+        LogTelemetryDocumentSent();
+
+        if GuiAllowed then
+            Message(DocSendSuccessMsg);
+
+        exit(GLBLastUsedGUID);
+    end;
+
+    [Scope('OnPrem')]
+    [Obsolete('Replaced by SendDocument with TempBlob parameter.', '20.0')]
+    procedure SendDocument(DocVariant: Variant; FileName: Text): Text
+    var
+        FileManagement: codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
+        DocRecRef: RecordRef;
+        DocIdentifier: Text;
+    begin
+        CheckServiceEnabled();
+
+        DocIdentifier := GetGUID();
+        DocRecRef.GetTable(DocVariant);
+
+        CheckDocumentStatus(DocRecRef);
+
+        FileManagement.BLOBImportFromServerFile(TempBlob, FileName);
+        PutDocument(TempBlob, DocIdentifier, DocRecRef);
+        DispatchDocument(DocIdentifier, DocRecRef);
+
+        LogTelemetryDocumentSent();
+
+        if GuiAllowed() then
+            Message(DocSendSuccessMsg);
+
+        exit(DocIdentifier);
+    end;
+#endif
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure HasPredefinedOAuth2Params(): Boolean
@@ -919,11 +978,11 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         exit(MissingClientIdOrSecretOnPremTxt);
     end;
 
-    local procedure PutDocument(FileName: Text; DocIdentifier: Text; DocRecRef: RecordRef)
+    local procedure PutDocument(var TempBlob: Codeunit "Temp Blob"; DocIdentifier: Text; DocRecRef: RecordRef)
     var
         Succeed: Boolean;
     begin
-        if not ExecuteWebServicePutRequest(GetPUTDocURL(DocIdentifier), FileName) then
+        if not ExecuteWebServicePutRequest(GetPUTDocURL(DocIdentifier), TempBlob) then
             LogActivityFailedAndError(DocRecRef.RecordId, SendDocTxt, '');
 
         if not IsNull(GLBHttpStatusCode) then
@@ -939,11 +998,12 @@ codeunit 1410 "Doc. Exch. Service Mgt."
 
     local procedure DispatchDocument(DocOrigIdentifier: Text; DocRecRef: RecordRef)
     var
+        TempBlob: Codeunit "Temp Blob";
         DocIdentifier: Text;
         PlaceholderGuid: Guid;
         Succeed: Boolean;
     begin
-        if not ExecuteWebServicePostRequest(GetDispatchDocURL(DocOrigIdentifier), '') then
+        if not ExecuteWebServicePostRequest(GetDispatchDocURL(DocOrigIdentifier), TempBlob) then
             LogActivityFailedAndError(DocRecRef.RecordId, DispatchDocTxt, '');
 
         if not IsNull(GLBHttpStatusCode) then
@@ -1109,9 +1169,11 @@ codeunit 1410 "Doc. Exch. Service Mgt."
 
     [TryFunction]
     local procedure MarkDocBusinessProcessed(DocIdentifier: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
     begin
         CheckServiceEnabled();
-        ExecuteWebServicePutRequest(GetSetTagURL(DocIdentifier), '');
+        ExecuteWebServicePutRequest(GetSetTagURL(DocIdentifier), TempBlob);
     end;
 
     local procedure CreateIncomingDocEntry(var IncomingDocument: Record "Incoming Document"; ContextRecordID: RecordID; DocIdentifier: Text; Description: Text)
@@ -1157,7 +1219,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         IncomingDocument.AddAttachmentFromServerFile(FileName, FilePath);
     end;
 
-    local procedure Initialize(URL: Text; Method: Text[6]; BodyFilePath: Text)
+    local procedure Initialize(URL: Text; Method: Text[6]; var TempBlob: Codeunit "Temp Blob")
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         [NonDebuggable]
@@ -1176,10 +1238,10 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         HttpWebRequestMgt.SetMethod(Method);
         HttpWebRequestMgt.AddHeader(AuthorizationHeaderNameTxt, StrSubstNo(AuthorizationHeaderValueTxt, AccessToken));
 
-        SetDefaults(BodyFilePath);
+        SetDefaults(TempBlob);
     end;
 
-    local procedure SetDefaults(BodyFilePath: Text)
+    local procedure SetDefaults(var TempBlob: Codeunit "Temp Blob")
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
@@ -1187,7 +1249,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         HttpWebRequestMgt.SetReturnType(TextXmlTxt);
         HttpWebRequestMgt.SetUserAgent(GetUserAgent());
         HttpWebRequestMgt.AddHeader(AcceptEncodingHeaderNameTxt, EncodingUtf8Txt);
-        HttpWebRequestMgt.AddBody(BodyFilePath);
+        HttpWebRequestMgt.AddBodyBlob(TempBlob);
 
         // Set tracing
         GetServiceSetUp(DocExchServiceSetup);
@@ -1210,26 +1272,28 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     end;
 
     local procedure ExecuteWebServiceGetRequest(URL: Text): Boolean
+    var
+        TempBlob: Codeunit "Temp Blob";
     begin
-        exit(ExecuteWebServiceRequest(URL, MethodGetTxt, ''));
+        exit(ExecuteWebServiceRequest(URL, MethodGetTxt, TempBlob));
     end;
 
-    local procedure ExecuteWebServicePostRequest(URL: Text; BodyFilePath: Text): Boolean
+    local procedure ExecuteWebServicePostRequest(URL: Text; var TempBlob: Codeunit "Temp Blob"): Boolean
     begin
-        exit(ExecuteWebServiceRequest(URL, MethodPostTxt, BodyFilePath));
+        exit(ExecuteWebServiceRequest(URL, MethodPostTxt, TempBlob));
     end;
 
-    local procedure ExecuteWebServicePutRequest(URL: Text; BodyFilePath: Text): Boolean
+    local procedure ExecuteWebServicePutRequest(URL: Text; var TempBlob: Codeunit "Temp Blob"): Boolean
     begin
-        exit(ExecuteWebServiceRequest(URL, MethodPutTxt, BodyFilePath));
+        exit(ExecuteWebServiceRequest(URL, MethodPutTxt, TempBlob));
     end;
 
-    local procedure ExecuteWebServiceRequest(URL: Text; Method: Text[6]; BodyFilePath: Text): Boolean
+    local procedure ExecuteWebServiceRequest(URL: Text; Method: Text[6]; var TempBlob: Codeunit "Temp Blob"): Boolean
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         ErrorMessage: Text;
     begin
-        Initialize(URL, Method, BodyFilePath);
+        Initialize(URL, Method, TempBlob);
         if ExecuteWebServiceRequest() then
             exit(true);
         if IsNull(GLBHttpStatusCode) then
@@ -1237,7 +1301,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         if not GLBHttpStatusCode.Equals(GLBHttpStatusCode.Unauthorized) then
             exit(false);
         AcquireAccessTokenByRefreshToken();
-        Initialize(URL, Method, BodyFilePath);
+        Initialize(URL, Method, TempBlob);
         if ExecuteWebServiceRequest() then
             exit(true);
         if IsNull(GLBHttpStatusCode) then

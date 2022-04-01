@@ -36,7 +36,7 @@ page 5433 "Automation - RS Package File"
             CodeFilter := GetFilter(Code);
             if CodeFilter = '' then
                 Error(CodeNotSpecifiedForLinesErr);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             FilesLoaded := true;
         end;

@@ -2,6 +2,7 @@ table 1221 "Data Exch. Field"
 {
     Caption = 'Data Exch. Field';
     Permissions = TableData "Data Exch. Field" = rimd;
+    ReplicateData = false;
 
     fields
     {

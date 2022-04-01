@@ -82,8 +82,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field Posting Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Codeunit 4089383439 - NamedType 2028798418" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>There are Fixed Asset Entries with potential rounding issues.</source>
-          <target state="translated">There are Fixed Asset Entries with potential rounding issues.</target>
+          <source>There are fixed asset entries with potential rounding issues.</source>
+          <target state="translated">There are fixed asset entries with potential rounding issues.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit FA Card Notifications - NamedType NotificationForFAEntriesThatCouldByCorrectedMsg</note>
         </trans-unit>
@@ -110,6 +110,12 @@
           <target state="translated">Specifies the entry amount in currency.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rounded Amount</source>
+          <target state="translated">Rounded Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Amount - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a description of the entry.</source>
@@ -166,8 +172,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control OriginalAmount - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 798748183 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Original Amount</source>
-          <target state="translated">Original Amount</target>
+          <source>Amount</source>
+          <target state="translated">Amount</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control OriginalAmount - Property Caption</note>
         </trans-unit>
@@ -190,14 +196,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Rounding - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3814451366 - Action 1051844233 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Find Entries with issues</source>
-          <target state="translated">Find Entries with issues</target>
+          <source>Find Entries with Issues</source>
+          <target state="translated">Find Entries with Issues</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Action &amp;Prepare - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3814451366 - Action 1051844233 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>&amp;Find Entries with issues</source>
-          <target state="translated">&amp;Find Entries with issues</target>
+          <source>&amp;Find Entries with Issues</source>
+          <target state="translated">&amp;Find Entries with Issues</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Action &amp;Prepare - Property Caption</note>
         </trans-unit>
@@ -226,6 +232,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 3400326196</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1786155499 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FATS - Edit</source>
+          <target state="translated">FATS - Edit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FATS - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1611247981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FATS- Objects</source>
+          <target state="translated">FATS- Objects</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FATS - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3808080985 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FATS - Read</source>
+          <target state="translated">FATS - Read</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FATS - Read - Property Caption</note>
         </trans-unit>
       </group>
     </body>

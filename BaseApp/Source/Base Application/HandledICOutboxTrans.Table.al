@@ -122,7 +122,7 @@ table 416 "Handled IC Outbox Trans."
                     HandledICOutboxJnlLine.SetRange("Transaction Source", "Transaction Source");
                     Clear(HandledICOutboxJnlLines);
                     HandledICOutboxJnlLines.SetTableView(HandledICOutboxJnlLine);
-                    HandledICOutboxJnlLines.RunModal;
+                    HandledICOutboxJnlLines.RunModal();
                 end;
             "Source Type"::"Sales Document":
                 begin
@@ -131,7 +131,7 @@ table 416 "Handled IC Outbox Trans."
                     HandledICOutboxSalesHeader.SetRange("Transaction Source", "Transaction Source");
                     Clear(HandledICOutboxSalesDoc);
                     HandledICOutboxSalesDoc.SetTableView(HandledICOutboxSalesHeader);
-                    HandledICOutboxSalesDoc.RunModal;
+                    HandledICOutboxSalesDoc.RunModal();
                 end;
             "Source Type"::"Purchase Document":
                 begin
@@ -140,7 +140,7 @@ table 416 "Handled IC Outbox Trans."
                     HandledICOutboxPurchHdr.SetRange("Transaction Source", "Transaction Source");
                     Clear(HandledICOutboxPurchDoc);
                     HandledICOutboxPurchDoc.SetTableView(HandledICOutboxPurchHdr);
-                    HandledICOutboxPurchDoc.RunModal;
+                    HandledICOutboxPurchDoc.RunModal();
                 end;
         end;
 

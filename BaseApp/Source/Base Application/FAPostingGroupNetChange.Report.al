@@ -516,7 +516,7 @@ report 5611 "FA Posting Group - Net Change"
         DeprCalc.SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
         FALedgEntry.SetRange(
           "FA Posting Type", FALedgEntry."FA Posting Type"::"Proceeds on Disposal");
-        if not FALedgEntry.FindFirst then
+        if not FALedgEntry.FindFirst() then
             exit(true);
         exit(FALedgEntry."Disposal Calculation Method" <> FALedgEntry."Disposal Calculation Method"::Gross);
     end;

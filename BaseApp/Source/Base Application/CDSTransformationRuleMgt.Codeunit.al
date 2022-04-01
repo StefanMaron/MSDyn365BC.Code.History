@@ -62,13 +62,13 @@ codeunit 5397 "CDS Transformation Rule Mgt."
 
         case DestinationFieldRef.Type() of
             FieldType::Date, FieldType::DateTime:
-                SetDateField(TransformedValue, SourceFieldRef, DestinationFieldRef, TransformationRule);
+                SetDateField(TransformedValue, SourceFieldRef, DestinationFieldRef);
             else
                 SourceFieldRef.Value := TransformedValue;
         end;
     end;
 
-    local procedure SetDateField(ValueText: Text; var SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; TransformationRule: Record "Transformation Rule")
+    local procedure SetDateField(ValueText: Text; var SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef)
     var
         TypeHelper: Codeunit "Type Helper";
         Value: Variant;

@@ -36,7 +36,7 @@ page 823 "Name/Value Lookup"
         NextID: Integer;
     begin
         LockTable();
-        if FindLast then
+        if FindLast() then
             NextID := ID + 1
         else
             NextID := 1;

@@ -109,7 +109,7 @@ table 6505 "Lot No. Information"
 
     fieldgroups
     {
-        fieldgroup(Dropdown; "Item No.", "Variant Code", "Lot No.")
+        fieldgroup(DropDown; "Item No.", "Variant Code", "Lot No.")
         {
         }
     }

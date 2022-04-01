@@ -79,7 +79,7 @@ report 1192 "Suggest Res. Price Chg.(Price)"
                 ResPrice.SetRange(Code, ResPriceChg.Code);
                 ResPrice.SetRange(Type, ResPriceChg.Type);
                 ResPrice.SetRange("Currency Code", ResPriceChg."Currency Code");
-                if ResPrice.FindLast then begin
+                if ResPrice.FindLast() then begin
                     ResPriceChg."Current Unit Price" := ResPrice."Unit Price";
                     PriceAlreadyExists := true;
                 end else begin

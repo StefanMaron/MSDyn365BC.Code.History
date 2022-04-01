@@ -1,7 +1,17 @@
 table 394 "XBRL Taxonomy"
 {
     Caption = 'XBRL Taxonomy';
+#if not CLEAN20
     LookupPageID = "XBRL Taxonomies";
+#endif
+    ObsoleteReason = 'XBRL feature will be discontinued';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {

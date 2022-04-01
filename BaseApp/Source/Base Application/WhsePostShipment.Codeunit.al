@@ -127,7 +127,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 PostSourceDocument(WhseShptLine);
                 WhseJnlRegisterLine.LockTables();
 
-                if FindLast then;
+                if FindLast() then;
                 SetRange("Source Type");
                 SetRange("Source Subtype");
                 SetRange("Source No.");
@@ -738,7 +738,7 @@ codeunit 5763 "Whse.-Post Shipment"
         OnPostUpdateWhseDocumentsOnBeforeUpdateWhseShptHeader(WhseShptHeaderParam);
 
         WhseShptLine2.SetRange("No.", WhseShptHeaderParam."No.");
-        if not WhseShptLine2.FindFirst then begin
+        if not WhseShptLine2.FindFirst() then begin
             WhseShptHeaderParam.DeleteRelatedLines;
             WhseShptHeaderParam.Delete();
         end else begin

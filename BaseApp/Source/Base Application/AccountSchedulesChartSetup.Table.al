@@ -225,7 +225,7 @@ table 762 "Account Schedules Chart Setup"
         AccSchedChartSetupLine.DeleteAll();
 
         AccSchedChartSetupLine.Reset();
-        if TempAccSchedChartSetupLine.FindSet then
+        if TempAccSchedChartSetupLine.FindSet() then
             repeat
                 AccSchedChartSetupLine := TempAccSchedChartSetupLine;
                 AccSchedChartSetupLine.Insert();
@@ -255,9 +255,9 @@ table 762 "Account Schedules Chart Setup"
         case "Base X-Axis on" of
             "Base X-Axis on"::Period:
                 begin
-                    if ColumnLayout.FindSet then
+                    if ColumnLayout.FindSet() then
                         repeat
-                            if AccScheduleLine.FindSet then
+                            if AccScheduleLine.FindSet() then
                                 repeat
                                     InsertLineIntoTemp(TempAccSchedChartSetupLine, AccScheduleLine, ColumnLayout);
                                 until AccScheduleLine.Next() = 0;
@@ -266,12 +266,12 @@ table 762 "Account Schedules Chart Setup"
             "Base X-Axis on"::"Acc. Sched. Line",
             "Base X-Axis on"::"Acc. Sched. Column":
                 begin
-                    if AccScheduleLine.FindSet then
+                    if AccScheduleLine.FindSet() then
                         repeat
                             InsertLineIntoTemp(TempAccSchedChartSetupLine, AccScheduleLine, ColumnLayout);
                         until AccScheduleLine.Next() = 0;
                     Clear(AccScheduleLine);
-                    if ColumnLayout.FindSet then
+                    if ColumnLayout.FindSet() then
                         repeat
                             InsertLineIntoTemp(TempAccSchedChartSetupLine, AccScheduleLine, ColumnLayout);
                         until ColumnLayout.Next() = 0;
@@ -355,7 +355,7 @@ table 762 "Account Schedules Chart Setup"
         NumOfMeasuresToBeSet := MaxNumMeasures - AccSchedChartSetupLine.Count();
         if NumOfMeasuresToBeSet > 0 then begin
             AccSchedChartSetupLine.SetRange("Chart Type", AccSchedChartSetupLine."Chart Type"::" ");
-            if AccSchedChartSetupLine.FindSet then
+            if AccSchedChartSetupLine.FindSet() then
                 repeat
                     AccSchedChartSetupLine."Chart Type" := AccSchedChartSetupLine.GetDefaultAccSchedChartType();
                     AccSchedChartSetupLine.Modify();

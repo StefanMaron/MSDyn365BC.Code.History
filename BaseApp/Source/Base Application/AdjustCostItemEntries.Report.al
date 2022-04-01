@@ -102,23 +102,24 @@ report 795 "Adjust Cost - Item Entries"
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
         ItemApplnEntry: Record "Item Application Entry";
-        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
         Item: Record Item;
+        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
         OnBeforePreReport(ItemNoFilter, ItemCategoryFilter, PostToGL, Item);
 
         ItemApplnEntry.LockTable();
-        if not ItemApplnEntry.FindLast then
+        if not ItemApplnEntry.FindLast() then
             exit;
         ItemLedgEntry.LockTable();
-        if not ItemLedgEntry.FindLast then
+        if not ItemLedgEntry.FindLast() then
             exit;
-        AvgCostAdjmtEntryPoint.LockTable();
-        if AvgCostAdjmtEntryPoint.FindLast then;
+
+        AvgCostEntryPointHandler.LockBuffer();
+
         ValueEntry.LockTable();
-        if not ValueEntry.FindLast then
+        if not ValueEntry.FindLast() then
             exit;
 
         if (ItemNoFilter <> '') and (ItemCategoryFilter <> '') then

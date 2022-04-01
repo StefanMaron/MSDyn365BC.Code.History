@@ -44,6 +44,7 @@ codeunit 132802 "Upgrade Test Data Setup"
         TableMapping.Add(9999, Database::"UPG - Upgrade Tag")
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnSetupDataPerCompany', '', false, false)]
     local procedure SetupSmartListManualSetup()
     var
@@ -53,4 +54,5 @@ codeunit 132802 "Upgrade Test Data Setup"
             GuidedExperience.InsertManualSetup('SmartList stuff', 'SmartList stuff', 'SmartList description', 5, ObjectType::Page,
                   PAGE::"SmartList Designer Setup", Enum::"Manual Setup Category"::System, 'Smart,List,Designer,Stuff');
     end;
+#endif
 }

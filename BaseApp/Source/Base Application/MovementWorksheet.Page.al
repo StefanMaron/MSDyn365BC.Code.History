@@ -240,7 +240,7 @@ page 7351 "Movement Worksheet"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -375,7 +375,7 @@ page 7351 "Movement Worksheet"
                           Location."Allow Breakbulk", false, false);
 
                         ReplenishBinContent.SetTableView(BinContent);
-                        ReplenishBinContent.Run;
+                        ReplenishBinContent.Run();
                         Clear(ReplenishBinContent);
                     end;
                 }
@@ -399,7 +399,7 @@ page 7351 "Movement Worksheet"
                         BinContent.SetRange("Location Code", "Location Code");
                         GetBinContent.SetTableView(BinContent);
                         GetBinContent.InitializeReport(Rec, DummyRec, 0);
-                        GetBinContent.Run;
+                        GetBinContent.Run();
                     end;
                 }
                 separator(Action3)
@@ -422,7 +422,7 @@ page 7351 "Movement Worksheet"
                     begin
                         WhseWkshLine.SetFilter(Quantity, '>0');
                         WhseWkshLine.CopyFilters(Rec);
-                        if WhseWkshLine.FindFirst then
+                        if WhseWkshLine.FindFirst() then
                             MovementCreate(WhseWkshLine)
                         else
                             Error(Text001);

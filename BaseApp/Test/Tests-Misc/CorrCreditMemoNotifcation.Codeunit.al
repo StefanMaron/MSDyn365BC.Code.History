@@ -57,7 +57,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         Assert.AreEqual(ExpectedRemAmount, GetSalesInvoiceRemainingAmount(SalesInvoiceHeader), 'Remaining Amount is changed');
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -99,7 +99,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         PostedSalesInvoice.Close;
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         Assert.AreEqual(PaymentDocNo[2], LibraryVariableStorage.DequeueText, 'payment docNo #2');
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -182,7 +182,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         PostedSalesInvoices.Close;
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -222,7 +222,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         Assert.AreEqual(ExpectedRemAmount, GetPurchInvoiceRemainingAmount(PurchInvHeader), 'Remaining Amount is changed');
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -264,7 +264,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         PostedPurchaseInvoice.Close;
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -303,7 +303,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         Assert.AreEqual(PaymentDocNo[2], LibraryVariableStorage.DequeueText, 'payment docNo #2');
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -347,7 +347,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         PostedPurchaseInvoices.Close;
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]

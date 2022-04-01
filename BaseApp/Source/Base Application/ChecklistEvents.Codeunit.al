@@ -3,8 +3,8 @@ codeunit 1997 "Checklist Events"
     var
         YourSalesWithinOutlookVideoLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2170901', Locked = true;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::LogInManagement, 'OnAfterLogInStart', '', true, true)]
-    local procedure OnAfterLogInStart()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
+    local procedure OnAfterLogIn()
     var
         Company: Record Company;
         Checklist: Codeunit Checklist;
@@ -30,43 +30,105 @@ codeunit 1997 "Checklist Events"
 
     local procedure InitializeChecklistForEvaluationCompanies()
     var
-        TempAllProfile: Record "All Profile" temporary;
+        TempAllProfiles: Record "All Profile" temporary;
+        TempAllProfileBusinessManagerEval: Record "All Profile" temporary;
+        TempAllProfileAccountant: Record "All Profile" temporary;
+        TempAllProfileSalesOrderProcessor: Record "All Profile" temporary;
         Checklist: Codeunit Checklist;
         EnvironmentInformation: Codeunit "Environment Information";
         GuidedExperienceType: Enum "Guided Experience Type";
         SpotlightTourType: Enum "Spotlight Tour Type";
     begin
-        GetRolesForEvaluationCompany(TempAllProfile);
+        // Business Manager
+        GetRolesForEvaluationCompany(TempAllProfileBusinessManagerEval);
 
-        Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Business Manager Role Center", 1000, TempAllProfile, true);
-        Checklist.Insert(Page::"Customer List", SpotlightTourType::"Open in Excel", 2000, TempAllProfile, true);
+        Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Business Manager Role Center", 1000, TempAllProfileBusinessManagerEval, true);
+        Checklist.Insert(Page::"Customer List", SpotlightTourType::"Open in Excel", 2000, TempAllProfileBusinessManagerEval, true);
 
         if EnvironmentInformation.IsSaaS() then
-            Checklist.Insert(Page::"Item Card", SpotlightTourType::"Share to Teams", 3000, TempAllProfile, true);
+            Checklist.Insert(Page::"Item Card", SpotlightTourType::"Share to Teams", 3000, TempAllProfileBusinessManagerEval, true);
 
-        Checklist.Insert(GuidedExperienceType::Video, YourSalesWithinOutlookVideoLinkTxt, 4000, TempAllProfile, true);
+        Checklist.Insert(GuidedExperienceType::Video, YourSalesWithinOutlookVideoLinkTxt, 4000, TempAllProfileBusinessManagerEval, true);
+
+        // Accountant
+        GetAccountantRole(TempAllProfileAccountant);
+        Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Accountant Role Center", 1000, TempAllProfileAccountant, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Chart of Accounts", 3000, TempAllProfileAccountant, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Bank Account List", 4000, TempAllProfileAccountant, true);
+
+        // Sales Order Processor
+        GetSalesOrderProcessorRole(TempAllProfileSalesOrderProcessor);
+        Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Order Processor Role Center", 1000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Sales Quotes", 3000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Sales Order List", 4000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Sales Invoice List", 5000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Posted Sales Invoices", 6000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Sales Return Order List", 7000, TempAllProfileSalesOrderProcessor, true);
+
+        // all roles
+        GetAllRoles(TempAllProfiles);
+        Checklist.Insert(GuidedExperienceType::Learn, 'https://go.microsoft.com/fwlink/?linkid=2152979', 8000, TempAllProfiles, true);
     end;
 
     local procedure InitializeChecklistForNonEvaluationCompanies()
     var
-        TempAllProfile: Record "All Profile" temporary;
+        TempAllProfiles: Record "All Profile" temporary;
+        TempAllProfileBusinessManager: Record "All Profile" temporary;
+        TempAllProfileAccountant: Record "All Profile" temporary;
+        TempAllProfileSalesOrderProcessor: Record "All Profile" temporary;
         Checklist: Codeunit Checklist;
         GuidedExperienceType: Enum "Guided Experience Type";
     begin
-        GetRolesForNonEvaluationCompany(TempAllProfile);
+        // Business Manager
+        GetBussinesManagerRole(TempAllProfileBusinessManager);
+        Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Business Manager Role Center", 500, TempAllProfileBusinessManager, true);
+        Checklist.Insert(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Assisted Company Setup Wizard", 1000, TempAllProfileBusinessManager, false);
+        Checklist.Insert(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Azure AD User Update Wizard", 2000, TempAllProfileBusinessManager, false);
+        Checklist.Insert(GuidedExperienceType::"Manual Setup", ObjectType::Page, Page::Users, 3000, TempAllProfileBusinessManager, false);
+        Checklist.Insert(GuidedExperienceType::"Manual Setup", ObjectType::Page, Page::"User Settings List", 4000, TempAllProfileBusinessManager, false);
+        Checklist.Insert(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Email Account Wizard", 5000, TempAllProfileBusinessManager, false);
+        Checklist.Insert(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Data Migration Wizard", 6000, TempAllProfileBusinessManager, false);
 
-        Checklist.Insert(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Assisted Company Setup Wizard", 1000, TempAllProfile, false);
-        Checklist.Insert(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Azure AD User Update Wizard", 2000, TempAllProfile, false);
-        Checklist.Insert(GuidedExperienceType::"Manual Setup", ObjectType::Page, Page::Users, 3000, TempAllProfile, false);
-        Checklist.Insert(GuidedExperienceType::"Manual Setup", ObjectType::Page, Page::"User Settings List", 4000, TempAllProfile, false);
-        Checklist.Insert(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Email Account Wizard", 5000, TempAllProfile, false);
-        Checklist.Insert(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Data Migration Wizard", 6000, TempAllProfile, false);
-        Checklist.Insert(GuidedExperienceType::Learn, 'https://go.microsoft.com/fwlink/?linkid=2152979', 8000, TempAllProfile, false);
+        // Accountant
+        GetAccountantRole(TempAllProfileAccountant);
+        Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Accountant Role Center", 1000, TempAllProfileAccountant, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Chart of Accounts", 3000, TempAllProfileAccountant, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Bank Account List", 4000, TempAllProfileAccountant, true);
+
+        // Sales Order Processor
+        GetSalesOrderProcessorRole(TempAllProfileSalesOrderProcessor);
+        Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Order Processor Role Center", 1000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Sales Quotes", 3000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Sales Order List", 4000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Sales Invoice List", 5000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Posted Sales Invoices", 6000, TempAllProfileSalesOrderProcessor, true);
+        Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Page, Page::"Sales Return Order List", 7000, TempAllProfileSalesOrderProcessor, true);
+
+        // all roles
+        GetAllRoles(TempAllProfiles);
+        Checklist.Insert(GuidedExperienceType::Learn, 'https://go.microsoft.com/fwlink/?linkid=2152979', 8000, TempAllProfiles, true);
     end;
 
-    local procedure GetRolesForNonEvaluationCompany(var TempAllProfile: Record "All Profile" temporary)
+    local procedure GetAllRoles(var TempAllProfiles: Record "All Profile" temporary)
+    begin
+        AddRoleToList(TempAllProfiles, Page::"Business Manager Role Center");
+        AddRoleToList(TempAllProfiles, Page::"Accountant Role Center");
+        AddRoleToList(TempAllProfiles, Page::"Order Processor Role Center");
+    end;
+
+    local procedure GetBussinesManagerRole(var TempAllProfile: Record "All Profile" temporary)
     begin
         AddRoleToList(TempAllProfile, Page::"Business Manager Role Center");
+    end;
+
+    local procedure GetAccountantRole(var TempAllProfileAccountant: Record "All Profile" temporary)
+    begin
+        AddRoleToList(TempAllProfileAccountant, Page::"Accountant Role Center");
+    end;
+
+    local procedure GetSalesOrderProcessorRole(var TempAllProfileSalesOrderProcessor: Record "All Profile" temporary)
+    begin
+        AddRoleToList(TempAllProfileSalesOrderProcessor, Page::"Order Processor Role Center");
     end;
 
     local procedure GetRolesForEvaluationCompany(var TempAllProfile: Record "All Profile" temporary)

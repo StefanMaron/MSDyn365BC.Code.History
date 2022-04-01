@@ -78,18 +78,18 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - ATO");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - ATO");
 
         GLSetup.Get();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         GlobalSetup;
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -356,7 +356,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Clear(AssemblyLine);
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if not AssemblyLine.FindSet then
+        if not AssemblyLine.FindSet() then
             exit;
 
         repeat
@@ -491,7 +491,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Clear(AssemblyLine);
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if not AssemblyLine.FindSet then
+        if not AssemblyLine.FindSet() then
             exit(UnitCost);
 
         repeat
@@ -656,7 +656,7 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        if not AssemblyLine.FindSet then
+        if not AssemblyLine.FindSet() then
             exit;
 
         repeat
@@ -712,7 +712,7 @@ codeunit 137096 "SCM Kitting - ATO"
         with ItemTrackingCode do begin
             SetRange("SN Specific Tracking", true);
             SetRange("Man. Expir. Date Entry Reqd.", false);
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -751,7 +751,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         ATOLink.SetRange("Document Type", SalesDocumentType);
         ATOLink.SetRange("Document No.", SalesDocumentNo);
-        ATOLink.FindFirst;
+        ATOLink.FindFirst();
         AssemblyHeader.Get(ATOLink."Assembly Document Type", ATOLink."Assembly Document No.");
     end;
 
@@ -761,7 +761,7 @@ codeunit 137096 "SCM Kitting - ATO"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", ItemNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure CollectSetupBOMComponent(var ItemBuf: Record Item; ParentItemNo: Code[20])
@@ -797,7 +797,7 @@ codeunit 137096 "SCM Kitting - ATO"
           StrSubstNo(NoAssemblyInFilterMsg, NoOfLines, AssemblyLine.TableCaption, AssemblyLine.GetFilters));
 
         if NoOfLines > 0 then begin
-            AssemblyLine.FindFirst;
+            AssemblyLine.FindFirst();
             // Assert fields on the Assembly order line (first one of this kind only)
             Assert.AreEqual(
               BOMComponent.Description, AssemblyLine.Description,
@@ -899,7 +899,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ReservationEntry.SetRange("Entry No.", EntryNo);
 
         Commit();
-        asserterror ReservationEntry.FindFirst;
+        asserterror ReservationEntry.FindFirst();
     end;
 
     local procedure AssertDatesOnAsmOrder(AssemblyHeader: Record "Assembly Header")
@@ -967,7 +967,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -981,7 +981,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -995,7 +995,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -1008,7 +1008,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -1021,7 +1021,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -1035,7 +1035,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -1049,7 +1049,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -1062,7 +1062,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -1076,7 +1076,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -1090,7 +1090,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -1154,7 +1154,7 @@ codeunit 137096 "SCM Kitting - ATO"
         DueDate: Date;
     begin
         // Setup. Create ATO Assembly item and Sales Order.
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -1187,7 +1187,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOCheckDeleteSOLOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SOL", AssertOption::Orders);
     end;
 
@@ -1195,7 +1195,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOCheckZeroQtySOLOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::Orders);
     end;
 
@@ -1203,7 +1203,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SO", AssertOption::Orders);
     end;
 
@@ -1212,7 +1212,7 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATODeleteSOLCheckReserv()
     var
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SOL", AssertOption::Reservation);
     end;
 
@@ -1220,7 +1220,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkReserv()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::Reservation);
     end;
 
@@ -1228,7 +1228,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOCheckReserv()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SO", AssertOption::Reservation);
     end;
 
@@ -1236,7 +1236,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOLCheckHardLinkOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SOL", AssertOption::"Hard link");
     end;
 
@@ -1244,7 +1244,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkHardLinkOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link");
     end;
 
@@ -1252,7 +1252,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkHardLinkOrderWithEntries()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAOWithEntries('', "Sales Document Type"::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link", true);
     end;
 
@@ -1260,7 +1260,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOCheckHardLinkOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SO", AssertOption::"Hard link");
     end;
 
@@ -1268,7 +1268,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOCheckDeleteSOLQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Delete SOL", AssertOption::Orders);
     end;
 
@@ -1276,7 +1276,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOCheckZeroQtySOLQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Zero Quantity on SOL", AssertOption::Orders);
     end;
 
@@ -1284,7 +1284,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Delete SO", AssertOption::Orders);
     end;
 
@@ -1292,7 +1292,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOLCheckHardLinkQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Delete SOL", AssertOption::"Hard link");
     end;
 
@@ -1300,7 +1300,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkHardLinkQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link");
     end;
 
@@ -1308,7 +1308,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOCheckHardLinkQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Delete SO", AssertOption::"Hard link");
     end;
 
@@ -1316,7 +1316,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOCheckDeleteSOLBlanket()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Delete SOL", AssertOption::Orders);
     end;
 
@@ -1324,7 +1324,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOCheckZeroQtySOLBlanket()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Zero Quantity on SOL", AssertOption::Orders);
     end;
 
@@ -1332,7 +1332,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOBlanket()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Delete SO", AssertOption::Orders);
     end;
 
@@ -1340,7 +1340,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOLChkHardLinkBlanket()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Delete SOL", AssertOption::"Hard link");
     end;
 
@@ -1348,7 +1348,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkHardLnkBlanket()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link");
     end;
 
@@ -1356,7 +1356,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATODeleteSOCheckHardLnkBlanket()
     begin
-        Initialize;
+        Initialize();
         TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Delete SO", AssertOption::"Hard link");
     end;
 
@@ -1468,7 +1468,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOMultipleAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOMultipleAO('', "Sales Document Type"::Order, false, true);
     end;
 
@@ -1476,7 +1476,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOATSMixAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOMultipleAO('', "Sales Document Type"::Order, true, false);
     end;
 
@@ -1484,7 +1484,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOMultipleQuotes()
     begin
-        Initialize;
+        Initialize();
         TCXATOMultipleAO('', "Sales Document Type"::Quote, false, false);
     end;
 
@@ -1492,7 +1492,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOATSMixQuotes()
     begin
-        Initialize;
+        Initialize();
         TCXATOMultipleAO('', "Sales Document Type"::Quote, true, false);
     end;
 
@@ -1500,7 +1500,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOMultipleBlanketOrders()
     begin
-        Initialize;
+        Initialize();
         TCXATOMultipleAO('', "Sales Document Type"::"Blanket Order", false, false);
     end;
 
@@ -1508,7 +1508,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOATSMixBlanketOrders()
     begin
-        Initialize;
+        Initialize();
         TCXATOMultipleAO('', "Sales Document Type"::"Blanket Order", true, false);
     end;
 
@@ -1572,7 +1572,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOReadOnlyAO()
     begin
-        Initialize;
+        Initialize();
         TC18ATOReadOnlyAO('', LocationBlue.Code, "Sales Document Type"::Order);
     end;
 
@@ -1580,7 +1580,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOReadOnlyQuote()
     begin
-        Initialize;
+        Initialize();
         TC18ATOReadOnlyAO('', LocationBlue.Code, "Sales Document Type"::Quote);
     end;
 
@@ -1588,7 +1588,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOReadOnlyBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         TC18ATOReadOnlyAO('', LocationBlue.Code, "Sales Document Type"::"Blanket Order");
     end;
 
@@ -1646,7 +1646,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSameItemAO()
     begin
-        Initialize;
+        Initialize();
         TC110ATOMultipleSameItemAO('', "Sales Document Type"::Order);
     end;
 
@@ -1654,7 +1654,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSameItemQuote()
     begin
-        Initialize;
+        Initialize();
         TC110ATOMultipleSameItemAO('', "Sales Document Type"::Quote);
     end;
 
@@ -1662,7 +1662,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSameItemBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         TC110ATOMultipleSameItemAO('', "Sales Document Type"::"Blanket Order");
     end;
 
@@ -1711,7 +1711,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure KitInAKitAO()
     begin
-        Initialize;
+        Initialize();
         TC111ATOKitInAKitAO('', "Sales Document Type"::Order);
     end;
 
@@ -1719,7 +1719,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure KitInAKitQuote()
     begin
-        Initialize;
+        Initialize();
         TC111ATOKitInAKitAO('', "Sales Document Type"::Quote);
     end;
 
@@ -1727,7 +1727,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure KitInAKitBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         TC111ATOKitInAKitAO('', "Sales Document Type"::"Blanket Order");
     end;
 
@@ -1776,7 +1776,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATSOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATOToATSAO('', "Sales Document Type"::Order, true);
     end;
 
@@ -1784,7 +1784,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSToATOOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATOToATSAO('', "Sales Document Type"::Order, false);
     end;
 
@@ -1792,7 +1792,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATSQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOToATSAO('', "Sales Document Type"::Quote, true);
     end;
 
@@ -1800,7 +1800,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSToATOQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOToATSAO('', "Sales Document Type"::Quote, false);
     end;
 
@@ -1808,7 +1808,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATSBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATOToATSAO('', "Sales Document Type"::"Blanket Order", true);
     end;
 
@@ -1816,7 +1816,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSToATOBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATOToATSAO('', "Sales Document Type"::"Blanket Order", false);
     end;
 
@@ -1902,7 +1902,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Stock", '', AssertOption::Orders);
     end;
 
@@ -1912,7 +1912,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Stock", '', AssertOption::Reservation);
     end;
 
@@ -1922,7 +1922,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Stock", '', AssertOption::"Hard link");
     end;
 
@@ -1932,7 +1932,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Order", '', AssertOption::Orders);
     end;
 
@@ -1942,7 +1942,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Order", '', AssertOption::Reservation);
     end;
 
@@ -1952,7 +1952,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Order", '', AssertOption::"Hard link");
     end;
 
@@ -2004,7 +2004,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATSInATOCheck('', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
@@ -2012,7 +2012,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOCheckResEntry()
     begin
-        Initialize;
+        Initialize();
         TCXATSInATOCheck('', "Sales Document Type"::Order, AssertOption::Reservation);
     end;
 
@@ -2020,7 +2020,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOCheckHardLinkOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATSInATOCheck('', "Sales Document Type"::Order, AssertOption::"Hard link");
     end;
 
@@ -2028,7 +2028,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATSInATOCheck('', "Sales Document Type"::Quote, AssertOption::Orders);
     end;
 
@@ -2036,7 +2036,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOCheckHardLinkQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATSInATOCheck('', "Sales Document Type"::Quote, AssertOption::"Hard link");
     end;
 
@@ -2044,7 +2044,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOCheckBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATSInATOCheck('', "Sales Document Type"::"Blanket Order", AssertOption::Orders);
     end;
 
@@ -2052,7 +2052,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOChkHardLinkBlnktOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATSInATOCheck('', "Sales Document Type"::"Blanket Order", AssertOption::"Hard link");
     end;
 
@@ -2109,7 +2109,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::Orders);
     end;
 
@@ -2117,7 +2117,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncQtyToAsmCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::Orders);
     end;
@@ -2127,7 +2127,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Location Code", AssertOption::Orders);
     end;
 
@@ -2135,7 +2135,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Variant Code", AssertOption::Orders);
     end;
 
@@ -2143,7 +2143,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::Orders);
     end;
 
@@ -2151,7 +2151,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::Orders);
     end;
 
@@ -2159,7 +2159,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckReservation()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::Reservation);
     end;
 
@@ -2167,7 +2167,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncQtyToAsmCheckReserv()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::Reservation);
     end;
@@ -2185,7 +2185,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeCheckReserv()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Location Code",
           AssertOption::Reservation);
     end;
@@ -2194,7 +2194,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeCheckReserv()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Variant Code",
           AssertOption::Reservation);
     end;
@@ -2203,7 +2203,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckReservation()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::Reservation);
     end;
 
@@ -2211,7 +2211,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckReservation()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::Reservation);
     end;
 
@@ -2219,7 +2219,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::"Hard link");
     end;
 
@@ -2227,7 +2227,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncQtyToAsmCheckHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::"Hard link");
     end;
@@ -2237,7 +2237,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeChkHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Location Code",
           AssertOption::"Hard link");
     end;
@@ -2246,7 +2246,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeChkHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Variant Code",
           AssertOption::"Hard link");
     end;
@@ -2255,7 +2255,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::"Hard link");
     end;
 
@@ -2263,7 +2263,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::"Hard link");
     end;
 
@@ -2271,7 +2271,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::Orders);
     end;
 
@@ -2279,7 +2279,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyToAsmCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::Orders);
     end;
@@ -2289,7 +2289,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Location Code", AssertOption::Orders);
     end;
 
@@ -2297,7 +2297,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncVariantCodeCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Variant Code", AssertOption::Orders);
     end;
 
@@ -2305,7 +2305,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::Orders);
     end;
 
@@ -2313,7 +2313,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateCheckAO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::Orders);
     end;
 
@@ -2321,7 +2321,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyChkReservation()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::Reservation);
     end;
 
@@ -2329,7 +2329,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyToAsmChkReserv()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::Reservation);
     end;
@@ -2339,7 +2339,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeChkReserv()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Location Code",
           AssertOption::Reservation);
     end;
@@ -2348,7 +2348,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncVarCodeChkReserv()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Variant Code",
           AssertOption::Reservation);
     end;
@@ -2357,7 +2357,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMChkReservation()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::Reservation);
     end;
 
@@ -2365,7 +2365,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateChkReserv()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::Reservation);
     end;
 
@@ -2373,7 +2373,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyCheckHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::"Hard link");
     end;
 
@@ -2381,7 +2381,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyToAsmChkHardLnk()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::"Hard link");
     end;
@@ -2391,7 +2391,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeChkHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Location Code",
           AssertOption::"Hard link");
     end;
@@ -2400,7 +2400,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncVarCodeChkHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Variant Code",
           AssertOption::"Hard link");
     end;
@@ -2409,7 +2409,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMCheckHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::"Hard link");
     end;
 
@@ -2417,7 +2417,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateChkHardLink()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::"Hard link");
     end;
 
@@ -2425,7 +2425,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::Quantity, AssertOption::Orders);
     end;
 
@@ -2434,7 +2434,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::"Location Code", AssertOption::Orders);
     end;
 
@@ -2442,7 +2442,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::"Variant Code", AssertOption::Orders);
     end;
 
@@ -2450,7 +2450,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::UOM, AssertOption::Orders);
     end;
 
@@ -2458,7 +2458,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::"Due Date", AssertOption::Orders);
     end;
 
@@ -2466,7 +2466,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::Quantity, AssertOption::Orders);
     end;
 
@@ -2475,7 +2475,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::"Location Code", AssertOption::Orders);
     end;
 
@@ -2483,7 +2483,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncVariantCodeCheckQ()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::"Variant Code", AssertOption::Orders);
     end;
 
@@ -2491,7 +2491,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::UOM, AssertOption::Orders);
     end;
 
@@ -2499,7 +2499,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateCheckQuote()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::"Due Date", AssertOption::Orders);
     end;
 
@@ -2507,7 +2507,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync(
           "Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::Quantity, AssertOption::Orders);
     end;
@@ -2517,7 +2517,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeCheckBlnktO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::"Location Code",
           AssertOption::Orders);
     end;
@@ -2526,7 +2526,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeCheckBlnktOr()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::"Variant Code",
           AssertOption::Orders);
     end;
@@ -2535,7 +2535,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckBlnktOrdr()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::UOM,
           AssertOption::Orders);
     end;
@@ -2544,7 +2544,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckBlnktOrdr()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::"Due Date",
           AssertOption::Orders);
     end;
@@ -2561,7 +2561,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Assembly] [Item Ledger Entry]
         // [SCENARIO 376029] Item Category Code should be replicated on Item Ledger Entry after Posting Assembly Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Parent Item with Item Category Code = "X1" and Warehouse Class Code = "Y1"
         CreateItemWithCategoryAndWarehouseClass(ParentItem);
@@ -2592,7 +2592,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyCheckBlnktOrdr()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync(
           "Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::Quantity, AssertOption::Orders);
     end;
@@ -2602,7 +2602,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeCheckBlnktO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::"Location Code",
           AssertOption::Orders);
     end;
@@ -2611,7 +2611,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncVariantCodeChkBlnk()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::"Variant Code",
           AssertOption::Orders);
     end;
@@ -2620,7 +2620,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMCheckBlnktOrder()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::UOM, AssertOption::Orders);
     end;
 
@@ -2628,7 +2628,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateCheckBlnktO()
     begin
-        Initialize;
+        Initialize();
         TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::"Due Date",
           AssertOption::Orders);
     end;
@@ -2743,7 +2743,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATONegativePostAOAlone()
     begin
-        Initialize;
+        Initialize();
         TC136PostAOAlone('');
     end;
 
@@ -2778,7 +2778,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOBatchPostAO()
     begin
-        Initialize;
+        Initialize();
         TC137BatchPostAO('');
     end;
 
@@ -2827,7 +2827,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOShipSO()
     begin
-        Initialize;
+        Initialize();
         TC145PostSO('');
     end;
 
@@ -2873,7 +2873,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATOOrder()
     begin
-        Initialize;
+        Initialize();
         TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
@@ -2881,7 +2881,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATOReservationEntries()
     begin
-        Initialize;
+        Initialize();
         TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::Reservation);
     end;
 
@@ -2889,7 +2889,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATOCheckHardLink()
     begin
-        Initialize;
+        Initialize();
         TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::"Hard link");
     end;
 
@@ -2897,7 +2897,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATOQuote()
     begin
-        Initialize;
+        Initialize();
         TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
@@ -2905,7 +2905,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATOCheckHardLinkQuote()
     begin
-        Initialize;
+        Initialize();
         TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::"Hard link");
     end;
 
@@ -2913,7 +2913,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATOBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
@@ -2921,7 +2921,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOToATOCheckHardLinkBlanketO()
     begin
-        Initialize;
+        Initialize();
         TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::"Hard link");
     end;
 
@@ -3007,7 +3007,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOShipSONotEnoughComp()
     begin
-        Initialize;
+        Initialize();
         TC146PostSONotEnoughComp('');
     end;
 
@@ -3046,7 +3046,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOPostFullSO2Steps()
     begin
-        Initialize;
+        Initialize();
         TCPostFullSO2Steps('');
     end;
 
@@ -3101,7 +3101,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOPost2SOL2Steps()
     begin
-        Initialize;
+        Initialize();
         TCPost2SOL2Steps('');
     end;
 
@@ -3161,7 +3161,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOBatchPostSO()
     begin
-        Initialize;
+        Initialize();
         TCBatchPostSO('');
     end;
 
@@ -3243,7 +3243,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOPostSOVerifyEntries()
     begin
-        Initialize;
+        Initialize();
         TCPostSOVerifyEntries('');
     end;
 
@@ -3302,7 +3302,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
@@ -3336,7 +3336,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure AOVerifyDates()
     begin
-        Initialize;
+        Initialize();
         TCVerifyDates('');
     end;
 
@@ -3365,7 +3365,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOVerifyDates()
     begin
-        Initialize;
+        Initialize();
         TCATOVerifyDates('', "Sales Document Type"::Order);
     end;
 
@@ -3373,7 +3373,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOVerifyDatesQuote()
     begin
-        Initialize;
+        Initialize();
         TCATOVerifyDates('', "Sales Document Type"::Order);
     end;
 
@@ -3381,7 +3381,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ATOVerifyDatesBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         TCATOVerifyDates('', "Sales Document Type"::Order);
     end;
 
@@ -3416,7 +3416,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         CreatePerOption: Option Location,Variant,"Location & Variant";
     begin
-        Initialize;
+        Initialize();
         TCVerifyDatesWithSKU('', CreatePerOption::Variant);
     end;
 
@@ -3427,7 +3427,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         CreatePerOption: Option Location,Variant,"Location & Variant";
     begin
-        Initialize;
+        Initialize();
         TCVerifyDatesWithSKU(LocationBlue.Code, CreatePerOption::Location);
     end;
 
@@ -3438,7 +3438,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         CreatePerOption: Option Location,Variant,"Location & Variant";
     begin
-        Initialize;
+        Initialize();
         TCVerifyDatesWithSKU(LocationBlue.Code, CreatePerOption::"Location & Variant");
     end;
 
@@ -3484,7 +3484,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Sales Order]
         // [SCENARIO 379342] Unit Cost in Sales Order Line after the RollupCost function is run should be calculated on Assembly Lines only.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembled Item with Assembly Policy = Assemble-to-Order.
         // [GIVEN] List of BOM Components with costs.
@@ -3517,7 +3517,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Sales Quote]
         // [SCENARIO 379342] Unit Cost in Sales Quote Line after the RollupCost function is run should be calculated on Assembly Lines only.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembled Item with Assembly Policy = Assemble-to-Order.
         // [GIVEN] List of BOM Components with costs.
@@ -3550,7 +3550,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Sales Blanket Order]
         // [SCENARIO 379342] Unit Cost in Sales Blanket Order Line after the RollupCost function is run should be calculated on Assembly Lines only.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembled Item with Assembly Policy = Assemble-to-Order.
         // [GIVEN] List of BOM Components with costs.
@@ -3583,7 +3583,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Sales Order]
         // [SCENARIO 379342] Unit Price in Sales Order Line after the RollupPrice function is run should be calculated on Assembly Lines only.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembled Item with Assembly Policy = Assemble-to-Order.
         // [GIVEN] List of BOM Components with Sales and Resource prices.
@@ -3634,7 +3634,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Sales Quote]
         // [SCENARIO 380918] Modifications on Assembly Lines for Sales Quote on Location with "Require Shipment" = TRUE, are respected when a Sales Order is created from the Quote.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with "Require Shipment" = TRUE.
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
@@ -3664,7 +3664,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ExpectedOrderNo: Code[20];
     begin
         // [SCENARIO] Correct Assembly Order is created when Sales Order made from Sales Quote
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Quote with Assembled Item
         CreateSalesDocToMakeOrder(SalesHeader, SalesHeader."Document Type"::Quote, Item, '');
@@ -3690,7 +3690,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ExpectedOrderNo: Code[20];
     begin
         // [SCENARIO] Assembly Order and Sales Order made from Sales Quote share reservation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Quote with Assembled Item
         CreateSalesDocToMakeOrder(SalesHeader, SalesHeader."Document Type"::Quote, Item, '');
@@ -3714,7 +3714,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ExpectedOrderNo: Code[20];
     begin
         // [SCENARIO] Assembly Order and Sales Order made from Sales Quote are linked
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Quote with Assembled Item
         CreateSalesDocToMakeOrder(SalesHeader, SalesHeader."Document Type"::Quote, Item, '');
@@ -3738,7 +3738,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ExpectedOrderNo: Code[20];
     begin
         // [SCENARIO] Correct Assembly Order is created when Sales Order made from Blanket Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Blanket Order with Assembled Item
         CreateSalesDocToMakeOrder(SalesHeader, SalesHeader."Document Type"::"Blanket Order", Item, '');
@@ -3764,7 +3764,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ExpectedOrderNo: Code[20];
     begin
         // [SCENARIO] Assembly Order and Sales Order made from Blanket Sales Order share reservation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Blanket Order with Assembled Item
         CreateSalesDocToMakeOrder(SalesHeader, SalesHeader."Document Type"::"Blanket Order", Item, '');
@@ -3788,7 +3788,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ExpectedOrderNo: Code[20];
     begin
         // [SCENARIO] Assembly Order and Sales Order made from Blanket Sales Order are linked
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Blanket Order with Assembled Item
         CreateSalesDocToMakeOrder(SalesHeader, SalesHeader."Document Type"::"Blanket Order", Item, '');
@@ -3812,7 +3812,7 @@ codeunit 137096 "SCM Kitting - ATO"
         QtyToShip: Decimal;
     begin
         // [SCENARIO 359881.1] Blanket Assembly Order is updated when shipped Sales Order made from Blanket Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Make Order from Blanket Order with Assembled Item
         MakeOrderFromSalesBlanketOrder(Item, SalesOrderHeader);
@@ -3838,7 +3838,7 @@ codeunit 137096 "SCM Kitting - ATO"
         QtyToShip: Decimal;
     begin
         // [SCENARIO 359881.2] Blanket Assembly Order is updated when Undo the shipped Sales Order made from Blanket Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Make Order from Blanket Order with Assembled Item
         MakeOrderFromSalesBlanketOrder(Item, SalesOrderHeader);
@@ -3864,7 +3864,7 @@ codeunit 137096 "SCM Kitting - ATO"
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Ship", Quantity div Divider);
             Modify(true);
             exit("Qty. to Ship");
@@ -3925,7 +3925,7 @@ codeunit 137096 "SCM Kitting - ATO"
         with AssemblyHeader do begin
             SetRange("Document Type", DocumentType);
             SetRange("Item No.", ItemNo);
-            FindLast;
+            FindLast();
             Assert.AreEqual(AssembledQty, "Assembled Quantity", FieldName("Assembled Quantity"));
             Assert.AreEqual(
               AssembledQty * "Qty. per Unit of Measure",
@@ -3968,7 +3968,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -4002,7 +4002,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           0, LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -4047,7 +4047,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           0, LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
@@ -4109,7 +4109,7 @@ codeunit 137096 "SCM Kitting - ATO"
         DueDate: Date;
     begin
         // TFS: 341553 - [NAV 2013] Item Charge cost not rolling up to Assembly BOM
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         Message(''); // cover for unexpected messages from inventory setup update.
         LibraryInventory.UpdateInventorySetup(InventorySetup,
@@ -4134,7 +4134,7 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
                   AssemblyLine."No.", 2 * AssemblyLine.Quantity);
@@ -4142,7 +4142,7 @@ codeunit 137096 "SCM Kitting - ATO"
                 PurchaseLine.Modify(true);
             until AssemblyLine.Next = 0;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        PurchRcptHeader.FindLast;
+        PurchRcptHeader.FindLast();
 
         // Post Sales Order.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -4151,7 +4151,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Clear(PurchaseHeader);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
-        if PurchRcptLine.FindSet then
+        if PurchRcptLine.FindSet() then
             repeat
                 LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(PurchaseHeader, PurchRcptLine, LibraryRandom.RandDec(100, 2),
                   LibraryRandom.RandDec(100, 2));
@@ -4164,7 +4164,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryCosting.CheckAdjustment(Item);
         BOMComponent.SetRange("Parent Item No.", Item."No.");
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 CompItem.Get(BOMComponent."No.");
                 LibraryCosting.CheckAdjustment(CompItem);
@@ -4234,7 +4234,7 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure PostShippedSalesOrderAsInvoiceCheckAutomaticCostPosting()
     begin
         // Test shipped Sales Order can be posted as Invoice with Automatic Cost Posting checked.
-        Initialize;
+        Initialize();
         PostShippedSalesOrderAsInvoice(true);
     end;
 
@@ -4244,7 +4244,7 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure PostShippedSalesOrderAsInvoiceUncheckAutomaticCostPosting()
     begin
         // Test shipped Sales Order can be posted as Invoice with Automatic Cost Posting unchecked.
-        Initialize;
+        Initialize();
         PostShippedSalesOrderAsInvoice(false);
     end;
 
@@ -4259,7 +4259,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderNo: Code[20];
         OrderQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         LocationCode := SetupBinLocationInAssemblySetup;
         CreateATOItemWithSNTracking(AssembledItem);
         SetupSNTrackingAndDefaultBinContent(LocationCode, AssembledItem);
@@ -4288,7 +4288,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // Verify that Assembly components cannot be Taken twice if Bin is empty after first Take.
 
         // Setup.
-        Initialize;
+        Initialize();
         LocationCode := SetupBinLocationInAssemblySetup;
         SetupBinsForLocation(LocationCode, BinCodes);
         SetupToAssemblyBin(LocationCode, BinCodes[ArrayLen(BinCodes)]);
@@ -4320,7 +4320,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Assembly] [Assembly to Order] [Sales Order]
         // [SCENARIO 378720] Validating "Sell-to Customer No." in Sales Header should not lead to duplicating Assembly Orders
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
@@ -4424,7 +4424,7 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     local procedure FindAssemblyComp(var CompItem: Record Item; AsmItem: Record Item)
@@ -4459,7 +4459,7 @@ codeunit 137096 "SCM Kitting - ATO"
         PartialQty: Decimal;
     begin
         // Sicily VSTF 1
-        Initialize;
+        Initialize();
 
         // Setup: Create assembly item (Assembly BOM = 1 child; qty-per = 1) and an assembly order for it
         CreateAssembledItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Order", 1, LibraryRandom.RandInt(5),
@@ -4502,7 +4502,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [SCENARIO] Assembly Order is not shifted after Quantity validation for a Sales Line with an Item being Assembled to a Sales Order with "Shipment Date" > "Promised Delivery Date".
 
         // [GIVEN] Stockout Warning set to TRUE, Assembled Item.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(true);
         CreateAssembledItemWithAssemblyPolicy(AssembledItem, "Assembly Policy"::"Assemble-to-Stock");
 
@@ -4519,7 +4519,7 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyHeader.Find;
         Assert.AreEqual(DueDate, AssemblyHeader."Due Date", AssemblyHeader.FieldCaption("Due Date"));
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -4537,7 +4537,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [FEATURE] [Assembly] [Reservation]
         // [SCENARIO 376780] Validation of Due Date in assembly order fails if the new date conflicts with existing reservation.
 
-        Initialize;
+        Initialize();
         // [GIVEN] Item "I" with linked assembly list and "Assemble-to-Stock" replenishment
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Stock", 1, 0, 0, 1, Item."Costing Method"::Standard);
 
@@ -4574,7 +4574,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [SCENARIO 376713] Validation of shipment date on sales order does not change due date on assembly orders linked to other sales orders
 
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(true);
 
         // [GIVEN] Item "I" with assembly BOM
@@ -4624,7 +4624,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Assembly] [Assembly to Order] [Sales Order] [Preview Posting]
         // [SCENARIO 209211] Preview posting of Sales Order with assembled-to-order item should show a result page after it is completed. Posting No. and Status of the assembly order should not be changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly-to-Order item "I" with "X" components.
         NoOfItems := LibraryRandom.RandIntInRange(2, 5);
@@ -4801,7 +4801,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         PrepareLocationForBins(LocationCode);
         for Counter := 1 to ArrayLen(BinCodes) do begin
-            BinCodes[Counter] := LibraryUtility.GenerateGUID;
+            BinCodes[Counter] := LibraryUtility.GenerateGUID();
             LibraryWarehouse.CreateBin(Bin, LocationCode, BinCodes[Counter], '', '');
         end;
     end;
@@ -4829,7 +4829,7 @@ codeunit 137096 "SCM Kitting - ATO"
         with BOMComponent do begin
             SetRange("Parent Item No.", ParentItemNo);
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             ItemNo := "No.";
         end;
 
@@ -4846,7 +4846,7 @@ codeunit 137096 "SCM Kitting - ATO"
             SetRange("Source Type", DATABASE::"Assembly Line");
             SetRange("Source Subtype", AssemblyType);
             SetRange("Source No.", AssemblyNo);
-            FindFirst;
+            FindFirst();
             exit("Bin Code");
         end;
     end;
@@ -5015,7 +5015,7 @@ codeunit 137096 "SCM Kitting - ATO"
         with ItemLedgerEntry do begin
             SetRange("Item No.", Item."No.");
             SetRange("Order No.", OrderNo);
-            FindFirst;
+            FindFirst();
             TestField("Item Category Code", Item."Item Category Code");
         end;
     end;
@@ -5027,7 +5027,7 @@ codeunit 137096 "SCM Kitting - ATO"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         PostedAssemblyHeader.SetRange("Order No.", AssemblyOrderNo);
-        PostedAssemblyHeader.FindLast;
+        PostedAssemblyHeader.FindLast();
         VerifyAssemblyQtyOnWhseEntry(
           PostedAssemblyHeader."Item No.", DATABASE::"Assembly Header",
           WarehouseEntry."Source Document"::"Assembly Order", AssemblyOrderNo, OrderQty);
@@ -5112,7 +5112,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
 
@@ -5159,7 +5159,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [FEATURE] [Sales] [Invoice] [Shipment]
         // [SCENARIO 257497] Invoicing a sales order with a linked assembly should update "Quantity Invoiced" in the posted shipment
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with a linked assembly order, "Quantity" = 16
         CreateSalesDocToMakeOrder(SalesHeader, SalesHeader."Document Type"::Order, Item, '');
@@ -5177,7 +5177,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [THEN] "Quantity Invoiced" in the posted sales shipment is 8
         SalesShipmentLine.SetRange("Order No.", SalesLine."Document No.");
         SalesShipmentLine.SetRange("Order Line No.", SalesLine."Line No.");
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
 
         SalesShipmentLine.TestField("Quantity Invoiced", SalesLine."Qty. to Invoice");
     end;
@@ -5196,7 +5196,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [FEATURE] [Sales] [Invoice] [Shipment]
         // [SCENARIO 257497] "Quantity Invoiced" in a posted sales shipment should be equal to the full invoiced quantity when shipment is partially supplied from inventory, and rest is assembled in ATO assembly
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order "SO" for item "I", "Quantity" = 15
         CreateSalesDocToMakeOrder(SalesHeader, SalesHeader."Document Type"::Order, Item, '');
@@ -5218,7 +5218,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         SalesShipmentLine.SetRange("Order No.", SalesLine."Document No.");
         SalesShipmentLine.SetRange("Order Line No.", SalesLine."Line No.");
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
 
         // [THEN] "Quantity Invoiced" in the posted sales shipment is 15
         SalesShipmentLine.TestField("Quantity Invoiced", SalesLine."Qty. to Invoice");
@@ -5236,7 +5236,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Sales] [Order] [Shipment] [Item Tracking]
         // [SCENARIO 257670] Serial nos. for those "Qty. to Handle" is set to 0 in item tracking lines on sales line, are not assembled by linked assembly-to-order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assemble-to-order item "I" set up for serial no. tracking.
         CreateATOItemWithSNTracking(Item);
@@ -5286,7 +5286,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Sales] [Order] [Item Tracking] [Reservation] [Assemble-to-Stock]
         // [SCENARIO 257670] All serial nos. defined in item tracking for Assembly Order are posted, even though "Qty. to Handle" = 0 for several serial nos. in item tracking on sales line, which is reserved from this assembly-to-stock.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assemble-to-order item "I" set up for serial no. tracking.
         CreateATOItemWithSNTracking(Item);
@@ -5337,7 +5337,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // [FEATURE] [Sales] [Blanket Order] [No. Series]
         // [SCENARIO 328542] Blocked manual series no. for blanket assembly orders does not prevent from creating a new linked assembly.
-        Initialize;
+        Initialize();
 
         // [GIVEN] No. Series "B-ASM" for blanket assembly order nos. with disabled "Manual Nos." flag.
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);

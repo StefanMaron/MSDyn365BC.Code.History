@@ -35,7 +35,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SourceNo: Code[20];
         DestNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         SourceNo := CreateSourceDocument(SourceType, SourceUnpostedType);
         CreateEmptySalesHeader(SalesHeader, DestType);
         DestNo := CopyToDestinationSalesDocument(SourceType, SourceNo, SalesHeader);
@@ -127,13 +127,13 @@ codeunit 137212 "SCM Copy Document Mgt."
         SourceNo: Code[20];
     begin
         // [FEATURE] [Item Charge]
-        Initialize;
+        Initialize();
 
         SourceNo := CreateSourceDocument("Sales Document Type From"::"Posted Shipment", SalesHeader."Document Type"::Order);
         SalesShipmentHeader.Get(SourceNo);
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesShipmentHeader."Sell-to Customer No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", CreateItemCharge, 1);
@@ -162,7 +162,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         DestNo: Code[20];
         ExpectedErrorMsg: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         SourceType := "Sales Document Type From"::Order;
         DestType := SalesHeader."Document Type"::Order;
@@ -198,7 +198,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [SCENARIO 71922] No error occurs while creating Sales Quote from Copy Document.
         // [GIVEN] Create Sales Quote without Sell-to Customer No.
-        Initialize;
+        Initialize();
         CreateSalesQuote(SalesHeader);
         CreateEmptySalesHeader(SalesHeader2, SalesHeader2."Document Type"::Quote);
 
@@ -249,7 +249,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [SCENARIO 371951] Default Dimensions used for Sales Document when running Copy Sales Document with "Recalculate Lines" = Yes
         // [FEATURE] [Sales] [Dimension] [Recalculate Lines]
 
-        Initialize;
+        Initialize();
         CopyDocumentMgt.SetProperties(true, true, false, false, true, false, false);
         // [GIVEN] Posted Sales Order with Dimension Set ID in Sales Line = "X" (different from Default Dimension Set ID = "Y")
         DefaultDimSetID := PostSalesOrderWithUpdatedDimensions(SalesLine, PostedDocNo);
@@ -276,7 +276,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [SCENARIO 371951] Dimensions from Posted Sales Order used for Sales Document when running Copy Sales Document with "Recalculate Lines" = No
         // [FEATURE] [Sales] [Dimension]
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Sales Order with Dimension Set ID in Sales Line = "X" (different from Default Dimension Set ID = "Y")
         PostSalesOrderWithUpdatedDimensions(SalesLine, PostedDocNo);
         ExpectedDimSetID := SalesLine."Dimension Set ID";
@@ -303,7 +303,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [SCENARIO 371951] Default Dimensions used for Purchase Document when running Copy Purch. Document with "Recalculate Lines" = Yes
         // [FEATURE] [Purchase] [Dimension] [Recalculate Lines]
 
-        Initialize;
+        Initialize();
         CopyDocumentMgt.SetProperties(true, true, false, false, true, false, false);
         // [GIVEN] Posted Purch. Order with Dimension Set ID in Purch. Line = "X" (different from Default Dimension Set ID = "Y")
         DefaultDimSetID := PostPurchOrderWithUpdatedDimensions(PurchLine, PostedDocNo);
@@ -330,7 +330,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [SCENARIO 371951] Dimensions from Posted Purchase Order used for Purchase Document when running Copy Purch. Document with "Recalculate Lines" = No
         // [FEATURE] [Purchase] [Dimension]
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Purch. Order with Dimension Set ID in Purch. Line = "X" (different from Default Dimension Set ID = "Y")
         PostPurchOrderWithUpdatedDimensions(PurchLine, PostedDocNo);
         ExpectedDimSetID := PurchLine."Dimension Set ID";
@@ -359,7 +359,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Item Charge] [Get Receipt Lines]
         // [SCENARIO 377987] "Get Receipt Lines" function copies all item charges assigned to a single purchase receipt line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a purchase order with one line of type "Item"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, '');
@@ -405,7 +405,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [FEATURE] [Item Charge] [Get Receipt Lines]
         // [SCENARIO 377987] "Get Receipt Lines" function copies item charge assignments when a single item charge line is assigned to several purchase receipt lines
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a purchase order with two lines of type "Item"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, '');
@@ -452,7 +452,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [FEATURE] [Item Charge] [Get Shipment Lines]
         // [SCENARIO 377987] "Get Shipment Lines" function copies all item charges assigned to a single sales shipment line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a sales order with one line of type "Item"
         LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, '');
@@ -498,7 +498,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [FEATURE] [Item Charge] [Get Shipment Lines]
         // [SCENARIO 377987] "Get Shipment Lines" function copies item charge assignments when a single item charge line is assigned to several sales shipment lines
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a sales order with two lines of type "Item"
         LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, '');
@@ -544,7 +544,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Purchase] [Item Tracking]
         // [SCENARIO 381103] No Item Tracking should be created for the Purchase Line copied from Purchase with fully sold Lot.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item "I".
         ItemNo := CreateLotTrackedItem;
@@ -581,7 +581,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Sales] [Return Order] [Order] [Item Tracking] [Assembly] [Assemble-to-Order]
         // [SCENARIO 218977] Sales return order can be populated using "Get Posted Document Lines to Reverse" function from posted sales invoice with linked assembly order and serial no. tracking.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Serial no.-tracked assembled item "I" with "Assemble-to-Order" assembly policy.
         CreateSNTrackedItem(Item);
@@ -600,7 +600,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [GIVEN] Serial nos. "S1..SQ" are assigned to the linked Assembly Order.
         // [GIVEN] The sales order is posted with "Ship & Invoice" option.
         SalesQty := LibraryRandom.RandInt(10);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         PostedInvoiceNo :=
           CreateAndPostSalesOrderWithAsmToOrderAndTracking(CustomerNo, Item."No.", SalesQty, ItemTrackingMode::"Assign Serial Nos.");
 
@@ -633,7 +633,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Purchase] [Get Receipt Lines] [Item Charge] [Rounding]
         // [SCENARIO 272850] "Qty. to Assign" is rounded on purchase invoice line for item charge generated using "Get Receipt Lines".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with item line and item charge line. Quantity = 3.
         // [GIVEN] Set item charge assignment.
@@ -674,7 +674,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Sales] [Get Shipment Lines] [Item Charge] [Rounding]
         // [SCENARIO 272850] "Qty. to Assign" is rounded on sales invoice line for item charge generated using "Get Shipment Lines".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with item line and item charge line. Quantity = 3.
         // [GIVEN] Set item charge assignment.
@@ -715,7 +715,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Purchase] [Get Return Shipment Lines] [Item Charge] [Rounding]
         // [SCENARIO 272850] "Qty. to Assign" is rounded on purchase credit memo line for item charge generated using "Get Return Shipment Lines".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase return order with item line and item charge line. Quantity = 3.
         // [GIVEN] Set item charge assignment.
@@ -756,7 +756,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Sales] [Get Return Receipt Lines] [Item Charge] [Rounding]
         // [SCENARIO 272850] "Qty. to Assign" is rounded on sales credit memo line for item charge generated using "Get Return Receipt Lines".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales return order with item line and item charge line. Quantity = 3.
         // [GIVEN] Set item charge assignment.
@@ -795,7 +795,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Sales] [Return Order] [Order]
         // [SCENARIO 228033] Ship-to Address is validated from customer card when sales order is copied from sales return order with blank ship-to code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Address = "A" and "Address 2" = "A2".
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -839,10 +839,10 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [FEATURE] [Sales] [Get Posted Document Lines to Reverse] [Invoice]
         // [SCENARIO 279030] Sales Lines with same "Line No." in different invoice documents and same Shipment "Document No." can be copied
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Customer
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Sales Order for Customer with two Sales Lines
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
@@ -891,10 +891,10 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [FEATURE] [Purchase] [Get Posted Document Lines to Reverse] [Invoice]
         // [SCENARIO 279030] Purchase Lines with same "Line No." in different invoice documents and same Receipt "Document No." can be copied
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Vendor
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Purchase Order for Vendor with two Purchase Lines
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
@@ -945,7 +945,7 @@ codeunit 137212 "SCM Copy Document Mgt."
 
     begin
         // [SCENARIO 342934] Correct posted sales order that is linked to two shiments and assembly to order
-        Initialize;
+        Initialize();
 
         LibraryAssembly.SetStockoutWarning(false);
         LibraryPurchase.CreateVendor(Vendor);
@@ -1016,7 +1016,7 @@ codeunit 137212 "SCM Copy Document Mgt."
 
     begin
         // [SCENARIO 342934] copy posted sales order that is linked to two shiments and assembly to order
-        Initialize;
+        Initialize();
 
         LibraryAssembly.SetStockoutWarning(false);
         LibraryPurchase.CreateVendor(Vendor);
@@ -1082,7 +1082,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Sales] [Order] [Assemble-to-Order] [Costing Method]
         // [SCENARIO 312542] Copying of sales order with linked assembly-to-order and turned OFF "Recalculate Lines" option copies unit cost of assembly component from the source assembly line, despite the changed standard cost.
-        Initialize;
+        Initialize();
 
         LibraryAssembly.SetStockoutWarning(false);
 
@@ -1136,7 +1136,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         // [FEATURE] [Sales] [Order] [Assemble-to-Order] [Costing Method]
         // [SCENARIO 312542] Copying of sales order with linked assembly-to-order and turned ON "Recalculate Lines" option retrieves unit cost of assembly component from the item card.
-        Initialize;
+        Initialize();
 
         LibraryAssembly.SetStockoutWarning(false);
 
@@ -1304,18 +1304,18 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Copy Document Mgt.");
 
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Copy Document Mgt.");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySales.SetCreditWarningsToNoWarnings;
 
@@ -1351,25 +1351,25 @@ codeunit 137212 "SCM Copy Document Mgt."
             "Sales Document Type From"::"Posted Credit Memo":
                 begin
                     SalesCrMemoHeader.SetRange("Return Order No.", SalesHeader."No.");
-                    SalesCrMemoHeader.FindFirst;
+                    SalesCrMemoHeader.FindFirst();
                     DocNo := SalesCrMemoHeader."No.";
                 end;
             "Sales Document Type From"::"Posted Shipment":
                 begin
                     SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-                    SalesShipmentHeader.FindFirst;
+                    SalesShipmentHeader.FindFirst();
                     DocNo := SalesShipmentHeader."No.";
                 end;
             "Sales Document Type From"::"Posted Invoice":
                 begin
                     SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
-                    SalesInvoiceHeader.FindFirst;
+                    SalesInvoiceHeader.FindFirst();
                     DocNo := SalesInvoiceHeader."No.";
                 end;
             "Sales Document Type From"::"Posted Return Receipt":
                 begin
                     ReturnReceiptHeader.SetRange("Return Order No.", SalesHeader."No.");
-                    ReturnReceiptHeader.FindFirst;
+                    ReturnReceiptHeader.FindFirst();
                     DocNo := ReturnReceiptHeader."No.";
                 end;
         end;
@@ -1402,7 +1402,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         DocNo: Code[20];
         DimensionSetID: Integer;
     begin
-        Initialize;
+        Initialize();
         CopyDocumentMgt.SetProperties(true, RecalculateLines, false, false, true, false, false);
 
         CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
@@ -1425,7 +1425,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         DocNo: Code[20];
         DimensionSetID: Integer;
     begin
-        Initialize;
+        Initialize();
         CopyDocumentMgt.SetProperties(true, RecalculateLines, false, false, true, false, false);
 
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
@@ -1555,12 +1555,12 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         SalesLine2.SetRange("Document No.", SalesHeader."No.");
         SalesLine2.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine2.SetRange(Type, SalesLine2.Type::Item);
-        SalesLine2.FindFirst;
+        SalesLine2.FindFirst();
 
         LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
           SalesLine, SalesLine2."Document Type", SalesLine2."Document No.",
@@ -1711,7 +1711,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     var
         CustomerTemplate: Record "Customer Template";
     begin
-        CustomerTemplate.FindFirst;
+        CustomerTemplate.FindFirst();
         exit(CustomerTemplate.Code);
     end;
 #endif
@@ -1825,7 +1825,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        BOMComponent.FindFirst;
+        BOMComponent.FindFirst();
         exit(BOMComponent."No.");
     end;
 
@@ -1834,7 +1834,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetId);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionValueCode := DimensionSetEntry."Dimension Value Code";
         Dimension.Get(DimensionSetEntry."Dimension Code");
     end;
@@ -1843,14 +1843,14 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         DimensionValue.SetRange("Dimension Code", DimensionCode);
         DimensionValue.SetFilter(Code, '<>%1', OldDimensionValueCode);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
     end;
 
     local procedure FindSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
     end;
 
     local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; OrderNo: Code[20]; ItemNo: Code[20])
@@ -1877,7 +1877,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
-        PurchLine.FindLast;
+        PurchLine.FindLast();
     end;
 
     local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20]; ItemNo: Code[20])
@@ -1906,12 +1906,12 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         AssembleToOrderLink.SetRange("Document Type", SalesHeader."Document Type");
         AssembleToOrderLink.SetRange("Document No.", SalesHeader."No.");
-        AssembleToOrderLink.FindFirst;
+        AssembleToOrderLink.FindFirst();
         AssemblyLine.SetRange("Document Type", AssembleToOrderLink."Assembly Document Type");
         AssemblyLine.SetRange("Document No.", AssembleToOrderLink."Assembly Document No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
         AssemblyLine.SetRange("No.", ItemNo);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     local procedure GenerateDimensions(var Dimension: Record Dimension; var DimensionValue: Record "Dimension Value")
@@ -2042,7 +2042,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         FromItemChargeAssignmentPurch.FindSet();
         repeat
             ToItemChargeAssignmentPurch.SetRange("Item Charge No.", FromItemChargeAssignmentPurch."Item Charge No.");
-            ToItemChargeAssignmentPurch.FindFirst;
+            ToItemChargeAssignmentPurch.FindFirst();
             ToItemChargeAssignmentPurch.TestField("Qty. to Assign", FromItemChargeAssignmentPurch."Qty. to Assign");
         until FromItemChargeAssignmentPurch.Next = 0;
     end;
@@ -2059,7 +2059,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         FromItemChargeAssignmentSales.FindSet();
         repeat
             ToItemChargeAssignmentSales.SetRange("Item Charge No.", FromItemChargeAssignmentSales."Item Charge No.");
-            ToItemChargeAssignmentSales.FindFirst;
+            ToItemChargeAssignmentSales.FindFirst();
             ToItemChargeAssignmentSales.TestField("Qty. to Assign", FromItemChargeAssignmentSales."Qty. to Assign");
         until FromItemChargeAssignmentSales.Next = 0;
     end;

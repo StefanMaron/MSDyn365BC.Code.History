@@ -1,4 +1,4 @@
-﻿report 99001025 "Refresh Production Order"
+report 99001025 "Refresh Production Order"
 {
     Caption = 'Refresh Production Order';
     ProcessingOnly = true;
@@ -13,11 +13,9 @@
 
             trigger OnAfterGetRecord()
             var
-                Item: Record Item;
                 ProdOrderLine: Record "Prod. Order Line";
                 ProdOrderRtngLine: Record "Prod. Order Routing Line";
                 ProdOrderComp: Record "Prod. Order Component";
-                Family: Record Family;
                 ProdOrder: Record "Production Order";
                 ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
                 RoutingNo: Code[20];
@@ -287,7 +285,7 @@
             SetSourceFilter(SourceType, Status.AsInteger(), ProdOrderNo, LineNo, true);
             SetSourceFilter('', ProdOrderLineNo);
             SetRange("Reservation Status", "Reservation Status"::Reservation);
-            if FindFirst then begin
+            if FindFirst() then begin
                 Get("Entry No.", not Positive);
                 exit(
                   not (("Source Type" = SourceType2) and

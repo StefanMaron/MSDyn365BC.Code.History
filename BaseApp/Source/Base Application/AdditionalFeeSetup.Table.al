@@ -101,7 +101,7 @@ table 1050 "Additional Fee Setup"
         AdditionalFee: Decimal;
     begin
         with AdditionalFeeSetup do begin
-            if not FindSet then
+            if not FindSet() then
                 exit(0);
             repeat
                 if RemainingAmount >= "Threshold Remaining Amount" then begin
@@ -130,7 +130,7 @@ table 1050 "Additional Fee Setup"
         RangeAddFeeAmount: Decimal;
     begin
         with AdditionalFeeSetup do begin
-            if not FindSet then
+            if not FindSet() then
                 exit(0);
             repeat
                 if RemainingAmount >= "Threshold Remaining Amount" then begin
@@ -170,7 +170,7 @@ table 1050 "Additional Fee Setup"
             SetRange("Reminder Terms Code", ReminderLevel."Reminder Terms Code");
             SetRange("Reminder Level No.", ReminderLevel."No.");
             SetRange("Currency Code", CurrencyCode);
-            if FindFirst then begin
+            if FindFirst() then begin
                 if AddFeeCalcType = ReminderLevel."Add. Fee Calculation Type"::"Single Dynamic" then
                     exit(CalculateAddFeeSingleDynamic(AdditionalFeeSetup, RemAmount));
 
@@ -179,7 +179,7 @@ table 1050 "Additional Fee Setup"
             end else
                 if CurrencyCode <> '' then begin
                     SetRange("Currency Code", '');
-                    if FindFirst then begin
+                    if FindFirst() then begin
                         RemAmountLCY :=
                           CurrExchRate.ExchangeAmtFCYToLCY(
                             PostingDate, CurrencyCode, RemAmount, CurrExchRate.ExchangeRate(PostingDate, CurrencyCode));

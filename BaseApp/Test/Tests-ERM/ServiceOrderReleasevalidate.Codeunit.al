@@ -28,7 +28,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         WhseShptHeader: Record "Warehouse Shipment Header";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServHeader);
         LibraryService.ReopenServiceDocument(ServHeader);
@@ -48,7 +48,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         asserterror ServPostYesNo.PostDocumentWithLines(ServHeader, ServiceLine);
     end;
@@ -61,7 +61,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServiceHeader, ServiceLine, ServiceItemLine);
         asserterror ServiceLine.Validate("Gen. Prod. Posting Group", CreateNewGenPPGroup);
     end;
@@ -74,7 +74,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         asserterror ServiceLine.Validate("Job Remaining Qty.", (ServiceLine."Job Remaining Qty." - 1.0));
         asserterror ServiceLine.Validate("Job Remaining Qty.", (ServiceLine."Job Remaining Qty." + 1.0));
@@ -88,7 +88,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         asserterror ServiceLine.Validate("Allow Invoice Disc.", (not ServiceLine."Allow Invoice Disc."));
     end;
@@ -103,9 +103,9 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         ServiceOrderTP: TestPage "Service Order";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
-        ServiceOrderTP.OpenNew;
+        ServiceOrderTP.OpenNew();
         ServiceOrderTP.GotoRecord(ServHeader);
         ServiceOrderTP.ServItemLines."Service Lines".Invoke;
         ServiceOrderTP.Close;
@@ -119,7 +119,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         asserterror ServiceLine.Validate("Line Discount Amount", (10 + ServiceLine."Line Discount Amount"));
     end;
@@ -133,10 +133,10 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         Location: Record Location;
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServiceHeader, ServiceLine, ServiceItemLine);
         Location.SetFilter(Code, '<>%1', ServiceLine."Location Code");
-        Location.FindFirst;
+        Location.FindFirst();
         asserterror ServiceLine.Validate("Location Code", Location.Code);
     end;
 
@@ -149,9 +149,9 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         Location: Record Location;
     begin
-        Initialize;
+        Initialize();
         Location.SetFilter(Code, '<>%1', ServiceLine."Location Code");
-        if Location.FindFirst then
+        if Location.FindFirst() then
             asserterror ServiceLine.Validate("Location Code", Location.Code);
         CreateWhsShpReopenOrder(ServiceHeader, ServiceItemLine, ServiceLine);
     end;
@@ -165,7 +165,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         NeedDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         NeedDate := ServiceLine."Needed by Date";
         if NeedDate <> 0D then
@@ -183,7 +183,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServiceHeader, ServiceLine, ServiceItemLine);
         asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
     end;
@@ -196,7 +196,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateWhsShpReopenOrder(ServiceHeader, ServiceItemLine, ServiceLine);
         asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
     end;
@@ -210,7 +210,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         PlanDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         PlanDate := ServiceLine."Planned Delivery Date";
         if PlanDate <> 0D then
@@ -228,7 +228,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         asserterror ServiceLine.Validate(Quantity, (ServiceLine.Quantity + 1.0));
     end;
@@ -241,7 +241,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateWhsShpReopenOrder(ServHeader, ServiceItemLine, ServiceLine);
         asserterror ServiceLine.Validate(Quantity, (ServiceLine.Quantity + 1.0));
     end;
@@ -254,7 +254,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         asserterror ServiceLine.Validate("Qty. to Invoice", (ServiceLine."Qty. to Invoice" + 1.0));
     end;
@@ -269,9 +269,9 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         ServiceOrderTP: TestPage "Service Order";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
-        ServiceOrderTP.OpenNew;
+        ServiceOrderTP.OpenNew();
         ServiceOrderTP.GotoRecord(ServHeader);
         ServiceOrderTP.ServItemLines."Service Lines".Invoke;
         ServiceOrderTP.Close;
@@ -285,7 +285,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         Commit();
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Resource);
@@ -301,7 +301,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateWhsShpReopenOrder(ServHeader, ServiceItemLine, ServiceLine);
         Commit();
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Resource);
@@ -318,11 +318,11 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         ItemUOM: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServiceHeader, ServiceLine, ServiceItemLine);
         ItemUOM.SetRange("Item No.", ServiceLine."No.");
         ItemUOM.SetFilter(Code, '<>%1', ServiceLine."Unit of Measure Code");
-        if ItemUOM.FindFirst then
+        if ItemUOM.FindFirst() then
             asserterror ServiceLine.Validate("Unit of Measure Code", ItemUOM.Code);
     end;
 
@@ -335,11 +335,11 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         ItemUOM: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
         CreateWhsShpReopenOrder(ServiceHeader, ServiceItemLine, ServiceLine);
         ItemUOM.SetRange("Item No.", ServiceLine."No.");
         ItemUOM.SetFilter(Code, '<>%1', ServiceLine."Unit of Measure Code");
-        if ItemUOM.FindFirst then
+        if ItemUOM.FindFirst() then
             asserterror ServiceLine.Validate("Unit of Measure Code", ItemUOM.Code);
     end;
 
@@ -352,11 +352,11 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         CreateAndReleaseServOrder(ServiceHeader, ServiceLine, ServiceItemLine);
         ItemVariant.SetRange("Item No.", ServiceLine."No.");
         ItemVariant.SetFilter(Code, '<>%1', ServiceLine."Variant Code");
-        if ItemVariant.FindFirst then
+        if ItemVariant.FindFirst() then
             asserterror ServiceLine.Validate("Variant Code", ItemVariant.Code);
     end;
 
@@ -369,11 +369,11 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         CreateWhsShpReopenOrder(ServiceHeader, ServiceItemLine, ServiceLine);
         ItemVariant.SetRange("Item No.", ServiceLine."No.");
         ItemVariant.SetFilter(Code, '<>%1', ServiceLine."Variant Code");
-        if ItemVariant.FindFirst then
+        if ItemVariant.FindFirst() then
             asserterror ServiceLine.Validate("Variant Code", ItemVariant.Code);
     end;
 
@@ -386,7 +386,7 @@ codeunit 136141 "Service Order Release validate"
         ServiceLine: Record "Service Line";
         ServiceLine2: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServHeader, ServiceLine, ServiceItemLine);
         ServiceLine2.Copy(ServiceLine);
         LibraryService.ReleaseServiceDocument(ServHeader);
@@ -429,7 +429,7 @@ codeunit 136141 "Service Order Release validate"
         LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
-        VatProductPostingGroup.FindFirst;
+        VatProductPostingGroup.FindFirst();
         GenProductPostingGroup."Def. VAT Prod. Posting Group" := VatProductPostingGroup.Code;
         GenProductPostingGroup."Auto Insert Default" := true;
         GenProductPostingGroup.Modify(true);
@@ -459,7 +459,7 @@ codeunit 136141 "Service Order Release validate"
         LocationWhite: Record Location;
     begin
         LocationWhite.SetRange("Directed Put-away and Pick", true);
-        LocationWhite.FindFirst;
+        LocationWhite.FindFirst();
         exit(LocationWhite.Code);
     end;
 
@@ -506,7 +506,7 @@ codeunit 136141 "Service Order Release validate"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Order Release validate");
 
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, GetWhiteLocation, false);
         Commit();
         isInitialized := true;

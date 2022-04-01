@@ -327,7 +327,7 @@ report 702 "Inventory Posting - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry.FindSet then
+                            if not DimSetEntry.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then

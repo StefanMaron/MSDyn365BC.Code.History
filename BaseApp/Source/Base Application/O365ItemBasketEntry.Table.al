@@ -89,7 +89,7 @@ table 2101 "O365 Item Basket Entry"
         SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
         SalesHeader.Insert(true);
 
-        if not FindSet then
+        if not FindSet() then
             exit;
         repeat
             SalesLine.Init();

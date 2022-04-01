@@ -513,7 +513,7 @@ report 600 "Approval User Setup Test"
                     end;
                     if not Brk then begin
                         UserSetup.SetRange("User ID", "Approver ID");
-                        if UserSetup.FindFirst then begin
+                        if UserSetup.FindFirst() then begin
                             repeat
                                 UserTEMP := UserSetup;
                                 if not UserTEMP.Insert() then begin
@@ -554,7 +554,7 @@ report 600 "Approval User Setup Test"
 
                                 if not Brk then begin
                                     UserSetup.SetRange("User ID", UserSetup."Approver ID");
-                                    if UserSetup.FindFirst then
+                                    if UserSetup.FindFirst() then
                                         UserSetup.SetRange("User ID", UserSetup."Approver ID");
                                 end;
                                 if I = 500 then
@@ -1069,7 +1069,7 @@ report 600 "Approval User Setup Test"
                     end;
                     if not Brk then begin
                         UserSetup.SetRange("User ID", "Approver ID");
-                        if UserSetup.FindFirst then begin
+                        if UserSetup.FindFirst() then begin
                             repeat
                                 UserTEMP := UserSetup;
                                 if not UserTEMP.Insert() then begin
@@ -1107,7 +1107,7 @@ report 600 "Approval User Setup Test"
 
                                 if not Brk then begin
                                     UserSetup.SetRange("User ID", UserSetup."Approver ID");
-                                    if UserSetup.FindFirst then
+                                    if UserSetup.FindFirst() then
                                         UserSetup.SetRange("User ID", UserSetup."Approver ID");
                                 end;
                                 if I = 500 then
@@ -1621,7 +1621,7 @@ report 600 "Approval User Setup Test"
                     end;
                     if not Brk then begin
                         UserSetup.SetRange("User ID", "Approver ID");
-                        if UserSetup.FindFirst then begin
+                        if UserSetup.FindFirst() then begin
                             repeat
                                 UserTEMP := UserSetup;
                                 if not UserTEMP.Insert() then begin
@@ -1659,7 +1659,7 @@ report 600 "Approval User Setup Test"
 
                                 if not Brk then begin
                                     UserSetup.SetRange("User ID", UserSetup."Approver ID");
-                                    if UserSetup.FindFirst then
+                                    if UserSetup.FindFirst() then
                                         UserSetup.SetRange("User ID", UserSetup."Approver ID");
                                 end;
                                 if I = 500 then

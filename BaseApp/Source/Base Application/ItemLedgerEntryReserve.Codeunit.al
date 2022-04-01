@@ -40,7 +40,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
                     else
                         AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
                     AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
-                    AvailableItemLedgEntries.RunModal;
+                    AvailableItemLedgEntries.RunModal();
                 end;
             DATABASE::"Purchase Line":
                 begin
@@ -57,7 +57,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
                             ReservEntry."Source Prod. Order Line"))
                     else
                         AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
-                    AvailableItemLedgEntries.RunModal;
+                    AvailableItemLedgEntries.RunModal();
                 end;
             DATABASE::"Requisition Line",
             DATABASE::"Planning Component",
@@ -66,7 +66,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
                     AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
                     AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
                     AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
-                    AvailableItemLedgEntries.RunModal;
+                    AvailableItemLedgEntries.RunModal();
                 end;
             DATABASE::"Service Line",
             DATABASE::"Job Planning Line",
@@ -76,7 +76,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
                     AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
                     AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
                     AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
-                    AvailableItemLedgEntries.RunModal;
+                    AvailableItemLedgEntries.RunModal();
                 end;
             else
                 OnDrillDownTotalQuantityElseCase(SourceRecRef, EntrySummary, ReservEntry, Location, MaxQtyToReserve);

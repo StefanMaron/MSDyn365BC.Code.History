@@ -67,7 +67,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         // Verify
         WhseWorksheetLine.SetRange("Item No.", NewComponentItem."No.");
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         Assert.AreEqual(ProdOrderComponent.Quantity, WhseWorksheetLine.Quantity,
           StrSubstNo(PickWorkSheetQtyError, WhseWorksheetLine.FieldCaption(Quantity), NewComponentItem."No."));
         Assert.AreEqual(ProdOrderComponent.Quantity, WhseWorksheetLine."Qty. to Handle",
@@ -249,7 +249,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Create and refresh Released Production Order.
         CreateAndRefreshProdOrder(ProductionOrder, Item."No.", '', LibraryRandom.RandInt(5));  // Take random Quantity.
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         FindProdOrderRountingLine(ProdOrderRoutingLine, ProductionOrder."No.", ProdOrderRoutingLine.Type::"Work Center");
         Difference := ProdOrderRoutingLine."Setup Time" + (ProductionOrder.Quantity * ProdOrderRoutingLine."Run Time");
         CalculatedTime := DT2Time(ProdOrderRoutingLine."Starting Date-Time");
@@ -476,7 +476,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // [GIVEN] Assign lot no. to first line in warehouse receipt
         WarehouseReceiptLine.SetRange("No.", WarehouseReceiptHeader."No.");
         WarehouseReceiptLine.SetRange("Item No.", Item1."No.");
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         LibraryVariableStorage.Enqueue(WarehouseReceiptLine."Qty. (Base)");
         WarehouseReceiptLine.OpenItemTrackingLines(); // Use handler to assign lot no.
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
@@ -526,7 +526,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         // [GIVEN] Remove created put-away
         WarehouseActivityHeader.SetRange("Location Code", LocationWhite.Code);
-        WarehouseActivityHeader.FindLast;
+        WarehouseActivityHeader.FindLast();
         WarehouseActivityHeader.Delete(true);
 
         // [GIVEN] Find posted purchase receipt and undo line
@@ -549,7 +549,6 @@ codeunit 137297 "SCM Inventory Misc. V"
         Item: Record Item;
         NewItem: Record Item;
         ItemAvailbyLocationLinesPage: Page "Item Avail. by Location Lines";
-        NewAmountType: Option "Net Change","Balance at Date";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 370328] Methods SetItem() and GetItem() work properly
@@ -560,7 +559,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         Item.SetFilter("Date Filter", '%1..%1', WorkDate());
 
         // [WHEN] Invoke SetItem(...) and GetItem(...)
-        ItemAvailbyLocationLinesPage.SetLines(Item, NewAmountType::"Balance at Date");
+        ItemAvailbyLocationLinesPage.SetLines(Item, "Analysis Amount Type"::"Balance at Date");
         ItemAvailbyLocationLinesPage.GetItem(NewItem);
 
         // [THEN] Returned Item has No = "Item01"
@@ -1315,7 +1314,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     local procedure CreateAndModifyItemVariant(var ItemVariant: Record "Item Variant"; ItemNo: Code[20])
     begin
         LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
-        ItemVariant.Validate(Description, LibraryUtility.GenerateGUID);
+        ItemVariant.Validate(Description, LibraryUtility.GenerateGUID());
         ItemVariant.Modify(true);
     end;
 
@@ -1352,7 +1351,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -1365,7 +1364,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         GetSourceDocOutbound: Codeunit "Get Source Doc. Outbound";
     begin
         WhseWorksheetTemplate.SetRange(Type, WhseWorksheetTemplate.Type::Pick);
-        WhseWorksheetTemplate.FindFirst;
+        WhseWorksheetTemplate.FindFirst();
         LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
         PickRequestDocumentNo := SourceNo;
         PickRequestLocationCode := LocationCode;
@@ -1520,14 +1519,14 @@ codeunit 137297 "SCM Inventory Misc. V"
         WorkCenter.SetRange("No.", No);
         LibraryManufacturing.CalculateSubcontractOrder(WorkCenter);
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // take random Direct Cost.
         RequisitionLine.Validate("Gen. Business Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         RequisitionLine.Modify(true);
         Vendor.Get(RequisitionLine."Vendor No.");
         VATPostingSetup.SetRange("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Prod. Posting Group", '');
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", '');
         LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
     end;
@@ -1661,7 +1660,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         RefInventoryPostingSetup.SetFilter("Inventory Account", '<>%1', '');
         RefInventoryPostingSetup.SetFilter("WIP Account", '<>%1', '');
-        RefInventoryPostingSetup.FindFirst;
+        RefInventoryPostingSetup.FindFirst();
         InventoryPostingSetup.Init();
         InventoryPostingSetup.Validate("Location Code", LocationCode);
         InventoryPostingSetup.Validate("Invt. Posting Group Code", InventoryPostingGroupCode);
@@ -1693,7 +1692,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         FindPurchaseLine(PurchaseLine, ItemNo);
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         if not GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group") then
             LibraryERM.CreateGeneralPostingSetup(
@@ -1704,20 +1703,20 @@ codeunit 137297 "SCM Inventory Misc. V"
     local procedure FindCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
     end;
 
     local procedure FindCapacityLedgerEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; OrderNo: Code[20])
     begin
         CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
         CapacityLedgerEntry.SetRange("Order No.", OrderNo);
-        CapacityLedgerEntry.FindFirst;
+        CapacityLedgerEntry.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])
     begin
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindProductionOrderLine(ProdOrderNo: Code[20]; Status: Enum "Production Order Status"): Integer
@@ -1726,7 +1725,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         exit(ProdOrderLine."Line No.");
     end;
 
@@ -1734,14 +1733,14 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindProdOrderRountingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Enum "Capacity Type")
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderRoutingLine.SetRange(Type, Type);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
@@ -1749,7 +1748,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -1758,7 +1757,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure FindDirectCostValueEntry(var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; ItemChargeNo: Code[20])
@@ -1766,13 +1765,13 @@ codeunit 137297 "SCM Inventory Misc. V"
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; ItemNo: Code[20])
     begin
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
@@ -1781,7 +1780,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         exit(WarehouseReceiptLine."No.");
     end;
 
@@ -1890,7 +1889,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         WhsePickRequest.SetRange("Location Code", PickRequestLocationCode);
         WhsePickRequest.SetRange("Document No.", PickRequestDocumentNo);
-        WhsePickRequest.FindFirst;
+        WhsePickRequest.FindFirst();
         PickSelection.SetRecord(WhsePickRequest);
         Response := ACTION::LookupOK;
     end;

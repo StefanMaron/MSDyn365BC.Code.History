@@ -84,7 +84,9 @@ page 1340 "Config Templates"
                 RunObject = Page "Config. Template Header";
                 RunPageMode = Create;
                 ToolTip = 'Create a new configuration template.';
+#if not CLEAN18
                 Visible = CreateConfigurationTemplateActionVisible;
+#endif
             }
         }
         area(processing)
@@ -123,7 +125,9 @@ page 1340 "Config Templates"
         if not Evaluate(FilteredTableId, FilterValue) then
             FilteredTableId := 0;
 
+#if not CLEAN18
         UpdateActionsVisibility;
+#endif
         UpdatePageCaption;
 
         if NewMode then
@@ -138,8 +142,9 @@ page 1340 "Config Templates"
 
     var
         ConfigTemplateManagement: Codeunit "Config. Template Management";
+#if not CLEAN18
         CreateConfigurationTemplateActionVisible: Boolean;
-        NewMode: Boolean;
+#endif
         FilteredTableId: Integer;
         ConfigurationTemplatesCap: Label 'Configuration Templates';
         CustomerTemplatesCap: Label 'Customer Templates';
@@ -152,6 +157,8 @@ page 1340 "Config Templates"
         DeleteQst: Label 'Delete %1?', Comment = '%1 - configuration template code';
 
     protected var
+        NewMode: Boolean;
+#if not CLEAN18
         CreateCustomerActionVisible: Boolean;
         CreateVendorActionVisible: Boolean;
         CreateItemActionVisible: Boolean;
@@ -174,6 +181,7 @@ page 1340 "Config Templates"
                 CreateConfigurationTemplateActionVisible := true;
         end;
     end;
+#endif
 
     local procedure UpdatePageCaption()
     var

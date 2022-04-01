@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2811 "Native - Sales Inv. Overview"
 {
     Caption = 'nativeInvoicingSalesInvoicesOverview', Locked = true;
@@ -9,6 +10,9 @@ page 2811 "Native - Sales Inv. Overview"
     ODataKeyFields = SystemId;
     PageType = List;
     SourceTable = "Sales Invoice Entity Aggregate";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -161,4 +165,4 @@ page 2811 "Native - Sales Inv. Overview"
             LastEmailSentStatus := SalesHeader."Last Email Sent Status";
     end;
 }
-
+#endif

@@ -91,7 +91,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.Validate(Amount, Amount);
         if DocumentNo = '' then
-            DocumentNo := LibraryUtility.GenerateGUID;
+            DocumentNo := LibraryUtility.GenerateGUID();
         GenJournalLine.Validate("Document No.", DocumentNo);
         if not IsNullGuid(AccountId) then
             GenJournalLine.Validate("Account Id", AccountId);

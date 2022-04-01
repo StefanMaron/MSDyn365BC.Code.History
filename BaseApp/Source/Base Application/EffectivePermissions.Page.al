@@ -32,7 +32,7 @@ page 9852 "Effective Permissions"
                         User.SetFilter("License Type", '<>%1', User."License Type"::"External User");
                         Users.SetTableView(User);
                         ChosenUser.SetRange("User Name", Text);
-                        if ChosenUser.FindFirst then
+                        if ChosenUser.FindFirst() then
                             Users.SetRecord(ChosenUser);
                         Users.LookupMode(true);
                         if Users.RunModal = ACTION::LookupOK then begin
@@ -52,7 +52,7 @@ page 9852 "Effective Permissions"
                         User: Record User;
                     begin
                         User.SetRange("User Name", ChosenUserName);
-                        User.FindFirst;
+                        User.FindFirst();
                         CurrentUserID := User."User Security ID";
                         FillByObject;
                     end;

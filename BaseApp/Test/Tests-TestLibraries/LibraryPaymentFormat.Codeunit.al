@@ -58,7 +58,7 @@ codeunit 130101 "Library - Payment Format"
 
     procedure CreateBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup"; DataExchDef: Record "Data Exch. Def")
     begin
-        BankExportImportSetup.Validate(Code, LibraryUtility.GenerateGUID);
+        BankExportImportSetup.Validate(Code, LibraryUtility.GenerateGUID());
         BankExportImportSetup.Validate(Name, DataExchDef.Name);
         BankExportImportSetup.Validate(Direction, BankExportImportSetup.Direction::Export);
         BankExportImportSetup.Validate("Data Exch. Def. Code", DataExchDef.Code);

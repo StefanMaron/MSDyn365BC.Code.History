@@ -27,13 +27,13 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         // [SCENARIO] Ship-To is initialized to "Default (Vendor Address)" on a Purchase Credit Memo in new mode
         // [WHEN] Annie opens a new Purhase Credit Memo card
         // [THEN] Ship-To option is set to Default(Vendor Address)
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise - Open a New Purchase Credit Memo
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor No.".SetValue(Vendor."No.");
 
         // Verify - ShipToOptions is set to default
@@ -60,7 +60,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         // [SCENARIO] Ship-To address fields is in sync with order address fields when ShipToOption is set to a Alternate Vendor Address
         // [WHEN] Annie selects ShipToOption as 'Alternate Vendor Address' and selects a vendor address on a Purchase Credit Memo
         // [THEN] Ship-To address fields are updated
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Credit Memo with default ship to option
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
@@ -96,7 +96,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         // [SCENARIO] Ship-to address fields are not editable when the ShipToOption is Alternate Vendor Address on Purchase Credit Memo
         // [WHEN] Annie creates a Purchase Credit Memo and sets the ShipToOption as Alternate Vendor Address
         // [THEN] The Ship-to address fields on the Purchase Credit Memo page is not editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Credit Memo
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
@@ -124,7 +124,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         // [SCENARIO] Ship-to address fields are editable when the ShipToOption is Custom Address on Purchase Credit Memo
         // [WHEN] Annie creates a Purchase Credit Memo and sets the ShipToOption as Custom Address
         // [THEN] The Ship-to address fields on the Purchase Credit Memo page is editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Credit Memo
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
@@ -148,7 +148,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         // [SCENARIO] Ship-to address fields are not editable when the ShipToOption is Default on Purchase Credit Memo
         // [WHEN] Annie creates a Purchase Credit Memo and sets the ShipToOption as default
         // [THEN] The Ship-to address fields on the Purchase Credit Memo page is not editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Credit Memo
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
@@ -172,7 +172,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         // [SCENARIO] ShipToOption is set correctly when opening an existing Purchase Credit Memo
         // [WHEN] Annie opens a Purchase Credit Memo where the shipping address is set to default
         // [THEN] The Purchase Credit Memo page has the ShipToOption set to "Default (Vendor Address)"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Credit Memo with Company address as the shipping address
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
@@ -196,7 +196,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         // [SCENARIO] ShipToOption is set correctly when opening an existing Purchase Credit Memo
         // [WHEN] Annie opens a Purchase Credit Memo where a Order Address is set as the shipping address
         // [THEN] The Purchase Credit Memo page has the ShipToOption set to "Alternate Order Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Credit Memo with shipping address as a Location
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
@@ -223,11 +223,11 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         // [SCENARIO] ShipToOption is set correctly when opening an existing Purchase Credit Memo
         // [WHEN] Annie opens a Purchase Credit Memo where a custom shipping address is set
         // [THEN] The Purchase Credit Memo page has the ShipToOption set to "Custom Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Credit Memo with Custom shipping address
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
-        PurchaseHeader.Validate("Ship-to Name", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Ship-to Name", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Credit Memo
@@ -247,7 +247,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Ship-to Addr. P.C.M");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();

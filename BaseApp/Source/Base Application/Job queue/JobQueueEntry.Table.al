@@ -1259,19 +1259,6 @@ table 472 "Job Queue Entry"
         end;
     end;
 
-    [Obsolete('Replaced by ScheduleRecurrentJobQueueEntryWithFrequency to fix typo in the name', '17.0')]
-    procedure ScheduleRecurrentJobQueueEntryWtihFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer)
-    begin
-        ScheduleRecurrentJobQueueEntryWithFrequency(ObjType, ObjID, RecID, NoofMinutesbetweenRuns, 3, 0, 080000T);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by ScheduleRecurrentJobQueueEntryWithFrequency to fix typo in the name', '17.0')]
-    procedure ScheduleRecurrentJobQueueEntryWtihFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer; MaxAttemptsToRun: Integer; RerunDelay: Integer)
-    begin
-        ScheduleRecurrentJobQueueEntryWithFrequency(ObjType, ObjID, RecID, NoofMinutesbetweenRuns, MaxAttemptsToRun, RerunDelay, 080000T);
-    end;
-
     procedure ScheduleRecurrentJobQueueEntryWithFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer)
     begin
         ScheduleRecurrentJobQueueEntryWithFrequency(ObjType, ObjID, RecID, NoofMinutesbetweenRuns, 3, 0, 080000T);

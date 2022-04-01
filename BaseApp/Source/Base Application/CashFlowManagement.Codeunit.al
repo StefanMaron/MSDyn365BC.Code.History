@@ -140,7 +140,7 @@ codeunit 841 "Cash Flow Management"
         GLAccount: Record "G/L Account";
     begin
         GLAccount.SetRange("No.", SourceNo);
-        if not GLAccount.FindFirst then
+        if not GLAccount.FindFirst() then
             Error(SourceDataDoesNotExistErr, GLAccount.TableCaption, SourceNo);
         if ShowDocument then
             PAGE.Run(PAGE::"G/L Account Card", GLAccount)
@@ -153,7 +153,7 @@ codeunit 841 "Cash Flow Management"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgEntry.SetRange("Document No.", SourceNo);
-        if not CustLedgEntry.FindFirst then
+        if not CustLedgEntry.FindFirst() then
             Error(SourceDataDoesNotExistInfoErr, CustLedgEntry.TableCaption, CustLedgEntry.FieldCaption("Document No."), SourceNo);
         if ShowDocument then
             CustLedgEntry.ShowDoc
@@ -166,7 +166,7 @@ codeunit 841 "Cash Flow Management"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgEntry.SetRange("Document No.", SourceNo);
-        if not VendLedgEntry.FindFirst then
+        if not VendLedgEntry.FindFirst() then
             Error(SourceDataDoesNotExistInfoErr, VendLedgEntry.TableCaption, VendLedgEntry.FieldCaption("Document No."), SourceNo);
         if ShowDocument then
             VendLedgEntry.ShowDoc
@@ -182,10 +182,10 @@ codeunit 841 "Cash Flow Management"
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("No.", SourceNo);
-        if not SalesHeader.FindFirst then
+        if not SalesHeader.FindFirst() then
             Error(SourceDataDoesNotExistErr, SourceType::"Sales Orders", SourceNo);
         SalesOrder.SetTableView(SalesHeader);
-        SalesOrder.Run;
+        SalesOrder.Run();
     end;
 
     local procedure ShowPurchaseOrder(SourceNo: Code[20])
@@ -196,10 +196,10 @@ codeunit 841 "Cash Flow Management"
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("No.", SourceNo);
-        if not PurchaseHeader.FindFirst then
+        if not PurchaseHeader.FindFirst() then
             Error(SourceDataDoesNotExistErr, SourceType::"Purchase Orders", SourceNo);
         PurchaseOrder.SetTableView(PurchaseHeader);
-        PurchaseOrder.Run;
+        PurchaseOrder.Run();
     end;
 
     local procedure ShowServiceOrder(SourceNo: Code[20])
@@ -210,10 +210,10 @@ codeunit 841 "Cash Flow Management"
     begin
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.SetRange("No.", SourceNo);
-        if not ServiceHeader.FindFirst then
+        if not ServiceHeader.FindFirst() then
             Error(SourceDataDoesNotExistErr, SourceType::"Service Orders", SourceNo);
         ServiceOrder.SetTableView(ServiceHeader);
-        ServiceOrder.Run;
+        ServiceOrder.Run();
     end;
 
     local procedure ShowManualRevenue(SourceNo: Code[20])
@@ -222,10 +222,10 @@ codeunit 841 "Cash Flow Management"
         CFManualRevenues: Page "Cash Flow Manual Revenues";
     begin
         CFManualRevenue.SetRange(Code, SourceNo);
-        if not CFManualRevenue.FindFirst then
+        if not CFManualRevenue.FindFirst() then
             Error(SourceDataDoesNotExistErr, CFManualRevenues.Caption, SourceNo);
         CFManualRevenues.SetTableView(CFManualRevenue);
-        CFManualRevenues.Run;
+        CFManualRevenues.Run();
     end;
 
     local procedure ShowManualExpense(SourceNo: Code[20])
@@ -234,10 +234,10 @@ codeunit 841 "Cash Flow Management"
         CFManualExpenses: Page "Cash Flow Manual Expenses";
     begin
         CFManualExpense.SetRange(Code, SourceNo);
-        if not CFManualExpense.FindFirst then
+        if not CFManualExpense.FindFirst() then
             Error(SourceDataDoesNotExistErr, CFManualExpenses.Caption, SourceNo);
         CFManualExpenses.SetTableView(CFManualExpense);
-        CFManualExpenses.Run;
+        CFManualExpenses.Run();
     end;
 
     local procedure ShowFixedAsset(SourceNo: Code[20])
@@ -245,7 +245,7 @@ codeunit 841 "Cash Flow Management"
         FixedAsset: Record "Fixed Asset";
     begin
         FixedAsset.SetRange("No.", SourceNo);
-        if not FixedAsset.FindFirst then
+        if not FixedAsset.FindFirst() then
             Error(SourceDataDoesNotExistInfoErr, FixedAsset.TableCaption, FixedAsset.FieldCaption("No."), SourceNo);
         PAGE.Run(PAGE::"Fixed Asset Card", FixedAsset);
     end;
@@ -262,7 +262,7 @@ codeunit 841 "Cash Flow Management"
             Error(SourceDataDoesNotExistErr, GLBudgetName.TableCaption, BudgetName);
         Budget.SetBudgetName(BudgetName);
         Budget.SetGLAccountFilter(SourceNo);
-        Budget.Run;
+        Budget.Run();
     end;
 
     local procedure ShowAzureAIForecast()
@@ -299,10 +299,10 @@ codeunit 841 "Cash Flow Management"
           StrSubstNo('%1|%2',
             JobPlanningLine."Line Type"::Billable,
             JobPlanningLine."Line Type"::"Both Budget and Billable"));
-        if not JobPlanningLine.FindFirst then
+        if not JobPlanningLine.FindFirst() then
             Error(SourceDataDoesNotExistErr, JobPlanningLines.Caption, SourceNo);
         JobPlanningLines.SetTableView(JobPlanningLine);
-        JobPlanningLines.Run;
+        JobPlanningLines.Run();
     end;
 
     local procedure ShowTax(SourceNo: Code[20]; TaxPayableDate: Date)
@@ -321,14 +321,14 @@ codeunit 841 "Cash Flow Management"
                     SetViewOnPurchaseHeaderForTaxCalc(PurchaseHeader, TaxPayableDate);
                     PurchaseOrderList.SkipShowingLinesWithoutVAT;
                     PurchaseOrderList.SetTableView(PurchaseHeader);
-                    PurchaseOrderList.Run;
+                    PurchaseOrderList.Run();
                 end;
             DATABASE::"Sales Header":
                 begin
                     SetViewOnSalesHeaderForTaxCalc(SalesHeader, TaxPayableDate);
                     SalesOrderList.SkipShowingLinesWithoutVAT;
                     SalesOrderList.SetTableView(SalesHeader);
-                    SalesOrderList.Run;
+                    SalesOrderList.Run();
                 end;
             DATABASE::"VAT Entry":
                 begin
@@ -415,7 +415,7 @@ codeunit 841 "Cash Flow Management"
         GLAccountCategory: Record "G/L Account Category";
     begin
         GLAccountCategory.SetRange("Additional Report Definition", GLAccountCategory."Additional Report Definition"::"Cash Accounts");
-        if not GLAccountCategory.FindSet then
+        if not GLAccountCategory.FindSet() then
             exit;
 
         CashAccountFilter := GLAccountCategory.GetTotaling;
@@ -575,7 +575,7 @@ codeunit 841 "Cash Flow Management"
     var
         User: Record User;
     begin
-        if not User.FindSet then
+        if not User.FindSet() then
             CreateCashFlowChartSetupForUser(UserId)
         else
             repeat
@@ -637,7 +637,7 @@ codeunit 841 "Cash Flow Management"
         SuggestWorksheetLines.InitializeRequest(
           Sources, CashFlowSetup."CF No. on Chart in Role Center", CashFlowForecast."Default G/L Budget Name", true);
         SuggestWorksheetLines.UseRequestPage := false;
-        SuggestWorksheetLines.Run;
+        SuggestWorksheetLines.Run();
         CODEUNIT.Run(CODEUNIT::"Cash Flow Wksh.-Register Batch");
 
         Window.Close;

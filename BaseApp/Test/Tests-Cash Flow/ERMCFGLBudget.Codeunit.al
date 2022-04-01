@@ -242,7 +242,7 @@ codeunit 134556 "ERM CF GL Budget"
         // Filter G/L Account so that errors are not generated due to mandatory fields.
         GLAccount.SetRange(Blocked, false);
         GLAccount.SetRange("Account Type", AccountType);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
     end;
 
     local procedure CreateGLAccountWithBalance(var GLAccount: Record "G/L Account"; AccountType: Enum "G/L Account Type")

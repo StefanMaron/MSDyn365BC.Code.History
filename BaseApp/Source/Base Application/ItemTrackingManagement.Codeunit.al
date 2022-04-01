@@ -1,4 +1,4 @@
-﻿codeunit 6500 "Item Tracking Management"
+codeunit 6500 "Item Tracking Management"
 {
     Permissions = TableData "Item Entry Relation" = rd,
                   TableData "Value Entry Relation" = rd,
@@ -44,14 +44,6 @@
             SetSourceFilter("Source Batch Name", "Source Prod. Order Line");
         end;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by LookupTrackingNoInfo().', '17.0')]
-    procedure LookupLotSerialNoInfo(ItemNo: Code[20]; VariantCode: Code[20]; LookupType: Enum "Item Tracking Type"; LookupNo: Code[50])
-    begin
-        LookupTrackingNoInfo(ItemNo, VariantCode, LookupType, LookupNo);
-    end;
-#endif
 
     procedure LookupTrackingNoInfo(ItemNo: Code[20]; VariantCode: Code[20]; ItemTrackingType: Enum "Item Tracking Type"; ItemTrackingNo: Code[50])
     var
@@ -228,7 +220,7 @@
           SourceSpecification."Source Ref. No.", true);
         TrackingSpecification.SetSourceFilter(
           SourceSpecification."Source Batch Name", SourceSpecification."Source Prod. Order Line");
-        if TrackingSpecification.FindSet then
+        if TrackingSpecification.FindSet() then
             repeat
                 TrackingSpecification.TestField("Qty. to Handle (Base)", 0);
                 TrackingSpecification.TestField("Qty. to Handle", 0);
@@ -241,7 +233,7 @@
                     OK := true;
 
                     TempTrackingSpecSummedUp.SetTrackingFilterFromSpec(TempInvoicingSpecification);
-                    if TempTrackingSpecSummedUp.FindFirst then begin
+                    if TempTrackingSpecSummedUp.FindFirst() then begin
                         TempTrackingSpecSummedUp."Qty. to Invoice (Base)" += TempInvoicingSpecification."Qty. to Invoice (Base)";
                         OnBeforeTempTrackingSpecSummedUpModify(TempTrackingSpecSummedUp, TempInvoicingSpecification);
                         TempTrackingSpecSummedUp.Modify();
@@ -258,7 +250,7 @@
               SourceSpecification."Qty. to Invoice (Base)", SourceSpecification."Qty. per Unit of Measure");
 
         TempInvoicingSpecification.SetFilter("Qty. to Invoice (Base)", '<>0');
-        if not TempInvoicingSpecification.FindFirst then
+        if not TempInvoicingSpecification.FindFirst() then
             TempInvoicingSpecification.Init();
     end;
 
@@ -437,7 +429,7 @@
         TempReservationEntry: Record "Reservation Entry" temporary;
         QtyBase: Decimal;
     begin
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 if (ReservationEntry."Reservation Status" <> ReservationEntry."Reservation Status"::Reservation) or
                    IsResEntryReservedAgainstInventory(ReservationEntry)
@@ -628,7 +620,7 @@
 
             ModifyTempReservEntrySetIfTransfer(TempReservEntry);
 
-            if TempReservEntry.FindSet then begin
+            if TempReservEntry.FindSet() then begin
                 ReservEntry1.Reset();
                 repeat
                     ReservEntry1 := TempReservEntry;
@@ -713,7 +705,7 @@
                 ToPurchLine.FieldError("Document Type", Format(ToPurchLine."Document Type"));
         end;
 
-        if not ItemEntryRelation.FindSet then
+        if not ItemEntryRelation.FindSet() then
             exit;
 
         repeat
@@ -760,7 +752,7 @@
         TempItemLedgEntry.DeleteAll();
         ItemEntryRelation.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
         ItemEntryRelation.SetSourceFilter2(SourceBatchName, SourceProdOrderLine);
-        if ItemEntryRelation.FindSet then
+        if ItemEntryRelation.FindSet() then
             repeat
                 ItemLedgEntry.Get(ItemEntryRelation."Item Entry No.");
                 TempItemLedgEntry := ItemLedgEntry;
@@ -787,6 +779,8 @@
                 exit(Subtype in [1]);
             DATABASE::"Assembly Line":
                 exit(Subtype in [1]);
+            DATABASE::Job:
+                exit(Subtype in [0]);
             DATABASE::"Transfer Line":
                 exit(true);
             DATABASE::"Service Line":
@@ -978,14 +972,14 @@
         WhseItemEntryRelation.Reset();
         WhseItemEntryRelation.SetSourceFilter(
           DATABASE::"Posted Whse. Receipt Line", 0, PostedWhseRcptLine."No.", PostedWhseRcptLine."Line No.", true);
-        if WhseItemEntryRelation.FindSet then begin
+        if WhseItemEntryRelation.FindSet() then begin
             repeat
                 ItemLedgEntry.Get(WhseItemEntryRelation."Item Entry No.");
                 TempPostedWhseRcptLine.SetTrackingFilterFromItemLedgEntry(ItemLedgEntry);
                 TempPostedWhseRcptLine.SetRange("Warranty Date", ItemLedgEntry."Warranty Date");
                 TempPostedWhseRcptLine.SetRange("Expiration Date", ItemLedgEntry."Expiration Date");
                 OnTempPostedWhseRcptLineSetFilters(TempPostedWhseRcptLine, ItemLedgEntry, WhseItemEntryRelation);
-                if TempPostedWhseRcptLine.FindFirst then begin
+                if TempPostedWhseRcptLine.FindFirst() then begin
                     TempPostedWhseRcptLine."Qty. (Base)" += ItemLedgEntry.Quantity;
                     TempPostedWhseRcptLine.Quantity :=
                       Round(
@@ -1071,7 +1065,7 @@
           DATABASE::"Whse. Internal Put-away Line", 0, PostedWhseRcptLine."No.", PostedWhseRcptLine."Line No.", true);
         WhseItemTrackingLine.SetSourceFilter('', 0);
         WhseItemTrackingLine.SetFilter("Qty. to Handle (Base)", '<>0');
-        if WhseItemTrackingLine.FindSet then
+        if WhseItemTrackingLine.FindSet() then
             repeat
                 LineNo += 10000;
                 TempPostedWhseRcptLine := PostedWhseRcptLine;
@@ -1112,7 +1106,7 @@
                 SetRange("Location Code", LocationCode);
             end;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     // If the item tracking information was added through a pick registration, the reservation entry needs to
                     // be modified/deleted as well in order to remove this item tracking information again.
@@ -1134,7 +1128,7 @@
     begin
         WarehouseShipmentLine.SetRange("No.", WhseItemTrackingLine."Source ID");
         WarehouseShipmentLine.SetRange("Line No.", WhseItemTrackingLine."Source Ref. No.");
-        if not WarehouseShipmentLine.FindFirst then
+        if not WarehouseShipmentLine.FindFirst() then
             exit;
 
         ReservEntry.SetSourceFilter(
@@ -1183,7 +1177,7 @@
             if "Whse. Document Type" = "Whse. Document Type"::Receipt then begin
                 PostedWhseReceiptLine.SetRange("No.", "Whse. Document No.");
                 PostedWhseReceiptLine.SetRange("Line No.", "Whse. Document Line No.");
-                if PostedWhseReceiptLine.FindFirst then
+                if PostedWhseReceiptLine.FindFirst() then
                     InsertWhseItemTrkgLines(PostedWhseReceiptLine, SourceType);
             end;
 
@@ -1200,7 +1194,7 @@
                 repeat
                     CalcWhseItemTrkgLine(WhseItemTrackingLine);
                     WhseItemTrackingLine.Modify();
-                    if SourceType in [DATABASE::"Prod. Order Component", DATABASE::"Assembly Line"] then begin
+                    if SourceType in [DATABASE::"Prod. Order Component", DATABASE::"Assembly Line", DATABASE::Job] then begin
                         TempWhseItemTrackingLine := WhseItemTrackingLine;
                         TempWhseItemTrackingLine.Insert();
                     end;
@@ -1215,7 +1209,8 @@
                         CreateWhseItemTrackingBatch(WhseWkshLine);
                     DATABASE::"Prod. Order Component":
                         CreateWhseItemTrackingBatch(WhseWkshLine);
-                    DATABASE::"Assembly Line":
+                    DATABASE::"Assembly Line",
+                    DATABASE::Job:
                         CreateWhseItemTrackingBatch(WhseWkshLine);
                 end;
         end;
@@ -1234,7 +1229,7 @@
 
             WhseItemEntryRelation.SetSourceFilter(
               DATABASE::"Posted Whse. Receipt Line", 0, "Whse. Document No.", "Whse. Document Line No.", true);
-            if WhseItemEntryRelation.FindSet then
+            if WhseItemEntryRelation.FindSet() then
                 repeat
                     WhseItemTrackingLine.Init();
                     EntryNo += 1;
@@ -1328,6 +1323,9 @@
                 DATABASE::"Prod. Order Component":
                     WhseItemTrackingLine.SetSource(
                       "Source Type", "Source Subtype", "Source No.", "Source Subline No.", '', "Source Line No.");
+                DATABASE::Job:
+                    WhseItemTrackingLine.SetSource(
+                      DATABASE::Job, 0, "Whse. Document No.", "Whse. Document Line No.", '', 0);
             end;
 
         WhseItemTrackingLine."Entry No." := EntryNo + 1;
@@ -1371,6 +1369,8 @@
                 WhseItemTrkgLine."Source Type Filter" := WhseItemTrkgLine."Source Type Filter"::Production;
             DATABASE::"Assembly Line":
                 WhseItemTrkgLine."Source Type Filter" := WhseItemTrkgLine."Source Type Filter"::Assembly;
+            DATABASE::Job:
+                WhseItemTrkgLine."Source Type Filter" := WhseItemTrkgLine."Source Type Filter"::Job;
             DATABASE::"Whse. Worksheet Line":
                 WhseItemTrkgLine."Source Type Filter" := WhseItemTrkgLine."Source Type Filter"::"Movement Worksheet";
         end;
@@ -1448,7 +1448,7 @@
     var
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
     begin
-        if TempWhseItemTrackingLine.FindSet then
+        if TempWhseItemTrackingLine.FindSet() then
             repeat
                 WhseItemTrackingLine.SetTrackingKey();
                 WhseItemTrackingLine.SetTrackingFilterFromSpec(TempWhseItemTrackingLine);
@@ -1458,7 +1458,7 @@
                 WhseItemTrackingLine.SetSourceFilter(
                   TempWhseItemTrackingLine."Source Batch Name", TempWhseItemTrackingLine."Source Prod. Order Line");
                 WhseItemTrackingLine.LockTable();
-                if WhseItemTrackingLine.FindFirst then begin
+                if WhseItemTrackingLine.FindFirst() then begin
                     CalcWhseItemTrkgLine(WhseItemTrackingLine);
                     WhseItemTrackingLine.Modify();
                 end;
@@ -1479,7 +1479,7 @@
         with PostedWhseReceiptLine do begin
             WhseItemEntryRelation.Reset();
             WhseItemEntryRelation.SetSourceFilter(SourceType, 0, "No.", "Line No.", true);
-            if WhseItemEntryRelation.FindSet then begin
+            if WhseItemEntryRelation.FindSet() then begin
                 WhseItemTrkgLine.SetSourceFilter(SourceType, 0, "No.", "Line No.", false);
                 WhseItemTrkgLine.DeleteAll();
                 WhseItemTrkgLine.Init();
@@ -1496,7 +1496,7 @@
                     if QtyHandledBase > ItemLedgEntry.Quantity then
                         QtyHandledBase := ItemLedgEntry.Quantity;
 
-                    if not WhseItemTrkgLine.FindFirst then begin
+                    if not WhseItemTrkgLine.FindFirst() then begin
                         WhseItemTrkgLine.Init();
                         WhseItemTrkgLine."Entry No." := EntryNo;
                         EntryNo := EntryNo + 1;
@@ -1580,7 +1580,7 @@
             WhseWkshLine.SetRange("Source Subline No.", RefNo);
         end else
             WhseWkshLine.SetSourceFilter(Type, Subtype, ID, RefNo, true);
-        if WhseWkshLine.FindFirst then
+        if WhseWkshLine.FindFirst() then
             if WhseWkshTemplate.Get(WhseWkshLine."Worksheet Template Name") then
                 if WhseWkshTemplate.Type = WhseWkshTemplate.Type::Pick then
                     exit(true);
@@ -1589,7 +1589,7 @@
             WhseActivLine.SetSourceFilter(Type, Subtype, ID, ProdOrderLine, RefNo, true)
         else
             WhseActivLine.SetSourceFilter(Type, Subtype, ID, RefNo, 0, true);
-        if WhseActivLine.FindFirst then
+        if WhseActivLine.FindFirst() then
             if WhseActivLine."Activity Type" in [WhseActivLine."Activity Type"::Pick,
                                                  WhseActivLine."Activity Type"::"Invt. Put-away",
                                                  WhseActivLine."Activity Type"::"Invt. Pick"]
@@ -1608,7 +1608,8 @@
                          DATABASE::"Assembly Line",
                          DATABASE::"Prod. Order Line",
                          DATABASE::"Service Line",
-                         DATABASE::"Prod. Order Component"];
+                         DATABASE::"Prod. Order Component",
+                         DATABASE::Job];
 
         OnAfterItemTrkgTypeIsManagedByWhse(Type, TypeIsManagedByWhse);
     end;
@@ -1621,12 +1622,16 @@
         exit(WhseItemTrackingSetup.TrackingRequired());
     end;
 
-    procedure GetWhseItemTrkgSetup(ItemNo: Code[20]; var WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean;
+    procedure GetWhseItemTrkgSetup(ItemNo: Code[20]; var WhseItemTrackingSetup: Record "Item Tracking Setup") Result: Boolean;
     var
         ItemTrackingCode: Record "Item Tracking Code";
         Item: Record Item;
+        IsHandled: Boolean;
     begin
-        OnBeforeGetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+        IsHandled := false;
+        OnBeforeGetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         Clear(WhseItemTrackingSetup);
         if Item."No." <> ItemNo then
@@ -1675,7 +1680,7 @@
     begin
         SourceSpecification := SourceSpecification2;
         DueDate := DueDate2;
-        if TempTrackingSpecification2.FindSet then
+        if TempTrackingSpecification2.FindSet() then
             repeat
                 TempTrackingSpecification := TempTrackingSpecification2;
                 TempTrackingSpecification.Insert();
@@ -1903,7 +1908,7 @@
                               TempTrackingSpecification."Source ID", TempTrackingSpecification."Source Ref. No.", -1, true);
                             RegisteredWhseActLine.SetTrackingFilterFromSpec(TempTrackingSpecification);
                             RegisteredWhseActLine.SetFilter("No.", '<> %1', RegPickNo);
-                            if not RegisteredWhseActLine.FindFirst then
+                            if not RegisteredWhseActLine.FindFirst() then
                                 ZeroQtyToHandle := true
                             else
                                 if RegisteredWhseActLine."Whse. Document Type" = RegisteredWhseActLine."Whse. Document Type"::Shipment then begin
@@ -1980,7 +1985,7 @@
                 SourceReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
                 SourceReservEntry.SetSourceFilter('', 0);
             end;
-            if SourceReservEntry.FindSet then
+            if SourceReservEntry.FindSet() then
                 repeat
                     if SourceReservEntry.TrackingExists then begin
                         if "Source Type" = DATABASE::"Prod. Order Component" then begin
@@ -1992,7 +1997,7 @@
                         end;
                         TempWhseItemTrkgLine.SetTrackingFilterFromReservEntry(SourceReservEntry);
 
-                        if TempWhseItemTrkgLine.FindFirst then
+                        if TempWhseItemTrkgLine.FindFirst() then
                             TempWhseItemTrkgLine.Delete
                         else begin
                             WhseItemTrackingLine.Init();
@@ -2022,7 +2027,7 @@
                 until SourceReservEntry.Next() = 0;
 
             TempWhseItemTrkgLine.Reset();
-            if TempWhseItemTrkgLine.FindSet then
+            if TempWhseItemTrkgLine.FindSet() then
                 repeat
                     if TempWhseItemTrkgLine.TrackingExists and (TempWhseItemTrkgLine."Quantity Handled (Base)" = 0) then begin
                         WhseItemTrackingLine.Get(TempWhseItemTrkgLine."Entry No.");
@@ -2263,18 +2268,6 @@
         WarrantyDate := ItemLedgEntry."Warranty Date";
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by same procedure with parameter ItemTrackingSetup.', '17.0')]
-    procedure WhseExistingExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; LotNo: Code[50]; SerialNo: Code[50]; var EntriesExist: Boolean) ExpDate: Date
-    var
-        WhseItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        WhseItemTrackingSetup."Serial No." := SerialNo;
-        WhseItemTrackingSetup."Lot No." := LotNo;
-        exit(WhseExistingExpirationDate(ItemNo, VariantCode, Location, WhseItemTrackingSetup, EntriesExist));
-    end;
-#endif
-
     procedure WhseExistingExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; WhseItemTrackingSetup: Record "Item Tracking Setup"; var EntriesExist: Boolean) ExpDate: Date
     var
         WhseEntry: Record "Warehouse Entry";
@@ -2308,7 +2301,7 @@
             if IsEmpty() then
                 exit;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     SumOfEntries += "Qty. (Base)";
                     if ("Expiration Date" <> 0D) and (("Expiration Date" < ExpDate) or (ExpDate = 0D)) then
@@ -2424,7 +2417,7 @@
         SumLot := 0;
         TempTrackingSpecification2 := TempTrackingSpecification;
         TempTrackingSpecification.SetRange("New Lot No.", TempTrackingSpecification."New Lot No.");
-        if TempTrackingSpecification.FindSet then
+        if TempTrackingSpecification.FindSet() then
             repeat
                 SumLot += TempTrackingSpecification."Quantity (Base)";
             until TempTrackingSpecification.Next() = 0;
@@ -2499,7 +2492,7 @@
         OnCopyItemLedgEntryTrkgToSalesLnOnBeforeTempItemLedgEntryBufFindSet(
             TempItemLedgEntryBuf, ToSalesLine, FillExactCostRevLink, MissingExCostRevLink, FromPricesInclVAT, ToPricesInclVAT, FromShptOrRcpt);
         with TempItemLedgEntryBuf do
-            if FindSet then begin
+            if FindSet() then begin
                 if Quantity / ToSalesLine.Quantity < 0 then
                     SignFactor := 1
                 else
@@ -2572,7 +2565,7 @@
                 FillExactCostRevLink := false;
 
         with ItemLedgEntryBuf do
-            if FindSet then begin
+            if FindSet() then begin
                 if Quantity / ToPurchLine.Quantity > 0 then
                     SignFactor := 1
                 else
@@ -2641,7 +2634,7 @@
         SignFactor := -1;
 
         with ItemLedgEntryBuf do
-            if FindSet then
+            if FindSet() then
                 repeat
                     QtyBase := "Remaining Quantity" * SignFactor;
                     InsertReservEntryForTransferLine(ItemLedgEntryBuf, ToTransferLine, QtyBase, EntriesExist);
@@ -2668,7 +2661,7 @@
             Reset;
             SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true);
             SetRange("Assemble to Order", "Assemble to Order");
-            if FindSet then begin
+            if FindSet() then begin
                 // Transfer receipt needs special treatment:
                 IsTransferReceipt := ("Source Type" = DATABASE::"Transfer Line") and ("Source Subtype" = 1);
                 IsATOPosting := ("Source Type" = DATABASE::"Sales Line") and "Assemble to Order";
@@ -2725,7 +2718,7 @@
 
         SumUpItemTracking(TempReservEntry, TempTrackingSpec, false, true);
 
-        if TempTrackingSpec.FindSet then
+        if TempTrackingSpec.FindSet() then
             repeat
                 ReservEntry.SetSourceFilter(
                   TempTrackingSpec."Source Type", TempTrackingSpec."Source Subtype",
@@ -2734,7 +2727,7 @@
                 ReservEntry.SetTrackingFilterFromSpec(TempTrackingSpec);
                 if IsTransferReceipt then
                     ReservEntry.SetRange("Source Ref. No.");
-                if ReservEntry.FindSet then begin
+                if ReservEntry.FindSet() then begin
                     repeat
                         if Abs(TempTrackingSpec."Qty. to Handle (Base)") > Abs(ReservEntry."Quantity (Base)") then
                             ReservEntry.Validate("Qty. to Handle (Base)", ReservEntry."Quantity (Base)")
@@ -2755,7 +2748,7 @@
                             Reset;
                             SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true);
                             SetTrackingFilterFromReservEntry(ReservEntry);
-                            if FindFirst then
+                            if FindFirst() then
                                 ReservEntry."Expiration Date" := "Expiration Date";
                             OnSynchronizeWhseActivItemTrkgOnAfterSetExpirationDate(WhseActivLine, ReservEntry);
                         end;
@@ -2798,7 +2791,7 @@
         TempTrackingSpec.SetCurrentKey(
           "Source ID", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
 
-        if TempTrackingSpec.FindSet then
+        if TempTrackingSpec.FindSet() then
             repeat
                 TempTrackingSpec.SetSourceFilter(
                   TempTrackingSpec."Source Type", TempTrackingSpec."Source Subtype",
@@ -2862,7 +2855,7 @@
             ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
             ItemApplnEntry.SetRange("Outbound Item Entry No.", "Entry No.");
             ItemApplnEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-            if ItemApplnEntry.FindFirst then begin
+            if ItemApplnEntry.FindFirst() then begin
                 ItemLedgEntry.Get(ItemApplnEntry."Inbound Item Entry No.");
                 "Expiration Date" := ItemLedgEntry."Expiration Date";
             end;
@@ -2924,7 +2917,7 @@
 
         ToReservEntry.Copy(ReservEntry);
         ToReservEntry.SetRange("Source Subtype", 1);
-        if ToReservEntry.FindSet then
+        if ToReservEntry.FindSet() then
             repeat
                 TempToReservEntry := ToReservEntry;
                 TempToReservEntry."Qty. to Handle (Base)" := 0;
@@ -2988,7 +2981,7 @@
             SetRange("Variant Code", WhseJnlLine."Variant Code");
             SetRange("Qty. per Unit of Measure", WhseJnlLine."Qty. per Unit of Measure");
             OnCollectItemTrkgInfWhseJnlLineOnAfterSetFilters(WhseItemTrackingLine, WhseJnlLine);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Clear(TempGlobalWhseItemTrkgLine);
                     TempGlobalWhseItemTrkgLine := WhseItemTrackingLine;
@@ -3123,7 +3116,7 @@
         TrackingSpecification: Record "Tracking Specification";
         QtyBase: Decimal;
     begin
-        if not ItemEntryRelation.FindSet then
+        if not ItemEntryRelation.FindSet() then
             exit;
 
         repeat
@@ -3151,6 +3144,7 @@
               DATABASE::"Whse. Internal Put-away Line",
               DATABASE::"Whse. Internal Pick Line",
               DATABASE::"Assembly Line",
+              DATABASE::Job,
               DATABASE::"Internal Movement Line":
                     SetSourceFilter(
                       SourceType, -1, WhseWorksheetLine."Whse. Document No.", WhseWorksheetLine."Whse. Document Line No.", true);
@@ -3451,7 +3445,7 @@
             SetRange("Variant Code", "Variant Code");
             SetRange("Lot No.", "Lot No.");
             SetRange("Buffer Status", 0);
-            if FindFirst then
+            if FindFirst() then
                 CurrTrackingSpec."Expiration Date" := "Expiration Date";
 
             Copy(CurrTrackingSpec);
@@ -3962,7 +3956,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetWhseItemTrkgSetup(ItemNo: Code[20]; var WhseItemTrackingSetup: Record "Item Tracking Setup")
+    local procedure OnBeforeGetWhseItemTrkgSetup(ItemNo: Code[20]; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

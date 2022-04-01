@@ -4,6 +4,8 @@ codeunit 132214 "Library - Permissions"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Plan Permission Set is being removed as it is no longer used', '20.0')]
     procedure AddPermissionSetToPlan(PermissionSetCode: Code[20]; PlanID: Guid)
     var
         PlanPermissionSet: Record "Plan Permission Set";
@@ -15,6 +17,7 @@ codeunit 132214 "Library - Permissions"
         PlanPermissionSet."Plan ID" := PlanID;
         PlanPermissionSet.Insert(true);
     end;
+#endif
 
     procedure AddPermissionSetToUserGroup(AggregatePermissionSet: Record "Aggregate Permission Set"; UserGroupCode: Code[20])
     var
@@ -24,7 +27,7 @@ codeunit 132214 "Library - Permissions"
         UserGroupPermissionSet.SetRange(Scope, AggregatePermissionSet.Scope);
         UserGroupPermissionSet.SetRange("App ID", AggregatePermissionSet."App ID");
         UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
-        if UserGroupPermissionSet.FindFirst then
+        if UserGroupPermissionSet.FindFirst() then
             exit;
         UserGroupPermissionSet.Init();
         UserGroupPermissionSet."User Group Code" := UserGroupCode;
@@ -124,7 +127,7 @@ codeunit 132214 "Library - Permissions"
         AzureADPlanTestLibrary.AssignUserToPlan(UserID, PlanID);
 
         UserGroupPlan.SetRange("Plan ID", PlanID);
-        if UserGroupPlan.FindSet then
+        if UserGroupPlan.FindSet() then
             repeat
                 AddUserToUserGroupByCode(UserID, UserGroupPlan."User Group Code");
             until UserGroupPlan.Next = 0;
@@ -182,7 +185,7 @@ codeunit 132214 "Library - Permissions"
     procedure CreateWindowsUser(var User: Record User; UserName: Code[50])
     begin
         User.SetRange("User Name", UserName);
-        if not User.FindFirst then
+        if not User.FindFirst() then
             CreateUser(User, UserName, true);
     end;
 
@@ -282,7 +285,7 @@ codeunit 132214 "Library - Permissions"
     procedure CreatePermissionSet(var PermissionSet: Record "Permission Set"; NewCode: Code[20])
     begin
         PermissionSet.SetRange("Role ID", NewCode);
-        if PermissionSet.FindFirst then
+        if PermissionSet.FindFirst() then
             exit;
         if NewCode <> '' then
             PermissionSet."Role ID" := NewCode
@@ -295,7 +298,9 @@ codeunit 132214 "Library - Permissions"
     procedure CreatePermissionSetInPlan(PermissionSetCode: Code[20]; PlanID: Guid)
     begin
         CreatePermissionSetWithCode(PermissionSetCode);
+#if not CLEAN20
         AddPermissionSetToPlan(PermissionSetCode, PlanID);
+#endif
     end;
 
     procedure CreatePermissionSetWithCode(PermissionSetCode: Code[20])
@@ -330,7 +335,7 @@ codeunit 132214 "Library - Permissions"
         UserGroup.SetRange(Code);
         TenantPermissionSet.SetFilter("Role ID", 'TEST*');
         TenantPermissionSet.DeleteAll(true);
-        Initialize;
+        Initialize();
         for i := 1 to 15 do begin
             NewCode := StrSubstNo('TEST%1', i);
             User.SetRange("User Name", NewCode);
@@ -351,9 +356,9 @@ codeunit 132214 "Library - Permissions"
 
     procedure GetMyUser(var User: Record User)
     begin
-        Initialize;
+        Initialize();
         User.SetRange("User Name", UserId);
-        User.FindFirst;
+        User.FindFirst();
         User.SetRange("User Name");
     end;
 
@@ -363,7 +368,7 @@ codeunit 132214 "Library - Permissions"
     begin
         UserGroupMember.SetRange("User Security ID", UserID);
         UserGroupMember.SetRange("Company Name", CompanyName);
-        if UserGroupMember.FindFirst then
+        if UserGroupMember.FindFirst() then
             UserGroupMember.DeleteAll(true);
     end;
 
@@ -396,10 +401,12 @@ codeunit 132214 "Library - Permissions"
     begin
         UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
         UserGroupPermissionSet.SetRange("Role ID", PermissionSetRoleID);
-        if UserGroupPermissionSet.FindFirst then
+        if UserGroupPermissionSet.FindFirst() then
             UserGroupPermissionSet.DeleteAll(true);
     end;
 
+#if not CLEAN20
+    [Obsolete('Plan Permission Set is being removed as it is no longer used', '20.0')]
     procedure RemovePermissionSetFromPlan(PermissionSetCode: Code[20]; PlanID: Guid)
     var
         PlanPermissionSet: Record "Plan Permission Set";
@@ -407,6 +414,7 @@ codeunit 132214 "Library - Permissions"
         if PlanPermissionSet.Get(PlanID, PermissionSetCode) then
             PlanPermissionSet.Delete(true);
     end;
+#endif
 
     local procedure Initialize()
     begin

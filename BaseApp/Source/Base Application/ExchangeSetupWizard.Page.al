@@ -255,7 +255,7 @@ page 1806 "Exchange Setup Wizard"
     begin
         IsSaaS := EnvironmentInformation.IsSaaS();
         User.SetRange("User Name", UserId);
-        if User.FindFirst then
+        if User.FindFirst() then
             Email := User."Authentication Email";
 
         LoadTopBanners;

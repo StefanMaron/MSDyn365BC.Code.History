@@ -242,7 +242,7 @@ page 764 "Acc. Sched. Chart Matrix"
         AccountSchedulesChartSetup.SetLinkToLines(Rec);
         case AccountSchedulesChartSetup."Base X-Axis on" of
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
-                if FindFirst then
+                if FindFirst() then
                     SetRange("Column Layout Line No.", "Column Layout Line No.");
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
@@ -259,7 +259,7 @@ page 764 "Acc. Sched. Chart Matrix"
     begin
         Clear(ColumnCaptions);
         AccountSchedulesChartSetup.FilterColumnLayout(ColumnLayout);
-        if ColumnLayout.FindSet then
+        if ColumnLayout.FindSet() then
             repeat
                 ColumnNo := ColumnNo + 1;
                 if ColumnNo <= ArrayLen(ColumnCaptions) then begin

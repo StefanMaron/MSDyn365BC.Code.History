@@ -62,7 +62,7 @@ table 8630 "Config. Media Buffer"
         ConfigMediaBuffer.SetRange("Media Set ID", "Media Set ID");
         ConfigMediaBuffer.SetRange("Media ID", "Media ID");
 
-        if ConfigMediaBuffer.FindLast then
+        if ConfigMediaBuffer.FindLast() then
             exit(ConfigMediaBuffer."No." + 1);
 
         exit(1);

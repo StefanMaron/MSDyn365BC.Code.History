@@ -33,7 +33,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         // [SCENARIO 122869]  Creating the Positive Pay Detail for Printed Check
 
         // [GIVEN] Create the Data Exch Def, Bank Export/Import Setup, Bank Account, Vendor and Check Ledger Entry
-        Initialize;
+        Initialize();
         CreateDataExchDefWithBankExpImpSetup(DataExchDef, BankExportImportSetup);
         CreateBankAccount(BankAccount, BankExportImportSetup.Code);
         LibraryPurchase.CreateVendor(Vendor);
@@ -48,7 +48,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
         // [THEN] The Positive Pay Detail record is created and values are updated to the fields from Check Ledger Entry.
         PositivePayDetail.SetRange("Data Exch. Entry No.", DataExch."Entry No.");
-        PositivePayDetail.FindFirst;
+        PositivePayDetail.FindFirst();
         PositivePayDetail.TestField("Account Number");
         PositivePayDetail.TestField("Check Number", CheckLedgerEntry."Check No.");
         PositivePayDetail.TestField("Record Type Code", 'O');
@@ -69,7 +69,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         // [SCENARIO 122869]  Creating the Positive Pay Detail for Voided Check
 
         // [GIVEN] Create the Data Exch Def, Bank Export/Import Setup, Bank Account, Vendor and Check Ledger Entry
-        Initialize;
+        Initialize();
         CreateDataExchDefWithBankExpImpSetup(DataExchDef, BankExportImportSetup);
         CreateBankAccount(BankAccount, BankExportImportSetup.Code);
         LibraryPurchase.CreateVendor(Vendor);
@@ -84,7 +84,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
         // [THEN] The Positive Pay Detail record is created and values are updated to the fields from Check Ledger Entry.
         PositivePayDetail.SetRange("Data Exch. Entry No.", DataExch."Entry No.");
-        PositivePayDetail.FindFirst;
+        PositivePayDetail.FindFirst();
         PositivePayDetail.TestField("Account Number");
         PositivePayDetail.TestField("Check Number", CheckLedgerEntry."Check No.");
         PositivePayDetail.TestField("Record Type Code", 'V');
@@ -106,7 +106,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         // [GIVEN] Data Exchange Mapping for Table "Positive Pay Detail", Field = "Payee"
         // [GIVEN] Bank Export/Import Setup
         // [GIVEN] Check Ledger Entry with "Entry Status" = "Test Print" and blank Payee
-        Initialize;
+        Initialize();
         CreateDataExchMappingWithSpecificField(
           DataExchLineDef, BankExportImportSetup, DATABASE::"Positive Pay Detail", PositivePayDetail.FieldNo(Payee));
         CreateBankAccount(BankAccount, BankExportImportSetup.Code);
@@ -125,7 +125,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
         // [THEN] The Positive Pay Detail record is created and value of "Payee" is blank
         PositivePayDetail.SetRange("Data Exch. Entry No.", DataExch."Entry No.");
-        PositivePayDetail.FindFirst;
+        PositivePayDetail.FindFirst();
         PositivePayDetail.TestField(Payee, '');
     end;
 
@@ -147,7 +147,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         // Check is Exported once posted, Voiding needs to clear the Positive Pay Exported flag in Check Ledger Entry
 
         // [GIVEN] Create and Post a Manual Check so that it can be exported
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostCheckLedgerEntry(GenJournalLine."Account Type"::Vendor, CreateVendor);
 
         // [GIVEN] Create the Data Exch Def, Bank Export/Import Setup, Bank Account, Vendor
@@ -192,7 +192,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         // [SCENARIO 122869]  Creating the Positive Pay Entry and Positive Pay Detail Entry for Printed check
 
         // [GIVEN] Create the Data Exch Def, Bank Export/Import Setup, Bank Account, Vendor and Check Ledger Entry
-        Initialize;
+        Initialize();
         CreateDataExchDefWithBankExpImpSetup(DataExchDef, BankExportImportSetup);
         CreateBankAccount(BankAccount, BankExportImportSetup.Code);
         LibraryPurchase.CreateVendor(Vendor);
@@ -210,12 +210,12 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
         // [THEN] The Positive Pay Entry and Positive Pay Detail Entry records are created
         PositivePayEntry.SetRange("Bank Account No.", BankAccount."No.");
-        PositivePayEntry.FindLast;
+        PositivePayEntry.FindLast();
         PositivePayEntry.TestField("Number of Checks", 1);
         PositivePayEntry.TestField("Check Amount", 10000.0);
         PositivePayEntryDetail.SetRange("Bank Account No.", BankAccount."No.");
         PositivePayEntryDetail.SetRange("Upload Date-Time", PositivePayEntry."Upload Date-Time");
-        PositivePayEntryDetail.FindFirst;
+        PositivePayEntryDetail.FindFirst();
         PositivePayEntryDetail.TestField("Check No.", CheckLedgerEntry."Check No.");
         PositivePayEntryDetail.TestField("Document Type", PositivePayEntryDetail."Document Type"::CHECK);
     end;
@@ -236,7 +236,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         // [SCENARIO 122869]  Creating the Positive Pay Entry and Positive Pay Detail Entry for a Voided check
 
         // [GIVEN] Create the Data Exch Def, Bank Export/Import Setup, Bank Account, Vendor and Check Ledger Entry
-        Initialize;
+        Initialize();
         CreateDataExchDefWithBankExpImpSetup(DataExchDef, BankExportImportSetup);
         CreateBankAccount(BankAccount, BankExportImportSetup.Code);
         LibraryPurchase.CreateVendor(Vendor);
@@ -254,13 +254,13 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
         // [THEN] The Positive Pay Entry and Positive Pay Detail Entry records are created
         PositivePayEntry.SetRange("Bank Account No.", BankAccount."No.");
-        PositivePayEntry.FindLast;
+        PositivePayEntry.FindLast();
         PositivePayEntry.TestField("Number of Voids", 1);
         PositivePayEntry.TestField("Void Amount", 10000.0);
         PositivePayEntryDetail.SetRange("Bank Account No.", BankAccount."No.");
         PositivePayEntryDetail.SetRange("Bank Account No.", BankAccount."No.");
         PositivePayEntryDetail.SetRange("Upload Date-Time", PositivePayEntry."Upload Date-Time");
-        PositivePayEntryDetail.FindFirst;
+        PositivePayEntryDetail.FindFirst();
         PositivePayEntryDetail.TestField("Check No.", CheckLedgerEntry."Check No.");
         PositivePayEntryDetail.TestField("Document Type", PositivePayEntryDetail."Document Type"::VOID);
     end;
@@ -286,7 +286,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         // Check is Exported once posted, Voiding needs to clear the Positive Pay Exported flag in Check Ledger Entry, then export again
 
         // [GIVEN] Create and Post a Manual Check so that it can be exported
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostCheckLedgerEntry(GenJournalLine."Account Type"::Vendor, CreateVendor);
 
         // [GIVEN] Create the Data Exch Def, Bank Export/Import Setup, Bank Account, Vendor
@@ -315,7 +315,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         CreateDataExch(DataExch2);
         CheckLedgerEntry.Reset();
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         UpdateCheckLedger(CheckLedgerEntry, DataExch2, true);
 
         // [GIVEN] Run the codeunit to export the posted check
@@ -326,13 +326,13 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
         // [THEN] The Positive Pay Entry and Positive Pay Detail Entry records are created
         PositivePayEntry.SetRange("Bank Account No.", BankAccount."No.");
-        PositivePayEntry.FindLast;
+        PositivePayEntry.FindLast();
         PositivePayEntry.TestField("Number of Voids", 1);
         PositivePayEntry.TestField("Void Amount", CheckLedgerEntry.Amount);
         PositivePayEntryDetail.SetRange("Bank Account No.", BankAccount."No.");
         PositivePayEntryDetail.SetRange("Bank Account No.", BankAccount."No.");
         PositivePayEntryDetail.SetRange("Upload Date-Time", PositivePayEntry."Upload Date-Time");
-        PositivePayEntryDetail.FindFirst;
+        PositivePayEntryDetail.FindFirst();
         PositivePayEntryDetail.TestField("Check No.", CheckLedgerEntry."Check No.");
         PositivePayEntryDetail.TestField("Document Type", PositivePayEntryDetail."Document Type"::VOID);
     end;
@@ -342,15 +342,15 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Exp. Pos. Pay Check Ledger UT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Exp. Pos. Pay Check Ledger UT");
-        LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Exp. Pos. Pay Check Ledger UT");
@@ -478,7 +478,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
     begin
         CheckLedgerEntry2.LockTable();
         CheckLedgerEntry2.Reset();
-        if CheckLedgerEntry2.FindLast then
+        if CheckLedgerEntry2.FindLast() then
             NextCheckEntryNo := CheckLedgerEntry2."Entry No." + 1
         else
             NextCheckEntryNo := 1;
@@ -503,7 +503,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
     local procedure ModifyBankAccount(var CheckLedgerEntry: Record "Check Ledger Entry"; var BankAccount: Record "Bank Account"; DocumentNo: Code[20]; BankEISetupCode: Code[20])
     begin
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
 
         BankAccount.Get(CheckLedgerEntry."Bank Account No.");
         BankAccount."Positive Pay Export Code" := BankEISetupCode;
@@ -541,7 +541,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         BankAccount: Record "Bank Account";
     begin
         // Setup: Create and Post General Journal line with bank Payment Type Manual Check.
-        Initialize;
+        Initialize();
         LibraryERM.CreateBankAccount(BankAccount);
         with GenJournalLine do begin
             CreateAndPostGenJournalLine(
@@ -557,7 +557,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
-        if CheckLedgerEntry.FindFirst then
+        if CheckLedgerEntry.FindFirst() then
             exit(CheckLedgerEntry."Positive Pay Exported");
     end;
 
@@ -595,7 +595,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         ConfirmFinancialVoid: Page "Confirm Financial Void";
     begin
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         CheckManagement.FinancialVoidCheck(CheckLedgerEntry);
         ConfirmFinancialVoid.SetCheckLedgerEntry(CheckLedgerEntry);
     end;

@@ -10,14 +10,14 @@
             Editable = false;
             TableRelation = "VAT Report Header"."No.";
         }
-        field(2; "VAT Report Config. Code"; Option)
+#pragma warning disable
+        field(2; "VAT Report Config. Code"; Enum "VAT Report Configuration")
         {
             Caption = 'VAT Report Config. Code';
             Editable = true;
-            OptionCaption = 'EC Sales List,VAT Report';
-            OptionMembers = "EC Sales List","VAT Report";
             TableRelation = "VAT Reports Configuration"."VAT Report Type";
         }
+#pragma warning restore        
         field(3; "Line No."; Integer)
         {
             AutoIncrement = true;

@@ -180,7 +180,7 @@ table 1501 Workflow
 
         WorkflowStep.SetRange("Entry Point", true);
 
-        if WorkflowStep.FindFirst then begin
+        if WorkflowStep.FindFirst() then begin
             WorkflowInstanceID := InitialWorkflowInstanceID;
             WorkflowInstanceCode := InitialWorkflowInstanceCode;
             WorkflowInstancePreviousStepID := InitialWorkflowInstancePreviousStepID;
@@ -346,7 +346,7 @@ table 1501 Workflow
         WorkflowStepInstanceNumber := NextWorkflowStepInstance.Count - 1;
         repeat
             NextWorkflowStepInstance.SetRange("Previous Workflow Step ID", NextWorkflowStepInstance."Workflow Step ID");
-            if not NextWorkflowStepInstance.FindFirst then
+            if not NextWorkflowStepInstance.FindFirst() then
                 IsLastStep := true;
             i += 1;
         until (NextWorkflowStepInstance.Type = NextWorkflowStepInstance.Type::"Event") or IsLastStep or (i = WorkflowStepInstanceNumber);
@@ -374,7 +374,7 @@ table 1501 Workflow
             WorkflowStep.ModifyAll("Entry Point", false, true);
 
         WorkflowStep.SetRange("Previous Workflow Step ID", 0);
-        if WorkflowStep.FindFirst then begin
+        if WorkflowStep.FindFirst() then begin
             WorkflowStep.Validate("Entry Point", true);
             WorkflowStep.Modify(true);
         end;
@@ -438,7 +438,7 @@ table 1501 Workflow
             Error(OrphanWorkflowStepsErr);
 
         WorkflowStep.SetFilter("Previous Workflow Step ID", '<>%1', 0);
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 if not PreviousWorkflowStep.Get(Code, WorkflowStep."Previous Workflow Step ID") then
                     Error(OrphanWorkflowStepsErr);
@@ -464,7 +464,7 @@ table 1501 Workflow
         WorkflowStep.SetRange("Workflow Code", Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::"Sub-Workflow");
 
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 Workflow.Get(WorkflowStep."Function Name");
 
@@ -481,7 +481,7 @@ table 1501 Workflow
         WorkflowStep.SetRange("Workflow Code", Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
 
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 if not WorkflowResponseHandling.HasRequiredArguments(WorkflowStep) then
                     Error(MissingRespOptionsErr);
@@ -554,7 +554,7 @@ table 1501 Workflow
     begin
         WorkflowStep.SetRange("Workflow Code", Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::"Event");
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 WorkflowEvent.Get(WorkflowStep."Function Name");
                 CurrentTable := WorkflowEvent."Table ID";
@@ -689,7 +689,7 @@ table 1501 Workflow
     begin
         WorkflowStep.SetRange("Workflow Code", Code);
         WorkflowStep.SetRange("Function Name", FunctionName);
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 NewWorkflowStep.Init();
                 NewWorkflowStep.Validate("Workflow Code", Code);

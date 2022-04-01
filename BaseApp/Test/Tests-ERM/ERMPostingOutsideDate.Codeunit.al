@@ -32,7 +32,7 @@ codeunit 134342 "ERM Posting Outside Date"
     begin
         // [SCENARIO 169269] General Journal Line with "Posting Date" equals current work date should be posted without asking for confirmation
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
         EnablePostingAfterFiscalYear;
@@ -59,7 +59,7 @@ codeunit 134342 "ERM Posting Outside Date"
     begin
         // [SCENARIO 169269] General Journal Line with "Posting Date" before current work date should be posted without asking for confirmation
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
         EnablePostingAfterFiscalYear;
@@ -87,7 +87,7 @@ codeunit 134342 "ERM Posting Outside Date"
     begin
         // [SCENARIO 169269] General Journal Line after current date should be posted if confirmed
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
         EnablePostingAfterFiscalYear;
@@ -116,7 +116,7 @@ codeunit 134342 "ERM Posting Outside Date"
     begin
         // [SCENARIO 169269] Error message should be thrown if posting of General Journal Line after current date is not confirmed
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
         EnablePostingAfterFiscalYear;
@@ -149,7 +149,7 @@ codeunit 134342 "ERM Posting Outside Date"
     begin
         // [SCENARIO 169269] Multiple General Journal Lines after current date should be posted with only one confirmation of "Posting After Current Date"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
         EnablePostingAfterFiscalYear;
@@ -182,10 +182,10 @@ codeunit 134342 "ERM Posting Outside Date"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Posting Outside Date");
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
 
         IsInitialized := true;
         Commit();

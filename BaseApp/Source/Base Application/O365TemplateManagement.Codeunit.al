@@ -72,7 +72,7 @@ codeunit 2142 "O365 Template Management"
 
         ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Item Template");
         ConfigTemplateLine.SetRange("Field ID", DummyItem.FieldNo("Base Unit of Measure"));
-        if not ConfigTemplateLine.FindFirst then
+        if not ConfigTemplateLine.FindFirst() then
             exit;
 
         if not UnitOfMeasure.Get(ConfigTemplateLine."Default Value") then

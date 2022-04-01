@@ -80,8 +80,8 @@ codeunit 138918 "O365 VAT Rates"
 
         // [WHEN] When user modifes VAT Percentage and VAT Reg. Reference
         VatPerc := LibraryRandom.RandInt(10);
-        VATRegReference := LibraryUtility.GenerateGUID;
-        VATProductPostingGroup.FindFirst;
+        VATRegReference := LibraryUtility.GenerateGUID();
+        VATProductPostingGroup.FindFirst();
 
         O365VATPostingSetupCard.OpenEdit;
         O365VATPostingSetupCard.GotoRecord(VATProductPostingGroup);
@@ -108,7 +108,7 @@ codeunit 138918 "O365 VAT Rates"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] User access the page
-        VATProductPostingGroup.FindFirst;
+        VATProductPostingGroup.FindFirst();
         O365VATPostingSetupList.OpenEdit;
 
         // [THEN] the page is not editable, new VAT Rate cannot be created
@@ -191,7 +191,7 @@ codeunit 138918 "O365 VAT Rates"
     begin
         DefaultVATProductPostingGroupCode := O365TemplateManagement.GetDefaultVATProdPostingGroup;
         VATProductPostingGroup.SetFilter(Code, '<>%1', DefaultVATProductPostingGroupCode);
-        VATProductPostingGroup.FindFirst;
+        VATProductPostingGroup.FindFirst();
     end;
 
     [ModalPageHandler]

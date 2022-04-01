@@ -96,7 +96,7 @@ page 167 "Item Ledger Entries Preview"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a package number if the posted item carries such a number.';
-                    Visible = ItemTrackingVisible;
+                    Visible = PackageTrackingVisible;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
@@ -486,9 +486,6 @@ page 167 "Item Ledger Entries Preview"
         CostAmountExpectedACY: Decimal;
         CostAmountActualACY: Decimal;
         CostAmountNonInvtblACY: Decimal;
-        ItemTrackingVisible: Boolean;
-        [InDataSet]
-        PackageTrackingVisible: Boolean;
 
     protected var
         Dim1Visible: Boolean;
@@ -499,6 +496,10 @@ page 167 "Item Ledger Entries Preview"
         Dim6Visible: Boolean;
         Dim7Visible: Boolean;
         Dim8Visible: Boolean;
+        [InDataSet]
+        ItemTrackingVisible: Boolean;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
 
     local procedure SetDimVisibility()
     var

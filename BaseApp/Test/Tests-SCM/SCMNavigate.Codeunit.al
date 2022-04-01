@@ -47,7 +47,7 @@ codeunit 137078 "SCM Navigate"
         DocumentNo: Code[20];
     begin
         // Setup: Create Item and Sales Order. Post Sales Order with Shipment.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         DocumentNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", false);  // Invoice as FALSE.
         SalesShipmentHeader.Get(DocumentNo);
@@ -72,7 +72,7 @@ codeunit 137078 "SCM Navigate"
         Navigate: TestPage Navigate;
     begin
         // Setup: Create Item and Sales Order. Post Sales Order with Shipment and Invoice.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", true);  // Invoice as TRUE.
         FindPostedSalesInvoiceHeader(SalesInvoiceHeader, SalesHeader."No.");
@@ -98,7 +98,7 @@ codeunit 137078 "SCM Navigate"
         DocumentNo: Code[20];
     begin
         // Setup: Create Item and Sales Return Order. Post Sales Return Order with Shipment.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         DocumentNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order", Item."No.", false);  // Invoice as FALSE.
         ReturnReceiptHeader.Get(DocumentNo);
@@ -123,7 +123,7 @@ codeunit 137078 "SCM Navigate"
         Navigate: TestPage Navigate;
     begin
         // Setup: Create Item and Sales Return Order. Post Sales Return Order with Shipment and Invoice.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order", Item."No.", true);  // Invoice as TRUE.
         FindPostedSalesCreditMemoHeader(SalesCrMemoHeader, SalesHeader."No.");
@@ -149,7 +149,7 @@ codeunit 137078 "SCM Navigate"
         DocumentNo: Code[20];
     begin
         // Setup: Create Item and Purchase Order. Post Purchase Order as Receive.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", false);  // Invoice as FALSE.
         PurchRcptHeader.Get(DocumentNo);
@@ -174,7 +174,7 @@ codeunit 137078 "SCM Navigate"
         Navigate: TestPage Navigate;
     begin
         // Setup: Create Item and Purchase Order. Post Purchase Order as Receive and Invoice.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", true);  // Invoice as TRUE.
         FindPostedPurchaseInvoiceHeader(PurchInvHeader, PurchaseHeader."No.");
@@ -200,7 +200,7 @@ codeunit 137078 "SCM Navigate"
         DocumentNo: Code[20];
     begin
         // Setup: Create Item and Purchase Return Order. Post Purchase Return Order as Receive.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Item."No.", false);  // Invoice as FALSE.
         ReturnShipmentHeader.Get(DocumentNo);
@@ -225,7 +225,7 @@ codeunit 137078 "SCM Navigate"
         Navigate: TestPage Navigate;
     begin
         // Setup: Create Item and Purchase Return Order. Post Purchase Return Order as Receive and Invoice.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Item."No.", true);  // Invoice as TRUE.
         FindPostedPurchaseCreditMemoHeader(PurchCrMemoHdr, PurchaseHeader."No.");
@@ -256,7 +256,7 @@ codeunit 137078 "SCM Navigate"
         // [SCENARIO] Check that Navigate Page is opened for correct source and contains correct number of lines, for Posted Service Shipment.
 
         // Setup: Create Item, Service Item and Service Order. Post Service Order as Ship.
-        Initialize;
+        Initialize();
         OldCreditWarnings := UpdateSalesAndReceivablesSetup(SalesReceivablesSetup."Credit Warnings"::"No Warning");
         CreateItemAndServiceItem(Item, ServiceItem);
         CreateAndPostServiceOrder(ServiceHeader, ServiceItem."Customer No.", ServiceItem."No.", Item."No.", true, false);  // Ship as TRUE and Invoice as FALSE.
@@ -291,7 +291,7 @@ codeunit 137078 "SCM Navigate"
         // [SCENARIO] Check that Navigate Page is opened for correct source and contains correct number of lines, for Posted Service Invoice.
 
         // Setup: Create Item, Service Item and Service Order. Post Service Order as Ship and Invoice.
-        Initialize;
+        Initialize();
         OldCreditWarnings := UpdateSalesAndReceivablesSetup(SalesReceivablesSetup."Credit Warnings"::"No Warning");
         CreateItemAndServiceItem(Item, ServiceItem);
         CreateAndPostServiceOrder(ServiceHeader, ServiceItem."Customer No.", ServiceItem."No.", Item."No.", true, true);  // Ship as TRUE and Invoice as TRUE.
@@ -324,7 +324,7 @@ codeunit 137078 "SCM Navigate"
         // [SCENARIO] Check that Navigate Page is opened for correct source and contains correct number of lines, for Posted Service Credit Memo.
 
         // Setup: Create Item, Service Item and Service Credit Memo. Post Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateItemAndServiceItem(Item, ServiceItem);
         CreateAndPostServiceCreditMemo(ServiceHeader, ServiceItem."Customer No.", Item."No.");
         FindPostedServiceCreditMemoHeader(ServiceCrMemoHeader, ServiceHeader."No.");
@@ -409,7 +409,7 @@ codeunit 137078 "SCM Navigate"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryApplicationArea.EnableEssentialSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
         Commit();
 
         IsInitialized := true;
@@ -567,43 +567,43 @@ codeunit 137078 "SCM Navigate"
     local procedure FindPostedPurchaseCreditMemoHeader(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ReturnOrderNo: Code[20])
     begin
         PurchCrMemoHdr.SetRange("Return Order No.", ReturnOrderNo);
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
     end;
 
     local procedure FindPostedPurchaseInvoiceHeader(var PurchInvHeader: Record "Purch. Inv. Header"; OrderNo: Code[20])
     begin
         PurchInvHeader.SetRange("Order No.", OrderNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
     end;
 
     local procedure FindPostedSalesCreditMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ReturnOrderNo: Code[20])
     begin
         SalesCrMemoHeader.SetRange("Return Order No.", ReturnOrderNo);
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
     end;
 
     local procedure FindPostedSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; OrderNo: Code[20])
     begin
         SalesInvoiceHeader.SetRange("Order No.", OrderNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure FindPostedServiceCreditMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PreAssignedNo: Code[20])
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
     end;
 
     local procedure FindPostedServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; OrderNo: Code[20])
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure FindPostedServiceShipmentHeader(var ServiceShipmentHeader: Record "Service Shipment Header"; OrderNo: Code[20])
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
     end;
 
     local procedure NavigateFromPostedPurchaseCreditMemo(var Navigate: TestPage Navigate; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")

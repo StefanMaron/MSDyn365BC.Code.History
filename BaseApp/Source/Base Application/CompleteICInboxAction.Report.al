@@ -73,7 +73,7 @@ report 511 "Complete IC Inbox Action"
                                 HandledInboxSalesHeader.Insert();
                                 DimMgt.SetICDocDimFilters(
                                   ICDocDim, DATABASE::"IC Inbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
-                                if ICDocDim.FindFirst then
+                                if ICDocDim.FindFirst() then
                                     DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Header", "Transaction Source");
                                 with InboxSalesLine do begin
                                     SetRange("IC Transaction No.", InboxSalesHeader2."IC Transaction No.");
@@ -85,7 +85,7 @@ report 511 "Complete IC Inbox Action"
                                             HandledInboxSalesLine.Insert();
                                             DimMgt.SetICDocDimFilters(
                                               ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
-                                            if ICDocDim.FindFirst then
+                                            if ICDocDim.FindFirst() then
                                                 DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", "Transaction Source");
                                         until Next() = 0;
                                 end;
@@ -123,7 +123,7 @@ report 511 "Complete IC Inbox Action"
                                 HandledInboxPurchHeader.Insert();
                                 DimMgt.SetICDocDimFilters(
                                   ICDocDim, DATABASE::"IC Inbox Purchase Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
-                                if ICDocDim.FindFirst then
+                                if ICDocDim.FindFirst() then
                                     DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Header", "Transaction Source");
                                 with InboxPurchLine do begin
                                     SetRange("IC Transaction No.", InboxPurchHeader2."IC Transaction No.");
@@ -136,7 +136,7 @@ report 511 "Complete IC Inbox Action"
                                             DimMgt.SetICDocDimFilters(
                                               ICDocDim, DATABASE::"IC Inbox Purchase Line", "IC Transaction No.", "IC Partner Code",
                                               "Transaction Source", "Line No.");
-                                            if ICDocDim.FindFirst then
+                                            if ICDocDim.FindFirst() then
                                                 DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", "Transaction Source");
                                         until Next() = 0;
                                 end;
@@ -197,6 +197,8 @@ report 511 "Complete IC Inbox Action"
             var
                 IsHandled: Boolean;
             begin
+                GetDefaultJnlTemplateAndBatch();
+
                 if TempGenJnlLine."Journal Template Name" <> '' then begin
                     GenJnlTemplate.Get(TempGenJnlLine."Journal Template Name");
                     IsHandled := false;
@@ -206,7 +208,7 @@ report 511 "Complete IC Inbox Action"
                     TempGenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
                     TempGenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
                 end;
-                GetGLSetup;
+                GetGLSetup();
             end;
         }
     }
@@ -377,14 +379,16 @@ report 511 "Complete IC Inbox Action"
         DimMgt: Codeunit DimensionManagement;
         GLSetupFound: Boolean;
         ReplacePostingDate: Boolean;
-        ReplaceDocPostingDate: Boolean;
-        DocPostingDate: Date;
         Forward: Boolean;
         Text001: Label '%1 %2 from IC Partner %3 already exists in the %4 window. You have to delete %1 %2 in the %4 window before you complete the line action.';
         [InDataSet]
         DocPostingDateEditable: Boolean;
         [InDataSet]
         PostingDateEditable: Boolean;
+
+    protected var
+        ReplaceDocPostingDate: Boolean;
+        DocPostingDate: Date;
 
     local procedure ValidateJnl()
     begin
@@ -405,7 +409,8 @@ report 511 "Complete IC Inbox Action"
         TempGenJnlLine."Document No." := '';
         GenJnlLine.SetRange("Journal Template Name", TempGenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", TempGenJnlLine."Journal Batch Name");
-        if GenJnlLine.FindLast then begin
+        GenJnlLine.LockTable();
+        if GenJnlLine.FindLast() then begin
             TempGenJnlLine."Document No." := IncStr(GenJnlLine."Document No.");
             TempGenJnlLine."Line No." := GenJnlLine."Line No.";
         end else
@@ -416,6 +421,35 @@ report 511 "Complete IC Inbox Action"
                     TempGenJnlLine."Document No." := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", TempGenJnlLine."Posting Date", false);
                     Clear(NoSeriesMgt);
                 end;
+    end;
+
+    procedure SetJournal(JournalTemplateName: Code[10]; JournalBatchName: Code[10])
+    begin
+        TempGenJnlLine."Journal Template Name" := JournalTemplateName;
+        TempGenJnlLine."Journal Batch Name" := JournalBatchName;
+        ValidateJnl();
+    end;
+
+    local procedure GetDefaultJnlTemplateAndBatch()
+    var
+        ICSetup: Record "IC Setup";
+#if not CLEAN20
+        ICAutoAcceptFeatureMgt: Codeunit "IC Auto Accept Feature Mgt.";
+#endif
+    begin
+#if not CLEAN20
+        if not ICAutoAcceptFeatureMgt.IsICAutoAcceptTransactionEnabled() then
+            exit;
+#endif
+        if TempGenJnlLine."Journal Template Name" <> '' then
+            exit;
+
+        if not ICSetup.Get() then
+            exit;
+
+        TempGenJnlLine."Journal Template Name" := ICSetup."Default IC Gen. Jnl. Template";
+        TempGenJnlLine."Journal Batch Name" := ICSetup."Default IC Gen. Jnl. Batch";
+        ValidateJnl();
     end;
 
     [IntegrationEvent(false, false)]

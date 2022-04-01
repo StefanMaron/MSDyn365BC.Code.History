@@ -8,11 +8,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 923233499 - Field 2369664869 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Created By</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Created By - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 923233499 - Field 90141998 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Address</source>
           <note from="Developer" annotates="general" priority="2"></note>

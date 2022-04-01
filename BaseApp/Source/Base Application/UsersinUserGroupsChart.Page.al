@@ -24,7 +24,7 @@ page 773 "Users in User Groups Chart"
                     UserGroupMember: Record "User Group Member";
                 begin
                     UserGroupMember.SetRange("User Group Code", point.XValueString);
-                    if not UserGroupMember.FindFirst then
+                    if not UserGroupMember.FindFirst() then
                         exit;
                     PAGE.RunModal(PAGE::"User Group Members", UserGroupMember);
                     CurrPage.Update(); // refresh the charts with the eventual changes
@@ -76,7 +76,7 @@ page 773 "Users in User Groups Chart"
         UsersInUserGroups: Query "Users in User Groups";
         ColumnNumber: Integer;
     begin
-        Initialize; // Initialize .NET variables for the chart
+        Initialize(); // Initialize .NET variables for the chart
 
         // Define Y-Axis
         AddIntegerMeasure(UsersTxt, 1, "Chart Type"::Column);

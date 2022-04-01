@@ -33,7 +33,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         CurrencyCode: Code[10];
     begin
         // Check the Additional Fee Amount on Issued Reminder for a Customer with LCY.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         CreateReminderWithCurrency(CurrencyCode, CurrencyCode);
     end;
@@ -43,7 +43,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     procedure ReminderWithFCY()
     begin
         // Check the Additional Fee Amount on Issued Reminder for a Customer with FCY.
-        Initialize;
+        Initialize();
         CreateReminderWithCurrency(CreateCurrency, FindCurrency);
     end;
 
@@ -81,10 +81,10 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     begin
         // Check Reminder Line Description after creating Reminder.
         // Setup: Create Sales Invoice and Reminder Terms Code.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, '');
         ReminderLevel.SetRange("Reminder Terms Code", Customer."Reminder Terms Code");
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
         LibraryERM.CreateReminderText(
           ReminderText, Customer."Reminder Terms Code", ReminderLevel."No.", ReminderText.Position::Ending, ReminderEndingText);
 
@@ -96,7 +96,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
         // Verify: Check Description on Reminder Line after Creating Reminder.
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Ending Text");
-        ReminderLine.FindLast;
+        ReminderLine.FindLast();
         Assert.AreEqual(StrSubstNo(ReminderLine.Description, ReminderLine.Amount + ReminderLine."Remaining Amount"),
           ReminderLine.Description, ErrorMustMatch);
     end;
@@ -177,7 +177,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // Check the functionality of Report Update Reminder Text.
 
         // Setup: Create Sales Invoice, Reminder Terms Code and Reminder Document.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, '');
         GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code");
         LibraryERM.CreateReminderText(
@@ -223,7 +223,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // Verify: Verify Reminder Level in Reminder/Fin. Charge Entry.
         ReminderFinChargeEntry.SetRange(Type, ReminderFinChargeEntry.Type::Reminder);
         ReminderFinChargeEntry.SetRange("No.", IssuedReminderNo);
-        ReminderFinChargeEntry.FindFirst;
+        ReminderFinChargeEntry.FindFirst();
         ReminderFinChargeEntry.TestField("Reminder Level", ReminderLevel."No.");
     end;
 
@@ -277,7 +277,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // Test Additional Fee and VAT Amounts on Reminder Header when Reminder Line is created with Line Type Additional Fee.
 
         // Setup: Insert Reminder Header with Customer No.
-        Initialize;
+        Initialize();
         InsertReminderHeader(ReminderHeader);
 
         // Exercise: Insert Reminder Line with Line Type Additional Fee.
@@ -299,7 +299,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // Test Additional Fee and VAT Amounts on Reminder Header when Reminder Line is created with Line Type Not Due.
 
         // Setup: Insert Reminder Header with Customer No.
-        Initialize;
+        Initialize();
         InsertReminderHeader(ReminderHeader);
 
         // Exercise: Insert Reminder Line with Line Type Not Due.
@@ -320,7 +320,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // Test Amount,VATAmount and Remaining Amounts on Reminder Lines when Reminder Lines are created with Different Line Type Options.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Insert Reminder Lines with Different Line Types and calculate Amounts.
         with ReminderLine do begin
@@ -378,7 +378,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         DocumentDate: Date;
     begin
         // [SCENARIO 297945] Additional Fee is printed with Issued Reminder when the additional fee amount is non-zero
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Customer with Currency "USD" and Reminder Terms attached to it
         // [GIVEN] Created and Posted Sales Invoice for the Customer with Currency "USD" selected
@@ -413,7 +413,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         DocumentDate: Date;
     begin
         // [SCENARIO 328296] Stan can create Reminder for multiple invoices when Reminder Level's Calculate Interest is True and Reminder terms have Finance Charge Interest Rate.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Sales invoices for Customer with Reminder Terms and Finance charge terms.
         SetupAndPostSalesInvoice(Customer, DocumentDate, '', '');
@@ -453,7 +453,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     begin
         // [FEATURE] [Reminder]
         // [SCENARIO 334720] The new reminder is created from Customer List
-        Initialize;
+        Initialize();
 
         // [GIVEN] The New Customer with outstanding balance was created
         LibrarySales.CreateSalesHeader(
@@ -493,8 +493,8 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Issued Reminder Addnl Fee");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Issued Reminder Addnl Fee");
     end;
@@ -622,7 +622,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         CreateReminders.SetTableView(Customer);
         CreateReminders.InitializeRequest(DocumentDate, DocumentDate, true, UseHeaderLevel, false);
         CreateReminders.UseRequestPage(false);
-        CreateReminders.Run;
+        CreateReminders.Run();
     end;
 
     local procedure CreateReminderLevel(var ReminderLevelGracePeriod: DateFormula; ReminderTermsCode: Code[10])
@@ -679,7 +679,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     local procedure FindReminderHeader(var ReminderHeader: Record "Reminder Header"; CustomerNo: Code[20])
     begin
         ReminderHeader.SetRange("Customer No.", CustomerNo);
-        ReminderHeader.FindFirst;
+        ReminderHeader.FindFirst();
     end;
 
     local procedure FindReminderLine(ReminderNo: Code[20])
@@ -687,13 +687,13 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderLine: Record "Reminder Line";
     begin
         ReminderLine.SetRange("Reminder No.", ReminderNo);
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
     end;
 
     local procedure GetReminderLevel(var ReminderLevel: Record "Reminder Level"; ReminderTermsCode: Code[10])
     begin
         ReminderLevel.SetRange("Reminder Terms Code", ReminderTermsCode);
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
     end;
 
     local procedure GetReminderNo(CustomerNo: Code[20]): Code[20]
@@ -701,14 +701,14 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderHeader: Record "Reminder Header";
     begin
         ReminderHeader.SetRange("Customer No.", CustomerNo);
-        ReminderHeader.FindFirst;
+        ReminderHeader.FindFirst();
         exit(ReminderHeader."No.");
     end;
 
     local procedure InsertReminderHeader(var ReminderHeader: Record "Reminder Header")
     begin
         ReminderHeader.Init();
-        ReminderHeader."No." := LibraryUtility.GenerateGUID;
+        ReminderHeader."No." := LibraryUtility.GenerateGUID();
         ReminderHeader.Insert();
     end;
 
@@ -740,7 +740,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     begin
         SalesAndReceivablesSetup.Get();
         NoSeriesLine.SetRange("Series Code", SalesAndReceivablesSetup."Reminder Nos.");
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         ReminderHeader.Get(NoSeriesLine."Last No. Used");
         IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate, false);
         ReminderIssue.Set(ReminderHeader, false, DocumentDate);
@@ -754,7 +754,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     begin
         Commit();
         IssuedReminderHeader.Get(IssuedReminderNo);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         IssuedReminderHeader.SetRecFilter;
         Reminder.SetTableView(IssuedReminderHeader);
         Reminder.SaveAsExcel(LibraryReportValidation.GetFileName);
@@ -769,7 +769,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderHeader.SetRange("No.", ReminderHeaderNo);
         SuggestReminderLines.SetTableView(ReminderHeader);
         SuggestReminderLines.UseRequestPage(false);
-        SuggestReminderLines.Run;
+        SuggestReminderLines.Run();
     end;
 
     local procedure SumRemainigLineAmounts(ReminderLine: Record "Reminder Line"; FieldNumber: Integer): Decimal
@@ -798,7 +798,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderLine: Record "Reminder Line";
     begin
         // Setup: Create Reminder Header.
-        Initialize;
+        Initialize();
 
         // Exercise: Insert Reminder Lines.
         InsertReminderWithTwoLines(ReminderHeader, ReminderLine, ReminderLine.Type::"Customer Ledger Entry", ReminderLineType);
@@ -814,7 +814,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderLine: Record "Reminder Line";
     begin
         // Setup: Create Reminder Header and Reminder Lines with Line Types.
-        Initialize;
+        Initialize();
 
         // Exercise: Insert Reminder Lines.
         InsertReminderWithTwoLines(ReminderHeader, ReminderLine, ReminderLine.Type::"Customer Ledger Entry", ReminderLineType);
@@ -830,7 +830,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     begin
         Clear(UpdateReminderText);
         UpdateReminderText.SetTableView(ReminderHeader);
-        UpdateReminderText.Run;
+        UpdateReminderText.Run();
     end;
 
     local procedure VerifyReminderLine(ReminderNo: Code[20]; Amount: Decimal)
@@ -842,7 +842,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         IssuedReminderLine.SetRange("Reminder No.", ReminderNo);
         IssuedReminderLine.SetRange(Type, IssuedReminderLine.Type::"G/L Account");
         IssuedReminderLine.SetFilter("Line Type", '<>%1', IssuedReminderLine."Line Type"::Rounding);
-        IssuedReminderLine.FindFirst;
+        IssuedReminderLine.FindFirst();
         Assert.AreNearlyEqual(
           Amount, IssuedReminderLine.Amount, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, Amount, ReminderNo));
     end;

@@ -22,7 +22,7 @@ codeunit 135547 "Webhook Logs E2E"
         ResponseText: Text;
     begin
         // [SCENARIO] GET returns many messages in the payload when webhook subscriptions are enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] webhookLogs URI without filters
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"API Webhook Logs", WebhookLogsTxt);
@@ -42,7 +42,7 @@ codeunit 135547 "Webhook Logs E2E"
         ResponseText: Text;
     begin
         // [SCENARIO] GET returns single message in the payload when webhook subscriptions are enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] webhookLogs URI for a single message
         TargetURL := LibraryGraphMgt.CreateTargetURL(
@@ -63,7 +63,7 @@ codeunit 135547 "Webhook Logs E2E"
         ResponseText: Text;
     begin
         // [SCENARIO] POST is not allowed for webhookLogs
-        Initialize;
+        Initialize();
 
         // [GIVEN] webhookLogs URI for a single message
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"API Webhook Logs", WebhookLogsTxt);
@@ -83,7 +83,7 @@ codeunit 135547 "Webhook Logs E2E"
         ResponseText: Text;
     begin
         // [SCENARIO] PATCH is not allowed for webhookLogs
-        Initialize;
+        Initialize();
 
         // [GIVEN] webhookLogs URI for a single message
         TargetURL := LibraryGraphMgt.CreateTargetURL(
@@ -104,7 +104,7 @@ codeunit 135547 "Webhook Logs E2E"
         ResponseText: Text;
     begin
         // [SCENARIO] DELETE is not allowed for webhookLogs
-        Initialize;
+        Initialize();
 
         // [GIVEN] webhookLogs URI for a single message
         TargetURL := LibraryGraphMgt.CreateTargetURL(
@@ -141,7 +141,7 @@ codeunit 135547 "Webhook Logs E2E"
     begin
         ActivityLog.SetRange(Context, ActivityLogContextLbl);
         ActivityLog.SetRange(Description, ActivityDescription);
-        ActivityLog.FindFirst;
+        ActivityLog.FindFirst();
         exit(ActivityLog.ID);
     end;
 

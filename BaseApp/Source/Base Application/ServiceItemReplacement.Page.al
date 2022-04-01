@@ -78,7 +78,7 @@ page 5985 "Service Item Replacement"
                                 ItemVariant.Reset();
                                 ItemVariant.SetRange("Item No.", ItemNo);
                                 ItemVariant.SetRange(Code, VariantCode);
-                                if not ItemVariant.FindFirst then
+                                if not ItemVariant.FindFirst() then
                                     Error(
                                       Text000,
                                       ItemVariant.TableCaption, ItemNo, VariantCode);

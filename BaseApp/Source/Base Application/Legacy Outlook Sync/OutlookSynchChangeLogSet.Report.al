@@ -48,7 +48,7 @@ report 5300 "Outlook Synch. Change Log Set."
                         OSynchFilter.SetRange("Record GUID", "Record GUID");
                         OSynchFilter.SetRange("Filter Type", OSynchFilter."Filter Type"::"Table Relation");
                         OSynchFilter.SetRange(Type, OSynchFilter.Type::FIELD);
-                        if not OSynchFilter.FindFirst then begin
+                        if not OSynchFilter.FindFirst() then begin
                             CalcFields("Table Caption");
                             if "Element No." = 0 then
                                 Error(Text001, "Table Caption", OSynchEntity.TableCaption, OSynchEntity.Code);
@@ -161,7 +161,7 @@ report 5300 "Outlook Synch. Change Log Set."
 
     trigger OnPreReport()
     begin
-        if not OSynchEntity.FindFirst then
+        if not OSynchEntity.FindFirst() then
             Error(Text004);
     end;
 

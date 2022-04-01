@@ -149,7 +149,7 @@ page 129 "Detailed Vend. Entries Preview"
 
     procedure Set(var TempDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry" temporary)
     begin
-        if TempDtldVendLedgEntry.FindSet then
+        if TempDtldVendLedgEntry.FindSet() then
             repeat
                 Rec := TempDtldVendLedgEntry;
                 Insert;

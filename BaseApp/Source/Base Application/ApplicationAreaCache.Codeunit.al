@@ -3,16 +3,18 @@ codeunit 9177 "Application Area Cache"
     SingleInstance = true;
     Access = Internal;
 
+    Permissions = tabledata "Application Area Setup" = r;
+
     var
         ApplicationAreaCache: Dictionary of [Text, Text];
 
     procedure GetApplicationAreasForUser(var ApplicationAreas: Text): Boolean
     begin
-        if not ApplicationAreaCache.ContainsKey('User:' + UserId()) then 
+        if not ApplicationAreaCache.ContainsKey('User:' + UserId()) then
             PopulateCacheForUser();
-        
+
         ApplicationAreas := ApplicationAreaCache.Get('User:' + UserId());
-        exit(ApplicationAreas <> '-') 
+        exit(ApplicationAreas <> '-')
     end;
 
     local procedure PopulateCacheForUser()
@@ -33,11 +35,11 @@ codeunit 9177 "Application Area Cache"
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
         ConfPersonalizationMgt.GetCurrentProfileNoError(AllProfile);
-        if not ApplicationAreaCache.ContainsKey('Profile:' + AllProfile."Profile ID") then 
+        if not ApplicationAreaCache.ContainsKey('Profile:' + AllProfile."Profile ID") then
             PopulateCacheForProfile(AllProfile."Profile ID");
-        
+
         ApplicationAreas := ApplicationAreaCache.Get('Profile:' + AllProfile."Profile ID");
-        exit(ApplicationAreas <> '-') 
+        exit(ApplicationAreas <> '-')
     end;
 
     local procedure PopulateCacheForProfile(ProfileCode: Code[30])
@@ -54,11 +56,11 @@ codeunit 9177 "Application Area Cache"
 
     procedure GetApplicationAreasForCompany(var ApplicationAreas: Text): Boolean
     begin
-        if not ApplicationAreaCache.ContainsKey('Company:' + CompanyName()) then 
+        if not ApplicationAreaCache.ContainsKey('Company:' + CompanyName()) then
             PopulateCacheForCompany();
-        
+
         ApplicationAreas := ApplicationAreaCache.Get('Company:' + CompanyName());
-        exit(ApplicationAreas <> '-') 
+        exit(ApplicationAreas <> '-')
     end;
 
     local procedure PopulateCacheForCompany()
@@ -75,11 +77,11 @@ codeunit 9177 "Application Area Cache"
 
     procedure GetApplicationAreasCrossCompany(var ApplicationAreas: Text): Boolean
     begin
-        if not ApplicationAreaCache.ContainsKey('') then 
+        if not ApplicationAreaCache.ContainsKey('') then
             PopulateCacheCrossCompany();
-        
+
         ApplicationAreas := ApplicationAreaCache.Get('');
-        exit(ApplicationAreas <> '-') 
+        exit(ApplicationAreas <> '-')
     end;
 
     local procedure PopulateCacheCrossCompany()

@@ -26,9 +26,8 @@ codeunit 134216 "WFWH Sales Document Approval"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         UserCannotCancelErr: Label 'User %1 does not have the permission necessary to cancel the item.', Comment = '%1 = NAV USERID';
-        UserCannotContinueErr: Label 'User %1 does not have the permission necessary to continue the item.', Comment = '%1 = NAV USERID';
-        UserCannotRejectErr: Label 'User %1 does not have the permission necessary to reject the item.', Comment = '%1 = NAV USERID';
-        BogusUserIdTxt: Label 'Contoso';
+        UserCannotActErr: Label 'User %1 cannot act on this step. Make sure the user who created the webhook (%2) is the same who is trying to act.', Comment = '%1, %2 = two distinct NAV user IDs, for example "MEGANB" and "WILLIAMC"';
+        BogusUserIdTxt: Label 'CONTOSO';
         DynamicRequestPageParametersOpenSalesOrderTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Sales Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Sales Line">SORTING(Field1,Field3,Field4)</DataItem></DataItems></ReportParameters>', Locked = true;
         UnexpectedNoOfApprovalEntriesErr: Label 'Unexpected number of approval entries found.', Locked = true;
 
@@ -39,9 +38,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WFWH Sales Document Approval");
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         UserSetup.DeleteAll();
         WorkflowWebhookEntry.DeleteAll();
@@ -70,7 +69,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The user will get an error that an unapproved sales order cannot be released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -98,7 +97,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The user will get an error that an unapproved sales order cannot be released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrderAndSendForApproval(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -128,7 +127,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The user will get an error that an unapproved sales order cannot be reopened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -159,7 +158,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The user will get an error that an unapproved sales order cannot be posted.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -220,7 +219,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The sales order is cancelled and opened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -251,7 +250,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The sales order is approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -283,7 +282,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The sales order is rejected and opened.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -316,7 +315,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The sales order approval is not cancelled.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -350,7 +349,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The sales order approval is not continued.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(BogusUserIdTxt);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -362,7 +361,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.SystemId));
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(UserCannotContinueErr, UserId));
+        Assert.ExpectedError(StrSubstNo(UserCannotActErr, UserId, BogusUserIdTxt));
         VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");
     end;
@@ -383,7 +382,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The sales order approval is not rejected.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(BogusUserIdTxt);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -395,7 +394,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.SystemId));
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(UserCannotRejectErr, UserId));
+        Assert.ExpectedError(StrSubstNo(UserCannotActErr, UserId, BogusUserIdTxt));
         VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");
     end;
@@ -414,7 +413,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] The exisiting approval requests are deleted and the sales order is also deleted.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -443,7 +442,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Sales Order Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order record exists, with a Flow approval request already open.
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -470,7 +469,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrderList: TestPage "Sales Order List";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Sales Order List page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order record exists, with a Flow approval request already open.
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -497,7 +496,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Sales Quote Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote record exists, with a Flow approval request already open.
         CreateSalesQuote(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -524,7 +523,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesQuotes: TestPage "Sales Quotes";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Sales Quote List page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote record exists, with a Flow approval request already open.
         CreateSalesQuote(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -551,7 +550,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Sales Invoice Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice record exists, with a Flow approval request already open.
         CreateSalesInvoice(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -578,7 +577,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesInvoiceList: TestPage "Sales Invoice List";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Sales Invoice List page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice record exists, with a Flow approval request already open.
         CreateSalesInvoice(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -605,7 +604,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Sales Credit Memo Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo record exists, with a Flow approval request already open.
         CreateSalesCreditMemo(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -632,7 +631,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesCreditMemos: TestPage "Sales Credit Memos";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Sales Credit Memo List page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo record exists, with a Flow approval request already open.
         CreateSalesCreditMemo(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -660,7 +659,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Sales Order Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order record exists, with a Flow approval request already open.
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -672,7 +671,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrder.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -689,7 +688,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrderList: TestPage "Sales Order List";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Sales Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order record exists, with a Flow approval request already open.
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -701,7 +700,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrderList.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -718,7 +717,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Sales Quote Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote record exists, with a Flow approval request already open.
         CreateSalesQuote(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -730,7 +729,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesQuote.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -747,7 +746,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesQuotes: TestPage "Sales Quotes";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Sales Quote List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote record exists, with a Flow approval request already open.
         CreateSalesQuote(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -759,7 +758,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesQuotes.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -776,7 +775,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Sales Invoice Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice record exists, with a Flow approval request already open.
         CreateSalesInvoice(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -788,7 +787,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesInvoice.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -805,7 +804,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesInvoiceList: TestPage "Sales Invoice List";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Sales Invoice List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice record exists, with a Flow approval request already open.
         CreateSalesInvoice(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -817,7 +816,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesInvoiceList.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -834,7 +833,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Sales Credit Memo Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo record exists, with a Flow approval request already open.
         CreateSalesCreditMemo(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -846,7 +845,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesCreditMemo.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -863,7 +862,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesCreditMemos: TestPage "Sales Credit Memos";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Sales Credit Memo List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo record exists, with a Flow approval request already open.
         CreateSalesCreditMemo(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -875,7 +874,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesCreditMemos.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -889,7 +888,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         WorkflowWebhookEntry."Initiated By User ID" := InitiatedByUserID;
         WorkflowWebhookEntry.Modify();
@@ -962,7 +961,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         exit(WorkflowWebhookEntry."Workflow Step Instance ID");
     end;
@@ -1006,7 +1005,7 @@ codeunit 134216 "WFWH Sales Document Approval"
     local procedure VerifySalesDocumentStatus(SalesHeader: Record "Sales Header"; Status: Enum "Sales Document Status")
     begin
         SalesHeader.SetRecFilter;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesHeader.TestField(Status, Status);
     end;
 
@@ -1017,7 +1016,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         WorkflowWebhookEntry.TestField(Response, ResponseArgument);
     end;

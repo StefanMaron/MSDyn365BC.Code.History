@@ -47,7 +47,7 @@ page 6302 "Azure AD Access Dialog"
                         OnOAuthAccessDenied(description, ResourceFriendlyName)
                     else begin
                         if not AzureAdAppSetup.IsEmpty() then begin
-                            AzureAdAppSetup.FindFirst;
+                            AzureAdAppSetup.FindFirst();
                             ActivityLog.LogActivityForUser(
                               AzureAdAppSetup.RecordId, ActivityLog.Status::Failed, 'Azure Authorization', description, error, UserId);
                         end;
@@ -104,7 +104,7 @@ page 6302 "Azure AD Access Dialog"
                 exit('');
         end;
 
-        CurrPage.RunModal;
+        CurrPage.RunModal();
         exit(AuthCode);
     end;
 

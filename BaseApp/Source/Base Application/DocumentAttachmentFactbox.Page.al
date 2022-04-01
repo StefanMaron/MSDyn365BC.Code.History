@@ -129,7 +129,7 @@ page 1174 "Document Attachment Factbox"
                         end;
 
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }

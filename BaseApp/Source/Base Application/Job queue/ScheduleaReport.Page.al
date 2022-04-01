@@ -95,7 +95,7 @@ page 682 "Schedule a Report"
 
     trigger OnOpenPage()
     begin
-        if not FindFirst then begin
+        if not FindFirst() then begin
             Init;
             ReportEditable := true;
             OutPutEditable := true;

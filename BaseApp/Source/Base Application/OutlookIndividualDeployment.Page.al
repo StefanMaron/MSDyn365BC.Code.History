@@ -24,6 +24,38 @@ page 1832 "Outlook Individual Deployment"
                 }
             }
 
+            group(Step0)
+            {
+                Caption = '';
+                Visible = PrivacyNoticeStepVisible;
+
+                group(PrivacyNoticeGroup)
+                {
+                    Caption = 'Your privacy is important to us';
+
+                    group(PrivacyNoticeInner)
+                    {
+                        ShowCaption = false;
+                        label(PrivacyNoticeLabel)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'This feature utilizes Microsoft Exchange. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Exchange may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Exchange to learn more.';
+                        }
+                        field(PrivacyNoticeStatement; PrivacyStatementTxt)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ShowCaption = false;
+
+                            trigger OnDrillDown()
+                            begin
+                                Hyperlink('https://go.microsoft.com/fwlink/?linkid=831305');
+                            end;
+                        }
+                    }
+                }
+            }
+
             // Introduction Step
             group(Step1)
             {
@@ -206,21 +238,27 @@ page 1832 "Outlook Individual Deployment"
         User.SetRange("User Name", UserId);
         if User.FindFirst() then
             Email := User."Authentication Email";
-
-        CredentialsRequired := (Email = '') or ExchangeAddinSetup.CredentialsRequired(CopyStr(Email, 1, 80));
-        SampleEmailsAvailable := ExchangeAddinSetup.SampleEmailsAvailable();
-        SetupSampleEmails := not CredentialsRequired and SampleEmailsAvailable;
     end;
 
     trigger OnOpenPage()
+    var
+        PrivacyNotice: Codeunit "Privacy Notice";
+        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
     begin
-        ShowIntroStep();
+        if not (PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed) then
+            ShowPrivacyNoticeStep()
+        else begin
+            Step := Step::Intro;
+            ShowIntroStep();
+        end;
     end;
 
     local procedure NextStep()
     begin
         Step := Step + 1;
         case Step of
+            Step::PrivacyNotice:
+                ShowPrivacyNoticeStep();
             Step::Intro:
                 ShowIntroStep();
             Step::SampleEmail:
@@ -231,11 +269,32 @@ page 1832 "Outlook Individual Deployment"
         CurrPage.Update(true);
     end;
 
+    local procedure ShowPrivacyNoticeStep()
+    begin
+        ResetWizardControls();
+        PrivacyNoticeStepVisible := true;
+        NextActionVisible := true;
+    end;
+
     local procedure ShowIntroStep()
+    var
+        PrivacyNotice: Codeunit "Privacy Notice";
+        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
     begin
         ResetWizardControls();
         IntroStepVisible := true;
         NextActionVisible := true;
+
+        // User has agreed to the Privacy Notice
+        PrivacyNotice.SetApprovalState(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId(), "Privacy Notice Approval State"::Agreed);
+
+        if not CredentialsInitialized then begin
+            CredentialsRequired := (Email = '') or ExchangeAddinSetup.CredentialsRequired(CopyStr(Email, 1, 80));
+            SampleEmailsAvailable := ExchangeAddinSetup.SampleEmailsAvailable();
+            SetupSampleEmails := not CredentialsRequired and SampleEmailsAvailable;
+            CredentialsInitialized := true;
+        end;
+
         if not CredentialsRequired and (not ExchangeAddinSetup.SampleEmailsAvailable()) then begin
             NextActionVisible := false;
             InstallActionVisible := true;
@@ -272,6 +331,7 @@ page 1832 "Outlook Individual Deployment"
 
         // Tabs
         IntroStepVisible := false;
+        PrivacyNoticeStepVisible := false;
         SampleEmailStepVisible := false;
         ManualDeploymentStepVisible := false;
     end;
@@ -335,12 +395,13 @@ page 1832 "Outlook Individual Deployment"
         ExchangeAddinSetup: Codeunit "Exchange Add-in Setup";
         ClientTypeManagement: Codeunit "Client Type Management";
         Email: Text[250];
-        Step: Option Intro,SampleEmail,ManualDeployment;
+        Step: Option PrivacyNotice,Intro,SampleEmail,ManualDeployment;
         NextActionVisible: Boolean;
         FinishActionVisible: Boolean;
         DownloadActionVisible: Boolean;
         InstallActionVisible: Boolean;
         TopBannerVisible: Boolean;
+        PrivacyNoticeStepVisible: Boolean;
         IntroStepVisible: Boolean;
         ManualDeploymentStepVisible: Boolean;
         SampleEmailStepVisible: Boolean;
@@ -348,6 +409,7 @@ page 1832 "Outlook Individual Deployment"
         SkipDeployment: Boolean;
         SetupSampleEmails: Boolean;
         CredentialsRequired: Boolean;
+        CredentialsInitialized: Boolean;
         ConnectingMsg: Label 'Connecting to Exchange.';
         DeployAccountMsg: Label 'Deploying add-in for your account.';
         DeploySampleMailMsg: Label 'Deploying sample emails to your mailbox.';
@@ -358,5 +420,6 @@ page 1832 "Outlook Individual Deployment"
         LearnMoreLbl: Label 'Learn more about installing Outlook add-in';
         WatchVideoLbl: Label 'Watch the video';
         DownloadAddinsLbl: Label '1. Download the add-in files to your device.';
+        PrivacyStatementTxt: Label 'Learn more about our Privacy Statement.';
 }
 

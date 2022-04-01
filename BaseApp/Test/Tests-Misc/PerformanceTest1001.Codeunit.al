@@ -18,7 +18,7 @@ codeunit 132498 PerformanceTest1001
         InventoryValuation.SetStartDate(parsedDate);
         parsedDate := DMY2Date(2, 2, 2001);
         InventoryValuation.SetEndDate(parsedDate);
-        InventoryValuation.Run;
+        InventoryValuation.Run();
     end;
 
     [Scope('OnPrem')]
@@ -34,7 +34,7 @@ codeunit 132498 PerformanceTest1001
         customerRecord.SetFilter("No.", '01445544..01905893');
         AgedAccountsReceivable.InitializeRequest(parsedDate, 0, periodLength, false, false, 0, false);
         AgedAccountsReceivable.SetTableView(customerRecord);
-        AgedAccountsReceivable.Run;
+        AgedAccountsReceivable.Run();
     end;
 
     [Scope('OnPrem')]
@@ -45,7 +45,7 @@ codeunit 132498 PerformanceTest1001
     begin
         parsedDate := DMY2Date(12, 12, 2012);
         Statement.InitializeRequest(false, false, true, false, false, false, '<1M+CM>', 0, true, parsedDate, parsedDate);
-        Statement.Run;
+        Statement.Run();
     end;
 
     [Scope('OnPrem')]
@@ -59,7 +59,7 @@ codeunit 132498 PerformanceTest1001
         customerRecord.SetFilter("No.", '01121212');
         CustomerBalanceToDate.InitializeRequest(false, false, false, parsedDate);
         CustomerBalanceToDate.SetTableView(customerRecord);
-        CustomerBalanceToDate.Run;
+        CustomerBalanceToDate.Run();
     end;
 
     [Scope('OnPrem')]
@@ -74,7 +74,7 @@ codeunit 132498 PerformanceTest1001
         endDate := DMY2Date(31, 12, 2005);
         postingDate := DMY2Date(22, 7, 2005);
         CalcAndPostVATSettlement.InitializeRequest(startDate, endDate, postingDate, 'S-IN000000001', '2320', true, false);
-        CalcAndPostVATSettlement.Run;
+        CalcAndPostVATSettlement.Run();
     end;
 
     [Scope('OnPrem')]

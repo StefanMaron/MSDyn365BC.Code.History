@@ -239,6 +239,7 @@ page 5094 "Marketing Setup"
             group("Email Logging")
             {
                 Caption = 'Email Logging';
+                Visible = not EmailLoggingUsingGraphApiFeatureEnabled;
                 field("Autodiscovery E-Mail Address"; "Autodiscovery E-Mail Address")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -514,21 +515,6 @@ page 5094 "Marketing Setup"
             {
                 Caption = '&Setup';
                 Image = Setup;
-                action("Social Engagement Setup")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Social Engagement Setup';
-                    Image = SocialListening;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    RunObject = Page "Social Listening Setup";
-                    ToolTip = 'Set up the Microsoft Social Engagement server URL, agree to the license terms, and enable the Social Listening for Customers, Vendors, and/or Items.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                    ObsoleteTag = '17.0';
-                }
                 action("Duplicate Search String Setup")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -552,6 +538,7 @@ page 5094 "Marketing Setup"
                     Image = Setup;
                     ToolTip = 'Runs Email Logging Setup Wizard.';
                     Enabled = not EmailLoggingEnabled;
+                    Visible = not EmailLoggingUsingGraphApiFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -573,6 +560,7 @@ page 5094 "Marketing Setup"
                     Caption = 'Validate Email Logging Setup';
                     Image = ValidateEmailLoggingSetup;
                     ToolTip = 'Test that email logging is set up correctly.';
+                    Visible = not EmailLoggingUsingGraphApiFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -591,6 +579,7 @@ page 5094 "Marketing Setup"
                     Image = ClearLog;
                     ToolTip = 'Clear what is currently set up for email logging.';
                     Enabled = not EmailLoggingEnabled;
+                    Visible = not EmailLoggingUsingGraphApiFeatureEnabled;
 
                     trigger OnAction()
                     begin
@@ -623,7 +612,9 @@ page 5094 "Marketing Setup"
     trigger OnInit()
     var
         EnvironmentInfo: Codeunit "Environment Information";
+        SetupEmailLogging: Codeunit "Setup Email Logging";
     begin
+        EmailLoggingUsingGraphApiFeatureEnabled := SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled();
         SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
         ClientCredentialsVisible := not SoftwareAsAService;
         BasicAuthVisible := not SoftwareAsAService;
@@ -704,6 +695,7 @@ page 5094 "Marketing Setup"
         ClientCredentialsVisible: Boolean;
         BasicAuthVisible: Boolean;
         EmailLoggingEnabled: Boolean;
+        EmailLoggingUsingGraphApiFeatureEnabled: Boolean;
         AuthenticationType: Option OAuth2,Basic;
 
     procedure SetAttachmentStorageType()

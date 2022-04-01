@@ -29,7 +29,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         AdditionalFieldsWereModified: Boolean;
     begin
         // [FEATURE] [Table Subscriber] [Customer]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
 
         SourceRecordRef.Open(DATABASE::"CRM Account");
@@ -154,7 +154,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         AdditionalFieldsWereModified: Boolean;
     begin
         // [FEATURE] [Table Subscriber] [Contact]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
 
         SourceRecordRef.Open(DATABASE::"CRM Contact");
@@ -217,7 +217,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         DestinationRecordRef: RecordRef;
     begin
         // [FEATURE] [Table Subscriber] [Contact]
-        Initialize;
+        Initialize();
 
         SourceRecordRef.Open(DATABASE::"CRM Contact");
         DestinationRecordRef.Open(DATABASE::Contact);
@@ -262,7 +262,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         SkipItem: Boolean;
     begin
         // [FEATURE] [Table Subscriber] [Salesperson]
-        Initialize;
+        Initialize();
 
         LibraryCRMIntegration.RegisterTestTableConnection;
         // [GIVEN] Valid setup
@@ -308,7 +308,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         AdditionalFieldsWereModified: Boolean;
     begin
         // [FEATURE] [Table Subscriber] [Salesperson]
-        Initialize;
+        Initialize();
 
         LibraryCRMIntegration.RegisterTestTableConnection;
         DefaultCRMTransactionCurrencyId := LibraryCRMIntegration.GetGLSetupCRMTransactionCurrencyID;
@@ -380,7 +380,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         DestinationRecordRef: RecordRef;
     begin
         // [FEATURE] [CRM Synch. Helper] [Salesperson]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [GIVEN] A mapping exists for salespeople - CRM systemusers
         IntegrationTableMapping.SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
@@ -420,7 +420,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         DestinationRecordRef: RecordRef;
     begin
         // [FEATURE] [CRM Synch. Helper] [Salesperson]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
         // [GIVEN] No mapping exists for salespeople - CRM systemusers
         IntegrationTableMapping.SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
@@ -467,7 +467,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         DestinationRecordRef: RecordRef;
     begin
         // [FEATURE] [CRM Synch. Helper] [Salesperson]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
 
         // [GIVEN] A mapping exists for salespeople - CRM systemusers
@@ -506,7 +506,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         DestinationRecordRef: RecordRef;
     begin
         // [FEATURE] [CRM Synch. Helper] [Salesperson]
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
 
         // [GIVEN] No mapping exists for salespeople - CRM systemusers

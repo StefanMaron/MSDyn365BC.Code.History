@@ -53,7 +53,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
@@ -94,7 +94,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -131,7 +131,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
@@ -174,7 +174,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -214,7 +214,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Create setups, Item and Transfer Locations.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
@@ -233,7 +233,7 @@ codeunit 137047 "SCM Warehouse I"
 
         // Verify: Error Message - Dimensions are invalid.
         TransferLine.SetRange("Document No.", TransferHeader2."No.");
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         Assert.ExpectedError(StrSubstNo(ErrInvalidDimensionTransfer, TransferHeader2."No.", TransferLine."Line No."));
 
         // Verify that correct shipment line has been posted.
@@ -258,7 +258,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Create setups, Item and Transfer Locations.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -295,7 +295,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -337,7 +337,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -375,7 +375,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -417,7 +417,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -454,7 +454,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup: Create setups, Item, Customer with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
@@ -493,7 +493,7 @@ codeunit 137047 "SCM Warehouse I"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
@@ -537,7 +537,7 @@ codeunit 137047 "SCM Warehouse I"
         PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
     begin
         // Setup: Create setups, Item, Customer, and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
@@ -585,7 +585,7 @@ codeunit 137047 "SCM Warehouse I"
         TransferHeader: Record "Transfer Header";
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
@@ -637,7 +637,7 @@ codeunit 137047 "SCM Warehouse I"
         Item: Record Item;
     begin
         // Setup: Create setups for Sales, Purchase Return and Transfer with Customer, Vendor Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -669,7 +669,7 @@ codeunit 137047 "SCM Warehouse I"
         Item: Record Item;
     begin
         // Setup: Create setups for Sales, Purchase Return and Transfer with Customer, Vendor Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -702,7 +702,7 @@ codeunit 137047 "SCM Warehouse I"
         Item: Record Item;
     begin
         // Setup: Create setups for Sales, Purchase Return and Transfer with Customer, Vendor Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -734,7 +734,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -771,7 +771,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -819,7 +819,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -863,7 +863,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -905,7 +905,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -935,7 +935,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -964,7 +964,7 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -997,7 +997,7 @@ codeunit 137047 "SCM Warehouse I"
         "Count": Integer;
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -1033,7 +1033,7 @@ codeunit 137047 "SCM Warehouse I"
         "Count": Integer;
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
@@ -1064,7 +1064,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Warehouse Receipt]
         // [SCENARIO 362752] Action "Create Warehouse Receipt" in purchase order fails if the item in purch. order is blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create purchase order
         CreateItem(Item);
@@ -1094,7 +1094,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Warehouse Receipt] [Filters to Get Source Documents]
         // [SCENARIO 362752] "Use Filters to get Source Docs" throws error if the source purchase document contains only line with a blocked item
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create purchase order
         CreateItem(Item);
@@ -1125,7 +1125,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Warehouse Receipt] [Filters to Get Source Documents]
         // [SCENARIO 362752] "Use Filters to get Source Docs" creates warehouse receipt if the source purch. order has two line with different items, one of which is blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create two items "I1" and "I2"
         CreateItem(Item[1]);
@@ -1162,7 +1162,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Warehouse Shipment]
         // [SCENARIO 362752] Action "Create Warehouse Shipment" in sales order fails if at least one item in the sales order is blocked.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create sales order with 2 items = "I1" and "I2".
         CreateItem(Item);
@@ -1201,7 +1201,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Warehouse Shipment] [Filters to Get Source Documents]
         // [SCENARIO 362752] "Use Filters to get Source Docs" throws error if the source sales document contains only line with a blocked item
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create sales order
         CreateItem(Item);
@@ -1232,7 +1232,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Warehouse Shipment] [Filters to Get Source Documents]
         // [SCENARIO 362752] "Use Filters to get Source Docs" creates warehouse shipment if the source sales order has two line with different items, one of which is blocked
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create two items "I1" and "I2"
         CreateItem(Item[1]);
@@ -1269,7 +1269,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Item Reclassification]
         // [SCENARIO 377752] It should be possible to enter location with "Directed Put-Away and Pick" in item reclassification journal if "Location Code" = "New Location Code"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create location "L" with "Directed Put-Away and Pick" = TRUE
         CreateDirectedPutAwayAndPickLocation(Location);
@@ -1303,7 +1303,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Item Reclassification]
         // [SCENARIO 377752] It should not be allowed to enter location with "Directed Put-Away and Pick" in item reclassification journal if "Location Code" <> "New Location Code"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create 2 locations ("L1" and "L2"), "Directed Put-Away and Pick" = TRUE in both
         CreateDirectedPutAwayAndPickLocation(Location[1]);
@@ -1337,7 +1337,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Item Reclassification] [Bin]
         // [SCENARIO 377752] It should not be allowed to enter bin code in item reclassification journal if location uses "Directed Put-Away and Pick"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create location "L" with "Directed Put-Away and Pick" = TRUE
         // [GIVEN] Create item reclassification journal line for location "L"
@@ -1368,7 +1368,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Item Reclassification] [Bin]
         // [SCENARIO 377752] It should not be allowed to enter new bin code in item reclassification journal if location uses "Directed Put-Away and Pick"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create location "L" with "Directed Put-Away and Pick" = TRUE
         // [GIVEN] Create item reclassification journal line for location "L"
@@ -1404,7 +1404,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Item Reclassification] [Dimension]
         // [SCENARIO 377752] It should be possible to reclassify item ledger entry on a "directed put-away and pick" location via item reclassification journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create location "L" with directed put-away and pick
         CreateFullWMSLocation(Location, 1);
@@ -1454,15 +1454,15 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Item Tracking] [Reservation] [Late Binding] [Warehouse] [Pick]
         // [SCENARIO 378082] Non-specific reservation on inventory should be reallocated when posting warehouse pick
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with lot warehouse tracking
         CreateShipPickLocation(Location);
         CreateItemWithLotWarehouseTracking(Item);
 
         // [GIVEN] Post inventory stock in two lots: "L1" and "L2", quantity in each lot is "X"
-        LotNo[1] := LibraryUtility.GenerateGUID;
-        LotNo[2] := LibraryUtility.GenerateGUID;
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
         LotQty := LibraryRandom.RandIntInRange(100, 200);
         CreateItemJournalLine(ItemJournalLine, Item."No.", Location.Code, LotQty * 2);
         AssignLotNoToItemJournalLine(ItemJournalLine, LotNo[1], LotQty);
@@ -1502,7 +1502,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Warehouse Shipment] [Shipment Date]
         // [SCENARIO 380672] Shipment date cannot be updated in a sales line if there is a warehouse shipment for this line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Require Shipment"
         // [GIVEN] Create sales order and warehouse shipment
@@ -1527,7 +1527,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Warehouse Shipment] [Shipment Date]
         // [SCENARIO 380672] Shipment date in a sales line can be updated if there is no warehouse shipment for this line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Require Shipment"
         // [GIVEN] Create sales order without related warehouse shipment
@@ -1559,14 +1559,14 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Item Tracking] [Put-Away]
         // [SCENARIO 277222] Put-away created from a posted warehouse receipt inherits lot no. from unhandled tracking line of the source document, when another posted receipt withe the same lot exists
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" tracked by lot number
         CreateItemWithLotWarehouseTracking(Item);
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
 
-        LotNos[1] := LibraryUtility.GenerateGUID;
-        LotNos[2] := LibraryUtility.GenerateGUID;
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
         LotQty[1] := LibraryRandom.RandInt(10);
         LotQty[2] := LibraryRandom.RandIntInRange(10, 20);
 
@@ -1623,7 +1623,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // [FEATURE] [Item Tracking] [Bin Content]
         // [SCENARIO 269846] Lot tracked item and item without tracking can be picked in one warehouse pick
-        Initialize;
+        Initialize();
 
         CreateFullWMSLocation(Location, 2);
 
@@ -1633,7 +1633,7 @@ codeunit 137047 "SCM Warehouse I"
 
         // [GIVEN] 10 pcs of each item on WHITE location
         StockQty := 10;
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", Location.Code, StockQty, false);
         UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(TrackedItem."No.", Location.Code, StockQty, LotNo);
 
@@ -1691,7 +1691,7 @@ codeunit 137047 "SCM Warehouse I"
         // [FEATURE] [Item Tracking] [Bin Content]
         // [SCENARIO 269846] Serial No. tracked item and item without tracking can be picked in one warehouse pick
 
-        Initialize;
+        Initialize();
 
         CreateFullWMSLocation(Location, 2);
 
@@ -1700,7 +1700,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Both items are in stock on WHITE location
-        SerialNo := LibraryUtility.GenerateGUID;
+        SerialNo := LibraryUtility.GenerateGUID();
         LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", Location.Code, 1, false);
         UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(TrackedItem."No.", Location.Code, 1, SerialNo);
 
@@ -1747,14 +1747,14 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // [FEATURE] [Reservation] [Item Tracking] [Pick] [Binding] [Sales]
         // [SCENARIO 275280] Order-to-order reservation between sales order and its supply is deleted, when a user sets item tracking for a sales line directly on the warehouse pick and registers it.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location set up for required shipment and pick.
         // [GIVEN] Lot-tracked item "I" with reordering policy = "Order".
         CreateShipPickLocation(Location);
         CreateLotTrackedItemWithOrderReorderingPolicy(Item);
         for i := 1 to 4 do
-            LotNo[i] := LibraryUtility.GenerateGUID;
+            LotNo[i] := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Post the inventory adjustment for 100 PCS of lots "L1" and "L2".
         for i := 1 to 2 do
@@ -1833,14 +1833,14 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // [FEATURE] [Reservation] [Item Tracking] [Pick] [Binding] [Sales]
         // [SCENARIO 275280] Registering of warehouse pick for sales order is interrupted, when a user chooses not to break existing order-to-order binding on registering the pick.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location set up for required shipment and pick.
         // [GIVEN] Lot-tracked item "I" with reordering policy = "Order".
         CreateShipPickLocation(Location);
         CreateLotTrackedItemWithOrderReorderingPolicy(Item);
-        LotNo[1] := LibraryUtility.GenerateGUID;
-        LotNo[2] := LibraryUtility.GenerateGUID;
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Post the inventory adjustment for 100 PCS of lot "L1".
         CreateItemStockWithLot(Location.Code, Item."No.", LotNo[1], LibraryRandom.RandIntInRange(100, 200));
@@ -1906,7 +1906,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // [FEATURE] [Item Tracking] [Serial No.] [Lot No.] [Avail. - Item Tracking Lines] [Sales]
         // [SCENARIO 285817] No avaliability warnings appear when invoke Refresh Avaliability on Item Tracking Page and specific serial is avaliable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Location
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -1921,12 +1921,12 @@ codeunit 137047 "SCM Warehouse I"
 
         // [GIVEN] Create 2pcs stock for the Item: single lot and 2 serial numbers
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', 2);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(ArrayLen(SerialNo));
         for i := 1 to ArrayLen(SerialNo) do begin
             LibraryVariableStorage.Enqueue(LotNo);
-            SerialNo[i] := LibraryUtility.GenerateGUID;
+            SerialNo[i] := LibraryUtility.GenerateGUID();
             LibraryVariableStorage.Enqueue(SerialNo[i]);
         end;
         ItemJournalLine.OpenItemTrackingLines(false);
@@ -1974,7 +1974,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // [FEATURE] [Reservation] [Item Tracking] [Pick] [Binding] [Sales]
         // [SCENARIO 337082] Registering of warehouse pick for sales order is not interrupted when the item being picked is order-to-order reserved from inventory.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location set up for required shipment and pick.
         // [GIVEN] Lot-tracked item with reordering policy = "Order".
@@ -1989,7 +1989,7 @@ codeunit 137047 "SCM Warehouse I"
         // [GIVEN] Carry out action in order to create a supplying purchase order for the sales order.
         // [GIVEN] An order-to-order binding is now established between the sales and the purchase.
         LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
         RequisitionLine.OpenItemTrackingLines();
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
@@ -1997,7 +1997,7 @@ codeunit 137047 "SCM Warehouse I"
         // [GIVEN] Post the newly created purchase order.
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", Item."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
@@ -2212,7 +2212,7 @@ codeunit 137047 "SCM Warehouse I"
 
         // [GIVEN] Locate the warehouse pick for the sales order "2", select lot "L" on the lines.
         FindWarehouseActivityLine(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.ModifyAll("Lot No.", LotNo);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
 
@@ -2237,9 +2237,9 @@ codeunit 137047 "SCM Warehouse I"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse I");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
         ItemJournalSetup;
         isInitialized := true;
         Commit();
@@ -2427,7 +2427,7 @@ codeunit 137047 "SCM Warehouse I"
         PostedWhseReceiptLine.SetRange("Source Subtype", PurchaseLine."Document Type");
         PostedWhseReceiptLine.SetRange("Source No.", PurchaseLine."Document No.");
         PostedWhseReceiptLine.SetRange("Source Line No.", PurchaseLine."Line No.");
-        PostedWhseReceiptLine.FindFirst;
+        PostedWhseReceiptLine.FindFirst();
     end;
 
     local procedure UpdateItemInventory(ItemNo: Code[20]; LocationCode: Code[10])
@@ -2585,7 +2585,7 @@ codeunit 137047 "SCM Warehouse I"
         WhseSourceCreateDocument.SetPostedWhseReceiptLine(PostedWhseReceiptLine, '');
         WhseSourceCreateDocument.SetHideValidationDialog(true);
         WhseSourceCreateDocument.UseRequestPage(false);
-        WhseSourceCreateDocument.RunModal;
+        WhseSourceCreateDocument.RunModal();
 
         LibraryWarehouse.FindWhseActivityLineBySourceDoc(
           WarehouseActivityLine, PostedWhseReceiptLine."Source Type", PostedWhseReceiptLine."Source Subtype",
@@ -2820,7 +2820,7 @@ codeunit 137047 "SCM Warehouse I"
         PostedWhseShipmentLine.SetRange("Whse. Shipment No.", WhseShipmentNo);
         PostedWhseShipmentLine.SetRange("Source Document", SourceDocument);
         PostedWhseShipmentLine.SetRange("Item No.", ItemNo);
-        PostedWhseShipmentLine.FindFirst;
+        PostedWhseShipmentLine.FindFirst();
     end;
 
     local procedure SelectSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; No: Code[20])
@@ -2828,7 +2828,7 @@ codeunit 137047 "SCM Warehouse I"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; No: Code[20])
@@ -2836,7 +2836,7 @@ codeunit 137047 "SCM Warehouse I"
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure SetQtyToHandleOnWhseActivityLine(SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; LotNo: Code[50]; QtyToHandle: Decimal)
@@ -2991,7 +2991,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         with WarehouseShipmentLine do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             TestField("Qty. Picked", QtyPicked);
         end;
     end;
@@ -3027,7 +3027,7 @@ codeunit 137047 "SCM Warehouse I"
           PostedWhseShipmentLine, WhseShipmentNo, PostedWhseShipmentLine."Source Document"::"Outbound Transfer", ItemNo);
         TransferLine.SetRange("Document No.", DocumentNo);
         TransferLine.SetRange("Item No.", ItemNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         PostedWhseShipmentLine.TestField(Quantity, TransferLine.Quantity);
     end;
 
@@ -3036,7 +3036,7 @@ codeunit 137047 "SCM Warehouse I"
         PostedWhseReceiptLine.SetRange("Whse. Receipt No.", WhseReceiptNo);
         PostedWhseReceiptLine.SetRange("Source Document", SourceDocument);
         PostedWhseReceiptLine.SetRange("Item No.", ItemNo);
-        PostedWhseReceiptLine.FindFirst;
+        PostedWhseReceiptLine.FindFirst();
     end;
 
     local procedure VerifyPostedReceiptLinesSales(WhseReceiptNo: Code[20]; ItemNo: Code[20]; DocumentNo: Code[20])
@@ -3076,7 +3076,7 @@ codeunit 137047 "SCM Warehouse I"
         with ReservEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Source Type", DATABASE::"Item Ledger Entry");
-            FindFirst;
+            FindFirst();
             TestField("Lot No.", LotNo);
         end;
     end;
@@ -3097,13 +3097,13 @@ codeunit 137047 "SCM Warehouse I"
     begin
         with ReservationEntry do begin
             SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
-            FindFirst;
+            FindFirst();
             TestField("Reservation Status", "Reservation Status"::Reservation);
             TestField("Lot No.", LotNo);
             Reset;
             SetRange("Entry No.", "Entry No.");
             SetRange(Positive, not Positive);
-            FindFirst;
+            FindFirst();
             TestField("Source Type", DATABASE::"Item Ledger Entry");
             TestField("Lot No.", LotNo);
         end;
@@ -3116,7 +3116,7 @@ codeunit 137047 "SCM Warehouse I"
         with ReservationEntry do begin
             SetSourceFilter(
               DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", false);
-            FindFirst;
+            FindFirst();
             TestField("Reservation Status", "Reservation Status"::Surplus);
             TestField("Lot No.", LotNo);
         end;
@@ -3213,7 +3213,7 @@ codeunit 137047 "SCM Warehouse I"
             SetRange("Source Subtype", SalesDocType);
             SetRange("Source No.", SalesDocNo);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             TestField("Qty. Picked", Quantity);
         end;
     end;

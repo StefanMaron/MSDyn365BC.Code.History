@@ -283,9 +283,6 @@ table 5104 "Segment Interaction Language"
     var
         SegInteractLanguage: Record "Segment Interaction Language";
         Attachment: Record Attachment;
-#if not CLEAN17
-        WordManagement: Codeunit WordManagement;
-#endif
         ClientTypeManagement: Codeunit "Client Type Management";
         NewAttachmentNo: Integer;
     begin
@@ -295,17 +292,9 @@ table 5104 "Segment Interaction Language"
             RemoveAttachment(false);
         end;
 
-#if CLEAN17
         if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
             if Attachment.ImportAttachmentFromClientFile('', false, true) then
                 NewAttachmentNo := Attachment."No.";
-#else
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then begin
-            if Attachment.ImportAttachmentFromClientFile('', false, true) then
-                NewAttachmentNo := Attachment."No.";
-        end else
-            NewAttachmentNo := WordManagement.CreateWordAttachment("Segment No." + ' ' + Description, "Language Code");
-#endif
 
         if NewAttachmentNo <> 0 then begin
             "Attachment No." := NewAttachmentNo;
@@ -418,7 +407,7 @@ table 5104 "Segment Interaction Language"
             SegLine.SetRange("Segment No.", "Segment No.");
             SegLine.SetRange("Line No.", "Segment Line No.");
             SegLine.SetRange("Attachment No.", OldAttachmentNo);
-            if SegLine.FindFirst then begin
+            if SegLine.FindFirst() then begin
                 SegLine."Attachment No." := "Attachment No.";
                 SegLine.Modify();
             end;

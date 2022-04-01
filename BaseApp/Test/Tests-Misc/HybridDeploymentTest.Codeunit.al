@@ -41,7 +41,7 @@ codeunit 139065 "Hybrid Deployment Test"
         PrimaryKey: Text;
     begin
         // [SCENARIO 283542] Provide error codes/messages for Hybrid Replication Service errors.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The app requests a new Integration Runtime be created.
         HybridDeploymentTest.SetStatus(FailedTxt);
@@ -64,7 +64,7 @@ codeunit 139065 "Hybrid Deployment Test"
         HybridDeployment: Codeunit "Hybrid Deployment";
     begin
         // [SCENARIO 283542] Provide error codes/messages for Hybrid Replication Service errors.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The app requests replication be disabled.
         HybridDeploymentTest.SetStatus(FailedTxt);
@@ -89,7 +89,7 @@ codeunit 139065 "Hybrid Deployment Test"
         DummyRuntimeName: Text;
     begin
         // [SCENARIO 283542] Provide error codes/messages for Hybrid Replication Service errors.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The app requests replication be enabled.
         HybridDeploymentTest.SetStatus(FailedTxt);
@@ -114,7 +114,7 @@ codeunit 139065 "Hybrid Deployment Test"
         SecondaryKey: Text;
     begin
         // [SCENARIO 283542] Provide error codes/messages for Hybrid Replication Service errors.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The app requests to get Integration Runtime keys.
         HybridDeploymentTest.SetStatus(FailedTxt);
@@ -140,7 +140,7 @@ codeunit 139065 "Hybrid Deployment Test"
         ReplicationRunStatus: Text;
     begin
         // [SCENARIO 283542] Provide error codes/messages for Hybrid Replication Service errors.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The app requests to get replication run errors.
         HybridDeploymentTest.SetStatus(FailedTxt);
@@ -165,7 +165,7 @@ codeunit 139065 "Hybrid Deployment Test"
         SecondaryKey: Text;
     begin
         // [SCENARIO 283542] Provide error codes/messages for Hybrid Replication Service errors.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The app requests to regenerate Integration Runtime keys.
         HybridDeploymentTest.SetStatus(FailedTxt);
@@ -189,7 +189,7 @@ codeunit 139065 "Hybrid Deployment Test"
         ReplicationRunId: Text;
     begin
         // [SCENARIO 283542] Provide error codes/messages for Hybrid Replication Service errors.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The app requests a manual replication run.
         HybridDeploymentTest.SetStatus(FailedTxt);
@@ -216,7 +216,7 @@ codeunit 139065 "Hybrid Deployment Test"
         DummyActivate: Boolean;
     begin
         // [SCENARIO 283542] Provide error codes/messages for Hybrid Replication Service errors.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The app requests a new replication schedule.
         HybridDeploymentTest.SetStatus(FailedTxt);
@@ -240,7 +240,7 @@ codeunit 139065 "Hybrid Deployment Test"
         PrimaryKey: Text;
     begin
         // [SCENARIO 283542] Provide error codes/messages for Hybrid Replication Service errors.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The app makes a request to Hybrid Replication Service.
         HybridDeploymentTest.SetStatus(FailedTxt);
@@ -263,7 +263,7 @@ codeunit 139065 "Hybrid Deployment Test"
         RunId: Text;
     begin
         // [SCENARIO 292002] If the request is not handled, throw an error.
-        Initialize;
+        Initialize();
 
         // [GIVEN] No handler codeunit is set to handle the request.
         HybridDeploymentSetup.Get();

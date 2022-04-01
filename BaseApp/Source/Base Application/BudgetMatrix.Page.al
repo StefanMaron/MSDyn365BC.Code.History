@@ -1,4 +1,4 @@
-﻿page 9203 "Budget Matrix"
+page 9203 "Budget Matrix"
 {
     Caption = 'Budget Matrix';
     DataCaptionExpression = BudgetName;
@@ -965,7 +965,7 @@
             SetIncomeBalanceGLAccFilterOnGLAcc(GLAcc);
             if GLAccCategoryFilter <> GLAccCategoryFilter::" " then
                 GLAcc.SetRange("Account Category", GLAccCategoryFilter);
-            GLAcc.FindFirst;
+            GLAcc.FindFirst();
             GLAcc.Reset();
         end;
         with GLAcc do begin

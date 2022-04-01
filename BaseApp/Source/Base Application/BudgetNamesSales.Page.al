@@ -82,7 +82,7 @@ page 9374 "Budget Names Sales"
                     SalesBudgetOverview: Page "Sales Budget Overview";
                 begin
                     SalesBudgetOverview.SetNewBudgetName(Name);
-                    SalesBudgetOverview.Run;
+                    SalesBudgetOverview.Run();
                 end;
             }
         }

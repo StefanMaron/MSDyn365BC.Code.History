@@ -5,7 +5,8 @@ table 1875 "Business Setup"
     ObsoleteState = Removed;
     ObsoleteReason = 'This table is being replaced by new table called Manual Setup.';
     ObsoleteTag = '18.0';
-
+    ReplicateData = false;
+    
     fields
     {
         field(1; Name; Text[50])

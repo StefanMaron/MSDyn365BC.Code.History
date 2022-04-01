@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 5452 "Graph Sync. Runner"
 {
     ObsoleteState = Pending;
@@ -23,9 +24,6 @@ codeunit 5452 "Graph Sync. Runner"
 
         if not MarketingSetup.Get then
             exit(false);
-
-        if MarketingSetup."Sync with Microsoft Graph" then
-            exit(true);
 
         OnCheckAuxiliarySyncEnabled(AuxSyncEnabled);
         exit(AuxSyncEnabled);
@@ -99,12 +97,11 @@ codeunit 5452 "Graph Sync. Runner"
     local procedure CreateIntegrationRecordsForUncoupledRecords(TableId: Integer)
     var
         IntegrationRecord: Record "Integration Record";
-        IntegrationManagement: Codeunit "Integration Management";
         NavRecordRef: RecordRef;
     begin
         NavRecordRef.Open(TableId);
 
-        if NavRecordRef.FindSet then
+        if NavRecordRef.FindSet() then
             repeat
                 Clear(IntegrationRecord);
                 IntegrationRecord.SetRange("Record ID", NavRecordRef.RecordId);
@@ -203,3 +200,4 @@ codeunit 5452 "Graph Sync. Runner"
     end;
 }
 
+#endif

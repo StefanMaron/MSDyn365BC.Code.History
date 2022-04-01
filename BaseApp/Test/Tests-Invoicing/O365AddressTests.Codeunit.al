@@ -53,7 +53,7 @@ codeunit 138948 "O365 Address Tests"
         NewCountryRegionName: Text;
     begin
         // [GIVEN] A user in invoicing has some custom countries
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         CountryRegion1.Init();
@@ -112,7 +112,7 @@ codeunit 138948 "O365 Address Tests"
 
         // [WHEN] The user opens a collapsed address
         // [THEN] The page does not allow create mode
-        asserterror O365Address.OpenNew;
+        asserterror O365Address.OpenNew();
         Assert.ExpectedError('You do not have the following permissions on Page 2148: Insert');
     end;
 
@@ -126,7 +126,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         // [GIVEN] An user in invoicing Business Center
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates a new customer inline in the invoice and edits one field of the address from the customer card
         // [THEN] The customer and sales header have the same address
@@ -136,7 +136,7 @@ codeunit 138948 "O365 Address Tests"
         CheckFieldIsPropagatedFromCustToInvoice(DummyCustomer.FieldNo("Post Code"));
         CheckFieldIsPropagatedFromCustToInvoice(DummyCustomer.FieldNo(County));
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CheckFieldIsPropagatedFromCustToInvoice(CustomerFieldNo: Integer)
@@ -163,7 +163,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         // [GIVEN] An user in invoicing Business Center
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates a new customer inline in the estimate and edits one field of the address from the customer card
         // [THEN] The customer and sales header have the same address
@@ -173,7 +173,7 @@ codeunit 138948 "O365 Address Tests"
         CheckFieldIsPropagatedFromCustToEstimate(DummyCustomer.FieldNo("Post Code"));
         CheckFieldIsPropagatedFromCustToEstimate(DummyCustomer.FieldNo(County));
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CheckFieldIsPropagatedFromCustToEstimate(CustomerFieldNo: Integer)
@@ -200,7 +200,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         // [GIVEN] An user in invoicing Business Center
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates a new customer inline in the invoice and edits one field of the address from the invoice card
         // [THEN] The customer and sales header have the same address
@@ -210,7 +210,7 @@ codeunit 138948 "O365 Address Tests"
         CheckFieldIsPropagatedFromInvoiceToCust(DummyCustomer.FieldNo("Post Code"));
         CheckFieldIsPropagatedFromInvoiceToCust(DummyCustomer.FieldNo(County));
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CheckFieldIsPropagatedFromInvoiceToCust(CustomerFieldNo: Integer)
@@ -237,7 +237,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         // [GIVEN] An user in invoicing Business Center
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates a new customer inline in the estimate and edits one field of the address from the estimate card
         // [THEN] The customer and sales header have the same address
@@ -247,7 +247,7 @@ codeunit 138948 "O365 Address Tests"
         CheckFieldIsPropagatedFromEstimateToCust(DummyCustomer.FieldNo("Post Code"));
         CheckFieldIsPropagatedFromEstimateToCust(DummyCustomer.FieldNo(County));
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CheckFieldIsPropagatedFromEstimateToCust(CustomerFieldNo: Integer)
@@ -273,7 +273,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         // [GIVEN] An user in invoicing Business Center
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates a new customer with some address and edits the address in the estimate
         // [THEN] The address is not propagated
@@ -307,7 +307,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         // [GIVEN] An user in invoicing Business Center
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates a new customer with some address and edits the address in the invoice
         // [THEN] The address is not propagated
@@ -341,7 +341,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         // [GIVEN] An user in invoicing Business Center
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates a new estimate with some address and edits the address in the customer
         // [THEN] The address is not propagated
@@ -375,7 +375,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         // [GIVEN] An user in invoicing Business Center
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [WHEN] The user creates a new invoice with some address and edits the address in the customer
         // [THEN] The address is not propagated
@@ -414,7 +414,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         // [GIVEN] An user in invoicing
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
         O365SalesInitialSetup.Get();
         Assert.IsTrue(O365SalesInitialSetup."Is initialized", 'Not an Invoicing company');
 
@@ -455,7 +455,7 @@ codeunit 138948 "O365 Address Tests"
         Assert.AreEqual(CompanyInformation.City, PreviousCity, 'City was changed.');
         Assert.AreEqual(CompanyInformation."Post Code", TempStandardAddress."Post Code", 'Post code was not changed.');
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CheckSameAddress(Customer: Record Customer; SalesHeader: Record "Sales Header")
@@ -489,7 +489,7 @@ codeunit 138948 "O365 Address Tests"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         LibraryVariableStorage.Enqueue(CustomerFieldNo);
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value := CustomerName;
         BCO365SalesInvoice.ViewContactCard.DrillDown;
         // Handler executes and edits field
@@ -502,7 +502,7 @@ codeunit 138948 "O365 Address Tests"
     begin
         LibraryVariableStorage.Enqueue(CustomerFieldNo);
 
-        BCO365SalesQuote.OpenNew;
+        BCO365SalesQuote.OpenNew();
         BCO365SalesQuote."Sell-to Customer Name".Value := CustomerName;
         BCO365SalesQuote.ViewContactCard.DrillDown;
         // Handler executes and edits field
@@ -514,7 +514,7 @@ codeunit 138948 "O365 Address Tests"
         DummyCustomer: Record Customer;
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value := CustomerName;
 
         case CustomerFieldNo of
@@ -547,7 +547,7 @@ codeunit 138948 "O365 Address Tests"
         DummyCustomer: Record Customer;
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
     begin
-        BCO365SalesQuote.OpenNew;
+        BCO365SalesQuote.OpenNew();
         BCO365SalesQuote."Sell-to Customer Name".Value := CustomerName;
 
         case CustomerFieldNo of
@@ -578,10 +578,10 @@ codeunit 138948 "O365 Address Tests"
     local procedure FindCustomerAndSalesHeaderFromName(Name: Text; var Customer: Record Customer; var SalesHeader: Record "Sales Header")
     begin
         Customer.SetRange(Name, Name);
-        Customer.FindFirst;
+        Customer.FindFirst();
 
         SalesHeader.SetRange("Sell-to Customer Name", Name);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     [ConfirmHandler]

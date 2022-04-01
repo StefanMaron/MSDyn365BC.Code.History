@@ -50,7 +50,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
 
@@ -82,7 +82,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
 
@@ -114,7 +114,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
 
@@ -137,7 +137,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
 
@@ -164,7 +164,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(6);
 
@@ -196,9 +196,9 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         NewItemCategoryCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
-        NewItemCategoryCode := LibraryUtility.GenerateGUID;
+        NewItemCategoryCode := LibraryUtility.GenerateGUID();
         CreateItemCategoryHierarchy(2);
         ItemCategories.OpenEdit;
         ItemCategories.Last;
@@ -225,7 +225,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
 
@@ -253,7 +253,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
 
@@ -277,18 +277,18 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
 
         // [WHEN]  assign 2 item attributes (option and non option) to the the first category
-        FirstItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        FirstItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, '');
@@ -324,18 +324,18 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
 
         // [WHEN]  assign 2 item attributes (option and non option) to the the first category and the user deletes first one
-        FirstItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        FirstItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, '');
@@ -365,18 +365,18 @@ codeunit 137414 "SCM Item Categories"
         FirstItemAttributeValue: Record "Item Attribute Value";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(1);
         CreateTestItemAttributes;
 
         // [WHEN]  assign 2 item attributes (option and non option) to the the first category then delete the category
-        FirstItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        FirstItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, '');
@@ -400,20 +400,20 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
 
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
-        FirstItemCategory.FindFirst;
+        FirstItemCategory.FindFirst();
         ChildItemCategory.SetRange("Parent Category", FirstItemCategory.Code);
-        ChildItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        ChildItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(ChildItemCategory, LastItemAttribute, '');
@@ -455,22 +455,22 @@ codeunit 137414 "SCM Item Categories"
         FirstItemAttributeValue: Record "Item Attribute Value";
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
 
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
-        FirstItemCategory.FindFirst;
+        FirstItemCategory.FindFirst();
         SecondItemCategory.Find('-');
         SecondItemCategory.Next;
         ChildItemCategory.SetRange("Parent Category", FirstItemCategory.Code);
-        ChildItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        ChildItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(SecondItemCategory, LastItemAttribute, '');
@@ -509,9 +509,9 @@ codeunit 137414 "SCM Item Categories"
         // [GIVEN] Parent "PC" and child "CC" item categories.
         CreateItemCategoryHierarchy(2);
         ParentItemCategory.SetRange("Parent Category", '');
-        ParentItemCategory.FindFirst;
+        ParentItemCategory.FindFirst();
         ChildItemCategory.SetRange("Parent Category", ParentItemCategory.Code);
-        ChildItemCategory.FindFirst;
+        ChildItemCategory.FindFirst();
 
         // [GIVEN] Item attribute "A" is assigned to the parent category "PC".
         LibraryInventory.CreateItemAttributeWithValue(
@@ -544,23 +544,23 @@ codeunit 137414 "SCM Item Categories"
         ItemCard: TestPage "Item Card";
         LastItemAttributeValue: Text;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
         LibraryInventory.CreateItem(Item);
-        LastItemAttributeValue := LibraryUtility.GenerateGUID;
+        LastItemAttributeValue := LibraryUtility.GenerateGUID();
         LibraryNotificationMgt.DisableAllNotifications;
 
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
-        FirstItemCategory.FindFirst;
+        FirstItemCategory.FindFirst();
         ChildItemCategory.SetRange("Parent Category", FirstItemCategory.Code);
-        ChildItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        ChildItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(ChildItemCategory, LastItemAttribute, LastItemAttributeValue);
@@ -590,7 +590,7 @@ codeunit 137414 "SCM Item Categories"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
@@ -598,15 +598,15 @@ codeunit 137414 "SCM Item Categories"
         LibraryNotificationMgt.DisableAllNotifications;
 
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
-        FirstItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        FirstItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         LastItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        LastItemAttributeValue.FindLast;
+        LastItemAttributeValue.FindLast();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, '');
@@ -639,14 +639,14 @@ codeunit 137414 "SCM Item Categories"
         LastItemAttributeValue: Text;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         // [FEATURE] [Item Attribute]
         // [SCENARIO 227028] Item attribute values assigned to item category is propagated to all items with this category.
 
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
-        LastItemAttributeValue := LibraryUtility.GenerateGUID;
+        LastItemAttributeValue := LibraryUtility.GenerateGUID();
         LibraryNotificationMgt.DisableAllNotifications;
 
         // [GIVEN] 3 items "I1", "I2", "I3".
@@ -654,12 +654,12 @@ codeunit 137414 "SCM Item Categories"
             LibraryInventory.CreateItem(Item[i]);
 
         // [GIVEN] Item category "C" with attribute "X1" and attribute value "Y1".
-        FirstItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        FirstItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
 
@@ -699,21 +699,21 @@ codeunit 137414 "SCM Item Categories"
         ItemCard: TestPage "Item Card";
         LastItemAttributeValue: Text;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
-        LastItemAttributeValue := LibraryUtility.GenerateGUID;
+        LastItemAttributeValue := LibraryUtility.GenerateGUID();
         LibraryInventory.CreateItem(Item);
         LibraryNotificationMgt.DisableAllNotifications;
 
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
-        FirstItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        FirstItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, LastItemAttributeValue);
@@ -750,22 +750,22 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard: TestPage "Item Category Card";
         LastItemAttributeValue: Text;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
         LibraryInventory.CreateItem(FirstItem);
         LibraryInventory.CreateItem(SecondItem);
-        LastItemAttributeValue := LibraryUtility.GenerateGUID;
+        LastItemAttributeValue := LibraryUtility.GenerateGUID();
         LibraryNotificationMgt.DisableAllNotifications;
 
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
-        FirstItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        FirstItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, '');
@@ -822,25 +822,25 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard: TestPage "Item Category Card";
         LastItemAttributeValue: Text;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
         LibraryInventory.CreateItem(Item);
-        LastItemAttributeValue := LibraryUtility.GenerateGUID;
+        LastItemAttributeValue := LibraryUtility.GenerateGUID();
         LibraryNotificationMgt.DisableAllNotifications;
 
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
-        FirstParentItemCategory.FindFirst;
+        FirstParentItemCategory.FindFirst();
         SecondParentItemCategory.Find('-');
         SecondParentItemCategory.Next;
         ChildItemCategory.SetRange("Parent Category", FirstParentItemCategory.Code);
-        ChildItemCategory.FindFirst;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        ChildItemCategory.FindFirst();
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstParentItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(SecondParentItemCategory, LastItemAttribute, LastItemAttributeValue);
@@ -881,24 +881,24 @@ codeunit 137414 "SCM Item Categories"
         ItemCard: TestPage "Item Card";
         LastItemAttributeValue: Text;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Category Hierarchy of 2 parent categories and 2 children for each
         CreateItemCategoryHierarchy(2);
         CreateTestItemAttributes;
         LibraryInventory.CreateItem(FirstItem);
         LibraryInventory.CreateItem(SecondItem);
-        LastItemAttributeValue := LibraryUtility.GenerateGUID;
+        LastItemAttributeValue := LibraryUtility.GenerateGUID();
         LibraryNotificationMgt.DisableAllNotifications;
 
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
-        FirstItemCategory.FindFirst;
+        FirstItemCategory.FindFirst();
         SecondItemCategory.Find('-');
         SecondItemCategory.Next;
-        FirstItemAttribute.FindFirst;
-        LastItemAttribute.FindLast;
+        FirstItemAttribute.FindFirst();
+        LastItemAttribute.FindLast();
 
         FirstItemAttributeValue.SetRange("Attribute ID", FirstItemAttribute.ID);
-        FirstItemAttributeValue.FindFirst;
+        FirstItemAttributeValue.FindFirst();
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(SecondItemCategory, LastItemAttribute, LastItemAttributeValue);
@@ -934,7 +934,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCode: Code[20];
         ItemAttributeID: array[2] of Integer;
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO 212490] Item Attributes must be coppied from Item Category to Item after validation of "Item Category Code"
 
         // [GIVEN] "Item Category" - "IC" with attributes "ATT1" and "ATT2"
@@ -967,9 +967,9 @@ codeunit 137414 "SCM Item Categories"
         NonExistingCode: Code[20];
         SearchResult: Boolean;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] A guid that does not exist as a category
-        NonExistingCode := LibraryUtility.GenerateGUID;
+        NonExistingCode := LibraryUtility.GenerateGUID();
 
         // [WHEN] We search for it
         SearchResult := ItemCategoryManagement.DoesValueExistInItemCategories(NonExistingCode, ItemCategory);
@@ -1004,7 +1004,7 @@ codeunit 137414 "SCM Item Categories"
         Item: Record Item;
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO 223256] Delete Item Attribute Value Mapping when user deletes Item
 
         // [GIVEN] Item with an attribute
@@ -1030,7 +1030,7 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
         ItemList: TestPage "Item List";
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO 223453] Assign blank decimal attribute to Item when blank and zero values exist
 
         // [GIVEN] "Item Attribute" with Type = Decimal
@@ -1051,7 +1051,7 @@ codeunit 137414 "SCM Item Categories"
 
         // [THEN] Item is mapped with blank "Item Attribute Value" with "ID" = 2
         FilterItemAttributeValueMapping(ItemAttributeValueMapping, DATABASE::Item, Item."No.", ItemAttribute.ID);
-        ItemAttributeValueMapping.FindFirst;
+        ItemAttributeValueMapping.FindFirst();
         Assert.AreEqual(ItemAttributeValue.ID, ItemAttributeValueMapping."Item Attribute Value ID", '');
     end;
 
@@ -1066,7 +1066,7 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeName: Text[250];
         TextUoM: Text[1];
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO 223061] ItemAttributesFactbox shows decimal values assigned by default from Item Category page.
 
         // [GIVEN] Item Attribute "AAA" of Decimal Type with Text Unit of Measure.
@@ -1099,7 +1099,7 @@ codeunit 137414 "SCM Item Categories"
         TextUoM: Text[1];
         ItemAttributeName: Text[250];
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO 223061] ItemAttributesFactbox shows decimal values assigned as default from Item Category page.
 
         // [GIVEN] Item Attribute "AAA" of Decimal Type with Text Unit of Measure.
@@ -1133,7 +1133,7 @@ codeunit 137414 "SCM Item Categories"
         TextUoM: Text[1];
         ItemAttributeName: Text[250];
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO 223061] "Item Attribute Values" page shows decimal values assigned as default from Item Category page.
 
         // [GIVEN] Item Attribute "AAA" of Decimal Type with Text Unit of Measure.
@@ -1223,7 +1223,7 @@ codeunit 137414 "SCM Item Categories"
 
         LibraryInventory.CreateItemAttributeWithValue(
           ItemAttribute, ItemAttributeValue, ItemAttribute.Type::Text,
-          LibraryUtility.GenerateGUID);
+          LibraryUtility.GenerateGUID());
 
         CreateItemAttributeValueSelection(ItemAttributeValue, ItemAttributeValueSelection);
 
@@ -1251,12 +1251,12 @@ codeunit 137414 "SCM Item Categories"
           '');
 
         CreateItemAttributeValueSelectionWithValue(
-          ItemAttributeValue, ItemAttributeValueSelection, LibraryUtility.GenerateGUID);
+          ItemAttributeValue, ItemAttributeValueSelection, LibraryUtility.GenerateGUID());
 
         Result := ItemAttributeValueSelection.GetAttributeValueID(TempItemAttributeValue);
 
         ItemAttributeValue.SetRange("Attribute ID", ItemAttributeValueSelection."Attribute ID");
-        ItemAttributeValue.FindLast;
+        ItemAttributeValue.FindLast();
 
         Assert.AreEqual(ItemAttributeValue.ID, Result, 'Item Attribute Value ID mismatch');
         Assert.AreEqual(TempItemAttributeValue.Value, ItemAttributeValue.Value, 'Item Attribute Values mismatch');
@@ -1284,7 +1284,7 @@ codeunit 137414 "SCM Item Categories"
         Result := ItemAttributeValueSelection.GetAttributeValueID(TempItemAttributeValue);
 
         ItemAttributeValue.SetRange("Attribute ID", ItemAttributeValueSelection."Attribute ID");
-        ItemAttributeValue.FindLast;
+        ItemAttributeValue.FindLast();
 
         Assert.AreEqual(ItemAttributeValue.ID, Result, 'Item Attribute Value ID mismatch');
         Assert.AreEqual(TempItemAttributeValue.Value, ItemAttributeValue.Value, 'Item Attribute Values mismatch');
@@ -1312,7 +1312,7 @@ codeunit 137414 "SCM Item Categories"
         Result := ItemAttributeValueSelection.GetAttributeValueID(TempItemAttributeValue);
 
         ItemAttributeValue.SetRange("Attribute ID", ItemAttributeValueSelection."Attribute ID");
-        ItemAttributeValue.FindLast;
+        ItemAttributeValue.FindLast();
 
         Assert.AreEqual(ItemAttributeValue.ID, Result, 'Item Attribute Value ID mismatch');
         Assert.AreEqual(TempItemAttributeValue.Value, ItemAttributeValue.Value, 'Item Attribute Values mismatch');
@@ -1352,7 +1352,7 @@ codeunit 137414 "SCM Item Categories"
 
         // [THEN] Two Items selected: 'TEST80102-T' and 'TEST80103-T'
         Assert.RecordCount(Item, 2);
-        Item.FindFirst;
+        Item.FindFirst();
         Assert.AreEqual('TEST80102-T', Item."No.", '');
         Item.Next;
         Assert.AreEqual('TEST80103-T', Item."No.", '');
@@ -1378,7 +1378,7 @@ codeunit 137414 "SCM Item Categories"
 
         // [THEN] Two Items selected: 'T80102' and 'T80103'
         Assert.RecordCount(Item, 2);
-        Item.FindFirst;
+        Item.FindFirst();
         Assert.AreEqual('T80102', Item."No.", '');
         Item.Next;
         Assert.AreEqual('T80103', Item."No.", '');
@@ -1424,7 +1424,7 @@ codeunit 137414 "SCM Item Categories"
         RunFindItemsByAttributes(ItemAttributeValue, TempFilteredItem);
 
         // [THEN] Returned temporary Item record is equal to Item record with the same "No.".
-        TempFilteredItem.FindFirst;
+        TempFilteredItem.FindFirst();
         TempFilteredItem.TestField(Description, Item.Description);
         TempFilteredItem.TestField("Base Unit of Measure", Item."Base Unit of Measure");
         TempFilteredItem.TestField("Unit Price", Item."Unit Price");
@@ -1478,7 +1478,7 @@ codeunit 137414 "SCM Item Categories"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 273705] Item Category with empty Code cannot be inserted.
-        Initialize;
+        Initialize();
 
         ItemCategory.Init();
         asserterror ItemCategory.Insert(true);
@@ -1546,7 +1546,7 @@ codeunit 137414 "SCM Item Categories"
     begin
         // [FEATURE] [Item] [UT] [Performance]
         // [SCENARIO 283579] When the ItemList page is opened from TAB27.PickItem function in Lookup mode, and then filtered by Item attributes, then clearing attributes filter restores the original list of records.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Items with sorted numbers in Description field
         // [GIVEN] Items 'TESTFFF1' and 'TESTFFF2' with attribute "A", 'TESTFFF3' with no attributes.
@@ -1592,7 +1592,7 @@ codeunit 137414 "SCM Item Categories"
     begin
         // [FEATURE] [Item]
         // [SCENARIO 314081] Item Attribute Value Mapping is not created for temporary items
-        Initialize;
+        Initialize();
         ItemAttributeValueMapping.DeleteAll();
 
         // [GIVEN] Item Category 'CAT01' with Item Attribute Value Mapping
@@ -1621,24 +1621,24 @@ codeunit 137414 "SCM Item Categories"
         Description: Text;
     begin
         // [SCENARIO 337513] Category description remains unchanged when validate parent category
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Category Hierarchy of two Categories "C1" and "C2"
         CreateItemCategoryHierarchy(2);
 
         // [GIVEN] The user opened Category Card for Category "C2"
-        ItemCategory.FindLast;
+        ItemCategory.FindLast();
         ItemCategories.OpenEdit;
         ItemCategories.FILTER.SetFilter(Code, ItemCategory.Code);
         ItemCategoryCard.Trap;
         ItemCategories.Edit.Invoke;
 
         // [GIVEN] The user set new Description for "C2"
-        Description := LibraryUtility.GenerateGUID;
+        Description := LibraryUtility.GenerateGUID();
         ItemCategoryCard.Description.SetValue(Description);
 
         // [WHEN] Set "C1" as a Parent Category for "C2"
-        ItemCategory.FindFirst;
+        ItemCategory.FindFirst();
         ItemCategoryCard."Parent Category".SetValue(ItemCategory.Code);
 
         // [THEN] The description for "C2" remains as set by the user
@@ -1664,7 +1664,7 @@ codeunit 137414 "SCM Item Categories"
 
         // [GIVEN] The user opened Category Card for new Category "C2"
         ItemCategoryCard.OpenNew();
-        ItemCategoryCard.Code.SetValue(LibraryUtility.GenerateGUID);
+        ItemCategoryCard.Code.SetValue(LibraryUtility.GenerateGUID());
 
         // [GIVEN] The user set new Description for "C2"
         Description := LibraryUtility.GenerateGUID();
@@ -1960,7 +1960,7 @@ codeunit 137414 "SCM Item Categories"
     begin
         // [FEATURE] [Item Attribute]
         // [SCENARIO 344524] Item's Attribute Values inherited from Item Categories are changed on Item Category change when attribute deletion confirmed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Item Attribute "A"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
@@ -1997,7 +1997,7 @@ codeunit 137414 "SCM Item Categories"
     begin
         // [FEATURE] [Item Attribute]
         // [SCENARIO 344524] Item's Attribute Values inherited from Item Categories are not changed on Item Category change when attribute deletion not confirmed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Item Attribute "A"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
@@ -2035,7 +2035,7 @@ codeunit 137414 "SCM Item Categories"
     begin
         // [FEATURE] [Item Attribute]
         // [SCENARIO 344524] Item's Attribute Values inherited from Parent Item Categories are changed on Item Category parent change when attribute deletion confirmed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Item Attribute "A"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
@@ -2077,7 +2077,7 @@ codeunit 137414 "SCM Item Categories"
     begin
         // [FEATURE] [Item Attribute]
         // [SCENARIO 344524] Item's Attribute Values inherited from Parent Item Categories are not changed on Item Category parent change when attribute deletion not confirmed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Item Attribute "A"
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
@@ -2235,7 +2235,7 @@ codeunit 137414 "SCM Item Categories"
         CreateItemCategory('');
         for CurrentLevel := 1 to (LevelsNumber - 1) do begin
             ItemCategory.SetRange(Indentation, CurrentLevel - 1);
-            if ItemCategory.FindSet then
+            if ItemCategory.FindSet() then
                 repeat
                     CreateItemCategory(ItemCategory.Code);
                     CreateItemCategory(ItemCategory.Code);
@@ -2247,8 +2247,8 @@ codeunit 137414 "SCM Item Categories"
     var
         ItemCategoryCard: TestPage "Item Category Card";
     begin
-        ItemCategoryCard.OpenNew;
-        ItemCategoryCode := LibraryUtility.GenerateGUID;
+        ItemCategoryCard.OpenNew();
+        ItemCategoryCode := LibraryUtility.GenerateGUID();
         ItemCategoryCard.Code.SetValue(ItemCategoryCode);
         ItemCategoryCard.Description.SetValue(Format(ItemCategoryCode + ItemCategoryCode));
         ItemCategoryCard."Parent Category".SetValue(ParentCategory);
@@ -2278,7 +2278,7 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeValue: Record "Item Attribute Value";
     begin
         LibraryInventory.CreateItemCategory(ItemCategory);
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttributeID, LibraryUtility.GenerateGUID);
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttributeID, LibraryUtility.GenerateGUID());
         LibraryInventory.CreateItemAttributeValueMapping(
           DATABASE::"Item Category", ItemCategory.Code, ItemAttributeID, ItemAttributeValue.ID);
         exit(ItemAttributeValue.ID);
@@ -2309,7 +2309,7 @@ codeunit 137414 "SCM Item Categories"
     local procedure CreateItemAttributeWithValue(var ItemAttribute: Record "Item Attribute"; var ItemAttributeValue: Record "Item Attribute Value")
     begin
         LibraryInventory.CreateItemAttributeWithValue(
-          ItemAttribute, ItemAttributeValue, ItemAttribute.Type::Text, LibraryUtility.GenerateGUID);
+          ItemAttribute, ItemAttributeValue, ItemAttribute.Type::Text, LibraryUtility.GenerateGUID());
     end;
 
     local procedure CreateItemAttributeValueSelection(var ItemAttributeValue: Record "Item Attribute Value"; var ItemAttributeValueSelection: Record "Item Attribute Value Selection")
@@ -2368,7 +2368,7 @@ codeunit 137414 "SCM Item Categories"
         end;
 
         LibraryInventory.CreateItemAttributeWithValue(
-          ItemAttribute, ItemAttributeValue, ItemAttribute.Type::Text, LibraryUtility.GenerateGUID);
+          ItemAttribute, ItemAttributeValue, ItemAttribute.Type::Text, LibraryUtility.GenerateGUID());
 
         for i := 1 to ArrayLen(Item) - 1 do
             LibraryInventory.CreateItemAttributeValueMapping(DATABASE::Item, Item[i]."No.", ItemAttribute.ID, ItemAttributeValue.ID);
@@ -2395,8 +2395,8 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributes: TestPage "Item Attributes";
         AttributeName: Text;
     begin
-        ItemAttributes.OpenNew;
-        AttributeName := LibraryUtility.GenerateGUID;
+        ItemAttributes.OpenNew();
+        AttributeName := LibraryUtility.GenerateGUID();
         ItemAttributes.Name.SetValue(LowerCase(AttributeName));
         ItemAttributes.Type.SetValue(DummyItemAttribute.Type::Option);
         CreateTestOptionItemAttributeValues(ItemAttributes);
@@ -2408,8 +2408,8 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeCard: TestPage "Item Attribute";
         AttributeName: Text;
     begin
-        ItemAttributeCard.OpenNew;
-        AttributeName := LibraryUtility.GenerateGUID;
+        ItemAttributeCard.OpenNew();
+        AttributeName := LibraryUtility.GenerateGUID();
         ItemAttributeCard.Name.SetValue(LowerCase(AttributeName));
         ItemAttributeCard.Type.SetValue(Type);
         ItemAttributeCard."Unit of Measure".SetValue(UoM);
@@ -2425,10 +2425,10 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeValues.Trap;
         ItemAttributes.ItemAttributeValues.Invoke;
         ItemAttributeValues.First;
-        FirstAttributeValueName := LibraryUtility.GenerateGUID;
+        FirstAttributeValueName := LibraryUtility.GenerateGUID();
         ItemAttributeValues.Value.SetValue(FirstAttributeValueName);
         ItemAttributeValues.Next;
-        SecondAttributeValueName := LibraryUtility.GenerateGUID;
+        SecondAttributeValueName := LibraryUtility.GenerateGUID();
         ItemAttributeValues.Value.SetValue(SecondAttributeValueName);
         ItemAttributeValues.Close;
     end;
@@ -2463,7 +2463,7 @@ codeunit 137414 "SCM Item Categories"
             SetRange("Object ID", ObjectID);
             SetFilter("No. of Hits", '>%1', 0);
             SetFilter(Line, '@*' + CodeLine + '*');
-            if FindSet then
+            if FindSet() then
                 repeat
                     NoOfHits += "No. of Hits";
                 until Next = 0;
@@ -2665,7 +2665,7 @@ codeunit 137414 "SCM Item Categories"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         FilterItemsbyAttribute.First;
-        NameValueBuffer.FindFirst;
+        NameValueBuffer.FindFirst();
         FilterItemsbyAttribute.Attribute.SetValue := NameValueBuffer.Name;
         FilterItemsbyAttribute.Value.SetValue := NameValueBuffer.Value;
         FilterItemsbyAttribute.OK.Invoke;

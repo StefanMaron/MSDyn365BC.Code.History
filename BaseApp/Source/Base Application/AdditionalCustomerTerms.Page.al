@@ -7,6 +7,7 @@ page 181 "Additional Customer Terms"
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = Card;
+    Permissions = tabledata "License Agreement" = rim;
     SourceTable = "License Agreement";
 
     layout

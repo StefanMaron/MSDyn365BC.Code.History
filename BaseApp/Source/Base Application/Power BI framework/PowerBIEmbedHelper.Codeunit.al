@@ -20,10 +20,12 @@ codeunit 6299 "Power BI Embed Helper"
         GetReportFilterWebRequestJsonTxt: Label '{"method":"GET","url":"/report/filters","headers": {"id":"getfilters,%1"}}', Locked = true;
         PutReportFilterWebRequestJsonTxt: Label '{"method":"PUT","url":"/report/filters","headers": {}, "body": [{"$schema":%1,"target":{"table":%2,"column":%3},"operator":%4,"values":[%5]}]}', Comment = '%1,%2,%3=the schema, table and column where the filter applies, as communicated to us by Power BI; %4=the operator to handle the Power BI filter, e.g. "In" or "All"; %5=the value to set the filter to', Locked = true;
         // Other labels
-        FailedToHandleCallbackTelemetryMsg: Label 'Failed to handle callback message. Message: %1, LastError: %2.', Locked = true;
+        FailedAuthErr: Label 'We failed to authenticate with Power BI. Try to sign out and in again. This problem typically happens if you no longer have a license for Power BI or if you just changed your email or password.';
+        FailedToHandleCallbackTelemetryMsg: Label 'Failed to handle callback message. LastError: %2.', Locked = true;
         EmptyAccessTokenForPBITelemetryMsg: Label 'Empty access token generated for Power BI.', Locked = true;
-        NoFiltersOnReportTelemetryMsg: Label 'The report has no filters. Message: %1.', Locked = true;
-        FailureStatusCodeTelemetryMsg: Label 'Received a message with a failure status code. Message: %1.', Locked = true;
+        NoFiltersOnReportTelemetryMsg: Label 'The report has no filters.', Locked = true;
+        FailureStatusCodeTelemetryMsg: Label 'Received a message with a failure status code %1.', Locked = true;
+        InvalidCallbackMessageTelemetryMsg: Label 'The CallbackMessage is invalid (length: %1). Last error: %2.', Locked = true;
         TargetOriginWildcardTelemetryMsg: Label 'Could not determine target origin, defaulting to wildcard.', Locked = true;
         InvalidJsonResponseErr: Label 'The response for the Power BI report page was invalid: %1.', Comment = '%1 = A string that represents an invalid Json object.';
 
@@ -31,7 +33,7 @@ codeunit 6299 "Power BI Embed Helper"
     procedure HandleAddInCallback(CallbackMessage: Text; CurrentListSelection: Text; var CurrentReportFirstPage: Text; var LatestReceivedFilterInfo: Text; var ResponseForWebPage: Text)
     begin
         if not TryHandleAddInCallback(CallbackMessage, CurrentListSelection, CurrentReportFirstPage, LatestReceivedFilterInfo, ResponseForWebPage) then
-            Session.LogMessage('0000B6U', StrSubstNo(FailedToHandleCallbackTelemetryMsg, CallbackMessage, GetLastErrorText()), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+            Session.LogMessage('0000B6U', StrSubstNo(FailedToHandleCallbackTelemetryMsg, GetLastErrorText(true)), Verbosity::Error, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
     end;
 
     [Scope('OnPrem')]
@@ -48,11 +50,14 @@ codeunit 6299 "Power BI Embed Helper"
     begin
         Clear(ResponseForWebPage); // Clear output
 
-        JsonCallbackMessage.ReadFrom(CallbackMessage); // If this fails, TryFunction returns false
+        if not JsonCallbackMessage.ReadFrom(CallbackMessage) then begin
+            Session.LogMessage('0000FT1', StrSubstNo(InvalidCallbackMessageTelemetryMsg, StrLen(CallbackMessage), GetLastErrorText(true)), Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+            Error(GetLastErrorText());
+        end;
 
         if JsonCallbackMessage.SelectToken('$.statusCode', TempJsonToken) then
             if WebRequestHelper.IsFailureStatusCode(TempJsonToken.AsValue().AsText()) then
-                Session.LogMessage('0000B6V', StrSubstNo(FailureStatusCodeTelemetryMsg, CallbackMessage), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+                Session.LogMessage('0000B6V', StrSubstNo(FailureStatusCodeTelemetryMsg, TempJsonToken.AsValue().AsText()), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
 
         if JsonCallbackMessage.SelectToken('$.url', TempJsonToken) then
             UrlTokenText := TempJsonToken.AsValue().AsText();
@@ -63,9 +68,7 @@ codeunit 6299 "Power BI Embed Helper"
         // This way, we can know the last step we performed and perform the following one.
 
         case true of
-            StrPos(UrlTokenText, '/rendered') > 0,
-            StrPos(UrlTokenText, '/pageChanged') > 0,
-            StrPos(UrlTokenText, '/selectionChanged') > 0:
+            IsIgnoredEventUrl(UrlTokenText):
                 exit; // Power BI notifies us of these events: no reaction needed
             StrPos(UrlTokenText, '/loaded') > 0:
                 // Step 1: Power BI report is ready, get all pages of the report
@@ -101,7 +104,7 @@ codeunit 6299 "Power BI Embed Helper"
                     ResponseForWebPage := GetPutReportFilterRequest(JsonCallbackMessage, CurrentListSelection);
                 end else begin
                     // There are no filters on the page, that is OK
-                    Session.LogMessage('0000B6W', StrSubstNo(NoFiltersOnReportTelemetryMsg, CallbackMessage), Verbosity::Verbose, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+                    Session.LogMessage('0000B6W', NoFiltersOnReportTelemetryMsg, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
                     exit;
                 end;
         end;
@@ -178,7 +181,10 @@ codeunit 6299 "Power BI Embed Helper"
         EmbeddedTargetOrigin := UriBuilderBaseUrl.Uri().AbsoluteUri();
     end;
 
+#if not CLEAN20
     [Scope('OnPrem')]
+    [NonDebuggable]
+    [Obsolete('Use TryGetLoadReportMessage instead.', '20.0')]
     procedure GetLoadReportMessage(): Text
     var
         AccessToken: Text;
@@ -192,6 +198,47 @@ codeunit 6299 "Power BI Embed Helper"
             Session.LogMessage('0000B6X', EmptyAccessTokenForPBITelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
 
         exit(StrSubstNo(LoadReportMessageJsonTxt, AccessToken));
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    [TryFunction]
+    procedure TryGetLoadReportMessage(var LoadReportMessage: Text)
+    var
+        AccessToken: Text;
+        HttpUtility: DotNet HttpUtility;
+    begin
+        AccessToken := HttpUtility.JavaScriptStringEncode(
+            AzureAdMgt.GetAccessToken(PowerBiServiceMgt.GetPowerBIResourceUrl(), PowerBiServiceMgt.GetPowerBiResourceName(), false)
+            );
+
+        if AccessToken = '' then begin
+            Session.LogMessage('0000FT0', EmptyAccessTokenForPBITelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+            Error(FailedAuthErr);
+        end;
+
+        LoadReportMessage := StrSubstNo(LoadReportMessageJsonTxt, AccessToken);
+    end;
+
+    procedure IsIgnoredEventUrl(EventUrl: Text): Boolean
+    begin
+        // https://docs.microsoft.com/en-us/javascript/api/overview/powerbi/handle-events
+        exit(
+            (StrPos(EventUrl, '/rendered') > 0) or
+            (StrPos(EventUrl, '/renderingStarted') > 0) or
+            (StrPos(EventUrl, '/pageChanged') > 0) or
+            (StrPos(EventUrl, '/buttonClicked') > 0) or
+            (StrPos(EventUrl, '/commandTriggered') > 0) or
+            (StrPos(EventUrl, '/dataHyperlinkClicked') > 0) or
+            (StrPos(EventUrl, '/visualRendered') > 0) or
+            (StrPos(EventUrl, '/dataSelected') > 0) or
+            (StrPos(EventUrl, '/swipeStart') > 0) or
+            (StrPos(EventUrl, '/swipeEnd') > 0) or
+            (StrPos(EventUrl, '/tileClicked') > 0) or
+            (StrPos(EventUrl, '/tileLoaded') > 0) or
+            (StrPos(EventUrl, '/visualClicked') > 0)
+        );
     end;
 
 }

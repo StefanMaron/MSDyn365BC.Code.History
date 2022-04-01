@@ -27,13 +27,13 @@ codeunit 136904 "Resource - Labels"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Resource - Labels");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource - Labels");
 
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
 
         isInitialized := true;
         Commit();
@@ -96,7 +96,7 @@ codeunit 136904 "Resource - Labels"
         FilterExpression: Text[250];
     begin
         // 1. Setup: Create three new Contacts.
-        Initialize;
+        Initialize();
         CreateContactWithAddress(Contact);
         CreateContactWithAddress(Contact2);
         CreateContactWithAddress(Contact3);
@@ -172,7 +172,7 @@ codeunit 136904 "Resource - Labels"
         FilterExpression: Text[250];
     begin
         // 1. Setup: Create three new Contacts and Segment Headers. Add Contacts to Segments by running Add Contacts.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
         CreateContactWithAddress(Contact);
         AddContactsToSegment(Contact, SegmentHeader);
@@ -211,7 +211,7 @@ codeunit 136904 "Resource - Labels"
         // Test that the Service Item Line Labels report is generated properly.
 
         // 1. Setup: Create Service Header, Service Item, Service Item Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
@@ -223,7 +223,7 @@ codeunit 136904 "Resource - Labels"
         Clear(ServiceItemLineLabels);
         ServiceItemLineLabels.SetTableView(ServiceItemLine);
         Commit();
-        ServiceItemLineLabels.Run;
+        ServiceItemLineLabels.Run();
 
         // 3. Verify: Check that the report is generated properly.
         LibraryReportDataset.LoadDataSetFile;
@@ -290,7 +290,7 @@ codeunit 136904 "Resource - Labels"
         FilterExpression: Text[250];
     begin
         // 1. Setup: Create three new Employee.
-        Initialize;
+        Initialize();
         CreateEmployeeWithAddress(Employee);
         CreateEmployeeWithAddress(Employee2);
         CreateEmployeeWithAddress(Employee3);
@@ -369,7 +369,7 @@ codeunit 136904 "Resource - Labels"
         FilterExpression: Text[250];
     begin
         // 1. Setup: Create three new Employee and their Alternative Address.
-        Initialize;
+        Initialize();
         CreateEmployeeWithAddress(Employee);
         CreateAlternativeAddress(AlternativeAddress, Employee."No.");
         AttachAlternativeAddress(Employee, AlternativeAddress.Code);
@@ -512,7 +512,7 @@ codeunit 136904 "Resource - Labels"
         ContactLabels.InitializeRequest(LabelFormatFrom);
         ContactLabels.SetTableView(Contact);
         Commit();
-        ContactLabels.Run;
+        ContactLabels.Run();
     end;
 
     local procedure RunEmployeeLabelsReport(FilterExpression: Text[250]; AddrFormatFrom: Option; LabelFormatFrom: Option)
@@ -525,7 +525,7 @@ codeunit 136904 "Resource - Labels"
         EmployeeLabels.InitializeRequest(AddrFormatFrom, LabelFormatFrom);
         EmployeeLabels.SetTableView(Employee);
         Commit();
-        EmployeeLabels.Run;
+        EmployeeLabels.Run();
     end;
 
     local procedure RunSegmentLabelsReport(FilterExpression: Text[250]; LabelFormatFrom: Option)
@@ -538,7 +538,7 @@ codeunit 136904 "Resource - Labels"
         SegmentLabels.InitializeRequest(LabelFormatFrom);
         SegmentLabels.SetTableView(SegmentHeader);
         Commit();
-        SegmentLabels.Run;
+        SegmentLabels.Run();
     end;
 
     local procedure VerifyAlternativeAddress(AlternativeAddress: Record "Alternative Address")

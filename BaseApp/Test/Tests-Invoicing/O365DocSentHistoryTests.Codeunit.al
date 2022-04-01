@@ -32,7 +32,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         EstimateNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A sales quote that has not yet been sent
@@ -65,7 +65,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A sales invoice that has not yet been sent
@@ -95,7 +95,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         EstimateNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales quote fails to send
@@ -105,7 +105,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         with SalesHeader do begin
             SetRange("Document Type", "Document Type"::Quote);
             SetRange("No.", EstimateNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Last Email Sent Time", "Last Email Sent Status", "Sent as Email");
             Assert.IsFalse("Sent as Email", 'Should not be sent as email');
             Assert.AreNotEqual("Last Email Sent Time", 0DT, 'Email sent time is empty');
@@ -124,7 +124,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales invoice fails to send
@@ -133,7 +133,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         // [THEN] The flow fields in the posted sales header report the correct values for the failure
         with SalesInvoiceHeader do begin
             SetRange("No.", PostedInvNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Last Email Sent Time", "Last Email Sent Status", "Sent as Email");
             Assert.IsFalse("Sent as Email", 'Should not be sent as email');
             Assert.AreNotEqual("Last Email Sent Time", 0DT, 'Email sent time is empty');
@@ -152,7 +152,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         EstimateNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales quote is successfully sent
@@ -162,7 +162,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         with SalesHeader do begin
             SetRange("Document Type", "Document Type"::Quote);
             SetRange("No.", EstimateNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Last Email Sent Time", "Last Email Sent Status", "Sent as Email");
             Assert.IsTrue("Sent as Email", 'Should be sent as email');
             Assert.AreNotEqual("Last Email Sent Time", 0DT, 'Email sent time is empty');
@@ -181,7 +181,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales invoice is succesfully sent
@@ -190,7 +190,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         // [THEN] The flow fields in the posted sales header report the correct values for the success
         with SalesInvoiceHeader do begin
             SetRange("No.", PostedInvNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Last Email Sent Time", "Last Email Sent Status", "Sent as Email");
             Assert.IsTrue("Sent as Email", 'Should be sent as email');
             Assert.AreNotEqual("Last Email Sent Time", 0DT, 'Email sent time is empty');
@@ -211,7 +211,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales invoice fails to send
@@ -248,7 +248,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         EstimateNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] An estimate fails to send
@@ -282,7 +282,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales invoice fails to send
@@ -309,7 +309,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         EstimateNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] An estimate fails to send
@@ -336,7 +336,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales invoice is successfully sent
@@ -364,7 +364,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         EstimateNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] An estimate is successfully sent
@@ -390,7 +390,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales invoice is successfully sent
@@ -413,7 +413,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         EstimateNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] An estimate is successfully sent
@@ -437,7 +437,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         BCO365SentDocumentsList: TestPage "BC O365 Sent Documents List";
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] More than one document fails to send, and the notification for one document is cleared on phone
@@ -472,7 +472,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         BCO365SentDocumentsList: TestPage "BC O365 Sent Documents List";
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] More than one document fails to send, and the notifications are cleared on phone
@@ -497,7 +497,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,OpenSetupEmailFromInvoiceNotificationHandler,BCEmailSetupModalPageHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,OpenSetupEmailFromInvoiceNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestNotificationActionSetupEmail()
     var
@@ -505,7 +505,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales invoice fails to send, and the Setup Email notification action is called from invoice page
@@ -523,7 +523,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,OpenSetupEmailFromInvoiceNotificationHandler,BCEmailSetupModalPageHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,OpenSetupEmailFromInvoiceNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestNotificationActionSetupEmailAlternative()
     var
@@ -531,7 +531,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales invoice fails to send, and the Setup Email notification action is called from invoice page
@@ -559,7 +559,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email and has some customers
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         LibraryInvoicingApp.CreateCustomer;
         LibraryInvoicingApp.CreateCustomer;
@@ -591,7 +591,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         EstimateNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] An estimate fails to send, and the Resend Now notification action is called from the estimate page
@@ -618,7 +618,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         PostedInvNo: Code[20];
     begin
         // [GIVEN] The user has set up an email
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A sales estimate fails to send, and the Resend Now notification action is called from the estimate page
@@ -642,13 +642,14 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         TaxDetail: Record "Tax Detail";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
+        LibraryWorkflow: Codeunit "Library - Workflow";
     begin
         BindActiveDirectoryMockEvents;
 
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
-        LibraryInvoicingApp.SetupEmail;
+        LibraryWorkflow.SetUpEmailAccount();
         EventSubscriberInvoicingApp.Clear;
         LibraryVariableStorage.AssertEmpty;
         O365DocumentSentHistory.DeleteAll();
@@ -678,21 +679,6 @@ codeunit 138958 "O365 Doc. Sent History Tests"
     begin
         LibraryVariableStorage.Dequeue(ExpectedMessage);
         Assert.AreEqual(ExpectedMessage, Message, '');
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure BCEmailSetupModalPageHandler(var BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard")
-    var
-        EmailProvider: Option "Office 365",Other;
-    begin
-        with BCO365EmailSetupWizard.EmailSettingsWizardPage do begin
-            "Email Provider".SetValue(EmailProvider::"Office 365");
-            FromAccount.SetValue('test@microsoft.com');
-            Password.SetValue('pass');
-        end;
-
-        BCO365EmailSetupWizard.OK.Invoke;
     end;
 
     [ModalPageHandler]

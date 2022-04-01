@@ -19,7 +19,7 @@ page 7328 "Warehouse Employees"
                 {
                     ApplicationArea = Warehouse;
                     LookupPageID = "User Lookup";
-                    ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
+                    ToolTip = 'Specifies the user ID of a warehouse employee. Each user who performs warehouse activities must be set up as a warehouse employee and assigned to at least one location.';
                 }
                 field("Location Code"; "Location Code")
                 {

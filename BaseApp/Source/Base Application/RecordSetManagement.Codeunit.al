@@ -30,7 +30,7 @@ codeunit 8400 "Record Set Management"
             TempRecordSetBuffer.Insert();
         until SetRecordRef.Next() = 0;
 
-        TempRecordSetBuffer.FindFirst;
+        TempRecordSetBuffer.FindFirst();
         exit(SaveSet(TempRecordSetBuffer));
     end;
 
@@ -90,7 +90,7 @@ codeunit 8400 "Record Set Management"
         RecordSetDefinition.SetRange("Set ID", SetID);
         RecordSetDefinition.SetAutoCalcFields(Value);
 
-        if not RecordSetDefinition.FindSet then
+        if not RecordSetDefinition.FindSet() then
             exit;
 
         repeat
@@ -105,7 +105,7 @@ codeunit 8400 "Record Set Management"
 
         TempUnsortedRecordSetBuffer.SetCurrentKey("Value RecordID");
         TempUnsortedRecordSetBuffer.Ascending(true);
-        if not TempUnsortedRecordSetBuffer.FindSet then
+        if not TempUnsortedRecordSetBuffer.FindSet() then
             exit;
 
         repeat
@@ -160,7 +160,7 @@ codeunit 8400 "Record Set Management"
         RecordSetDefinition: Record "Record Set Definition";
         SetID: Integer;
     begin
-        TempFoundRecordSetTree.FindFirst;
+        TempFoundRecordSetTree.FindFirst();
         SetID := 0;
         repeat
             CreateSetDefinitionLine(RecordSetDefinition, SetID, TempFoundRecordSetTree);

@@ -136,6 +136,8 @@ report 6697 "Create Ret.-Related Documents"
         TempRetRelDoc: Record "Returns-Related Document" temporary;
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         VendorNo: Code[20];
+
+    protected var
         CreatePRO: Boolean;
         CreatePO: Boolean;
         CreateSO: Boolean;
@@ -147,7 +149,7 @@ report 6697 "Create Ret.-Related Documents"
 
     procedure ShowDocuments()
     begin
-        if TempRetRelDoc.FindFirst then
+        if TempRetRelDoc.FindFirst() then
             PAGE.Run(PAGE::"Returns-Related Documents", TempRetRelDoc);
     end;
 

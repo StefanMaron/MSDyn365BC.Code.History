@@ -74,7 +74,7 @@ page 778 "Analysis Report Chart SubPage"
                         AnalysisReportChartSetup."Base X-Axis on"::Period:
                             if IsMeasure then begin
                                 AnalysisReportChartMatrix.SetFilters(AnalysisReportChartSetup);
-                                AnalysisReportChartMatrix.RunModal;
+                                AnalysisReportChartMatrix.RunModal();
                             end;
                         AnalysisReportChartSetup."Base X-Axis on"::Line,
                         AnalysisReportChartSetup."Base X-Axis on"::Column:
@@ -84,7 +84,7 @@ page 778 "Analysis Report Chart SubPage"
                                 else
                                     AnalysisReportChartLinePage.SetViewAsMeasure(false);
                                 AnalysisReportChartLinePage.SetTableView(AnalysisReportChartLine);
-                                AnalysisReportChartLinePage.RunModal;
+                                AnalysisReportChartLinePage.RunModal();
                             end;
                     end;
 

@@ -110,7 +110,7 @@ table 5717 "Item Cross Reference"
         ItemCrossReference.SetRange("Unit of Measure", UnitOfMeasureCode);
         ItemCrossReference.SetRange("Cross-Reference Type", CrossRefType);
         ItemCrossReference.SetRange("Cross-Reference Type No.", CrossRefTypeNo);
-        if ItemCrossReference.FindFirst then begin
+        if ItemCrossReference.FindFirst() then begin
             if (ItemCrossReference.Description = '') and (ItemCrossReference."Description 2" = '') then
                 exit(false);
             ItemDescription := ItemCrossReference.Description;
@@ -119,19 +119,6 @@ table 5717 "Item Cross Reference"
         end;
 
         exit(false);
-    end;
-#endif
-
-#if not CLEAN17
-    [Obsolete('Replaced by FindItemDescription().', '17.0')]
-    procedure GetItemDescription(var ItemDescription: Text; var ItemDescription2: Text; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CrossRefType: Option; CrossRefTypeNo: Code[20]): Boolean
-    var
-        NewDescription: Text[100];
-        NewDescription2: Text[50];
-    begin
-        FindItemDescription(NewDescription, NewDescription2, ItemNo, VariantCode, UnitOfMeasureCode, CrossRefType, CrossRefTypeNo);
-        ItemDescription := NewDescription;
-        ItemDescription2 := NewDescription2;
     end;
 #endif
 

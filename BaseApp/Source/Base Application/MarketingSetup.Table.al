@@ -231,23 +231,9 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Sync with Microsoft Graph';
             Editable = false;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
-            ObsoleteTag = '17.0';
-
-            trigger OnValidate()
-            var
-                WebhookManagement: Codeunit "Webhook Management";
-            begin
-                if WebhookManagement.IsSyncAllowed() and "Sync with Microsoft Graph" then begin
-                    CODEUNIT.Run(CODEUNIT::"Graph Data Setup");
-                    "WebHook Run Notification As" := GetWebhookSubscriptionUser();
-                    if UserIsNotValidForWebhookSubscription("WebHook Run Notification As") then
-                        if CurrentUserHasPermissionsForWebhookSubscription() then
-                            TrySetWebhookSubscriptionUser(UserSecurityId());
-                end else
-                    "Sync with Microsoft Graph" := false;
-            end;
+            ObsoleteTag = '20.0';
         }
         field(75; "WebHook Run Notification As"; Guid)
         {

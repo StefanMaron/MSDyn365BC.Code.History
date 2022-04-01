@@ -116,7 +116,7 @@ codeunit 7708 "Miniform Pick Activity List"
                 SetRange("Assigned User ID", WhseEmpId);
                 SetFilter("Location Code", LocationFilter);
             end;
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 if ADCSCommunication.GetNodeAttribute(ReturnedNode, 'RunReturn') = '0' then begin
                     ADCSMgt.SendError(Text009);
                     exit;

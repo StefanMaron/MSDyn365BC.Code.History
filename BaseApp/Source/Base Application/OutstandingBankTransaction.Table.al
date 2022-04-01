@@ -88,7 +88,7 @@
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccNo);
         BankAccountLedgerEntry.SetRange(Open, true);
-        if BankAccountLedgerEntry.FindSet then begin
+        if BankAccountLedgerEntry.FindSet() then begin
             repeat
                 RemainingAmt := BankAccountLedgerEntry.Amount - GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
                 if RemainingAmt <> 0 then begin
@@ -139,7 +139,7 @@
         OutstandingBankTransactions.SetRecords(TempOutstandingBankTransaction);
         OutstandingBankTransactions.SetPageCaption(TransactionType);
         OutstandingBankTransactions.SetTableView(TempOutstandingBankTransaction);
-        OutstandingBankTransactions.Run;
+        OutstandingBankTransactions.Run();
     end;
 
     procedure CopyFromBankAccLedgerEntry(BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankTransacType: Integer; StatementType: Integer; StatementNo: Code[20]; RemainingAmt: Decimal)
@@ -163,7 +163,7 @@
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
         AppliedPaymentEntry.SetRange("Applies-to Entry No.", EntryNo);
-        if AppliedPaymentEntry.FindSet then begin
+        if AppliedPaymentEntry.FindSet() then begin
             repeat
                 AppliedAmt += AppliedPaymentEntry."Applied Amount";
             until AppliedPaymentEntry.Next() = 0;

@@ -89,7 +89,7 @@ table 7505 "Item Attribute Value Mapping"
     begin
         SetRange("Table ID", DATABASE::Item);
         SetRange("No.", PrevNo);
-        if FindSet then
+        if FindSet() then
             repeat
                 ItemAttributeValueMapping := Rec;
                 ItemAttributeValueMapping.Rename("Table ID", NewNo, "Item Attribute ID");

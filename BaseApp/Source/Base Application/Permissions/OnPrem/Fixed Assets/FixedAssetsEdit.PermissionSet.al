@@ -37,7 +37,9 @@ permissionset 3846 "Fixed Assets - Edit"
                   tabledata Maintenance = RIMD,
                   tabledata "Maintenance Ledger Entry" = Rm,
                   tabledata "Maintenance Registration" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = r,
+#endif
                   tabledata "Purch. Cr. Memo Line" = r,
                   tabledata "Purch. Inv. Line" = rm,
                   tabledata "Purch. Rcpt. Line" = rm,

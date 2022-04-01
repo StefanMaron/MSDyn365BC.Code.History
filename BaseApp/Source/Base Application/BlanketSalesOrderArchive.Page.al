@@ -118,6 +118,12 @@ page 6620 "Blanket Sales Order Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the external document number that was entered on the purchase header or journal line.';
                 }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
+                }
                 field("Salesperson Code"; "Salesperson Code")
                 {
                     ApplicationArea = Suite;

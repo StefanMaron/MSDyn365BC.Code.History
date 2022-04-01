@@ -163,7 +163,7 @@ report 415 "Archived Purchase Quote"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -275,7 +275,7 @@ report 415 "Archived Purchase Quote"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -413,7 +413,7 @@ report 415 "Archived Purchase Quote"
                     PurchLineArchive2.SetRange("Document Type", "Purchase Header Archive"."Document Type");
                     PurchLineArchive2.SetRange("Document No.", "Purchase Header Archive"."No.");
                     PurchLineArchive2.SetRange("Version No.", "Purchase Header Archive"."Version No.");
-                    if PurchLineArchive2.FindSet then
+                    if PurchLineArchive2.FindSet() then
                         repeat
                             PurchLineArchive := PurchLineArchive2;
                             PurchLineArchive.Insert();

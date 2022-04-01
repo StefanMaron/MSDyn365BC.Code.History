@@ -49,7 +49,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         childItem: Record Item;
         childItem2: Record Item;
     begin
-        Initialize;
+        Initialize();
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1));
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
@@ -81,7 +81,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         childItem: Record Item;
         childItem2: Record Item;
     begin
-        Initialize;
+        Initialize();
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1));
         parentItem.Validate("Costing Method", parentItem."Costing Method"::Average);
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
@@ -120,7 +120,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         childItem: Record Item;
         childItem2: Record Item;
     begin
-        Initialize;
+        Initialize();
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1));
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
@@ -170,7 +170,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         parent: Code[20];
         child: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryKitting.SetCopyFrom(0); // Header
 
         // Setup dimensions
@@ -251,7 +251,7 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         // Set the refreshBom Method
         // TEST WITH THE ASM setup option Copy Component Dimensions from := Order Header
-        AsmSetup.FindFirst;
+        AsmSetup.FindFirst();
         AsmSetup.Validate("Copy Component Dimensions from", AsmSetup."Copy Component Dimensions from"::"Order Header");
         AsmSetup.Modify();
 
@@ -260,12 +260,12 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
 
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         AssemblyLine.Validate("Dimension Set ID", DimSetID2);
         AssemblyHeader.RefreshBOM;
         // find children lines and verify dimensions
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         Assert.AreNotEqual(AssemblyLine."Dimension Set ID", 0, 'AssemblyLine.Dimension Set ID must not be Zero');
 
         // Test the refreshBOM using AsmSetup."Copy Component Dimensions from"::"Order Header"
@@ -279,7 +279,7 @@ codeunit 137907 "SCM Assembly Order Functions"
             AssemblyLine."Dimension Set ID"));
 
         TempDimSetEntryLinePost.SetFilter("Dimension Code", Dimension1.Code);
-        TempDimSetEntryLinePost.FindFirst;
+        TempDimSetEntryLinePost.FindFirst();
         Assert.AreEqual(TempDimSetEntryLinePost."Dimension Value Code", DimValue1.Code,
           StrSubstNo('Wrong Dimension Value in Line, expected %1, got %2', DimValue1.Code, TempDimSetEntryLinePost."Dimension Value Code"));
 
@@ -290,7 +290,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         DimSetID2 := AssemblyLine."Dimension Set ID";
         AssemblyHeader.RefreshBOM;
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         // VERIFY
         Assert.AreEqual(AssemblyHeader."Dimension Set ID", DimSetID1, 'Asm Header.Dimension Set ID changed');
         Assert.AreNotEqual(AssemblyLine."Dimension Set ID", DimSetID2,
@@ -300,7 +300,7 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         DimMgt.GetDimensionSet(TempDimSetEntryLinePost, AssemblyLine."Dimension Set ID");
         TempDimSetEntryLinePost.SetFilter("Dimension Code", Dimension1.Code);
-        TempDimSetEntryLinePost.FindFirst;
+        TempDimSetEntryLinePost.FindFirst();
         Assert.AreEqual(TempDimSetEntryLinePost."Dimension Value Code", DimValue2.Code,
           StrSubstNo('Wrong Dimension Value in Line, expected %1, got %2', DimValue2.Code, TempDimSetEntryLinePost."Dimension Value Code"));
         asserterror Error('') // roll back
@@ -319,7 +319,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         subst: Code[20];
         parent: Code[20];
     begin
-        Initialize;
+        Initialize();
         parent := LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1);
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
@@ -397,7 +397,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         // [FEATURE] [Dimension] [Planning Worksheet]
         // [SCENARIO 377510] Planning Components should inherit Dimension from Requisition Line while planning through Planning Worksheet
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component Item with Default Dimension = "X"
         // [GIVEN] Parent Item with Default Dimension = "Y"
@@ -409,7 +409,7 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         // [THEN] Planning Component is created with Dimension = "Y" and "Shortcut Dimension Code 1" = "Z"
         PlanningComponent.SetRange("Item No.", Item[2]."No.");
-        PlanningComponent.FindFirst;
+        PlanningComponent.FindFirst();
         Assert.AreEqual(DimSetID[1], PlanningComponent."Dimension Set ID", DimErr);
         Assert.AreEqual(DimValueCode, PlanningComponent."Shortcut Dimension 1 Code", ShortcutDimErr);
     end;
@@ -425,7 +425,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         // [FEATURE] [Dimension] [Planning Worksheet] [Copy Components Dimensions from]
         // [SCENARIO 377510] Default Dimension of Component should be taken from Assembly Header when "Copy Components Dimensions from" is "Order Header" in Assembly Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Setup where "Copy Components Dimensions from" is "Order Header"
         SetCopyCompDimOnAsmSetup(AssemblySetup."Copy Component Dimensions from"::"Order Header");
@@ -457,7 +457,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         // [FEATURE] [Dimension] [Planning Worksheet] [Copy Components Dimensions from]
         // [SCENARIO 377510] Default Dimension of Component should be taken from Component Item when "Copy Components Dimensions from" is "Item/Resource Card" in Assembly Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Setup where "Copy Components Dimensions from" is "Item/Resource Card"
         SetCopyCompDimOnAsmSetup(AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card");
@@ -492,7 +492,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         // [FEATURE] [Assembly BOM]
         // [SCENARIO 381865] Field "Description 2" should not be populated in assembly line with Type = "Resource". For a line with Type = "Item", it should be copied from the component item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Parent Assembly Item PAI with populated Description 2.
         LibraryInventory.CreateItem(ParentItem);
@@ -522,13 +522,13 @@ codeunit 137907 "SCM Assembly Order Functions"
             SetRange("Document Type", AssemblyHeader."Document Type");
             SetRange("Document No.", AssemblyHeader."No.");
             SetRange(Type, Type::Resource);
-            FindFirst;
+            FindFirst();
 
             // [THEN] the field "Description 2" of related Assembly Line of Type Resource is blank.
             Assert.AreEqual('', "Description 2", Description2AssemblyLineResourceNotBlankErr);
 
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
 
             // [THEN] The field "Description 2" of related Assembly Line of Type Item is equal to CI."Description 2".
             Assert.AreEqual(ChildItem."Description 2", "Description 2", Description2AssemblyLineItemDoesntMatchErr);
@@ -550,7 +550,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         // [FEATURE] [Explode BOM] [Item Unit of Measure]
         // [SCENARIO 211722] Function "Explode BOM" of the assembly order should consider the order unit of measure when calculating the quantity of a component item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "A" with an additional unit of measure "UoM1", "Qty. per Unit of Measure" = 2
         LibraryInventory.CreateItem(Item[1]);
@@ -601,7 +601,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         // [FEATURE] [Explode BOM]
         // [SCENARIO 211722] Function "Explode BOM" of the assembly order should calculate the quantity of a component item based on "Quantity per" in the order line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 items "A", "B" and "C"
         QtyPerLine[1] := LibraryRandom.RandIntInRange(2, 10);
@@ -642,7 +642,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         // [FEATURE] [Assembly BOM] [Description]
         // [SCENARIO 351774] Field "Description" in Assembly Line is copied from the BOM Component
-        Initialize;
+        Initialize();
 
         // [GIVEN] Parent Assembly Item "A"
         LibraryInventory.CreateItem(ParentItem);
@@ -666,7 +666,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         // [THEN] "Description" = "Modified" on the Assembly Line
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         AssemblyLine.TestField(Description, BOMComponent.Description)
     end;
 
@@ -675,14 +675,14 @@ codeunit 137907 "SCM Assembly Order Functions"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Assembly Order Functions");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Order Functions");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
 
@@ -766,7 +766,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     local procedure TestAsmOrderExplodeBOM(ExplodeBOMFromPage: Boolean; DueDate: Date)
@@ -789,7 +789,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         // SETUP
         // Make the BOM tree
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(ChildChildItem);
 
         // Create child assembly item
@@ -944,7 +944,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         with AssemblyLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
 
             TestField(Quantity, ExpectedQty);
             TestField("Quantity (Base)", ExpectedQtyBase);
@@ -962,11 +962,11 @@ codeunit 137907 "SCM Assembly Order Functions"
         AssemblyLine: Record "Assembly Line";
     begin
         AssemblyHeader.SetRange("Item No.", ItemNo);
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
         with AssemblyLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", AssemblyHeader."No.");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(DimSetID, "Dimension Set ID", DimErr);
         end;
     end;

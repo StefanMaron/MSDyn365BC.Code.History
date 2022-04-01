@@ -38,7 +38,7 @@ codeunit 6300 "Azure AD Mgt."
         if IsSaaS then
             AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCode(AuthorizationCode, ResourceUrl)
         else begin
-            AzureADAppSetup.FindFirst;
+            AzureADAppSetup.FindFirst();
             AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCodeWithCredentials(
                 AuthorizationCode,
                 GetClientId,
@@ -169,7 +169,7 @@ codeunit 6300 "Azure AD Mgt."
         if not IsSaaS and not AzureADAppSetup.IsEmpty() then begin
             // Use existing redirect URL if already in table - necessary for Windows client which would otherwise
             // generate a different URL for each computer and thus not match the company's Azure application.
-            AzureADAppSetup.FindFirst;
+            AzureADAppSetup.FindFirst();
             exit(AzureADAppSetup."Redirect URL");
         end;
 
@@ -228,7 +228,7 @@ codeunit 6300 "Azure AD Mgt."
             if AzureADAppSetup.IsEmpty() then
                 Error(AzureADNotSetupErr, PRODUCTNAME.Short);
 
-            AzureADAppSetup.FindFirst;
+            AzureADAppSetup.FindFirst();
             ClientID := TypeHelper.GetGuidAsString(AzureADAppSetup."App ID");
         end;
     end;
@@ -261,6 +261,14 @@ codeunit 6300 "Azure AD Mgt."
         AzureADAuthFlow.CreateExchangeServiceWrapperWithToken(Token, Service);
     end;
 
+    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetUserToken', '', false, false)]
+    [NonDebuggable]
+    local procedure OnGetUserToken(Resource: Text; Scenario: Text; var Token: Text)
+    begin
+        Token := GetAccessToken(Resource, Resource, true);
+    end;
+
     [TryFunction]
     [NonDebuggable]
     local procedure AcquireGuestToken(ResourceName: Text; GuestTenantId: Text; var AccessToken: Text)
@@ -290,7 +298,7 @@ codeunit 6300 "Azure AD Mgt."
         if IsSaaS then
             AccessToken := AzureADAuthFlow.AcquireTokenFromCache(ResourceName)
         else begin
-            AzureADAppSetup.FindFirst;
+            AzureADAppSetup.FindFirst();
             AccessToken := AzureADAuthFlow.AcquireTokenFromCacheWithCredentials(
                 GetClientId,
                 AzureADAppSetup.GetSecretKeyFromIsolatedStorage(),

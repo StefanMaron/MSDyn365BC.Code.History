@@ -620,44 +620,21 @@ table 5507 "Sales Cr. Memo Entity Buffer"
         UpdatePaymentTermsId;
         UpdateShipmentMethodId;
         UpdateReasonCodeId();
-
+#if not CLEAN20
         UpdateGraphContactId;
+#endif
     end;
 
+#if not CLEAN20
+    [Obsolete('The functionality that uses this was removed', '20.0')]
     procedure UpdateGraphContactId()
     var
         contactFound: Boolean;
     begin
-        if "Sell-to Contact No." = '' then
-            contactFound := UpdateContactIdFromCustomer;
-
         if not contactFound then
             Clear("Contact Graph Id");
     end;
-
-    local procedure UpdateContactIdFromCustomer(): Boolean
-    var
-        Customer: Record Customer;
-        Contact: Record Contact;
-        GraphIntContact: Codeunit "Graph Int. - Contact";
-        GraphID: Text[250];
-    begin
-        if IsNullGuid("Customer Id") then
-            exit(false);
-
-        if not GraphIntContact.IsUpdateContactIdEnabled() then
-            exit(false);
-
-        if not Customer.GetBySystemId("Customer Id") then
-            exit(false);
-
-        if not GraphIntContact.FindGraphContactIdFromCustomer(GraphID, Customer, Contact) then
-            exit(false);
-
-        "Contact Graph Id" := GraphID;
-
-        exit(true);
-    end;
+#endif
 
     procedure GetIsRenameAllowed(): Boolean
     begin

@@ -16,6 +16,7 @@ codeunit 134929 "ERM MIR Test"
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ReminderHeaderReminderTermsCodeErr: Label 'Reminder Terms Code must have a value in Reminder Header: No.=%1';
@@ -36,7 +37,7 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
     begin
         // [SCENARIO] Suggest Fin Charge Memo Lines function leads to error if charge memo created before Interest Rate Starting Date and before Sales invoice Due Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Terms and Finance Charge Terms Interest Rate (Start Date = 31.01)
         CreateFinanceChargeTerm(FinanceChargeTerms);
@@ -69,7 +70,7 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
     begin
         // [SCENARIO] Suggest Fin Charge Memo Lines function does not create lines if charge memo created after Interest Rate Starting Date and before Sales invoice Due Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Terms and Finance Charge Terms Interest Rate (Start Date = 28.01)
         CreateFinanceChargeTerm(FinanceChargeTerms);
@@ -103,7 +104,7 @@ codeunit 134929 "ERM MIR Test"
         SalesInvoiceNo: Code[20];
     begin
         // [SCENARIO] Suggest Fin Charge Memo Lines function creates lines if charge memo created after Interest Rate Starting Date and before Sales invoice Due Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Terms
         CreateFinanceChargeTerm(FinanceChargeTerms);
@@ -152,7 +153,7 @@ codeunit 134929 "ERM MIR Test"
         SalesInvoiceNo: Code[20];
     begin
         // [SCENARIO] Suggest Fin Charge Memo Lines function creates only one line if charge memo created after start date of first finance charge interest rate but before start date of second one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Terms
         CreateFinanceChargeTerm(FinanceChargeTerms);
@@ -199,7 +200,7 @@ codeunit 134929 "ERM MIR Test"
         SalesInvoiceNo: Code[20];
     begin
         // [SCENARIO] Suggest Fin Charge Memo Lines function creates 2 lines if charge memo created after start date of second finance chare interest rate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Terms
         CreateFinanceChargeTerm(FinanceChargeTerms);
@@ -253,7 +254,7 @@ codeunit 134929 "ERM MIR Test"
         SalesInvoiceNo: Code[20];
     begin
         // [SCENARIO] Suggest Fin Charge Memo Lines function creates 2 lines if charge memo created after on last date of second finance chare interest rate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Terms
         CreateFinanceChargeTerm(FinanceChargeTerms);
@@ -304,7 +305,7 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
     begin
         // [SCENARIO] Suggest Fin Charge Memo Lines function does not create lines for Finance Charge Memo created on Last Date of Grace Period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Fincance Charge Terms with grace period <7D>
         CreateFinChargeTermWithGracePeriod(FinanceChargeTerms);
@@ -396,7 +397,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [SCENARIO] Suggest Fin Charge Memo Lines function does not create line if Finance Charge Interest Amount is smaller than the Finance Charge Terms Minimum Amount
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Fincance Charge Terms with additional fee and minimal amount 150
         CreateFinChargeTermWithAdditionalFee(FinanceChargeTerms, LibraryRandom.RandInt(100) + 100); // Passing value Greater than 100 in Minimum Amount Field.
@@ -432,7 +433,7 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
     begin
         // [SCENARIO] Suggest Fin Charge Memo Lines function creates line if Finance Charge Interest Amount is greater than the Finance Charge Terms Minimum Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Fincance Charge Terms with additional fee and minimal amount 10
         CreateFinChargeTermWithAdditionalFee(FinanceChargeTerms, LibraryRandom.RandInt(10)); // Passing RANDOM value to generate Minimum Amount.
@@ -470,7 +471,7 @@ codeunit 134929 "ERM MIR Test"
         InvoicesQty: Integer;
     begin
         // [SCENARIO] Create Finance Charge Memo function creates finance charge memo with several lines based on several invoices
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Terms and Finance Charge Terms Interest Rate (Start Date = 28.01)
         CreateFinanceChargeTerm(FinanceChargeTerms);
@@ -491,11 +492,11 @@ codeunit 134929 "ERM MIR Test"
         CreateFinanceChargeMemos.SetTableView(Customer);
         CreateFinanceChargeMemos.InitializeRequest(CreationDate, CreationDate);
         CreateFinanceChargeMemos.UseRequestPage(false);
-        CreateFinanceChargeMemos.Run;
+        CreateFinanceChargeMemos.Run();
 
         // [THEN] 3 finance charge memo lines with "Detailed Interest Rates Entry" = TRUE created
         FinanceChargeMemoHeader.SetRange("Customer No.", Customer."No.");
-        FinanceChargeMemoHeader.FindFirst;
+        FinanceChargeMemoHeader.FindFirst();
 
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoHeader."No.");
         FinanceChargeMemoLine.SetRange("Detailed Interest Rates Entry", true);
@@ -516,7 +517,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Reminder-Make function makes reminder line from customer ledger entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer, Reminder Level, Customer Ledger Entry, Detailed Customer Ledger Entry
         CreateCustomer(Customer);
@@ -531,7 +532,7 @@ codeunit 134929 "ERM MIR Test"
 
         // [THEN] Reminder line created
         ReminderLine.SetRange("Entry No.", CustLedgerEntry."Entry No.");
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
         ReminderLine.TestField(Type, ReminderLine.Type::"Customer Ledger Entry");
     end;
 
@@ -544,7 +545,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issue of Reminder with blank type and some amount leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with blank reminder line type
         // [WHEN] Reminder is being issued
@@ -563,7 +564,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issue of Reminder with G/L Account type, blank "No." and some amount leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with G/L Account reminder line type
         // [WHEN] Reminder is being issued
@@ -582,7 +583,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issue of Reminder with Customer Ledger Entry type, blank "Entry No." and some amount leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with Customer Ledger Entry reminder line type
         // [WHEN] Reminder is being issued
@@ -606,7 +607,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issuing of Reminder with Customer Ledger Entry type makes Reminder/Fincance Charge Entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer, Customer Ledger Entry and Reminder
         CreateCustomer(Customer);
@@ -636,7 +637,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issue of Reminder makes G/L entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer and Reminder
         CreateCustomer(Customer);
@@ -658,7 +659,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Fin. Charge Memo Line description is taken from customer ledeger entry in case of blank Finance Charge Terms Description
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer, Customer Ledger Entry, Detailed Customer Ledger Entry, and Finance Charge Memo Header
         // [GIVEN] Finance Charge Terms with blank Description
@@ -674,7 +675,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Fin. Charge Memo Line description is taken from Finance Charge Terms in case of Finance Charge Terms Description is not blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer, Customer Ledger Entry, Detailed Customer Ledger Entry, and Finance Charge Memo Header
         // [GIVEN] Finance Charge Terms with not blank Description
@@ -692,7 +693,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issue of Finance Charge Memo with blank type and some amount leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo with blank line type
         // [WHEN] Finance Charge Memo is being issued
@@ -711,7 +712,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issue of Finance Charge Memo with G/L Account type, blank "No." and some amount leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo with G/L Account reminder line type
         // [WHEN] Finance Charge Memo is being issued
@@ -730,7 +731,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issue of Finance Charge Memo with Customer Ledger Entry type, blank "Entry No." and some amount leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo with Customer Ledger Entry reminder line type
         // [WHEN] Finance Charge Memo is being issued
@@ -754,7 +755,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issuing of Finance Charge Memo with Customer Ledger Entry type makes Reminder/Fincance Charge Entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer, Customer Ledger Entry and Finance Charge Memo
         CreateCustomer(Customer);
@@ -786,7 +787,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Issue of Finance Charge Memo makes G/L entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer, Customer Ledger Entry and Finance Charge Memo
         CreateCustomer(Customer);
@@ -814,7 +815,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Deletion of Finance Charge Terms leads to deletion of linked Finance Charge Interest Rate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Terms 'T' with Finance Charge Interest Rate 'R'
         CreateFinanceChargeTerm(FinanceChargeTerms);
@@ -839,7 +840,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Changing "Interest Rate" of Finance Charge Terms leads to notificaiton message
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Terms 'T' with Finance Charge Interest Rate 'R'
         CreateFinanceChargeTerm(FinanceChargeTerms);
@@ -1059,6 +1060,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM MIR Test");
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1066,6 +1068,9 @@ codeunit 134929 "ERM MIR Test"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM MIR Test");
     end;
@@ -1251,7 +1256,7 @@ codeunit 134929 "ERM MIR Test"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Due Date" := WorkDate;
@@ -1472,7 +1477,7 @@ codeunit 134929 "ERM MIR Test"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        if CustLedgerEntry2.FindLast then;
+        if CustLedgerEntry2.FindLast() then;
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Posting Date" := WorkDate;
@@ -1490,7 +1495,7 @@ codeunit 134929 "ERM MIR Test"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
@@ -1533,7 +1538,7 @@ codeunit 134929 "ERM MIR Test"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         CreateFinChargeTermWithGracePeriod(FinanceChargeTerms);
 
@@ -1573,7 +1578,7 @@ codeunit 134929 "ERM MIR Test"
         CustLedgerEntry.CalcFields("Remaining Amount");
         Amount := CustLedgerEntry."Remaining Amount" * InterestRate / 100;
         FinanceChargeMemoLine.SetRange("Entry No.", CustLedgerEntry."Entry No.");
-        FinanceChargeMemoLine.FindFirst;
+        FinanceChargeMemoLine.FindFirst();
         FinanceChargeMemoLine.TestField(Type, FinanceChargeMemoLine.Type::"Customer Ledger Entry");
         Assert.AreNearlyEqual(Amount, FinanceChargeMemoLine.Amount, GeneralLedgerSetup."Amount Rounding Precision", ValueMustEqualMsg);
         Assert.AreEqual(
@@ -1593,7 +1598,7 @@ codeunit 134929 "ERM MIR Test"
         // Verify Description, Account Number and Additional Fee on Finance Charge Memo Lines.
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoHeader."No.");
         FinanceChargeMemoLine.SetRange(Type, FinanceChargeMemoLine.Type::"G/L Account");
-        FinanceChargeMemoLine.FindFirst;
+        FinanceChargeMemoLine.FindFirst();
 
         FinanceChargeTerms.Get(FinanceChargeMemoHeader."Fin. Charge Terms Code");
         CustomerPostingGroup.Get(FinanceChargeMemoHeader."Customer Posting Group");
@@ -1621,7 +1626,7 @@ codeunit 134929 "ERM MIR Test"
         GLSetup.Get();
         SalesInvoiceHeader.Get(SalesInvoiceNo);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
 
         DueDateOnFinChrgLines := CalcDate('<1D>', SalesInvoiceHeader."Due Date");
@@ -1644,7 +1649,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         ReminderFinChargeEntry.SetRange(Type, Type);
         ReminderFinChargeEntry.SetRange("No.", No);
-        ReminderFinChargeEntry.FindFirst;
+        ReminderFinChargeEntry.FindFirst();
         ReminderFinChargeEntry.TestField("Customer Entry No.", CustLedgerEntry."Entry No.");
         ReminderFinChargeEntry.TestField("Customer No.", CustLedgerEntry."Customer No.");
         ReminderFinChargeEntry.TestField("Due Date", DueDate);
@@ -1656,7 +1661,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"G/L Account");
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Document Type", DocumentType);
         GLEntry.TestField("Document No.", DocumentNo);
         GLEntry.TestField("Source No.", SourceNo);

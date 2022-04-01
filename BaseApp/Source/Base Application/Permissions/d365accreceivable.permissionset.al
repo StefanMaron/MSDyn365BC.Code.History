@@ -22,6 +22,7 @@ permissionset 7862 "D365 ACC. RECEIVABLE"
                   tabledata Customer = D,
                   tabledata "Date Compr. Register" = Rimd,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
+                  tabledata "Exch. Rate Adjmt. Ledg. Entry" = Rimd,
                   tabledata "Fin. Charge Comment Line" = RIMD,
                   tabledata "Finance Charge Interest Rate" = RIMD,
                   tabledata "Finance Charge Memo Header" = RIMD,

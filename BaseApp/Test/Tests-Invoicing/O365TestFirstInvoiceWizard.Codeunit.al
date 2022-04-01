@@ -56,13 +56,13 @@ codeunit 138902 "O365 Test First Invoice Wizard"
         Item.DeleteAll();
         DisableJobQueue;
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-        if ConfigTemplateHeader.FindFirst then begin
+        if ConfigTemplateHeader.FindFirst() then begin
             ConfigTemplateHeader.SetFilter(Code, '>%1', ConfigTemplateHeader.Code);
             ConfigTemplateHeader.DeleteAll();
         end;
         ConfigTemplateHeader.Reset();
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        if ConfigTemplateHeader.FindFirst then begin
+        if ConfigTemplateHeader.FindFirst() then begin
             ConfigTemplateHeader.SetFilter(Code, '>%1', ConfigTemplateHeader.Code);
             ConfigTemplateHeader.DeleteAll();
         end;
@@ -112,13 +112,13 @@ codeunit 138902 "O365 Test First Invoice Wizard"
         SetTaxType(O365SalesInitialSetup."Tax Type"::VAT);
 
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-        if ConfigTemplateHeader.FindFirst then begin
+        if ConfigTemplateHeader.FindFirst() then begin
             ConfigTemplateHeader.SetFilter(Code, '>%1', ConfigTemplateHeader.Code);
             ConfigTemplateHeader.DeleteAll();
         end;
         ConfigTemplateHeader.Reset();
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        if ConfigTemplateHeader.FindFirst then begin
+        if ConfigTemplateHeader.FindFirst() then begin
             ConfigTemplateHeader.SetFilter(Code, '>%1', ConfigTemplateHeader.Code);
             ConfigTemplateHeader.DeleteAll();
         end;

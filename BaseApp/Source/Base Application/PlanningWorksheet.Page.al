@@ -372,6 +372,13 @@ page 99000852 "Planning Worksheet"
                     ToolTip = 'Specifies whether the supply, represented by the requisition worksheet line, is considered by the planning system, when calculating action messages.';
                     Visible = false;
                 }
+                field("Blanket Purch. Order Exists"; "Blanket Purch. Order Exists")
+                {
+                    ApplicationArea = Planning;
+                    BlankZero = true;
+                    ToolTip = 'Specifies if a blanket purchase order exists for the item on the requisition line.';
+                    Visible = false;
+                }
                 field("Reserved Quantity"; "Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
@@ -515,7 +522,7 @@ page 99000852 "Planning Worksheet"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -681,7 +688,7 @@ page 99000852 "Planning Worksheet"
                         CalcPlan: Report "Calculate Plan - Plan. Wksh.";
                     begin
                         CalcPlan.SetTemplAndWorksheet("Worksheet Template Name", "Journal Batch Name", false);
-                        CalcPlan.RunModal;
+                        CalcPlan.RunModal();
 
                         if not Find('-') then
                             SetUpNewLine(Rec);
@@ -704,7 +711,7 @@ page 99000852 "Planning Worksheet"
                         CalcPlan: Report "Calculate Plan - Plan. Wksh.";
                     begin
                         CalcPlan.SetTemplAndWorksheet("Worksheet Template Name", "Journal Batch Name", true);
-                        CalcPlan.RunModal;
+                        CalcPlan.RunModal();
 
                         if not Find('-') then
                             SetUpNewLine(Rec);
@@ -816,7 +823,7 @@ page 99000852 "Planning Worksheet"
                         TrackingForm: Page "Order Tracking";
                     begin
                         TrackingForm.SetReqLine(Rec);
-                        TrackingForm.RunModal;
+                        TrackingForm.RunModal();
                     end;
                 }
             }
@@ -862,7 +869,8 @@ page 99000852 "Planning Worksheet"
             ReqJnlManagement.OpenJnl(CurrentWkshBatchName, Rec);
             exit;
         end;
-        ReqJnlManagement.TemplateSelection(PAGE::"Planning Worksheet", false, 2, Rec, JnlSelected);
+        ReqJnlManagement.WkshTemplateSelection(
+            PAGE::"Planning Worksheet", false, "Req. Worksheet Template Type"::Planning, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         ReqJnlManagement.OpenJnl(CurrentWkshBatchName, Rec);
@@ -961,7 +969,7 @@ page 99000852 "Planning Worksheet"
             exit;
 
         CarryOutActionMsgPlan.SetReqWkshLine(Rec);
-        CarryOutActionMsgPlan.RunModal;
+        CarryOutActionMsgPlan.RunModal();
     end;
 
     [IntegrationEvent(false, false)]

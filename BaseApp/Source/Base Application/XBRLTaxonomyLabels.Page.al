@@ -1,8 +1,12 @@
+#if not CLEAN20
 page 590 "XBRL Taxonomy Labels"
 {
     Caption = 'XBRL Taxonomy Labels';
     PageType = List;
     SourceTable = "XBRL Taxonomy Label";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -53,5 +57,15 @@ page 590 "XBRL Taxonomy Labels"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    var
+        XBRLDeprecationNotification: Codeunit "XBRL Deprecation Notification";
+    begin
+        XBRLDeprecationNotification.Show();
+    end;
+
 }
 
+
+#endif

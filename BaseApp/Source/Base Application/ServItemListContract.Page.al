@@ -188,7 +188,7 @@ page 6076 "Serv. Item List (Contract)"
                                   ResourceSkill.Type::"Service Item",
                                   "Service Item No.",
                                   ServiceItem.Description);
-                                SkilledResourceList.RunModal;
+                                SkilledResourceList.RunModal();
                             end;
                         end else
                             if "Item No." <> '' then
@@ -197,7 +197,7 @@ page 6076 "Serv. Item List (Contract)"
                                       ResourceSkill.Type::Item,
                                       "Item No.",
                                       Item.Description);
-                                    SkilledResourceList.RunModal;
+                                    SkilledResourceList.RunModal();
                                 end;
                     end;
                 }

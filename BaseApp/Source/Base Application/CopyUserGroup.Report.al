@@ -20,7 +20,7 @@ report 9001 "Copy User Group"
                 NewUserGroup.Name := Name;
                 NewUserGroup.Insert(true);
                 UserGroupPermissionSet.SetRange("User Group Code", Code);
-                if UserGroupPermissionSet.FindSet then
+                if UserGroupPermissionSet.FindSet() then
                     repeat
                         NewUserGroupPermissionSet := UserGroupPermissionSet;
                         NewUserGroupPermissionSet."User Group Code" := NewUserGroup.Code;

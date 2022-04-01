@@ -119,7 +119,7 @@ codeunit 6710 ODataUtility
     procedure GenerateODataV3FilterText(ServiceNameParam: Text; ObjectTypeParam: Option ,,,,,"Codeunit",,,"Page","Query"; var FilterTextParam: Text)
     begin
         ODataProtocolVersion := ODataProtocolVersion::V3;
-        FilterTextParam := GenerateFilterText(ServiceNameParam, ObjectTypeParam, CLIENTTYPE::OData);
+        FilterTextParam := GenerateFilterText(ServiceNameParam, ObjectTypeParam);
         if FilterTextParam <> '' then
             FilterTextParam := StrSubstNo('$filter=%1', FilterTextParam);
     end;
@@ -128,12 +128,12 @@ codeunit 6710 ODataUtility
     procedure GenerateODataV4FilterText(ServiceNameParam: Text; ObjectTypeParam: Option ,,,,,"Codeunit",,,"Page","Query"; var FilterTextParam: Text)
     begin
         ODataProtocolVersion := ODataProtocolVersion::V4;
-        FilterTextParam := GenerateFilterText(ServiceNameParam, ObjectTypeParam, CLIENTTYPE::ODataV4);
+        FilterTextParam := GenerateFilterText(ServiceNameParam, ObjectTypeParam);
         if FilterTextParam <> '' then
             FilterTextParam := StrSubstNo('$filter=%1', FilterTextParam);
     end;
 
-    local procedure GenerateFilterText(ServiceNameParam: Text; ObjectTypeParam: Option ,,,,,"Codeunit",,,"Page","Query"; ClientType: ClientType): Text
+    local procedure GenerateFilterText(ServiceNameParam: Text; ObjectTypeParam: Option ,,,,,"Codeunit",,,"Page","Query"): Text
     var
         TenantWebService: Record "Tenant Web Service";
         TableItemFilterTextDictionary: DotNet GenericDictionary2;
@@ -142,7 +142,7 @@ codeunit 6710 ODataUtility
         if TenantWebService.Get(ObjectTypeParam, ServiceNameParam) then begin
             TableItemFilterTextDictionary := TableItemFilterTextDictionary.Dictionary;
             GetNAVFilters(TenantWebService, TableItemFilterTextDictionary);
-            FilterText := CombineFiltersFromTables(TenantWebService, TableItemFilterTextDictionary, ClientType);
+            FilterText := CombineFiltersFromTables(TenantWebService, TableItemFilterTextDictionary);
         end;
 
         exit(FilterText);
@@ -170,7 +170,7 @@ codeunit 6710 ODataUtility
         if TenantWebService.Get(ObjectTypeParam, ServiceNameParam) then begin
             TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
 
-            if TenantWebServiceOData.FindFirst then begin
+            if TenantWebServiceOData.FindFirst() then begin
                 SelectText := WebServiceManagement.GetODataSelectClause(TenantWebServiceOData);
                 if ODataProtocolVersionParam = ODataProtocolVersionParam::V3 then
                     FilterText := WebServiceManagement.GetODataFilterClause(TenantWebServiceOData)
@@ -205,7 +205,7 @@ codeunit 6710 ODataUtility
         exit(ODataUrl);
     end;
 
-    local procedure CombineFiltersFromTables(var TenantWebService: Record "Tenant Web Service"; TableItemFilterTextDictionaryParam: DotNet GenericDictionary2; ODataClientType: ClientType): Text
+    local procedure CombineFiltersFromTables(var TenantWebService: Record "Tenant Web Service"; TableItemFilterTextDictionaryParam: DotNet GenericDictionary2): Text
     var
         WebServiceManagement: Codeunit "Web Service Management";
         KeyValuePair: DotNet GenericKeyValuePair2;
@@ -218,7 +218,7 @@ codeunit 6710 ODataUtility
         foreach KeyValuePair in TableItemFilterTextDictionaryParam do begin
             FilterTextForSelectedColumns := WebServiceManagement.RemoveUnselectedColumnsFromFilter(TenantWebService, KeyValuePair.Key, KeyValuePair.Value);
             case TenantWebService."Object Type" of
-                TenantWebService."Object Type"::Page:  
+                TenantWebService."Object Type"::Page:
                     DataItemFilterText := ODataFilterGenerator.CreateODataV4Filter(KeyValuePair.Key, FilterTextForSelectedColumns, 0);
                 TenantWebService."Object Type"::Query:
                     DataItemFilterText := ODataFilterGenerator.CreateODataV4Filter(KeyValuePair.Key, FilterTextForSelectedColumns,
@@ -276,11 +276,11 @@ codeunit 6710 ODataUtility
                 FieldTable.SetRange(TableNo, KeyValuePair.Key);
                 FieldTable.SetFilter(ObsoleteState, '<>%1', FieldTable.ObsoleteState::Removed);
                 FieldTable.SetRange("Field Caption", Column);
-                if FieldTable.FindFirst then begin
+                if FieldTable.FindFirst() then begin
                     TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
                     TenantWebServiceColumns.SetRange("Data Item", KeyValuePair.Key);
                     TenantWebServiceColumns.SetRange("Field Number", FieldTable."No.");
-                    if TenantWebServiceColumns.FindFirst then
+                    if TenantWebServiceColumns.FindFirst() then
                         ColumnListParam.Add(Column);
                 end;
             end;

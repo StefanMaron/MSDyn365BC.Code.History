@@ -35,10 +35,10 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Rollup Sev 3");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -60,7 +60,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Verify Value Entry after post Output Journal which is created from Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
@@ -101,7 +101,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Verify Value Entry and Application Worksheet after post Output Journal with 'Apply to Entry' which is created from Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
@@ -148,7 +148,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Verify Value Entry after receive Purchase Order.
 
         // Setup: Update Inventory Setup, create Purchase Order,
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
@@ -188,7 +188,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Verify GL Entry after post Salse Order.
 
         // Setup: Update Inventory Setup, create and post Purchase Order, create Sales Order.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
@@ -241,7 +241,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Verify GL Entry after post Credit Memo.
 
         // Setup: Update Inventory Setup, create and receive Purchase Order.
-        Initialize;
+        Initialize();
         LibraryERM.CreateReasonCode(ReasonCode);  // Added for G1 Country Fix.
         InventorySetup.Get();
         ExecuteUIHandlers;
@@ -268,7 +268,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Create Sales Credit Memo, Get Posted Invoice to Reverse and Post.
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
         SalesInvoiceLine.SetRange("Document No.", PostedInvoiceNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         CopyDocMgt.SetProperties(false, false, false, false, true, true, true);
         CopyDocMgt.CopySalesInvLinesToDoc(SalesHeader2, SalesInvoiceLine, LinesNotCopied, MissingExCostRevLink);
         SalesHeader2.Validate("Reason Code", ReasonCode.Code);
@@ -306,7 +306,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Verify Value Entries in 'Cost Amount (Expected)(ACY)' of Item Ledger Entry when transactions posted with different Currency Exchange Rates.
 
         // Setup: Create Currency, add Additional Reporting Currency and update Inventory Setup.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         ExecuteUIHandlers;
         CreateCurrencyWithExchangeRate(Currency);
@@ -350,7 +350,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Verify Value Entries with ACY transactions on different Posting Dates after run Adjust Cost Item batch job.
 
         // Setup: Create Currency, add Additional Reporting Currency and update Inventory Setup.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         ExecuteUIHandlers;
         CreateCurrencyWithExchangeRate(Currency);
@@ -399,14 +399,14 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
     begin
         // Verify Item Ledger Entry after posting Item Journal Line for Item having costing method Average.
         // Using hardcoded quantity and cost since this was a rounding error
-        Initialize;
+        Initialize();
 
         // Setup: Create Item and post Positive Adj Item Journal Line.
         Item.Get(
           CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual, Item."Replenishment System"::Purchase, 0));
         LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 2388, WorkDate, 63.3152);
         PosAdjItemLedgerEntry.SetRange("Item No.", Item."No.");
-        PosAdjItemLedgerEntry.FindFirst;
+        PosAdjItemLedgerEntry.FindFirst();
 
         // Exercise: Post Neg Adj. Item Journal Lines with Fixed Application.
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
@@ -442,7 +442,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Verify G/L Entries after running Adjust Cost Item Entries and post Inventory to G/L batch job for an Item.
 
         // Setup: Create and post Job Journal Line and run Adjust Cost Item Entries.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, false, false, InventorySetup."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Calc. Type",
@@ -480,7 +480,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Verify Value Entry after running Post Inventory Cost To G/L batch job using Post Method 'Per Entry'.
 
         // Setup: Create and post Job Journal Line, create and post Item Journal Line, run Adjust Cost Item Entries.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, false, false, InventorySetup."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Calc. Type",
@@ -533,7 +533,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         QtyPerBaseUOM: Decimal;
     begin
         // Setup: Create parent and child Items in a Production BOM and certify it. Update Overhead rate, Unit of measure and Quantity per unit of measure on Parent Item. Create and Post Purchase Order as Receive.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
@@ -567,7 +567,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         FilterValueEntry(ValueEntry, ProductionOrder."No.", ValueEntry."Item Ledger Entry Type"::Output);
 
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         VerifyValueEntryQtyAmt(
           ValueEntry, ProductionOrder.Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure", 0, 0, 0, 0);
 
@@ -578,7 +578,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
           ParentItem."Last Direct Cost", CostAmount);
 
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Indirect Cost");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         CostAmount := ProdOrderLine."Overhead Rate" * ItemUnitOfMeasure."Qty. per Unit of Measure" * ProductionOrder.Quantity;
         VerifyValueEntryQtyAmt(
           ValueEntry, 0, CostAmount, 0, ProdOrderLine."Overhead Rate", CostAmount);
@@ -604,7 +604,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
     begin
         // Using hardcoded quantity and cost since this was a rounding error
         // Setup
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
@@ -686,7 +686,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
 
         // Exercise: Create a revaluation journal line to apply to the posted purchase
         if ManualRevaluation then begin
@@ -701,7 +701,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
             ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
             ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
             ItemJournalLine.SetRange("Applies-to Entry", ItemLedgerEntry."Entry No.");
-            ItemJournalLine.FindFirst;
+            ItemJournalLine.FindFirst();
         end;
 
         // Verify
@@ -849,12 +849,12 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         DimVal.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
         DimVal.SetRange("Dimension Value Type", DimVal."Dimension Value Type"::Standard);
-        DimVal.FindFirst;
+        DimVal.FindFirst();
         ItemJournalLine.Validate("Shortcut Dimension 1 Code", DimVal.Code);
 
         DimVal.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 2 Code");
         DimVal.SetRange("Dimension Value Type", DimVal."Dimension Value Type"::Standard);
-        DimVal.FindFirst;
+        DimVal.FindFirst();
         ItemJournalLine.Validate("Shortcut Dimension 2 Code", DimVal.Code);
 
         ItemJournalLine.Modify(true);
@@ -973,7 +973,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
     begin
         CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
         CapacityLedgerEntry.SetRange("Order No.", OrderNo);
-        CapacityLedgerEntry.FindFirst;
+        CapacityLedgerEntry.FindFirst();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; OrderNo: Code[20])
@@ -981,7 +981,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
         ItemLedgerEntry.SetRange("Order No.", OrderNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
@@ -989,7 +989,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -998,7 +998,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -1006,13 +1006,13 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; No: Code[20])
     begin
         SalesShipmentLine.SetRange("No.", No);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemChargeNo: Code[20]; LocationCode: Code[10]; Adjustment: Boolean; ItemLedgerEntryType: Enum "Item Ledger Document Type")
@@ -1022,7 +1022,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
         ValueEntry.SetRange("Location Code", LocationCode);
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure FilterValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type")
@@ -1146,8 +1146,8 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         RoutingLink: Record "Routing Link";
         WorkCenter: Record "Work Center";
     begin
-        RoutingLink.FindFirst;
-        WorkCenter.FindFirst;
+        RoutingLink.FindFirst();
+        WorkCenter.FindFirst();
 
         // Create Production BOM with Raouting Link Code.
         CreateAndCertifyProductionBOM(ProductionBOMHeader, Item."Base Unit of Measure", ItemNo, RoutingLink.Code);

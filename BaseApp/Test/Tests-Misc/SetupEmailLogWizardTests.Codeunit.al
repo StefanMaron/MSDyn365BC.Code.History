@@ -25,11 +25,11 @@ codeunit 139311 "Setup Email Log Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         SetupEmailLoggingPage: TestPage "Setup Email Logging";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The Email Logging Setup Wizard wizard is exited right away
         SetupEmailLoggingPage.Trap();
@@ -37,7 +37,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         SetupEmailLoggingPage.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
     end;
 
     [Test]
@@ -46,11 +46,11 @@ codeunit 139311 "Setup Email Log Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         SetupEmailLoggingPage: TestPage "Setup Email Logging";
     begin
         // [GIVEN] A newly setup company
-        Initialize;
+        Initialize();
 
         // [WHEN] The Email Logging Setup Wizard is closed but closing is not confirmed
         SetupEmailLoggingPage.Trap();
@@ -58,7 +58,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         SetupEmailLoggingPage.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
     end;
 
     [Test]
@@ -66,7 +66,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyNavigateToSignPageSaaS()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         SetupEmailLoggingPage: TestPage "Setup Email Logging";
     begin
         // [GIVEN] A newly setup company
@@ -107,7 +107,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         // [WHEN] User closes the assisted setup wizard
         SetupEmailLoggingPage.Close();
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
     end;
 
     [Test]
@@ -115,7 +115,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyNavigateToSignPageOnPrem()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         SetupEmailLoggingPage: TestPage "Setup Email Logging";
     begin
         // [GIVEN] A newly setup company
@@ -170,7 +170,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         // [WHEN] User closes the assisted setup wizard
         SetupEmailLoggingPage.Close();
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
     end;
 
     [Test]
@@ -357,7 +357,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         SetupEmailLogging: Codeunit "Setup Email Logging";
     begin
         // [SCENARIO] Email Logging Setup tab fields from Marketing Setup are cleared during Setup Email Logging
-        Initialize;
+        Initialize();
 
         // [GIVEN] All fields on Email Logging Setup tab of Marketing Setup are filled
         FillEmailLoggingFields(false);
@@ -379,7 +379,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         Domain: Text;
     begin
         // [SCENARIO] Domain name should be selected from email address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Domain "Z" in Email address "B@Z"
         Domain := LibraryUtility.GenerateRandomAlphabeticText(5, 1);

@@ -233,10 +233,10 @@ page 5824 "Sales Shipment Lines"
         TempSalesShptLine.Reset();
         TempSalesShptLine.CopyFilters(Rec);
         TempSalesShptLine.SetRange("Document No.", DocNo);
-        if not TempSalesShptLine.FindFirst then begin
+        if not TempSalesShptLine.FindFirst() then begin
             SalesShptLine.CopyFilters(Rec);
             SalesShptLine.SetRange("Document No.", DocNo);
-            if SalesShptLine.FindFirst then begin
+            if SalesShptLine.FindFirst() then begin
                 TempSalesShptLine := SalesShptLine;
                 TempSalesShptLine.Insert();
             end;
@@ -259,7 +259,7 @@ page 5824 "Sales Shipment Lines"
     begin
         FromSalesShptLine.Copy(Rec);
         CurrPage.SetSelectionFilter(FromSalesShptLine);
-        if FromSalesShptLine.FindFirst then
+        if FromSalesShptLine.FindFirst() then
             if AssignmentType = AssignmentType::Sale then begin
                 ItemChargeAssgntSales."Unit Cost" := UnitCost;
                 AssignItemChargeSales.CreateShptChargeAssgnt(FromSalesShptLine, ItemChargeAssgntSales);

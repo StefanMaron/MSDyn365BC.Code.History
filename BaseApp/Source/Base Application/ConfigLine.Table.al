@@ -335,14 +335,14 @@ table 8622 "Config. Line"
         TestField("Table ID");
 
         ConfigQuestionArea.SetRange("Table ID", "Table ID");
-        ConfigQuestionArea.FindFirst;
+        ConfigQuestionArea.FindFirst();
 
         ConfigQuestionArea.Reset();
         ConfigQuestionArea.FilterGroup(2);
         ConfigQuestionArea.SetRange("Table ID", "Table ID");
         ConfigQuestionArea.FilterGroup(0);
         ConfigQuestionAreaPage.SetTableView(ConfigQuestionArea);
-        ConfigQuestionAreaPage.RunModal;
+        ConfigQuestionAreaPage.RunModal();
         Clear(ConfigQuestionAreaPage);
     end;
 
@@ -382,7 +382,7 @@ table 8622 "Config. Line"
             SetCurrentKey("Line Type");
             SetRange("Line Type", "Line Type"::Table);
             SetRange("Parent Line No.", Rec."Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     StatusWeight += GetLineStatusWeight;
                 until Next() = 0;
@@ -404,7 +404,7 @@ table 8622 "Config. Line"
 
                     ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Group);
                     ConfigLine.SetRange("Parent Line No.", "Line No.");
-                    if ConfigLine.FindSet then
+                    if ConfigLine.FindSet() then
                         repeat
                             Total += ConfigLine.GetNoOfDirectChildrenTables;
                         until ConfigLine.Next() = 0;
@@ -427,7 +427,7 @@ table 8622 "Config. Line"
 
                     ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Group);
                     ConfigLine.SetRange("Parent Line No.", "Line No.");
-                    if ConfigLine.FindSet then
+                    if ConfigLine.FindSet() then
                         repeat
                             Total += ConfigLine.GetDirectChildrenTablesStatusWeight;
                         until ConfigLine.Next() = 0;
@@ -443,7 +443,7 @@ table 8622 "Config. Line"
     begin
         ConfigPackageMgt.SetFieldFilter(Field, "Table ID", 0);
         OnGetRelatedTablesOnAfterFieldSetFilters(Rec, Field);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 if Field.RelationTableNo <> 0 then
                     if not ConfigRelatedField.Get("Table ID", Field."No.") then begin
@@ -455,7 +455,7 @@ table 8622 "Config. Line"
                     end;
             until Field.Next() = 0;
 
-        if ConfigRelatedField.FindSet then
+        if ConfigRelatedField.FindSet() then
             repeat
                 if not ConfigRelatedTable.Get(ConfigRelatedField."Table ID", ConfigRelatedField."Relation Table ID") then begin
                     ConfigRelatedTable."Table ID" := ConfigRelatedField."Table ID";
@@ -534,7 +534,7 @@ table 8622 "Config. Line"
         TempConfigLine: Record "Config. Line" temporary;
         NoOfDuplicateLines: Integer;
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 TempConfigLine.Reset();
                 TempConfigLine.SetRange("Line Type", "Line Type"::Table);

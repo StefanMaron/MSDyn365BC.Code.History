@@ -126,7 +126,7 @@ table 737 "VAT Return Period"
     begin
         Date.SetRange("Period Start", VATReportHeader."Start Date");
         Date.SetRange("Period End", ClosingDate(VATReportHeader."End Date"));
-        if Date.FindFirst then begin
+        if Date.FindFirst() then begin
             case Date."Period Type" of
                 Date."Period Type"::Month:
                     VATReportHeader."Period Type" := VATReportHeader."Period Type"::Month;

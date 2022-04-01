@@ -69,7 +69,7 @@ table 5092 Opportunity
                                     Attendee.SetRange("Attendee No.", xRec."Salesperson Code");
                                     Attendee.SetRange("Attendee Type", Attendee."Attendee Type"::Salesperson);
                                     Attendee.SetRange("Attendance Type", Attendee."Attendance Type"::Required, Attendee."Attendance Type"::Optional);
-                                    if Attendee.FindFirst then begin
+                                    if Attendee.FindFirst() then begin
                                         Attendee.Validate("Attendee No.", "Salesperson Code");
                                         Attendee.Modify(true);
                                     end;
@@ -215,7 +215,7 @@ table 5092 Opportunity
                                     Attendee.SetRange("To-do No.", Task2."No.");
                                     Attendee.SetRange("Attendee No.", xRec."Contact No.");
                                     Attendee.SetRange("Attendee Type", Attendee."Attendee Type"::Contact);
-                                    if Attendee.FindFirst then begin
+                                    if Attendee.FindFirst() then begin
                                         Attendee.Validate("Attendee No.", "Contact No.");
                                         Attendee.Modify(true);
                                     end;
@@ -291,7 +291,7 @@ table 5092 Opportunity
                         Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
                         Opp.SetRange("Sales Document Type", "Sales Document Type");
                         Opp.SetRange("Sales Document No.", "Sales Document No.");
-                        if Opp.FindFirst then
+                        if Opp.FindFirst() then
                             if Opp."No." <> "No." then
                                 Error(Text006, Opp."Sales Document Type", Opp."Sales Document No.", Opp."No.");
 
@@ -459,11 +459,9 @@ table 5092 Opportunity
             Editable = false;
             FieldClass = FlowField;
         }
-        field(29; "Sales Document Type"; Option)
+        field(29; "Sales Document Type"; Enum "Opportunity Document Type")
         {
             Caption = 'Sales Document Type';
-            OptionCaption = ' ,Quote,Order,Posted Invoice';
-            OptionMembers = " ",Quote,"Order","Posted Invoice";
 
             trigger OnValidate()
             begin
@@ -714,7 +712,7 @@ table 5092 Opportunity
         if ActivateFirstStage then begin
             SalesCycleStage.Reset();
             SalesCycleStage.SetRange("Sales Cycle Code", Opp."Sales Cycle Code");
-            if SalesCycleStage.FindFirst then
+            if SalesCycleStage.FindFirst() then
                 OppEntry2."Sales Cycle Stage" := SalesCycleStage.Stage;
         end;
 
@@ -849,7 +847,7 @@ table 5092 Opportunity
         OppEntry.SetCurrentKey(Active, "Opportunity No.");
         OppEntry.SetRange(Active, true);
         OppEntry.SetRange("Opportunity No.", "No.");
-        if OppEntry.FindFirst then
+        if OppEntry.FindFirst() then
             exit(OppEntry."Estimated Close Date");
     end;
 
@@ -878,7 +876,7 @@ table 5092 Opportunity
         InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
     begin
         InterLogEntryCommentLine.SetRange("Entry No.", InteractionLogEntry."Entry No.");
-        if InterLogEntryCommentLine.FindSet then
+        if InterLogEntryCommentLine.FindSet() then
             repeat
                 RlshpMgtCommentLine.Init();
                 RlshpMgtCommentLine."Table Name" := RlshpMgtCommentLine."Table Name"::Opportunity;
@@ -984,7 +982,7 @@ table 5092 Opportunity
     begin
         RMCommentLineTmp.DeleteAll();
 
-        if RMCommentLine.FindSet then
+        if RMCommentLine.FindSet() then
             repeat
                 RMCommentLineTmp := RMCommentLine;
                 RMCommentLineTmp.Insert();
@@ -1060,7 +1058,7 @@ table 5092 Opportunity
             TestField("Sales Cycle Code");
             TestField(Status, Status::"Not Started");
             SalesCycleStage.SetRange("Sales Cycle Code", "Sales Cycle Code");
-            if SalesCycleStage.FindFirst then begin
+            if SalesCycleStage.FindFirst() then begin
                 OpportunityEntry.Init();
                 OpportunityEntry."Sales Cycle Stage" := SalesCycleStage.Stage;
                 OpportunityEntry."Sales Cycle Stage Description" := SalesCycleStage.Description;

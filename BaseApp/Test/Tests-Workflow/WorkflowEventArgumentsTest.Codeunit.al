@@ -100,7 +100,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         PurchaseHeaderRecRef: RecordRef;
         PurchaseLineRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
@@ -128,7 +128,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         PurchaseHeaderRecRef: RecordRef;
         PurchaseLineRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         // <DataItem name="Purchase Header">VERSION(1) SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(28-01-16),Amount=FILTER(&gt;1.000))</DataItem>
@@ -165,7 +165,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         SalesHeaderRecRef: RecordRef;
         SalesLineRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         // <DataItem name="Header">SORTING(Document Type,No.) WHERE(Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem>
@@ -203,7 +203,7 @@ codeunit 134304 "Workflow Event Arguments Test"
     begin
         // Bug 373821. Verify that the filters will be applied to the correct table when the table name
         // is a substring of other table name and they are both part of report parameters.
-        Initialize;
+        Initialize();
 
         // Setup
         // <DataItem name="Incoming Document">VERSION(1) SORTING(Field1) WHERE(Field18=1(6))</DataItem>
@@ -234,7 +234,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         ZeroGUID: Guid;
         WorkflowCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         WorkflowCode := CreateWorkflow;
@@ -255,7 +255,7 @@ codeunit 134304 "Workflow Event Arguments Test"
     var
         WorkflowStep: Record "Workflow Step";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateWorkflowWithStepAndDummyEvent(WorkflowStep);
@@ -276,7 +276,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStep: Record "Workflow Step";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateWorkflowWithStepAndAnyEvent(WorkflowStep);
@@ -297,7 +297,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStep: Record "Workflow Step";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateWorkflowWithStepAndAnyEvent(WorkflowStep);
@@ -321,7 +321,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStepArgument: Record "Workflow Step Argument";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
@@ -360,7 +360,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Quantity: Decimal;
         WorkflowCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         DueDate := LibraryUtility.GenerateRandomDate(WorkDate - 30, WorkDate + 30);
@@ -406,7 +406,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStep: Record "Workflow Step";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        Initialize;
+        Initialize();
 
         // PSetup
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
@@ -429,14 +429,14 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStepArgument: Record "Workflow Step Argument";
         WorkflowStepBuffer: Record "Workflow Step Buffer";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
         WorkflowStepArgument.SetEventFilters(StrSubstNo(ParametersTxt, WorkDate, 1000));
         Assert.IsFalse(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotCreatedErr, WorkflowStepArgument.TableCaption));
         WorkflowStepBuffer.PopulateTable(WorkflowStep."Workflow Code");
-        WorkflowStepBuffer.FindFirst;
+        WorkflowStepBuffer.FindFirst();
 
         // Exercise
         WorkflowStepBuffer.DeleteEventConditions;
@@ -457,7 +457,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         ParametersXmlDoc: DotNet XmlDocument;
         RootXmlNode: DotNet XmlNode;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
@@ -481,7 +481,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStep: Record "Workflow Step";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
@@ -505,7 +505,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         ShortText: Text;
         Content: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateWorkflowStepEventArgument(WorkflowStepArgument);
@@ -530,7 +530,7 @@ codeunit 134304 "Workflow Event Arguments Test"
     var
         WorkflowStep: Record "Workflow Step";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateWorkflowWithStepAndAnyEvent(WorkflowStep);
@@ -556,7 +556,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Workflow: Record Workflow;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
@@ -591,7 +591,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         EntityName: Code[20];
         Result: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         EntityName := CreatePurchaseInvoiceEntity;
@@ -614,7 +614,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         FilterPageBuilder: FilterPageBuilder;
         Result: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         DeleteTableRelations(DATABASE::"Purchase Header");
@@ -637,7 +637,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Result: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         Result := RequestPageParametersHelper.BuildDynamicRequestPage(FilterPageBuilder, '', 0);
@@ -655,7 +655,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         EntityName: Code[20];
         Result: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         EntityName := CreatePurchaseInvoiceEntity;
@@ -682,7 +682,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         EntityName: Code[20];
         Result: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         EntityName := CreatePurchaseInvoiceEntity;
@@ -713,12 +713,12 @@ codeunit 134304 "Workflow Event Arguments Test"
         ItemNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         Amount := LibraryRandom.RandIntInRange(1000, 2000);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         DirectUnitCost := LibraryRandom.RandIntInRange(250, 500);
 
         EntityName := CreatePurchaseInvoiceEntity;
@@ -749,12 +749,12 @@ codeunit 134304 "Workflow Event Arguments Test"
         ItemNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         Amount := LibraryRandom.RandIntInRange(1000, 2000);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         DirectUnitCost := LibraryRandom.RandIntInRange(250, 500);
 
         EntityName := CreatePurchaseInvoiceEntity;
@@ -788,12 +788,12 @@ codeunit 134304 "Workflow Event Arguments Test"
         VendorNo: Code[20];
         VendorPostingGroup: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         Amount := LibraryRandom.RandIntInRange(1000, 2000);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         DirectUnitCost := LibraryRandom.RandIntInRange(250, 500);
         VendorPostingGroup := LibraryPurchase.FindVendorPostingGroup;
         LibraryERM.FindVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -827,7 +827,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Amount: Decimal;
     begin
         // [SCENARIO 212485] User can load workflow with long condition exceeds 1024 character length when converted to BASE64
-        Initialize;
+        Initialize();
 
         Amount := LibraryRandom.RandDec(100, 2);
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -856,7 +856,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateWorkflowWithStepAndArgument(var WorkflowStep: Record "Workflow Step"; var WorkflowStepArgument: Record "Workflow Step Argument")
@@ -974,7 +974,7 @@ codeunit 134304 "Workflow Event Arguments Test"
     begin
         DeletePurhcaseHeaderRelatedEntities;
 
-        EntityName := LibraryUtility.GenerateGUID;
+        EntityName := LibraryUtility.GenerateGUID();
 
         LibraryWorkflow.CreateDynamicRequestPageEntity(EntityName, DATABASE::"Purchase Header", DATABASE::"Purchase Line");
         // LibraryWorkflow.CreateDynamicRequestPageEntity(EntityName,DATABASE::"Purchase Header",DATABASE::Vendor);
@@ -1109,9 +1109,9 @@ codeunit 134304 "Workflow Event Arguments Test"
         Result: Text;
         Index: Integer;
     begin
-        Result := LibraryPurchase.CreateVendorNo;
+        Result := LibraryPurchase.CreateVendorNo();
         for Index := 1 to 20 do
-            Result += '|' + LibraryPurchase.CreateVendorNo;
+            Result += '|' + LibraryPurchase.CreateVendorNo();
 
         exit(Result);
     end;
@@ -1131,7 +1131,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Workflow.ImportFromBlob(TempBlob);
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
     end;
 
     local procedure SetupEventConditions(var WorkflowStep: Record "Workflow Step"; Amount: Decimal; UnitOfMeasureCode: Code[10]; VendorFilter: Text)

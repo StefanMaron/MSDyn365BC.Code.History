@@ -31,7 +31,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         SalesGetShpt: Codeunit "Sales-Get Shipment";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithPrice(Item, 1);
         LibrarySales.CreateCustomer(Cust);
@@ -42,7 +42,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
 
         SalesShptLine.SetRange("Order No.", SalesLine."Document No.");
         SalesShptLine.SetRange("Order Line No.", SalesLine."Line No.");
-        SalesShptLine.FindFirst;
+        SalesShptLine.FindFirst();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
         SalesGetShpt.SetSalesHeader(SalesHeader);
@@ -50,7 +50,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         Commit();
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE (TFS ID: 306797)
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
@@ -71,7 +71,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithPrice(Item, 1);
         LibrarySales.CreateCustomer(Cust);
@@ -80,7 +80,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         CreateSalesOrderForItem(Cust, Item, 1, SalesHeader, SalesLine);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
@@ -101,7 +101,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithPrice(Item, 1);
         LibrarySales.CreateCustomer(Cust);
@@ -110,7 +110,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         CreateSalesOrderForItem(Cust, Item, 1, SalesHeader, SalesLine);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
@@ -135,7 +135,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         PurchGetRcpt: Codeunit "Purch.-Get Receipt";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, 1);
         LibraryPurch.CreateVendor(Vend);
@@ -146,7 +146,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
 
         PurchRcptLine.SetRange("Order No.", PurchLine."Document No.");
         PurchRcptLine.SetRange("Order Line No.", PurchLine."Line No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         LibrarySmallBusiness.CreatePurchaseInvoiceHeader(PurchHeader, Vend);
         PurchGetRcpt.SetPurchHeader(PurchHeader);
@@ -154,7 +154,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         PurchInvHeader.Get(LibraryPurch.PostPurchaseDocument(PurchHeader, true, true));
         Commit();
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderTmp);

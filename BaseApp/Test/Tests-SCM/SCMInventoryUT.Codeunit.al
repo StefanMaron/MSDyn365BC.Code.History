@@ -30,7 +30,7 @@ codeunit 137821 "SCM - Inventory UT"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 6816] Item Tracking Code in Item could not be changed if an outstanding Purchase Order including this Item exists.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Item Tracking Code. "Lot Specific Tracking" := TRUE.
         MockItemTrackingCode(ItemTrackingCode, true);
@@ -58,13 +58,13 @@ codeunit 137821 "SCM - Inventory UT"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 6744] Check of Serial No. availability in Item Tracking should be passed successfully when "SN Specific Tracking" = FALSE in Item Tracking Code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Tracking Code with "SN Specific Tracking" = FALSE.
         MockItemTrackingCode(ItemTrackingCode, false);
 
         // [GIVEN] Demand Reservation Entry and Tracking Specification.
-        MockReservationEntry(ReservationEntry, LibraryUtility.GenerateGUID);
+        MockReservationEntry(ReservationEntry, LibraryUtility.GenerateGUID());
         MockTrackingSpecification(TrackingSpecification, ReservationEntry);
 
         // [WHEN] Call TrackingAvailable function checking whether any availability problem occurs.
@@ -85,7 +85,7 @@ codeunit 137821 "SCM - Inventory UT"
     begin
         // [FEATURE] [Item]
         // [SCENARIO 380565] Update of Costing Method for an Item with so far undefined "No.", should not check existence of Purchase Lines with "Item" Type and blank "No.".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with blank "No." and "Costing Method" = FIFO.
         MockItem(Item, '', '');
@@ -110,7 +110,7 @@ codeunit 137821 "SCM - Inventory UT"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 381935]  If delete the content of "Customer Nos." field in the "Sales & Receivables Setup" table, it should not be possible to create a record "Customer" with an empty value of the prinary key "No.".
-        Initialize;
+        Initialize();
 
         with SalesReceivablesSetup do begin
             // [GIVEN] "Sales & Receivables Setup" with a blank field "Customer Nos."
@@ -140,7 +140,7 @@ codeunit 137821 "SCM - Inventory UT"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 381935]  If delete the content of "Vendor Nos." field in the "Purchases & Payables Setup" table, it should not be possible to create a record "Vendor" with an empty value of the prinary key "No.".
-        Initialize;
+        Initialize();
 
         with PurchasesPayablesSetup do begin
             // [GIVEN] "Purchases & Payables Setup" with a blank field "Vendor Nos."
@@ -170,7 +170,7 @@ codeunit 137821 "SCM - Inventory UT"
     begin
         // [FEATURE] [Item]
         // [SCENARIO 381935]  If delete the content of "Item Nos." field in the "Inventory Setup" table, it should not be possible to create a record "Item" with an empty value of the prinary key "No.".
-        Initialize;
+        Initialize();
 
         with InventorySetup do begin
             // [GIVEN] "Inventory Setup" with a blank field "Item Nos."
@@ -195,7 +195,7 @@ codeunit 137821 "SCM - Inventory UT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM - Inventory UT");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -224,7 +224,7 @@ codeunit 137821 "SCM - Inventory UT"
     begin
         with ItemTrackingCode do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             "Lot Specific Tracking" := IsSpecificTracking;
             "SN Specific Tracking" := IsSpecificTracking;
             Insert;
@@ -235,7 +235,7 @@ codeunit 137821 "SCM - Inventory UT"
     begin
         with PurchaseLine do begin
             "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             Type := Type::Item;
             "No." := ItemNo;
             Insert;
@@ -252,7 +252,7 @@ codeunit 137821 "SCM - Inventory UT"
             Quantity := -LibraryRandom.RandInt(10);
             "Quantity (Base)" := Quantity;
             "Item Tracking" := "Item Tracking"::"Serial No.";
-            "Serial No." := LibraryUtility.GenerateGUID;
+            "Serial No." := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;

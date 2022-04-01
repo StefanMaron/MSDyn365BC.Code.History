@@ -45,7 +45,7 @@ codeunit 135527 "Employee Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can get an Employee with a GET request to the service.
-        Initialize;
+        Initialize();
 
         NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate, true);
 
@@ -71,7 +71,7 @@ codeunit 135527 "Employee Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create an Employee through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a simple Employee JSON object to send to the service.
         EmployeeJSON := GetEmployeeJSON(TempEmployee);
@@ -100,14 +100,14 @@ codeunit 135527 "Employee Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can modify an Employee through a PATCH request.
-        Initialize;
+        Initialize();
 
         NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate, true);
 
         // [GIVEN] An Employee exists.
         CreateEmployee(Employee);
         TempEmployee.TransferFields(Employee);
-        TempEmployee."E-Mail" := LibraryUtility.GenerateGUID;
+        TempEmployee."E-Mail" := LibraryUtility.GenerateGUID();
         RequestBody := GetEmployeeJSON(TempEmployee);
 
         // [WHEN] The user makes a patch request to the service.
@@ -132,7 +132,7 @@ codeunit 135527 "Employee Entity E2E Test"
         Responsetext: Text;
     begin
         // [SCENARIO 201343] User can delete an Employee by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An Employee exists.
         CreateEmployee(Employee);

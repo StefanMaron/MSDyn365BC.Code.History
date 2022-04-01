@@ -72,7 +72,6 @@ table 170 "Standard Sales Code"
 
     trigger OnDelete()
     var
-        StdCustomerSalesCode: Record "Standard Customer Sales Code";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         StdCustomerSalesCode.Reset();
@@ -91,6 +90,7 @@ table 170 "Standard Sales Code"
 
     var
         StdSalesLine: Record "Standard Sales Line";
+        StdCustomerSalesCode: Record "Standard Customer Sales Code";
         Text001: Label 'If you change the %1, the %2 will be rounded according to the new %3.';
         Text002: Label 'The update has been interrupted to respect the warning.';
         StdSalesCodeDeletionQst: Label 'If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?', Comment = '%1=Standard Sales Code, %2=Table Caption';

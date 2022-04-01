@@ -12,6 +12,7 @@ codeunit 1409 "Sales Inv. Header - Edit"
         SalesInvoiceHeader.Find();
         SalesInvoiceHeader."Payment Method Code" := "Payment Method Code";
         SalesInvoiceHeader."Payment Reference" := "Payment Reference";
+        SalesInvoiceHeader."Company Bank Account Code" := "Company Bank Account Code";
         OnOnRunOnBeforeTestFieldNo(SalesInvoiceHeader, Rec);
         SalesInvoiceHeader.TestField("No.", "No.");
         SalesInvoiceHeader.Modify();

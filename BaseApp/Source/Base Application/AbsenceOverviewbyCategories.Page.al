@@ -73,7 +73,7 @@ page 5231 "Absence Overview by Categories"
                     MatrixForm: Page "Abs. Over. by Cat. Matrix";
                 begin
                     MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, PeriodType, AbsenceAmountType, EmployeeNoFilter);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

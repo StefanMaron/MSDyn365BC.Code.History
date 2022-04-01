@@ -58,7 +58,7 @@ page 1486 "Role Center Overview"
         ConfPersonalizationMgt.GetCurrentProfileNoError(CurrAllProfile);
 
         if CurrAllProfile.IsEmpty() then
-            if CurrAllProfile.FindFirst then
+            if CurrAllProfile.FindFirst() then
                 exit;
 
         CurrRoleCenterID := CurrAllProfile."Role Center ID";
@@ -78,7 +78,7 @@ page 1486 "Role Center Overview"
     procedure SetSelectedProfile(SelectedScope: Option; SelectedAppId: Guid; SelectedProfileID: Code[30])
     begin
         if CurrAllProfile.Get(SelectedScope, SelectedAppId, SelectedProfileID) then
-            if CurrAllProfile.FindFirst then;
+            if CurrAllProfile.FindFirst() then;
     end;
 
     procedure GetSelectedProfile(var ProfileScope: Option; var ProfileAppId: Guid; var ProfileId: Code[30])

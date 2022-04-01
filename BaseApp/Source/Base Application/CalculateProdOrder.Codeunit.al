@@ -1,4 +1,4 @@
-﻿codeunit 99000773 "Calculate Prod. Order"
+codeunit 99000773 "Calculate Prod. Order"
 {
     Permissions = TableData Item = r,
                   TableData "Prod. Order Line" = rimd,
@@ -179,7 +179,7 @@
                         ProdOrderRoutingLine2.SetRange(Status, ProdOrderLine.Status);
                         ProdOrderRoutingLine2.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
                         ProdOrderRoutingLine2.SetRange("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
-                        ProdOrderRoutingLine2.FindFirst;
+                        ProdOrderRoutingLine2.FindFirst();
                         ReqQty :=
                           ProdBOMLine[Level].Quantity * (1 + ProdBOMLine[Level]."Scrap %" / 100) *
                           (1 + ProdOrderRoutingLine2."Scrap Factor % (Accumulated)") * LineQtyPerUOM / ItemQtyPerUOM +
@@ -231,12 +231,12 @@
         ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
         ProdOrderComp.SetFilterFromProdBOMLine(ProdBOMLine[Level]);
         OnAfterProdOrderCompFilter(ProdOrderComp, ProdBOMLine[Level]);
-        if not ProdOrderComp.FindFirst then begin
+        if not ProdOrderComp.FindFirst() then begin
             ProdOrderComp.Reset();
             ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
             ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-            if ProdOrderComp.FindLast then
+            if ProdOrderComp.FindLast() then
                 NextProdOrderCompLineNo := ProdOrderComp."Line No." + 10000
             else
                 NextProdOrderCompLineNo := 10000;
@@ -350,7 +350,7 @@
             ProdOrderLine.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
             ProdOrderLine.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
             ProdOrderLine.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
-            ProdOrderLine.FindFirst;
+            ProdOrderLine.FindFirst();
             ProdOrderRouteMgt.Calculate(ProdOrderLine);
             ProdOrderRoutingLine.Get(
               ProdOrderRoutingLine.Status,
@@ -392,7 +392,6 @@
     local procedure CalculateRouting(Direction: Option Forward,Backward; LetDueDateDecrease: Boolean)
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        LeadTime: Code[20];
     begin
         if ProdOrderRouteMgt.NeedsCalculation(
              ProdOrderLine.Status,
@@ -414,37 +413,9 @@
         ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
         ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
         ProdOrderRoutingLine.SetFilter("Routing Status", '<>%1', ProdOrderRoutingLine."Routing Status"::Finished);
-        if not ProdOrderRoutingLine.FindFirst then begin
+        if not ProdOrderRoutingLine.FindFirst() then begin
             OnCalculateRoutingOnBeforeSetLeadTime(ProdOrderLine);
-            LeadTime :=
-              LeadTimeMgt.ManufacturingLeadTime(
-                ProdOrderLine."Item No.",
-                ProdOrderLine."Location Code",
-                ProdOrderLine."Variant Code");
-            if Direction = Direction::Forward then
-                // Ending Date calculated forward from Starting Date
-                ProdOrderLine."Ending Date" :=
-              LeadTimeMgt.PlannedEndingDate(
-                ProdOrderLine."Item No.",
-                ProdOrderLine."Location Code",
-                ProdOrderLine."Variant Code",
-                '',
-                LeadTime,
-                2,
-                ProdOrderLine."Starting Date")
-            else
-                // Starting Date calculated backward from Ending Date
-                ProdOrderLine."Starting Date" :=
-              LeadTimeMgt.PlannedStartingDate(
-                ProdOrderLine."Item No.",
-                ProdOrderLine."Location Code",
-                ProdOrderLine."Variant Code",
-                '',
-                LeadTime,
-                2,
-                ProdOrderLine."Ending Date");
-
-            CalculateProdOrderDates(ProdOrderLine, LetDueDateDecrease);
+            CalculateLeadTime(ProdOrderLine, Direction, LetDueDateDecrease);
             exit;
         end;
 
@@ -482,7 +453,7 @@
         ProdOrderRoutingLine.SetFilter("Next Operation No.", '%1', '');
         OnCalculateProdOrderDatesOnAfterSetFilters(ProdOrderRoutingLine, ProdOrder, ProdOrderLine);
 
-        if ProdOrderRoutingLine.FindFirst then begin
+        if ProdOrderRoutingLine.FindFirst() then begin
             ProdOrderLine."Ending Date" := ProdOrderRoutingLine."Ending Date";
             ProdOrderLine."Ending Time" := ProdOrderRoutingLine."Ending Time";
         end;
@@ -490,7 +461,7 @@
         ProdOrderRoutingLine.SetRange("Next Operation No.");
         ProdOrderRoutingLine.SetFilter("Previous Operation No.", '%1', '');
 
-        if ProdOrderRoutingLine.FindFirst then begin
+        if ProdOrderRoutingLine.FindFirst() then begin
             ProdOrderLine."Starting Date" := ProdOrderRoutingLine."Starting Date";
             ProdOrderLine."Starting Time" := ProdOrderRoutingLine."Starting Time";
         end;
@@ -619,6 +590,9 @@
                   ProdOrderLine."Variant Code",
                   ProdOrderLine."Location Code");
                 OnCalculateOnAfterGetpLanningParameterAtSKUCalcComponents(ProdOrderLine, SKU);
+
+                CalculateLeadTime(ProdOrderLine, Direction, LetDueDateDecrease);
+
                 if not TransferBOM(
                      ProdOrderLine."Production BOM No.",
                      1,
@@ -652,7 +626,7 @@
         ProdBOMCommentLine.SetRange("Production BOM No.", ProdBOMLine."Production BOM No.");
         ProdBOMCommentLine.SetRange("BOM Line No.", ProdBOMLine."Line No.");
         ProdBOMCommentLine.SetRange("Version Code", ProdBOMLine."Version Code");
-        if ProdBOMCommentLine.FindSet then
+        if ProdBOMCommentLine.FindSet() then
             repeat
                 ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProdBOMCommentLine, ProdOrderComp);
                 if not ProdOrderCompCmtLine.Insert() then
@@ -848,12 +822,6 @@
             end;
     end;
 
-    [Obsolete('Replaced by FindAndSetProdOrderLineBinCodeFromProdRoutingLines with enum Production Order Status.', '17.0')]
-    procedure FindAndSetProdOrderLineBinCodeFromProdRtngLines(ProdOrderStatus: Option; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
-    begin
-        FindAndSetProdOrderLineBinCodeFromProdRoutingLines("Production Order Status".FromInteger(ProdOrderStatus), ProdOrderNo, ProdOrderLineNo);
-    end;
-
     procedure FindAndSetProdOrderLineBinCodeFromProdRoutingLines(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
     begin
         if ProdOrderLine.Get(ProdOrderStatus, ProdOrderNo, ProdOrderLineNo) then begin
@@ -881,6 +849,34 @@
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculate(ProdOrderLine: Record "Prod. Order Line"; var ErrorOccured: Boolean)
     begin
+    end;
+
+    local procedure CalculateLeadTime(ProdOrderLine2: Record "Prod. Order Line"; Direction: Option Forward,Backward; LetDueDateDecrease: Boolean)
+    var
+        LeadTime: Code[20];
+    begin
+        ProdOrderLine := ProdOrderLine2;
+
+        LeadTime :=
+          LeadTimeMgt.ManufacturingLeadTime(
+            ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code");
+
+        if Direction = Direction::Forward then
+            // Ending Date calculated forward from Starting Date
+            ProdOrderLine."Ending Date" :=
+            LeadTimeMgt.PlannedEndingDate(
+              ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '', LeadTime, 2,
+              ProdOrderLine."Starting Date")
+        else
+            // Starting Date calculated backward from Ending Date
+            ProdOrderLine."Starting Date" :=
+            LeadTimeMgt.PlannedStartingDate(
+              ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '', LeadTime, 2,
+              ProdOrderLine."Ending Date");
+
+        CalculateProdOrderDates(ProdOrderLine, LetDueDateDecrease);
+
+        ProdOrderLine2 := ProdOrderLine;
     end;
 
     [IntegrationEvent(false, false)]

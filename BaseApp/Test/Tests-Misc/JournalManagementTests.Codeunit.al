@@ -588,7 +588,7 @@ codeunit 134931 "Journal Management Tests"
     local procedure CreateReqWorksheetTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template")
     begin
         ReqWkshTemplate.Init();
-        ReqWkshTemplate.Name := LibraryUtility.GenerateGUID;
+        ReqWkshTemplate.Name := LibraryUtility.GenerateGUID();
         ReqWkshTemplate.Insert();
     end;
 

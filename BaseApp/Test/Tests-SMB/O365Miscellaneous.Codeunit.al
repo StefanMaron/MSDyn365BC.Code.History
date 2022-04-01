@@ -29,7 +29,7 @@ codeunit 138017 "O365 Miscellaneous"
         GLAcc: Record "G/L Account";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         GLAcc.Init();
         GLAcc."Gen. Prod. Posting Group" := GenProductPostingGroup_Code;
@@ -47,7 +47,7 @@ codeunit 138017 "O365 Miscellaneous"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item."Gen. Prod. Posting Group" := GenProductPostingGroup_Code;
@@ -65,7 +65,7 @@ codeunit 138017 "O365 Miscellaneous"
         Res: Record Resource;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Res.Init();
         Res."Gen. Prod. Posting Group" := GenProductPostingGroup_Code;
@@ -83,7 +83,7 @@ codeunit 138017 "O365 Miscellaneous"
         ItemCharge: Record "Item Charge";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         ItemCharge.Init();
         ItemCharge."Gen. Prod. Posting Group" := GenProductPostingGroup_Code;
@@ -102,7 +102,7 @@ codeunit 138017 "O365 Miscellaneous"
         ItemNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.AddO365INVSetup;
 
         InventorySetup.Get();
@@ -111,7 +111,7 @@ codeunit 138017 "O365 Miscellaneous"
 
         // Exercise
         LibraryLowerPermissions.SetItemEdit;
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.Activate;
         ItemNo := ItemCard."No.".Value;
         ItemCard.Close;
@@ -128,7 +128,7 @@ codeunit 138017 "O365 Miscellaneous"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetItemEdit;
         Item.Init();
         Item.Insert(true);
@@ -147,7 +147,7 @@ codeunit 138017 "O365 Miscellaneous"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetItemEdit;
         Item.Init();
         Item.Insert(true);
@@ -169,7 +169,7 @@ codeunit 138017 "O365 Miscellaneous"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
         Item.Init();
         Item.Insert(true);
@@ -193,7 +193,7 @@ codeunit 138017 "O365 Miscellaneous"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetItemEdit;
         Item.Init();
         Item.Insert(true);
@@ -213,7 +213,7 @@ codeunit 138017 "O365 Miscellaneous"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetItemEdit;
         Item.Init();
         Item.Insert(true);
@@ -237,7 +237,7 @@ codeunit 138017 "O365 Miscellaneous"
     begin
         // [SCENARIO 218914] Open "Sandbox Environment" page in not online version of product
         // [FEATURE] [Sandbox] [UI]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Not online
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
@@ -257,7 +257,7 @@ codeunit 138017 "O365 Miscellaneous"
     begin
         // [SCENARIO 218914] Open "Sandbox Environment" page in online version of product
         // [FEATURE] [Sandbox] [UI]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Online
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -277,7 +277,7 @@ codeunit 138017 "O365 Miscellaneous"
     begin
         // [SCENARIO 218914] Open "Sandbox Environment (Container)" page in not online version of product
         // [FEATURE] [SandboxContainer] [UI]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Not online
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
@@ -297,7 +297,7 @@ codeunit 138017 "O365 Miscellaneous"
     begin
         // [SCENARIO 218914] Open "Sandbox Environment (Container)" page in online version of product
         // [FEATURE] [SandboxContainer] [UI]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Online
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -317,7 +317,7 @@ codeunit 138017 "O365 Miscellaneous"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 256466] 'Evaluation Company' field is visible for SaaS client
-        Initialize;
+        Initialize();
 
         Companies.OpenView;
         Assert.IsTrue(Companies."Evaluation Company".Visible, '');
@@ -363,7 +363,7 @@ codeunit 138017 "O365 Miscellaneous"
         // [FEATURE] [Item] [UI] [UT]
         // [SCENARIO 260810] "Expected Cost Posting to G/L" checkbox in Inventory Setup must be enabled for #Suite
 
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetO365INVSetup;
         InventorySetup.OpenView;
@@ -376,7 +376,7 @@ codeunit 138017 "O365 Miscellaneous"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Miscellaneous");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         ClearTables;
         GenProductPostingGroup_Code := 'New Line';
@@ -438,7 +438,7 @@ codeunit 138017 "O365 Miscellaneous"
     var
         GenProductPostingGroupsPage: TestPage "Gen. Product Posting Groups";
     begin
-        GenProductPostingGroupsPage.OpenNew;
+        GenProductPostingGroupsPage.OpenNew();
         GenProductPostingGroupsPage.Code.Value := GenProductPostingGroup_Code;
         GenProductPostingGroupsPage."Def. VAT Prod. Posting Group".Value := 'A';
         GenProductPostingGroupsPage.Close;

@@ -62,7 +62,7 @@ table 2170 "O365 Default Email Message"
     procedure GetMessage(Type: Option): Text
     begin
         SetFilter("Document Type", '%1', Type);
-        if not FindFirst then begin
+        if not FindFirst() then begin
             CreateMissingDefaultMessages;
             SetFilter("Document Type", '%1', Type);
             FindFirst

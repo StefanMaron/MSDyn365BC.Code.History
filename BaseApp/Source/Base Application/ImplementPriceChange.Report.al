@@ -53,7 +53,7 @@ report 7053 "Implement Price Change"
                 if DeleteWhstLine then
                     DeleteAll();
                 Commit();
-                if SalesPrice.FindFirst then;
+                if SalesPrice.FindFirst() then;
             end;
 
             trigger OnPreDataItem()

@@ -151,7 +151,7 @@ table 413 "IC Partner"
     begin
         GLEntry.SetRange("IC Partner Code", Code);
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             GLEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not GLEntry.IsEmpty() then
             Error(Text000, xRec.Code);

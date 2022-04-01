@@ -1695,7 +1695,7 @@ codeunit 134371 "Dimension Correction Tests"
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := LibraryUtility.GenerateGUID();
         GLEntry."Document No." := LibraryUtility.GenerateGUID();
@@ -1712,7 +1712,7 @@ codeunit 134371 "Dimension Correction Tests"
         GLEntryTransactionNo: Integer;
     begin
         GLEntry.SetCurrentKey("Transaction No.");
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             GLEntryTransactionNo := GLEntry."Transaction No.";
 
         exit(GLEntryTransactionNo + 1);

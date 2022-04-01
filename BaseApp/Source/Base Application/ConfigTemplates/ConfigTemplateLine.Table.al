@@ -272,7 +272,7 @@ table 8619 "Config. Template Line"
     begin
         ConfigTemplateLine.SetRange("Data Template Code", DataTemplateCode);
         ConfigTemplateLine.SetRange("Field ID", FieldID);
-        if not ConfigTemplateLine.FindFirst then
+        if not ConfigTemplateLine.FindFirst() then
             exit(false);
         exit(true)
     end;

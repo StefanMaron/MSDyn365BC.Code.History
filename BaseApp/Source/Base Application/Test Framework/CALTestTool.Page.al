@@ -374,7 +374,7 @@ page 130401 "CAL Test Tool"
     trigger OnOpenPage()
     begin
         if not CALTestSuite.Get(CurrentSuiteName) then
-            if CALTestSuite.FindFirst then
+            if CALTestSuite.FindFirst() then
                 CurrentSuiteName := CALTestSuite.Name
             else begin
                 CreateTestSuite(CurrentSuiteName);

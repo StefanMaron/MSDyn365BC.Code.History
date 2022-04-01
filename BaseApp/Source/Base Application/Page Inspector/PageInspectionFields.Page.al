@@ -69,7 +69,7 @@ page 9632 "Page Inspection Fields"
         SetFilter("Current Form Bookmark", '%1', FormServerBookmark);
         // sets current record to the first one
         // so we always are in the first data block when fields are loaded
-        FindFirst;
+        FindFirst();
 
         // this will actually update the content of the page
         CurrPage.Update(false);

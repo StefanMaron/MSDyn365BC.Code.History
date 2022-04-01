@@ -215,7 +215,7 @@ codeunit 138942 "BC O365 Contact Tests"
 
     local procedure CreateInvoice(var Customer: Record Customer; var Item: Record Item; var BCO365SalesInvoice: TestPage "BC O365 Sales Invoice")
     begin
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
         BCO365SalesInvoice.Lines.New();
         BCO365SalesInvoice.Lines.Description.SetValue(Item.Description);
@@ -264,7 +264,6 @@ codeunit 138942 "BC O365 Contact Tests"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"BC O365 Contact Tests");
 
-        LibraryInvoicingApp.SetupEmailTable();
         LibraryInvoicingApp.DisableC2Graph();
 
         EventSubscriberInvoicingApp.SetAppId('INV');

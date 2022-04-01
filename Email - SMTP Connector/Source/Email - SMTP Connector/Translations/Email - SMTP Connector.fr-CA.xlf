@@ -27,11 +27,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Authentication - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 2369664869 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Created By</source>
-          <target state="translated">Créé par</target>
+        <trans-unit id="Table 4170592685 - Field 2906998308 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication Type</source>
+          <target state="translated">Type d’authentification</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Created By - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Authentication Type - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 4170592685 - Field 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Address</source>
@@ -105,12 +105,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType CouldNotAuthenticateErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4052218681 - NamedType 1846709916" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>No extension provided the OAuth 2.0 authentication.</source>
-          <target state="translated">Aucune extension fournie avec l’authentification OAuth 2.0.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType NoOAuth2ProviderErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 962999263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot authenticate the credentials on server %1.</source>
           <target state="translated">Impossible d’authentifier les informations d’identification sur le serveur %1.</target>
@@ -129,36 +123,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType ConnectorDescriptionTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 2211728348" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Enhanced email capabilities are available as a replacement for this legacy feature.</source>
-          <target state="translated">Des fonctionnalités de messagerie améliorée sont disponibles en remplacement de cette fonctionnalité héritée.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType FeatureNotificationMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 74626625" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Enhanced email capabilities are enabled, and your legacy SMTP settings are copied to an account on the Email Accounts page. You can use both, but there is no synchronization between the two.</source>
-          <target state="translated">Les fonctionnalités de messagerie améliorée sont activées et vos paramètres SMTP hérités sont copiés vers un compte de la page Comptes de messagerie. Vous pouvez utiliser les deux, mais il n’existe aucune synchronisation entre les deux.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType FeatureNotificationWithOldSmtpMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 2970737025" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Get started</source>
-          <target state="translated">Mise en route</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType GetStartedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 3074891508" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Go there now</source>
-          <target state="translated">Accéder maintenant</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType GoThereNowTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 3334639707" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more</source>
-          <target state="translated">En savoir plus</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType LearnMoreTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 1482857067" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We could not find the account. Typically, this is because the account has been deleted.</source>
           <target state="translated">Impossible de trouver le compte. Cela est généralement dû au fait que le compte a été supprimé.</target>
@@ -171,59 +135,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SendingFailureErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 853623346" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The first time that the Email Accounts page is opened, show a notification saying that legacy SMTP settings has been copied to the new email setup.</source>
-          <target state="translated">La première fois que la page Comptes de messagerie est ouverte, affichez une notification indiquant que les paramètres SMTP hérités ont été copiés vers la nouvelle configuration de messagerie.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpNotificationDescTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 1252321434" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SMTP settings for the %1 account were copied from your legacy SMTP setup.</source>
-          <target state="translated">Les paramètres SMTP pour le compte %1 ont été copiés à partir de votre configuration SMTP héritée.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = The name of the account that was copied.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpNotificationMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 969463188" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Notify that legacy SMTP email setup was copied</source>
-          <target state="translated">Avertir que la configuration de la messagerie SMTP héritée a été copiée</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpNotificationNameTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 2383260397" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>If you have a legacy SMTP email setup that uses this account, you might also need to change those settings. Otherwise, that account or extensions that use it might stop working.</source>
-          <target state="translated">Si vous disposez d’une configuration de messagerie SMTP héritée qui utilise ce compte, vous pouvez également être amené à modifier ces paramètres. Sinon, ce compte ou les extensions qui l’utilisent peuvent cesser de fonctionner.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpOnEditingNotificationMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 3798978956" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email sent.</source>
           <target state="translated">Courriel envoyé.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpSendTelemetryMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 607767707 - NamedType 4026580400" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The address %1 could not be parsed correctly.</source>
-          <target state="translated">L’adresse %1 n’a pas pu être analysée correctement.</target>
-          <note from="Developer" annotates="general" priority="2">%1=The email address</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message - NamedType EmailParseFailureErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 607767707 - NamedType 3985540982" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Failed to add linked resource. Content Type: %1</source>
-          <target state="translated">Impossible d’ajouter une ressource liée. Type de contenu : %1</target>
-          <note from="Developer" annotates="general" priority="2">%1 - The Content Type of the resource.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message - NamedType FailedToAddLinkResourceMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 607767707 - NamedType 2104307454" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The From address %1 could not be parsed correctly.</source>
-          <target state="translated">L’adresse de l’expéditeur %1 n’a pas pu être analysée correctement.</target>
-          <note from="Developer" annotates="general" priority="2">%1=The email address</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message - NamedType FromEmailParseFailureErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 607767707 - NamedType 3677629754" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not add recipient %1.</source>
-          <target state="translated">Impossible d’ajouter le destinataire %1.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = email address</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message - NamedType RecipientErr</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP Account</source>
@@ -570,7 +486,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 352980177 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - SMTP Connector - Edit</source>
-          <target state="translated">Courriel - Connecteur SMTP - Modifier</target>
+          <target state="translated">Courriel - Connecteur SMTP - Modification</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email SMTP - Edit - Property Caption</note>
         </trans-unit>

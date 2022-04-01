@@ -9,7 +9,7 @@ codeunit 5371 "CRM Synch. Job Management"
     begin
         with CRMSynchJobStatusCue do begin
             Reset;
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Code := GetDefaultPkValue;
                 Insert;
@@ -22,7 +22,7 @@ codeunit 5371 "CRM Synch. Job Management"
     begin
         with CRMSynchJobStatusCue do begin
             Reset;
-            FindFirst;
+            FindFirst();
             "Reset Date" := GetLastFailedDate(GetDefaultJobRunner);
             Modify;
             SetFilters(CRMSynchJobStatusCue);

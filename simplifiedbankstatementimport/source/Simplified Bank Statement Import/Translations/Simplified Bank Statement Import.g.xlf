@@ -528,6 +528,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension Bank Exp. Imp. Setup Extension - Action Bank Statement File Format Wizard - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 658748726 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SimplifiedBankStatementImport - Edit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SBSI - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2063104060 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SimplifiedBankStatementImport - Objects</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SBSI - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2170860736 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SimplifiedBankStatementImport - Read</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SBSI - Read - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

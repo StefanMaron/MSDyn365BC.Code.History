@@ -28,7 +28,7 @@ codeunit 134927 "ERM Budget UI"
     begin
         // [SCENARIO 213513] Budget page opens with default values "View By" = Month and "Date Filter" = current calendar year
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Today is 07.07.2017
         // [GIVEN] Budget "X"
@@ -64,7 +64,7 @@ codeunit 134927 "ERM Budget UI"
     begin
         // [SCENARIO 213513] Budget page has default filter "Income Statement" for "Income/Balance G/L Account Filter"
 
-        Initialize;
+        Initialize();
 
         CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
         // [GIVEN] Budget "X"
@@ -104,7 +104,7 @@ codeunit 134927 "ERM Budget UI"
     begin
         // [SCENARIO 213513] Budget page shows only G/L Accounts with type "Balance Sheet" when "Income Balance G/L Account Filter" is "Balance Sheet"
 
-        Initialize;
+        Initialize();
 
         CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
         // [GIVEN] Budget "X"
@@ -144,7 +144,7 @@ codeunit 134927 "ERM Budget UI"
     begin
         // [SCENARIO 213513] Budget page shows only G/L Accounts with "Account Category" = "Income" when "G/L Account Category Filter" is "Income"
 
-        Initialize;
+        Initialize();
 
         CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
         // [GIVEN] Budget "X"
@@ -187,7 +187,7 @@ codeunit 134927 "ERM Budget UI"
         // [FEATURE] [G/L Account Balance/Budget]
         // [SCENARIO 213513] "G/L Account Balance/Budget" page inherits filters from Budget page
 
-        Initialize;
+        Initialize();
 
         CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
         LibraryERM.CreateGLBudgetName(GLBudgetName);
@@ -234,7 +234,7 @@ codeunit 134927 "ERM Budget UI"
         // [FEATURE] [G/L Balance/Budget]
         // [SCENARIO 213513] "G/L Balance/Budget" page inherits filters from Budget page
 
-        Initialize;
+        Initialize();
 
         CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
         LibraryERM.CreateGLBudgetName(GLBudgetName);
@@ -288,7 +288,7 @@ codeunit 134927 "ERM Budget UI"
         // [FEATURE] [G/L Account Balance/Budget]
         // [SCENARIO 213513] "Budgeted Debit Amount" calculates based on page filters on "G/L Account Balance/Budget" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Budget "X"
         LibraryERM.CreateGLBudgetName(GLBudgetName);
@@ -340,7 +340,7 @@ codeunit 134927 "ERM Budget UI"
         // [FEATURE] [G/L Account Balance/Budget]
         // [SCENARIO 213513] "Budgeted Debit Amount" calculates based on page filters on "G/L Balance/Budget" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Budget "X"
         LibraryERM.CreateGLBudgetName(GLBudgetName);
@@ -388,7 +388,7 @@ codeunit 134927 "ERM Budget UI"
         // [FEATURE] [G/L Balance/Budget]
         // [SCENARIO 213513] "G/L Balance/Budget" page shows only G/L Accounts with type "Balance Sheet" if "Income Balance G/L Account Filter" is "Balance Sheet"
 
-        Initialize;
+        Initialize();
 
         CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
         LibraryLowerPermissions.SetFinancialReporting;
@@ -418,7 +418,7 @@ codeunit 134927 "ERM Budget UI"
         // [FEATURE] [G/L Balance/Budget]
         // [SCENARIO 213513] "G/L Balance/Budget" page shows only G/L Accounts with "Account Category" = "Income" if "G/L Account Category Filter" is "Income"
 
-        Initialize;
+        Initialize();
 
         CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
         LibraryLowerPermissions.SetFinancialReporting;
@@ -449,7 +449,7 @@ codeunit 134927 "ERM Budget UI"
         // [FEATURE] [G/L Account Balance/Budget]
         // [SCENARIO 216953] "G/L Balance/Budget" page hide field "Income/Balance" depends on filter "Income/Balance G/L Account Filter"
 
-        Initialize;
+        Initialize();
 
         CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
         LibraryERM.CreateGLBudgetName(GLBudgetName);
@@ -486,7 +486,7 @@ codeunit 134927 "ERM Budget UI"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Budget UI");
 
         LibraryERMCountryData.UpdateCalendarSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -555,7 +555,7 @@ codeunit 134927 "ERM Budget UI"
         GLAccount.Reset();
         GLAccount.SetRange("Account Category", AccountCategory);
         GLAccount.SetRange("Income/Balance", IncomeBalance);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
     end;
 
     local procedure GetClosingMonthFilterFromDateFilter(DateFilter: Text): Text

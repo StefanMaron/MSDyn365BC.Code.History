@@ -32,7 +32,7 @@ codeunit 134837 "Test Contact Lookup"
         SalesOrder: TestPage "Sales Order";
     begin
         // Setup - Initialize
-        Initialize;
+        Initialize();
 
         // Setup - Create a Customer with a Contact
         LibrarySmallBusiness.CreateCustomer(Customer);
@@ -61,7 +61,7 @@ codeunit 134837 "Test Contact Lookup"
         SalesOrder: TestPage "Sales Order";
     begin
         // Setup - Initialize
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
@@ -96,7 +96,7 @@ codeunit 134837 "Test Contact Lookup"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // Setup - Initialize
-        Initialize;
+        Initialize();
 
         // Setup - Create a Vendor with a Contact
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -125,7 +125,7 @@ codeunit 134837 "Test Contact Lookup"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // Setup - Initialize
-        Initialize;
+        Initialize();
 
         // Setup - Create a Buy-From Vendor amd a Pay-to Vendor with a Contact each
         LibrarySmallBusiness.CreateVendor(BuyFromVendor);
@@ -157,7 +157,7 @@ codeunit 134837 "Test Contact Lookup"
         CustomerCard: TestPage "Customer Card";
     begin
         // Setup - Initialize
-        Initialize;
+        Initialize();
 
         // Setup - Create a Customer with a Contact
         LibrarySmallBusiness.CreateCustomer(Customer);
@@ -183,7 +183,7 @@ codeunit 134837 "Test Contact Lookup"
         VendorCard: TestPage "Vendor Card";
     begin
         // Setup - Initialize
-        Initialize;
+        Initialize();
 
         // Setup - Create Vendor with a Contact
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -210,7 +210,7 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // [FEATURE] [Sales Quote]
         // [SCENARIO 234080] When Customer No. is blank in Sales Quote then on contact look up the contact list is filtered by Company No. of the contact no. populated in the quote
-        Initialize;
+        Initialize();
 
         if Confirm(ConfirmStubQst) then;
 
@@ -218,7 +218,7 @@ codeunit 134837 "Test Contact Lookup"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // [GIVEN] "Sales Quote" with blank "Sell-to Customer No." and "Bill-to Customer No." but "Sell-to Contact No." is equal to "C"
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
 
         // [WHEN] Look up contact list from "Sell-to Contact"
@@ -241,7 +241,7 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 272585] In table Sales Header field Bill-to Contact is updated when it changed to another Contact.Name. (Cont.Type = Cont.Type::Person)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with two  person contacts "C1" and "C2"
         CreateCustomerWithTwoPersonContacts(Customer, Contact, ContactNew);
@@ -270,7 +270,7 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 272585]  In table Sales Header field Bill-to Contact is updated to Customer Primary Contact when it changed to Customer Contact Name
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with two contacts "C1" and "C2"
         CreateCustomerWithTwoPersonContacts(Customer, Contact, ContactNew);
@@ -280,7 +280,7 @@ codeunit 134837 "Test Contact Lookup"
         // [WHEN] Sales Header's Bill-to contact updated to company contact name
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         ContactCompany.Get(ContactBusinessRelation."Contact No.");
         SalesHeader."Bill-to Contact" := ContactCompany.Name;
         SalesHeader.Validate("Bill-to Contact No.", ContactCompany."No.");
@@ -301,7 +301,7 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 272585] In table Sales Header field Sell-to Contact is updated when it changed to another Contact.Name. (Cont.Type = Cont.Type::Person)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with two contacts "C1" and "C2"
         CreateCustomerWithTwoPersonContacts(Customer, Contact, ContactNew);
@@ -330,7 +330,7 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 272585]  In table Sales Header field Sell-to Contact is updated to Customer Primary Contact when it changed to Customer Contact Name
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with two contacts "C1" and "C2"
         CreateCustomerWithTwoPersonContacts(Customer, Contact, ContactNew);
@@ -340,7 +340,7 @@ codeunit 134837 "Test Contact Lookup"
         // [WHEN] Sales Header's Sell-to contact updated to company contact name
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         ContactCompany.Get(ContactBusinessRelation."Contact No.");
         SalesHeader."Sell-to Contact" := ContactCompany.Name;
         SalesHeader.Validate("Sell-to Contact No.", ContactCompany."No.");
@@ -361,7 +361,7 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 272585] In table Purchase Header field Pay-to Contact is updated when it changed to another Contact.Name. (Cont.Type = Cont.Type::Person)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with two person contacts "C1" and "C2"
         CreateVendorWithTwoPersonContacts(Vendor, Contact, ContactNew);
@@ -390,7 +390,7 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 272585]  In table Purchase Header field Pay-to Contact is updated to Vendor Primary Contact when it changed to Vendor Contact Name
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with two  person contacts "C1" and "C2"
         CreateVendorWithTwoPersonContacts(Vendor, Contact, ContactNew);
@@ -400,7 +400,7 @@ codeunit 134837 "Test Contact Lookup"
         // [WHEN] Purchase Header's Pay-to contact updated to company contact name
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
         ContactBusinessRelation.SetRange("No.", Vendor."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         ContactCompany.Get(ContactBusinessRelation."Contact No.");
         PurchaseHeader."Pay-to Contact" := ContactCompany.Name;
         PurchaseHeader.Validate("Pay-to Contact No.", ContactCompany."No.");
@@ -421,7 +421,7 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 272585] In table Purchase Header field Buy-from Contact is updated when it changed to another Contact.Name. (Cont.Type = Cont.Type::Person)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with two person contacts "C1" and "C2"
         CreateVendorWithTwoPersonContacts(Vendor, Contact, ContactNew);
@@ -450,7 +450,7 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 272585]  In table Purchase Header field Buy-from Contact is updated to Vendor Primary Contact when it changed to Vendor Contact Name
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with two  person contacts "C1" and "C2"
         CreateVendorWithTwoPersonContacts(Vendor, Contact, ContactNew);
@@ -460,7 +460,7 @@ codeunit 134837 "Test Contact Lookup"
         // [WHEN] Purchase Header's Buy-from contact updated to company contact name
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
         ContactBusinessRelation.SetRange("No.", Vendor."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         ContactCompany.Get(ContactBusinessRelation."Contact No.");
         PurchaseHeader."Buy-from Contact" := ContactCompany.Name;
         PurchaseHeader.Validate("Buy-from Contact No.", ContactCompany."No.");
@@ -570,8 +570,8 @@ codeunit 134837 "Test Contact Lookup"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Contact Lookup");
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
         ObjectOptions.DeleteAll();
 
         if IsInitialized then
@@ -589,7 +589,7 @@ codeunit 134837 "Test Contact Lookup"
         LibrarySales.CreateCustomer(Customer);
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         LibraryMarketing.CreatePersonContact(ContactPersonOne);
         ContactPersonOne.Validate("Company No.", ContactBusinessRelation."Contact No.");
         ContactPersonOne.Modify(true);
@@ -608,7 +608,7 @@ codeunit 134837 "Test Contact Lookup"
         LibraryPurchase.CreateVendor(Vendor);
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
         ContactBusinessRelation.SetRange("No.", Vendor."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         LibraryMarketing.CreatePersonContact(ContactPersonOne);
         ContactPersonOne.Validate("Company No.", ContactBusinessRelation."Contact No.");
         ContactPersonOne.Modify(true);

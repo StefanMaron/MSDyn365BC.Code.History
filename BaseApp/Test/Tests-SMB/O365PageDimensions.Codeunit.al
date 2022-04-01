@@ -41,13 +41,13 @@ codeunit 138042 "O365 Page Dimensions"
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
-        TestDimensionCode := LibraryUtility.GenerateGUID;
-        TestDimensionValue := LibraryUtility.GenerateGUID;
-        Dimensions.OpenNew;
+        TestDimensionCode := LibraryUtility.GenerateGUID();
+        TestDimensionValue := LibraryUtility.GenerateGUID();
+        Dimensions.OpenNew();
         Dimensions.New;
         Dimensions.Code.SetValue(TestDimensionCode);
         Dimensions.OK.Invoke;
@@ -73,7 +73,7 @@ codeunit 138042 "O365 Page Dimensions"
     var
         Resource: Record Resource;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::Resource:
                 Resource.DeleteAll();
@@ -94,7 +94,7 @@ codeunit 138042 "O365 Page Dimensions"
         SalesInvoice: TestPage "Sales Invoice";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(TestCustomer);
         LibrarySmallBusiness.CreateItem(TestItem);
@@ -114,7 +114,7 @@ codeunit 138042 "O365 Page Dimensions"
 
         // check that the posted sales invoice has test dimension
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", TestCustomer."No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         PostedSalesInvoice.OpenView;
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         PostedSalesInvoice.Dimensions.Invoke;
@@ -130,7 +130,7 @@ codeunit 138042 "O365 Page Dimensions"
         TestSalesHeader: Record "Sales Header";
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.CreateCustomer(TestCustomer);
         LibrarySmallBusiness.CreateItem(TestItem);
         LibrarySmallBusiness.CreateSalesQuoteHeaderWithLines(TestSalesHeader, TestCustomer, TestItem, 1, 1);
@@ -154,7 +154,7 @@ codeunit 138042 "O365 Page Dimensions"
         PurchaseInvoice: TestPage "Purchase Invoice";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateVendor(TestVendor);
         LibrarySmallBusiness.CreateItem(TestItem);
@@ -174,7 +174,7 @@ codeunit 138042 "O365 Page Dimensions"
 
         // check that the posted purchase invoice has test dimension
         PurchInvHeader.SetRange("Buy-from Vendor No.", TestVendor."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PostedPurchaseInvoice.OpenView;
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
         PostedPurchaseInvoice.Dimensions.Invoke;

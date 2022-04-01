@@ -33,8 +33,8 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Prevent Negative Inventory");
         InventorySetup.Get();
         PreventNegativeInventory := InventorySetup."Prevent Negative Inventory";
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Prevent Negative Inventory");
     end;
@@ -171,7 +171,7 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         SalesLine: Record "Sales Line";
         ItemInventoryQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibrarySales.SetPreventNegativeInventory(SetupPreventNegativeInventory);
         LibraryInventory.CreateItem(Item);
         Item."Prevent Negative Inventory" := ItemPreventNegativeInventory;
@@ -202,7 +202,7 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         ItemJnlBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Validate "Prevent Negative Inventory" in Inventory Setup
         LibrarySales.SetPreventNegativeInventory(SetupPreventNegativeInventory);
@@ -232,7 +232,7 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         PurchRcptLine.SetRange("Document No.", PostedRcptNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         LibraryPurchase.CopyPurchaseDocument(
             PurchaseHeader, "Purchase Document Type From"::"Posted Receipt", PostedRcptNo, true, true);
@@ -253,7 +253,7 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         with ItemLedgEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", "Entry Type"::"Positive Adjmt.");
-            FindFirst;
+            FindFirst();
             TestField("Remaining Quantity", 0);
         end;
     end;

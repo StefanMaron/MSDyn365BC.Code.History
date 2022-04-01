@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2844 "Native - QBO Sync Auth"
 {
     Caption = 'nativeQBOAuth', Locked = true;
@@ -45,4 +46,4 @@ page 2844 "Native - QBO Sync Auth"
         QBOSyncProxy: Codeunit "QBO Sync Proxy";
         AuthorizationURL: Text;
 }
-
+#endif

@@ -202,6 +202,8 @@ codeunit 7324 "Whse.-Activity-Post"
         with WhseActivLine do begin
             TempWhseActivLine.SetSourceFilter(
               "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", false);
+            if "Source Document" = "Source Document"::"Job Usage" then
+                TempWhseActivLine.SetRange("Bin Code", "Bin Code"); // Split the lines based on bin for jobs.
             if TempWhseActivLine.Find('-') then begin
                 TempWhseActivLine."Qty. to Handle" += "Qty. to Handle";
                 TempWhseActivLine."Qty. to Handle (Base)" += "Qty. to Handle (Base)";
@@ -513,7 +515,7 @@ codeunit 7324 "Whse.-Activity-Post"
             SetRange("Derived From Line No.", 0);
             SetRange("Qty. to Ship", 0);
             SetRange("Qty. to Receive", 0);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Qty. in Transit" <> 0 then
                         Validate("Qty. to Receive", "Qty. in Transit");
@@ -610,6 +612,38 @@ codeunit 7324 "Whse.-Activity-Post"
         OnAfterPostSourceDocument(WhseActivHeader, PurchHeader, SalesHeader, TransHeader, PostingReference, HideDialog);
     end;
 
+    local procedure PostJobUsage()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobJnlLine: Record "Job Journal Line";
+        JobTransferLine: Codeunit "Job Transfer Line";
+        JobJnlPostLine: Codeunit "Job Jnl.-Post Line";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogUsage('0000GQT', 'Picks on jobs', 'post picks');
+        TempWhseActivLine.Reset();
+        if TempWhseActivLine.FindSet() then begin
+            repeat
+                JobPlanningLine.SetRange("Job Contract Entry No.", TempWhseActivLine."Source Line No.");
+                JobPlanningLine.SetFilter(Type, '<>%1', JobPlanningLine.Type::Text);
+
+                if JobPlanningLine.FindFirst() then begin
+                    JobPlanningLine.Validate("Qty. to Transfer to Journal", TempWhseActivLine."Qty. to Handle");
+
+                    JobTransferLine.FromWarehouseActivityLineToJnlLine(TempWhseActivLine, WorkDate(), '', '', JobJnlLine);
+                end;
+
+                JobJnlPostLine.SetCalledFromInvtPutawayPick(true);
+                JobJnlPostLine.RunWithCheck(JobJnlLine);
+                JobJnlLine.Delete(); //Delete the temporary job journal line after posting.
+            until TempWhseActivLine.Next() = 0;
+
+            PostedSourceType := TempWhseActivLine."Source Type";
+            PostedSourceSubType := TempWhseActivLine."Source Subtype";
+            PostedSourceNo := TempWhseActivLine."Source No.";
+        end;
+    end;
+
     local procedure PostWhseActivityLine(WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line")
     var
         ProdOrder: Record "Production Order";
@@ -636,7 +670,10 @@ codeunit 7324 "Whse.-Activity-Post"
                         PostOutput(ProdOrder);
                         WhseOutputProdRelease.Release(ProdOrder);
                     end else
-                        PostSourceDoc;
+                        if (Type = Type::"Invt. Pick") and ("Source Document" = "Source Document"::"Job Usage") then
+                            PostJobUsage()
+                        else
+                            PostSourceDoc();
 
             CreatePostedActivHeader(WhseActivHeader, PostedInvtPutAwayHeader, PostedInvtPickHeader);
 
@@ -649,7 +686,7 @@ codeunit 7324 "Whse.-Activity-Post"
 
                 UpdateWhseActivityLine(WhseActivLine);
 
-                if Location."Bin Mandatory" then
+                if Location."Bin Mandatory" and ("Source Document" <> "Source Document"::"Job Usage") then
                     PostWhseJnlLine(WhseActivLine);
 
                 CreatePostedActivLine(WhseActivLine, PostedInvtPutAwayHeader, PostedInvtPickHeader);
@@ -684,7 +721,7 @@ codeunit 7324 "Whse.-Activity-Post"
         WhseJnlRegisterLine.Run(TempWhseJnlLine);
     end;
 
-    local procedure CreateWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; WhseActivLine: Record "Warehouse Activity Line")
+    procedure CreateWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; WhseActivLine: Record "Warehouse Activity Line")
     var
         WMSMgt: Codeunit "WMS Management";
     begin
@@ -861,7 +898,7 @@ codeunit 7324 "Whse.-Activity-Post"
         ProdOrderComp: Record "Prod. Order Component";
     begin
         with TempWhseActivLine do begin
-            Reset;
+            Reset();
             Find('-');
             ProdOrder.Get("Source Subtype", "Source No.");
             repeat
@@ -926,7 +963,7 @@ codeunit 7324 "Whse.-Activity-Post"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         with TempWhseActivLine do begin
-            Reset;
+            Reset();
             Find('-');
             ProdOrder.Get("Source Subtype", "Source No.");
             repeat
@@ -992,7 +1029,7 @@ codeunit 7324 "Whse.-Activity-Post"
             if not ProdOrderRtngLine.IsEmpty() then begin
                 ProdOrderRouteManagement.Check(ProdOrderLine);
                 ProdOrderRtngLine.SetRange("Next Operation No.", '');
-                ProdOrderRtngLine.FindLast;
+                ProdOrderRtngLine.FindLast();
                 exit(ProdOrderRtngLine."Operation No.");
             end;
 
@@ -1081,7 +1118,7 @@ codeunit 7324 "Whse.-Activity-Post"
             Reset();
             if FindSet() then
                 repeat
-                    if "Source Type" = DATABASE::"Prod. Order Component" then
+                    if "Source Type" in [Database::"Prod. Order Component", Database::Job] then
                         TrackingSpecification.CheckItemTrackingQuantity(
                           "Source Type", "Source Subtype", "Source No.", "Source Subline No.", "Source Line No.",
                           "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc)

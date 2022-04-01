@@ -32,75 +32,63 @@ codeunit 137076 "SCM Manuf Calendars"
     [HandlerFunctions('WorkCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure WorkCenterCalendarWithPeriodTypeDay()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        WorkCenterCalendarWithPeriodType(PeriodType::Day, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+        Initialize();
+        WorkCenterCalendarWithPeriodType("Analysis Period Type"::Day, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
     [HandlerFunctions('WorkCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure WorkCenterCalendarWithPeriodTypeWeek()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        WorkCenterCalendarWithPeriodType(PeriodType::Week, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+        Initialize();
+        WorkCenterCalendarWithPeriodType("Analysis Period Type"::Week, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
     [HandlerFunctions('WorkCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure WorkCenterCalendarWithPeriodTypeMonth()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        WorkCenterCalendarWithPeriodType(PeriodType::Month, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+        Initialize();
+        WorkCenterCalendarWithPeriodType("Analysis Period Type"::Month, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
     [HandlerFunctions('WorkCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure WorkCenterCalendarWithPeriodTypeQuarter()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        WorkCenterCalendarWithPeriodType(PeriodType::Quarter, GetMonth(3, -1), GetMonth(3, 1));  // Calendar Month range required: -3M to 3M.
+        Initialize();
+        WorkCenterCalendarWithPeriodType("Analysis Period Type"::Quarter, GetMonth(3, -1), GetMonth(3, 1));  // Calendar Month range required: -3M to 3M.
     end;
 
     [Test]
     [HandlerFunctions('WorkCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure WorkCenterCalendarWithPeriodTypeYear()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        WorkCenterCalendarWithPeriodType(PeriodType::Year, GetYear(1, -1), GetYear(1, 1));  // Calendar Year range required: -1Y to 1Y.
+        Initialize();
+        WorkCenterCalendarWithPeriodType("Analysis Period Type"::Year, GetYear(1, -1), GetYear(1, 1));  // Calendar Year range required: -1Y to 1Y.
     end;
 
     [Test]
     [HandlerFunctions('WorkCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure WorkCenterCalendarWithPeriodTypeAccountingPeriod()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        WorkCenterCalendarWithPeriodType(PeriodType::"Accounting Period", GetYear(2, -1), GetYear(2, 1));  // Calendar Year range required: -2Y to 2Y.
+        Initialize();
+        WorkCenterCalendarWithPeriodType("Analysis Period Type"::"Accounting Period", GetYear(2, -1), GetYear(2, 1));  // Calendar Year range required: -2Y to 2Y.
     end;
 
-    local procedure WorkCenterCalendarWithPeriodType(PeriodType: Option; StartingDate: Date; EndingDate: Date)
+    local procedure WorkCenterCalendarWithPeriodType(PeriodType: Enum "Analysis Period Type"; StartingDate: Date; EndingDate: Date)
     var
         WorkCenter: Record "Work Center";
         MatrixRecords: array[32] of Record Date;
@@ -146,12 +134,11 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure WorkCenterGroupCalendarWithPeriodTypeDayAndCapacityUOMMinutes()
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(
-          PeriodType::Day, CapacityUnitOfMeasure.Type::Minutes, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+          "Analysis Period Type"::Day, CapacityUnitOfMeasure.Type::Minutes, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
@@ -160,12 +147,11 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure WorkCenterGroupCalendarWithPeriodTypeDayAndCapacityUOMHours()
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(
-          PeriodType::Day, CapacityUnitOfMeasure.Type::Hours, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+          "Analysis Period Type"::Day, CapacityUnitOfMeasure.Type::Hours, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
@@ -174,12 +160,11 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure WorkCenterGroupCalendarWithPeriodTypeWeekAndCapacityUOMMinutes()
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(
-          PeriodType::Week, CapacityUnitOfMeasure.Type::Minutes, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+          "Analysis Period Type"::Week, CapacityUnitOfMeasure.Type::Minutes, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
@@ -188,12 +173,11 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure WorkCenterGroupCalendarWithPeriodTypeMonthAndCapacityUOMMinutes()
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(
-          PeriodType::Month, CapacityUnitOfMeasure.Type::Minutes, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+          "Analysis Period Type"::Month, CapacityUnitOfMeasure.Type::Minutes, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
@@ -202,12 +186,11 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure WorkCenterGroupCalendarWithPeriodTypeQuarterAndCapacityUOMMinutes()
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(
-          PeriodType::Quarter, CapacityUnitOfMeasure.Type::Minutes, GetMonth(3, -1), GetMonth(3, 1)); // Calendar Month range required: -3M to 3M.
+          "Analysis Period Type"::Quarter, CapacityUnitOfMeasure.Type::Minutes, GetMonth(3, -1), GetMonth(3, 1)); // Calendar Month range required: -3M to 3M.
     end;
 
     [Test]
@@ -216,12 +199,11 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure WorkCenterGroupCalendarWithPeriodTypeYearAndCapacityUOMMinutes()
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(
-          PeriodType::Year, CapacityUnitOfMeasure.Type::Minutes, GetYear(1, -1), GetYear(1, 1));  // Calendar Year range required: -1Y to 1Y.
+          "Analysis Period Type"::Year, CapacityUnitOfMeasure.Type::Minutes, GetYear(1, -1), GetYear(1, 1));  // Calendar Year range required: -1Y to 1Y.
     end;
 
     [Test]
@@ -230,15 +212,14 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure WorkCenterGroupCalendarWithPeriodTypeAccountingPeriodAndCapacityUOMMinutes()
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(
-          PeriodType::"Accounting Period", CapacityUnitOfMeasure.Type::Minutes, GetYear(2, -1), GetYear(2, 1));  // Calendar Year range required: -2Y to 2Y.
+          "Analysis Period Type"::"Accounting Period", CapacityUnitOfMeasure.Type::Minutes, GetYear(2, -1), GetYear(2, 1));  // Calendar Year range required: -2Y to 2Y.
     end;
 
-    local procedure WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(PeriodType: Option; Type: Enum "Capacity Unit of Measure"; StartingDate: Date; EndingDate: Date)
+    local procedure WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(PeriodType: Enum "Analysis Period Type"; Type: Enum "Capacity Unit of Measure"; StartingDate: Date; EndingDate: Date)
     var
         WorkCenter: Record "Work Center";
         MatrixRecords: array[32] of Record Date;
@@ -284,75 +265,63 @@ codeunit 137076 "SCM Manuf Calendars"
     [HandlerFunctions('MachineCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure MachineCenterCalendarWithPeriodTypeDay()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        MachineCenterCalendarWithPeriodType(PeriodType::Day, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+        Initialize();
+        MachineCenterCalendarWithPeriodType("Analysis Period Type"::Day, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
     [HandlerFunctions('MachineCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure MachineCenterCalendarWithPeriodTypeWeek()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        MachineCenterCalendarWithPeriodType(PeriodType::Week, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+        Initialize();
+        MachineCenterCalendarWithPeriodType("Analysis Period Type"::Week, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
     [HandlerFunctions('MachineCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure MachineCenterCalendarWithPeriodTypeMonth()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        MachineCenterCalendarWithPeriodType(PeriodType::Month, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
+        Initialize();
+        MachineCenterCalendarWithPeriodType("Analysis Period Type"::Month, GetMonth(1, -1), GetMonth(1, 1));  // Calendar Month range required: -1M to 1M.
     end;
 
     [Test]
     [HandlerFunctions('MachineCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure MachineCenterCalendarWithPeriodTypeQuarter()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        MachineCenterCalendarWithPeriodType(PeriodType::Quarter, GetMonth(3, -1), GetMonth(3, 1));  // Calendar Month range required: -3M to 3M.
+        Initialize();
+        MachineCenterCalendarWithPeriodType("Analysis Period Type"::Quarter, GetMonth(3, -1), GetMonth(3, 1));  // Calendar Month range required: -3M to 3M.
     end;
 
     [Test]
     [HandlerFunctions('MachineCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure MachineCenterCalendarWithPeriodTypeYear()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        MachineCenterCalendarWithPeriodType(PeriodType::Year, GetYear(1, -1), GetYear(1, 1));  // Calendar Year range required: -1Y to 1Y.
+        Initialize();
+        MachineCenterCalendarWithPeriodType("Analysis Period Type"::Year, GetYear(1, -1), GetYear(1, 1));  // Calendar Year range required: -1Y to 1Y.
     end;
 
     [Test]
     [HandlerFunctions('MachineCenterCalendarMatrixPageHandler')]
     [Scope('OnPrem')]
     procedure MachineCenterCalendarWithPeriodTypeAccountingPeriod()
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // Setup.
-        Initialize;
-        MachineCenterCalendarWithPeriodType(PeriodType::"Accounting Period", GetYear(2, -1), GetYear(2, 1));  // Calendar Year range required: -2Y to 2Y.
+        Initialize();
+        MachineCenterCalendarWithPeriodType("Analysis Period Type"::"Accounting Period", GetYear(2, -1), GetYear(2, 1));  // Calendar Year range required: -2Y to 2Y.
     end;
 
-    local procedure MachineCenterCalendarWithPeriodType(PeriodType: Option; StartingDate: Date; EndingDate: Date)
+    local procedure MachineCenterCalendarWithPeriodType(PeriodType: Enum "Analysis Period Type"; StartingDate: Date; EndingDate: Date)
     var
         MachineCenter: Record "Machine Center";
         MatrixRecords: array[32] of Record Date;
@@ -401,7 +370,7 @@ codeunit 137076 "SCM Manuf Calendars"
         Sec: Integer;
     begin
         // Test Time Delta in case of the same Start, End time values
-        Initialize;
+        Initialize();
         Hour := LibraryRandom.RandIntInRange(0, 23);
         Min := LibraryRandom.RandIntInRange(0, 59);
         Sec := LibraryRandom.RandIntInRange(0, 59);
@@ -422,7 +391,7 @@ codeunit 137076 "SCM Manuf Calendars"
         i: Integer;
     begin
         // Test Time Delta in case of integer number of Hours
-        Initialize;
+        Initialize();
         Hour[1] := LibraryRandom.RandIntInRange(13, 22);
         Hour[2] := LibraryRandom.RandIntInRange(0, 12);
         Min := LibraryRandom.RandIntInRange(0, 59);
@@ -445,7 +414,7 @@ codeunit 137076 "SCM Manuf Calendars"
         i: Integer;
     begin
         // Test Time Delta in case of non 23:59:59 EndingTime
-        Initialize;
+        Initialize();
         Hour[1] := LibraryRandom.RandIntInRange(13, 22);
         Hour[2] := LibraryRandom.RandIntInRange(0, 12);
         for i := 1 to 2 do begin
@@ -467,7 +436,7 @@ codeunit 137076 "SCM Manuf Calendars"
         Sec: Integer;
     begin
         // Test Time Delta in case of 23:59:59 EndingTime
-        Initialize;
+        Initialize();
         Hour := LibraryRandom.RandIntInRange(0, 22);
         Min := LibraryRandom.RandIntInRange(0, 59);
         Sec := LibraryRandom.RandIntInRange(0, 59);
@@ -488,7 +457,7 @@ codeunit 137076 "SCM Manuf Calendars"
         Sec: Integer;
     begin
         // Test Time Delta in case of 23:59:59:001 EndingTime
-        Initialize;
+        Initialize();
         Hour := LibraryRandom.RandIntInRange(0, 22);
         Min := LibraryRandom.RandIntInRange(0, 59);
         Sec := LibraryRandom.RandIntInRange(0, 59);
@@ -506,7 +475,7 @@ codeunit 137076 "SCM Manuf Calendars"
         Time: Time;
     begin
         // Test Time Delta in case of the same Start, End 23:59:59 Time value
-        Initialize;
+        Initialize();
         Time := CreateTime(23, 59, 59);
 
         VerifyTimeDeltaAndSubtract(Time, Time, 0);
@@ -531,7 +500,7 @@ codeunit 137076 "SCM Manuf Calendars"
         ProductionOrder: Record "Production Order";
         ProdOrderDueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         ProdOrderDueDate := CalcDate('<CW>', WorkDate);
         CreateMachineCenterWithHolidays(MachineCenter, 1, 75, CalcDate('<-1W>', ProdOrderDueDate), ProdOrderDueDate);
@@ -556,7 +525,7 @@ codeunit 137076 "SCM Manuf Calendars"
         CalendarAbsenceEntry: Record "Calendar Absence Entry";
     begin
         // Verify that the selected absence entry is updated when "Update" action is run in the Absence page
-        Initialize;
+        Initialize();
         CreateMachineCenterWithoutHolidays(MachineCenter, LibraryRandom.RandIntInRange(3, 10), 100, WorkDate, WorkDate);
         CreateAndUpdateMachineCenterAbsence(CalendarAbsenceEntry, MachineCenter."No.", MachineCenter.Capacity - 1, 0, 1);
         CreateMachineCenterAbsence(CalendarAbsenceEntry, MachineCenter."No.", MachineCenter.Capacity, 0, 2);
@@ -578,7 +547,7 @@ codeunit 137076 "SCM Manuf Calendars"
         CalendarEntry: Record "Calendar Entry";
     begin
         // Verify that the selected entry having "Updated" status set, is not updated when the "Update" action is run
-        Initialize;
+        Initialize();
         CreateMachineCenterWithoutHolidays(MachineCenter, LibraryRandom.RandIntInRange(3, 10), 100, WorkDate, WorkDate);
         CreateAndUpdateMachineCenterAbsence(CalendarAbsenceEntryToUpdate, MachineCenter."No.", MachineCenter.Capacity - 1, 0, 1);
         CreateAndUpdateMachineCenterAbsence(CalendarAbsenceEntry, MachineCenter."No.", MachineCenter.Capacity, 0, 2);
@@ -600,7 +569,7 @@ codeunit 137076 "SCM Manuf Calendars"
     begin
         // [FEATURE] [UT] [Shop Calendar]
         // [SCENARIO 234987] No error occurs when new "Shop Calendar Working Days" fields are validated with old values.
-        Initialize;
+        Initialize();
 
         LibraryManufacturing.CreateShopCalendarCode(ShopCalendar);
         LibraryManufacturing.CreateWorkShiftCode(WorkShift);
@@ -623,12 +592,12 @@ codeunit 137076 "SCM Manuf Calendars"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manuf Calendars");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Manuf Calendars");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         CalendarMgt.ClearInternals(); // clear single instance codeunit vars to avoid influence of other test codeunits
         Commit();
 
@@ -738,7 +707,7 @@ codeunit 137076 "SCM Manuf Calendars"
         CreateWorkCenter(WorkCenter);
         with ShopCalendarWorkingDays do begin
             SetRange("Shop Calendar Code", WorkCenter."Shop Calendar Code");
-            FindFirst;
+            FindFirst();
 
             LibraryManufacturing.CreateShopCalendarWorkingDays(
               ShopCalendarWorkingDays, "Shop Calendar Code", Day::Saturday, "Work Shift Code", "Starting Time", "Ending Time");
@@ -804,21 +773,21 @@ codeunit 137076 "SCM Manuf Calendars"
             SetRange("No.", CalendarAbsenceEntry."No.");
             SetRange(Date, CalendarAbsenceEntry.Date);
             SetRange("Starting Time", CalendarAbsenceEntry."Starting Time");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
     local procedure FindCapacityUnitOfMeasure(var CapacityUnitOfMeasure: Record "Capacity Unit of Measure"; Type: Enum "Capacity Unit of Measure")
     begin
         CapacityUnitOfMeasure.SetRange(Type, Type);
-        CapacityUnitOfMeasure.FindFirst;
+        CapacityUnitOfMeasure.FindFirst();
     end;
 
     local procedure FindFirstWorkDay(var ShopCalendarWorkingDays: Record "Shop Calendar Working Days"; MachineCenterNo: Code[20])
     begin
         with ShopCalendarWorkingDays do begin
             SetRange("Shop Calendar Code", GetMachineCenterShopCalendar(MachineCenterNo));
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -897,7 +866,7 @@ codeunit 137076 "SCM Manuf Calendars"
             SetRange("Prod. Order No.", ProductionOrder."No.");
             Assert.AreEqual(1, Count, StrSubstNo(WrongNoOfLinesErr, TableName));
 
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(CalcDate('<-2D>', "Due Date"), "Ending Date", StrSubstNo(WrongFieldValueErr, FieldName("Ending Date"), TableName));
             Assert.AreEqual(160000T, "Ending Time", StrSubstNo(WrongFieldValueErr, FieldName("Ending Time"), TableName));
             Assert.AreEqual(
@@ -913,7 +882,7 @@ codeunit 137076 "SCM Manuf Calendars"
         with ProdOrderRoutingLine do begin
             SetRange(Status, ProductionOrder.Status);
             SetRange("Prod. Order No.", ProductionOrder."No.");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(
               CalcDate('<-2D>', ProductionOrder."Due Date"),
               "Ending Date", StrSubstNo(WrongFieldValueErr, FieldName("Ending Date"), TableName));
@@ -969,7 +938,7 @@ codeunit 137076 "SCM Manuf Calendars"
         Assert.AreEqual(Expected, CalendarMgt.CalcTimeSubtract(Time1, Time2 - 000000T) - 000000T, CalcTimeSubtractErr);
     end;
 
-    local procedure OpenWorkCenterCalendarPage(var WorkCenterCalendar: TestPage "Work Center Calendar"; No: Code[20]; PeriodType: Option)
+    local procedure OpenWorkCenterCalendarPage(var WorkCenterCalendar: TestPage "Work Center Calendar"; No: Code[20]; PeriodType: Enum "Analysis Period Type")
     var
         WorkCenterCard: TestPage "Work Center Card";
     begin
@@ -981,7 +950,7 @@ codeunit 137076 "SCM Manuf Calendars"
         WorkCenterCalendar.PeriodType.SetValue(PeriodType);
     end;
 
-    local procedure OpenWorkCenterGroupCalendarPage(var WorkCtrGroupCalendar: TestPage "Work Ctr. Group Calendar"; WorkCenterGroupCode: Code[20]; PeriodType: Option; CapacityUOM: Code[10])
+    local procedure OpenWorkCenterGroupCalendarPage(var WorkCtrGroupCalendar: TestPage "Work Ctr. Group Calendar"; WorkCenterGroupCode: Code[20]; PeriodType: Enum "Analysis Period Type"; CapacityUOM: Code[10])
     var
         WorkCenterGroups: TestPage "Work Center Groups";
     begin
@@ -994,7 +963,7 @@ codeunit 137076 "SCM Manuf Calendars"
         WorkCtrGroupCalendar.CapacityUoM.SetValue(CapacityUOM);
     end;
 
-    local procedure OpenMachineCenterCalendarPage(var MachineCenterCalendar: TestPage "Machine Center Calendar"; No: Code[20]; PeriodType: Option)
+    local procedure OpenMachineCenterCalendarPage(var MachineCenterCalendar: TestPage "Machine Center Calendar"; No: Code[20]; PeriodType: Enum "Analysis Period Type")
     var
         MachineCenterCard: TestPage "Machine Center Card";
     begin

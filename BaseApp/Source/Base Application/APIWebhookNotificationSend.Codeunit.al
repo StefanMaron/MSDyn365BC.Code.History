@@ -65,6 +65,7 @@ codeunit 6154 "API Webhook Notification Send"
         ResourceUrlBySubscriptionIdDictionary: Dictionary of [Text[150], Text];
         NotificationUrlBySubscriptionIdDictionary: Dictionary of [Text[150], Text];
         SubscriptionsPerNotificationUrlDictionary: Dictionary of [Text, List of [Text[150]]];
+        SubscriptionsTypeNotificationUrlDictionary: Dictionary of [Text, Integer];
         ProcessingDateTime: DateTime;
         APIWebhookCategoryLbl: Label 'AL API Webhook', Locked = true;
         ActivityLogContextLbl: Label 'APIWEBHOOK', Locked = true;
@@ -74,6 +75,7 @@ codeunit 6154 "API Webhook Notification Send"
         ChangeTypeDeletedTok: Label 'deleted', Locked = true;
         ChangeTypeCollectionTok: Label 'collection', Locked = true;
         SingleEntityUrlTemplateTxt: Label '%1(%2)', Locked = true;
+        DataverseEntityUrlTemplateTxt: Label '%1companies(%2)/%3', Locked = true;
         ProcessNotificationsMsg: Label 'Process notifications. Processing time: %1.', Locked = true;
         DeleteProcessedNotificationsMsg: Label 'Delete processed notifications. Processing time: %1.', Locked = true;
         SavedFailedNotificationsMsg: Label 'Saved failed notifications. Earliest scheduled time: %1.', Locked = true;
@@ -142,6 +144,7 @@ codeunit 6154 "API Webhook Notification Send"
         CachingResourceUrlForSubscriptionIdMsg: Label 'Caching resource URL for subscription. Subscription: %1', Locked = true;
         CachingNotificationUrlForSubscriptionIdMsg: Label 'Caching notification URL for subscription. Subscription: %1.', Locked = true;
         CachingSubscriptionsForNotificationUrlMsg: Label 'Adding subscription to the cached list of subscription system IDs by notification URL. Subscription: %1.', Locked = true;
+        CachingSubscriptionTypesForNotificationUrlMsg: Label 'Adding subscription to the cached list of subscription types by notification URL. Subscription: %1.', Locked = true;
         CollectPayloadPerNotificationUrlMsg: Label 'Collect payload per notification URL. Notification URL number: %1. Subscription count: %2.', Locked = true;
         CollectPayloadPerSubscriptionMsg: Label 'Collect payload per subscription. Subscription: %1.', Locked = true;
         CollectNotificationPayloadMsg: Label 'Collect notification payload. Subscription: %1. Entity: %2. Change type: %3. Last modification time: %4.', Locked = true;
@@ -171,6 +174,7 @@ codeunit 6154 "API Webhook Notification Send"
         NoPermissionsTxt: Label 'No permissions.', Locked = true;
         PostEmittedTxt: Label 'Notification POST emitted to URL %1.', Locked = true;
         PostFailedTxt: Label 'Notification POST failed. Notification URL: %1. Response code %2.', Locked = true;
+        SameNotificationUrlDifferentTypeErr: Label 'Same notification URL cannot have multiple subscrition types.', Locked = true;
 
     local procedure Initialize()
     begin
@@ -274,7 +278,7 @@ codeunit 6154 "API Webhook Notification Send"
         end;
 
         PayloadPerNotificationUrl := JsonArray.ToString();
-        FormatPayloadPerNotificationUrl(PayloadPerNotificationUrl);
+        FormatPayloadPerNotificationUrl(PayloadPerNotificationUrl, SubscriptionsPerNotificationUrlDictionary.Keys().Get(NotificationUrlNumber));
         exit(PayloadPerNotificationUrl);
     end;
 
@@ -318,20 +322,30 @@ codeunit 6154 "API Webhook Notification Send"
         Session.LogMessage('000029Y', StrSubstNo(EmptyPayloadPerSubscriptionErr, SubscriptionSystemId), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
     end;
 
-    local procedure FormatPayloadPerNotificationUrl(var PayloadPerNotificationUrl: Text)
+    local procedure FormatPayloadPerNotificationUrl(var PayloadPerNotificationUrl: Text; NotificationUrl: Text)
     var
+        APIWebhookSubscription: Record "API Webhook Subscription";
         JSONManagement: Codeunit "JSON Management";
         JsonObject: DotNet JObject;
         JsonArray: DotNet JArray;
     begin
         if PayloadPerNotificationUrl = '' then
             exit;
-        JSONManagement.InitializeCollection(PayloadPerNotificationUrl);
-        JSONManagement.GetJsonArray(JsonArray);
-        JSONManagement.InitializeEmptyObject();
-        JSONManagement.GetJSONObject(JsonObject);
-        JSONManagement.AddJArrayToJObject(JsonObject, 'value', JsonArray);
-        PayloadPerNotificationUrl := JsonObject.ToString();
+
+        if SubscriptionsTypeNotificationUrlDictionary.Get(NotificationUrl) = APIWebhookSubscription."Subscription Type"::Regular then begin
+            JSONManagement.InitializeCollection(PayloadPerNotificationUrl);
+            JSONManagement.GetJsonArray(JsonArray);
+            JSONManagement.InitializeEmptyObject();
+            JSONManagement.GetJSONObject(JsonObject);
+            JSONManagement.AddJArrayToJObject(JsonObject, 'value', JsonArray);
+            PayloadPerNotificationUrl := JsonObject.ToString();
+        end else begin
+            JSONManagement.InitializeEmptyObject();
+            JSONManagement.GetJSONObject(JsonObject);
+            JSONManagement.AddJPropertyToJObject(JsonObject, 'ProviderName', 'dyn365bc');
+            JSONManagement.AddJPropertyToJObject(JsonObject, 'Request', PayloadPerNotificationUrl);
+            PayloadPerNotificationUrl := JsonObject.ToString();
+        end;
     end;
 
     local procedure GetPendingNotifications(SubscriptionId: Text[150]; var APIWebhookNotification: Record "API Webhook Notification"; ProcessingDateTime: DateTime): Boolean
@@ -533,6 +547,7 @@ codeunit 6154 "API Webhook Notification Send"
             if TempAPIWebhookNotificationAggr."Change Type" = TempAPIWebhookNotificationAggr."Change Type"::Updated then begin
                 Session.LogMessage('0000713', StrSubstNo(MergeNotificationsOfTypeUpdatedMsg, GetSystemIdBySubscriptionId(APIWebhookNotification."Subscription ID"), APIWebhookNotification."Entity ID", DateTimeToString(APIWebhookNotification."Last Modified Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 TempAPIWebhookNotificationAggr."Last Modified Date Time" := APIWebhookNotification."Last Modified Date Time";
+                TempAPIWebhookNotificationAggr."Created By User SID" := APIWebhookNotification."Created By User SID";
                 TempAPIWebhookNotificationAggr.Modify(true);
                 exit(true);
             end;
@@ -690,6 +705,7 @@ codeunit 6154 "API Webhook Notification Send"
         CollectResourceUrlBySubscriptionId(APIWebhookSubscription);
         CollectNotificationUrlBySubscriptionId(APIWebhookSubscription);
         CollectSubscriptionsPerNotificationUrl(APIWebhookSubscription);
+        CollectSubscriptionTypesPerNotificationUrl(APIWebhookSubscription);
     end;
 
     local procedure CollectSystemIdBySubscriptionId(var APIWebhookSubscription: Record "API Webhook Subscription")
@@ -821,6 +837,27 @@ codeunit 6154 "API Webhook Notification Send"
         end else
             SubscriptionIds.Add(SubscriptionId);
         SubscriptionsPerNotificationUrlDictionary.Set(NotificationUrl, SubscriptionIds);
+    end;
+
+    local procedure CollectSubscriptionTypesPerNotificationUrl(var APIWebhookSubscription: Record "API Webhook Subscription")
+    var
+        SubscriptionType: Option Regular,Dataverse;
+        NotificationUrl: Text;
+    begin
+        SubscriptionType := APIWebhookSubscription."Subscription Type";
+
+        if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
+            Session.LogMessage('0000GIM', StrSubstNo(CachingSubscriptionTypesForNotificationUrlMsg, APIWebhookSubscription.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+
+        NotificationUrl := GetNotificationUrlBySubscriptionId(APIWebhookSubscription."Subscription Id");
+        if NotificationUrl = '' then
+            exit;
+
+        if SubscriptionsTypeNotificationUrlDictionary.ContainsKey(NotificationUrl) then begin
+            if SubscriptionsTypeNotificationUrlDictionary.Get(NotificationUrl) <> SubscriptionType then
+                Error(SameNotificationUrlDifferentTypeErr);
+        end else
+            SubscriptionsTypeNotificationUrlDictionary.Add(NotificationUrl, SubscriptionType);
     end;
 
     local procedure DeleteNotifications(var SubscriptionIds: List of [Text[150]])
@@ -1048,11 +1085,13 @@ codeunit 6154 "API Webhook Notification Send"
     local procedure SendNotification(NotificationUrlNumber: Integer; NotificationUrl: Text; NotificationPayload: Text; var Reschedule: Boolean): Boolean
     var
         HttpStatusCode: DotNet HttpStatusCode;
+        SubscriptionType: Option Regular,Dataverse;
         HttpStatusCodeNumber: Integer;
         ResponseBody: Text;
         ErrorMessage: Text;
         ErrorDetails: Text;
         Success: Boolean;
+        IsDataverseSubscription: Boolean;
     begin
         if NotificationUrl = '' then begin
             Session.LogMessage('000029Z', StrSubstNo(EmptyNotificationUrlErr, NotificationUrlNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
@@ -1078,7 +1117,8 @@ codeunit 6154 "API Webhook Notification Send"
         OnAfterSendNotificationWithStatusNumber(ErrorMessage, ErrorDetails, HttpStatusCodeNumber);
 
         if not Success then begin
-            Reschedule := ShouldReschedule(HttpStatusCode);
+            IsDataverseSubscription := SubscriptionsTypeNotificationUrlDictionary.Get(NotificationUrl) = SubscriptionType::Dataverse;
+            Reschedule := ShouldReschedule(HttpStatusCode) or IsDataverseSubscription;
             Session.LogMessage('000076N', StrSubstNo(SendingNotificationFailedErr, NotificationUrl, HttpStatusCode, ErrorMessage, ErrorDetails), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             LogActivity(true, NotificationFailedTitleTxt,
               StrSubstNo(FailedNotificationDetailsTxt, NotificationUrl, HttpStatusCode, ErrorMessage, ErrorDetails));
@@ -1096,8 +1136,10 @@ codeunit 6154 "API Webhook Notification Send"
     end;
 
     [TryFunction]
+    [NonDebuggable]
     local procedure SendRequest(NotificationUrlNumber: Integer; NotificationUrl: Text; NotificationPayload: Text; var ResponseBody: Text; var ErrorMessage: Text; var ErrorDetails: Text; var HttpStatusCode: DotNet HttpStatusCode)
     var
+        APIWebhookSubscription: Record "API Webhook Subscription";
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
         ResponseHeaders: DotNet NameValueCollection;
         UTF8Encoding: DotNet UTF8Encoding;
@@ -1120,6 +1162,10 @@ codeunit 6154 "API Webhook Notification Send"
         HttpWebRequestMgt.SetMethod('POST');
         HttpWebRequestMgt.SetReturnType('application/json');
         HttpWebRequestMgt.SetContentType('application/json');
+
+        if SubscriptionsTypeNotificationUrlDictionary.Get(NotificationUrl) = APIWebhookSubscription."Subscription Type"::Dataverse then
+            AddTokenToRequestHeader(HttpWebRequestMgt);
+
         HttpWebRequestMgt.SetTimeout((GetSendingNotificationTimeout()));
         // false is to do not add byte order mark
         UTF8Encoding := UTF8Encoding.UTF8Encoding(false);
@@ -1138,6 +1184,18 @@ codeunit 6154 "API Webhook Notification Send"
             Session.LogMessage('0000FBB', StrSubstNo(PostFailedTxt, GetMaskedUrl(MaskedUrl), HttpStatusCodeText), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             Error(CannotGetResponseErr, NotificationUrlNumber);
         end;
+    end;
+
+    [NonDebuggable]
+    local procedure AddTokenToRequestHeader(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt.")
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        Token: Text;
+    begin
+        if CDSConnectionSetup.Get() then
+            CDSIntegrationImpl.GetBusinessEventAccessToken(CDSConnectionSetup."Server Address", true, Token);
+        HttpWebRequestMgt.AddHeader('Authorization', 'Bearer ' + Token);
     end;
 
     local procedure GetMaskedUrl(Url: Text): Text
@@ -1228,7 +1286,23 @@ codeunit 6154 "API Webhook Notification Send"
         JSONManagement.AddJPropertyToJObject(JSONObject, 'resource', ResourceUrl);
         JSONManagement.AddJPropertyToJObject(JSONObject, 'changeType', ChangeTypeToString(TempAPIWebhookNotificationAggr."Change Type"));
         JSONManagement.AddJPropertyToJObject(JSONObject, 'lastModifiedDateTime', LastModifiedDateTime);
+        if ((TempAPIWebhookSubscription."Subscription Type" = TempAPIWebhookSubscription."Subscription Type"::Dataverse) and
+            (TempAPIWebhookNotificationAggr."Change Type" <> TempAPIWebhookNotificationAggr."Change Type"::Collection)) then
+            JSONManagement.AddJPropertyToJObject(JSONObject, 'initiatingAadUserId', GetAadUserId(TempAPIWebhookNotificationAggr."Created By User SID"));
         exit(true);
+    end;
+
+    local procedure GetAadUserId(UserGuid: Guid): Text
+    var
+        UserProperty: Record "User Property";
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+        EmptyGuid: Guid;
+    begin
+        if UserProperty.Get(UserGuid) then
+            if (UserProperty."Authentication Object ID" <> '') then
+                exit(UserProperty."Authentication Object ID");
+
+        exit(GraphMgtGeneralTools.StripBrackets(EmptyGuid));
     end;
 
     local procedure ChangeTypeToString(ChangeType: Option Created,Updated,Deleted,Collection): Text
@@ -1267,6 +1341,9 @@ codeunit 6154 "API Webhook Notification Send"
         if ResourceUrl = '' then
             exit('');
 
+        if TempAPIWebhookSubscription."Subscription Type" = TempAPIWebhookSubscription."Subscription Type"::Dataverse then
+            AddCompanyIdToResource(TempAPIWebhookSubscription, ResourceUrl);
+
         EntityKeyFieldType := GetEntityKeyFieldTypeBySubscriptionId(TempAPIWebhookSubscription."Subscription Id");
         if EntityKeyFieldType = '' then
             exit('');
@@ -1288,6 +1365,9 @@ codeunit 6154 "API Webhook Notification Send"
         ResourceUrl := GetResourceUrlBySubscriptionId(TempAPIWebhookSubscription."Subscription Id");
         if ResourceUrl = '' then
             exit('');
+
+        if TempAPIWebhookSubscription."Subscription Type" = TempAPIWebhookSubscription."Subscription Type"::Dataverse then
+            AddCompanyIdToResource(TempAPIWebhookSubscription, ResourceUrl);
 
         FirstModifiedDateTime := GetFirstModifiedTimeBySubscriptionId(TempAPIWebhookNotificationAggr."Subscription ID");
         if FirstModifiedDateTime = 0DT then
@@ -1642,7 +1722,7 @@ codeunit 6154 "API Webhook Notification Send"
         exit(GraphMgtGeneralTools.IsApiSubscriptionEnabled());
     end;
 
-    local procedure GetMaxNumberOfNotifications(): Integer
+    procedure GetMaxNumberOfNotifications(): Integer
     var
         ServerSetting: Codeunit "Server Setting";
         Handled: Boolean;
@@ -1693,6 +1773,20 @@ codeunit 6154 "API Webhook Notification Send"
                 exit(6000000);
             else
                 exit(60000000);
+        end;
+    end;
+
+    local procedure AddCompanyIdToResource(TempAPIWebhookSubscription: Record "API Webhook Subscription" temporary; var ResourceUrl: Text)
+    var
+        Company: Record Company;
+        CompanyId: Text;
+        EntityUrlVersionIndex: Integer;
+    begin
+        if TempAPIWebhookSubscription."Subscription Type" = TempAPIWebhookSubscription."Subscription Type"::Dataverse then begin
+            Company.Get(CompanyName());
+            CompanyId := LowerCase(Format(Company.SystemId, 0, 4));
+            EntityUrlVersionIndex := ResourceUrl.IndexOf(TempAPIWebhookSubscription."Entity Version") + StrLen(TempAPIWebhookSubscription."Entity Version");
+            ResourceUrl := StrSubstNo(DataverseEntityUrlTemplateTxt, ResourceUrl.Substring(1, EntityUrlVersionIndex), CompanyId, ResourceUrl.Substring(EntityUrlVersionIndex + 1));
         end;
     end;
 

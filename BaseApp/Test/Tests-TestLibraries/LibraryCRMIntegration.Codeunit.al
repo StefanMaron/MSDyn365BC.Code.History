@@ -472,8 +472,8 @@ codeunit 139164 "Library - CRM Integration"
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Type := Contact.Type::Person;
-        Contact."First Name" := LibraryUtility.GenerateGUID;
-        Contact.Surname := LibraryUtility.GenerateGUID;
+        Contact."First Name" := LibraryUtility.GenerateGUID();
+        Contact.Surname := LibraryUtility.GenerateGUID();
         if not IntegrationRecord.FindByRecordId(Contact.RecordId) then begin
             ContactRecordRef.GetTable(Contact);
             IntegrationManagement.OnDatabaseInsert(ContactRecordRef);
@@ -486,8 +486,8 @@ codeunit 139164 "Library - CRM Integration"
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Type := Contact.Type::Person;
-        Contact."First Name" := LibraryUtility.GenerateGUID;
-        Contact.Surname := LibraryUtility.GenerateGUID;
+        Contact."First Name" := LibraryUtility.GenerateGUID();
+        Contact.Surname := LibraryUtility.GenerateGUID();
         Contact.Modify(true);
     end;
 
@@ -499,7 +499,7 @@ codeunit 139164 "Library - CRM Integration"
         ContBusRel.SetCurrentKey("Link to Table", "No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
         ContBusRel.SetRange("No.", Customer."No.");
-        if not ContBusRel.FindFirst then
+        if not ContBusRel.FindFirst() then
             Assert.Fail('Existing customers should have a contact business relationship');
 
         CreateContact(Contact);
@@ -517,7 +517,7 @@ codeunit 139164 "Library - CRM Integration"
         ContBusRel.SetCurrentKey("Link to Table", "No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
         ContBusRel.SetRange("No.", Customer."No.");
-        if not ContBusRel.FindFirst then
+        if not ContBusRel.FindFirst() then
             Assert.Fail('Existing customers should have a contact business relationship');
 
         CreateContactAndEnsureIntegrationRecord(Contact, IntegrationRecord);
@@ -619,7 +619,6 @@ codeunit 139164 "Library - CRM Integration"
             "Primary Key" := PrimaryKey;
             "Server Address" := CopyStr(HostName, 1, MaxStrLen("Server Address"));
             "Is Enabled" := IsEnabledVar;
-            "Is User Mapping Required" := false;
             "Authentication Type" := "Authentication Type"::Office365;
             Validate("User Name", 'UserName@asEmail.net'); // Empty username triggers username/password dialog
             Insert(true);
@@ -669,7 +668,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         EnsureCRMSystemUser;
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
-        CRMSystemuser.FindFirst;
+        CRMSystemuser.FindFirst();
 
         Clear(CRMProduct);
         CRMProduct.Init();
@@ -697,7 +696,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         EnsureCRMSystemUser;
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
-        CRMSystemuser.FindFirst;
+        CRMSystemuser.FindFirst();
 
         Clear(CRMPricelevel);
         CRMPricelevel.Init();
@@ -718,7 +717,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         EnsureCRMSystemUser;
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
-        CRMSystemuser.FindFirst;
+        CRMSystemuser.FindFirst();
 
         Clear(CRMProductpricelevel);
         CRMProductpricelevel.ProductPriceLevelId := CreateGuid;
@@ -740,7 +739,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         EnsureCRMSystemUser;
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
-        CRMSystemuser.FindFirst;
+        CRMSystemuser.FindFirst();
 
         Clear(CRMSalesorder);
         CRMSalesorder.Name := 'Test CRM Sales Order';
@@ -782,7 +781,7 @@ codeunit 139164 "Library - CRM Integration"
     procedure CreateCRMSalesOrderWithCustomerFCY(var CRMSalesorder: Record "CRM Salesorder"; AccountId: Guid; CurrencyId: Guid)
     begin
         CreateCRMSalesOrder(CRMSalesorder);
-        CRMSalesorder.OrderNumber := LibraryUtility.GenerateGUID;
+        CRMSalesorder.OrderNumber := LibraryUtility.GenerateGUID();
         CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
         CRMSalesorder.StatusCode := CRMSalesorder.StatusCode::InProgress;
         Clear(CRMSalesorder.LastBackofficeSubmit);
@@ -1000,7 +999,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         EnsureCRMSystemUser;
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
-        CRMSystemuser.FindFirst;
+        CRMSystemuser.FindFirst();
 
         Clear(CRMTransactioncurrency);
         CRMTransactioncurrency.Init();
@@ -1022,7 +1021,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         EnsureCRMSystemUser();
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
-        CRMSystemuser.FindFirst;
+        CRMSystemuser.FindFirst();
 
         Clear(CRMUomschedule);
         CRMUomschedule.Init();
@@ -1062,7 +1061,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         EnsureCRMSystemUser;
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
-        CRMSystemuser.FindFirst;
+        CRMSystemuser.FindFirst();
 
         if CRMUom.Name <> '' then
             CRMUomName := CRMUom.Name
@@ -1138,7 +1137,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         EnsureCRMSystemUser;
         CRMSystemuser.SetFilter(FirstName, '<>Integration');
-        CRMSystemuser.FindFirst;
+        CRMSystemuser.FindFirst();
 
         Clear(CRMQuote);
         CRMQuote.Name := 'Test CRM Quote';
@@ -1154,7 +1153,7 @@ codeunit 139164 "Library - CRM Integration"
     procedure CreateCRMQuoteWithCustomerFCY(var CRMQuote: Record "CRM Quote"; AccountId: Guid; CurrencyId: Guid)
     begin
         CreateCRMQuote(CRMQuote);
-        CRMQuote.QuoteNumber := LibraryUtility.GenerateGUID;
+        CRMQuote.QuoteNumber := LibraryUtility.GenerateGUID();
         CRMQuote.StateCode := CRMQuote.StateCode::Active;
         CRMQuote.StatusCode := CRMQuote.StatusCode::InProgress;
         CRMQuote.AccountId := AccountId;
@@ -1333,7 +1332,7 @@ codeunit 139164 "Library - CRM Integration"
         with IntegrationTableMapping do begin
             DeleteAll();
             Init;
-            Name := LibraryUtility.GenerateGUID;
+            Name := LibraryUtility.GenerateGUID();
             "Table ID" := DATABASE::Customer;
             "Integration Table ID" := DATABASE::"CRM Account";
             "Integration Table UID Fld. No." := CRMAccount.FieldNo(AccountId);
@@ -1412,7 +1411,7 @@ codeunit 139164 "Library - CRM Integration"
         end;
         CRMSystemuser.Reset();
         CRMSystemuser.SetFilter(SystemUserId, '<>%1', CRMSystemuser.SystemUserId);
-        if not CRMSystemuser.FindFirst then begin
+        if not CRMSystemuser.FindFirst() then begin
             Clear(CRMSystemuser);
             CreateCRMSystemUser(CRMSystemuser);
         end;
@@ -1442,7 +1441,7 @@ codeunit 139164 "Library - CRM Integration"
         end;
         CRMSystemuser.Reset();
         CRMSystemuser.SetFilter(SystemUserId, '<>%1', CRMSystemuser.SystemUserId);
-        if not CRMSystemuser.FindFirst then begin
+        if not CRMSystemuser.FindFirst() then begin
             Clear(CRMSystemuser);
             CreateCRMSystemUser(CRMSystemuser);
         end;
@@ -1491,7 +1490,7 @@ codeunit 139164 "Library - CRM Integration"
         GeneralLedgerSetup.Get();
         CRMTransactioncurrency.SetFilter(ISOCurrencyCode,
           CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(CRMTransactioncurrency.ISOCurrencyCode)));
-        if not CRMTransactioncurrency.FindFirst then
+        if not CRMTransactioncurrency.FindFirst() then
             AddCRMTransactionCurrency(CRMTransactioncurrency,
               CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(CRMTransactioncurrency.ISOCurrencyCode)));
         exit(CRMTransactioncurrency.TransactionCurrencyId);
@@ -1540,7 +1539,7 @@ codeunit 139164 "Library - CRM Integration"
             IntegrationSynchJob."Synch. Direction" := IntegrationSynchJob."Synch. Direction"::ToIntegrationTable;
             IntegrationTableMapping.SetRange("Table ID", TableID);
         end;
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
         IntegrationSynchJob."Integration Table Mapping Name" := IntegrationTableMapping.Name;
         IntegrationSynchJob."Start Date/Time" := CurrentDateTime - 5;
         IntegrationSynchJob."Finish Date/Time" := CurrentDateTime;
@@ -1816,7 +1815,7 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         IntegrationTableMapping.SetRange("Table ID", TableNo);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
         IntegrationTableMapping.SynchronizeNow(false);
         exit(IntegrationTableMapping.Name);
     end;
@@ -1912,7 +1911,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         JobQueueEntryID := JobQueueEntry.ID;
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
         if HandleError then begin
@@ -1962,7 +1961,7 @@ codeunit 139164 "Library - CRM Integration"
         Assert.IsFalse(IsNullGuid(JobQueueEntryID), 'JobQueueEntryID should not be Null');
         Assert.IsFalse(JobQueueEntry.Get(JobQueueEntryID), 'Job Queue Entry should be deleted');
         JobQueueLogEntry.SetRange(ID, JobQueueEntryID);
-        JobQueueLogEntry.FindLast;
+        JobQueueLogEntry.FindLast();
         IntegrationSynchJob.SetRange("Job Queue Log Entry No.", JobQueueLogEntry."Entry No.");
         IntegrationSynchJob.SetRange("Synch. Direction", IntegrationTableMapping.Direction);
         Assert.IsTrue(IntegrationSynchJob.FindLast, 'IntegrationSynchJob should be found');
@@ -1982,7 +1981,7 @@ codeunit 139164 "Library - CRM Integration"
         if ExpectedIntegrationSynchJob.Message = '' then
             Assert.RecordIsEmpty(IntegrationSynchJobErrors)
         else begin
-            IntegrationSynchJobErrors.FindFirst;
+            IntegrationSynchJobErrors.FindFirst();
             Assert.ExpectedMessage(ExpectedIntegrationSynchJob.Message, IntegrationSynchJobErrors.Message);
         end;
         exit(IntegrationSynchJob.ID);

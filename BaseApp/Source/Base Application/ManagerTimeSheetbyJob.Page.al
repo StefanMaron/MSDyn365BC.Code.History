@@ -330,6 +330,7 @@ page 954 "Manager Time Sheet by Job"
         EndingDate: Date;
         WorkTypeCodeAllowEdit: Boolean;
         ChargeableAllowEdit: Boolean;
+        InitialStartingDateBase: Date;
 
     procedure SetColumns()
     var
@@ -342,7 +343,7 @@ page 954 "Manager Time Sheet by Job"
 
         Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
         Calendar.SetRange("Period Start", StartingDate, EndingDate);
-        if Calendar.FindSet then
+        if Calendar.FindSet() then
             repeat
                 NoOfColumns += 1;
                 ColumnRecords[NoOfColumns]."Period Start" := Calendar."Period Start";
@@ -370,20 +371,16 @@ page 954 "Manager Time Sheet by Job"
         ChargeableAllowEdit := GetAllowEdit(FieldNo(Chargeable), true);
     end;
 
+    procedure SetInitialStartingDateBase(StartingDateBase: Date)
+    begin
+        InitialStartingDateBase := StartingDateBase;
+    end;
+
     local procedure FindPeriod(Which: Option Initial,Previous,Next)
     begin
-        ResourcesSetup.Get();
-        case Which of
-            Which::Initial:
-                if Date2DWY(WorkDate, 1) = ResourcesSetup."Time Sheet First Weekday" + 1 then
-                    StartingDate := WorkDate
-                else
-                    StartingDate := CalcDate(StrSubstNo('<WD%1-7D>', ResourcesSetup."Time Sheet First Weekday" + 1), WorkDate);
-            Which::Previous:
-                StartingDate := CalcDate('<-1W>', StartingDate);
-            Which::Next:
-                StartingDate := CalcDate('<1W>', StartingDate);
-        end;
+        if InitialStartingDateBase = 0D then
+            InitialStartingDateBase := Workdate();
+        StartingDate := CalcStartingDate(Which, InitialStartingDateBase);
         EndingDate := CalcDate('<1W>', StartingDate) - 1;
         FilterGroup(2);
         SetRange("Time Sheet Starting Date", StartingDate, EndingDate);
@@ -391,6 +388,34 @@ page 954 "Manager Time Sheet by Job"
         FilterGroup(0);
         SetColumns;
         CurrPage.Update(false);
+    end;
+
+    local procedure CalcStartingDate(Which: Option Initial,Previous,Next; InitialDate: Date) StartingDate: Date
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcStartingDate(Rec, Which, InitialDate, StartingDate, IsHandled);
+        if IsHandled then
+            exit(StartingDate);
+
+        case Which of
+            Which::Initial:
+                if Date2DWY(InitialDate, 1) = GetTimeSheetFirstWeekday() then
+                    StartingDate := InitialDate
+                else
+                    StartingDate := CalcDate(StrSubstNo('<WD%1-7D>', GetTimeSheetFirstWeekday()), InitialDate);
+            Which::Previous:
+                StartingDate := CalcDate('<-1W>', StartingDate);
+            Which::Next:
+                StartingDate := CalcDate('<1W>', StartingDate);
+        end;
+    end;
+
+    local procedure GetTimeSheetFirstWeekday(): Integer
+    begin
+        ResourcesSetup.Get();
+        exit(ResourcesSetup."Time Sheet First Weekday" + 1);
     end;
 
     local procedure Process("Action": Option "Approve Selected","Approve All","Reopen Selected","Reopen All","Reject Selected","Reject All")
@@ -411,7 +436,7 @@ page 954 "Manager Time Sheet by Job"
         end;
         OnProcessOnAfterTimeSheetLinesFiltered(TimeSheetLine, Action);
         TimeSheetMgt.CopyFilteredTimeSheetLinesToBuffer(TimeSheetLine, TempTimeSheetLine);
-        if TimeSheetLine.FindSet then
+        if TimeSheetLine.FindSet() then
             repeat
                 case Action of
                     Action::"Approve Selected",
@@ -512,6 +537,11 @@ page 954 "Manager Time Sheet by Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcess(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Approve Selected","Approve All","Reopen Selected","Reopen All","Reject Selected","Reject All")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcStartingDate(var TimeSheetLine: Record "Time Sheet Line"; Which: Option; InitialStartingDateBase: Date; var StartingDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

@@ -65,7 +65,7 @@ codeunit 130618 "Library - Graph Mgt"
         WebService.SetRange("Object Type", WebService."Object Type"::Page);
         WebService.SetRange("Object ID", PageNumber);
         WebService.SetRange("Service Name", ServiceNameTxt);
-        WebService.FindFirst;
+        WebService.FindFirst();
 
         WebService.Validate(Published, false);
         WebService.Modify(true);
@@ -405,7 +405,7 @@ codeunit 130618 "Library - Graph Mgt"
         ApiWebService.SetRange(Published, true);
         ApiWebService.SetRange("Object ID", ObjectNumber);
         ApiWebService.SetRange("Object Type", ApiWebServiceObjectType);
-        if ApiWebService.FindFirst then begin
+        if ApiWebService.FindFirst() then begin
             OdataUrl := GetUrl(CLIENTTYPE::Api, CompanyName, ObjType, ObjectNumber);
             exit(OdataUrl);
         end;
@@ -413,7 +413,7 @@ codeunit 130618 "Library - Graph Mgt"
         WebServiceAggregate.SetRange(Published, true);
         WebServiceAggregate.SetRange("Object ID", ObjectNumber);
         WebServiceAggregate.SetRange("Object Type", WebServiceAggregateObjectType);
-        WebServiceAggregate.FindFirst;
+        WebServiceAggregate.FindFirst();
         OdataUrl := WebServiceManagement.GetWebServiceUrl(WebServiceAggregate, WebServiceClientType::ODataV4);
         exit(OdataUrl);
     end;

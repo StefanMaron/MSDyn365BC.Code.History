@@ -57,7 +57,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
         ReminderTerms.Get(Customer."Reminder Terms Code");
         SalesInvoiceLine.SetRange("Sell-to Customer No.", Customer."No.");
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         CreateSalesCreditMemo(SalesHeader, Customer."No.", ReminderTerms."Minimum Amount (LCY)" - 1, SalesInvoiceLine.Quantity);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         ExecuteUIHandler;
@@ -104,7 +104,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
         // Check that Reminder lines Exist after Posting General Journal Line.
 
         // Setup: Create a new Customer without Currency.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, false);
 
         // Exercise: Create General Journal Lines for the Customer with an Amount greater than Reminder Terms Minimum Amount.
@@ -131,7 +131,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
         // Check that Reminder lines Exist after Posting Sales Invoice with earlier Due Date.
 
         // Setup: Create a new Customer without Currency.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, false);
 
         // Exercise: Create a Sales Invoice with Due Date earlier than Order Date and Post It. Take Unit Price greater than
@@ -198,11 +198,11 @@ codeunit 134375 "ERM Reminders With Min Amount"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reminders With Min Amount");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reminders With Min Amount");
@@ -215,7 +215,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
         ReminderHeaderNo: Code[20];
     begin
         // Setup: Create Customer, Reminder Terms and Reminder Levels.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, WithCurrency);
 
         // Exercise: Create Sales Invoice and Post It. Take Unit Price greater than Reminder Terms Minimum Amount.

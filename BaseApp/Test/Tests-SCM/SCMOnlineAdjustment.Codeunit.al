@@ -56,7 +56,7 @@ codeunit 137001 "SCM Online Adjustment"
         // 9. Validate value entries.
 
         // Setup: Steps 1-7.
-        Initialize;
+        Initialize();
 
         SetupParameters(InventorySetup."Automatic Cost Adjustment"::Week, InventorySetup."Average Cost Calc. Type"::Item);
 
@@ -138,7 +138,7 @@ codeunit 137001 "SCM Online Adjustment"
         // 9. Verify value entries.
 
         // Setup: Steps 1-7.
-        Initialize;
+        Initialize();
 
         SetupParameters(InventorySetup."Automatic Cost Adjustment"::Week,
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
@@ -154,7 +154,7 @@ codeunit 137001 "SCM Online Adjustment"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("No.", Item."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         PurchaseLine.Validate("Direct Unit Cost", 0);
         PurchaseLine.Modify(true);
@@ -234,7 +234,7 @@ codeunit 137001 "SCM Online Adjustment"
         // Verify that error exist after running the order planning and delete the item.
 
         // Setup: Create Item and Create Production BOM & Create sales order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateSingleLineBOM(ProductionBOMHeader, Item);
         CreateProdItem(ParentItem, ProductionBOMHeader."No.");
@@ -271,7 +271,7 @@ codeunit 137001 "SCM Online Adjustment"
         // [SCENARIO] Check Unit cost and Value entries for Item with Average costing method after purchase, production and Adjust Cost
 
         // [GIVEN] Demo data, "Automatic Cost Adjustment": Month, "Average Cost Calc. Type": Item.
-        Initialize;
+        Initialize();
 
         SetupParameters(InventorySetup."Automatic Cost Adjustment"::Month, InventorySetup."Average Cost Calc. Type"::Item);
 
@@ -356,7 +356,7 @@ codeunit 137001 "SCM Online Adjustment"
         // [SCENARIO] Check Unit cost and Value entries for FIFO Item after purchase, transfer and Adjust Cost
 
         // [GIVEN] Demo data and app parameters set-up. 2 simple locations, 1 in-transit location.
-        Initialize;
+        Initialize();
 
         SetupParameters(InventorySetup."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Calc. Type"::Item);
 
@@ -457,7 +457,7 @@ codeunit 137001 "SCM Online Adjustment"
         // 8. Validate item ledger entries for item.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupParameters(InventorySetup."Automatic Cost Adjustment"::Never, AvgCostCalcType);
 
         // Create locations.
@@ -480,7 +480,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         // Create and post transfer order from the last location, back and forth to all the other locations.
         TempLocation.SetFilter(Code, '<>%1', Location.Code);
-        if TempLocation.FindSet then
+        if TempLocation.FindSet() then
             repeat
                 LibraryWarehouse.CreateTransferHeader(TransferHeader, Location.Code, TempLocation.Code, Location1.Code);
                 LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", PurchaseLine.Quantity);
@@ -561,16 +561,16 @@ codeunit 137001 "SCM Online Adjustment"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Online Adjustment");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Online Adjustment");
     end;
 
-    local procedure SetupParameters(AutCostAdjustment: Option; CalcType: Enum "Average Cost Calculation Type")
+    local procedure SetupParameters(AutCostAdjustment: Enum "Automatic Cost Adjustment Type"; CalcType: Enum "Average Cost Calculation Type")
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
@@ -668,7 +668,7 @@ codeunit 137001 "SCM Online Adjustment"
         PurchaseHeader.Modify(true);
 
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        if PurchInvLine.FindSet then
+        if PurchInvLine.FindSet() then
             repeat
                 PurchaseLine.Init();
                 PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
@@ -750,7 +750,7 @@ codeunit 137001 "SCM Online Adjustment"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Modify(true);
     end;
@@ -764,7 +764,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         // Return Invoice.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         exit(PurchInvHeader."No.");
     end;
@@ -777,7 +777,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         // Return Credit Memo number.
         PurchCrMemoHdr.SetRange("Return Order No.", PurchaseHeader."No.");
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
 
         exit(PurchCrMemoHdr."No.");
     end;
@@ -829,7 +829,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalLine1."Journal Template Name");
         ItemJournalBatch.SetRange(Name, ItemJournalLine1."Journal Batch Name");
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
         ItemJournalBatch.Validate("No. Series", '');
         ItemJournalBatch.Modify(true);
 
@@ -841,7 +841,7 @@ codeunit 137001 "SCM Online Adjustment"
         ItemJournalLine1.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine1.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine1.SetRange("Item No.", Item."No.");
-        ItemJournalLine1.FindFirst;
+        ItemJournalLine1.FindFirst();
 
         // Revalue item cost.
         CalculatedValue := ItemJournalLine1."Unit Cost (Calculated)";
@@ -866,11 +866,11 @@ codeunit 137001 "SCM Online Adjustment"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         // Insert charge for selected purchase receipt and purchase order line.
         LibraryCosting.AssignItemChargePurch(PurchaseLine, PurchRcptLine);
@@ -905,7 +905,7 @@ codeunit 137001 "SCM Online Adjustment"
         SumQty := 0;
 
         // Calculate weighted average cost for item.
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 SumValue := SumValue + ValueEntry."Cost Amount (Actual)";
                 SumQty := SumQty + ValueEntry."Invoiced Quantity";
@@ -928,7 +928,7 @@ codeunit 137001 "SCM Online Adjustment"
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.SetRange("No.", ItemNo);
         Assert.IsFalse(PurchInvLine.IsEmpty, StrSubstNo(ErrorNoPurchLine, ItemNo));
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         // Filter purchase invoice - direct cost entries for item.
         ValueEntry.SetRange("Item No.", ItemNo);
@@ -937,7 +937,7 @@ codeunit 137001 "SCM Online Adjustment"
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
         ValueEntry.SetRange("Document No.", PurchaseInvoiceHeaderNo);
         Assert.IsFalse(ValueEntry.IsEmpty, StrSubstNo(ErrorNoEntryFound, ItemNo, 'Direct cost'));
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
 
         // Test value entry fields.
         ValueEntry.TestField("Cost Amount (Actual)", Round(PurchInvLine.Quantity *
@@ -960,7 +960,7 @@ codeunit 137001 "SCM Online Adjustment"
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
         Assert.IsFalse(ValueEntry.IsEmpty, StrSubstNo(ErrorNoEntryFound, ItemNo, 'Revaluation'));
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
 
         // Test value entry fields.
         Assert.AreEqual(
@@ -1104,7 +1104,7 @@ codeunit 137001 "SCM Online Adjustment"
         // Calculate expected cost.
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         // Cost of raw material as initially purchased.
         CalculatedTotalCost := PurchInvLine."Direct Unit Cost" * PurchInvLine.Quantity;
@@ -1112,11 +1112,11 @@ codeunit 137001 "SCM Online Adjustment"
         PurchInvLine.Reset();
         PurchInvLine.SetRange("Document No.", PurchInvHeader1."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         // Cost of item charge assigned to purchased item.
         // Cost of capacity.
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         CalculatedTotalCost := CalculatedTotalCost +
           PurchInvLine."Line Amount" +
           ItemJournalLine."Unit Cost" * ItemJournalLine."Run Time";
@@ -1135,13 +1135,13 @@ codeunit 137001 "SCM Online Adjustment"
         // Get item costs.
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         UnitCost := PurchInvLine."Unit Cost (LCY)";
 
         PurchInvLine.Reset();
         PurchInvLine.SetRange("Document No.", PurchInvHeader1."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         ChargeLineAmount := PurchInvLine."Line Amount";
 
         // Filter for value entry.
@@ -1150,7 +1150,7 @@ codeunit 137001 "SCM Online Adjustment"
         ValueEntry.SetRange("Document Type", DocumentType);
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
         ValueEntry.SetRange("Location Code", LocationCode);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(ValueEntry.Count, 2, StrSubstNo(ErrorNoEntryFound, ItemNo, Format(DocumentType)));
         Assert.AreNotEqual(TransferQty, 0, ErrorZeroQty);
 

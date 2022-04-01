@@ -3,6 +3,14 @@ table 5460 "Graph Business Setting"
     Caption = 'Graph Business Setting';
     ExternalName = 'BusinessSetting';
     TableType = MicrosoftGraph;
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
+    ObsoleteReason = 'This functionality is out of support';
 
     fields
     {

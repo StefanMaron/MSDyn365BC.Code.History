@@ -27,16 +27,16 @@ codeunit 134916 "ERM Discount On Credit Memo"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Discount On Credit Memo");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Discount On Credit Memo");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -65,7 +65,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // 1. Setup: Update Adjust for Payment Discount as True on General Ledger Setup and VAT Posting Setup, Create Payment Terms with
         // Discount, Create and Post Sales Invoice, Update General Posting Setup for Sales Discount Account, create and Post Sales Credit
         // Memo with Applies to doc. no.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         AdjustForPaymentDiscount := UpdateAdjustForPaymentDiscount(VATPostingSetup, true);
@@ -75,7 +75,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         UpdateGeneralPostingSetup(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", GLAccount."No.");
 
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesLine."Document No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         DocumentNo := SalesInvoiceHeader."No.";  // Assign Global Variable for Page Handler.
         CreateAndPostCreditMemo(SalesLine2, SalesLine, SalesInvoiceHeader."No.");
         Amount :=
@@ -106,7 +106,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Invoice on Credit Memo Equal to Invoice Amount.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
         // Using Zero where Invoice applied Fully to Credit Memo and 1 for Sign Factor.
@@ -123,7 +123,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Invoice on Credit Memo Less Than Invoice Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
@@ -142,7 +142,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Invoice on Credit Memo Greater Than Invoice Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
@@ -161,7 +161,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Invoice in foreign currency on
         // Credit Memo in another foreign currency.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
         // Using Zero where Invoice applied Fully to Credit Memo and 1 for Sign Factor.
@@ -178,7 +178,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Credit Memo Equal to Refund Amount.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Refund is applied to Credit Memo and 1 for Sign Factor.
@@ -195,7 +195,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Credit Memo Less Than Refund Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
@@ -214,7 +214,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Credit Memo Greater Than Refund Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
@@ -233,7 +233,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund in foreign currency on
         // Credit Memo in another foreign currency.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using -1 for Sign Factor.
@@ -250,7 +250,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Invoice Equal to Credit Memo Amount.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
         // Using Zero where Credit Memo applied Fully to Invoice and 1 for Sign Factor.
@@ -268,7 +268,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Invoice Less Than Credit
         // Memo Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
@@ -288,7 +288,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Invoice Greater Than Credit
         // Memo Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
@@ -307,7 +307,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on foreign currency on
         // Invoice on  in another foreign currency.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
         // Using Zero where Credit Memo applied Fully to Invoice and 1 for Sign Factor.
@@ -324,7 +324,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Payment Equal to Refund Amount.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Refund is applied to Payment and 1 for Sign Factor.
@@ -341,7 +341,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Payment Less Than Refund Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
@@ -360,7 +360,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Payment Greater Than Refund Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
@@ -379,7 +379,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund in foreign currency on
         // Payment in another foreign currency.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Refund is applied to Payment and 1 for Sign Factor.
@@ -397,7 +397,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund in foreign currency on
         // Payment Less Than Refund Amount and in another foreign currency.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Refund is applied to Payment and 1 for Sign Factor.
@@ -414,7 +414,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Refund Equal to Refund Amount.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Credit Memo is applied to Refund and 1 for Sign Factor.
@@ -431,7 +431,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Refund Less Than Refund Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
@@ -450,7 +450,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount: Decimal;
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Refund Greater Than Refund Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
@@ -469,7 +469,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo in foreign currency on
         // Refund in another foreign currency.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Credit Memo is applied to Refund and 1 for Sign Factor.
@@ -522,7 +522,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // Equal to Refund Amount.
 
         // Setup:  Update Sales And Receivable Setup.Create Payment Terms with Discount,Create Customer and attach Payment Term to it.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         FindAndUpdateSetup(SalesReceivablesSetup, VATPostingSetup);
         CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
@@ -665,7 +665,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         GenJournalLine.Validate("Applies-to Doc. Type", AppliestoDocType);
         GenJournalLine.Validate("Applies-to Doc. No.", CustLedgerEntry."Document No.");
         GenJournalLine.Validate("Posting Date", PostingDate);
@@ -710,7 +710,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));

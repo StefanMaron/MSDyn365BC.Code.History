@@ -2409,7 +2409,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(5), 0D, 0D);  // Dates based on WORKDATE.
         CreateDemandQuantity(DemandQuantityValue, LibraryRandom.RandDec(5, 2) + 210, 0, 0);
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);  // Number of Sales Order.
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
 
         // Exercise: Calculate Regenerative Plan.
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshName.Name);
@@ -2485,7 +2485,7 @@ codeunit 137054 "SCM Supply Planning"
               GlobalSalesHeader[1], GlobalSalesHeader[2], GetRandomDateUsingWorkDate(4), GetRandomDateUsingWorkDate(56));
 
         // Exercise: Calculate Regenerative Plan.
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshName.Name);
 
         // Verify: Verify planning worksheet.
@@ -2573,7 +2573,7 @@ codeunit 137054 "SCM Supply Planning"
 
         UpdatePostingDateAndPostMultipleSalesOrder(
           GlobalSalesHeader[1], GlobalSalesHeader[2], GetRandomDateUsingWorkDate(4), GetRandomDateUsingWorkDate(56));
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshName.Name);
         ChangePeriodForItem(Item, '<20D>', '<20D>');  // Rescheduling Period, Lot Accumulation Period.
 
@@ -2651,7 +2651,7 @@ codeunit 137054 "SCM Supply Planning"
 
         UpdatePostingDateAndPostMultipleSalesOrder(
           GlobalSalesHeader[1], GlobalSalesHeader[2], GetRandomDateUsingWorkDate(4), GetRandomDateUsingWorkDate(56));
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshName.Name);
         ChangePeriodForItem(Item, '<20D>', '<20D>');  // Rescheduling Period, Lot Accumulation Period.
         LibraryPurchase.PostPurchaseDocument(GlobalPurchaseHeader[1], true, false);
@@ -3879,7 +3879,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // Find the requisition line in Order Planning.
         FilterRequisitionLine(RequisitionLine, Item."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         SelectSalesLine(SalesLine, SalesHeader."No.");
 
         // Verify: Due Date of Requisition Line equals the Shipment Date of Sales demand.
@@ -4123,7 +4123,7 @@ codeunit 137054 "SCM Supply Planning"
         OrderPromisingSetup: Record "Order Promising Setup";
         ReqWkshTemplate: Record "Req. Wksh. Template";
         DefaultSafetyLeadTime: Integer;
-        OldReqTemplateType: Option;
+        OldReqTemplateType: Enum "Req. Worksheet Template Type";
     begin
         // [FEATURE] [Base Calendar] [Order Planning]
 
@@ -4561,7 +4561,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [THEN] Assembly Avalailability dialog appeared => Reservation entries modified
         Assert.RecordCount(NameValueBuffer, 3);
-        NameValueBuffer.FindFirst;
+        NameValueBuffer.FindFirst();
         VerifyNameValueBufferSequence(NameValueBuffer, AvailabilityTok);
     end;
 
@@ -5577,7 +5577,7 @@ codeunit 137054 "SCM Supply Planning"
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate + 30); // Dates based on WORKDATE. Planning Period - 1 Month, covers Sales shipments.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", DummyCount);
         AssemblyHeader.SetRange("Item No.", Item."No.");
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
     end;
 
     local procedure CreateLFLItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReschedulingPeriod: Text[30]; LotAccumulationPeriod: Text[30]; IncludeInventory: Boolean; SafetyStockQty: Decimal; DampenerQty: Decimal)
@@ -5789,7 +5789,7 @@ codeunit 137054 "SCM Supply Planning"
         RequisitionLine: Record "Requisition Line";
     begin
         FilterRequisitionLine(RequisitionLine, ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         exit(RequisitionLine."Ref. Order No.");
     end;
 
@@ -6144,7 +6144,7 @@ codeunit 137054 "SCM Supply Planning"
         RequisitionLine2: Record "Requisition Line";
     begin
         FilterRequisitionLine(RequisitionLine2, ItemNo);
-        RequisitionLine2.FindFirst;
+        RequisitionLine2.FindFirst();
         RequisitionLine2.Validate("Planning Flexibility", RequisitionLine2."Planning Flexibility"::None);
         RequisitionLine2.Modify(true);
     end;
@@ -6162,27 +6162,27 @@ codeunit 137054 "SCM Supply Planning"
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderLine.SetRange(Status, Status);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure SelectSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure SelectTransferLine(var TransferLine: Record "Transfer Line"; DocumentNo: Code[20])
     begin
         TransferLine.SetRange("Document No.", DocumentNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
     end;
 
     local procedure GetRandomDateUsingWorkDate(Day: Integer) NewDate: Date
@@ -6206,7 +6206,7 @@ codeunit 137054 "SCM Supply Planning"
               PurchaseHeader, Item."No.", LibraryRandom.RandInt(100), GetRandomDateUsingWorkDate(LibraryRandom.RandInt(15)));
         if AddItemInventory then
             UpdateItemInventory(Item."No.", LibraryRandom.RandInt(100));
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
     end;
 
     local procedure AcceptActionMessage(ItemNo: Code[20]; var PlanningLinesCountBeforeCarryOut: Integer)
@@ -6215,7 +6215,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         FilterRequisitionLine(RequisitionLine, ItemNo);
         PlanningLinesCountBeforeCarryOut := RequisitionLine.Count();
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         RequisitionLine.FindSet();
         repeat
             if RequisitionLine."Ref. Order Type" = RequisitionLine."Ref. Order Type"::Purchase then
@@ -6246,7 +6246,7 @@ codeunit 137054 "SCM Supply Planning"
         FilterRequisitionLine(RequisitionLine2, No);
         RequisitionLine2.SetRange("Action Message", ActionMessage);
         RequisitionLine2.SetRange("Due Date", DueDate);
-        RequisitionLine2.FindFirst;
+        RequisitionLine2.FindFirst();
     end;
 
     local procedure DeleteFirstRequisitionLine(LineNo: Integer)
@@ -6254,7 +6254,7 @@ codeunit 137054 "SCM Supply Planning"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Line No.", LineNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Delete(true);
     end;
 
@@ -6281,7 +6281,7 @@ codeunit 137054 "SCM Supply Planning"
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         FilterRequisitionLine(RequisitionLine, ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure UpdateVendorNoOnRequisitionLine(var RequisitionLine: Record "Requisition Line"; VendorNo: Code[20])
@@ -6338,7 +6338,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         AcceptActionMessage(ItemNo, PlanningLinesCountBeforeCarryOut);
         FilterRequisitionLine(RequisitionLine2, ItemNo);
-        RequisitionLine2.FindFirst;
+        RequisitionLine2.FindFirst();
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine2);
     end;
 
@@ -6548,13 +6548,13 @@ codeunit 137054 "SCM Supply Planning"
         Vendor.Modify(true);
     end;
 
-    local procedure CreateRequisitionWorksheetName(var RequisitionWkshName: Record "Requisition Wksh. Name"; ReqWkshTemplateType: Option)
+    local procedure CreateRequisitionWorksheetName(var RequisitionWkshName: Record "Requisition Wksh. Name"; ReqWkshTemplateType: Enum "Req. Worksheet Template Type")
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplateType);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
@@ -6796,7 +6796,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::"Firm Planned");
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure SetupDemandWithBaseCalendar(var Item: Record Item; var SalesHeader: Record "Sales Header"; ShipmentDate: Date; SafetyLeadTime: Integer)
@@ -6818,14 +6818,14 @@ codeunit 137054 "SCM Supply Planning"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindUntrackedPlanningElementLine(var UntrackedPlanningElement: Record "Untracked Planning Element"; No: Code[20]; Source: Text)
     begin
         UntrackedPlanningElement.SetRange("Item No.", No);
         UntrackedPlanningElement.SetRange(Source, Source);
-        UntrackedPlanningElement.FindFirst;
+        UntrackedPlanningElement.FindFirst();
     end;
 
     local procedure MakeSupplyOrdersActiveOrder(DemandOrderNo: Code[20])
@@ -6834,13 +6834,13 @@ codeunit 137054 "SCM Supply Planning"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         MakeSupplyOrders(
           RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
           ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
     end;
 
-    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Option)
+    local procedure MakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; MakeOrders: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
     var
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
@@ -6917,7 +6917,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);
     end;
 
-    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Option)
+    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
     begin
         if not ManufacturingUserTemplate.Get(UserId) then
             LibraryPlanning.CreateManufUserTemplate(
@@ -6944,7 +6944,7 @@ codeunit 137054 "SCM Supply Planning"
         EntryNo: Integer;
     begin
         with TempItemLedgerEntry do begin
-            if FindLast then
+            if FindLast() then
                 EntryNo := "Entry No." + 1
             else
                 EntryNo := 1;
@@ -7011,7 +7011,7 @@ codeunit 137054 "SCM Supply Planning"
     local procedure VerifyPlanningWorksheetQuantityAndLineCount(RequisitionLine: Record "Requisition Line"; ExpectedQuantity: Decimal)
     begin
         Assert.AreEqual(1, RequisitionLine.Count, LineCountErr);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, ExpectedQuantity);
     end;
 
@@ -7123,7 +7123,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         FilterRequisitionLine(RequisitionLine, No);
         RequisitionLine.SetRange("Line No.", LineNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, Quantity);
     end;
 
@@ -7146,7 +7146,7 @@ codeunit 137054 "SCM Supply Planning"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         Assert.AreEqual(ExpectedReceiptDate, ReservationEntry."Expected Receipt Date", ExpectedReceiptDateErr);
     end;
 
@@ -7158,19 +7158,19 @@ codeunit 137054 "SCM Supply Planning"
         ProjectedInventory: Decimal;
     begin
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        if ProdOrderLine.FindSet then
+        if ProdOrderLine.FindSet() then
             repeat
                 InsertTempItemLedgerEntry(TempItemLedgerEntry, ProdOrderLine.Quantity, ProdOrderLine."Due Date");
             until ProdOrderLine.Next = 0;
 
         SalesLine.SetRange("No.", ItemNo);
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 InsertTempItemLedgerEntry(TempItemLedgerEntry, -SalesLine.Quantity, SalesLine."Shipment Date");
             until SalesLine.Next = 0;
 
         TempItemLedgerEntry.SetCurrentKey("Item No.", "Posting Date");
-        if TempItemLedgerEntry.FindSet then
+        if TempItemLedgerEntry.FindSet() then
             repeat
                 ProjectedInventory += TempItemLedgerEntry.Quantity;
                 Assert.IsTrue(ProjectedInventory >= 0, ProjectedInventoryNegativeMsg);

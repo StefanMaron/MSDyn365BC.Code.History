@@ -1,7 +1,17 @@
 table 395 "XBRL Taxonomy Line"
 {
     Caption = 'XBRL Taxonomy Line';
+#if not CLEAN20
     LookupPageID = "XBRL Taxonomy Lines";
+#endif
+    ObsoleteReason = 'XBRL feature will be discontinued';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {
@@ -28,7 +38,7 @@ table 395 "XBRL Taxonomy Line"
         }
         field(5; Label; Text[250])
         {
-            CalcFormula = Lookup ("XBRL Taxonomy Label".Label WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
+            CalcFormula = Lookup("XBRL Taxonomy Label".Label WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                                                                     "XBRL Taxonomy Line No." = FIELD("Line No."),
                                                                     "XML Language Identifier" = FIELD("Label Language Filter")));
             Caption = 'Label';
@@ -60,7 +70,7 @@ table 395 "XBRL Taxonomy Line"
         }
         field(11; Information; Boolean)
         {
-            CalcFormula = Exist ("XBRL Comment Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
+            CalcFormula = Exist("XBRL Comment Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                                                            "XBRL Taxonomy Line No." = FIELD("Line No."),
                                                            "Comment Type" = CONST(Information)));
             Caption = 'Information';
@@ -69,7 +79,7 @@ table 395 "XBRL Taxonomy Line"
         }
         field(12; Rollup; Boolean)
         {
-            CalcFormula = Exist ("XBRL Rollup Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
+            CalcFormula = Exist("XBRL Rollup Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                                                           "XBRL Taxonomy Line No." = FIELD("Line No.")));
             Caption = 'Rollup';
             Editable = false;
@@ -77,7 +87,7 @@ table 395 "XBRL Taxonomy Line"
         }
         field(13; "G/L Map Lines"; Boolean)
         {
-            CalcFormula = Exist ("XBRL G/L Map Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
+            CalcFormula = Exist("XBRL G/L Map Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                                                            "XBRL Taxonomy Line No." = FIELD("Line No.")));
             Caption = 'G/L Map Lines';
             Editable = false;
@@ -85,7 +95,7 @@ table 395 "XBRL Taxonomy Line"
         }
         field(14; Notes; Boolean)
         {
-            CalcFormula = Exist ("XBRL Comment Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
+            CalcFormula = Exist("XBRL Comment Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                                                            "XBRL Taxonomy Line No." = FIELD("Line No."),
                                                            "Comment Type" = CONST(Notes)));
             Caption = 'Notes';
@@ -139,7 +149,7 @@ table 395 "XBRL Taxonomy Line"
         }
         field(23; Reference; Boolean)
         {
-            CalcFormula = Exist ("XBRL Comment Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
+            CalcFormula = Exist("XBRL Comment Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                                                            "XBRL Taxonomy Line No." = FIELD("Line No."),
                                                            "Comment Type" = CONST(Reference)));
             Caption = 'Reference';

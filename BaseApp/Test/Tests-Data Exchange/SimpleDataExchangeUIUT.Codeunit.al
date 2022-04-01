@@ -35,10 +35,10 @@ codeunit 134280 "Simple Data Exchange UI UT"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Simple Data Exchange UI UT");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         Initialized := true;
 
@@ -59,7 +59,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         Depth: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
         GetSuggestedFields(TempSuggestedField);
 
@@ -69,7 +69,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         // Verify
         Assert.IsTrue(DataExchFieldMappingBuf.IsEmpty, 'No permanent records should have been inserted');
         Assert.IsTrue(TempSuggestedField.Count > 0, 'Temp suggested fields must have a value');
-        TempDataExchFieldMappingBuf.FindFirst;
+        TempDataExchFieldMappingBuf.FindFirst();
 
         Depth := 0;
         VerifyDataExchangeDefLineField(TempDataExchFieldMappingBuf, DataExchLineDef, DataExchMapping, Depth);
@@ -94,7 +94,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         Depth: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
         CreateFieldMappings(DataExchMapping);
 
@@ -103,7 +103,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
 
         // Verify
         Assert.IsTrue(DataExchFieldMappingBuf.IsEmpty, 'No permanent records should have been inserted');
-        TempDataExchFieldMappingBuf.FindFirst;
+        TempDataExchFieldMappingBuf.FindFirst();
 
         Depth := 0;
         VerifyDataExchangeDefLineField(TempDataExchFieldMappingBuf, DataExchLineDef, DataExchMapping, Depth);
@@ -129,12 +129,12 @@ codeunit 134280 "Simple Data Exchange UI UT"
         Depth: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
         CreateFieldMappings(DataExchMapping);
         GetSuggestedFields(TempSuggestedField);
 
-        TempSuggestedField.FindFirst;
+        TempSuggestedField.FindFirst();
         DataExchFieldMapping.SetFilter("Field ID", '<>%1', TempSuggestedField."No.");
         DataExchFieldMapping.DeleteAll(true);
         TempSuggestedField.Delete();
@@ -145,7 +145,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
 
         // Verify
         Assert.IsTrue(DataExchFieldMappingBuf.IsEmpty, 'No permanent records should have been inserted');
-        TempDataExchFieldMappingBuf.FindFirst;
+        TempDataExchFieldMappingBuf.FindFirst();
 
         Depth := 0;
         VerifyDataExchangeDefLineField(TempDataExchFieldMappingBuf, DataExchLineDef, DataExchMapping, Depth);
@@ -171,7 +171,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         Depth: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
 
         // Execute
@@ -201,7 +201,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         Depth: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
         CreateFieldMappings(DataExchMapping);
         CreateChildLineDefinition(DataExchLineDef, ChildDataExchLineDef, ChildDataExchMapping);
@@ -212,7 +212,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
 
         // Verify Header
         Assert.IsTrue(DataExchFieldMappingBuf.IsEmpty, 'No permanent records should have been inserted');
-        TempDataExchFieldMappingBuf.FindFirst;
+        TempDataExchFieldMappingBuf.FindFirst();
         Assert.AreEqual(
           DataExchFieldMapping.Count, TempDataExchFieldMappingBuf.Count - 2,
           'Wrong number of TempSimpleDataExchangeSetup records found');
@@ -247,7 +247,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
 
         // Execute
@@ -275,14 +275,14 @@ codeunit 134280 "Simple Data Exchange UI UT"
         ExpectedText: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
         CreateSetupRecordManually(TempDataExchFieldMappingBuf, DataExchMapping);
 
         // Execute
         ExpectedText := LibraryUtility.GenerateRandomText(MaxStrLen(TempDataExchFieldMappingBuf."Default Value"));
         TempDataExchFieldMappingBuf.SetRange(Type, TempDataExchFieldMappingBuf.Type::Field);
-        TempDataExchFieldMappingBuf.FindFirst;
+        TempDataExchFieldMappingBuf.FindFirst();
         TempDataExchFieldMappingBuf.Validate(
           "Default Value", CopyStr(ExpectedText, 1, MaxStrLen(TempDataExchFieldMappingBuf."Default Value")));
         TempDataExchFieldMappingBuf.Modify(true);
@@ -294,7 +294,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         Assert.AreEqual(1, DataExchColumnDef.Count, 'Data Exchange Column Def should have been created');
 
         DataExchFieldMapping.SetRange("Field ID", TempDataExchFieldMappingBuf."Field ID");
-        DataExchFieldMapping.FindFirst;
+        DataExchFieldMapping.FindFirst();
 
         Assert.AreEqual(ExpectedText, DataExchFieldMapping."Default Value", 'Expected value was not set');
     end;
@@ -312,7 +312,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
         CreateSetupRecordManually(TempDataExchFieldMappingBuf, DataExchMapping);
 
@@ -340,7 +340,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         ExpectedText: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
         CreateSetupRecordManually(TempDataExchFieldMappingBuf, DataExchMapping);
         ExpectedText := RelationalExchRateAmountXMLElementTxt;
@@ -355,7 +355,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         Assert.AreEqual(1, DataExchFieldMapping.Count, 'Data Exchange Field Mapping should have been deleted');
         Assert.AreEqual(1, DataExchColumnDef.Count, 'Data Exchange Column Def should have been deleted');
 
-        DataExchColumnDef.FindFirst;
+        DataExchColumnDef.FindFirst();
         Assert.AreEqual(ExpectedText, DataExchColumnDef.Path, 'Path should be updated');
     end;
 
@@ -374,11 +374,11 @@ codeunit 134280 "Simple Data Exchange UI UT"
         ExpectedText: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateDataExchangeDefinition(DataExchDef, DataExchLineDef, DataExchMapping);
         DataExchFieldMappingBuf.InsertFromDataExchDefinition(TempDataExchFieldMappingBuf, DataExchDef, TempSuggestedField);
         TempDataExchFieldMappingBuf.SetRange(Type, TempDataExchFieldMappingBuf.Type::Table);
-        TempDataExchFieldMappingBuf.FindFirst;
+        TempDataExchFieldMappingBuf.FindFirst();
         ExpectedText := NewDefinitionLineSourceTxt;
         Assert.AreNotEqual(TempDataExchFieldMappingBuf.Source, ExpectedText, 'Setup data is wrong');
 
@@ -387,12 +387,12 @@ codeunit 134280 "Simple Data Exchange UI UT"
 
         // Verify
         Assert.IsTrue(DataExchFieldMappingBuf.IsEmpty, 'No permanent records should have been inserted');
-        TempDataExchFieldMappingBuf.FindFirst;
+        TempDataExchFieldMappingBuf.FindFirst();
 
         Assert.AreEqual(0, DataExchFieldMapping.Count, 'Data Exchange Field Mapping should not be created');
         Assert.AreEqual(0, DataExchColumnDef.Count, 'Data Exchange Column Def should not be created');
 
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         Assert.AreEqual(ExpectedText, DataExchLineDef."Data Line Tag", 'Path should be updated');
     end;
 
@@ -460,7 +460,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
     begin
         DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
-        if DataExchColumnDef.FindLast then
+        if DataExchColumnDef.FindLast() then
             LastColumnNoUsed := DataExchColumnDef."Column No.";
 
         DataExchColumnDef."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
@@ -559,7 +559,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         repeat
             TempDataExchFieldMappingBuf.SetRange("Field ID", TempSuggestedField."No.");
             Assert.AreEqual(1, TempDataExchFieldMappingBuf.Count, 'There should only be one suggestion field record present');
-            TempDataExchFieldMappingBuf.FindFirst;
+            TempDataExchFieldMappingBuf.FindFirst();
             Assert.AreEqual(TempDataExchFieldMappingBuf.Type::Field, TempDataExchFieldMappingBuf.Type, 'Wrong value for Type Field');
             Assert.AreEqual(
               TempDataExchFieldMappingBuf."Data Exchange Def Code", DataExchLineDef."Data Exch. Def Code",
@@ -602,7 +602,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
             TempDataExchFieldMappingBuf.SetRange("Field ID", DataExchFieldMapping."Field ID");
             TempDataExchFieldMappingBuf.SetRange("Table ID", DataExchFieldMapping."Table ID");
             Assert.AreEqual(1, TempDataExchFieldMappingBuf.Count, 'There should only be one suggestion field record present');
-            TempDataExchFieldMappingBuf.FindFirst;
+            TempDataExchFieldMappingBuf.FindFirst();
             Assert.AreEqual(TempDataExchFieldMappingBuf.Type::Field, TempDataExchFieldMappingBuf.Type, 'Wrong value for Type Field');
             Assert.AreEqual(
               TempDataExchFieldMappingBuf."Data Exchange Def Code", DataExchFieldMapping."Data Exch. Def Code",

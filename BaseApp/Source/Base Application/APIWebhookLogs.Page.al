@@ -60,16 +60,17 @@ page 5461 "API Webhook Logs"
     trigger OnAfterGetCurrRecord()
     var
         ContentInStream: InStream;
+        TextLine: Text;
     begin
         if not "Detailed Info".HasValue then
             Details := "Activity Message"
         else begin
-            "Detailed Info".CreateInStream(ContentInStream, TEXTENCODING::UTF8);
-            if ContentInStream.EOS then begin
-                CalcFields("Detailed Info");
-                "Detailed Info".CreateInStream(ContentInStream, TEXTENCODING::UTF8);
+            Details := '';
+            "Detailed Info".CreateInStream(ContentInStream);
+            while not ContentInStream.EOS() do begin
+                ContentInStream.ReadText(TextLine);
+                Details += TextLine;
             end;
-            ContentInStream.Read(Details);
         end
     end;
 

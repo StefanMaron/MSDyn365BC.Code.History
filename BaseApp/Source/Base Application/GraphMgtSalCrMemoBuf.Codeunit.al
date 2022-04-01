@@ -121,14 +121,14 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesLine.SetRange("Document Type", Rec."Document Type");
         SalesLine.SetRange("Recalculate Invoice Disc.", true);
 
-        if SalesLine.FindFirst then begin
+        if SalesLine.FindFirst() then begin
             ModifyTotalsSalesLine(SalesLine);
             exit;
         end;
 
         SalesLine.SetRange("Recalculate Invoice Disc.");
 
-        if not SalesLine.FindFirst then
+        if not SalesLine.FindFirst() then
             BlankTotals(Rec."Document No.", false);
     end;
 
@@ -423,12 +423,12 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-        if SalesHeader.FindSet then
+        if SalesHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
             until SalesHeader.Next() = 0;
 
-        if SalesCrMemoHeader.FindSet then
+        if SalesCrMemoHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesCreditMemoHeader(SalesCrMemoHeader);
             until SalesCrMemoHeader.Next() = 0;
@@ -610,7 +610,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
 
-        if not SalesLine.FindFirst then begin
+        if not SalesLine.FindFirst() then begin
             BlankTotals(SalesLine."Document No.", false);
             exit;
         end;
@@ -624,7 +624,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     begin
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
 
-        if not SalesCrMemoLine.FindFirst then begin
+        if not SalesCrMemoLine.FindFirst() then begin
             BlankTotals(SalesCrMemoLine."Document No.", true);
             exit;
         end;
@@ -758,11 +758,10 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        IntegrationManagement: Codeunit "Integration Management";
         IsRenameAllowed: Boolean;
     begin
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        if not SalesCrMemoHeader.FindFirst then
+        if not SalesCrMemoHeader.FindFirst() then
             exit;
 
         if SalesCrMemoHeader."Draft Cr. Memo SystemId" = SalesHeader.SystemId then
@@ -792,7 +791,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesCrMemoEntityBuffer."No.");
         SalesLine.SetRange("Recalculate Invoice Disc.", true);
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
 
         SalesCrMemoEntityBuffer.Get(SalesCrMemoEntityBuffer."No.", SalesCrMemoEntityBuffer.Posted);
@@ -806,7 +805,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             Error(DocumentIDNotSpecifiedErr);
 
         SalesCrMemoEntityBuffer.SetFilter(Id, DocumentIdFilter);
-        if not SalesCrMemoEntityBuffer.FindFirst then
+        if not SalesCrMemoEntityBuffer.FindFirst() then
             exit;
 
         if SalesCrMemoEntityBuffer.Posted then
@@ -882,7 +881,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         if SalesInvoiceLineAggregate."Line No." = 0 then begin
             LastUsedSalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
             LastUsedSalesLine.SetRange("Document No.", SalesCrMemoEntityBuffer."No.");
-            if LastUsedSalesLine.FindLast then
+            if LastUsedSalesLine.FindLast() then
                 SalesInvoiceLineAggregate."Line No." := LastUsedSalesLine."Line No." + 10000
             else
                 SalesInvoiceLineAggregate."Line No." := 10000;
@@ -944,7 +943,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             if DocumentIDFilter = '' then
                 Error(DocumentIDNotSpecifiedErr);
             SalesCrMemoEntityBuffer.SetFilter(Id, DocumentIDFilter);
-            if not SalesCrMemoEntityBuffer.FindFirst then
+            if not SalesCrMemoEntityBuffer.FindFirst() then
                 Error(DocumentDoesNotExistErr);
         end else begin
             SalesCrMemoEntityBuffer.SetRange(Id, SalesInvoiceLineAggregate."Document Id");
@@ -974,7 +973,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SearchSalesLine.SetRange("Location Code", SalesLine."Location Code");
         SearchSalesLine.SetRange("Completely Shipped", false);
 
-        CompletelyShipped := not SearchSalesLine.FindFirst;
+        CompletelyShipped := not SearchSalesLine.FindFirst();
 
         if not SalesCrMemoEntityBuffer.Get(SalesLine."Document No.") then
             exit;

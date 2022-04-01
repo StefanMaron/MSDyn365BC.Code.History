@@ -61,7 +61,7 @@ codeunit 136112 "Working On Service Orders"
 
         // 3. Verify: Verify that the No Comments Exist on Posted Service Shipment and Posted Service Invoice.
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Shipment Header");
         ServiceCommentLine.SetRange("No.", ServiceShipmentHeader."No.");
         Assert.IsFalse(
@@ -69,7 +69,7 @@ codeunit 136112 "Working On Service Orders"
             ServiceShipmentHeader.TableCaption, ServiceShipmentHeader."No."));
 
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Invoice Header");
         ServiceCommentLine.SetRange("No.", ServiceInvoiceHeader."No.");
         Assert.IsFalse(
@@ -135,7 +135,7 @@ codeunit 136112 "Working On Service Orders"
         // 2. Verify: Verify that "Service Item No." on Service Line is Service Item No. on Service Item Line.
         ServiceLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField("Service Item No.", ServiceItemLine."Service Item No.");
 
         // 3. Teardown: Rollback "Link Service to Service Item" field as True on Service Management Setup.
@@ -164,7 +164,7 @@ codeunit 136112 "Working On Service Orders"
         // 2. Verify: Verify that "Service Item No." is blank on Service Line.
         ServiceLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField("Service Item No.", '');
 
         // 3. Teardown: Rollback "Link Service to Service Item" field as True on Service Management Setup.
@@ -185,7 +185,7 @@ codeunit 136112 "Working On Service Orders"
         // Test error occurs on entering second Service Item Line with "One Service Item Line/Order" field True on Service Management Setup.
 
         // 1. Setup: Set "One Service Item Line/Order" field True on Service Management Setup.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         DefaultSetupValue := ServiceMgtSetup."One Service Item Line/Order";
         ServiceMgtSetup.Validate("One Service Item Line/Order", true);
@@ -216,7 +216,7 @@ codeunit 136112 "Working On Service Orders"
         // Test second Service Item Line Successfully Created with "One Service Item Line/Order" field False on Service Management Setup.
 
         // 1. Setup: Set "One Service Item Line/Order" field False on Service Management Setup.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         DefaultSetupValue := ServiceMgtSetup."One Service Item Line/Order";
         ServiceMgtSetup.Validate("One Service Item Line/Order", false);
@@ -252,7 +252,7 @@ codeunit 136112 "Working On Service Orders"
         // field True on Service Management Setup.
 
         // 1. Setup: Create Service Order with One Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithOneLine(ServiceHeader, ServiceItemLine);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
         UpdateQuantityOnServiceLine(ServiceLine, ServiceItemLine."Line No.");
@@ -327,7 +327,7 @@ codeunit 136112 "Working On Service Orders"
         // 3. Verify: Verify that the Service Email Queue Entry Created.
         ServiceEmailQueue.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceEmailQueue.SetRange("Document No.", ServiceHeader."No.");
-        ServiceEmailQueue.FindFirst;
+        ServiceEmailQueue.FindFirst();
     end;
 
     [Test]
@@ -495,7 +495,7 @@ codeunit 136112 "Working On Service Orders"
         // 3. Verify: Verify that Service Order shows Error "Status Cannot be Change" on changing the Status on Service Header to Finished.
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         asserterror UpdateStatusOnServiceHeader(ServiceHeader, ServiceHeader.Status::Finished);
         Assert.AreEqual(
           StrSubstNo(StatusChangeError, ServiceHeader.FieldCaption(Status), ServiceHeader.TableCaption, ServiceHeader."No.",
@@ -524,7 +524,7 @@ codeunit 136112 "Working On Service Orders"
         CreateRepairStatusQuote(RepairStatus);
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         asserterror ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
         Assert.AreEqual(StrSubstNo(QuoteStatusError, RepairStatus.Code), GetLastErrorText, UnknownError);
     end;
@@ -590,7 +590,7 @@ codeunit 136112 "Working On Service Orders"
         ServOrderManagement: Codeunit ServOrderManagement;
     begin
         // 1. Setup: Create Service Cost with Cost Type, Create a new Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         Customer.Get(CreateCustomer);
         LibraryService.CreateServiceZone(ServiceZone);
         Customer.Validate("Service Zone Code", ServiceZone.Code);
@@ -634,7 +634,7 @@ codeunit 136112 "Working On Service Orders"
         // Test error occurs on running Split Resource Line with Type Item, Cost and G/L Account.
 
         // 1. Setup: Create Service Order with Service Item Line with Description.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
@@ -671,7 +671,7 @@ codeunit 136112 "Working On Service Orders"
         // Test Split Resource Line on Service Line with Type Resource.
 
         // 1. Setup: Create Service Order with Two Service Item Line, Create Service Line with Type Resource.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
@@ -701,7 +701,7 @@ codeunit 136112 "Working On Service Orders"
         // Test error occurs on running Split Resource Line after Posting Service Order as Ship.
 
         // 1. Setup: Create Service Order with Two Service Item Line, Create Service Line with Type Resource.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
@@ -716,7 +716,7 @@ codeunit 136112 "Working On Service Orders"
         // 3. Verify: Verify that the Service Line Shows error "Quantity Shipped must be Zero" on Split Service Line.
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         asserterror ServiceLine.SplitResourceLine;
         Assert.AreEqual(
           StrSubstNo(ShippedQuantityErrorService, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
@@ -739,7 +739,7 @@ codeunit 136112 "Working On Service Orders"
         // Test error occurs on updation Unit Price on Service Line greater than "Max. Labor Unit Price" on Service Header.
 
         // 1. Setup: Create Service Order with Two Service Item Line, Create Service Line with Type Resource.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryResource.FindResource(Resource);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
@@ -759,7 +759,7 @@ codeunit 136112 "Working On Service Orders"
 
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         asserterror ServiceLine.Validate("Unit Price", ServiceHeader."Max. Labor Unit Price" + LibraryRandom.RandInt(10));
         Assert.AreEqual(
           StrSubstNo(
@@ -784,7 +784,7 @@ codeunit 136112 "Working On Service Orders"
         // Item True.
 
         // 1. Setup: Select Service Item Having Service Item Group Code with Create New Service Item True, Create Service Order.
-        Initialize;
+        Initialize();
         SelectServiceItem(ServiceItem);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -802,7 +802,7 @@ codeunit 136112 "Working On Service Orders"
         ServiceItem2.SetRange("Item No.", ServiceItem."Item No.");
         ServiceItem2.SetRange("Customer No.", ServiceItem."Customer No.");
         ServiceItem2.SetRange(Status, ServiceItem2.Status::"Temporarily Installed");
-        ServiceItem2.FindFirst;
+        ServiceItem2.FindFirst();
     end;
 
     [Test]
@@ -824,12 +824,12 @@ codeunit 136112 "Working On Service Orders"
         // 2. Verify: Verify that the First Service Item Component Replaced and Replaced Component with Active False.
         ServiceItemComponent.SetRange("Parent Service Item No.", ServiceItemNoForReplacement);
         ServiceItemComponent.SetRange(Active, true);
-        ServiceItemComponent.FindFirst;
+        ServiceItemComponent.FindFirst();
         ServiceItemComponent.TestField(Type, ServiceItemComponent.Type::Item);
         ServiceItemComponent.TestField("No.", ServiceItemLine."Item No.");
 
         ServiceItemComponent.SetRange(Active, false);
-        ServiceItemComponent.FindFirst;
+        ServiceItemComponent.FindFirst();
         ServiceItemComponent.TestField(Type, ServiceItemComponent.Type::"Service Item");
         ServiceItemComponent.TestField("No.", ServiceItemLine."Service Item No.");
         ServiceItemComponent.TestField("Service Order No.", ServiceItemLine."Document No.");
@@ -873,7 +873,7 @@ codeunit 136112 "Working On Service Orders"
         // Test Repair Status Code on Service Item Line Successfully changed to Quote on Service Quote.
 
         // 1. Setup: Create Service Header with Document Type Quote.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, ServiceItem."Customer No.");
 
@@ -971,7 +971,7 @@ codeunit 136112 "Working On Service Orders"
         // Test the functionality of Batch Post Service Orders and verify that no Service Order exist for Status In Process and posted date.
 
         // 1. Setup: Create multiple Service Orders.
-        Initialize;
+        Initialize();
         SalesAndReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         No := CreateServiceOrderWithPage;
@@ -1004,7 +1004,7 @@ codeunit 136112 "Working On Service Orders"
         // Test the functionality of Batch Post Service Orders and verify that Posted Service Invoices exist for the Posting Date.
 
         // 1. Setup: Create multiple Service Orders.
-        Initialize;
+        Initialize();
         SalesAndReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         No := CreateServiceOrderWithPage;
@@ -1037,11 +1037,11 @@ codeunit 136112 "Working On Service Orders"
     begin
         // [FEATURE] [UT] [UI] [Batch Post]
         // [SCENARIO 287474] Service Orders and Service Order pages filters are inherited into the "Batch Post Service Orders" report.
-        Initialize;
+        Initialize();
 
         for Index := 1 to ArrayLen(ServiceHeader) do begin
             ServiceHeader[Index].Init();
-            ServiceHeader[Index]."No." := LibraryUtility.GenerateGUID;
+            ServiceHeader[Index]."No." := LibraryUtility.GenerateGUID();
             ServiceHeader[Index].Status := ServiceHeader[Index].Status::Finished;
             ServiceHeader[Index].Insert();
         end;
@@ -1077,14 +1077,14 @@ codeunit 136112 "Working On Service Orders"
     begin
         // [FEATURE] [UT] [Service] [Comments]
         // [SCENARIO 257848] UT ServOrderManagement.CopyCommentLines for Service Credit Memo when there is Service Quote with the same Document No. and both do have comments.
-        Initialize;
+        Initialize();
 
         CreateTwoServiceCommentLinesForDocs(
           ServiceHeader."Document Type"::Quote,
           ServiceHeader."Document Type"::"Credit Memo",
           DocumentNo, CommentTxt);
 
-        NewDocumentNo := LibraryUtility.GenerateGUID;
+        NewDocumentNo := LibraryUtility.GenerateGUID();
         NewTableNameOption := ServiceCommentLine."Table Name"::"Service Cr.Memo Header";
 
         ServOrderManagement.CopyCommentLines(
@@ -1108,14 +1108,14 @@ codeunit 136112 "Working On Service Orders"
     begin
         // [FEATURE] [UT] [Service] [Comments]
         // [SCENARIO 257848] UT ServOrderManagement.CopyCommentLines for Service Order when there is Service Credit Memo with the same Document No. and both do have comments.
-        Initialize;
+        Initialize();
 
         CreateTwoServiceCommentLinesForDocs(
           ServiceHeader."Document Type"::"Credit Memo",
           ServiceHeader."Document Type"::Order,
           DocumentNo, CommentTxt);
 
-        NewDocumentNo := LibraryUtility.GenerateGUID;
+        NewDocumentNo := LibraryUtility.GenerateGUID();
         NewTableNameOption := ServiceCommentLine."Table Name"::"Service Shipment Header";
 
         ServOrderManagement.CopyCommentLines(
@@ -1139,14 +1139,14 @@ codeunit 136112 "Working On Service Orders"
     begin
         // [FEATURE] [UT] [Service] [Comments]
         // [SCENARIO 257848] UT ServOrderManagement.CopyCommentLinesWithSubType for Service Invoice when there is Service Order with the same Document No. and both do have comments.
-        Initialize;
+        Initialize();
 
         CreateTwoServiceCommentLinesForDocs(
           ServiceHeader."Document Type"::Invoice,
           ServiceHeader."Document Type"::Order,
           DocumentNo, CommentTxt);
 
-        NewDocumentNo := LibraryUtility.GenerateGUID;
+        NewDocumentNo := LibraryUtility.GenerateGUID();
         NewTableNameOption := ServiceCommentLine."Table Name"::"Service Invoice Header";
 
         ServOrderManagement.CopyCommentLinesWithSubType(
@@ -1171,14 +1171,14 @@ codeunit 136112 "Working On Service Orders"
     begin
         // [FEATURE] [UT] [Service] [Comments]
         // [SCENARIO 257848] UT ServOrderManagement.CopyCommentLinesWithSubType for Service Order when there is Service Invoice with the same Document No. and both do have comments.
-        Initialize;
+        Initialize();
 
         CreateTwoServiceCommentLinesForDocs(
           ServiceHeader."Document Type"::Order,
           ServiceHeader."Document Type"::Invoice,
           DocumentNo, CommentTxt);
 
-        NewDocumentNo := LibraryUtility.GenerateGUID;
+        NewDocumentNo := LibraryUtility.GenerateGUID();
         NewTableNameOption := ServiceCommentLine."Table Name"::"Service Invoice Header";
 
         ServOrderManagement.CopyCommentLinesWithSubType(
@@ -1199,9 +1199,9 @@ codeunit 136112 "Working On Service Orders"
         CommentText: Text[80];
     begin
         // [SCENARIO 257848] Service Comment Lines updated only for posted Service Header document.
-        Initialize;
+        Initialize();
 
-        CommentText := LibraryUtility.GenerateGUID;
+        CommentText := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "SCM" Service Credit Memo with a line and comment "SCM-TXT".
         CreateServiceCreditMemoWithComment(ServiceHeader, CommentText);
@@ -1216,7 +1216,7 @@ codeunit 136112 "Working On Service Orders"
           StrSubstNo(ExistErr, ServiceHeader.TableCaption, ServiceHeader."No."));
 
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
 
         // [THEN] "SCM-TXT" is updated to relate to "Service Cr.Memo Header" table.
         VerifyServiceCommentLineExists(
@@ -1263,13 +1263,13 @@ codeunit 136112 "Working On Service Orders"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Working On Service Orders");
 
         // Create Demonstration Database
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
-        LibraryERMCountryData.CreateVATData;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInServiceCosts;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         BindSubscription(LibraryJobQueue);
@@ -1283,7 +1283,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         // 1. Setup: Create Service Order, Create Service Item from Service Order, Create Service Item Components,
         // Create Service Line with "Item No." on Second Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         CreateServiceItemLineWithItem(ServiceHeader);
         CreateServiceItemFromOrder(ServiceHeader);
@@ -1306,7 +1306,7 @@ codeunit 136112 "Working On Service Orders"
 
     local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; var ServiceMgtSetup: Record "Service Mgt. Setup"; Modified: Boolean) SetupModified: Boolean
     begin
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         SetupModified := ModifyServiceSetupCopyComment(ServiceMgtSetup, Modified);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
@@ -1329,7 +1329,7 @@ codeunit 136112 "Working On Service Orders"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
         Customer.Modify(true);
@@ -1366,7 +1366,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         // Create Service Order, Create Fault Code and Resolution Code, Update Fault Area Code, Fault Code, Symptom Code
         // and Resolution Code on Service Item Line, Post Service Order as Ship and Invoice.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.FindServiceCost(ServiceCost);
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
@@ -1375,7 +1375,7 @@ codeunit 136112 "Working On Service Orders"
         UpdateRepairStatusInitial(ServiceItemLine);
 
         CreateFaultCode(FaultCode);
-        if not ResolutionCode.FindFirst then
+        if not ResolutionCode.FindFirst() then
             LibraryService.CreateResolutionCode(ResolutionCode);
         UpdateFaultResolution(ServiceItemLine, FaultCode, ResolutionCode.Code);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
@@ -1390,7 +1390,7 @@ codeunit 136112 "Working On Service Orders"
         Item: Record Item;
         ServiceItem: Record "Service Item";
     begin
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -1415,7 +1415,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         // 1. Setup: Set "Link Service to Service Item" field as False on Service Management Setup, Create Standard Service Code, Create
         // Standard Service Line for Create Standard Service Code, Create Service Order - Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         Customer.Get(CreateCustomer);
         SetupModified := ModifySetupLinkServiceItem(ServiceMgtSetup, Modified);
@@ -1459,22 +1459,22 @@ codeunit 136112 "Working On Service Orders"
         FaultArea: Record "Fault Area";
         SymptomCode: Record "Symptom Code";
     begin
-        if not FaultArea.FindFirst then
+        if not FaultArea.FindFirst() then
             LibraryService.CreateFaultArea(FaultArea);
 
-        if not SymptomCode.FindFirst then
+        if not SymptomCode.FindFirst() then
             LibraryService.CreateSymptomCode(SymptomCode);
 
         FaultCode.SetRange("Fault Area Code", FaultArea.Code);
         FaultCode.SetRange("Symptom Code", SymptomCode.Code);
-        if not FaultCode.FindFirst then
+        if not FaultCode.FindFirst() then
             LibraryService.CreateFaultCode(FaultCode, FaultArea.Code, SymptomCode.Code);
     end;
 
     local procedure CreateRepairStatusCodeFinish(var RepairStatus: Record "Repair Status")
     begin
         RepairStatus.SetRange(Finished, true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate(Finished, true);
             RepairStatus.Modify(true);
@@ -1484,7 +1484,7 @@ codeunit 136112 "Working On Service Orders"
     local procedure CreateRepairStatusCodePartial(var RepairStatus: Record "Repair Status")
     begin
         RepairStatus.SetRange("Partly Serviced", true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate("Partly Serviced", true);
             RepairStatus.Modify(true);
@@ -1494,7 +1494,7 @@ codeunit 136112 "Working On Service Orders"
     local procedure CreateRepairStatusInProcess(var RepairStatus: Record "Repair Status")
     begin
         RepairStatus.SetRange("In Process", true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate("In Process", true);
             RepairStatus.Modify(true);
@@ -1504,7 +1504,7 @@ codeunit 136112 "Working On Service Orders"
     local procedure CreateRepairStatusQuote(var RepairStatus: Record "Repair Status")
     begin
         RepairStatus.SetRange("Quote Finished", true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate("Quote Finished", true);
             RepairStatus.Modify(true);
@@ -1514,7 +1514,7 @@ codeunit 136112 "Working On Service Orders"
     local procedure CreateRepairStatusWaitCustomer(var RepairStatus: Record "Repair Status")
     begin
         RepairStatus.SetRange("Waiting for Customer", true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate("Waiting for Customer", true);
             RepairStatus.Modify(true);
@@ -1525,7 +1525,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceCost.SetRange("Cost Type", CostType);
         ServiceCost.SetRange("Service Zone Code", ServiceZoneCode);
-        if not ServiceCost.FindFirst then begin
+        if not ServiceCost.FindFirst() then begin
             LibraryService.CreateServiceCost(ServiceCost);
             ServiceCost.Validate("Cost Type", CostType);
             ServiceCost.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
@@ -1667,9 +1667,9 @@ codeunit 136112 "Working On Service Orders"
 
     local procedure CreateTwoServiceCommentLinesForDocs(DocumentType: Enum "Service Document Type"; TargetDocumentType: Enum "Service Document Type"; var DocumentNo: Code[20]; var CommentTxt: Text[80])
     begin
-        DocumentNo := LibraryUtility.GenerateGUID;
-        CommentTxt := LibraryUtility.GenerateGUID;
-        MockServiceHeaderWithCommentLine(DocumentType, DocumentNo, LibraryUtility.GenerateGUID);
+        DocumentNo := LibraryUtility.GenerateGUID();
+        CommentTxt := LibraryUtility.GenerateGUID();
+        MockServiceHeaderWithCommentLine(DocumentType, DocumentNo, LibraryUtility.GenerateGUID());
         MockServiceHeaderWithCommentLine(TargetDocumentType, DocumentNo, CommentTxt);
     end;
 
@@ -1754,7 +1754,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         ServiceItemLine.Validate("Repair Status Code", RepairStatusCode);
         ServiceItemLine.Modify(true);
     end;
@@ -1775,7 +1775,7 @@ codeunit 136112 "Working On Service Orders"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange(Initial, true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate(Initial, true);
             RepairStatus.Modify(true);
@@ -1794,7 +1794,7 @@ codeunit 136112 "Working On Service Orders"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange(Finished, true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate(Finished, true);
             RepairStatus.Modify(true);
@@ -1813,7 +1813,7 @@ codeunit 136112 "Working On Service Orders"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange("Spare Part Ordered", true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate("Spare Part Ordered", true);
             RepairStatus.Modify(true);
@@ -1843,7 +1843,7 @@ codeunit 136112 "Working On Service Orders"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange("In Process", true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate("In Process", true);
             RepairStatus.Modify(true);
@@ -1881,7 +1881,7 @@ codeunit 136112 "Working On Service Orders"
         ServiceHeader.SetFilter("No.", '%1|%2', No, No2);
         Clear(BatchPostServiceOrders);
         BatchPostServiceOrders.SetTableView(ServiceHeader);
-        BatchPostServiceOrders.Run;
+        BatchPostServiceOrders.Run();
     end;
 
     local procedure CreateServiceItemLineForOrder(No: Code[20])
@@ -1926,7 +1926,7 @@ codeunit 136112 "Working On Service Orders"
         ServiceCommentLine: Record "Service Comment Line";
     begin
         ServiceShipmentHeader.SetRange("Order No.", TempServiceCommentLine."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         TempServiceCommentLine.FindSet();
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Shipment Header");
         ServiceCommentLine.SetRange("No.", ServiceShipmentHeader."No.");
@@ -1946,7 +1946,7 @@ codeunit 136112 "Working On Service Orders"
         ServiceCommentLine: Record "Service Comment Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceCommentLine."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         TempServiceCommentLine.FindSet();
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Invoice Header");
         ServiceCommentLine.SetRange("No.", ServiceInvoiceHeader."No.");
@@ -1966,9 +1966,9 @@ codeunit 136112 "Working On Service Orders"
         ServiceShipmentItemLine: Record "Service Shipment Item Line";
     begin
         ServiceShipmentHeader.SetRange("Order No.", TempServiceItemLine."Document No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentItemLine.SetRange("No.", ServiceShipmentHeader."No.");
-        ServiceShipmentItemLine.FindFirst;
+        ServiceShipmentItemLine.FindFirst();
         ServiceShipmentItemLine.TestField("Service Item No.", TempServiceItemLine."Service Item No.");
         ServiceShipmentItemLine.TestField("Fault Area Code", TempServiceItemLine."Fault Area Code");
         ServiceShipmentItemLine.TestField("Symptom Code", TempServiceItemLine."Symptom Code");
@@ -1982,9 +1982,9 @@ codeunit 136112 "Working On Service Orders"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceItemLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.TestField("Service Item No.", TempServiceItemLine."Service Item No.");
         ServiceInvoiceLine.TestField("Fault Area Code", TempServiceItemLine."Fault Area Code");
         ServiceInvoiceLine.TestField("Symptom Code", TempServiceItemLine."Symptom Code");
@@ -2000,7 +2000,7 @@ codeunit 136112 "Working On Service Orders"
         FaultResolCodRelationship.SetRange("Fault Area Code", TempServiceItemLine."Fault Area Code");
         FaultResolCodRelationship.SetRange("Fault Code", TempServiceItemLine."Fault Code");
         FaultResolCodRelationship.SetRange("Symptom Code", TempServiceItemLine."Symptom Code");
-        FaultResolCodRelationship.FindFirst;
+        FaultResolCodRelationship.FindFirst();
         FaultResolCodRelationship.TestField("Resolution Code", TempServiceItemLine."Resolution Code");
         Assert.IsTrue(FaultResolCodRelationship.Occurrences > 0, FaultResolCodesRlshipError);
     end;
@@ -2011,7 +2011,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField("No.", ServiceCost.Code);
         ServiceLine.TestField(Quantity, ServiceCost."Default Quantity");
         ServiceLine.TestField("Unit Cost (LCY)", ServiceCost."Default Unit Cost");
@@ -2162,7 +2162,7 @@ codeunit 136112 "Working On Service Orders"
     begin
         // Modal form handler. Return Action as LookupOK for first record found.
         ServiceItemComponent.SetRange("Parent Service Item No.", ServiceItemNoForReplacement);
-        ServiceItemComponent.FindFirst;
+        ServiceItemComponent.FindFirst();
         ServiceItemComponentList.SetRecord(ServiceItemComponent);
         Response := ACTION::LookupOK;
     end;
@@ -2174,7 +2174,7 @@ codeunit 136112 "Working On Service Orders"
         StandardServiceItemGrCode: Record "Standard Service Item Gr. Code";
     begin
         StandardServiceItemGrCode.SetRange(Code, StandServiceItemGroupCode);
-        StandardServiceItemGrCode.FindFirst;
+        StandardServiceItemGrCode.FindFirst();
         StandardServItemGrCodes.SetRecord(StandardServiceItemGrCode);
         StandardServItemGrCodes.SetTableView(StandardServiceItemGrCode);
         Response := ACTION::LookupOK;

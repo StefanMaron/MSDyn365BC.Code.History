@@ -37,7 +37,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         Qty2: Decimal;
         QtyBase2: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         MockAsmOrderHeader(AssemblyHeader, IDcode20('asm'), '', '', '', 0D, 0, 0, 1);
         Qty := 500;
@@ -78,7 +78,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         AssemblyHeader: Record "Assembly Header";
         ReservEntry: Record "Reservation Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Test procedure SummEntryNo on TAB337
         AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
@@ -101,7 +101,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         AsmHeaderReserve: Codeunit "Assembly Header-Reserve";
         ReservEntryFoundByLinkToSource: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Test Procedure CreateReservation, CreateReservationSetFrom and DeleteLine in codeunit 925 Assembly Header-Reserve
         CreateAsmHdrResFromSalesLine(AssemblyHeader, SalesLine);
@@ -149,7 +149,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         LocationCode: Code[10];
         VariantCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Test Procedure CreateReservation and CreateReservationSetFrom in codeunit 925 Assembly Header-Reserve
         // when not enough available to reserve for
@@ -198,7 +198,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         LocationCode: Code[10];
         VariantCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Show how to use procedures in codeunit 99000832 Sales Line-Reserve to create reservations between
         // Assembly Header and Sales Order Lines (SOL) - Assemble to Order
@@ -266,7 +266,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         VariantCode: Code[10];
         ReservSummEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         MockItem(Item);
         LocationCode := IDcode10('l');
@@ -319,7 +319,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         LocationCode: Code[10];
         VariantCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         MockItem(Item);
         LocationCode := IDcode10('l');
@@ -380,7 +380,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         LocationCode: Code[10];
         VariantCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Loop more lines to make Reservation
         MockItem(Item);
@@ -442,7 +442,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         LocationCode: Code[10];
         VariantCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         MockItem(Item);
         LocationCode := IDcode10('l');
@@ -506,7 +506,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         VariantCode: Code[10];
         AnotherLocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Verify that correct filters are set on Assembly Order Line
         MockItem(Item);
@@ -566,7 +566,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         Qty2: Decimal;
         QtyBase2: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         MockAsmOrderLine(AssemblyLine, IDcode20('asml'), '', '', '', 0D, 0, 0, 1, 10000);
         Qty := -500;
@@ -617,7 +617,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         AssemblyLine: Record "Assembly Line";
         ReservEntry: Record "Reservation Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Test procedure SummEntryNo on TAB337
         AssemblyLine."Document Type" := AssemblyLine."Document Type"::Order;
@@ -646,7 +646,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         LocationCode: Code[10];
         VariantCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Test Procedure CreateReservation, CreateReservationSetFrom and DeleteLine in codeunit 926 Assembly Line-Reserve
         MockItem(Item);
@@ -717,7 +717,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         VariantCode: Code[10];
         ReservSummEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         MockItem(Item);
         LocationCode := IDcode10('l');
@@ -772,7 +772,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         LocationCode: Code[10];
         VariantCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         MockItem(Item);
         LocationCode := IDcode10('l');
@@ -834,7 +834,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         VariantCode: Code[10];
         AvailableQtyNotEnough: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         MockItem(Item);
         LocationCode := IDcode10('l');
@@ -896,7 +896,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         LocationCode: Code[10];
         VariantCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         MockItem(Item);
         LocationCode := IDcode10('l');
@@ -960,7 +960,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         VariantCode: Code[10];
         AnotherLocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Verify that correct filters are set on Assembly Order
         MockItem(Item);
@@ -1028,7 +1028,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         ReservEntryFoundByLinkToSource: Boolean;
         ErrorMessage: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // Test Procedure AsssemblyHeaderCheck in codeunit 99000815 Reservation-Check Date Confl.
         CreateAsmHdrResFromSalesLine(AssemblyHeader, SalesLine);
@@ -1073,7 +1073,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
         ReservEntryFoundByLinkToSource: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Test Procedure VerifyQuantity in codeunit 925 Assembly Header-Reserve
         CreateAsmHdrResFromSalesLine(AssemblyHeader, SalesLine);
@@ -1118,7 +1118,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
         ReservEntryFoundByLinkToSource: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Test Procedure VerifyQuantity in codeunit 925 Assembly Header-Reserve
         CreateAsmHdrResFromSalesLine(AssemblyHeader, SalesLine);
@@ -1162,7 +1162,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         ReservEntryFoundByLinkToSource: Boolean;
         ErrorMessage: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // Test Procedure AsssemblyLineCheck in codeunit 99000815 Reservation-Check Date Confl.
         CreateAsmLineResFromPurch(AssemblyLine, PurchLine);
@@ -1207,7 +1207,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         ReservEntryFoundByLinkToSource: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Test Procedure VerifyQuantity in codeunit 926 Assembly Line-Reserve
         CreateAsmLineResFromPurch(AssemblyLine, PurchLine);
@@ -1254,7 +1254,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         ReservEntryFoundByLinkToSource: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Test Procedure VerifyQuantity in codeunit 926 Assembly Line-Reserve
         CreateAsmLineResFromPurch(AssemblyLine, PurchLine);

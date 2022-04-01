@@ -7,7 +7,7 @@ page 207 "Resource Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Page,Post/Print,Line,Resource';
+    PromotedActionCategories = 'New,Process,Report,Page,Post/Print,Line,Resource,Page';
     SaveValues = true;
     SourceTable = "Res. Journal Line";
     UsageCategory = Tasks;
@@ -27,6 +27,7 @@ page 207 "Resource Journal"
                 begin
                     CurrPage.SaveRecord;
                     ResJnlManagement.LookupName(CurrentJnlBatchName, Rec);
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
@@ -300,6 +301,15 @@ page 207 "Resource Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Res. Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -445,7 +455,7 @@ page 207 "Resource Journal"
                         SuggestResJnlLines: Report "Suggest Res. Jnl. Lines";
                     begin
                         SuggestResJnlLines.SetResJnlLine(Rec);
-                        SuggestResJnlLines.RunModal;
+                        SuggestResJnlLines.RunModal();
                     end;
                 }
             }
@@ -471,6 +481,44 @@ page 207 "Resource Journal"
                     begin
                         ODataUtility.EditJournalWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), "Journal Batch Name", "Journal Template Name");
                     end;
+                }
+                group(Errors)
+                {
+                    Caption = 'Issues';
+                    Image = ErrorLog;
+                    Visible = BackgroundErrorCheck;
+                    action(ShowLinesWithErrors)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show Lines with Issues';
+                        Image = Error;
+                        Promoted = true;
+                        PromotedCategory = Category7;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = not ShowAllLinesEnabled;
+                        ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                    action(ShowAllLines)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show All Lines';
+                        Image = ExpandAll;
+                        Promoted = true;
+                        PromotedCategory = Category7;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = ShowAllLinesEnabled;
+                        ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
                 }
             }
         }
@@ -506,21 +554,26 @@ page 207 "Resource Journal"
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
             ResJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
             exit;
         end;
         ResJnlManagement.TemplateSelection(PAGE::"Resource Journal", false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         ResJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
     end;
 
     var
         ResJnlManagement: Codeunit ResJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
+        ResJournalErrorsMgt: Codeunit "Res. Journal Errors Mgt.";
         CurrentJnlBatchName: Code[10];
         ResName: Text[50];
         IsSaaSExcelAddinEnabled: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -537,7 +590,22 @@ page 207 "Resource Journal"
     begin
         CurrPage.SaveRecord;
         ResJnlManagement.SetName(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
+    end;
+
+    local procedure SetControlAppearanceFromBatch()
+    var
+        ResJournalBatch: Record "Res. Journal Batch";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+    begin
+        if not ResJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
+
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        ResJournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     local procedure SetDimensionsVisibility()

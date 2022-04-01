@@ -112,7 +112,7 @@ table 8631 "Config. Table Processing Rule"
 
         FilterProcessingFilters(ConfigPackageFilter);
         ConfigPackageFilter.SetAutoCalcFields("Field Caption");
-        if ConfigPackageFilter.FindSet then
+        if ConfigPackageFilter.FindSet() then
             repeat
                 FilterInfo := FilterInfo + Separator + ConfigPackageFilter."Field Caption" + '=' + ConfigPackageFilter."Field Filter";
                 Separator := ', ';
@@ -204,7 +204,7 @@ table 8631 "Config. Table Processing Rule"
             GenJnlLine.Reset();
             GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
             GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-            if GenJnlLine.FindFirst then
+            if GenJnlLine.FindFirst() then
                 exit(CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine));
         end;
         exit(false);
@@ -306,7 +306,7 @@ table 8631 "Config. Table Processing Rule"
         FilterProcessingFilters(ConfigPackageFilter);
         ConfigPackageFilter.FilterGroup(0);
         ConfigPackageFilters.SetTableView(ConfigPackageFilter);
-        ConfigPackageFilters.RunModal;
+        ConfigPackageFilters.RunModal();
         Clear(ConfigPackageFilters);
     end;
 

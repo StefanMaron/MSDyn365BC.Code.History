@@ -281,7 +281,7 @@ codeunit 135021 "Data Migr. Notification Tests"
         ItemJournalLine.Insert(true);
 
         // Ensure items migration is selected
-        DataMigrationStatus.FindFirst;
+        DataMigrationStatus.FindFirst();
         DataMigrationStatus.Rename('', DATABASE::Item);
     end;
 
@@ -322,7 +322,7 @@ codeunit 135021 "Data Migr. Notification Tests"
         GenJournalLine.Insert(true);
 
         // Ensure proper migration is selected
-        DataMigrationStatus.FindFirst;
+        DataMigrationStatus.FindFirst();
         DataMigrationStatus.Rename('', TableNo);
     end;
 
@@ -355,7 +355,7 @@ codeunit 135021 "Data Migr. Notification Tests"
         GenJournalLine.Insert(true);
 
         // Ensure Accounts migration is selected
-        DataMigrationStatus.FindFirst;
+        DataMigrationStatus.FindFirst();
         DataMigrationStatus.Rename('', DATABASE::"G/L Account");
     end;
 

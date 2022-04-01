@@ -55,7 +55,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Invoice with Item and verify Statistics Page.
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Customer, Item, Service Invoice with Item and open Statistics Page.
         CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
@@ -78,7 +78,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Invoice with Resource and verify Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Customer, Resource, Service Invoice with Resource and open Statistics Page.
         CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
@@ -101,7 +101,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Invoice with G/L Account and verify Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Customer, G/L Account, Create Service Invoice with G/L Account and open Statistics Page.
         CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
@@ -125,7 +125,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Invoice with Cost and verify Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup and Service Cost.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
 
         // 2. Exercise: Create Customer, Service Invoice with Cost and open Statistics Page.
@@ -152,7 +152,7 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup,Service Cost and
         // Create Customer, Customer Invoice Discount.
-        Initialize;
+        Initialize();
 
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
@@ -186,7 +186,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Invoice with multiple lines, Price Including Vat and verify Statistics page.
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Service Cost.
-        Initialize;
+        Initialize();
 
         LibraryService.FindServiceCost(ServiceCost);
 
@@ -220,7 +220,7 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Create Customer and
         // Customer Invoice Discount.
-        Initialize;
+        Initialize();
 
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
@@ -252,7 +252,7 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Create Customer and
         // Customer Invoice Discount.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
@@ -282,7 +282,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Invoice and verify Credit limit on Statistics Page.
 
         // 1. Setup: Create Customer with Credit Limit(LCY).
-        Initialize;
+        Initialize();
         CreateCustomerWithCreditLimit(Customer);
         CreditLimitLCY := Customer."Credit Limit (LCY)";  // Assign global variable for page handler.
 
@@ -305,7 +305,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo with Item and verify Statistics Page.
 
         // 1. Setup
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Customer, Item, Service Credit Memo with Item and open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
@@ -328,7 +328,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo with Resource and verify Statistics Page.
 
         // 1. Setup
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Customer, Resource, Service Credit Memo with Resource and open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
@@ -351,7 +351,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo with G/L Account and verify Statistics Page.
 
         // 1. Setup
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Customer, G/L Account, Service Credit Memo with G/L Account and open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
@@ -375,7 +375,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo with Cost and verify Statistics Page.
 
         // 1. Setup: Find Service Cost.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
 
         // 2. Exercise: Create Customer, Service Credit Memo with Cost and open Statistics Page.
@@ -401,7 +401,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo with multiple lines, Allow Invoice Discount and verify Statistics Page.
 
         // 1. Setup: Find Service Cost and Create Customer, Customer Invoice Discount.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
         LibraryService.FindServiceCost(ServiceCost);
@@ -434,7 +434,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo with multiple lines, Price Including Vat and verify Statistics page.
 
         // 1. Setup: Find Service Cost.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
 
         // 2. Exercise: Create Customer, Item, Resource,G/L Account, Service Credit Memo with Prices Including VAT as True,
@@ -467,7 +467,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo with Allow Invoice Discount and change Invoice Discount Amount on Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup, Create Customer and Customer Invoice Discount.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
@@ -497,7 +497,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo with Allow Invoice Discount and change Total Incl. VAT on Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup, Create Customer and Customer Invoice Discount.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
@@ -527,7 +527,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo and verify Credit limit on Statistics Page.
 
         // 1. Setup: Create Customer with Credit Limit(LCY).
-        Initialize;
+        Initialize();
         CreateCustomerWithCreditLimit(Customer);
         CreditLimitLCY := Customer."Credit Limit (LCY)";  // Assign global variable for page handler.
 
@@ -551,10 +551,10 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Order with Item and verify Service Order Statistics Page.
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup and Create Item.
-        Initialize;
+        Initialize();
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item and open Service Order Statistics Page.
@@ -582,10 +582,10 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Order with Resource and verify Service Order Statistics Page.
 
         // 1. Setup: Create Resource.
-        Initialize;
+        Initialize();
 
         // Assign global variable for page handler.
-        No2 := LibraryResource.CreateResourceNo;
+        No2 := LibraryResource.CreateResourceNo();
         Type2 := Type2::Resource;
 
         // 2. Exercise: Create Customer Service Order with Resource and open Service Order Statistics Page.
@@ -613,7 +613,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Order with G/L Account and verify Service Order Statistics Page.
 
         // 1. Setup: Create G/L Account.
-        Initialize;
+        Initialize();
 
         // Assign global variable for page handler.
         No2 := LibraryERM.CreateGLAccountWithSalesSetup;
@@ -645,7 +645,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Order with Cost and verify Service Order Statistics Page.
 
         // 1. Setup: Find Service Cost.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
 
         // Assign global variable for page handler.
@@ -680,14 +680,14 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup and
         // Create Customer, Customer Invoice Discount ,Item, Resource and G/L Account.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        ItemNo := LibraryInventory.CreateItemNo;
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ItemNo := LibraryInventory.CreateItemNo();
+        ResourceNo := LibraryResource.CreateResourceNo();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         CostCode := ServiceCost.Code;
 
@@ -717,12 +717,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Service Cost and
         // Create Item, Resource and G/L Account.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
 
         // Assign global variable for page handler.
-        ItemNo := LibraryInventory.CreateItemNo;
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ItemNo := LibraryInventory.CreateItemNo();
+        ResourceNo := LibraryResource.CreateResourceNo();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         CostCode := ServiceCost.Code;
 
@@ -755,12 +755,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Create Customer,
         // Customer Invoice Discount and Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order, Calculate Invoice Discount, open Service Order Statistics Page and change
@@ -792,12 +792,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Create Customer and
         // Customer Invoice Discount and Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order, Calculate Invoice Discount , open Service Order Statistics Page and change
@@ -829,12 +829,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Create Customer,
         // Customer Invoice Discount and Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item, Update Quantity to Ship and open Service Order Statistics Page.
@@ -864,12 +864,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item, Update Quantity to Ship, Post and open Service Order Statistics Page.
@@ -901,12 +901,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item, Update Quantity to Ship, Post, Open Service Order Statistics Page,
@@ -937,7 +937,7 @@ codeunit 136130 "Service Statistics"
     begin
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 216154] Posted Service Line's Invoice Discount Amount after updating invoice discount amount on statistics page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup "Calc. Inv. Discount" = FALSE
         LibrarySales.SetCalcInvDiscount(false);
@@ -952,7 +952,7 @@ codeunit 136130 "Service Statistics"
         // [GIVEN] Open Service Order's Statistics
         // [GIVEN] Change Invoice Discount = 20
         // [WHEN] Post Service Invoice
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
         CreateAndPostServiceOrderWithInvoiceDiscountAmount(CustomerNo, InvoiceDiscountAmount);
 
@@ -974,12 +974,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item, Update Quantity to Ship, Post, Open Service Order Statistics Page,
@@ -1013,12 +1013,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item, Update Quantity to Invoice and open Service Order Statistics Page.
@@ -1048,12 +1048,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item, Update Quantity to Invoice, Post and open Service Order Statistics Page.
@@ -1086,12 +1086,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item, Update Quantity to Invoice, Post, Open Service Order Statistics Page,
@@ -1127,12 +1127,12 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item, Update Quantity to Invoice, Post,
@@ -1167,7 +1167,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Order and verify Credit limit on Service Order Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup, Create Customer with Credit Limit(LCY) and G/L Account.
-        Initialize;
+        Initialize();
         CreateCustomerWithCreditLimit(Customer);
         CreditLimitLCY := Customer."Credit Limit (LCY)";  // Assign global variable for page handler.
 
@@ -1197,10 +1197,10 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Quote with Item and verify Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup and Create Item.
-        Initialize;
+        Initialize();
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Quote with Item and open Statistics Page.
@@ -1227,10 +1227,10 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Quote with Resource and verify Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup and Create Resource.
-        Initialize;
+        Initialize();
 
         // Assign global variable for page handler.
-        No2 := LibraryResource.CreateResourceNo;
+        No2 := LibraryResource.CreateResourceNo();
         Type2 := Type2::Resource;
 
         // 2. Exercise: Create Customer Service Quote with Resource and open Statistics Page.
@@ -1257,7 +1257,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Quote with G/L Account and verify Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup and Create G/L Account.
-        Initialize;
+        Initialize();
 
         // Assign global variable for page handler.
         No2 := LibraryERM.CreateGLAccountWithSalesSetup;
@@ -1288,7 +1288,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Quote with Cost and verify Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup and Service Cost.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
 
         // Assign global variable for page handler.
@@ -1321,14 +1321,14 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Quote with multiple lines, Allow Invoice Discount and verify Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup,Service Cost, Create Customer, Customer Invoice Discount ,Item, Resource and G/L Account.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        ItemNo := LibraryInventory.CreateItemNo;
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ItemNo := LibraryInventory.CreateItemNo();
+        ResourceNo := LibraryResource.CreateResourceNo();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         CostCode := ServiceCost.Code;
 
@@ -1357,12 +1357,12 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Quote with multiple lines, Price Including Vat and verify Statistics page.
 
         // 1. Setup: Find VAT Posting Setup, Service Cost, Create Item, Resource and G/L Account.
-        Initialize;
+        Initialize();
         LibraryService.FindServiceCost(ServiceCost);
 
         // Assign global variable for page handler.
-        ItemNo := LibraryInventory.CreateItemNo;
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ItemNo := LibraryInventory.CreateItemNo();
+        ResourceNo := LibraryResource.CreateResourceNo();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
         CostCode := ServiceCost.Code;
 
@@ -1394,12 +1394,12 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Quote with Allow Invoice Discount and change Invoice Discount Amount on Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup, Create Customer, Customer Invoice Discount and Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Quote, Calculate Invoice Discount, open Statistics Page, change
@@ -1430,12 +1430,12 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Quote with Allow Invoice Discount and change Total Incl. VAT on Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup, Create Customer, Customer Invoice Discount and Item.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Quote, Calculate Invoice Discount , open Statistics Page, change
@@ -1465,7 +1465,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Quote and verify Credit limit on Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup, Create Customer with Credit Limit(LCY) and G/L Account.
-        Initialize;
+        Initialize();
         CreateCustomerWithCreditLimit(Customer);
         CreditLimitLCY := Customer."Credit Limit (LCY)";  // Assign global variable for page handler.
 
@@ -1498,10 +1498,10 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Order with Item, post Service Order and verify Service Shipment Statistics Page.
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Item.
-        Initialize;
+        Initialize();
 
         // Assign global variable for page handler.
-        No2 := LibraryInventory.CreateItemNo;
+        No2 := LibraryInventory.CreateItemNo();
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Customer, Service Order with Item, Post, Find Posted Service Shipment and open Statistics.
@@ -1521,7 +1521,7 @@ codeunit 136130 "Service Statistics"
 
         // 3. Verify: Verify Quantity on Service Shipment Statistics Page.
         ServiceShipmentLine.SetRange("Document No.", PostedServiceShipment."No.".Value);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceShipmentStatistics.LineQty.AssertEquals(ServiceShipmentLine.Quantity);
     end;
 
@@ -1539,7 +1539,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Invoice with Item, post Service Invoice and verify Service Invoice Statistics Page.
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup and Find VAT Posting Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Customer, Item, Service Invoice with Item, Find Posted Service Invoice and  open Statistics Page.
         CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
@@ -1554,7 +1554,7 @@ codeunit 136130 "Service Statistics"
 
         // 3. Verify: Verify Service Invoice Statistics Page with details.
         ServiceInvoiceLine.SetRange("Document No.", PostedServiceInvoice."No.".Value);
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
 
         ServiceInvoiceStatistics.Amount.AssertEquals(ServiceInvoiceLine.Amount);
         ServiceInvoiceStatistics.VATAmount.AssertEquals(ServiceInvoiceLine."Amount Including VAT" - ServiceInvoiceLine.Amount);
@@ -1577,7 +1577,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Invoice, post Service Invoice and verify Credit limit on Service Invoice Statistics Page.
 
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer with Credit Limit.
-        Initialize;
+        Initialize();
         CreateCustomerWithCreditLimit(Customer);
 
         // 2. Exercise: Create Service Invoice with Item, post,Find Posted Service Invoice and open Statistic Page.
@@ -1610,7 +1610,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo with Item, post Service Credit Memo and verify Service Credit Memo Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Customer,Item,Service Credit Memo with Item, post, Find Posted Service Credit Memo and open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
@@ -1626,7 +1626,7 @@ codeunit 136130 "Service Statistics"
 
         // 3. Verify: Verify Service Credit Memo Statistics Page with details.
         ServiceCrMemoLine.SetRange("Document No.", PostedServiceCreditMemo."No.".Value);
-        ServiceCrMemoLine.FindFirst;
+        ServiceCrMemoLine.FindFirst();
         ServiceCreditMemoStatistics.Amount.AssertEquals(ServiceCrMemoLine.Amount);
         ServiceCreditMemoStatistics.VATAmount.AssertEquals(ServiceCrMemoLine."Amount Including VAT" - ServiceCrMemoLine.Amount);
         ServiceCreditMemoStatistics.Subform.First;
@@ -1649,7 +1649,7 @@ codeunit 136130 "Service Statistics"
         // Test creation of Service Credit Memo, post Service Credit Memo and verify Credit limit on Service Credit Memo Statistics Page.
 
         // 1. Setup: Find VAT Posting Setup and Create Customer with Credit Limit.
-        Initialize;
+        Initialize();
         CreateCustomerWithCreditLimit(Customer);
 
         // 2. Exercise: Create Item, Service Credit Memo with Item, post,Find Posted Service Credit Memo and open Statistics Page.
@@ -1683,7 +1683,7 @@ codeunit 136130 "Service Statistics"
     begin
         // [FEATURE] [Service Order Statistics]
         // [SCENARIO 319397] Profit fields are filleed in correctly when Unit Price is less than Unit cost in Service Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X" with Unit Cost = 100
         LibraryInventory.CreateItem(Item);
@@ -1720,16 +1720,16 @@ codeunit 136130 "Service Statistics"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Statistics");
         InitVariables;
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Statistics");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibrarySales.SetStockoutWarning(false);
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -1803,7 +1803,7 @@ codeunit 136130 "Service Statistics"
         ServiceHeader: Record "Service Header";
         ServiceInvoiceNo: Code[20];
     begin
-        ServiceInvoice.OpenNew;
+        ServiceInvoice.OpenNew();
         ServiceInvoice."Customer No.".Activate;
         ServiceInvoiceNo := ServiceInvoice."No.".Value;
         ServiceInvoice.OK.Invoke;
@@ -1853,7 +1853,7 @@ codeunit 136130 "Service Statistics"
         ServiceHeader: Record "Service Header";
         ServiceQuoteNo: Code[20];
     begin
-        ServiceQuote.OpenNew;
+        ServiceQuote.OpenNew();
         ServiceQuote."Customer No.".Activate;
         ServiceQuoteNo := ServiceQuote."No.".Value;
         ServiceQuote.OK.Invoke;
@@ -1919,7 +1919,7 @@ codeunit 136130 "Service Statistics"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         exit(ServiceCrMemoHeader."No.");
     end;
 
@@ -1928,7 +1928,7 @@ codeunit 136130 "Service Statistics"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         exit(ServiceShipmentHeader."No.");
     end;
 
@@ -1937,7 +1937,7 @@ codeunit 136130 "Service Statistics"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -2062,7 +2062,7 @@ codeunit 136130 "Service Statistics"
         AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, ServiceLine."Document Type"::Order, DocumentNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
 
         Evaluate(AmountItems, ServiceOrderStatistics.Amount_Items.Value);
         Evaluate(VATAmountItems, ServiceOrderStatistics."VAT Amount_Items".Value);
@@ -2100,7 +2100,7 @@ codeunit 136130 "Service Statistics"
         AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, ServiceLine."Document Type"::Order, DocumentNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Resource);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
 
         Evaluate(AmountResources, ServiceOrderStatistics.Amount_Resources.Value);
         Evaluate(VATAmountResources, ServiceOrderStatistics."VAT Amount_Resources".Value);
@@ -2374,7 +2374,7 @@ codeunit 136130 "Service Statistics"
         AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, DocumentType, DocumentNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
 
         Evaluate(AmountItems, ServiceStatistics.Amount_Items.Value);
         Evaluate(VATAmountItems, ServiceStatistics."VAT Amount_Items".Value);
@@ -2412,7 +2412,7 @@ codeunit 136130 "Service Statistics"
         AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, DocumentType, DocumentNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Resource);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
 
         Evaluate(AmountResources, ServiceStatistics.Amount_Resources.Value);
         Evaluate(VATAmountResources, ServiceStatistics."VAT Amount_Resources".Value);

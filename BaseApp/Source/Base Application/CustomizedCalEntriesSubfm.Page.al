@@ -106,7 +106,6 @@ page 7605 "Customized Cal. Entries Subfm"
     trigger OnFindRecord(Which: Text): Boolean
     var
         FoundDate: Boolean;
-        FoundLine: Boolean;
     begin
         FoundDate := PeriodPageMgt.FindDate(Which, DateRec, "Analysis Period Type"::Day);
         if not FoundDate then
@@ -119,7 +118,6 @@ page 7605 "Customized Cal. Entries Subfm"
 
     trigger OnNextRecord(Steps: Integer): Integer
     var
-        FoundLine: Boolean;
         ResultSteps: Integer;
     begin
         ResultSteps := PeriodPageMgt.NextDate(Steps, DateRec, "Analysis Period Type"::Day);
@@ -179,7 +177,7 @@ page 7605 "Customized Cal. Entries Subfm"
         CustomizedCalendarChange.SetRange("Base Calendar Code", "Base Calendar Code");
         CustomizedCalendarChange.SetRange("Recurring System", CustomizedCalendarChange."Recurring System"::" ");
         CustomizedCalendarChange.SetRange(Date, Date);
-        if CustomizedCalendarChange.FindFirst then
+        if CustomizedCalendarChange.FindFirst() then
             CustomizedCalendarChange.Delete();
 
         if not IsInBaseCalendar then begin

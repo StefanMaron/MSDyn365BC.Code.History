@@ -42,7 +42,7 @@ codeunit 135001 "Page Management Tests"
         // [SCENARIO] The user defined page ID is returned when RecordRef is provided to GetPageID
         // [GIVEN] A RecordRef, which has a user defined page id
         CIRecordRef.Open(DATABASE::"Company Information");
-        CIRecordRef.FindFirst;
+        CIRecordRef.FindFirst();
 
         // [WHEN] The GetPageID function is called with that RecordRef
         PageID := PageManagement.GetPageID(CIRecordRef);
@@ -62,7 +62,7 @@ codeunit 135001 "Page Management Tests"
         // [SCENARIO] The user defined page ID is returned when RecordID is provided to GetPageID
         // [GIVEN] A RecordID, which has a user defined page id
         CIRecordRef.Open(DATABASE::"Company Information");
-        CIRecordRef.FindFirst;
+        CIRecordRef.FindFirst();
         RecordID := CIRecordRef.RecordId;
 
         // [WHEN] The GetPageID function is called with that RecordID
@@ -81,7 +81,7 @@ codeunit 135001 "Page Management Tests"
     begin
         // [SCENARIO] The meta data page ID is returned when Record is provided to GetPageID
         // [GIVEN] A Record, which has a metadata page id
-        Customer.FindLast;
+        Customer.FindLast();
 
         // [WHEN] The GetPageID function is called with that record
         PageID := PageManagement.GetPageID(Customer);
@@ -102,7 +102,7 @@ codeunit 135001 "Page Management Tests"
         // [SCENARIO] The meta data page ID is returned when RecordRef is provided to GetPageID
         // [GIVEN] A RecordRef, which has a metadata page id
         Item.SetFilter(Description, '<>%1', '');
-        Item.FindFirst;
+        Item.FindFirst();
         DataTypeManagement.GetRecordRef(Item, RecordRef);
 
         // [WHEN] The GetPageID function is called with that RecordRef
@@ -123,7 +123,7 @@ codeunit 135001 "Page Management Tests"
         // [SCENARIO] The meta data page ID is returned when RecordID is provided to GetPageID
         // [GIVEN] A RecordID, which has a metadata page id
         VendorRecordRef.Open(DATABASE::Vendor);
-        VendorRecordRef.FindFirst;
+        VendorRecordRef.FindFirst();
         RecordID := VendorRecordRef.RecordId;
 
         // [WHEN] The GetPageID function is called with that RecordID

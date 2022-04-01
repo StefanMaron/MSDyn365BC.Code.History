@@ -144,7 +144,7 @@ table 130401 "CAL Test Line"
         }
         field(13; "Hit Objects"; Integer)
         {
-            CalcFormula = Count ("CAL Test Coverage Map" WHERE("Test Codeunit ID" = FIELD("Test Codeunit")));
+            CalcFormula = Count("CAL Test Coverage Map" WHERE("Test Codeunit ID" = FIELD("Test Codeunit")));
             Caption = 'Hit Objects';
             Editable = false;
             FieldClass = FlowField;
@@ -342,7 +342,7 @@ table 130401 "CAL Test Line"
         CALTestResult.SetRange("Codeunit ID", "Test Codeunit");
         if "Function" <> '' then
             CALTestResult.SetRange("Function Name", "Function");
-        if CALTestResult.FindLast then;
+        if CALTestResult.FindLast() then;
         PAGE.Run(PAGE::"CAL Test Results", CALTestResult);
     end;
 }

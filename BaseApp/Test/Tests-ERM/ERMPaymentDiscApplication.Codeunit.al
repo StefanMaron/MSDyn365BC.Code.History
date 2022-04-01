@@ -39,7 +39,7 @@ codeunit 134914 "ERM Payment Disc Application"
 
         // Setup: Modify General Ledger Setup, Purchase Payables Setup and Create and Post Purchase Invoice and General
         // Journal Line Also Calculate Invoice Amount and Amount to be Applied.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         LibraryPurchase.SetCalcInvDiscount(true);
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine);
@@ -75,7 +75,7 @@ codeunit 134914 "ERM Payment Disc Application"
 
         // Setup: Modify General Ledger Setup, Sales Receivables Setup and Create and Post Sales Invoice and
         // Calculate Invoice Amount and Amount to be Applied.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         LibrarySales.SetCalcInvDiscount(true);
         CreateSalesInvoice(SalesHeader, SalesLine);
@@ -108,9 +108,9 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         // [FEATURE] [Purchase] [Reverse Charge VAT]
         // [SCENARIO 220987] Unapply Payment to two Invoices application in case of "Normal" and "Reverse Charge" VAT setups
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] "Normal VAT" posting setup with "Adjust for Payment Discount" = TRUE, "Purchase VAT Account" = "NORM_A", "VAT %" = 25
         CreateVATPostingSetupWithAdjForPmtDisc(VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT");
@@ -168,9 +168,9 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         // [FEATURE] [Purchase] [Reverse Charge VAT]
         // [SCENARIO 220987] Unapply Payment to two Invoices application in case of "Reverse Charge" and "Normal" VAT setups
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] "Reverse Charge VAT" posting setup with "Adjust for Payment Discount" = TRUE, "Purchase VAT Account" = "REV_A", "Reverse Chrg. VAT Acc." = "REV_B", "VAT %" = 25
         CreateVATPostingSetupWithAdjForPmtDisc(VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Reverse Charge VAT");
@@ -234,7 +234,7 @@ codeunit 134914 "ERM Payment Disc Application"
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 222804] Several VAT Entries have been created for Apply\Unapply vendor payment to credit memo and invoice with several lines
         // [SCENARIO 222804] in case of the same General\VAT Posting setup, payment discount and tolerance
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Adjust for Payment Disc." = TRUE, "Payment Discount Grace Period" = "5D"
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -304,7 +304,7 @@ codeunit 134914 "ERM Payment Disc Application"
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 222804] Several VAT Entries have been created for Apply\Unapply customer payment to credit memo and invoice with several lines
         // [SCENARIO 222804] in case of the same General\VAT Posting setup, payment discount and tolerance
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Adjust for Payment Disc." = TRUE, "Payment Discount Grace Period" = "5D"
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -369,7 +369,7 @@ codeunit 134914 "ERM Payment Disc Application"
         // [FEATURE] [Unapply] [Payment Tolerance] [Rounding] [Purchase]
         // [SCENARIO 271401] Several VAT entries have been created for Apply\Unapply vendor payment to several invoices
         // [SCENARIO 271401] with Normal and Reverse Charge VAT Setup, several document lines, Tolerance and Discount, custom amounts
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Setup: "Adjust for Payment Disc." = TRUE, "Payment Discount Grace Period" = "5D", "Payment Tolerance %" = 5, "Max. Payment Tolerance Amount" = 20
         SetPmtDiscToleranceInGenLedgSetup(5, 5, 20);
@@ -381,7 +381,7 @@ codeunit 134914 "ERM Payment Disc Application"
         // [GIVEN] Three "Normal" VAT posting setup (25%, 10%, 0%) with "Adjust for Payment Discount" = TRUE
         // [GIVEN] One "Reverse Charge" 25% VAT posting setup with "Adjust for Payment Discount" = TRUE
         Create3NormalAnd1RevChrgVATPostingSetup(NormalVATPostingSetup, RevChrgVATPostingSetup, 25, 10, 0, 25);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted purchase invoice on "Posting Date" = 01-06-2018 with 3 lines (Normal VAT 25%, 10%, 0%) with line's Direct Cost = 100
         // [GIVEN] Posted purchase invoice on "Posting Date" = 01-06-2018 with 3 lines (Normal VAT 25%, 10%, 0%) with line's Direct Cost = 100
@@ -425,7 +425,7 @@ codeunit 134914 "ERM Payment Disc Application"
         // [FEATURE] [Unapply] [Payment Tolerance] [Rounding] [Sales]
         // [SCENARIO 271401] Several VAT entries have been created for Apply\Unapply customer payment to several invoices
         // [SCENARIO 271401] with Normal and Reverse Charge VAT Setup, several document lines, Tolerance and Discount, custom amounts
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Setup: "Adjust for Payment Disc." = TRUE, "Payment Discount Grace Period" = "5D", "Payment Tolerance %" = 5, "Max. Payment Tolerance Amount" = 20
         SetPmtDiscToleranceInGenLedgSetup(5, 5, 20);
@@ -484,7 +484,7 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         // [FEATURE] [VAT Entry] [Document Date]
         // [SCENARIO 293503] "Document Date" of VAT Entry created from a payment with Payment Discount corresponds to "Document Date" of the Payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Setup: "Adjust for Payment Disc." = TRUE
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -529,7 +529,7 @@ codeunit 134914 "ERM Payment Disc Application"
 
         // [THEN] Created VAT Entry for the payment has "Document Date" = 02-12-2018
         VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("Document Date", GenJournalLine."Document Date");
     end;
 
@@ -538,17 +538,17 @@ codeunit 134914 "ERM Payment Disc Application"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Disc Application");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Payment Disc Application");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -879,7 +879,7 @@ codeunit 134914 "ERM Payment Disc Application"
         i: Integer;
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         with GenJournalLine do begin
             for i := 1 to LinesCount do begin
                 LibraryJournals.CreateGenJournalLine(
@@ -909,7 +909,7 @@ codeunit 134914 "ERM Payment Disc Application"
             SetRange("Vendor No.", VendorNo);
             SetRange("Document No.", PaymentNo);
             SetRange("Entry Type", "Entry Type"::Application);
-            FindFirst;
+            FindFirst();
             exit("Transaction No.");
         end;
     end;
@@ -922,7 +922,7 @@ codeunit 134914 "ERM Payment Disc Application"
             SetRange("Customer No.", CustomerNo);
             SetRange("Document No.", PaymentNo);
             SetRange("Entry Type", "Entry Type"::Application);
-            FindFirst;
+            FindFirst();
             exit("Transaction No.");
         end;
     end;
@@ -932,7 +932,7 @@ codeunit 134914 "ERM Payment Disc Application"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         exit(PurchInvHeader."No.")
     end;
 
@@ -980,7 +980,7 @@ codeunit 134914 "ERM Payment Disc Application"
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Vendor No.", VendorNo);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
         LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
@@ -993,7 +993,7 @@ codeunit 134914 "ERM Payment Disc Application"
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Customer No.", CustomerNo);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
@@ -1066,7 +1066,7 @@ codeunit 134914 "ERM Payment Disc Application"
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
             TestField(Amount, ExpectedAmount);
         end;
     end;
@@ -1076,12 +1076,12 @@ codeunit 134914 "ERM Payment Disc Application"
         GLEntry: Record "G/L Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         with GLEntry do begin
             SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
             TestField(Amount, ExpectedAmount);
         end;
     end;

@@ -7,13 +7,13 @@ codeunit 5918 "ServOrder-Check Response Time"
         ServMgtSetup.Get();
         ServMgtSetup.TestField("First Warning Within (Hours)");
         RepairStatus.SetRange(Initial, true);
-        if not RepairStatus.FindFirst then
+        if not RepairStatus.FindFirst() then
             Error(Text005, RepairStatus.TableCaption, RepairStatus.FieldCaption(Initial));
         Clear(ServItemLine);
         Clear(ServHeader);
         ServHeader.SetCurrentKey(Status, "Response Date", "Response Time", Priority);
         ServHeader.SetRange(Status, ServHeader.Status::Pending);
-        if ServHeader.FindSet then
+        if ServHeader.FindSet() then
             repeat
                 CheckDate1 := WorkDate;
                 CheckTime1 := Time;
@@ -23,7 +23,7 @@ codeunit 5918 "ServOrder-Check Response Time"
                 ServItemLine.SetRange("Document No.", ServHeader."No.");
                 ServItemLine.SetFilter("Response Date", '>%1&<=%2', 0D, CheckDate1);
                 ServItemLine.SetFilter("Repair Status Code", RepairStatus.Code);
-                if ServItemLine.FindSet then begin
+                if ServItemLine.FindSet() then begin
                     if ServHeader."Responsibility Center" <> '' then
                         RespCenter.Get(ServHeader."Responsibility Center");
 
@@ -160,7 +160,7 @@ codeunit 5918 "ServOrder-Check Response Time"
             TempDay := Date2DWY(TempDate, 1) - 1;
             HoursOnLastDay := 0;
             ServHour.SetRange(Day, TempDay);
-            if ServHour.FindFirst then begin
+            if ServHour.FindFirst() then begin
                 if ServHour."Valid on Holidays" then
                     Holiday := false
                 else

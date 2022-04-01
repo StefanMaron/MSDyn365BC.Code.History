@@ -176,7 +176,7 @@ report 5976 "Service Profit (Contracts)"
                 ServLedgerEntry.SetRange("Service Contract No.");
                 ServLedgerEntry.SetFilter("Posting Date", GetFilter("Date Filter"));
 
-                if not ServLedgerEntry.FindFirst then
+                if not ServLedgerEntry.FindFirst() then
                     CurrReport.Skip();
 
                 ProfitAmount := -"Service Ledger Entry"."Amount (LCY)" + "Service Ledger Entry"."Cost Amount";

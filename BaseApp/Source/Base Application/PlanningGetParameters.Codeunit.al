@@ -92,7 +92,7 @@ codeunit 99000855 "Planning-Get Parameters"
         LotForLot := true;
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by SetPlanningParameters().', '19.0')]
     procedure SetUpPlanningControls(ReorderingPolicy: Option " ","Fixed Reorder Qty.","Maximum Qty.","Order","Lot-for-Lot"; IncludeInventory: Boolean; var TimeBucketEnabled: Boolean; var SafetyLeadTimeEnabled: Boolean; var SafetyStockQtyEnabled: Boolean; var ReorderPointEnabled: Boolean; var ReorderQuantityEnabled: Boolean; var MaximumInventoryEnabled: Boolean; var MinimumOrderQtyEnabled: Boolean; var MaximumOrderQtyEnabled: Boolean; var OrderMultipleEnabled: Boolean; var IncludeInventoryEnabled: Boolean; var ReschedulingPeriodEnabled: Boolean; var LotAccumulationPeriodEnabled: Boolean; var DampenerPeriodEnabled: Boolean; var DampenerQuantityEnabled: Boolean; var OverflowLevelEnabled: Boolean)
     var
@@ -360,7 +360,8 @@ codeunit 99000855 "Planning-Get Parameters"
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by event OnAfterSetPlanningParameters()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpPlanningControls(ReorderingPolicy: Option " ","Fixed Reorder Qty.","Maximum Qty.","Order","Lot-for-Lot"; IncludeInventory: Boolean; var TimeBucketEnabled: Boolean; var SafetyLeadTimeEnabled: Boolean; var SafetyStockQtyEnabled: Boolean; var ReorderPointEnabled: Boolean; var ReorderQuantityEnabled: Boolean; var MaximumInventoryEnabled: Boolean; var MinimumOrderQtyEnabled: Boolean; var MaximumOrderQtyEnabled: Boolean; var OrderMultipleEnabled: Boolean; var IncludeInventoryEnabled: Boolean; var ReschedulingPeriodEnabled: Boolean; var LotAccumulationPeriodEnabled: Boolean; var DampenerPeriodEnabled: Boolean; var DampenerQuantityEnabled: Boolean; var OverflowLevelEnabled: Boolean);
     begin

@@ -69,12 +69,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Width - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 1480471845" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>An email from address was not found.</source>
-          <target state="translated">Sähköpostin lähettäjäosoitetta ei löytynyt.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType FromAddressWasNotFoundErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2195109935 - NamedType 3036052668" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email is not set up for the action you are trying to take. Ask your administrator to either add the %1 scenario to your email account, or to specify a default account for email scenarios.</source>
           <target state="translated">Sähköpostia ei ole määritetty toiminnolle, jota yrität tehdä. Pyydä järjestelmänvalvojaa joko lisäämään skenaario %1 sähköpostitilillesi tai määrittämään oletustili sähköpostiskenaarioita varten.</target>
@@ -92,12 +86,6 @@
           <target state="translated">Sähköpostia ei voitu lähettää. %1</target>
           <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SendErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 1133563836" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>To send print job to the %1 printer, you must set up SMTP.</source>
-          <target state="translated">Jotta voit lähettää tulostustyön tulostimeen %1, sinun on määritettävä SMTP.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Printer name.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SetupSMTPErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1148211046 - NamedType 2244223965" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email address is not valid. Do you want to exit?</source>
@@ -391,6 +379,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Enum 2593693414</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 514516880 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SendToEmailPrinter - Edit</source>
+          <target state="translated">SendToEmailPrinter – Muokkaus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SendToEmailPrinter - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 55009354 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SendToEmailPrinter - Objects</source>
+          <target state="translated">SendToEmailPrinter – Objektit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SendToEmailPrinter - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 488051654 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SendToEmailPrinter - Read</source>
+          <target state="translated">SendToEmailPrinter – Luku</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SendToEmailPrinter - Read - Property Caption</note>
         </trans-unit>
       </group>
     </body>

@@ -444,7 +444,6 @@ report 399 "Remittance Advice - Journal"
         CompanyInfo: Record "Company Information";
         Vend: Record Vendor;
         TempVend: Record Vendor temporary;
-        TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary;
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
         VendLedgEntry3: Record "Vendor Ledger Entry";
@@ -476,6 +475,9 @@ report 399 "Remittance Advice - Journal"
         PaymentCurrAmtCaptionLbl: Label 'Payment Curr. Amount';
         CurrCodeCaptionLbl: Label 'Curr. Code';
         TotalCaptionLbl: Label 'Total';
+
+	protected var
+        TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary;
 
     local procedure CurrencyCode(SrcCurrCode: Code[10]): Code[10]
     begin

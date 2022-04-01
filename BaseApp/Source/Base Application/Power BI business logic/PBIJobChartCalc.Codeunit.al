@@ -27,7 +27,7 @@ codeunit 6308 "PBI Job Chart Calc."
         with MyJob do begin
             SetRange("User ID", UserId);
             SetRange("Exclude from Business Chart", false);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Job.Get("Job No.") then
                         CalculateValues(TempPowerBIChartBuffer);
@@ -79,7 +79,7 @@ codeunit 6308 "PBI Job Chart Calc."
     local procedure InsertToBuffer(var TempPowerBIChartBuffer: Record "Power BI Chart Buffer" temporary; pValue: Decimal; pMeasureName: Text[111])
     begin
         with TempPowerBIChartBuffer do begin
-            if FindLast then
+            if FindLast() then
                 ID += 1
             else
                 ID := 1;

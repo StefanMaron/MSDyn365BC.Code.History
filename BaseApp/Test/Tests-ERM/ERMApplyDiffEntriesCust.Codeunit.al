@@ -27,7 +27,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         Amount: Decimal;
     begin
         // Check Application, Amount LCY after Posting Application of Credit Memo over Invoice with same Amount.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         ApplyCreditMemoToInvoice('', Amount, -Amount);
     end;
@@ -39,7 +39,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         Amount: Decimal;
     begin
         // Check Application, Amount LCY after Posting Application of Credit Memo over Invoice with Half Invoice Amount.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         ApplyCreditMemoToInvoice('', Amount, -Amount / 2);
     end;
@@ -51,7 +51,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         Amount: Decimal;
     begin
         // Check Application, Amount LCY after Posting Application of Credit Memo over Invoice with same Amount and FCY.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         ApplyCreditMemoToInvoice(CreateCurrency, Amount, -Amount);
     end;
@@ -114,7 +114,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         // Setup: Create Invoice and Credit Memo Entries for Customer. Apply Credit Memo on Invoice with Partial Amount. Again Post
         // Payment Entry for the Remaining Amount. Take Random Decimal Amount for Invoice Amount. Deduct Integer Value from Amount
         // because sometimes Random Decimal Produces very less Amount for which Payment Discount can not be calculated.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         Amount := 100 + LibraryRandom.RandDec(100, 2);
         PartialAmount := Amount - LibraryRandom.RandInt(10);
@@ -162,7 +162,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         // Verify Program populates correct Document Type value on G/L entry window after doing un application on Customer when adjust for payment discount is involved.
 
         // Setup: Post Invocie, Credit Memo and Payment Line.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         SelectGenJournalBatch(GenJournalBatch);
@@ -188,14 +188,14 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply Diff Entries - Cust.");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Apply Diff Entries - Cust.");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -209,7 +209,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         GLRegister: Record "G/L Register";
     begin
         SetApplyCustomerEntry(ApplyingCustLedgerEntry, DocumentType, DocumentNo, AmountToApply);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         CustLedgerEntry.SetRange("Applying Entry", false);
         CustLedgerEntry.FindSet();
@@ -245,7 +245,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         if CurrencyCode = '' then
             exit(Amount);
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         exit(Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount");
     end;
 
@@ -341,7 +341,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
     begin
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           AmountLCY, DetailedCustLedgEntry."Amount (LCY)", InvRoundingPrecisionLCY,
           StrSubstNo(ErrorMessage, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), AmountLCY,

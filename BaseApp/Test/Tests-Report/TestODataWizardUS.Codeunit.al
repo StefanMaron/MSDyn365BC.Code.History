@@ -23,11 +23,9 @@ codeunit 134767 "Test OData Wizard US"
     [Scope('OnPrem')]
     procedure Init()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
-        AssistedSetupGroup: Enum "Assisted Setup Group";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
-        AssistedSetup.Add(BaseAppID.Get(), PAGE::"OData Setup Wizard", ODataWizardTxt, AssistedSetupGroup::Customize);
+        GuidedExperience.InsertAssistedSetup(ODataWizardTxt, ODataWizardTxt, ODataWizardTxt, 0, ObjectType::Page, PAGE::"OData Setup Wizard", "Assisted Setup Group"::Customize, '', "Video Category"::Customize, '');
     end;
 
     [Test]
@@ -816,7 +814,7 @@ codeunit 134767 "Test OData Wizard US"
         // [GIVEN] A Tenant Web Service record with a filter and columns selected.
         CreateCustomerListEndpoint(ServiceName, NavFilterText, true, TenantWebService);
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        TenantWebService.FindFirst;
+        TenantWebService.FindFirst();
 
         // [WHEN] CreateDataEntityExportInfo is run.
         DataEntityExportInfo := DataEntityExportInfo.DataEntityExportInfo;
@@ -888,7 +886,7 @@ codeunit 134767 "Test OData Wizard US"
         // [GIVEN] A Tenant Web Service record with a filter and columns selected.
         CreateCustomerListEndpoint(ServiceName, NavFilterText, true, TenantWebService);
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        TenantWebService.FindFirst;
+        TenantWebService.FindFirst();
 
         // [WHEN] CreateDataEntityExportInfo is run.
         DataEntityExportInfo := DataEntityExportInfo.DataEntityExportInfo;

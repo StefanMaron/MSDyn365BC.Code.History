@@ -45,7 +45,7 @@ codeunit 701 "Data Type Management"
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
         Field.SetRange(FieldName, FieldNameTxt);
 
-        if not Field.FindFirst then
+        if not Field.FindFirst() then
             exit(false);
 
         FieldRef := RecordRef.Field(Field."No.");

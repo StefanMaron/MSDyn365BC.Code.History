@@ -42,7 +42,7 @@ codeunit 137066 "SCM Order Tracking"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Production BOM and create Production Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithProductionBOMSetup(Item, Item2, Item3, Item."Order Tracking Policy"::"Tracking & Action Msg.");
         CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", WorkDate, Quantity);
@@ -70,7 +70,7 @@ codeunit 137066 "SCM Order Tracking"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Production BOM and create two Production Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithProductionBOMSetup(Item, Item2, Item3, Item."Order Tracking Policy"::"Tracking & Action Msg.");
         CreateAndRefreshReleasedProdOrder(ProductionOrder, Item2."No.", WorkDate, Quantity);
@@ -91,7 +91,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnProdOrderComponentWithVariant()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnProdOrderComponent(true);  // Component with variant as True.
     end;
 
@@ -101,7 +101,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnProdOrderComponentWithoutVariant()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnProdOrderComponent(false);  // Component with variant as False.
     end;
 
@@ -154,7 +154,7 @@ codeunit 137066 "SCM Order Tracking"
         Quantity: Decimal;
     begin
         // Setup: Create Item, Create Purchase Order and Sales Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking Only", '');
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", '', Quantity);
@@ -177,7 +177,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnSalesOrderWithPositiveAdjmtWithoutPosting()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnSalesOrderWithPositiveAdjmt(false);  // Post Item Journal as False.
     end;
 
@@ -187,7 +187,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnSalesOrderWithPositiveAdjmtWithPosting()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnSalesOrderWithPositiveAdjmt(true);  // Post Item Journal as True.
     end;
 
@@ -226,7 +226,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnPurchaseWithLocation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnProdOrderComponentAndPurchaseWithLocation(true);  // Order Tracking On Purchase as TRUE.
     end;
 
@@ -236,7 +236,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnProdOrderComponentWithLocation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnProdOrderComponentAndPurchaseWithLocation(false);  // Order Tracking On Purchase as FALSE.
     end;
 
@@ -288,7 +288,7 @@ codeunit 137066 "SCM Order Tracking"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Production BOM, create Item Variants, create Released Production Order with Variant and Sales Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithProductionBOMSetup(Item, Item2, Item3, Item."Order Tracking Policy"::"Tracking Only");
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
@@ -312,7 +312,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnProdOrderComponentWithLocationAndWithoutVariant()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnProdOrderComponentForVariantAndLocation(true, false);  // Prod Order Without Variant as TRUE, Update Variant as False.
     end;
 
@@ -322,7 +322,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnProdOrderComponentWithVariantAndLocation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnProdOrderComponentForVariantAndLocation(false, false);  // Prod Order Without Variant as False, Update Variant as False.
     end;
 
@@ -332,7 +332,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnProdOrderComponentWithUpdatedVariant()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnProdOrderComponentForVariantAndLocation(false, true);  // Prod Order Without Variant as False, Update Variant as True.
     end;
 
@@ -397,7 +397,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         // [FEATURE] [Production] [Prod. Order Component]
         // [SCENARIO 381248] Order Tracking called from Prod. Order Component should show output Item Entries to which the consumption of the Component will be applied.
-        Initialize;
+        Initialize();
         Quantity[1] := 3; // values are picked for the clear perception of the test
         Quantity[2] := 5;
         Quantity[3] := 5;
@@ -445,7 +445,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnFirmPlannedProdOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnReleasedProdOrderAndFirmPlannedProdOrder(true);  // Firm Planned Prod Order Tracking as True.
     end;
 
@@ -455,7 +455,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnReleasedProdOrderForFirmPlannedProdOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnReleasedProdOrderAndFirmPlannedProdOrder(false);  // Firm Planned Prod Order Tracking as False.
     end;
 
@@ -502,7 +502,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnProdOrderComponentForPurchaseOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnProdOrderComponentAndSalesOrder(false);  // Sales Order Tracking as False.
     end;
 
@@ -512,7 +512,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnSalesOrderForPurchaseOrderAndProdOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnProdOrderComponentAndSalesOrder(true);  // Sales Order Tracking as True.
     end;
 
@@ -569,7 +569,7 @@ codeunit 137066 "SCM Order Tracking"
         Quantity: Decimal;
     begin
         // Setup: Create Item, Create and Post Item Journal with Negative Adjustment and create Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking Only", '');
         CreateAndPostItemJournal(Item."No.", ItemJournalLine."Entry Type"::"Negative Adjmt.", Quantity, true);
@@ -590,7 +590,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnSalesOrderForSalesCreditMemoWithoutPosting()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnSalesOrderForSalesCreditMemo(false);  // Post Credit Memo as False.
     end;
 
@@ -600,7 +600,7 @@ codeunit 137066 "SCM Order Tracking"
     procedure OrderTrackingOnSalesOrderForSalesCreditMemoWithPosting()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         OrderTrackingOnSalesOrderForSalesCreditMemo(true);  // Post Credit Memo as True.
     end;
 
@@ -651,7 +651,7 @@ codeunit 137066 "SCM Order Tracking"
         // [FEATURE] [Special Order]
         // [SCENARIO 318713] When Purchase is created with same Item and same Qty as Sales and Receipt Date is earlier than Shipment Date
         // [SCENARIO 318713] and Special Order is used in Sales, then Order Tracking doesn't update status to Tracking in Reservation Entry
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Item had Order Tracking enabled
@@ -703,7 +703,7 @@ codeunit 137066 "SCM Order Tracking"
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 318713] When Purchase is created with same Item and same Qty as Sales and Receipt Date is earlier than Shipment Date
         // [SCENARIO 318713] and Drop Shipment is used in Sales, then Order Tracking doesn't update status to Tracking in Reservation Entry
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Item had Order Tracking enabled
@@ -755,7 +755,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         // [FEATURE] [Special Order]
         // [SCENARIO 330077] Second Sales Order is not tracked to special order Purchase with same Item
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandIntInRange(2, 10);
 
         // [GIVEN] Item had Order Tracking enabled
@@ -777,9 +777,9 @@ codeunit 137066 "SCM Order Tracking"
         LibraryPurchase.GetSpecialOrder(PurchaseHeader);
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         ReservationEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", -1, false);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         QtyPurchSurplus := ReservationEntry.Quantity;
 
         // [GIVEN] 2nd Sales Order with the same Item
@@ -792,7 +792,7 @@ codeunit 137066 "SCM Order Tracking"
 
         // [THEN] Surplus Reservation Entry with 1 PCS for the second Sales Order Line
         ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", -1, false);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
         ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
         ReservationEntry.TestField("Expected Receipt Date", 0D);
@@ -821,7 +821,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 330077] Second Sales Order is not tracked to drop shipment Purchase with same Item
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandIntInRange(2, 10);
 
         // [GIVEN] Item had Order Tracking enabled
@@ -843,9 +843,9 @@ codeunit 137066 "SCM Order Tracking"
         LibraryPurchase.GetDropShipment(PurchaseHeader);
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         ReservationEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", -1, false);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         QtyPurchSurplus := ReservationEntry.Quantity;
 
         // [GIVEN] 2nd Sales Order with the same Item
@@ -858,7 +858,7 @@ codeunit 137066 "SCM Order Tracking"
 
         // [THEN] Surplus Reservation Entry with 1 PCS for the second Sales Order Line
         ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", -1, false);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
         ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
         ReservationEntry.TestField("Expected Receipt Date", 0D);
@@ -875,16 +875,16 @@ codeunit 137066 "SCM Order Tracking"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Order Tracking");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Order Tracking");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         CreateLocationSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
         ItemJournalSetup;
 
         isInitialized := true;
@@ -1003,7 +1003,7 @@ codeunit 137066 "SCM Order Tracking"
     local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10])
     begin
         Bin.SetRange("Location Code", LocationCode);
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure FindPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; No: Code[20])
@@ -1012,7 +1012,7 @@ codeunit 137066 "SCM Order Tracking"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure UpdateDueDateOnReleasedProdOrder(No: Code[20]; DueDate: Date)
@@ -1039,7 +1039,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         // Open Order Tracking page for required Production Order.
         OrderTracking.SetProdOrderLine(ProdOrderLine);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure OpenOrderTrackingForProdOrderComponent(ProdOrderComponent: Record "Prod. Order Component")
@@ -1048,7 +1048,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         // Open Order Tracking page for required Production Order Component line.
         OrderTracking.SetProdOrderComponent(ProdOrderComponent);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure OpenOrderTrackingForSales(SalesLine: Record "Sales Line")
@@ -1057,7 +1057,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         // Open Order Tracking page for required Sales Order.
         OrderTracking.SetSalesLine(SalesLine);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure OpenOrderTrackingForPurchase(PurchaseLine: Record "Purchase Line")
@@ -1066,7 +1066,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         // Open Order Tracking page for required Purchase Order.
         OrderTracking.SetPurchLine(PurchaseLine);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Enum "Production Order Status"; ItemNo: Code[20])
@@ -1074,7 +1074,7 @@ codeunit 137066 "SCM Order Tracking"
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure SelectProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20]; ItemNo: Code[20])
@@ -1082,7 +1082,7 @@ codeunit 137066 "SCM Order Tracking"
         ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindLast;
+        ProdOrderComponent.FindLast();
     end;
 
     local procedure CreateRequisitionWorksheetName(var RequisitionWkshName: Record "Requisition Wksh. Name")
@@ -1091,7 +1091,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
         RequisitionWkshName.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
@@ -1184,7 +1184,7 @@ codeunit 137066 "SCM Order Tracking"
             SetRange("Order Type", "Order Type"::Production);
             SetRange("Order No.", ProductionOrder."No.");
             SetRange("Entry Type", "Entry Type"::Consumption);
-            FindFirst;
+            FindFirst();
             Validate(Quantity, ConsumptionQty);
             Validate("Applies-to Entry", AppliedToEntryNo);
             Modify(true);
@@ -1203,7 +1203,7 @@ codeunit 137066 "SCM Order Tracking"
             SetRange("Order Type", "Order Type"::Production);
             SetRange("Order No.", ProductionOrder."No.");
             SetRange("Entry Type", "Entry Type"::Output);
-            FindFirst;
+            FindFirst();
             Validate("Output Quantity", OutputQty);
             Modify(true);
         end;
@@ -1213,7 +1213,7 @@ codeunit 137066 "SCM Order Tracking"
             SetRange("Entry Type", "Entry Type"::Output);
             SetRange("Order Type", "Order Type"::Production);
             SetRange("Order No.", ProductionOrder."No.");
-            FindLast;
+            FindLast();
             exit("Entry No.");
         end;
     end;
@@ -1322,7 +1322,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         ReservationEntry.SetRange("Source Type", SourceType);
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Reservation Status", ReservationStatus);
         ReservationEntry.TestField(Quantity, Qty);
         ReservationEntry.TestField("Shipment Date", ShipmentDate);

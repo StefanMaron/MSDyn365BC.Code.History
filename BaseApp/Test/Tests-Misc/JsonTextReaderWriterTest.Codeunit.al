@@ -80,7 +80,7 @@ codeunit 139211 "Json Text Reader/Writer Test"
         with TempJSONBuffer do begin
             SetRange("Token type", "Token type"::"Property Name");
             SetRange(Value, PropertyName);
-            FindFirst;
+            FindFirst();
             Reset;
             Next;
             case true of

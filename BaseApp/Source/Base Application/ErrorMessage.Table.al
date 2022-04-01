@@ -467,7 +467,7 @@ table 700 "Error Message"
     procedure FindLastID(): Integer
     begin
         Reset;
-        if FindLast then
+        if FindLast() then
             exit(ID);
     end;
 
@@ -588,11 +588,11 @@ table 700 "Error Message"
 
         if GuiAllowed then begin
             ErrorMessages.SetRecords(Rec);
-            ErrorMessages.Run;
+            ErrorMessages.Run();
             IsPageOpen := true;
         end else begin
             SetRange("Message Type", "Message Type"::Error);
-            if FindFirst then
+            if FindFirst() then
                 Error(Description);
             IsPageOpen := false;
         end;
@@ -612,7 +612,7 @@ table 700 "Error Message"
 
         if GuiAllowed then begin
             ErrorMessages.SetRecords(Rec);
-            ErrorMessages.Run;
+            ErrorMessages.Run();
         end;
 
         ErrorString := ToString;
@@ -634,7 +634,7 @@ table 700 "Error Message"
         SetContextFilter;
         SetCurrentKey("Message Type", ID);
         SetRange(Context, false);
-        if FindSet then
+        if FindSet() then
             repeat
                 if ErrorString <> '' then
                     ErrorString += '\';
@@ -681,7 +681,7 @@ table 700 "Error Message"
         SetRange("Message Type", MessageType);
         SetRange(Description, CopyStr(NewDescription, 1, MaxStrLen(Description)));
         FoundID := 0;
-        if FindFirst then
+        if FindFirst() then
             FoundID := ID;
         ClearFilters;
     end;
@@ -707,7 +707,7 @@ table 700 "Error Message"
     var
         TempID: Integer;
     begin
-        if not FindSet then
+        if not FindSet() then
             exit;
 
         TempID := TempErrorMessage.FindLastID;
@@ -726,7 +726,7 @@ table 700 "Error Message"
     var
         ErrorMessage: Record "Error Message";
     begin
-        if not TempErrorMessage.FindSet then
+        if not TempErrorMessage.FindSet() then
             exit;
 
         repeat

@@ -32,7 +32,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         O365SalesInvoiceLineCard: TestPage "O365 Sales Invoice Line Card";
     begin
         // [GIVEN] A Item and Customer of type Person
-        Initialize;
+        Initialize();
         CreateItemWithPrice(Item);
         CreateCustomer(Customer, Customer."Contact Type"::Person);
 
@@ -52,7 +52,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         Assert.IsTrue(O365SalesInvoiceLineCard.LineAmountInclVAT.Value > O365SalesInvoiceLineCard.LineAmountExclVAT.Value,
           'Price Inc VAT should be the largest value');
 
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         O365SalesInvoice.GotoRecord(SalesHeader);
         // [THEN] The brick value for the sales line should be including VAT
         O365SalesInvoice.Lines."Line Amount".AssertEquals(O365SalesInvoiceLineCard.LineAmountInclVAT.Value);
@@ -100,7 +100,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         O365SalesInvoiceLineCard: TestPage "O365 Sales Invoice Line Card";
     begin
         // [GIVEN] A Item and Customer of type Company
-        Initialize;
+        Initialize();
         CreateCustomerAndItem(Item, Customer, Customer."Contact Type"::Company);
 
         // [WHEN] Creating a Sales invoice with the new Customer and Item
@@ -118,7 +118,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         Assert.IsTrue(O365SalesInvoiceLineCard.LineAmountInclVAT.Value > O365SalesInvoiceLineCard.LineAmountExclVAT.Value,
           'Price Inc VAT should be the largest value');
 
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         O365SalesInvoice.GotoRecord(SalesHeader);
 
         // [THEN] The brick value for the sales line should be excluding VAT
@@ -144,7 +144,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         DraftInvoiceNo: Code[20];
     begin
         // [GIVEN] A clean Invoicing app
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] User creates a sales draft invoice
@@ -169,7 +169,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
     end;
 
     [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,BCEmailSetupPageHandler,SalesInvoiceReportRequestPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,SalesInvoiceReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestVATClauseInInvoiceReport()
     var
@@ -179,7 +179,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         PostedInvoiceNo: Code[20];
     begin
         // [GIVEN] A clean Invoicing app
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] User creates and sends a simple invoice
@@ -228,9 +228,9 @@ codeunit 138919 "O365 Test VAT on Invoice"
         SalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";
     begin
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         O365SalesInvoiceLineCard.OpenEdit;
         O365SalesInvoiceLineCard.GotoRecord(SalesLine);
@@ -289,7 +289,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
     begin
         XMLBuffer.Load(DatasetFileName);
         XMLBuffer.SetRange(Name, 'VATClausesHeader');
-        if XMLBuffer.FindFirst then
+        if XMLBuffer.FindFirst() then
             Assert.AreEqual(VATClauseTxt, XMLBuffer.Value, 'Incorrect VAT Clause Header');
     end;
 
@@ -302,24 +302,12 @@ codeunit 138919 "O365 Test VAT on Invoice"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure BCEmailSetupPageHandler(var BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard")
-    begin
-        with BCO365EmailSetupWizard.EmailSettingsWizardPage do begin
-            "Email Provider".SetValue(EmailProvider::"Office 365");
-            FromAccount.SetValue('test@test.com');
-            Password.SetValue('pass');
-        end;
-        BCO365EmailSetupWizard.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure VATProductPostingGroupHandler(var O365VATProductPostingGr: TestPage "O365 VAT Product Posting Gr.")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("VAT %", 0);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
 
         O365VATProductPostingGr.GotoKey(VATPostingSetup."VAT Prod. Posting Group");
         O365VATProductPostingGr.OK.Invoke;

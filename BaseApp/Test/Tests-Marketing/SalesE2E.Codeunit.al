@@ -43,7 +43,7 @@ codeunit 134640 "Sales E2E"
     begin
         // [SCENARIO] E2E scenario: user is able to manage simple sales activities: create contact, create customer from contact,
         // [SCENARIO] create quote, create order from quote, post order, post payment applied to posted order, and finally to run customer statement
-        Initialize;
+        Initialize();
         LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
         CustomerTempl."Contact Type" := CustomerTempl."Contact Type"::Person;
         CustomerTempl.Modify();
@@ -74,7 +74,7 @@ codeunit 134640 "Sales E2E"
         VerifyCustomerStatement(PostedInvoiceNo, PaymentNo);
 
         // Cleanup
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure Initialize()
@@ -85,10 +85,10 @@ codeunit 134640 "Sales E2E"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales E2E");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGenProdPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryVariableStorage.Clear;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryVariableStorage.Clear();
         DisableSendMails;
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales E2E");
@@ -99,7 +99,7 @@ codeunit 134640 "Sales E2E"
         DummyContact: Record Contact;
         ContactCard: TestPage "Contact Card";
     begin
-        ContactCard.OpenNew;
+        ContactCard.OpenNew();
         ContactCard.Type.SetValue(DummyContact.Type::Person);
         ContactCard.Name.AssistEdit;
         ContactCard.Address.SetValue(DummyAddressTxt);
@@ -115,7 +115,7 @@ codeunit 134640 "Sales E2E"
         SalesQuote: TestPage "Sales Quote";
         i: Integer;
     begin
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer No.".SetValue(CustomerNo);
 
         for i := 1 to LibraryRandom.RandIntInRange(2, 5) do
@@ -183,7 +183,7 @@ codeunit 134640 "Sales E2E"
     begin
         ContactBusinessRelation.SetRange("Contact No.", ContactNo);
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         exit(ContactBusinessRelation."No.");
     end;
 
@@ -204,7 +204,7 @@ codeunit 134640 "Sales E2E"
         SalesOrder.FILTER.SetFilter("No.", OrderNo);
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesOrder."Sell-to Customer No.".Value);
         SalesOrder.PostAndSend.Invoke;
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         exit(SalesInvoiceHeader."No.");
     end;
 

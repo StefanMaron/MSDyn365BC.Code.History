@@ -1,7 +1,10 @@
-#if not CLEAN19
+#if not CLEAN20
 codeunit 104041 "Upgrade User Callouts"
 {
     Subtype = Upgrade;
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+    ObsoleteReason = 'The upgrade code will no longer be needed.';
 
     trigger OnUpgradePerDatabase()
     var

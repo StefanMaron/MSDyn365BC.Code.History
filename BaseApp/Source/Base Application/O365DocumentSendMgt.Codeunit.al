@@ -7,13 +7,10 @@ codeunit 2158 "O365 Document Send Mgt"
     end;
 
     var
-        EmailFeature: Codeunit "Email Feature";
         RoleCenterEmailErrorIDTxt: Label 'c3c760b9-6405-aaaa-b2a6-1affb70c38bf', Locked = true;
         DocumentPageEmailErrorIDTxt: Label '9c8d5ebc-8c62-45a7-bc77-e260691e6de0', Locked = true;
         ShowDocumentsActionLbl: Label 'Show documents';
         IgnoreTheseFailuresActionLbl: Label 'Ignore';
-        EmailSetupActionLbl: Label 'Set up email';
-        EditCustomerActionLbl: Label 'Edit customer';
         ResendForegroundActionLbl: Label 'Resend now';
         SomeDocumentsFailedMsg: Label 'Some documents could not be sent.';
         EmailFailedGenericMsg: Label 'The last email about this document could not be sent. %1', Comment = '%1 = Additional error information';
@@ -22,7 +19,6 @@ codeunit 2158 "O365 Document Send Mgt"
         ClientTypeManagement: Codeunit "Client Type Management";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         ResendDocumentFromUIMsg: Label 'To resend this document, use the action in the document page.';
-        SMTPMail: Codeunit "SMTP Mail";
         DocumentIdMissingTelemetryErr: Label 'No document record ID could be retrieved from notification.', Locked = true;
         DocSentHistoryCategoryTxt: Label 'AL Doc Sent History', Locked = true;
 
@@ -34,12 +30,9 @@ codeunit 2158 "O365 Document Send Mgt"
         O365DocumentSentHistory.SetRange("Document Type", DocumentType);
         O365DocumentSentHistory.SetRange("Document No.", DocumentNo);
         O365DocumentSentHistory.SetRange(Posted, Posted);
-        if O365DocumentSentHistory.FindLast then begin
-            if EmailFeature.IsEnabled() then
-                ErrorCode := O365DocumentSentHistory.GetJobQueueErrorMessage()
-            else
-                ErrorCode := SMTPMail.GetSmtpErrorCodeFromResponse(O365DocumentSentHistory.GetJobQueueErrorMessage());
-        end else
+        if O365DocumentSentHistory.FindLast() then
+            ErrorCode := O365DocumentSentHistory.GetJobQueueErrorMessage()
+        else
             ErrorCode := '';
 
         SendNotificationFromErrorCode(O365DocumentSentHistory."Source No.", ErrorCode, DocumentRecordId, ShowActions);
@@ -92,29 +85,12 @@ codeunit 2158 "O365 Document Send Mgt"
         TargetNotification.SetData('DocumentRecordId', Format(DocumentRecordId));
         TargetNotification.SetData('ErrCode', ErrorCode);
 
-        if EmailFeature.IsEnabled() then
-            TargetNotification.Message(StrSubstNo(EmailFailedGenericMsg, ErrorCode))
-        else
-            TargetNotification.Message(StrSubstNo(EmailFailedGenericMsg, SMTPMail.GetFriendlyMessageFromSmtpErrorCode(ErrorCode)));
+        TargetNotification.Message(StrSubstNo(EmailFailedGenericMsg, ErrorCode));
 
         // Test framework does not allow to invoke or check notification actions. Keep MethodName in sync with COD138958
-        if ShowActions then begin
-            if not EmailFeature.IsEnabled() then
-                case true of
-                    SMTPMail.IsSmtpAuthErrorCode(ErrorCode):
-                        begin
-                            TargetNotification.AddAction(
-                            EmailSetupActionLbl, CODEUNIT::"O365 Document Send Mgt", 'OpenSetupEmailFromNotification');
-                            SMTPMail.AddTroubleshootingLinksToNotification(TargetNotification);
-                        end;
-                    SMTPMail.IsSmtpRecipientErrorCode(ErrorCode):
-                        TargetNotification.AddAction(
-                        EditCustomerActionLbl, CODEUNIT::"O365 Document Send Mgt", 'OpenCustomerFromNotification');
-                end;
-
+        if ShowActions then
             TargetNotification.AddAction(
               ResendForegroundActionLbl, CODEUNIT::"O365 Document Send Mgt", 'ResendDocumentFromNotification');
-        end;
 
         NotificationLifecycleMgt.SendNotification(TargetNotification, DocumentRecordId);
     end;
@@ -245,7 +221,7 @@ codeunit 2158 "O365 Document Send Mgt"
         O365DocumentSentHistory.SetRange("Document No.", DocNo);
         O365DocumentSentHistory.SetRange("Document Type", DocType);
 
-        if O365DocumentSentHistory.FindLast then begin
+        if O365DocumentSentHistory.FindLast() then begin
             O365DocumentSentHistory.NotificationCleared := true;
             O365DocumentSentHistory.Notified := true;
             O365DocumentSentHistory.Modify(true);
@@ -285,7 +261,7 @@ codeunit 2158 "O365 Document Send Mgt"
             if ("Object Type to Run" = "Object Type to Run"::Codeunit) and ("Object ID to Run" = CODEUNIT::"Document-Mailing") then
                 if (Status = Status::Error) or (Status = Status::Finished) then begin
                     O365DocumentSentHistory.SetRange("Job Queue Entry ID", ID);
-                    if not O365DocumentSentHistory.FindFirst then
+                    if not O365DocumentSentHistory.FindFirst() then
                         exit;
 
                     if Status = Status::Error then

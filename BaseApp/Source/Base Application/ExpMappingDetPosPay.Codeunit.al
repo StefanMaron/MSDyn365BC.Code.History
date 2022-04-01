@@ -20,12 +20,12 @@ codeunit 1705 "Exp. Mapping Det Pos. Pay"
         LineNo := 1;
 
         PositivePayDetail.SetRange("Data Exch. Entry No.", "Entry No.");
-        if PositivePayDetail.FindSet then
+        if PositivePayDetail.FindSet() then
             repeat
                 Window.Update(1, LineNo);
                 if HandlePositivePayDetails(PositivePayDetail) then begin
                     DataExch.SetRange("Entry No.", "Entry No.");
-                    if DataExch.FindFirst then begin
+                    if DataExch.FindFirst() then begin
                         RecordRef.GetTable(PositivePayDetail);
                         PositivePayExportMgt.InsertDataExchLineForFlatFile(
                           DataExch,
@@ -49,7 +49,7 @@ codeunit 1705 "Exp. Mapping Det Pos. Pay"
             CheckLedgEntry.SetRange("Positive Pay Exported", false);
             CheckLedgEntry.SetRange("Data Exch. Voided Entry No.", PositivePayDetail."Data Exch. Entry No.");
             CheckLedgEntry.SetRange("Check No.", PositivePayDetail."Check Number");
-            if CheckLedgEntry.FindLast then
+            if CheckLedgEntry.FindLast() then
                 exit(CheckLedgEntry."Entry Status" <> CheckLedgEntry."Entry Status"::"Test Print");
         end;
 

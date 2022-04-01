@@ -87,9 +87,14 @@ page 6303 "Power BI Report Spinner Part"
                     end;
 
                     trigger DocumentReady()
+                    var
+                        LoadReportMessage: Text;
                     begin
                         if not TempPowerBiReportBuffer.IsEmpty() then
-                            CurrPage.WebReportViewer.PostMessage(PowerBiEmbedHelper.GetLoadReportMessage(), PowerBiEmbedHelper.TargetOrigin(), false);
+                            if PowerBiEmbedHelper.TryGetLoadReportMessage(LoadReportMessage) then
+                                CurrPage.WebReportViewer.PostMessage(LoadReportMessage, PowerBiEmbedHelper.TargetOrigin(), false)
+                            else
+                                ShowError(GetLastErrorText());
                     end;
 
                     trigger Callback(data: Text)
@@ -326,6 +331,7 @@ page 6303 "Power BI Report Spinner Part"
                             ObsoleteTag = '18.0';
                         }
                     }
+#endif
                     group(Control20)
                     {
                         ShowCaption = false;
@@ -342,7 +348,6 @@ page 6303 "Power BI Report Spinner Part"
                             Visible = false;
                         }
                     }
-#endif
                 }
             }
         }
@@ -749,7 +754,7 @@ page 6303 "Power BI Report Spinner Part"
     local procedure SetReport()
     begin
         if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::Phone, ClientType::Windows]) then
-            CurrPage.WebReportViewer.InitializeIFrame(PowerBiServiceMgt.GetReportPageSize());
+            CurrPage.WebReportViewer.InitializeIFrame(PowerBiServiceMgt.GetMainPageRatio());
 
         CurrPage.WebReportViewer.Navigate(GetEmbedUrl());
     end;
@@ -807,5 +812,11 @@ page 6303 "Power BI Report Spinner Part"
     procedure GetOptinImageName(): Text[250]
     begin
         exit(PowerBiOptInImageNameLbl);
+    end;
+
+    local procedure ShowError(NewErrorMessageText: Text)
+    begin
+        PageState := PageState::ErrorVisible;
+        ErrorMessageText := NewErrorMessageText;
     end;
 }

@@ -216,7 +216,6 @@ report 5688 "Cancel FA Ledger Entries"
         FAJnlLine: Record "FA Journal Line";
         FADeprBook: Record "FA Depreciation Book";
         DeprBook: Record "Depreciation Book";
-        FALedgEntry: Record "FA Ledger Entry";
         FAJnlSetup: Record "FA Journal Setup";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         Window: Dialog;
@@ -243,6 +242,9 @@ report 5688 "Cancel FA Ledger Entries"
         Text004: Label 'You must not specify a closing date.';
         UseNewPostingDate: Boolean;
         NewPostingDate: Date;
+
+    protected var
+        FALedgEntry: Record "FA Ledger Entry";
 
     local procedure InsertGenJnlLine(var FALedgEntry: Record "FA Ledger Entry")
     var
@@ -280,7 +282,7 @@ report 5688 "Cancel FA Ledger Entries"
             Insert(true);
             if BalAccount then begin
                 FAInsertGLAcc.GetBalAcc(GenJnlLine);
-                if FindLast then;
+                if FindLast() then;
                 GenJnlNextLineNo := "Line No.";
             end;
         end;

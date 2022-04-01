@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2861 "Native - Payment Terms"
 {
     Caption = 'nativePaymentTerms', Locked = true;
@@ -177,4 +178,4 @@ page 2861 "Native - Payment Terms"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

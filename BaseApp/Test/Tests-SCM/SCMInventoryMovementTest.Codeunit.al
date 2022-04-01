@@ -29,10 +29,10 @@ codeunit 137200 "SCM Inventory Movement Test"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Movement Test");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -57,7 +57,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // items have Flushing Method = Manual
         // no item tracking is set
 
-        Initialize;
+        Initialize();
 
         // creating location with bins
         CreateLocationWithBins(Location, Bin);
@@ -78,7 +78,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // create production order
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindLast;
+        Bin.FindLast();
         PrepareReleasedProdOrder(ProductionOrder, ItemFinal, Location.Code, Bin.Code);
 
         // Post output
@@ -112,7 +112,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // items have Flushing Method = Forward
         // no item tracking is set
 
-        Initialize;
+        Initialize();
 
         // creating location with bins
         CreateLocationWithBins(Location, Bin);
@@ -133,7 +133,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // create production order
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindLast;
+        Bin.FindLast();
         PrepareReleasedProdOrder(ProductionOrder, ItemFinal, Location.Code, Bin.Code);
 
         // Create and register Inventory Movement
@@ -164,7 +164,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // items have Flushing Method = Forward
         // no item tracking is set
 
-        Initialize;
+        Initialize();
 
         // creating location with bins
         CreateLocationWithBins(Location, Bin);
@@ -185,7 +185,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // create production order
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindLast;
+        Bin.FindLast();
         PrepareReleasedProdOrder(ProductionOrder, ItemFinal, Location.Code, Bin.Code);
 
         // Create and register Inventory Movement - no one should be created
@@ -219,7 +219,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // items have Flushing Method = Backward
         // no item tracking is set
 
-        Initialize;
+        Initialize();
 
         // creating location with bins
         CreateLocationWithBins(Location, Bin);
@@ -240,7 +240,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // create production order
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindLast;
+        Bin.FindLast();
         PrepareReleasedProdOrder(ProductionOrder, ItemFinal, Location.Code, Bin.Code);
 
         // Create and register Inventory Movement
@@ -271,7 +271,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // items have Flushing Method = Backward
         // no item tracking is set
 
-        Initialize;
+        Initialize();
 
         // creating location with bins
         CreateLocationWithBins(Location, Bin);
@@ -292,7 +292,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // create production order
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindLast;
+        Bin.FindLast();
         PrepareReleasedProdOrder(ProductionOrder, ItemFinal, Location.Code, Bin.Code);
 
         // Create and register Inventory Movement - no one should be created
@@ -326,7 +326,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // items have Flushing Method = Pick + Forward
         // no item tracking is set
 
-        Initialize;
+        Initialize();
 
         // creating location with bins
         CreateLocationWithBins(Location, Bin);
@@ -347,7 +347,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // create production order
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindLast;
+        Bin.FindLast();
         PrepareReleasedProdOrder(ProductionOrder, ItemFinal, Location.Code, Bin.Code);
 
         // Create and register Inventory Movement
@@ -381,7 +381,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // items have Flushing Method = Pick + Backward
         // no item tracking is set
 
-        Initialize;
+        Initialize();
 
         // creating location with bins
         CreateLocationWithBins(Location, Bin);
@@ -402,7 +402,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // create production order
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindLast;
+        Bin.FindLast();
         PrepareReleasedProdOrder(ProductionOrder, ItemFinal, Location.Code, Bin.Code);
 
         // Create and register Inventory Movement
@@ -436,7 +436,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // items have Flushing Method = Manual
         // Serial Number is set
 
-        Initialize;
+        Initialize();
 
         // creating location with bins
         CreateLocationWithBins(Location, Bin);
@@ -459,7 +459,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // create production order
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindLast;
+        Bin.FindLast();
         PrepareReleasedProdOrder(ProductionOrder, ItemFinal, Location.Code, Bin.Code);
         AddSerialNumberToComponent(ProductionOrder);
         // Post output
@@ -514,7 +514,7 @@ codeunit 137200 "SCM Inventory Movement Test"
             SetRange("Action Type", "Action Type"::Take);
             SetRange("Item No.", ItemJournalLine."Item No.");
             SetRange("Bin Code", ItemJournalLine."Bin Code");
-            FindFirst;
+            FindFirst();
             WarehouseActivityHeader.Get("Activity Type", "No.");
         end;
         LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
@@ -526,12 +526,12 @@ codeunit 137200 "SCM Inventory Movement Test"
         with RegisteredInvtMovementLine do begin
             SetRange("Item No.", ItemJournalLine."Item No.");
             SetRange("Action Type", "Action Type"::Take);
-            FindFirst;
+            FindFirst();
             TestField("Bin Code", ItemJournalLine."Bin Code");
             TestField(Quantity, ItemJournalLine.Quantity);
 
             SetRange("Action Type", "Action Type"::Place);
-            FindFirst;
+            FindFirst();
             TestField("Bin Code", Bin.Code);
             TestField(Quantity, ItemJournalLine.Quantity);
         end;
@@ -670,7 +670,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         WarehouseActivityHeaderRec: Record "Warehouse Activity Header";
     begin
         BinRec.SetRange("Location Code", LocationRec.Code);
-        BinRec.FindFirst;
+        BinRec.FindFirst();
 
         // creating purchase order with 2 lines
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderRec, PurchaseHeaderRec."Document Type"::Order, '');
@@ -692,7 +692,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // posting inventory put-away
         WarehouseActivityHeaderRec.SetRange("Location Code", LocationRec.Code);
-        WarehouseActivityHeaderRec.FindFirst;
+        WarehouseActivityHeaderRec.FindFirst();
         WarehouseActivityHeaderRec.Validate("External Document No.2", PurchaseHeaderRec."No.");
         WarehouseActivityHeaderRec.Modify(true);
 
@@ -750,7 +750,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // posting inventory put-away
         WarehouseActivityHeaderRec.SetRange("Location Code", LocationRec.Code);
-        WarehouseActivityHeaderRec.FindFirst;
+        WarehouseActivityHeaderRec.FindFirst();
         WarehouseActivityHeaderRec.Validate("External Document No.2", PurchaseHeaderRec."No.");
         WarehouseActivityHeaderRec.Modify(true);
 
@@ -776,7 +776,7 @@ codeunit 137200 "SCM Inventory Movement Test"
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
 
         LibraryItemTracking.CreateProdOrderCompItemTracking(ReservationEntry, ProdOrderComponent, 'S11', '', 1);
         LibraryItemTracking.CreateProdOrderCompItemTracking(ReservationEntry, ProdOrderComponent, 'S12', '', 1);
@@ -809,7 +809,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // change bins in component list
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetFilter(Code, '<>%1', BinCode);
-        Bin.FindLast;
+        Bin.FindLast();
 
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
@@ -834,7 +834,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Location Code", LocationCode);
-        ProductionOrder.FindLast;
+        ProductionOrder.FindLast();
     end;
 
     local procedure PostOutput(ProductionOrder: Record "Production Order")
@@ -850,7 +850,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
         ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Output);
 
-        ItemJournalLine.FindLast;
+        ItemJournalLine.FindLast();
         ItemJournalLine.Delete(true);
         LibraryManufacturing.PostOutputJournal;
 
@@ -866,7 +866,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Invt. Put-away");
         WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Prod. Output");
         WarehouseActivityHeader.SetRange("Source No.", ProductionOrder."No.");
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
     end;
@@ -888,7 +888,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         WarehouseActivityHeader.SetRange("Source No.", ProductionOrder."No.");
 
         // according Flushing method the Invt. Movement hasn't had to be created
-        if WarehouseActivityHeader.FindFirst then begin
+        if WarehouseActivityHeader.FindFirst() then begin
             LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
             LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
         end;
@@ -900,7 +900,7 @@ codeunit 137200 "SCM Inventory Movement Test"
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComponent, WorkDate + 30, true);
         LibraryManufacturing.PostConsumptionJournal;
     end;
@@ -942,7 +942,7 @@ codeunit 137200 "SCM Inventory Movement Test"
                 repeat
                     BinContent.SetRange("Location Code", LocationCode);
                     BinContent.SetRange("Item No.", "Item No.");
-                    BinContent.FindFirst;
+                    BinContent.FindFirst();
                     Validate("Bin Code", BinContent."Bin Code");
                     Modify(true);
                 until Next = 0;

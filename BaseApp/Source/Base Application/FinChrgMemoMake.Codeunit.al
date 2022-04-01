@@ -234,7 +234,7 @@ codeunit 394 "FinChrgMemo-Make"
         FinanceChargeMemoLine: Record "Finance Charge Memo Line";
     begin
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", MemoNo);
-        if FinanceChargeMemoLine.FindLast then;
+        if FinanceChargeMemoLine.FindLast() then;
         exit(FinanceChargeMemoLine."Line No.");
     end;
 

@@ -37,7 +37,7 @@ codeunit 131920 "Library - Job"
         Job.Init();
         Job.Validate("No.", JobNo);
         Job.Insert(true);
-        Job.Validate("Bill-to Customer No.", CreateCustomer);
+        Job.Validate("Sell-to Customer No.", CreateCustomer);
         Job.Validate("Job Posting Group", FindJobPostingGroup);
         Job.Modify(true)
     end;
@@ -53,7 +53,7 @@ codeunit 131920 "Library - Job"
 
         // Find the last task no. (as an integer)
         JobTaskLocal.SetRange("Job No.", Job."No.");
-        if JobTaskLocal.FindLast then
+        if JobTaskLocal.FindLast() then
             JobTaskNo := IncStr(JobTaskLocal."Job Task No.");
 
         JobTask.Init();
@@ -86,7 +86,7 @@ codeunit 131920 "Library - Job"
                 JobPlanningLine.Validate("Unit Price", JobPlanningLine."Unit Cost" * (LibraryRandom.RandIntInRange(2, 10) / 10)); // 10% <= Markup <= 100%
             end;
         end;
-        JobPlanningLine.Validate(Description, LibraryUtility.GenerateGUID);
+        JobPlanningLine.Validate(Description, LibraryUtility.GenerateGUID());
         JobPlanningLine.Modify(true);
 
         JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
@@ -138,7 +138,7 @@ codeunit 131920 "Library - Job"
 
         // Attach requested consumable type to the created job journal line
         Attach2JobJournalLine(ConsumableType, JobJournalLine);
-        JobJournalLine.Validate(Description, Format(LibraryUtility.GenerateGUID));
+        JobJournalLine.Validate(Description, Format(LibraryUtility.GenerateGUID()));
         JobJournalLine.Modify(true)
     end;
 
@@ -154,7 +154,7 @@ codeunit 131920 "Library - Job"
         with JobJournalLine do begin
             Validate(Type, JobPlanningLine.Type);
             Validate("No.", JobPlanningLine."No.");
-            Validate(Description, LibraryUtility.GenerateGUID);
+            Validate(Description, LibraryUtility.GenerateGUID());
             Validate(Quantity, Round(Fraction * JobPlanningLine."Remaining Qty."));
             // unit costs, prices may change (e.g., +/- 10%)
             if not IsStandardCosting(Type, "No.") then begin
@@ -177,7 +177,7 @@ codeunit 131920 "Library - Job"
 
         with GenJournalLine do begin
             "Account No." := JobPlanningLine."No.";
-            Validate(Description, LibraryUtility.GenerateGUID);
+            Validate(Description, LibraryUtility.GenerateGUID());
             Validate("Job Planning Line No.", JobPlanningLine."Line No.");
             Validate("Job Quantity", Round(Fraction * JobPlanningLine."Remaining Qty."));
             Modify(true)
@@ -211,7 +211,7 @@ codeunit 131920 "Library - Job"
           JobPlanningLine."No.", Round(Fraction * JobPlanningLine."Remaining Qty."));
 
         with PurchaseLine do begin
-            // VALIDATE(Description,LibraryUtility.GenerateGUID);
+            // VALIDATE(Description,LibraryUtility.GenerateGUID());
             Validate(Description, JobPlanningLine."No.");
             Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
             Validate("Job Line Type", UsageLineType);
@@ -241,7 +241,7 @@ codeunit 131920 "Library - Job"
 
         with ServiceLine do begin
             Validate("Service Item Line No.", ServiceItemLine."Line No.");
-            Validate(Description, LibraryUtility.GenerateGUID);
+            Validate(Description, LibraryUtility.GenerateGUID());
             Validate("Location Code", FindLocationForPostingGroup(ServiceLine));
             Validate(Quantity, Round(Fraction * JobPlanningLine."Remaining Qty."));
             Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
@@ -349,6 +349,14 @@ codeunit 131920 "Library - Job"
         exit(JobJournalTemplate.Name)
     end;
 
+    procedure DeleteJobJournalTemplate()
+    var
+        JobJournalTemplate: Record "Job Journal Template";
+    begin
+        if JobJournalTemplate.Get(Prefix + TemplateName) then
+            JobJournalTemplate.Delete(true);
+    end;
+
     procedure CreateJobGLJournalLine(JobLineType: Enum "Job Line Type"; JobTask: Record "Job Task"; var GenJournalLine: Record "Gen. Journal Line")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -362,7 +370,7 @@ codeunit 131920 "Library - Job"
         LibraryERM.CreateGLAccount(GLAccount);
         with GenJournalLine do begin
             SetRange("Job No.", JobTask."Job No.");
-            if FindLast then
+            if FindLast() then
                 Validate("Line No.", "Line No." + 1)
             else begin
                 Clear(GenJournalLine);
@@ -564,7 +572,7 @@ codeunit 131920 "Library - Job"
     var
         JobPostingGroup: Record "Job Posting Group";
     begin
-        if not JobPostingGroup.FindFirst then
+        if not JobPostingGroup.FindFirst() then
             CreateJobPostingGroup(JobPostingGroup);
         exit(JobPostingGroup.Code);
     end;
@@ -756,7 +764,7 @@ codeunit 131920 "Library - Job"
                 'Invalid Job Ledger Entry for Batch %1 Document %2', JobJournalLine."Journal Batch Name",
                 JobJournalLine."Document No."));
 
-            FindFirst;
+            FindFirst();
             Precision := Max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
             Assert.AreEqual(JobJournalLine."Job No.", "Job No.", FieldCaption("Job No."));
             Assert.AreEqual(JobJournalLine."Job Task No.", "Job Task No.", FieldCaption("Job Task No."));
@@ -796,7 +804,7 @@ codeunit 131920 "Library - Job"
 
             // Verify Unit Cost, Price.
             Precision := Max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
-            if FindSet then
+            if FindSet() then
                 repeat
                     Assert.AreEqual(JobJournalLine.Quantity, Quantity, FieldCaption(Quantity));
                     Assert.AreEqual(JobJournalLine."Job No.", "Job No.", FieldCaption("Job No."));
@@ -817,7 +825,7 @@ codeunit 131920 "Library - Job"
             Job.Get(JobJournalLine."Job No.");
             if UsageLink then begin
                 Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                FindFirst;
+                FindFirst();
                 Assert.AreEqual(PlanningLineTypeSchedule, "Line Type", FieldCaption("Line Type"))
             end else
                 Assert.IsTrue(IsEmpty, StrSubstNo('No planning lines should be created for %1.', JobJournalLine."Line Type"));
@@ -831,7 +839,7 @@ codeunit 131920 "Library - Job"
         with JobPlanningLine do begin
             SetRange(Description, JobJournalLine.Description);
             Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(PlanningLineTypeSchedule, "Line Type", FieldCaption("Line Type"))
         end
     end;
@@ -847,7 +855,7 @@ codeunit 131920 "Library - Job"
                 Job.Get(JobJournalLine."Job No.");
                 if Job."Allow Schedule/Contract Lines" then begin
                     Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                    FindFirst;
+                    FindFirst();
                     Assert.AreEqual(PlanningLineTypeBoth, "Line Type", FieldCaption("Line Type"))
                 end else begin
                     Assert.AreEqual(2, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
@@ -858,7 +866,7 @@ codeunit 131920 "Library - Job"
                 end
             end else begin
                 Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                FindFirst;
+                FindFirst();
                 Assert.AreEqual(PlanningLineTypeContract, "Line Type", FieldCaption("Line Type"))
             end
         end
@@ -874,7 +882,7 @@ codeunit 131920 "Library - Job"
             Job.Get(JobJournalLine."Job No.");
             if Job."Allow Schedule/Contract Lines" then begin
                 Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                FindFirst;
+                FindFirst();
                 Assert.AreEqual(PlanningLineTypeBoth, "Line Type", FieldCaption("Line Type"))
             end else begin
                 Assert.AreEqual(2, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
@@ -1020,7 +1028,7 @@ codeunit 131920 "Library - Job"
         JobPlanningLine.Reset();
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-        if JobPlanningLine.FindLast then
+        if JobPlanningLine.FindLast() then
             exit(JobPlanningLine."Line No." + 10000);
         exit(10000)
     end;
@@ -1342,7 +1350,7 @@ codeunit 131920 "Library - Job"
                         SetRange("Recognized Sales", "Recognized Sales"::"Sales Value");
                     end;
             end;
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1355,7 +1363,7 @@ codeunit 131920 "Library - Job"
         Job.SetRange("No.", JobNo);
         UpdateJobItemCost.SetTableView(Job);
         UpdateJobItemCost.UseRequestPage(false);
-        UpdateJobItemCost.Run;
+        UpdateJobItemCost.Run();
     end;
 }
 

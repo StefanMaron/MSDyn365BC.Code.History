@@ -1,6 +1,6 @@
 report 99003803 "Copy Production Forecast"
 {
-    Caption = 'Copy Demand Forecast';
+    Caption = 'Copy Demand Forecast Entries';
     ProcessingOnly = true;
 
     dataset
@@ -29,13 +29,16 @@ report 99003803 "Copy Production Forecast"
                     ProdForecastEntry2."Forecast Date" := CalcDate(ChangeDateExpression, "Forecast Date");
 
                 ProdForecastEntry2."Entry No." := NextEntryNo;
-                OnBeforeProdForecastEntryInsert(ProdForecastEntry2, ToProdForecastEntry);
-                ProdForecastEntry2.Insert();
-                NextEntryNo := NextEntryNo + 1;
+                if CheckDemandForecastEntry() then begin
+                    OnBeforeProdForecastEntryInsert(ProdForecastEntry2, ToProdForecastEntry);
+                    ProdForecastEntry2.Insert();
+                    NextEntryNo := NextEntryNo + 1;
+                end;
             end;
 
             trigger OnPreDataItem()
             begin
+                ToProdForecastEntry.TestField("Production Forecast Name");
                 if not Confirm(Text000, false) then
                     exit;
 
@@ -43,12 +46,6 @@ report 99003803 "Copy Production Forecast"
 
                 LastEntryNo := ProdForecastEntry2.GetLastEntryNo();
                 NextEntryNo := LastEntryNo + 1;
-
-                ProdForecastName.SetRange(Name, ToProdForecastEntry."Production Forecast Name");
-                if not ProdForecastName.FindFirst then begin
-                    ProdForecastName.Name := ToProdForecastEntry."Production Forecast Name";
-                    ProdForecastName.Insert();
-                end;
             end;
         }
     }
@@ -74,6 +71,7 @@ report 99003803 "Copy Production Forecast"
                             TableRelation = "Production Forecast Name";
                             ToolTip = 'Specifies the name of the demand forecast to which you want to copy the entries. Before you can select a demand forecast name, it must be set up in the Demand Forecast Names window, which you open by clicking the field.';
                             ShowMandatory = true;
+                            NotBlank = true;
                         }
                         field(ItemNo; ToProdForecastEntry."Item No.")
                         {
@@ -147,10 +145,22 @@ report 99003803 "Copy Production Forecast"
         Text000: Label 'Do you want to copy the demand forecast?';
         ToProdForecastEntry: Record "Production Forecast Entry";
         ProdForecastEntry2: Record "Production Forecast Entry";
-        ProdForecastName: Record "Production Forecast Name";
         ChangeDateExpression: DateFormula;
         LastEntryNo: Integer;
         NextEntryNo: Integer;
+
+    local procedure CheckDemandForecastEntry(): Boolean
+    var
+        ItemVariant: Record "Item Variant";
+    begin
+        if ProdForecastEntry2."Variant Code" <> '' then begin
+            ItemVariant.SetRange("Item No.", ProdForecastEntry2."Item No.");
+            ItemVariant.SetRange(Code, ProdForecastEntry2."Variant Code");
+            exit(not ItemVariant.IsEmpty());
+        end
+        else
+            exit(true);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProdForecastEntryInsert(var ProdForecastEntry: Record "Production Forecast Entry"; ToProdForecastEntry: Record "Production Forecast Entry")

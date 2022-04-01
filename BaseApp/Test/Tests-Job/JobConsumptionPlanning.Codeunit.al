@@ -99,7 +99,7 @@ codeunit 136307 "Job Consumption - Planning"
         // Check Reservation for Jobs with Sales Return Order.
 
         // Setup: Create and post Sales Return Order.
-        Initialize;
+        Initialize();
         CreateSalesReturnOrder(SalesLine);
         CreateReservationOnJobPlanningLine(
           JobPlanningLine, SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code", JobPlanningLine.Reserve::Always);
@@ -127,7 +127,7 @@ codeunit 136307 "Job Consumption - Planning"
         // Test Unit Cost, Unit Price, Total Price and Unit of Measure Code on Job Planning Line after changing Unit of Measure Code.
 
         // 1. Setup: Create Job with Job Task, Item and Create Item Unit Of Measure.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         ItemNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Item);
         ItemUnitOfMeasureCode := CreateItemUOM(ItemNo);
@@ -154,7 +154,7 @@ codeunit 136307 "Job Consumption - Planning"
         // Verify the Calc. Recog. Costs Amount on Job after running the Calculate WIP with Job Task Lines.
 
         // Setup: Create Job with multiple Job Task and Create Job Planning Line.
-        Initialize;
+        Initialize();
         CreateJobWithMultipleJobTask(Job, JobTask);
         CreateJobPlanningLine(JobPlanningLine, JobTask);
         UpdateCustomerWithGenBusPostingGroup(Job."Bill-to Customer No.", JobPlanningLine."Gen. Bus. Posting Group");
@@ -180,7 +180,7 @@ codeunit 136307 "Job Consumption - Planning"
         // Verify WIP Entry Amount on Job after running the Calculate WIP on Job.
 
         // Setup: Create Job, Job Task, Create Job Planning Line and posting Job Journal after creating Job Journal Line.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
         CreateJobWithWIPMethod(Job, CreateJobWIPMethod, Job."WIP Posting Method"::"Per Job Ledger Entry", true);
@@ -208,7 +208,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobUsageLink: Record "Job Usage Link";
     begin
         // [SCENARIO 380443] Check Transfer Job Lenger Entry to Job Planning Line procedure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Job Journal Line
         CreatePostJobJournalLine(Job, JobTask, true, false);
@@ -235,7 +235,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobUsageLink: Record "Job Usage Link";
     begin
         // [SCENARIO 380443] Check Transfer Job Lenger Entry to Job Planning Line procedure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Job Journal Line,
         CreatePostJobJournalLine(Job, JobTask, true, false);
@@ -262,7 +262,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobUsageLink: Record "Job Usage Link";
     begin
         // [SCENARIO 380443] Check Transfer Job Lenger Entry to Job Planning Line procedure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job option "Allow Schedule/Contract Lines" is swiched off
         // [GIVEN] Posted Job Journal Line
@@ -294,7 +294,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobPlanningLine: Record "Job Planning Line";
     begin
         // [SCENARIO 380443] Check Transfer Job Lenger Entry to Job Planning Line procedure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job option "Allow Schedule/Contract Lines" is swiched on
         // [GIVEN] Posted Job Journal Line
@@ -322,7 +322,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobPlanningLines: TestPage "Job Planning Lines";
     begin
         // [SCENARIO] Job Planning Lines are not editable for a blocked Job
-        Initialize;
+        Initialize();
         // [GIVEN] A Job with Blocked::All and planning lines
         CreateJobWithJobTask(JobTask);
         CreateJobPlanningLine(JobPlanningLine, JobTask);
@@ -353,8 +353,8 @@ codeunit 136307 "Job Consumption - Planning"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Consumption - Planning");
 
         LibraryERMCountryData.UpdateVATPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySales.SetStockoutWarning(false);
 
         Initialized := true;
@@ -524,7 +524,7 @@ codeunit 136307 "Job Consumption - Planning"
     var
         ItemVariant: Record "Item Variant";
     begin
-        ItemVariant.FindFirst;
+        ItemVariant.FindFirst();
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, No, LibraryRandom.RandDec(10, 2) + 10);  // Taken 10 here because Sales Line needs greater value than Planning Line.
@@ -547,7 +547,7 @@ codeunit 136307 "Job Consumption - Planning"
         with SalesHeader do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Sell-to Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
         end;
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -595,7 +595,7 @@ codeunit 136307 "Job Consumption - Planning"
         // Verify journal line
 
         // Setup
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(LineType, ConsumableType, JobTask, JobPlanningLine);
 
@@ -674,7 +674,7 @@ codeunit 136307 "Job Consumption - Planning"
             SetFilter("Posting Date", '%1..%2', StartingDate, EndingDate);
             CalcSums("Total Cost");
             JobWIPEntry.SetRange("Job No.", Job."No.");
-            JobWIPEntry.FindFirst;
+            JobWIPEntry.FindFirst();
             JobWIPEntry.TestField("WIP Entry Amount", -"Total Cost");
         end;
     end;
@@ -719,7 +719,7 @@ codeunit 136307 "Job Consumption - Planning"
     local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; Job: Record Job)
     begin
         JobLedgerEntry.SetRange("Job No.", Job."No.");
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
     end;
 
     local procedure JobUsageLinkApplied(var JobUsageLink: Record "Job Usage Link"; Job: Record Job; JobPlanningLineType: Enum "Job Planning Line Line Type")
@@ -728,7 +728,7 @@ codeunit 136307 "Job Consumption - Planning"
     begin
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.SetRange("Line Type", JobPlanningLineType);
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         JobUsageLink.SetRange("Job No.", JobPlanningLine."Job No.");
         JobUsageLink.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
         JobUsageLink.SetRange("Line No.", JobPlanningLine."Line No.");

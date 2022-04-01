@@ -27,15 +27,15 @@ table 5640 "Main Asset Component"
                     CreateError("FA No.", 1);
                 Description := FA.Description;
                 MainAssetComp.SetRange("Main Asset No.", "FA No.");
-                if MainAssetComp.FindFirst then
+                if MainAssetComp.FindFirst() then
                     CreateError("FA No.", 1);
                 MainAssetComp.SetRange("Main Asset No.");
                 MainAssetComp.SetCurrentKey("FA No.");
                 MainAssetComp.SetRange("FA No.", "FA No.");
-                if MainAssetComp.FindFirst then
+                if MainAssetComp.FindFirst() then
                     CreateError("FA No.", 2);
                 MainAssetComp.SetRange("FA No.", "Main Asset No.");
-                if MainAssetComp.FindFirst then
+                if MainAssetComp.FindFirst() then
                     CreateError("Main Asset No.", 1);
                 UpdateMainAsset(FA, 2);
                 FA.Get("Main Asset No.");

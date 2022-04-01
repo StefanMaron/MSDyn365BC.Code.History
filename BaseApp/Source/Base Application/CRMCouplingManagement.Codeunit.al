@@ -28,7 +28,34 @@ codeunit 5331 "CRM Coupling Management"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         IntegrationTableMapping.SetRange("Table ID", TableID);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
+    end;
+
+    procedure DefineOptionMapping(RecordId: RecordID; var CRMOptionId: Integer; var CreateNew: Boolean; var Synchronize: Boolean; var Direction: Option): Boolean
+    var
+        CouplingRecordBuffer: Record "Coupling Record Buffer";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMCouplingRecord: Page "CRM Coupling Record";
+    begin
+        AssertTableIsMapped(RecordId.TableNo);
+        CRMCouplingRecord.SetSourceRecordID(RecordId, true);
+        if CRMCouplingRecord.RunModal() = Action::OK then begin
+            CRMCouplingRecord.GetRecord(CouplingRecordBuffer);
+            if CouplingRecordBuffer."Create New" then
+                CreateNew := true
+            else
+                if CouplingRecordBuffer."CRM Option Id" <> 0 then begin
+                    CRMOptionId := CouplingRecordBuffer."CRM Option Id";
+                    CRMIntegrationManagement.CreateOptionMapping(RecordID, CouplingRecordBuffer."CRM Option Id", CouplingRecordBuffer."CRM Name");
+                    if CouplingRecordBuffer.GetPerformInitialSynchronization() then begin
+                        Synchronize := true;
+                        Direction := CouplingRecordBuffer.GetInitialSynchronizationDirection();
+                    end;
+                end else
+                    exit(false);
+            exit(true);
+        end;
+        exit(false);
     end;
 
     procedure DefineCoupling(RecordID: RecordID; var CRMID: Guid; var CreateNew: Boolean; var Synchronize: Boolean; var Direction: Option): Boolean

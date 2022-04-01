@@ -30,11 +30,11 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Receipt] [Purchase Blocked]
         // [SCENARIO 300597] Item Charge can be posted for Purchase Receipt with Purchase Blocked Item
-        Initialize;
+        Initialize();
         ModifyPurchasesPayablesSetupReceiptOnInvoice(true);
 
         // [GIVEN] Purchase Receipt for Item was posted and then Item was Purchase Blocked
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimplePurchaseDocWithItem(PurchaseHeader."Document Type"::Invoice, ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Purchase Receipt", ItemNo);
         BlockItem(ItemNo, false, false, true);
@@ -63,7 +63,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Transfer] [Purchase Blocked]
         // [SCENARIO 300597] Item Charge can be posted for Transfer Receipt with Purchase Blocked Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item was Purchase Blocked
         ItemNo := CreateBlockedItem(false, false, true);
@@ -96,7 +96,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Return Receipt] [Purchase Blocked]
         // [SCENARIO 300597] Item Charge can be posted for Sales Return Receipt with Purchase Blocked Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item was Purchase Blocked
         ItemNo := CreateBlockedItem(false, false, true);
@@ -127,7 +127,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Sales Shipment] [Purchase Blocked]
         // [SCENARIO 300597] Item Charge can be posted for Sales Shipment with Purchase Blocked Item
-        Initialize;
+        Initialize();
         ModifySalesReceivablesSetupShipmentOnInvoice(true);
 
         // [GIVEN] Item was Purchase Blocked
@@ -159,10 +159,10 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Return Shipment] [Purchase Blocked]
         // [SCENARIO 300597] Item Charge can be posted for Purchase Return Shipment with Purchase Blocked Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Shipment for Item was posted and then Item was Purchase Blocked
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimplePurchaseDocWithItem(PurchaseHeader."Document Type"::"Return Order", ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Purchase Return Shipment", ItemNo);
         BlockItem(ItemNo, false, false, true);
@@ -189,11 +189,11 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Sales] [Shipment] [Sales Blocked]
         // [SCENARIO 300597] Item Charge can be posted for Sales Shipment with Sales Blocked Item
-        Initialize;
+        Initialize();
         ModifySalesReceivablesSetupShipmentOnInvoice(true);
 
         // [GIVEN] Sales Shipment for Item was posted and then Item was Sales Blocked
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimpleSalesDocWithItem("Sales Document Type"::Invoice, ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Shipment", ItemNo);
         BlockItem(ItemNo, false, true, false);
@@ -219,10 +219,10 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Sales] [Return Receipt] [Sales Blocked]
         // [SCENARIO 300597] Item Charge can be posted for Sales Return Receipt with Sales Blocked Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Receipt for the Item was posted and then Item was Sales Blocked
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimpleSalesDocWithItem("Sales Document Type"::"Return Order", ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Return Receipt", ItemNo);
         BlockItem(ItemNo, false, true, false);
@@ -249,11 +249,11 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Receipt] [Blocked]
         // [SCENARIO 300597] Item Charge cannot be posted for Purchase Receipt with Blocked Item
-        Initialize;
+        Initialize();
         ModifyPurchasesPayablesSetupReceiptOnInvoice(true);
 
         // [GIVEN] Purchase Receipt for Item "I" was posted
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimplePurchaseDocWithItem(PurchaseHeader."Document Type"::Invoice, ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Purchase Receipt", ItemNo);
 
@@ -284,10 +284,10 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Transfer] [Blocked]
         // [SCENARIO 300597] Item Charge cannot be posted for Transfer Receipt with Blocked Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Transfer Order from BLUE to RED with the Item
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateTransferLocationCodes(FromLocationCode, ToLocationCode, InTransitLocationCode);
         MakeItemStockAtLocation(ItemNo, FromLocationCode);
         PostTransferOrderWithItem(ItemNo, FromLocationCode, ToLocationCode, InTransitLocationCode);
@@ -318,10 +318,10 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Return Receipt] [Blocked]
         // [SCENARIO 300597] Item Charge cannot be posted for Sales Return Receipt with Blocked Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Receipt for the Item was posted
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimpleSalesDocWithItem("Sales Document Type"::"Return Order", ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Return Receipt", ItemNo);
 
@@ -350,11 +350,11 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Sales Shipment] [Blocked]
         // [SCENARIO 300597] Item Charge cannot be posted for Sales Shipment with Blocked Item
-        Initialize;
+        Initialize();
         ModifySalesReceivablesSetupShipmentOnInvoice(true);
 
         // [GIVEN] Sales Shipment for the Item was posted
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimpleSalesDocWithItem("Sales Document Type"::Invoice, ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Shipment", ItemNo);
 
@@ -383,10 +383,10 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Purchase] [Return Shipment] [Blocked]
         // [SCENARIO 300597] Item Charge cannot be posted for Purchase Return Shipment with Blocked Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Shipment for Item was posted and then Item was Purchase Blocked
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimplePurchaseDocWithItem(PurchaseHeader."Document Type"::"Return Order", ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Purchase Return Shipment", ItemNo);
         BlockItem(ItemNo, false, false, true);
@@ -416,11 +416,11 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Sales] [Shipment] [Blocked]
         // [SCENARIO 300597] Item Charge cannot be posted for Sales Shipment with Blocked Item
-        Initialize;
+        Initialize();
         ModifySalesReceivablesSetupShipmentOnInvoice(true);
 
         // [GIVEN] Sales Shipment for Item "I" was posted
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimpleSalesDocWithItem("Sales Document Type"::Invoice, ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Shipment", ItemNo);
 
@@ -448,10 +448,10 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         // [FEATURE] [Sales] [Return Receipt] [Blocked]
         // [SCENARIO 300597] Item Charge can be posted for Sales Return Receipt with Blocked Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Receipt for the Item was posted
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         PostSimpleSalesDocWithItem("Sales Document Type"::"Return Order", ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Return Receipt", ItemNo);
 
@@ -476,7 +476,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Item Charge Blocked Item");
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -508,7 +508,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         ItemNo: Code[20];
     begin
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         BlockItem(ItemNo, Blocked, SalesBlocked, PurchaseBlocked);
         exit(ItemNo);
     end;
@@ -615,7 +615,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document Type", DocType);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure VerifyItemLedgerEntryAmounts(ItemNo: Code[20]; DocType: Enum "Item Ledger Document Type"; Positive: Boolean; CostAmountActual: Decimal; CostAmountNonInvtbl: Decimal; SalesAmountActual: Decimal)
@@ -625,7 +625,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document Type", DocType);
         ItemLedgerEntry.SetRange(Positive, Positive);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)", "Sales Amount (Actual)");
         ItemLedgerEntry.TestField("Cost Amount (Actual)", CostAmountActual);
         ItemLedgerEntry.TestField("Cost Amount (Non-Invtbl.)", CostAmountNonInvtbl);

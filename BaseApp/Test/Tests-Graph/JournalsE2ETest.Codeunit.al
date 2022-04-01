@@ -47,7 +47,7 @@ codeunit 135535 "Journals E2E Test"
     begin
         // [SCENARIO] Create a Journal through a POST method and check if it was created
         // [GIVEN] a journal batch json
-        Initialize;
+        Initialize();
 
         JournalJSON := CreateJournalJSON(JournalName, JournalDescription, JournalBalAccountNo);
         Commit();
@@ -77,7 +77,7 @@ codeunit 135535 "Journals E2E Test"
     begin
         // [SCENARIO] Create journal batches and use a GET method to retrieve them
         // [GIVEN] 2 journal batches in the table
-        Initialize;
+        Initialize();
 
         JournalNames[1] := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
         JournalNames[2] := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
@@ -115,7 +115,7 @@ codeunit 135535 "Journals E2E Test"
     begin
         // [SCENARIO] Create a Journal, use a PATCH method to change it and then verify the changes
         // [GIVEN] a journal batch the table
-        Initialize;
+        Initialize();
 
         JournalNames[1] := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
         LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalNames[1]);
@@ -153,7 +153,7 @@ codeunit 135535 "Journals E2E Test"
     begin
         // [SCENARIO] Create a Journal, use a DELETE method to remove it and then verify the deletion
         // [GIVEN] a journal batch in the table
-        Initialize;
+        Initialize();
 
         JournalName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
         LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalName);
@@ -177,7 +177,7 @@ codeunit 135535 "Journals E2E Test"
         JournalJSON: Text;
     begin
         JournalName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
-        JournalDescription := LibraryUtility.GenerateGUID;
+        JournalDescription := LibraryUtility.GenerateGUID();
         JournalBalAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
         GLAccount.Get(JournalBalAccountNo);
         JournalJSON := LibraryGraphMgt.AddPropertytoJSON('', JournalNameTxt, JournalName);

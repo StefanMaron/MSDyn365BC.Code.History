@@ -24,7 +24,7 @@ codeunit 130013 "Snapshot Management"
     begin
         TempSnapshot.Reset();
         TempSnapshot.SetCurrentKey("Incremental Index");
-        if TempSnapshot.FindLast then
+        if TempSnapshot.FindLast() then
             repeat
                 DeleteSnapshot(TempSnapshot."Snapshot No.");
             until TempSnapshot.Next(-1) = 0;
@@ -96,13 +96,13 @@ codeunit 130013 "Snapshot Management"
 
         TempSnapshot.Reset();
         TempSnapshot.SetRange(Incremental, not Incremental);
-        if TempSnapshot.FindFirst then
+        if TempSnapshot.FindFirst() then
             Error(MixingSnapshotTypes);
 
         NextIndex := 1;
         TempSnapshot.Reset();
         TempSnapshot.SetCurrentKey("Incremental Index");
-        if TempSnapshot.FindLast then
+        if TempSnapshot.FindLast() then
             NextIndex := TempSnapshot."Incremental Index" + 1;
 
         TempSnapshot.Reset();
@@ -167,7 +167,7 @@ codeunit 130013 "Snapshot Management"
     begin
         TempSnapshot.Reset();
         TempSnapshot.SetRange("Snapshot Name", SnapshotName);
-        if TempSnapshot.FindFirst then
+        if TempSnapshot.FindFirst() then
             exit(TempSnapshot."Snapshot No.");
 
         exit(0)
@@ -203,7 +203,7 @@ codeunit 130013 "Snapshot Management"
         // Incremental snapshots
         TempSnapshot.Reset();
         TempSnapshot.SetCurrentKey("Incremental Index");
-        if TempSnapshot.FindLast then
+        if TempSnapshot.FindLast() then
             if TempSnapshot.Incremental then begin
                 if TempSnapshot."Snapshot No." <> RestoringSnapshotNo then
                     if not BackupStorage.BackupTableIsTainted(TempSnapshot."Snapshot No.", TableID) then
@@ -216,7 +216,7 @@ codeunit 130013 "Snapshot Management"
         // Backup in all snapshots (unless one of them is restoring)
         TempSnapshot.Reset();
         TempSnapshot.SetCurrentKey("Snapshot No.");
-        if TempSnapshot.FindSet then
+        if TempSnapshot.FindSet() then
             repeat
                 if TempSnapshot."Snapshot No." <> RestoringSnapshotNo then begin
                     if not BackupStorage.BackupTableIsTainted(TempSnapshot."Snapshot No.", TableID) then
@@ -250,7 +250,7 @@ codeunit 130013 "Snapshot Management"
     procedure ListSnapshots(var TempSnapshot2: Record Snapshot temporary)
     begin
         TempSnapshot.Reset();
-        if TempSnapshot.FindSet then
+        if TempSnapshot.FindSet() then
             repeat
                 TempSnapshot2.Init();
                 TempSnapshot2.Copy(TempSnapshot);

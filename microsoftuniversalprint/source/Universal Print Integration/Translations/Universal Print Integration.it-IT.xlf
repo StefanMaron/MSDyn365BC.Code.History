@@ -237,6 +237,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType PrivacyLbl</note>
         </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 2182510485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about our Privacy Statement.</source>
+          <target state="translated">Altre informazioni sull'Informativa sulla privacy.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType PrivacyStatementTxt</note>
+        </trans-unit>
         <trans-unit id="Page 669761542 - NamedType 3362432993" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Wizard step out of range.</source>
           <target state="translated">Passaggio della procedura guidata non compreso nell'intervallo.</target>
@@ -433,6 +439,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para1.1.2 - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3145364638 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your privacy is important to us</source>
+          <target state="translated">La privacy è molto importante</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control PrivacyNoticeInner - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3950012862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature utilizes Microsoft Universal Print. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Universal Print may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Universal Print to learn more.</source>
+          <target state="translated">Questa funzionalità utilizza Stampa universale Microsoft. Continuando si afferma di comprendere che gli standard di gestione e di conformità dei dati di Stampa universale Microsoft potrebbero non essere uguali a quelli forniti da Microsoft Dynamics 365 Business Central. Consultare la documentazione di Stampa universale per ulteriori informazioni.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control PrivacyNoticeLabel - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 669761542 - Control 4119205609 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies an image to be shown on top of the wizard page when the wizard is in progress.</source>
           <target state="translated">Specifica l'immagine da visualizzare nella parte superiore della pagina della procedura guidata durante la procedura stessa.</target>
@@ -509,11 +527,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 2804880794 - NamedType 757360088" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about how the data is handled.</source>
-          <target state="translated">Ulteriori informazioni sull'handle dei dati.</target>
+        <trans-unit id="Page 2804880794 - NamedType 2182510485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your privacy is important to us. To learn more read our Privacy Statement.</source>
+          <target state="translated">La privacy è molto importante. Per ulteriori informazioni, leggere l'Informativa sulla privacy.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - NamedType PrivacyLbl</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - NamedType PrivacyStatementTxt</note>
         </trans-unit>
         <trans-unit id="Page 2804880794 - Control 3154152211 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the height of the paper.</source>
@@ -568,6 +586,12 @@
           <target state="translated">Ulteriori informazioni sull'handle dei dati.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Privacy - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 3950012862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature utilizes Microsoft Universal Print. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Universal Print may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Universal Print to learn more.</source>
+          <target state="translated">Questa funzionalità utilizza Stampa universale Microsoft. Continuando si afferma di comprendere che gli standard di gestione e di conformità dei dati di Stampa universale Microsoft potrebbero non essere uguali a quelli forniti da Microsoft Dynamics 365 Business Central. Consultare la documentazione di Stampa universale per ulteriori informazioni.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PrivacyNoticeLabel - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2804880794 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the unique name of the printer settings.</source>
@@ -738,6 +762,24 @@
           <target state="translated">Millimetri (mm)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Paper Unit - EnumValue Millimeters - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3156248255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MicrosoftUniversalPrint - Edit</source>
+          <target state="translated">MicrosoftUniversalPrint-modifica</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UniversalPrint - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3401988625 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft Universal Print - Objects</source>
+          <target state="translated">Microsoft Universal Print-Objects</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UniversalPrint - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2226491525 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft Universal Print - Read</source>
+          <target state="translated">Stampa universale Microsoft-leggi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UniversalPrint - Read - Property Caption</note>
         </trans-unit>
       </group>
     </body>

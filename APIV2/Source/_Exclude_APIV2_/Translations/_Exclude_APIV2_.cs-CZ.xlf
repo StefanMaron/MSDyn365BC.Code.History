@@ -297,6 +297,7 @@
         </trans-unit>
         <trans-unit id="Page 2708256709 - NamedType 2316129571" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify a vendor payment to get apply vendor entries.</source>
+          <target state="translated">Chcete-li získat položky dodavatele, musíte zadat platbu dodavatele.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Apply Vendor Entries - NamedType FiltersNotSpecifiedErr</note>
         </trans-unit>
@@ -479,11 +480,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 193372512 - Control 707985127 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a code for the configuration package.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control code - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 193372512 - Control 707985127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Code</source>
           <target state="translated">Kód</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 193372512 - Control 2374100451 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a contect package.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control content - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 193372512 - Control 2374100451 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Content</source>
@@ -1030,6 +1041,11 @@
           <target state="translated">Sada oprávnění %1 je v tomto kontextu několikrát definována.</target>
           <note from="Developer" annotates="general" priority="2">%1 will be replaced with a Role ID code value from the Permission Set table</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Group Perm. - NamedType MultipleRoleIDErr</note>
+        </trans-unit>
+        <trans-unit id="Page 945262719 - NamedType 3058781679" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You cannot change the User Group Code for a user group permission.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Group Perm. - NamedType UserGroupCodeNotEditableErr</note>
         </trans-unit>
         <trans-unit id="Page 945262719 - NamedType 509535601" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify a User Group Code to access user group permissions.</source>
@@ -1730,6 +1746,7 @@
         </trans-unit>
         <trans-unit id="Page 1397900250 - NamedType 2396386738" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>id type not specified.</source>
+          <target state="translated">typ id nebyl zadán.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts Information - NamedType FiltersNotSpecifiedErrorLbl</note>
         </trans-unit>
@@ -2250,6 +2267,7 @@
         </trans-unit>
         <trans-unit id="Page 1278155290 - Control 754471627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Aged Accounts Receivable</source>
+          <target state="translated">Splatné pohledávky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control agedAccountsReceivable - Property Caption</note>
         </trans-unit>
@@ -3579,6 +3597,11 @@
           <note from="Developer" annotates="general" priority="2">balancingAccountId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - NamedType BalAccountIdDoesNotMatchAnAccountErr</note>
         </trans-unit>
+        <trans-unit id="Page 3494060223 - NamedType 2792529467" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Journal Batch Id isn't editable.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - NamedType CannotEditBatchIdErr</note>
+        </trans-unit>
         <trans-unit id="Page 3494060223 - NamedType 3222313909" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Journal Batch Display Name isn't editable.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3781,6 +3804,7 @@
         </trans-unit>
         <trans-unit id="Page 704928557 - Control 814305527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Template Display Name</source>
+          <target state="translated">Zobrazovaný název šablony</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Journals - Control templateDisplayName - Property Caption</note>
         </trans-unit>
@@ -8732,6 +8756,7 @@
         </trans-unit>
         <trans-unit id="Page 3546002718 - Control 2043020436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sell-to Post Code</source>
+          <target state="translated">Zákazník-PSČ</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Control sellToPostCode - Property Caption</note>
         </trans-unit>
@@ -9494,6 +9519,7 @@
         </trans-unit>
         <trans-unit id="Page 2680707570 - Control 3339066033 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Aged Accounts Payable</source>
+          <target state="translated">Splatné závazky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control agedAccountsPayable - Property Caption</note>
         </trans-unit>

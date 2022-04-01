@@ -146,7 +146,7 @@ table 9600 "XML Schema"
         XMLSchemaElement.SetCurrentKey(Indentation);
 
         Context := '';
-        if XMLSchemaElement.FindSet then
+        if XMLSchemaElement.FindSet() then
             repeat
                 XMLSchemaElement2.CopyFilters(XMLSchemaElement);
                 XMLSchemaElement2.SetRange(Indentation, XMLSchemaElement.Indentation);

@@ -38,7 +38,7 @@ codeunit 136504 "RES Time Sheet"
         // Verify that Time Sheet List page is opened and not allowed to reopen.
 
         // Setup: Open Time Sheet List page.
-        Initialize;
+        Initialize();
         TimeSheetList.OpenView;
 
         // Exercise.
@@ -58,7 +58,7 @@ codeunit 136504 "RES Time Sheet"
         // Verify that Manager Time Sheet List page is opened and not allowed to reopen.
 
         // Setup: Open Manager Time Sheet List page.
-        Initialize;
+        Initialize();
         ManagerTimeSheetList.OpenView;
 
         // Exercise.
@@ -79,7 +79,7 @@ codeunit 136504 "RES Time Sheet"
         ResourceNo: Code[20];
     begin
         // [SCENARIO] Creation of Time Sheet menu is working and creating timesheet
-        Initialize;
+        Initialize();
         ResourcesSetup.Get();
         ResourceNo := CreateTimesheetResourceWithUserSetup;
 
@@ -90,7 +90,7 @@ codeunit 136504 "RES Time Sheet"
         Date.SetRange("Period Type", Date."Period Type"::Date);
         Date.SetFilter("Period Start", '%1..', AccountingPeriod."Starting Date");
         Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);  // Here 1 is taken to get first working day of weekday.
-        Date.FindFirst;
+        Date.FindFirst();
 
         // [WHEN] Run Create time sheet
         LibraryTimeSheet.RunCreateTimeSheetsReport(Date."Period Start", 1, ResourceNo);
@@ -113,7 +113,7 @@ codeunit 136504 "RES Time Sheet"
         // Verify that Time Sheet Archive List page is opened and not allowed to reopen.
 
         // Setup: Open Time Sheet Archive List page.
-        Initialize;
+        Initialize();
         TimeSheetArchiveList.OpenView;
 
         // Exercise.
@@ -135,7 +135,7 @@ codeunit 136504 "RES Time Sheet"
         // Check that Move Time Sheets to Archive Report is working.
 
         // Setup.
-        Initialize;
+        Initialize();
         TimeSheetNo := CreateTimeSheet(TimeSheetLine);
         TimeSheetLine.Validate(Status, TimeSheetLine.Status::Approved);
         TimeSheetLine.Validate(Posted, true);
@@ -144,7 +144,7 @@ codeunit 136504 "RES Time Sheet"
 
         // Exercise: Run Move Time Sheets to Archive Report.
         Clear(MoveTimeSheetsToArchive);
-        MoveTimeSheetsToArchive.Run;
+        MoveTimeSheetsToArchive.Run();
 
         // Verify: Verify that Move Time Sheets To Archives report archives created Time Sheet.
         TimeSheetHeaderArchive.Get(TimeSheetNo);
@@ -160,7 +160,7 @@ codeunit 136504 "RES Time Sheet"
         // Verify that Manager Time Sheet Archives List page is opened and not allowed to reopen.
 
         // Setup: Open Manager Time Sheet Archive List page.
-        Initialize;
+        Initialize();
         ManagerTimeSheetArcList.OpenView;
 
         // Exercise:
@@ -180,7 +180,7 @@ codeunit 136504 "RES Time Sheet"
         // Check fields on Resource Card.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         CreateTimesheetResource(Resource, UserSetup);
 
@@ -205,7 +205,7 @@ codeunit 136504 "RES Time Sheet"
         ResourceNo: Code[20];
     begin
         // [SCENARIO] Creation of Time Sheet Menu is exists on Resource page
-        Initialize;
+        Initialize();
         ResourceNo := CreateTimesheetResourceWithUserSetup;
         Commit();
 
@@ -237,11 +237,11 @@ codeunit 136504 "RES Time Sheet"
         // Check fields on the Resource Journal Line.Verification is done through record rather than page because verified fields are not available on the page without Show Column.
 
         // Setup: Create Resource Journal Template, Resource Batch and Time Sheet.
-        Initialize;
+        Initialize();
         CreateResourceJournalTemplate(ResJournalTemplate);
         LibraryResource.CreateResourceJournalBatch(ResJournalBatch, ResJournalTemplate.Name);
         Resource.SetRange("Use Time Sheet", false);
-        Resource.FindFirst;
+        Resource.FindFirst();
         CreateTimeSheet(TimeSheetLine);
 
         // Exercise: Create Resource Journal Line.
@@ -267,7 +267,7 @@ codeunit 136504 "RES Time Sheet"
         // Check that Suggest Lines from Time Sheets link is exists on Resource Journal.
 
         // Setup: Create Time Sheet.
-        Initialize;
+        Initialize();
         CreateResourceJournalTemplate(ResJournalTemplate);
         CreateTimeSheet(TimeSheetLine);
         Commit();
@@ -291,7 +291,7 @@ codeunit 136504 "RES Time Sheet"
         // Check fields on the Job Journal Line.Verification is done through record rather than page because verified fields are not available on the page without Show Column.
 
         // Setup: Create Time Sheet and Job Task.
-        Initialize;
+        Initialize();
         CreateTimeSheet(TimeSheetLine);
         CreateJobAndJobTask(JobTask);
 
@@ -322,7 +322,7 @@ codeunit 136504 "RES Time Sheet"
         // Check that Suggest Lines from Time Sheets exists menu of Job Journal Line.
 
         // Setup: Create Time Sheet and Job Task.
-        Initialize;
+        Initialize();
         LibraryJob.CreateJobJournalTemplate(JobJournalTemplate);
         TimeSheetNo := CreateTimeSheet(TimeSheetLine);
         CreateJobAndJobTask(JobTask);
@@ -345,7 +345,7 @@ codeunit 136504 "RES Time Sheet"
         // Check fields on Resources Setup Record.
 
         // Setup.
-        Initialize;
+        Initialize();
         ResourcesSetup.Get();
         TimeSheetNos := LibraryUtility.GetGlobalNoSeriesCode;
 
@@ -373,7 +373,7 @@ codeunit 136504 "RES Time Sheet"
         // Check comments entered on both Time Sheet Header and Time Sheet Line.
 
         // Setup: Create User Setup, Resource and Time Sheet.
-        Initialize;
+        Initialize();
         TimeSheetHeader.DeleteAll();
 
         CreateUserSetupAndTimeSheet(TimeSheetHeader);
@@ -404,7 +404,7 @@ codeunit 136504 "RES Time Sheet"
         // Check comments are removed after deletion of Time Sheet Line.
 
         // Setup: Create User Setup, Resource, Time Sheet And enter comments for Header and Line.
-        Initialize;
+        Initialize();
         CreateUserSetupAndTimeSheet(TimeSheetHeader);
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
@@ -442,7 +442,7 @@ codeunit 136504 "RES Time Sheet"
         // Check comments on Manager Time Sheet Header and Line.
 
         // Setup: Create User Setup, Resource, Time Sheet and enter comments for Header and Line.
-        Initialize;
+        Initialize();
         CreateUserSetupAndTimeSheet(TimeSheetHeader);
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
@@ -473,7 +473,7 @@ codeunit 136504 "RES Time Sheet"
         // Check comments on both Time Sheet Header and Time Sheet Line after rejection.
 
         // Setup: Create User Setup, Resource, Time Sheet and enter Comments for Time Sheet Header and Line.
-        Initialize;
+        Initialize();
         CreateUserSetupAndTimeSheet(TimeSheetHeader);
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
@@ -507,7 +507,7 @@ codeunit 136504 "RES Time Sheet"
         // Check comments on Manager Time Sheet Header and Time Sheet Line after approval.
 
         // Setup: Create User Setup, Resource, Time Sheet and enter comments for Header and Line.
-        Initialize;
+        Initialize();
         CreateUserSetupAndTimeSheet(TimeSheetHeader);
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
@@ -553,7 +553,7 @@ codeunit 136504 "RES Time Sheet"
         // Check comments after Archiving Time Sheet.
 
         // Setup: Create User Setup, Resource, Time Sheet and enter comments for Header and Line.
-        Initialize;
+        Initialize();
         BindSubscription(RESTimeSheet);
 
         CreateUserSetupAndTimeSheet(TimeSheetHeader);
@@ -570,7 +570,7 @@ codeunit 136504 "RES Time Sheet"
         // Exercise: Run Move Time Sheets to Archive Report.
         Clear(MoveTimeSheetsToArchive);
         ManagerTimeSheet.OpenView;
-        MoveTimeSheetsToArchive.Run;
+        MoveTimeSheetsToArchive.Run();
 
         TimeSheetArchiveList.OpenView;
         TimeSheetArchiveList.FILTER.SetFilter("No.", TimeSheetHeader."No.");
@@ -586,7 +586,7 @@ codeunit 136504 "RES Time Sheet"
         // Delete Time Sheet Archive
         TimeSheetHeaderArchive.Reset();
         TimeSheetHeaderArchive.SetRange("No.", TimeSheetHeader."No.");
-        TimeSheetHeaderArchive.FindFirst;
+        TimeSheetHeaderArchive.FindFirst();
         TimeSheetHeaderArchive.Delete(true);
 
         // Tear Down: Delete Resource.
@@ -604,7 +604,7 @@ codeunit 136504 "RES Time Sheet"
         // Check that User Id has been granted Time Sheet Administrator permissions successfully or not.
 
         // Setup: Create User Setup.
-        Initialize;
+        Initialize();
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
 
         // Exercise.
@@ -652,7 +652,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 378723] Time Sheet page has matrix Day's property DecimalPlaces = 0:2 from monday to friday
-        Initialize;
+        Initialize();
         BindSubscription(RESTimeSheet);
         TestValue[1] := 1;
         TestValue[2] := 1.1;
@@ -707,7 +707,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [Job Journal] [Dimension] [Suggest Job Jnl. Lines]
         // [SCENARIO 380110] Inherit Job's dimension if Template, Job and Resource have the same Source Code and Job priority higher then Resource
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension "DD1" where "Source Code" = "SC", Priority = 1
         // [GIVEN] Dimension "DD2" where "Source Code" = "SC", Priority = 2
@@ -738,7 +738,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [Job Journal] [Dimension] [Suggest Job Jnl. Lines]
         // [SCENARIO 380110] Inherit Resource's dimension if Template, Job and Resource have the same Source Code and Resource priority higher then Job
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension "DD1" where "Source Code" = "SC", Priority = 2
         // [GIVEN] Dimension "DD2" where "Source Code" = "SC", Priority = 1
@@ -769,7 +769,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [Job Journal] [Dimension] [Suggest Job Jnl. Lines]
         // [SCENARIO 380110] Inherit Resource's dimension if Template, Job and Resource have the same Source Code and Resource and Job have equal priorities
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension "DD1" where "Source Code" = "SC", Priority = 1
         // [GIVEN] Dimension "DD2" where "Source Code" = "SC", Priority = 1
@@ -801,7 +801,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [Job Journal] [Dimension] [Suggest Job Jnl. Lines]
         // [SCENARIO 380110] Inherit Job's dimension if Template and Job have Source Code differs from Resource one and Job priority higher then Resource
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dimension "DD1" where "Source Code" = "SC1", Priority = 1
         // [GIVEN] Default Dimension "DD2" where "Source Code" = "SC2", Priority = 2
@@ -834,7 +834,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [Job Journal] [Dimension] [Suggest Job Jnl. Lines]
         // [SCENARIO 380110] Inherit Job's dimension if Template and Job have Source Code differs from Resource one and Resource priority higher then Job
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dimension "DD1" where "Source Code" = "SC1", Priority = 2
         // [GIVEN] Default Dimension "DD2" where "Source Code" = "SC2", Priority = 1
@@ -867,7 +867,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [Job Journal] [Dimension] [Suggest Job Jnl. Lines]
         // [SCENARIO 380110] Inherit Job's dimension if Template and Job have Source Code differs from Resource one and Resource and Job have equal priorities
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dimension "DD1" where "Source Code" = "SC1", Priority = 1
         // [GIVEN] Default Dimension "DD2" where "Source Code" = "SC2", Priority = 1
@@ -900,7 +900,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [Job Journal] [Dimension] [Suggest Job Jnl. Lines]
         // [SCENARIO 380110] Inherit Resource's dimension if Template and Resource have Source Code differs from Job one and Job priority higher then Resource
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dim. "DD1" where "Source Code" = "SC1", Priority = 1
         // [GIVEN] Default Dim. "DD2" where "Source Code" = "SC2", Priority = 2
@@ -933,7 +933,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [Job Journal] [Dimension] [Suggest Job Jnl. Lines]
         // [SCENARIO 380110] Inherit Resource's dimension if Template and Resource have Source Code differs from Job one and Resource priority higher then Job
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dim. "DD1" where "Source Code" = "SC1", Priority = 2
         // [GIVEN] Default Dim. "DD2" where "Source Code" = "SC2", Priority = 1
@@ -966,7 +966,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [FEATURE] [Job Journal] [Dimension] [Suggest Job Jnl. Lines]
         // [SCENARIO 380110] Inherit Resource's dimension if Template and Resource have Source Code differs from Job one and Resource and Job have equal priorities
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dim. "DD1" where "Source Code" = "SC1", Priority = 1
         // [GIVEN] Default Dim. "DD2" where "Source Code" = "SC2", Priority = 1
@@ -998,7 +998,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [SCENARIO 221547] Suggest lines from time sheet for a resource with job time sheet detail lines
         // [SCENARIO 221547] in case of one week period with month change
-        Initialize;
+        Initialize();
 
         // [GIVEN] Resource with "Use Time Sheet" = TRUE
         ResourceNo := CreateTimesheetResourceWithUserSetup;
@@ -1109,7 +1109,7 @@ codeunit 136504 "RES Time Sheet"
 
         LibraryResource.SetResourceBlocked(Resource);
 
-        asserterror TimeSheetHeader.Rename(LibraryUtility.GenerateGUID);
+        asserterror TimeSheetHeader.Rename(LibraryUtility.GenerateGUID());
 
         Assert.ExpectedError(ResourceBlockedErr);
     end;
@@ -1174,7 +1174,7 @@ codeunit 136504 "RES Time Sheet"
 
         LibraryResource.SetResourceBlocked(Resource);
 
-        TimeSheetLine.Validate(Description, LibraryUtility.GenerateGUID);
+        TimeSheetLine.Validate(Description, LibraryUtility.GenerateGUID());
         asserterror TimeSheetLine.Modify(true);
 
         Assert.ExpectedError(ResourceBlockedErr);
@@ -1207,14 +1207,14 @@ codeunit 136504 "RES Time Sheet"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"RES Time Sheet");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"RES Time Sheet");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Resources Setup");
         IsInitialized := true;
@@ -1344,7 +1344,7 @@ codeunit 136504 "RES Time Sheet"
         Date.SetRange("Period Type", Date."Period Type"::Date);
         Date.SetFilter("Period Start", '%1..', AccountingPeriod."Starting Date");
         Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);  // Here 1 is taken to get first working day of weekday.
-        Date.FindFirst;
+        Date.FindFirst();
 
         // Create Time Sheet.
         LibraryTimeSheet.RunCreateTimeSheetsReport(Date."Period Start", 1, Resource."No.");
@@ -1399,7 +1399,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         TimeSheetLine.SetRange("Time Sheet No.", No);
-        TimeSheetLine.FindFirst;
+        TimeSheetLine.FindFirst();
         TimeSheetLine.Validate(Posted, true);
         TimeSheetLine.Modify(true);
     end;
@@ -1469,7 +1469,7 @@ codeunit 136504 "RES Time Sheet"
 
     local procedure PostJobJournalLine(var JobJournalLine: Record "Job Journal Line")
     begin
-        JobJournalLine.ModifyAll("Document No.", LibraryUtility.GenerateGUID);
+        JobJournalLine.ModifyAll("Document No.", LibraryUtility.GenerateGUID());
         LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
@@ -1500,7 +1500,7 @@ codeunit 136504 "RES Time Sheet"
         CreateJobJournalLine(JobJournalLine, SourceCode);
         Commit();
         SuggestJobJnlLines.SetJobJnlLine(JobJournalLine);
-        SuggestJobJnlLines.Run;
+        SuggestJobJnlLines.Run();
     end;
 
     local procedure FindWorkingWeekWithMonthChange(): Date
@@ -1525,7 +1525,7 @@ codeunit 136504 "RES Time Sheet"
     local procedure FindTimeSheetHeader(var TimeSheetHeader: Record "Time Sheet Header"; ResourceNo: Code[20])
     begin
         TimeSheetHeader.SetRange("Resource No.", ResourceNo);
-        TimeSheetHeader.FindFirst;
+        TimeSheetHeader.FindFirst();
     end;
 
     local procedure MockTimeSheetHeader(var TimeSheetHeader: Record "Time Sheet Header"; ResourceNo: Code[20])
@@ -1617,7 +1617,7 @@ codeunit 136504 "RES Time Sheet"
         JobJournalLine: Record "Job Journal Line";
     begin
         JobJournalLine.SetRange("Job No.", JobNo);
-        JobJournalLine.FindFirst;
+        JobJournalLine.FindFirst();
         JobJournalLine.TestField(Type, JobJournalLine.Type::Resource);
         JobJournalLine.TestField("No.", ResourceNo);
         JobJournalLine.TestField("Shortcut Dimension 1 Code", ExpectedDimValue);

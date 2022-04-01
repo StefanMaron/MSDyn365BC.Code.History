@@ -142,7 +142,7 @@ table 5377 "Ext Txt ID Integration Record"
     begin
         ExtTxtIDIntegrationRecord.SetRange("External ID", OldExternalId);
         ExtTxtIDIntegrationRecord.SetRange("Table ID", TableNo);
-        if not ExtTxtIDIntegrationRecord.FindFirst then
+        if not ExtTxtIDIntegrationRecord.FindFirst() then
             Error(CoupledRecordNotFoundErr, OldExternalId, TableNo);
 
         ExtTxtIDIntegrationRecordNew := ExtTxtIDIntegrationRecord;
@@ -208,7 +208,7 @@ table 5377 "Ext Txt ID Integration Record"
         IntegrationRecord: Record "Integration Record";
     begin
         IntegrationRecord.SetRange("Record ID", RecordRef.RecordId);
-        if not IntegrationRecord.FindFirst then
+        if not IntegrationRecord.FindFirst() then
             InsertIntegrationRecord(RecordRef);
     end;
 

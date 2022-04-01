@@ -18,7 +18,7 @@ report 26 "Copy Account Schedule"
                 CreateNewAccountScheduleName(NewAccScheduleName, AccScheduleName);
 
                 SourceAccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-                if SourceAccScheduleLine.FindSet then
+                if SourceAccScheduleLine.FindSet() then
                     repeat
                         CreateNewAccountScheduleLine(NewAccScheduleName, SourceAccScheduleLine);
                     until SourceAccScheduleLine.Next() = 0;
@@ -71,7 +71,7 @@ report 26 "Copy Account Schedule"
         begin
             AssertSourceAccountScheduleNameOnlyOne(SourceAccScheduleName);
 
-            if SourceAccScheduleName.FindFirst then
+            if SourceAccScheduleName.FindFirst() then
                 CopySourceAccScheduleName := SourceAccScheduleName.Name;
         end;
     }

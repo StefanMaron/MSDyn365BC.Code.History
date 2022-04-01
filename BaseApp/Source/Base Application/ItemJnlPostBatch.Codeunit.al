@@ -97,10 +97,10 @@ codeunit 23 "Item Jnl.-Post Batch"
 
             // Find next register no.
             ItemLedgEntry.LockTable();
-            if ItemLedgEntry.FindLast then;
+            if ItemLedgEntry.FindLast() then;
             if WhseTransaction then begin
                 WhseEntry.LockTable();
-                if WhseEntry.FindLast then;
+                if WhseEntry.FindLast() then;
             end;
 
             ItemReg.LockTable();
@@ -145,7 +145,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                     HandleNonRecurringLine(ItemJnlLine, OldEntryType);
                 if ItemJnlBatch."No. Series" <> '' then
                     NoSeriesMgt.SaveNoSeries;
-                if NoSeries.FindSet then
+                if NoSeries.FindSet() then
                     repeat
                         Evaluate(PostingNoSeriesNo, NoSeries.Description);
                         NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
@@ -234,7 +234,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                 end;
 
                 if Next() = 0 then
-                    FindFirst;
+                    FindFirst();
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
         end;
@@ -333,7 +333,6 @@ codeunit 23 "Item Jnl.-Post Batch"
                 ItemJnlLine2.Quantity := 0;
                 ItemJnlLine2."Invoiced Quantity" := 0;
                 ItemJnlLine2.Amount := 0;
-                OnHandleRecurringLineOnBeforeModify(ItemJnlLine2);
             end;
             OnHandleRecurringLineOnBeforeItemJnlLineModify(ItemJnlLine2);
             ItemJnlLine2.Modify();
@@ -355,7 +354,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         with ItemJnlLine do begin
             ItemJnlLine2.CopyFilters(ItemJnlLine);
             ItemJnlLine2.SetFilter("Item No.", '<>%1', '');
-            if ItemJnlLine2.FindLast then; // Remember the last line
+            if ItemJnlLine2.FindLast() then; // Remember the last line
             ItemJnlLine2."Entry Type" := OldEntryType;
 
             ItemJnlLine3.Copy(ItemJnlLine);
@@ -365,7 +364,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             ItemJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
             ItemJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
             if ItemJnlTemplate."Increment Batch Name" then
-                if not ItemJnlLine3.FindLast then begin
+                if not ItemJnlLine3.FindLast() then begin
                     IncrBatchName := IncStr("Journal Batch Name") <> '';
                     OnBeforeIncrBatchName(ItemJnlLine, IncrBatchName);
                     if IncrBatchName then begin
@@ -497,7 +496,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                      ItemJnlLine4."Inventory Value Per"::"Location and Variant"])
                 then
                     SetRange("Variant Code", ItemJnlLine."Variant Code");
-                if FindSet then
+                if FindSet() then
                     repeat
                         OnItemJnlPostSumLineOnBeforeIncludeEntry(ItemJnlLine4, ItemLedgEntry4, IncludeExpectedCost);
                         if IncludeEntryInCalc(ItemLedgEntry4, PostingDate, IncludeExpectedCost) then begin
@@ -682,7 +681,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             if Location."Bin Mandatory" then
                 if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, ItemJnlTemplateType.AsInteger(), WhseJnlLine, ToTransfer) then begin
                     ItemTrackingMgt.SplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine, TempTrackingSpecification, ToTransfer);
-                    if TempWhseJnlLine.FindSet then
+                    if TempWhseJnlLine.FindSet() then
                         repeat
                             WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine, 1, 0, ToTransfer);
                             IsHandled := false;
@@ -776,7 +775,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             exit;
 
         ItemJnlLine2.CopyFilters(ItemJnlLine);
-        if ItemJnlLine2.FindSet then
+        if ItemJnlLine2.FindSet() then
             repeat
                 if ItemJnlLine2.IsNotInternalWhseMovement() then
                     if not TempSKU.Get(ItemJnlLine2."Location Code", ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code") then
@@ -784,7 +783,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                 OnBeforeCheckItemAvailability(ItemJnlLine2, TempSKU);
             until ItemJnlLine2.Next() = 0;
 
-        if TempSKU.FindSet then
+        if TempSKU.FindSet() then
             repeat
                 QtyinItemJnlLine := CalcRequiredQty(TempSKU, ItemJnlLine2);
                 if QtyinItemJnlLine < 0 then begin
@@ -1023,12 +1022,6 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforePostLines(var ItemJournalLine: Record "Item Journal Line"; var NoOfRecords: Integer)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Event will be replaced by OnHandleRecurringLineOnBeforeItemJnlLineModify(ItemJnlLine2)', '17.0')]
-    local procedure OnHandleRecurringLineOnBeforeModify(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 

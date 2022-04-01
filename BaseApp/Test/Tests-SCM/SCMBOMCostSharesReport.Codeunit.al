@@ -31,15 +31,15 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM - BOM Cost Shares Report");
         // Initialize setup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM - BOM Cost Shares Report");
 
         // Setup Demonstration data.
         isInitialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM - BOM Cost Shares Report");
     end;
@@ -54,7 +54,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     begin
         // [FEATURE] [BOM Cost Share] [UI] [UT]
         // [SCENARIO 305392] BOM Cost Shares page shows Rolled-up Material Cost and Rolled-up Capacity Cost not affected by a Lot Size value
-        Initialize;
+        Initialize();
 
         SetupItemWithRoutingWithCosts(Item);
 
@@ -77,7 +77,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, Width, 2);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -407,7 +407,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, ChildLeaves, RoutingLines);
         LibraryTrees.GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item);
         LibraryTrees.AddCostToRouting(TempWorkCenter, TempMachineCenter);
@@ -443,7 +443,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryTrees.CreateMixedTree(Item, TopItemReplSystem, Item."Costing Method"::Standard, Depth, ChildLeaves, 2);
         LibraryVariableStorage.Enqueue(Item."No.");
 
@@ -472,7 +472,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         QtyPerTopItem: Decimal;
     begin
         // [SCENARIO 268941] Test "Qty. per Parent" field on BOM Cost Shares page when a BOM tree includes nested Production BOMs.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a BOM tree with Production BOMs having lines typed of "Production BOM".
         LibraryTrees.CreateMixedTree(Item, Item."Replenishment System"::"Prod. Order", Item."Costing Method"::Standard, 2, 2, 0);
@@ -633,7 +633,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShares: Page "BOM Cost Shares";
     begin
         BOMCostShares.InitItem(Item);
-        BOMCostShares.Run;
+        BOMCostShares.Run();
     end;
 
     local procedure VerifyBOMCostSharesPage(var BOMCostShares: TestPage "BOM Cost Shares"; ItemNo: Code[20]; ExpMaterialCost: Decimal; ExpCapacityCost: Decimal; ExpMfgOvhdCost: Decimal; ExpCapOvhdCost: Decimal; ExpSubcontractedCost: Decimal; ExpTotalCost: Decimal)
@@ -688,7 +688,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMStructure: Page "BOM Structure";
     begin
         BOMStructure.InitItem(Item);
-        BOMStructure.Run;
+        BOMStructure.Run();
     end;
 
     [StrMenuHandler]

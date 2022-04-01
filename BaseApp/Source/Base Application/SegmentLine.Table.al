@@ -551,7 +551,6 @@ table 5077 "Segment Line"
         Campaign: Record Campaign;
         InteractTmpl: Record "Interaction Template";
         Attachment: Record Attachment;
-        TempAttachment: Record Attachment temporary;
         InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
         TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary;
         AttachmentManagement: Codeunit AttachmentManagement;
@@ -570,6 +569,9 @@ table 5077 "Segment Line"
         Text024: Label '%1 = %2 cannot be specified.', Comment = '%1=Correspondence Type';
         Text025: Label 'The email could not be sent because of the following error: %1.\Note: if you run %2 as administrator, you must run Outlook as administrator as well.', Comment = '%2 - product name';
         WordTemplateUsedErr: Label 'You cannot change the attachment when a Word template has been specified.';
+
+    protected var
+        TempAttachment: Record Attachment temporary;
 
     procedure InitLine()
     begin
@@ -608,15 +610,6 @@ table 5077 "Segment Line"
         exit('');
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by MaintainSegLineAttachment()', '17.0')]
-    [Scope('OnPrem')]
-    procedure MaintainAttachment()
-    begin
-        MaintainSegLineAttachment();
-    end;
-#endif
-
     procedure MaintainSegLineAttachment()
     var
         Cont: Record Contact;
@@ -637,15 +630,6 @@ table 5077 "Segment Line"
             CreateSegLineAttachment();
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by CreateSegLineAttachment()', '17.0')]
-    [Scope('OnPrem')]
-    procedure CreateAttachment()
-    begin
-        CreateSegLineAttachment();
-    end;
-#endif
-
     procedure CreateSegLineAttachment()
     var
         SegInteractLanguage: Record "Segment Interaction Language";
@@ -665,15 +649,6 @@ table 5077 "Segment Line"
 
         SegInteractLanguage.CreateAttachment();
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by OpenSegLineAttachment()', '17.0')]
-    [Scope('OnPrem')]
-    procedure OpenAttachment()
-    begin
-        OpenSegLineAttachment();
-    end;
-#endif
 
     procedure OpenSegLineAttachment()
     var
@@ -714,15 +689,6 @@ table 5077 "Segment Line"
         end
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by ImportSegLineAttachment', '17.0')]
-    [Scope('OnPrem')]
-    procedure ImportAttachment()
-    begin
-        ImportSegLineAttachment();
-    end;
-#endif
-
     procedure ImportSegLineAttachment()
     var
         SegInteractLanguage: Record "Segment Interaction Language";
@@ -741,15 +707,6 @@ table 5077 "Segment Line"
         end;
         SegInteractLanguage.ImportAttachment();
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by ExportSegLineAttachment()', '17.0')]
-    [Scope('OnPrem')]
-    procedure ExportAttachment()
-    begin
-        ExportSegLineAttachment();
-    end;
-#endif
 
     procedure ExportSegLineAttachment()
     var
@@ -835,7 +792,7 @@ table 5077 "Segment Line"
                     else begin
                         SegInteractLanguage.SetRange("Segment No.", "Segment No.");
                         SegInteractLanguage.SetRange("Segment Line No.", "Line No.");
-                        if SegInteractLanguage.FindFirst then
+                        if SegInteractLanguage.FindFirst() then
                             Language := SegInteractLanguage."Language Code";
                     end;
                 end;
@@ -949,15 +906,6 @@ table 5077 "Segment Line"
 
         OnAfterCopyFromInteractionLogEntry(Rec, InteractLogEntry);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by CreateSegLineInteractionFromContact()', '17.0')]
-    [Scope('OnPrem')]
-    procedure CreateInteractionFromContact(var Contact: Record Contact)
-    begin
-        CreateSegLineInteractionFromContact(Contact);
-    end;
-#endif
 
     procedure CreateSegLineInteractionFromContact(var Contact: Record Contact)
     begin
@@ -1194,15 +1142,6 @@ table 5077 "Segment Line"
         OnAfterCheckStatus(Rec);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by FinishSegLineWizard()', '17.0')]
-    [Scope('OnPrem')]
-    procedure FinishWizard(IsFinish: Boolean)
-    begin
-        FinishSegLineWizard(IsFinish);
-    end;
-#endif
-
     procedure FinishSegLineWizard(IsFinish: Boolean)
     var
         InteractionLogEntry: Record "Interaction Log Entry";
@@ -1238,7 +1177,7 @@ table 5077 "Segment Line"
                 AttachmentManagement.GenerateHTMLContent(TempAttachment, Rec);
             end;
             SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, send, not IsFinish);
-            InteractionLogEntry.FindLast;
+            InteractionLogEntry.FindLast();
             if Send and (InteractionLogEntry."Delivery Status" = InteractionLogEntry."Delivery Status"::Error) then begin
                 if HTMLAttachment then begin
                     Clear(TempAttachment);
@@ -1281,7 +1220,7 @@ table 5077 "Segment Line"
         ErrorText: Text[80];
     begin
         if "Correspondence Type" <> "Correspondence Type"::" " then
-            if TempAttachment.FindFirst then begin
+            if TempAttachment.FindFirst() then begin
                 ErrorText := TempAttachment.CheckCorrespondenceType("Correspondence Type");
                 if ErrorText <> '' then
                     Error(
@@ -1313,6 +1252,7 @@ table 5077 "Segment Line"
                         LoadTempAttachment(false);
 
                     Subject := Description;
+                    TempAttachment.OpenAttachment(Rec, Description);
                 end;
             InteractTmpl."Wizard Action"::Import:
                 begin
@@ -1375,15 +1315,6 @@ table 5077 "Segment Line"
             if Attachment.Get(ResumedAttachmentNo) then
                 Attachment.RemoveAttachment(false);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by LoadSegLineAttachment()', '17.0')]
-    [Scope('OnPrem')]
-    procedure LoadAttachment(ForceReload: Boolean)
-    begin
-        LoadSegLineAttachment(ForceReload);
-    end;
-#endif
 
     procedure LoadSegLineAttachment(ForceReload: Boolean)
     begin
@@ -1467,15 +1398,6 @@ table 5077 "Segment Line"
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by LogSegLinePhoneCall()', '17.0')]
-    [Scope('OnPrem')]
-    procedure LogPhoneCall()
-    begin
-        LogSegLinePhoneCall();
-    end;
-#endif
-
     procedure LogSegLinePhoneCall()
     var
         TempAttachment: Record Attachment temporary;
@@ -1503,7 +1425,7 @@ table 5077 "Segment Line"
     begin
         TempInterLogEntryCommentLine.DeleteAll();
 
-        if InterLogEntryCommentLine.FindSet then
+        if InterLogEntryCommentLine.FindSet() then
             repeat
                 TempInterLogEntryCommentLine := InterLogEntryCommentLine;
                 TempInterLogEntryCommentLine.Insert();
@@ -1542,15 +1464,6 @@ table 5077 "Segment Line"
             exit(false);
         exit(TempAttachment.IsHTML);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by PreviewSegLineHTMLContent()', '17.0')]
-    [Scope('OnPrem')]
-    procedure PreviewHTMLContent()
-    begin
-        PreviewSegLineHTMLContent();
-    end;
-#endif
 
     procedure PreviewSegLineHTMLContent()
     begin
@@ -1602,7 +1515,7 @@ table 5077 "Segment Line"
         Opportunity.SetFilter("Contact Company No.", "Contact Company No.");
         if "Opportunity No." <> '' then begin
             Opportunity.SetRange("No.", "Opportunity No.");
-            if Opportunity.FindFirst then;
+            if Opportunity.FindFirst() then;
             Opportunity.SetRange("No.");
         end;
     end;
@@ -1614,13 +1527,13 @@ table 5077 "Segment Line"
         Email: Text[250];
     begin
         User.SetRange("User Name", UserId);
-        if User.FindFirst then
+        if User.FindFirst() then
             Email := User."Authentication Email";
 
         if Email <> '' then begin
             Salesperson.SetRange("E-Mail", Email);
             if Salesperson.Count = 1 then begin
-                Salesperson.FindFirst;
+                Salesperson.FindFirst();
                 "Salesperson Code" := Salesperson.Code;
             end;
         end;
@@ -1635,13 +1548,13 @@ table 5077 "Segment Line"
     begin
         TenantWebService.SetRange("Object Type", TenantWebService."Object Type"::Query);
         TenantWebService.SetRange("Object ID", QUERY::"Segment Lines");
-        TenantWebService.FindFirst;
+        TenantWebService.FindFirst();
 
         RecRef.Open(DATABASE::"Segment Line");
         RecRef.SetView(GetView);
 
         ODataFieldsExport.SetExportData(TenantWebService, RecRef);
-        ODataFieldsExport.RunModal;
+        ODataFieldsExport.RunModal();
     end;
 
     local procedure SetDefaultSalesperson()

@@ -38,7 +38,7 @@ table 99000779 "Production BOM Version"
                 if (Status = Status::Certified) and ("Unit of Measure Code" <> xRec."Unit of Measure Code") then
                     FieldError(Status);
                 Item.SetRange("Production BOM No.", "Production BOM No.");
-                if Item.FindSet then
+                if Item.FindSet() then
                     repeat
                         ItemUnitOfMeasure.Get(Item."No.", "Unit of Measure Code");
                     until Item.Next() = 0;

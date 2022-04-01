@@ -418,10 +418,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 193372512 - Control 707985127 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a code for the configuration package.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control code - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 193372512 - Control 707985127 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 193372512 - Control 2374100451 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a contect package.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control content - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 193372512 - Control 2374100451 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Content</source>
@@ -897,6 +907,11 @@
           <source>The permission set %1 is defined multiple times in this context.</source>
           <note from="Developer" annotates="general" priority="2">%1 will be replaced with a Role ID code value from the Permission Set table</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Group Perm. - NamedType MultipleRoleIDErr</note>
+        </trans-unit>
+        <trans-unit id="Page 945262719 - NamedType 3058781679" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You cannot change the User Group Code for a user group permission.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Group Perm. - NamedType UserGroupCodeNotEditableErr</note>
         </trans-unit>
         <trans-unit id="Page 945262719 - NamedType 509535601" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify a User Group Code to access user group permissions.</source>
@@ -3117,6 +3132,11 @@
           <source>The "balancingAccountId" does not match to an Account.</source>
           <note from="Developer" annotates="general" priority="2">balancingAccountId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - NamedType BalAccountIdDoesNotMatchAnAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3494060223 - NamedType 2792529467" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Journal Batch Id isn't editable.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - NamedType CannotEditBatchIdErr</note>
         </trans-unit>
         <trans-unit id="Page 3494060223 - NamedType 3222313909" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Journal Batch Display Name isn't editable.</source>

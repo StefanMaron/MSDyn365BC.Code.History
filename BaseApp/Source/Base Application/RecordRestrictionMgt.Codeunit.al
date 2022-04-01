@@ -1,4 +1,4 @@
-﻿codeunit 1550 "Record Restriction Mgt."
+codeunit 1550 "Record Restriction Mgt."
 {
     Permissions = TableData "Restricted Record" = rimd;
 
@@ -21,7 +21,7 @@
             exit;
 
         RestrictedRecord.SetRange("Record ID", RecRef.RecordId);
-        if RestrictedRecord.FindFirst then begin
+        if RestrictedRecord.FindFirst() then begin
             RestrictedRecord.Details := CopyStr(RestrictionDetails, 1, MaxStrLen(RestrictedRecord.Details));
             RestrictedRecord.Modify(true);
         end else begin
@@ -40,7 +40,7 @@
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 AllowRecordUsage(GenJournalLine);
             until GenJournalLine.Next() = 0;
@@ -54,7 +54,7 @@
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        if ItemJournalLine.FindSet then
+        if ItemJournalLine.FindSet() then
             repeat
                 AllowRecordUsage(ItemJournalLine);
             until ItemJournalLine.Next() = 0;
@@ -68,7 +68,7 @@
 
         FAJournalLine.SetRange("Journal Template Name", FAJournalBatch."Journal Template Name");
         FAJournalLine.SetRange("Journal Batch Name", FAJournalBatch.Name);
-        if FAJournalLine.FindSet then
+        if FAJournalLine.FindSet() then
             repeat
                 AllowRecordUsage(FAJournalLine);
             until FAJournalLine.Next() = 0;
@@ -111,11 +111,7 @@
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterInsertEvent', '', false, false)]
     procedure RestrictGenJournalLineAfterInsert(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        if HasBatchOpenOrPendingApprovalEntries(Rec, GenJournalBatch) then
-            CheckRecordHasUsageRestrictions(GenJournalBatch);
         RestrictGenJournalLine(Rec);
     end;
 
@@ -124,24 +120,7 @@
     begin
         if Format(Rec) = Format(xRec) then
             exit;
-        if HasLineOpenOrPendingApprovalEntries(Rec) then
-            CheckRecordHasUsageRestrictions(Rec);
         RestrictGenJournalLine(Rec);
-    end;
-
-    local procedure HasLineOpenOrPendingApprovalEntries(var GenJournalLine: Record "Gen. Journal Line"): Boolean;
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-    begin
-        if GenJournalLine."Pending Approval" then
-            exit(true);
-        exit(HasBatchOpenOrPendingApprovalEntries(GenJournalLine, GenJournalBatch));
-    end;
-
-    local procedure HasBatchOpenOrPendingApprovalEntries(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"): Boolean
-    begin
-        if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
-            exit(GenJournalBatch."Pending Approval");
     end;
 
     local procedure RestrictGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -168,7 +147,7 @@
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 CheckRecordHasUsageRestrictions(GenJournalLine);
             until GenJournalLine.Next() = 0;
@@ -188,7 +167,7 @@
             exit;
 
         RestrictedRecord.SetRange("Record ID", RecRef.RecordId);
-        if not RestrictedRecord.FindFirst then
+        if not RestrictedRecord.FindFirst() then
             exit;
 
         ErrorMessage :=
@@ -222,7 +201,13 @@
     procedure VendorCheckPurchasePostRestrictions(var Sender: Record "Purchase Header")
     var
         Vendor: Record Vendor;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVendorCheckPurchasePostRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         Vendor.Get(Sender."Buy-from Vendor No.");
         CheckRecordHasUsageRestrictions(Vendor);
         if Sender."Buy-from Vendor No." = Sender."Pay-to Vendor No." then
@@ -235,7 +220,13 @@
     procedure CustomerCheckGenJournalLinePostRestrictions(var Sender: Record "Gen. Journal Line")
     var
         Customer: Record Customer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCustomerCheckGenJournalLinePostRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Sender."Account Type" = Sender."Account Type"::Customer) and (Sender."Account No." <> '') then begin
             Customer.Get(Sender."Account No.");
             CheckRecordHasUsageRestrictions(Customer);
@@ -251,7 +242,13 @@
     procedure VendorCheckGenJournalLinePostRestrictions(var Sender: Record "Gen. Journal Line")
     var
         Vendor: Record Vendor;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVendorCheckGenJournalLinePostRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Sender."Account Type" = Sender."Account Type"::Vendor) and (Sender."Account No." <> '') then begin
             Vendor.Get(Sender."Account No.");
             CheckRecordHasUsageRestrictions(Vendor);
@@ -267,7 +264,13 @@
     local procedure ItemJournalLineCheckItemPostRestrictions(var Sender: Record "Item Journal Line")
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeItemJournalLineCheckItemPostRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckRecordHasUsageRestrictions(Sender);
         Item.Get(Sender."Item No.");
         CheckRecordHasUsageRestrictions(Item);
@@ -275,13 +278,27 @@
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
     procedure GenJournalLineCheckGenJournalLinePostRestrictions(var Sender: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenJournalLineCheckGenJournalLinePostRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnCheckGenJournalLinePrintCheckRestrictions', '', false, false)]
     procedure GenJournalLineCheckGenJournalLinePrintCheckRestrictions(var Sender: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenJournalLineCheckGenJournalLinePrintCheckRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         if Sender."Bank Payment Type" = Sender."Bank Payment Type"::"Computer Check" then
             CheckRecordHasUsageRestrictions(Sender);
     end;
@@ -307,7 +324,8 @@
     begin
         if Rec.IsTemporary() then
             exit;
-
+        if GetExecutionContext() = ExecutionContext::Upgrade then
+            exit;
         if not RecRef.Get(Rec."Record ID to Print") then
             exit;
 
@@ -318,7 +336,13 @@
     procedure GenJournalBatchCheckGenJournalLinePostRestrictions(var Sender: Record "Gen. Journal Line")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenJournalBatchCheckGenJournalLinePostRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         if not GenJournalBatch.Get(Sender."Journal Template Name", Sender."Journal Batch Name") then
             exit;
 
@@ -327,7 +351,14 @@
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnCheckGenJournalLineExportRestrictions', '', false, false)]
     procedure GenJournalBatchCheckGenJournalLineExportRestrictions(var Sender: Record "Gen. Journal Batch")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenJournalBatchCheckGenJournalLineExportRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         if not Sender."Allow Payment Export" then
             exit;
 
@@ -336,25 +367,53 @@
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCheckSalesPostRestrictions', '', false, false)]
     procedure SalesHeaderCheckSalesPostRestrictions(var Sender: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderCheckSalesPostRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCheckSalesReleaseRestrictions', '', false, false)]
     procedure SalesHeaderCheckSalesReleaseRestrictions(var Sender: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderCheckSalesReleaseRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnCheckPurchasePostRestrictions', '', false, false)]
     procedure PurchaseHeaderCheckPurchasePostRestrictions(var Sender: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchaseHeaderCheckPurchasePostRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnCheckPurchaseReleaseRestrictions', '', false, false)]
     procedure PurchaseHeaderCheckPurchaseReleaseRestrictions(var Sender: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchaseHeaderCheckPurchaseReleaseRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
@@ -408,13 +467,27 @@
 
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnCheckIncomingDocSetForOCRRestrictions', '', false, false)]
     procedure IncomingDocCheckSetForOCRRestrictions(var Sender: Record "Incoming Document")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIncomingDocCheckSetForOCRRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnCheckIncomingDocReleaseRestrictions', '', false, false)]
     procedure IncomingDocCheckReleaseRestrictions(var Sender: Record "Incoming Document")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIncomingDocCheckReleaseRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
@@ -438,12 +511,94 @@
 
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnCheckIncomingDocCreateDocRestrictions', '', false, false)]
     procedure IncomingDocCheckCreateDocRestrictions(var Sender: Record "Incoming Document")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIncomingDocCheckCreateDocRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustomerCheckSalesPostRestrictions(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVendorCheckPurchasePostRestrictions(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustomerCheckGenJournalLinePostRestrictions(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVendorCheckGenJournalLinePostRestrictions(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemJournalLineCheckItemPostRestrictions(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJournalLineCheckGenJournalLinePostRestrictions(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJournalLineCheckGenJournalLinePrintCheckRestrictions(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJournalBatchCheckGenJournalLinePostRestrictions(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJournalBatchCheckGenJournalLineExportRestrictions(var GenJournalBatch: Record "Gen. Journal Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderCheckSalesPostRestrictions(var Sender: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderCheckSalesReleaseRestrictions(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseHeaderCheckPurchasePostRestrictions(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseHeaderCheckPurchaseReleaseRestrictions(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIncomingDocCheckSetForOCRRestrictions(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIncomingDocCheckReleaseRestrictions(var Sender: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIncomingDocCheckCreateDocRestrictions(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -125,7 +125,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
 
         ItemJnlBatch.Get(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
         CalculatePhysInvtCounting.SetItemJnlLine(ItemJnlBatch);
-        CalculatePhysInvtCounting.RunModal;
+        CalculatePhysInvtCounting.RunModal();
 
         if CalculatePhysInvtCounting.GetRequest(
              PostingDate, DocNo, SortingMethod, PrintDoc, PrintDocPerItem, ZeroQty, PrintQtyCalculated)
@@ -161,7 +161,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         OnCreatePhysInvtWhseJnlOnBeforeCalculatePhysInvtCountingRunModal(CalculatePhysInvtCounting, SortingMethod, IsHandled);
         if not IsHandled then begin
             CalculatePhysInvtCounting.SetWhseJnlLine(WhseJnlBatch);
-            CalculatePhysInvtCounting.RunModal;
+            CalculatePhysInvtCounting.RunModal();
         end;
 
         if CalculatePhysInvtCounting.GetRequest(
@@ -212,7 +212,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             Item.SetRange("Location Filter", TempPhysInvtItemSelection."Location Code");
         end;
         CalculateInventory.SetTableView(Item);
-        CalculateInventory.RunModal;
+        CalculateInventory.RunModal();
         Clear(CalculateInventory);
     end;
 
@@ -235,7 +235,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         then
             BinContent.SetRange("Variant Code", TempPhysInvtItemSelection."Variant Code");
         WhseCalculateInventory.SetTableView(BinContent);
-        WhseCalculateInventory.RunModal;
+        WhseCalculateInventory.RunModal();
         Clear(WhseCalculateInventory);
     end;
 
@@ -370,7 +370,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             PhysInvtList.Initialize(PrintQtyCalculated);
             PhysInvtList.SetTableView(ItemJnlBatch);
             PhysInvtList.SetTableView(ItemJnlLine);
-            PhysInvtList.Run;
+            PhysInvtList.Run();
         end else begin
             TempPhysInvtItemSelection.Find('-');
             repeat
@@ -382,7 +382,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                 PhysInvtList.UseRequestPage(false);
                 PhysInvtList.Initialize(PrintQtyCalculated);
                 PhysInvtList.SetTableView(ItemJnlLine);
-                PhysInvtList.Run;
+                PhysInvtList.Run();
                 TempPhysInvtItemSelection.SetRange("Item No.",
                   TempPhysInvtItemSelection."Item No.");
                 TempPhysInvtItemSelection.Find('+');
@@ -413,7 +413,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             WhsePhysInvtList.Initialize(PrintQtyCalculated);
             WhsePhysInvtList.SetTableView(WhseJnlBatch);
             WhsePhysInvtList.SetTableView(WhseJnlLine);
-            WhsePhysInvtList.Run;
+            WhsePhysInvtList.Run();
         end else begin
             TempPhysInvtItemSelection.Find('-');
             repeat
@@ -432,7 +432,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                 WhsePhysInvtList.Initialize(PrintQtyCalculated);
                 WhsePhysInvtList.SetTableView(WhseJnlBatch);
                 WhsePhysInvtList.SetTableView(WhseJnlLine);
-                WhsePhysInvtList.Run;
+                WhsePhysInvtList.Run();
                 TempPhysInvtItemSelection.SetRange("Item No.",
                   TempPhysInvtItemSelection."Item No.");
                 TempPhysInvtItemSelection.Find('+');
@@ -508,7 +508,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         SKU: Record "Stockkeeping Unit";
     begin
         with TempItem do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     Item.Reset();
                     Item.Get("No.");
@@ -517,7 +517,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         end;
 
         with TempSKU do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     SKU.Reset();
                     SKU.Get("Location Code", "Item No.", "Variant Code");
@@ -590,7 +590,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         ZeroQty: Boolean;
         CalcQtyExpected: Boolean;
     begin
-        CalcPhysInvtOrderCountRep.RunModal;
+        CalcPhysInvtOrderCountRep.RunModal();
         if not CalcPhysInvtOrderCountRep.GetRequest(ZeroQty, CalcQtyExpected) then
             exit;
 
@@ -612,7 +612,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                 Item.SetRange("Location Filter", TempPhysInvtItemSelection."Location Code");
             end;
             CalcPhysInvtOrderLinesRep.SetTableView(Item);
-            CalcPhysInvtOrderLinesRep.RunModal;
+            CalcPhysInvtOrderLinesRep.RunModal();
             Clear(CalcPhysInvtOrderLinesRep);
         until TempPhysInvtItemSelection.Next() = 0;
         Window.Close;
@@ -626,13 +626,13 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             Calendar.Reset();
             Calendar.SetRange("Period Type", Calendar."Period Type"::Year);
             Calendar.SetRange("Period No.", Date2DMY(LastDate, 3));
-            Calendar.FindFirst;
+            Calendar.FindFirst();
             StartDate := Calendar."Period Start";
         end;
         Calendar.Reset();
         Calendar.SetRange("Period Type", Calendar."Period Type"::Month);
         Calendar.SetFilter("Period Start", '>=%1', StartDate);
-        Calendar.FindFirst;
+        Calendar.FindFirst();
         while StartDate <= LastDate do begin
             OldStartDate := StartDate;
             Calendar.Next(12 / CountFrequency);

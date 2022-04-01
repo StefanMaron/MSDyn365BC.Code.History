@@ -60,7 +60,7 @@ codeunit 132906 DeviceCardTest
     begin
         AddDeviceHelper(Device002Txt);
 
-        DeviceCardPage.OpenNew;
+        DeviceCardPage.OpenNew();
         DeviceCardPage."MAC Address".Value := Device002Txt;
         DeviceCardPage.OK.Invoke;
 
@@ -95,7 +95,7 @@ codeunit 132906 DeviceCardTest
         // Bug 273002 --Removed the UI handler until the bug is resolved."EventYesHandler"
         // Workaround deleting the Device from the table
         DeviceTable.SetFilter("MAC Address", Device002Txt);
-        if DeviceTable.FindFirst then
+        if DeviceTable.FindFirst() then
             DeviceTable.Delete();
         DeviceTable.SetRange("MAC Address");
         DeviceCardPage.Trap;
@@ -113,7 +113,7 @@ codeunit 132906 DeviceCardTest
     [Normal]
     local procedure AddDeviceHelper(DeviceName: Text[250])
     begin
-        DeviceCardPage.OpenNew;
+        DeviceCardPage.OpenNew();
         DeviceCardPage."MAC Address".Value := DeviceName;
         DeviceCardPage.Name.Value := 'xyz';
         DeviceCardPage."Device Type".Value := 'Limited';

@@ -36,13 +36,13 @@ codeunit 134912 "ERM User Personalization"
         NewProfileID: Code[30];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         OriginalProfileID := LibraryUtility.GenerateRandomText(MaxStrLen(AllProfile."Profile ID"));
         CreateNewProfile(OriginalProfileID, Page::"Business Manager Role Center", false);
         AllProfile.Get(AllProfile.Scope::Tenant, AllProfile."App ID", OriginalProfileID);
 
-        if not UserPersonalization.FindFirst then begin
+        if not UserPersonalization.FindFirst() then begin
             UserPersonalization.Init();
             UserPersonalization."Profile ID" := AllProfile."Profile ID";
             UserPersonalization.Scope := AllProfile.Scope;
@@ -81,7 +81,7 @@ codeunit 134912 "ERM User Personalization"
           1, UserPersonalization.Count, 'Renaming Profile must also rename all UserPersonalization entries for that Profile');
 
         // Tear Down: Setup default values.
-        UserPersonalization.FindFirst;
+        UserPersonalization.FindFirst();
         UserPersonalization.Validate("Profile ID", '');
         UserPersonalization.Modify(true);
 
@@ -96,7 +96,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         AllProfile.SetRange("Default Role Center", true);
         Assert.AreEqual(1, AllProfile.Count, ProfileDefaultRCMustBeUniqueErr);
-        AllProfile.FindFirst;
+        AllProfile.FindFirst();
         Assert.AreEqual(Page::"Order Processor Role Center", AllProfile."Role Center ID", WrongExpectedRoleCenter);
     end;
 
@@ -114,11 +114,11 @@ codeunit 134912 "ERM User Personalization"
 
         // [GIVEN] A Profile 'A', where 'Default Role Center' is 'Yes'
         DefaultProfile.SetRange("Default Role Center", true);
-        DefaultProfile.FindFirst;
+        DefaultProfile.FindFirst();
         // [GIVEN] A Profile 'B', where 'Default Role Center' is 'No'
         AllProfile.SetRange("Default Role Center", false);
         AllProfile.SetRange(Enabled, true);
-        AllProfile.FindFirst;
+        AllProfile.FindFirst();
         // [GIVEN] Open Profile List page and focus on Profile 'B'
         ProfileList.OpenView;
         ProfileList.GotoRecord(AllProfile);
@@ -148,7 +148,7 @@ codeunit 134912 "ERM User Personalization"
         // Check created Profile through page.
 
         // Setup.
-        Initialize;
+        Initialize();
         FindAnyRoleCenter(AllObjWithCaption);
 
         // Exercise: Create a Profile.
@@ -173,7 +173,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [FEATURE] [Role Center]
         // [SCENARIO 299013] Create a new Profile with default 'Role Center ID'
-        Initialize;
+        Initialize();
         FindAnyRoleCenter(AllObjWithCaption);
 
         // [GIVEN] Created a new Profile
@@ -255,7 +255,7 @@ codeunit 134912 "ERM User Personalization"
         ProfileID: Code[30];
     begin
         // Check that a Profile can be copied into a new profile.
-        Initialize;
+        Initialize();
 
         OldAllProfile.SetRange(Enabled, true);
         OldAllProfile.FindFirst();
@@ -287,7 +287,7 @@ codeunit 134912 "ERM User Personalization"
         ProfileID: Code[30];
     begin
         // [SCENARIO] Setting the current profile ID works
-        Initialize;
+        Initialize();
 
         // [GIVEN] A profile ID, set for the current user
         FindAnyRoleCenter(AllObjWithCaption);
@@ -307,7 +307,7 @@ codeunit 134912 "ERM User Personalization"
 
         // Cleanup
         UserPersonalization.SetRange("Profile ID", Format(AllObjWithCaption."Object ID"));
-        UserPersonalization.FindFirst;
+        UserPersonalization.FindFirst();
         UserPersonalization.Validate("Profile ID", '');
         Clear(UserPersonalization."App ID");
         Clear(UserPersonalization.Scope);
@@ -323,7 +323,7 @@ codeunit 134912 "ERM User Personalization"
         Cassie: Guid;
     begin
         // [SCENARIO] Empty user Profile ID gets a value, when the user is added to a user group
-        Initialize;
+        Initialize();
 
         // [GIVEN PROFILEID-ACCOUNTANT Profile]
         CreateNewProfile(ProfileIdAccountantTxt, ConfPersonalizationMgt.DefaultRoleCenterID, true);
@@ -350,7 +350,7 @@ codeunit 134912 "ERM User Personalization"
         Cassie: Guid;
     begin
         // [SCENARIO] Existing user Profile ID remains the same, when the user is added to a user group
-        Initialize;
+        Initialize();
 
         // [GIVEN PROFILEID-ACCOUNTANT, PROFILEID-SALES Profiles]
         CreateNewProfile(ProfileIdAccountantTxt, ConfPersonalizationMgt.DefaultRoleCenterID, true);
@@ -381,7 +381,7 @@ codeunit 134912 "ERM User Personalization"
         Cassie: Guid;
     begin
         // [SCENARIO] When last user group is removed from a user, its default profile becomes empty
-        Initialize;
+        Initialize();
 
         // [GIVEN PROFILEID-ACCOUNTANT Profile]
         CreateNewProfile(ProfileIdAccountantTxt, ConfPersonalizationMgt.DefaultRoleCenterID, true);
@@ -414,7 +414,7 @@ codeunit 134912 "ERM User Personalization"
         Cassie: Guid;
     begin
         // [SCENARIO] When a user group is removed from a user, its default profile changes to the next available
-        Initialize;
+        Initialize();
 
         // [GIVEN PROFILEID-ACCOUNTANT, PROFILEID-SALES Profiles]
         CreateNewProfile(ProfileIdAccountantTxt, ConfPersonalizationMgt.DefaultRoleCenterID, true);
@@ -452,7 +452,7 @@ codeunit 134912 "ERM User Personalization"
         Cassie: Guid;
     begin
         // [SCENARIO] When a user group membership is modified, the changes are propagated to user personalization
-        Initialize;
+        Initialize();
 
         // [GIVEN PROFILEID-ACCOUNTANT, PROFILEID-SALES Profiles]
         CreateNewProfile(ProfileIdAccountantTxt, ConfPersonalizationMgt.DefaultRoleCenterID, true);
@@ -494,7 +494,7 @@ codeunit 134912 "ERM User Personalization"
         PreviousSaaSTestability: Boolean;
     begin
         // [SCENARIO] When a user group membership is modified, the changes are propagated to user personalization
-        Initialize;
+        Initialize();
         PreviousSaaSTestability := EnvironmentInfo.IsSaaS();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
@@ -657,7 +657,7 @@ codeunit 134912 "ERM User Personalization"
         OldTestability: Boolean;
     begin
         // [SCENARIO] "Thirty Day Trial Dialog" page is shown when change company for the user in PROD
-        Initialize;
+        Initialize();
         OldTestability := EnvironmentInfo.IsSaaS();
 
         // [GIVEN] SaaS, the company is not the evaluation company
@@ -680,7 +680,7 @@ codeunit 134912 "ERM User Personalization"
         LogInManagement: Codeunit LogInManagement;
     begin
         // [SCENARIO] "Thirty Day Trial Dialog" page is not shown when opening company for the user in Sandbox
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sandbox, SaaS, the company is not the evaluation company
         SetSandboxValue(true);
@@ -708,7 +708,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [SCENARIO 295344] Changes to Company Name in User Group Member record make no changes to User's Personalization profile
         // [FEATURE] [User Group]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user and a system Default Profile ID
         CreateOrFindDefaultProfileID;
@@ -749,7 +749,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [SCENARIO 295344] Changes to User Group Code in a single User Group Member record changes User's Personalization profile is confirmed
         // [FEATURE] [User Group]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user and a system Default Profile ID
         CreateOrFindDefaultProfileID;
@@ -793,7 +793,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [SCENARIO 295344] Changes to User Group Code in a single User Group Member record changes User's Personalization profile is confirmed
         // [FEATURE] [User Group]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user, and a system Default Profile ID
         CreateOrFindDefaultProfileID;
@@ -836,7 +836,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [SCENARIO 295344] Changes to User Group Membership not related to Personalization record make no changes to User's Personalization profile
         // [FEATURE] [User Group]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user, and a system Default Profile ID
         CreateOrFindDefaultProfileID;
@@ -879,7 +879,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [SCENARIO 295344] Changes to User Group Membership related, but not alone, to Personalization record make no changes to User's Personalization profile
         // [FEATURE] [User Group]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user, and a system Default Profile ID
         CreateOrFindDefaultProfileID;
@@ -922,7 +922,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [SCENARIO 295344] Changes to User Group Membership related to Personalization record make changes to User's Personalization profile if confirmed
         // [FEATURE] [User Group]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user, and a system Default Profile ID
         SystemProfileID := CreateOrFindDefaultProfileID;
@@ -966,7 +966,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [SCENARIO 295344] Changes to User Group Membership related to Personalization record don't make changes to User's Personalization profile if declined
         // [FEATURE] [User Group]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user, and a system Default Profile ID
         CreateOrFindDefaultProfileID;
@@ -1012,7 +1012,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [FEATURE] [User Group] [UI]
         // [SCENARIO 302198] Changes to User Group Default Profile ID change User's Personalization profile
-        Initialize;
+        Initialize();
 
         // [GIVEN] A user
         LibraryPermissions.CreateUser(User, '', false);
@@ -1055,7 +1055,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [FEATURE] [User Group] [UI]
         // [SCENARIO 302198] Changes to User Group Default Profile ID don't change User's Personalization profile
-        Initialize;
+        Initialize();
 
         // [GIVEN] User
         LibraryPermissions.CreateUser(User, '', false);
@@ -1104,7 +1104,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [FEATURE] [User Group] [UI]
         // [SCENARIO 302198] Changes to User Group Default Profile ID don't change User's Personalization profile when there are other user groups with that profile.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User
         LibraryPermissions.CreateUser(User, '', false);
@@ -1154,7 +1154,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         // [FEATURE] [User Group] [UI]
         // [SCENARIO 302198] Change User Group's Default Profile ID
-        Initialize;
+        Initialize();
 
         // [GIVEN] User Group with Default Profile ID
         LibraryPermissions.CreateUserGroup(UserGroup, '');
@@ -1216,7 +1216,7 @@ codeunit 134912 "ERM User Personalization"
         // Ensure it doesn't already exist
         DeleteProfile(AllObjWithCaption);
 
-        ProfileCard.OpenNew;
+        ProfileCard.OpenNew();
         ProfileCard.ProfileIdField.SetValue(AllObjWithCaption."Object ID");
         ProfileCard.DescriptionField.SetValue(AllObjWithCaption."Object ID");
         ProfileCard.CaptionField.SetValue(AllObjWithCaption."Object ID");
@@ -1231,7 +1231,7 @@ codeunit 134912 "ERM User Personalization"
         // Ensure it doesn't already exist
         DeleteProfile(AllObjWithCaption);
 
-        ProfileCard.OpenNew;
+        ProfileCard.OpenNew();
         ProfileCard.ProfileIdField.SetValue(AllObjWithCaption."Object ID");
         ProfileCard.DescriptionField.SetValue(AllObjWithCaption."Object ID");
         ProfileCard.CaptionField.SetValue(AllObjWithCaption."Object ID");
@@ -1243,10 +1243,10 @@ codeunit 134912 "ERM User Personalization"
         ProfileCard: TestPage "Profile Card";
         ProfileID: Code[30];
     begin
-        ProfileCard.OpenNew;
-        ProfileCard.ProfileIdField.SetValue(LibraryUtility.GenerateGUID);
-        ProfileCard.DescriptionField.SetValue(LibraryUtility.GenerateGUID);
-        ProfileCard.CaptionField.SetValue(LibraryUtility.GenerateGUID);
+        ProfileCard.OpenNew();
+        ProfileCard.ProfileIdField.SetValue(LibraryUtility.GenerateGUID());
+        ProfileCard.DescriptionField.SetValue(LibraryUtility.GenerateGUID());
+        ProfileCard.CaptionField.SetValue(LibraryUtility.GenerateGUID());
         ProfileID := ProfileCard.ProfileIdField.Value;
         ProfileCard.OK.Invoke;
         exit(ProfileID);
@@ -1281,7 +1281,7 @@ codeunit 134912 "ERM User Personalization"
         if AllProfile.FindFirst() then
             DefProfileID := AllProfile."Profile ID"
         else begin
-            DefProfileID := LibraryUtility.GenerateGUID;
+            DefProfileID := LibraryUtility.GenerateGUID();
             CreateNewProfile(DefProfileID, ConfPersonalizationMgt.DefaultRoleCenterID, true);
         end;
         exit(DefProfileID);
@@ -1309,7 +1309,7 @@ codeunit 134912 "ERM User Personalization"
         AllProfile: Record "All Profile";
     begin
         AllProfile.SetFilter("Profile ID", Format(AllObjWithCaption."Object ID"));
-        if AllProfile.FindFirst then
+        if AllProfile.FindFirst() then
             AllProfile.Delete(true);
     end;
 
@@ -1325,7 +1325,7 @@ codeunit 134912 "ERM User Personalization"
         LibraryVariableStorage.Enqueue(OldAllProfile."Profile ID");
         CopyProfileTestPage.SourceProfileID.AssistEdit();
         CopyProfileTestPage.DestinationProfileID.Value := NewProfileID;
-        CopyProfileTestPage.DestinationProfileCaption.Value := LibraryUtility.GenerateGUID;
+        CopyProfileTestPage.DestinationProfileCaption.Value := LibraryUtility.GenerateGUID();
         CopyProfileTestPage.OK().Invoke();
 
         Assert.RecordCount(NewAllProfile, 1);
@@ -1367,7 +1367,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
         AllObjWithCaption.SetRange("Object Subtype", 'RoleCenter');  // Here RoleCenter is needed for Object Subtype.
-        AllObjWithCaption.FindFirst;
+        AllObjWithCaption.FindFirst();
     end;
 
     local procedure IsRoleCenterPageID(PageId: Integer): Boolean
@@ -1458,7 +1458,7 @@ codeunit 134912 "ERM User Personalization"
         UserPersonalization: Record "User Personalization";
     begin
         User.SetRange("User Name", UserName);
-        if User.FindFirst then begin
+        if User.FindFirst() then begin
             if UserPersonalization.Get(User."User Security ID") then
                 UserPersonalization.Delete(true);
             User.Delete(true);

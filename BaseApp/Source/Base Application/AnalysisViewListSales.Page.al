@@ -106,7 +106,7 @@ page 9371 "Analysis View List Sales"
                     SalesAnalysisbyDim: Page "Sales Analysis by Dimensions";
                 begin
                     SalesAnalysisbyDim.SetCurrentAnalysisViewCode(Code);
-                    SalesAnalysisbyDim.Run;
+                    SalesAnalysisbyDim.Run();
                 end;
             }
             action("&Update")

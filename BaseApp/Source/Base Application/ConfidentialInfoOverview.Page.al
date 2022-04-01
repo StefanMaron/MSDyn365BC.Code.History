@@ -47,7 +47,7 @@ page 5229 "Confidential Info. Overview"
                 begin
                     Clear(MatrixForm);
                     MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrSetLength);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

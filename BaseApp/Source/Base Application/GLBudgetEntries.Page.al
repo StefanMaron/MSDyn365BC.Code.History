@@ -167,7 +167,7 @@ page 120 "G/L Budget Entries"
             CurrPage.SetSelectionFilter(GLBudgetEntry);
             GLBudgetEntry.SetCurrentKey("Entry No.");
             GLBudgetEntry.Ascending(true);
-            GLBudgetEntry.FindFirst;
+            GLBudgetEntry.FindFirst();
             LowestModifiedEntryNo := GLBudgetEntry."Entry No.";
             UpdateAnalysisView.SetLastBudgetEntryNo(LowestModifiedEntryNo - 1);
         end;
@@ -247,7 +247,7 @@ page 120 "G/L Budget Entries"
             GLBudgetName.Init
         else begin
             CopyFilter("Budget Name", GLBudgetName.Name);
-            GLBudgetName.FindFirst;
+            GLBudgetName.FindFirst();
         end;
         CurrPage.Editable := not GLBudgetName.Blocked;
         GLSetup.Get();
@@ -302,7 +302,7 @@ page 120 "G/L Budget Entries"
     begin
         with GLAcc do begin
             SetFilter("No.", GLAccFilter);
-            if FindFirst then
+            if FindFirst() then
                 exit("No.");
 
             exit('');
@@ -318,7 +318,7 @@ page 120 "G/L Budget Entries"
         with Period do begin
             SetRange("Period Type", "Period Type"::Date);
             SetFilter("Period Start", DateFilter);
-            if FindFirst then
+            if FindFirst() then
                 exit("Period Start");
 
             exit(0D);
@@ -334,7 +334,7 @@ page 120 "G/L Budget Entries"
         with DimVal do begin
             SetRange("Dimension Code", DimCode);
             SetFilter(Code, DimValFilter);
-            if FindFirst then
+            if FindFirst() then
                 exit(Code);
 
             exit('');
@@ -347,7 +347,7 @@ page 120 "G/L Budget Entries"
     begin
         with BusUnit do begin
             SetFilter(Code, BusUnitFilter);
-            if FindFirst then
+            if FindFirst() then
                 exit(Code);
 
             exit('');

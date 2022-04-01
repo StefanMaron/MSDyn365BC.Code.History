@@ -72,7 +72,7 @@ page 9189 "Generic Chart Memo Editor"
         Copy(TempGenericChartMemoBuf, true);
         SetRange(Code, MemoCode);
         if Get(MemoCode, Language.GetUserLanguageCode) then;
-        CurrPage.RunModal;
+        CurrPage.RunModal();
         exit(GetMemo(MemoCode, Language.GetUserLanguageCode))
     end;
 }

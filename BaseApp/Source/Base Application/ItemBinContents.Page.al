@@ -113,46 +113,4 @@ page 7379 "Item Bin Contents"
         if xRec."Location Code" <> '' then
             "Location Code" := xRec."Location Code";
     end;
-
-    local procedure GetCaption(): Text[250]
-    var
-        ObjTransl: Record "Object Translation";
-        ItemNo: Code[20];
-        VariantCode: Code[10];
-        BinCode: Code[20];
-        FormCaption: Text[250];
-        SourceTableName: Text[250];
-    begin
-        SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 14);
-        FormCaption := StrSubstNo('%1 %2', SourceTableName, "Location Code");
-        if GetFilter("Item No.") <> '' then
-            if GetRangeMin("Item No.") = GetRangeMax("Item No.") then begin
-                ItemNo := GetRangeMin("Item No.");
-                if ItemNo <> '' then begin
-                    SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 27);
-                    FormCaption := StrSubstNo('%1 %2 %3', FormCaption, SourceTableName, ItemNo)
-                end;
-            end;
-
-        if GetFilter("Variant Code") <> '' then
-            if GetRangeMin("Variant Code") = GetRangeMax("Variant Code") then begin
-                VariantCode := GetRangeMin("Variant Code");
-                if VariantCode <> '' then begin
-                    SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 5401);
-                    FormCaption := StrSubstNo('%1 %2 %3', FormCaption, SourceTableName, VariantCode)
-                end;
-            end;
-
-        if GetFilter("Bin Code") <> '' then
-            if GetRangeMin("Bin Code") = GetRangeMax("Bin Code") then begin
-                BinCode := GetRangeMin("Bin Code");
-                if BinCode <> '' then begin
-                    SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 7354);
-                    FormCaption := StrSubstNo('%1 %2 %3', FormCaption, SourceTableName, BinCode);
-                end;
-            end;
-
-        exit(FormCaption);
-    end;
 }
-

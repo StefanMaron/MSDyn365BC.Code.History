@@ -562,7 +562,7 @@ page 1180 "Data Privacy Wizard"
 
                         ConfigPackages.SetTableView(ConfigPackage);
                         ConfigPackages.Editable := true;
-                        ConfigPackages.Run;
+                        ConfigPackages.Run();
                     end;
                     CurrPage.Close;
                 end;
@@ -658,7 +658,7 @@ page 1180 "Data Privacy Wizard"
     begin
         if TempDataPrivacyEntities.Get(RecRef.Number) then begin
             RecRefFilter(RecRef, TempDataPrivacyEntities."Key Field No.", Format(EntityNo, 20));
-            if not RecRef.FindFirst then
+            if not RecRef.FindFirst() then
                 Error(RecordNotFoundErr);
         end;
     end;
@@ -671,7 +671,7 @@ page 1180 "Data Privacy Wizard"
             SetEntityFilter(TempDataPrivacyEntities, RecRef.Number, FilterAsText);
             RecRef.SetView(FilterAsText);
             RecRefFilter(RecRef, TempDataPrivacyEntities."Key Field No.", Format(EntityNo, 20));
-            if not RecRef.FindFirst then
+            if not RecRef.FindFirst() then
                 Error(ErrorMessage);
         end;
     end;

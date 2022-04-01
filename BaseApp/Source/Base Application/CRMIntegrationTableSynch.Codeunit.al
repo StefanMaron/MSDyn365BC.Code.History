@@ -54,6 +54,7 @@ codeunit 5340 "CRM Integration Table Synch."
         SynchronizeEmptySetErr: Label 'Attempted to synchronize an empty set of records.';
         NoMappingErr: Label 'No mapping is set for %1.', Comment = '%1=Table Caption';
         ModifiedByFieldMustBeGUIDErr: Label 'The field %1 in the table %2 must be of type GUID.', Comment = '%1 - a field name, %2 - a table name';
+        OptionMappingCannotBeBidirectionalErr: Label 'Option mappings can only synchronize from integration table or to integration table.';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         ClearCacheTxt: Label 'Clear cache.', Locked = true;
         CannotSplitTxt: Label 'Cannot split list of IDs.', Locked = true;
@@ -77,10 +78,7 @@ codeunit 5340 "CRM Integration Table Synch."
 
         ConnectionName := Format(CreateGuid);
 
-        if CRMConnectionSetup."Is User Mapping Required" then
-            ConnectionName := CRMConnectionSetup.RegisterUserConnection
-        else
-            CRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
+        CRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
         ClearCache;
     end;
 
@@ -483,8 +481,6 @@ codeunit 5340 "CRM Integration Table Synch."
     end;
 
     local procedure FillCodeBufferFromOption(FieldRef: FieldRef; var TempNameValueBuffer: Record "Name/Value Buffer" temporary): Boolean
-    var
-        TempNameValueBufferWithValue: Record "Name/Value Buffer" temporary;
     begin
         CollectEnumValues(FieldRef, TempNameValueBuffer);
         exit(TempNameValueBuffer.FindSet);
@@ -560,8 +556,51 @@ codeunit 5340 "CRM Integration Table Synch."
         exit(SystemIdDictionary.Count() > 0);
     end;
 
-    procedure SynchOption(IntegrationTableMapping: Record "Integration Table Mapping")
+    local procedure FindFailedNotSkippedLocalRecords(var SystemIdDictionary: Dictionary of [Guid, Boolean]; IntegrationTableMapping: Record "Integration Table Mapping"; var TempCRMOptionMapping: Record "CRM Option Mapping" temporary): Boolean
     var
+        LocalRecordRef: RecordRef;
+        PrimaryKeyRef: KeyRef;
+        CurrSystemId: Guid;
+        LocalTableView: Text;
+        I: Integer;
+        NoFilterOnPK: Boolean;
+    begin
+        LocalTableView := IntegrationTableMapping.GetTableFilter();
+        LocalRecordRef.Open(IntegrationTableMapping."Table ID");
+        LocalRecordRef.SetView(LocalTableView);
+
+        if LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).GetFilter() <> '' then
+            exit(false); // Ignore failed not synched records if going to synch records selected by systemId
+
+        PrimaryKeyRef := LocalRecordRef.KeyIndex(1);
+        for I := 1 to PrimaryKeyRef.FieldCount() do
+            if LocalRecordRef.Field(PrimaryKeyRef.FieldIndex(I).Number()).GetFilter() = '' then begin
+                NoFilterOnPK := true;
+                break;
+            end;
+        if not NoFilterOnPK then
+            exit(false); // Ignore failed not synched records if going to synch records selected by primary key
+
+        TempCRMOptionMapping.SetRange(Skipped, false);
+        TempCRMOptionMapping.SetRange("Table ID", IntegrationTableMapping."Table ID");
+        TempCRMOptionMapping.SetRange("Last Synch. CRM Result", TempCRMOptionMapping."Last Synch. CRM Result"::Failure);
+        if TempCRMOptionMapping.FindSet() then
+            repeat
+                if LocalRecordRef.Get(TempCRMOptionMapping."Record ID") then begin
+                    CurrSystemId := LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value();
+                    if not SystemIdDictionary.ContainsKey(CurrSystemId) then
+                        SystemIdDictionary.Add(CurrSystemId, true);
+                end;
+            until TempCRMOptionMapping.Next() = 0;
+        TempCRMOptionMapping.SetRange(Skipped);
+        TempCRMOptionMapping.SetRange("Table ID");
+        TempCRMOptionMapping.SetRange("Last Synch. CRM Result");
+        exit(SystemIdDictionary.Count() > 0);
+    end;
+
+    procedure SynchOption(var IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMOptionMapping: Record "CRM Option Mapping";
         "Field": Record "Field";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
@@ -573,38 +612,41 @@ codeunit 5340 "CRM Integration Table Synch."
         if TypeHelper.GetField(
              IntegrationTableMapping."Integration Table ID", IntegrationTableMapping."Integration Table UID Fld. No.", Field)
         then
-            if Field.Type = Field.Type::Option then begin
-                RecordRef.Open(Field.TableNo);
-                FieldRef := RecordRef.Field(Field."No.");
-                RecordRef.Close;
-                if FillCodeBufferFromOption(FieldRef, TempNameValueBuffer) then begin
-                    CRMOptionMapping.SetRange("Table ID", IntegrationTableMapping."Table ID");
-                    CRMOptionMapping.DeleteAll();
-
-                    RecordRef.Open(IntegrationTableMapping."Table ID");
-                    KeyRef := RecordRef.KeyIndex(1);
-                    FieldRef := KeyRef.FieldIndex(1);
-                    repeat
-                        NewPK := CopyStr(TempNameValueBuffer.Name, 1, FieldRef.Length);
-                        FieldRef.SetRange(NewPK);
-                        if not RecordRef.FindFirst then begin
-                            RecordRef.Init();
-                            FieldRef.Value := NewPK;
-                            RecordRef.Insert(true);
-                        end;
-
-                        CRMOptionMapping.Init();
-                        CRMOptionMapping."Record ID" := RecordRef.RecordId;
-                        CRMOptionMapping."Option Value" := TempNameValueBuffer.ID;
-                        CRMOptionMapping."Option Value Caption" := TempNameValueBuffer.Value;
-                        CRMOptionMapping."Table ID" := IntegrationTableMapping."Table ID";
-                        CRMOptionMapping."Integration Table ID" := IntegrationTableMapping."Integration Table ID";
-                        CRMOptionMapping."Integration Field ID" := IntegrationTableMapping."Integration Table UID Fld. No.";
-                        CRMOptionMapping.Insert();
-                    until TempNameValueBuffer.Next() = 0;
+            if Field.Type = Field.Type::Option then
+                if CRMIntegrationManagement.IsOptionMappingEnabled() then
+                    SynchOptions(IntegrationTableMapping)
+                else begin
+                    RecordRef.Open(Field.TableNo);
+                    FieldRef := RecordRef.Field(Field."No.");
                     RecordRef.Close;
+                    if FillCodeBufferFromOption(FieldRef, TempNameValueBuffer) then begin
+                        CRMOptionMapping.SetRange("Table ID", IntegrationTableMapping."Table ID");
+                        CRMOptionMapping.DeleteAll();
+
+                        RecordRef.Open(IntegrationTableMapping."Table ID");
+                        KeyRef := RecordRef.KeyIndex(1);
+                        FieldRef := KeyRef.FieldIndex(1);
+                        repeat
+                            NewPK := CopyStr(TempNameValueBuffer.Name, 1, FieldRef.Length);
+                            FieldRef.SetRange(NewPK);
+                            if not RecordRef.FindFirst then begin
+                                RecordRef.Init();
+                                FieldRef.Value := NewPK;
+                                RecordRef.Insert(true);
+                            end;
+
+                            CRMOptionMapping.Init();
+                            CRMOptionMapping."Record ID" := RecordRef.RecordId;
+                            CRMOptionMapping."Option Value" := TempNameValueBuffer.ID;
+                            CRMOptionMapping."Option Value Caption" := TempNameValueBuffer.Value;
+                            CRMOptionMapping."Table ID" := IntegrationTableMapping."Table ID";
+                            CRMOptionMapping."Integration Table ID" := IntegrationTableMapping."Integration Table ID";
+                            CRMOptionMapping."Integration Field ID" := IntegrationTableMapping."Integration Table UID Fld. No.";
+                            CRMOptionMapping.Insert();
+                        until TempNameValueBuffer.Next() = 0;
+                        RecordRef.Close;
+                    end;
                 end;
-            end;
     end;
 
     procedure SynchRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceID: Variant; ForceModify: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean) JobID: Guid
@@ -631,7 +673,7 @@ codeunit 5340 "CRM Integration Table Synch."
         if not IntegrationTableMapping.FindMappingForTable(RecordsToSynchRecordRef.Number) then
             Error(NoMappingErr, RecordsToSynchRecordRef.Name);
 
-        if not RecordsToSynchRecordRef.FindLast then
+        if not RecordsToSynchRecordRef.FindLast() then
             Error(SynchronizeEmptySetErr);
 
         JobID :=
@@ -741,7 +783,7 @@ codeunit 5340 "CRM Integration Table Synch."
     begin
         Field.SetRange(TableNo, CRMTableID);
         Field.SetRange(FieldName, 'ModifiedBy'); // All CRM tables should have "ModifiedBy" field
-        Field.FindFirst;
+        Field.FindFirst();
         exit(Field."No.");
     end;
 
@@ -838,13 +880,199 @@ codeunit 5340 "CRM Integration Table Synch."
 
         CRMIntegrationManagement.RepairBrokenCouplings();
         CRMIntegrationRecord.SetRange("Table ID", ForTable);
-        if not CRMIntegrationRecord.FindSet then
+        if not CRMIntegrationRecord.FindSet() then
             exit;
 
         repeat
             TempCRMIntegrationRecord.Copy(CRMIntegrationRecord, false);
             TempCRMIntegrationRecord.Insert();
         until CRMIntegrationRecord.Next() = 0;
+    end;
+
+    local procedure SynchOptions(var IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        OriginalJobQueueEntry: Record "Job Queue Entry";
+        LatestModifiedOn: array[2] of DateTime;
+        PrevStatus: Option;
+    begin
+        SetOriginalCRMJobQueueEntryOnHold(IntegrationTableMapping, OriginalJobQueueEntry, PrevStatus);
+        if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::Bidirectional then
+            Error(OptionMappingCannotBeBidirectionalErr);
+        if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::ToIntegrationTable then
+            LatestModifiedOn[DateType::Local] := PerformScheduledOptionSynchToIntegrationTable(IntegrationTableMapping);
+        if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::FromIntegrationTable then
+            LatestModifiedOn[DateType::Integration] := PerformScheduledOptionSynchFromIntegrationTable(IntegrationTableMapping);
+        UpdateTableMappingModifiedOn(IntegrationTableMapping, LatestModifiedOn);
+        SetOriginalCRMJobQueueEntryStatus(IntegrationTableMapping, OriginalJobQueueEntry, PrevStatus);
+    end;
+
+    local procedure PerformScheduledOptionSynchFromIntegrationTable(var IntegrationTableMapping: Record "Integration Table Mapping") LatestIntegrationModifiedOn: DateTime
+    var
+        CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
+        IntegrationTableSynch: Codeunit "Integration Table Synch.";
+        JobId: Guid;
+    begin
+        JobId :=
+          IntegrationTableSynch.BeginIntegrationSynchJob(
+            TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Integration Table ID");
+        if not IsNullGuid(JobId) then begin
+            CRMFullSynchReviewLine.FullSynchStarted(IntegrationTableMapping, JobId, IntegrationTableMapping.Direction::FromIntegrationTable);
+            LatestIntegrationModifiedOn := SynchCRMOptionToNAV(IntegrationTableMapping, IntegrationTableSynch);
+            IntegrationTableSynch.EndIntegrationSynchJob();
+            CRMFullSynchReviewLine.FullSynchFinished(IntegrationTableMapping, IntegrationTableMapping.Direction::FromIntegrationTable);
+        end;
+    end;
+
+    local procedure PerformScheduledOptionSynchToIntegrationTable(var IntegrationTableMapping: Record "Integration Table Mapping") LatestIntegrationModifiedOn: DateTime
+    var
+        CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
+        IntegrationTableSynch: Codeunit "Integration Table Synch.";
+        JobId: Guid;
+    begin
+        JobId :=
+          IntegrationTableSynch.BeginIntegrationSynchJob(
+            TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Table ID");
+        if not IsNullGuid(JobId) then begin
+            CRMFullSynchReviewLine.FullSynchStarted(IntegrationTableMapping, JobId, IntegrationTableMapping.Direction::ToIntegrationTable);
+            LatestIntegrationModifiedOn := SynchCRMOptionFromNAV(IntegrationTableMapping, IntegrationTableSynch);
+            IntegrationTableSynch.EndIntegrationSynchJob();
+            CRMFullSynchReviewLine.FullSynchFinished(IntegrationTableMapping, IntegrationTableMapping.Direction::ToIntegrationTable);
+        end;
+    end;
+
+    local procedure CacheFilteredCRMOptions(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        CRMRecordRef: RecordRef;
+        CRMOptionFieldRef: FieldRef;
+        CRMTableView: Text;
+        CRMOptionIdFilter: Text;
+        CRMOption: Text;
+        CRMOptions: List of [Text];
+        OptionDictionary: Dictionary of [Text, Integer];
+        i: Integer;
+    begin
+        LoadCRMOption(TempCRMRecordRef, IntegrationTableMapping);
+
+        CRMTableView := IntegrationTableMapping.GetIntegrationTableFilter();
+        CRMRecordRef.Open(IntegrationTableMapping."Integration Table ID");
+        CRMRecordRef.SetView(CRMTableView);
+        CRMOptionFieldRef := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
+        CRMOptionIdFilter := CRMOptionFieldRef.GetFilter();
+        CRMRecordRef.Close();
+        if CRMOptionIdFilter <> '' then begin
+            for i := 1 to CRMOptionFieldRef.EnumValueCount() do
+                OptionDictionary.Add(CRMOptionFieldRef.GetEnumValueCaption(i), CRMOptionFieldRef.GetEnumValueOrdinal(i));
+
+            CRMOptions := CRMOptionIdFilter.Replace('(', '').Replace(')', '').Split('|');
+            foreach CRMOption in CRMOptions do
+                if OptionDictionary.ContainsKey(CRMOption) then
+                    CRMOptionIdFilter := CRMOptionIdFilter.Replace(CRMOption, Format(OptionDictionary.Get(CRMOption)));
+
+            TempCRMRecordRef.Field(TempCRMRecordRef.KeyIndex(1).FieldIndex(1).Number).SetFilter(CRMOptionIdFilter);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure LoadCRMOption(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        CRMPaymentTerms: Record "CRM Payment Terms";
+        CRMFreightTerms: Record "CRM Freight Terms";
+        CRMShippingMethod: Record "CRM Shipping Method";
+    begin
+        case IntegrationTableMapping."Table ID" of
+            Database::"Payment Terms":
+                begin
+                    CRMPaymentTerms.Load();
+                    TempCRMRecordRef.GetTable(CRMPaymentTerms);
+                end;
+            Database::"Shipment Method":
+                begin
+                    CRMFreightTerms.Load();
+                    TempCRMRecordRef.GetTable(CRMFreightTerms);
+                end;
+            Database::"Shipping Agent":
+                begin
+                    CRMShippingMethod.Load();
+                    TempCRMRecordRef.GetTable(CRMShippingMethod);
+                end;
+        end;
+        OnLoadCRMOption(TempCRMRecordRef, IntegrationTableMapping);
+    end;
+
+    local procedure SynchCRMOptionToNAV(IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch.") LatestIntegrationModifiedOn: DateTime
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+        DestinationRecordRef: RecordRef;
+        SourceRecordRef: RecordRef;
+        ForceModify: Boolean;
+        IgnoreRecord: Boolean;
+    begin
+        LatestIntegrationModifiedOn := 0DT;
+        CacheFilteredCRMOptions(SourceRecordRef, IntegrationTableMapping);
+        ForceModify := IntegrationTableMapping."Delete After Synchronization";
+        if SourceRecordRef.FindSet() then
+            repeat
+                IgnoreRecord := false;
+                if not CRMOptionMapping.IsCRMRecordRefMapped(SourceRecordRef, CRMOptionMapping) then
+                    if IntegrationTableMapping."Synch. Only Coupled Records" then
+                        IgnoreRecord := true;
+                if not IgnoreRecord then begin
+                    IntegrationTableSynch.SynchronizeOption(SourceRecordRef, DestinationRecordRef, ForceModify, false);
+                    LatestIntegrationModifiedOn := CurrentDateTime();
+                end;
+            until SourceRecordRef.Next() = 0;
+    end;
+
+    local procedure SynchCRMOptionFromNAV(IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch.") LatestLocalModifiedOn: DateTime
+    var
+        TempCRMOptionMapping: Record "CRM Option Mapping" temporary;
+        SourceRecordRef: RecordRef;
+        FailedNotSkippedIdDictionary: Dictionary of [Guid, Boolean];
+        FilterList: List of [Text];
+        RecordSystemId: Guid;
+        TableFilter: Text;
+    begin
+        LatestLocalModifiedOn := 0DT;
+        SplitLocalTableFilter(IntegrationTableMapping, FilterList);
+
+        SourceRecordRef.Open(IntegrationTableMapping."Table ID");
+        if FindFailedNotSkippedLocalRecords(FailedNotSkippedIdDictionary, IntegrationTableMapping, TempCRMOptionMapping) then
+            foreach RecordSystemId in FailedNotSkippedIdDictionary.Keys() do
+                if SourceRecordRef.GetBySystemId(RecordSystemId) then
+                    SyncNAVOptionToCRM(SourceRecordRef, IntegrationTableMapping, IntegrationTableSynch, LatestLocalModifiedOn);
+
+        foreach TableFilter in FilterList do
+            if FindModifiedLocalRecords(SourceRecordRef, TableFilter, IntegrationTableMapping) then
+                repeat
+                    RecordSystemId := SourceRecordRef.Field(SourceRecordRef.SystemIdNo()).Value();
+                    if not FailedNotSkippedIdDictionary.ContainsKey(RecordSystemId) then
+                        SyncNAVOptionToCRM(SourceRecordRef, IntegrationTableMapping, IntegrationTableSynch, LatestLocalModifiedOn);
+                until SourceRecordRef.Next() = 0;
+
+        SourceRecordRef.Close();
+    end;
+
+    local procedure SyncNAVOptionToCRM(var SourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch."; var LatestLocalModifiedOn: DateTime)
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+        DestinationRecordRef: RecordRef;
+        IgnoreRecord: Boolean;
+        ForceModify: Boolean;
+        LocalModifiedOn: DateTime;
+    begin
+        ForceModify := IntegrationTableMapping."Delete After Synchronization";
+        IgnoreRecord := false;
+        if not IgnoreRecord then begin
+            CRMOptionMapping.SetRange("Record ID", SourceRecordRef.RecordId);
+            if CRMOptionMapping.IsEmpty() then
+                IgnoreRecord := IntegrationTableMapping."Synch. Only Coupled Records";
+            if not IgnoreRecord then
+                IntegrationTableSynch.SynchronizeOption(SourceRecordRef, DestinationRecordRef, ForceModify, false);
+        end;
+        // collect latest modified time across all local records including not synched
+        LocalModifiedOn := IntegrationTableSynch.GetRowLastModifiedOn(IntegrationTableMapping, SourceRecordRef);
+        if LocalModifiedOn > LatestLocalModifiedOn then
+            LatestLocalModifiedOn := LocalModifiedOn;
     end;
 
     [Scope('OnPrem')]
@@ -883,6 +1111,11 @@ codeunit 5340 "CRM Integration Table Synch."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetMaxNumberOfConditions(var Handled: Boolean; var Value: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadCRMOption(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping")
     begin
     end;
 

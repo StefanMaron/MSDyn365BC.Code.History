@@ -18,14 +18,6 @@ codeunit 99000772 "Prod. Order Route Management"
         ErrList: Text[50];
         Text009: Label 'This change may have caused bin codes on some production order component lines to be different from those on the production order routing line. Do you want to automatically align all of these unmatched bin codes?';
 
-#if not CLEAN17
-    [Obsolete('Replaced by same with enum Production Order Status.', '17.0')]
-    procedure NeedsCalculation(Status: Option Simulated,Planned,"Firm Planned",Released; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]): Boolean
-    begin
-        exit(NeedsCalculation("Production Order Status".FromInteger(Status), ProdOrderNo, RoutingRefNo, RoutingNo));
-    end;
-#endif
-
     procedure NeedsCalculation(ProductionOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]): Boolean
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
@@ -301,7 +293,7 @@ codeunit 99000772 "Prod. Order Route Management"
         MaxSeq := ProdOrderRtngLine.Count();
 
         ProdOrderRtngLine.SetFilter("Previous Operation No.", '%1', '');
-        ProdOrderRtngLine.FindFirst;
+        ProdOrderRtngLine.FindFirst();
         SetRtngLineSequenceForward(ProdOrderLine."Routing Type", ProdOrderRtngLine, MaxSeq, 1, true);
     end;
 
@@ -320,7 +312,7 @@ codeunit 99000772 "Prod. Order Route Management"
             SetOrderLineRoutingFilter(
               ProdOrderLine, ProdOrderRtngLine.Status, ProdOrderRtngLine."Prod. Order No.",
               ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-            ProdOrderLine.FindFirst;
+            ProdOrderLine.FindFirst();
 
             Calculate(ProdOrderLine);
         end;
@@ -515,7 +507,7 @@ codeunit 99000772 "Prod. Order Route Management"
             exit(not ErrorOccured);
 
         with FilteredProdOrderRtngLineSet do begin
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
             SetOrderLineRoutingFilter(ProdOrderLine, Status, "Prod. Order No.", "Routing No.", "Routing Reference No.");
             if ProdOrderLine.FindSet(false) then

@@ -282,7 +282,7 @@ page 7352 "Put-away Worksheet"
                     Promoted = true;
                     PromotedCategory = Category5;
                     Scope = Repeater;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -439,7 +439,7 @@ page 7352 "Put-away Worksheet"
                         WhseWkshLine: Record "Whse. Worksheet Line";
                     begin
                         WhseWkshLine.CopyFilters(Rec);
-                        if WhseWkshLine.FindFirst then
+                        if WhseWkshLine.FindFirst() then
                             PutAwayCreate(WhseWkshLine)
                         else
                             Error(Text001);
@@ -479,15 +479,15 @@ page 7352 "Put-away Worksheet"
 
     var
         WMSMgt: Codeunit "WMS Management";
-        CurrentWkshTemplateName: Code[10];
-        CurrentWkshName: Code[10];
-        CurrentLocationCode: Code[10];
         ItemDescription: Text[100];
         Text001: Label 'There is nothing to handle.';
         OpenedFromBatch: Boolean;
         WhseDocumentType: Enum "Warehouse Putaway Document Type";
 
     protected var
+        CurrentWkshTemplateName: Code[10];
+        CurrentWkshName: Code[10];
+        CurrentLocationCode: Code[10];
         CurrentSortingMethod: Enum "Whse. Activity Sorting Method";
 
     protected procedure QtytoHandleOnAfterValidate()

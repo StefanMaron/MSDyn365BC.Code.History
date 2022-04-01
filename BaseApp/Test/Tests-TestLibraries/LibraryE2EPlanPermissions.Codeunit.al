@@ -88,7 +88,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
 
     procedure SetDeviceISVEmbUserPlan()
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetDeviceISVPlanId());
         SetUserGroupPlan(PlanIds.GetDeviceISVPlanId());

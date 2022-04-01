@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 598 "XBRL Line Constants"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 598 "XBRL Line Constants"
     DataCaptionExpression = GetCaption;
     PageType = List;
     SourceTable = "XBRL Line Constant";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -50,6 +54,13 @@ page 598 "XBRL Line Constants"
             "Starting Date" := xRec."Starting Date";
     end;
 
+    trigger OnOpenPage()
+    var
+        XBRLDeprecationNotification: Codeunit "XBRL Deprecation Notification";
+    begin
+        XBRLDeprecationNotification.Show();
+    end;
+
     local procedure GetCaption(): Text[250]
     var
         XBRLLine: Record "XBRL Taxonomy Line";
@@ -65,3 +76,5 @@ page 598 "XBRL Line Constants"
     end;
 }
 
+
+#endif

@@ -154,7 +154,7 @@ codeunit 1639 "Office Line Generation"
         AddedCount: Integer;
     begin
         if PageCloseAction in [ACTION::OK, ACTION::LookupOK] then
-            if TempOfficeSuggestedLineItem.FindSet then
+            if TempOfficeSuggestedLineItem.FindSet() then
                 repeat
                     if TempOfficeSuggestedLineItem.Add then begin
                         InsertLineItem(LastLineNo, HeaderRecRef, TempOfficeSuggestedLineItem."Item No.", TempOfficeSuggestedLineItem.Quantity);
@@ -266,7 +266,7 @@ codeunit 1639 "Office Line Generation"
         Item.SetRange("No.", CopyStr(Description, 1, 20));
         if not Item.IsEmpty() then begin
             FoundCount := Item.Count();
-            Item.FindFirst;
+            Item.FindFirst();
             ItemNo := Item."No.";
             exit;
         end;
@@ -276,7 +276,7 @@ codeunit 1639 "Office Line Generation"
         Item.SetFilter(Description, Description);
         if not Item.IsEmpty() then begin
             FoundCount := Item.Count();
-            Item.FindFirst;
+            Item.FindFirst();
             ItemNo := Item."No.";
             exit;
         end;
@@ -285,7 +285,7 @@ codeunit 1639 "Office Line Generation"
         Item.SetFilter(Description, SearchText);
         if not Item.IsEmpty() then begin
             FoundCount := Item.Count();
-            Item.FindFirst;
+            Item.FindFirst();
             ItemNo := Item."No.";
             exit;
         end;
@@ -294,7 +294,7 @@ codeunit 1639 "Office Line Generation"
         Item.SetFilter(Description, SearchText);
         if not Item.IsEmpty() then begin
             FoundCount := Item.Count();
-            Item.FindFirst;
+            Item.FindFirst();
             ItemNo := Item."No.";
             exit;
         end;
@@ -306,7 +306,7 @@ codeunit 1639 "Office Line Generation"
         SingleMatches := TempOfficeSuggestedLineItem.Count();
         TempOfficeSuggestedLineItem.SetRange(Matches);
 
-        if TempOfficeSuggestedLineItem.FindSet then
+        if TempOfficeSuggestedLineItem.FindSet() then
             repeat
                 TotalMatches += TempOfficeSuggestedLineItem.Matches;
             until TempOfficeSuggestedLineItem.Next() = 0;
@@ -327,7 +327,7 @@ codeunit 1639 "Office Line Generation"
             exit;
 
         if not TempOfficeSuggestedLineItem.IsEmpty() then
-            TempOfficeSuggestedLineItem.FindLast;
+            TempOfficeSuggestedLineItem.FindLast();
 
         LastLineNo := TempOfficeSuggestedLineItem."Line No.";
 
@@ -336,7 +336,7 @@ codeunit 1639 "Office Line Generation"
         else
             TempOfficeSuggestedLineItem.SetRange("Item No.", ItemNo);
 
-        if TempOfficeSuggestedLineItem.FindFirst then begin
+        if TempOfficeSuggestedLineItem.FindFirst() then begin
             if (TempOfficeSuggestedLineItem.Quantity = 0) and (Quantity > 0) then
                 TempOfficeSuggestedLineItem.Validate(Quantity, Quantity);
             TempOfficeSuggestedLineItem.Modify(true);

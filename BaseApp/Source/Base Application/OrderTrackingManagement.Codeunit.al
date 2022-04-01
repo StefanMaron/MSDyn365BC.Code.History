@@ -745,7 +745,7 @@ codeunit 99000778 OrderTrackingManagement
                     JobPlanningLine.SetRange("Job No.", ID);
                     JobPlanningLine.SetRange(Status, Subtype);
                     JobPlanningLine.SetRange("Job Contract Entry No.", RefNo);
-                    if JobPlanningLine.FindFirst then begin
+                    if JobPlanningLine.FindFirst() then begin
                         TempOrderTrackingEntry."Starting Date" := JobPlanningLine."Planning Date";
                         TempOrderTrackingEntry."Ending Date" := JobPlanningLine."Planning Date";
                     end;

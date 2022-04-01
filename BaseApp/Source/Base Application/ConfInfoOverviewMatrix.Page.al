@@ -560,7 +560,7 @@ page 9283 "Conf. Info. Overview Matrix"
         ConfidentialInformation.SetRange("Employee No.", "No.");
         ConfidentialInformation.SetRange("Confidential Code",
           MatrixRecords[MATRIX_ColumnOrdinal].Code);
-        HasInfo := ConfidentialInformation.FindFirst;
+        HasInfo := ConfidentialInformation.FindFirst();
         ConfidentialInformation.SetRange("Employee No.");
         ConfidentialInformation.SetRange("Confidential Code");
         MATRIX_CellData[MATRIX_ColumnOrdinal] := HasInfo;

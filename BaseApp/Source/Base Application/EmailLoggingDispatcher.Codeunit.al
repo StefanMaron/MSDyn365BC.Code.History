@@ -1,4 +1,4 @@
-﻿codeunit 5064 "Email Logging Dispatcher"
+codeunit 5064 "Email Logging Dispatcher"
 {
     TableNo = "Job Queue Entry";
 
@@ -99,6 +99,9 @@
         TenantId: Text;
         Initialized: Boolean;
     begin
+        if SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled() then
+            exit;
+
         Session.LogMessage('0000BVL', EmailLoggingDispatcherStartedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         if IsNullGuid(JobQueueEntry.ID) then begin
@@ -258,7 +261,7 @@
     procedure ItemLinkedFromAttachment(MessageId: Text; var Attachment: Record Attachment): Boolean
     begin
         Attachment.SetRange("Email Message Checksum", Attachment.Checksum(MessageId));
-        if not Attachment.FindSet then begin
+        if not Attachment.FindSet() then begin
             Session.LogMessage('0000BVY', ItemNotLinkedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
@@ -448,7 +451,7 @@
 
             Attachment.Reset();
             Attachment.LockTable();
-            if Attachment.FindLast then
+            if Attachment.FindLast() then
                 AttachmentNo := Attachment."No." + 1
             else
                 AttachmentNo := 1;
@@ -467,9 +470,9 @@
             until SegLine.Next() = 0;
 
             InteractLogEntry.LockTable();
-            if InteractLogEntry.FindLast then
+            if InteractLogEntry.FindLast() then
                 NextInteractLogEntryNo := InteractLogEntry."Entry No.";
-            if SegLine.FindSet then
+            if SegLine.FindSet() then
                 repeat
                     NextInteractLogEntryNo := NextInteractLogEntryNo + 1;
                     InsertInteractionLogEntry(SegLine, NextInteractLogEntryNo);
@@ -614,7 +617,7 @@
 
         Salesperson.SetCurrentKey("Search E-Mail");
         Salesperson.SetRange("Search E-Mail", Email);
-        if Salesperson.FindFirst then begin
+        if Salesperson.FindFirst() then begin
             Session.LogMessage('0000BWP', SalesPersonEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             SalespersonCode := Salesperson.Code;
             exit(true);
@@ -647,7 +650,7 @@
 
         Cont.SetCurrentKey("Search E-Mail");
         Cont.SetRange("Search E-Mail", EMail);
-        if Cont.FindFirst then begin
+        if Cont.FindFirst() then begin
             Session.LogMessage('0000BWT', ContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             SegLine."Contact No." := Cont."No.";
             SegLine."Contact Company No." := Cont."Company No.";
@@ -662,7 +665,7 @@
 
         ContAltAddress.SetCurrentKey("Search E-Mail");
         ContAltAddress.SetRange("Search E-Mail", EMail);
-        if ContAltAddress.FindFirst then begin
+        if ContAltAddress.FindFirst() then begin
             Session.LogMessage('0000BWV', ContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             SegLine."Contact No." := ContAltAddress."Contact No.";
             Cont.Get(ContAltAddress."Contact No.");
@@ -712,7 +715,7 @@
 
         // Since we have no guarantees that the Interaction Template for Emails exists, we check for it here.
         InteractionTemplate.SetFilter(Code, '=%1', InteractionTemplateSetup."E-Mails");
-        if not InteractionTemplate.FindFirst then begin
+        if not InteractionTemplate.FindFirst() then begin
             Session.LogMessage('0000BX0', InteractionTemplateSetupNotFoundForEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             ErrorMsg := Text110;
             exit(false);

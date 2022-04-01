@@ -115,7 +115,7 @@ table 8618 "Config. Template Header"
         ConfigTemplateLine: Record "Config. Template Line";
     begin
         ConfigTemplateLine.SetRange("Data Template Code", Code);
-        if ConfigTemplateLine.FindFirst then
+        if ConfigTemplateLine.FindFirst() then
             if xRec."Table ID" <> "Table ID" then
                 Error(Text000, xRec."Table ID");
     end;
@@ -173,7 +173,7 @@ table 8618 "Config. Template Header"
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateCode);
         ConfigTemplateLine.DeleteAll();
         FromConfigTemplateLine.SetRange("Data Template Code", FromConfigTemplateCode);
-        if FromConfigTemplateLine.FindSet then
+        if FromConfigTemplateLine.FindSet() then
             repeat
                 ConfigTemplateLine.Init();
                 ConfigTemplateLine.TransferFields(FromConfigTemplateLine);

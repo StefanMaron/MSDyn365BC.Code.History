@@ -682,7 +682,7 @@ codeunit 7321 "Create Inventory Put-away"
         with WhseActivHeader do begin
             WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Invt. Put-away");
             WhseActivLine.SetRange("No.", "No.");
-            if WhseActivLine.FindLast then
+            if WhseActivLine.FindLast() then
                 NextLineNo := WhseActivLine."Line No." + 10000
             else
                 NextLineNo := 10000;

@@ -189,7 +189,7 @@ codeunit 99000808 PlanningRoutingManagement
         MaxSeq := PlanningRtngLine.Count();
 
         PlanningRtngLine.SetFilter("Next Operation No.", '%1', '');
-        PlanningRtngLine.FindFirst;
+        PlanningRtngLine.FindFirst();
         SetRtngLineSequenceBack(ReqLine."Routing Type", PlanningRtngLine, MaxSeq, 1, true);
     end;
 
@@ -207,7 +207,7 @@ codeunit 99000808 PlanningRoutingManagement
         MaxSeq := PlanningRtngLine.Count();
 
         PlanningRtngLine.SetFilter("Previous Operation No.", '%1', '');
-        PlanningRtngLine.FindFirst;
+        PlanningRtngLine.FindFirst();
         SetRtngLineSequenceForward(ReqLine."Routing Type", PlanningRtngLine, MaxSeq, 1, true);
     end;
 

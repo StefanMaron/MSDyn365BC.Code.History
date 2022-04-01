@@ -38,7 +38,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Manual mode] [Quote]
         // [SCENARIO] Purch lines are not created on quote validate Buy-from Vendor No. when where Insert Rec. Lines On Quotes = Manual
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Quotes = Manual
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Quote, RefMode::Manual);
@@ -61,7 +61,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Automatic mode] [Quote]
         // [SCENARIO] Recurring purchase line created on quote validate Buy-from Vendor No. when Insert Rec. Lines On Quotes = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Quotes = Automatic
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Quote, RefMode::Automatic);
@@ -84,7 +84,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Always Ask mode] [Quote]
         // [SCENARIO] Standard codes notification created on quote validate Buy-from Vendor No. when Insert Rec. Lines On Quotes = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Quotes = "Always Ask"
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Quote, RefMode::"Always Ask");
@@ -107,10 +107,10 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Quote]
         // [SCENARIO] Purch lines are not created on quote validate Buy-from Vendor No. for vendor without Standard Purchase Codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND without standard purch codes
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Create new purch quote
         CreatePurchQuote(PurchaseHeader);
 
@@ -132,10 +132,10 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [UT] [Automatic mode] [Quote]
         // [SCENARIO] There is no purchase standard codes notification on quote validate Buy-from Vendor No. for vendor with multiple Standard Purchase Codes when Insert Rec. Lines On Quotes = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND without standard purch codes
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Create new purch quote
         CreatePurchQuote(PurchaseHeader);
 
@@ -163,10 +163,10 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [UT] [Always Ask mode] [Quote]
         // [SCENARIO] There is no purchase standard codes notification on quote validate Buy-from Vendor No. for vendor with multiple Standard Purchase Codes when Insert Rec. Lines On Quotes = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND without standard purch codes
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Create new purch quote
         CreatePurchQuote(PurchaseHeader);
 
@@ -194,10 +194,10 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [UT] [Quote]
         // [SCENARIO] Purch lines created by GetPurchRecurringLines for vendor with multiple Standard Purchase Codes when Insert Rec. Lines On Quotes = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND without standard purch codes
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Create new purch quote
         CreatePurchQuote(PurchaseHeader);
         // [GIVEN] Set "Buy-from Vendor No." = VEND
@@ -222,10 +222,10 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [UT] [Always Ask mode] [Quote]
         // [SCENARIO] Purch lines created on quote validate Buy-from Vendor No. for vendor with multiple Standard Purchase Codes when Insert Rec. Lines On Quotes = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND without standard purch codes
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Create new purch quote
         CreatePurchQuote(PurchaseHeader);
         // [GIVEN] Set "Buy-from Vendor No." = VEND
@@ -249,7 +249,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Manual mode] [Order]
         // [SCENARIO] Purch lines are not created on order validate Buy-from Vendor No. when Insert Rec. Lines On Orders = Manual
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Orders = Manual
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Manual);
@@ -272,7 +272,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Automatic mode] [Order]
         // [SCENARIO] Recurring purchase line created on order validate Buy-from Vendor No. when Insert Rec. Lines On Orders = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Orders = Automatic
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic);
@@ -295,7 +295,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Always Ask mode] [Order]
         // [SCENARIO] Standard codes notification created on order validate Buy-from Vendor No. when Insert Rec. Lines On Orders = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Orders = "Always Ask"
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::"Always Ask");
@@ -318,10 +318,10 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Order]
         // [SCENARIO] Purch lines are not created on order validate Buy-from Vendor No. for vendor without Standard Purchase Codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND without standard purch codes
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Create new purch order
         CreatePurchOrder(PurchaseHeader);
 
@@ -341,7 +341,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Manual mode] [Invoice]
         // [SCENARIO] Purch lines are not created on invoice validate Buy-from Vendor No. when Insert Rec. Lines On Invoices = Manual
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Invoices = Manual
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Invoice, RefMode::Manual);
@@ -364,7 +364,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Automatic mode] [Invoice]
         // [SCENARIO] Recurring purchase line created on invoice validate Buy-from Vendor No. when Insert Rec. Lines On Invoices = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Invoices = Automatic
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Invoice, RefMode::Automatic);
@@ -387,7 +387,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Always Ask mode] [Invoice]
         // [SCENARIO] Standard codes notification created on invoice validate Buy-from Vendor No. when Insert Rec. Lines On Invoices = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Invoices = "Always Ask"
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Invoice, RefMode::"Always Ask");
@@ -410,10 +410,10 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO] Purch lines are not created on invoice validate Buy-from Vendor No. for vendor without Standard Purchase Codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND without standard purch code
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Create new purch invoice
         CreatePurchInvoice(PurchaseHeader);
 
@@ -433,7 +433,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Manual mode] [Credit Memo]
         // [SCENARIO] Purch lines are not created on cr memo validate Buy-from Vendor No. when Insert Rec. Lines On Cr. Memos = Manual
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Cr. Memos = Manual
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::"Credit Memo", RefMode::Manual);
@@ -456,7 +456,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Automatic mode] [Credit Memo]
         // [SCENARIO] Recurring purchase line created on cr memo validate Buy-from Vendor No. when Insert Rec. Lines On Cr. Memos = Automatic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Cr. Memos = Automatic
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::"Credit Memo", RefMode::Automatic);
@@ -479,7 +479,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Always Ask mode] [Credit Memo]
         // [SCENARIO] Standard codes notification created on cr memo validate Buy-from Vendor No. when Insert Rec. Lines On Cr. Memos = "Always Ask"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Cr. Memos = "Always Ask"
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::"Credit Memo", RefMode::"Always Ask");
@@ -502,10 +502,10 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO] Purch lines are not created on cr memo validate Buy-from Vendor No. for vendor without Standard Purchase Codes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND without standard purch codes
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Create new purch credit memo
         CreatePurchCrMemo(PurchaseHeader);
 
@@ -527,7 +527,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [UI] [Automatic mode] [Order]
         // [SCENARIO 211206] Purchase Line from Std. Purchase Codes should be added when new Purchase Order is created from Vendor List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Orders = Automatic
         Vendor.Get(GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic));
@@ -560,7 +560,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [UI] [Automatic mode] [Invoice]
         // [SCENARIO 211206] Purchase Line from Std. Purchase Codes should be added when new Purchase Invoice is created from Vendor List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Invoices = Automatic
         Vendor.Get(GetNewVendNoWithStandardPurchCode(RefDocType::Invoice, RefMode::Automatic));
@@ -592,7 +592,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [UI] [Automatic mode] [Quote]
         // [SCENARIO 211206] Purchase Line from Std. Purchase Codes should be added when new Purchase Quote is created from Vendor List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Quotes = Automatic
         Vendor.Get(GetNewVendNoWithStandardPurchCode(RefDocType::Quote, RefMode::Automatic));
@@ -624,7 +624,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [UI] [Automatic mode] [Credit Memo]
         // [SCENARIO 211206] Purchase Line from Std. Purchase Codes should be added when new Purchase Credit Memo is created from Vendor List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purch code where Insert Rec. Lines On Cr. Memos = Automatic
         Vendor.Get(GetNewVendNoWithStandardPurchCode(RefDocType::"Credit Memo", RefMode::Automatic));
@@ -655,7 +655,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         // [SCENARIO] Standard Vendor Purchase Codes new fields are visible for application area #Suite
 
         // [GIVEN] Enable #suite application area
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open page Standard Vendor Purchase Codes
         StandardVendorPurchaseCodes.OpenEdit;
@@ -679,7 +679,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Blanket Order] [UT]
         // [SCENARIO 283678] Standard codes notification is not created for blanket order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purchase code where Insert Rec. Lines On Orders = Manual
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Manual);
@@ -703,7 +703,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Return Order] [UT]
         // [SCENARIO 283678] Standard codes notification is not created for return order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VEND with standard purchase code where Insert Rec. Lines On Orders = Manual
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Manual);
@@ -727,7 +727,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Return Order] [UT]
         // [SCENARIO 283678] Standard codes notification is not created when Standard Purchase Code currency code <> currency code of purchase document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Local currency vendor VEND with standard purchase code where Insert Rec. Lines On Orders = Automatic
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic);
@@ -756,7 +756,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         // [FEATURE] [Return Order] [UT] 
         // [SCENARIO 311677] Standard codes notification created when currency code of purchase document became same with Standard Purchase Code currency code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Local currency vendor VEND with standard purchase code where Insert Rec. Lines On Orders = Automatic
         VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic);
@@ -1131,6 +1131,45 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         Assert.RecordIsEmpty(StdPurchCode);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketOrderToOrderAutomaticPurchaseOrderNoRecurringLines()
+    var
+        PurchaseHeaderBlanketOrder: Record "Purchase Header";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineBlanketOrder: Record "Purchase Line";
+        PurchaseLineOrder: Record "Purchase Line";
+        BlanketPurchOrdertoOrder: Codeunit "Blanket Purch. Order to Order";
+    begin
+        // [FEATURE] [Automatic mode] [Blanket Order] [Blanket Order or Order]
+        // [SCENARIO 424805] Recurring purchase lines are NOT added on Quote to Order convert when Insert Rec. Lines On Orders = Automatic
+        Initialize();
+
+        // [GIVEN] Create new purchase quote for vendor with standard purch code where Insert Rec. Lines On Orders = Automatic 
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeaderBlanketOrder, PurchaseHeaderBlanketOrder."Document Type"::"Blanket Order",
+            GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic));
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineBlanketOrder, PurchaseHeaderBlanketOrder, PurchaseLineBlanketOrder.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLineBlanketOrder.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLineBlanketOrder.Modify(true);
+
+        // [WHEN] Run Purch.-Quote to Order codeunit on this quote
+        BlanketPurchOrdertoOrder.Run(PurchaseHeaderBlanketOrder);
+
+        // [THEN] Order created with no errors
+        BlanketPurchOrdertoOrder.GetPurchOrderHeader(PurchaseHeaderOrder);
+
+        // [THEN] Line from Quote exists on this Order
+        FilterOnPurchaseLine(PurchaseLineOrder, PurchaseHeaderOrder);
+        PurchaseLineOrder.SetRange("No.", PurchaseLineBlanketOrder."No.");
+        Assert.RecordIsNotEmpty(PurchaseLineOrder);
+
+        // [THEN] No other lines were added
+        PurchaseLineOrder.SetFilter("No.", '<>%1', PurchaseLineBlanketOrder."No.");
+        Assert.RecordIsEmpty(PurchaseLineOrder);
+    end;
 
     local procedure Initialize()
     var
@@ -1138,7 +1177,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Insert Std. Purch. Lines");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
 
@@ -1146,7 +1185,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Insert Std. Purch. Lines");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Insert Std. Purch. Lines");
     end;
@@ -1223,7 +1262,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         StandardPurchaseLine."Standard Purchase Code" := CreateStandardPurchaseCode;
         StandardPurchaseLine.Type := StandardPurchaseLine.Type::Item;
-        StandardPurchaseLine."No." := LibraryInventory.CreateItemNo;
+        StandardPurchaseLine."No." := LibraryInventory.CreateItemNo();
         StandardPurchaseLine.Quantity := LibraryRandom.RandDec(10, 2);
         StandardPurchaseLine.Insert();
         exit(StandardPurchaseLine."Standard Purchase Code");
@@ -1268,9 +1307,9 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
     begin
         StandardVendorPurchaseCode.SetRange("Vendor No.", VendorNo);
-        StandardVendorPurchaseCode.FindFirst;
+        StandardVendorPurchaseCode.FindFirst();
         StandardPurchaseLine.SetRange("Standard Purchase Code", StandardVendorPurchaseCode.Code);
-        StandardPurchaseLine.FindFirst;
+        StandardPurchaseLine.FindFirst();
     end;
 
     local procedure GetNewVendNoWithStandardPurchCode(DocType: Option; Mode: Integer): Code[20]
@@ -1413,7 +1452,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
           StandardCodesMgt.GetPurchRecurringLinesNotificationId,
           TempNotificationContext."Notification ID",
           InvalidNotificationIdMsg);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure VerifyPurchStdCodesNotificationId()
@@ -1427,7 +1466,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
           StandardCodesMgt.GetPurchRecurringLinesNotificationId,
           TempNotificationContext."Notification ID",
           InvalidNotificationIdMsg);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CreateStdPurchaseCodeWithResourceLine(var StandardPurchaseCode: Record "Standard Purchase Code"; var StandardPurchaseLine: Record "Standard Purchase Line"; ResourceNo: Code[20])
@@ -1474,7 +1513,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         if not (Notification.Id = StandardCodesMgt.GetPurchRecurringLinesNotificationId()) then
             exit;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Evaluate(PurchaseHeader."Document Type", Notification.GetData(PurchaseHeader.FieldName("Document Type")));
         PurchaseHeader."No." := Notification.GetData(PurchaseHeader.FieldName("No."));
         LibraryVariableStorage.Enqueue(PurchaseHeader."Document Type");

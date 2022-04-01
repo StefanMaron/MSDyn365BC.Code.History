@@ -76,7 +76,7 @@ table 763 "Acc. Sched. Chart Setup Line"
                     AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine);
                     AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
                     ActualNumMeasures := 0;
-                    if AccSchedChartSetupLine.FindSet then
+                    if AccSchedChartSetupLine.FindSet() then
                         repeat
                             if (AccSchedChartSetupLine."Account Schedule Line No." <> "Account Schedule Line No.") or
                                (AccSchedChartSetupLine."Column Layout Line No." <> "Column Layout Line No.")

@@ -156,7 +156,7 @@ table 430 "Handled IC Outbox Sales Header"
         HndlICOutboxSalesLine.SetRange("IC Partner Code", "IC Partner Code");
         HndlICOutboxSalesLine.SetRange("IC Transaction No.", "IC Transaction No.");
         HndlICOutboxSalesLine.SetRange("Transaction Source", "Transaction Source");
-        if HndlICOutboxSalesLine.FindFirst then
+        if HndlICOutboxSalesLine.FindFirst() then
             HndlICOutboxSalesLine.DeleteAll(true);
         DimMgt.DeleteICDocDim(
           DATABASE::"Handled IC Outbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);

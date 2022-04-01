@@ -263,94 +263,6 @@ codeunit 136450 "Attachment Storage Type"
         Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::Embedded, 'Wrong storage type');
     end;
 
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure ImportAttachmentFromClientToDB()
-    var
-        Attachment: Record Attachment;
-        ImportFromFile: Text;
-    begin
-        // Setup:
-        Initialize();
-
-        // Exercise: Create & Import attachment
-        ImportFromFile := FileManagement.ClientTempFileName(FileExtensionTxt);
-        CreateClientTxtFile(ImportFromFile);
-
-        LibraryMarketing.CreateAttachment(Attachment);
-        Attachment.ImportAttachmentFromClientFile(ImportFromFile, false, false);
-
-        // Verify attachment
-        Attachment.CalcFields("Attachment File");
-        Assert.IsTrue(Attachment."Attachment File".HasValue(), 'Attachment file not imported to DB.');
-        Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::Embedded, 'Wrong storage type');
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure ImportAttachmentFromClientToDisk()
-    var
-        Attachment: Record Attachment;
-        NewDirName: Text;
-        ImportFromFile: Text;
-    begin
-        // Setup:
-        Initialize();
-
-        RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
-          CreateOrClearTempDirectory(NewDirName));
-
-        // Exercise: Create & Import attachment
-        ImportFromFile := FileManagement.ClientTempFileName(FileExtensionTxt);
-        CreateClientTxtFile(ImportFromFile);
-
-        LibraryMarketing.CreateAttachment(Attachment);
-        Attachment.ImportAttachmentFromClientFile(ImportFromFile, false, false);
-
-        // Verify attachment
-        Assert.IsTrue(FileManagement.ClientFileExists(Attachment.ConstDiskFileName()), 'Attachment file not imported to disk.');
-        Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::"Disk File", 'Wrong storage type');
-
-        Rollback(NewDirName);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure ImportAttachmentFromClientTemporary()
-    var
-        Attachment: Record Attachment;
-        NewDirName: Text;
-        ImportFromFile: Text;
-    begin
-        // Setup:
-        Initialize();
-
-        RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
-          CreateOrClearTempDirectory(NewDirName));
-
-        // Exercise: Create & Import attachment
-        ImportFromFile := FileManagement.ClientTempFileName(FileExtensionTxt);
-        CreateClientTxtFile(ImportFromFile);
-
-        LibraryMarketing.CreateAttachment(Attachment);
-        Attachment.ImportAttachmentFromClientFile(ImportFromFile, true, false);
-        Attachment.Modify(true);
-
-        // Verify attachment
-        Attachment.CalcFields("Attachment File");
-        Assert.IsTrue(Attachment."Attachment File".HasValue, 'Attachment file not imported to DB.');
-        Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::Embedded, 'Wrong storage type');
-
-        Rollback(NewDirName);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -399,61 +311,6 @@ codeunit 136450 "Attachment Storage Type"
         // Verify attachment
         LibraryUtility.CheckFileNotEmpty(ExportToFile);
     end;
-
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure ExportAttachmentFromDiskToClientFile()
-    var
-        Attachment: Record Attachment;
-        NewDirName: Text;
-        ExportToFile: Text;
-    begin
-        // Setup:
-        Initialize();
-
-        FindNonEmptyAttachment(Attachment);
-        RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
-          CreateOrClearTempDirectory(NewDirName));
-
-        // Exercise: Export attachment
-        ExportToFile := FileManagement.ClientTempFileName(FileExtensionTxt);
-        if not FileManagement.DeleteClientFile(ExportToFile) then;
-
-        Attachment.Get(Attachment."No.");
-        Attachment.ExportAttachmentToClientFile(ExportToFile);
-
-        // Verify attachment
-        Assert.IsTrue(FileManagement.ClientFileExists(ExportToFile), 'Attachment file not exported to disk.');
-
-        // Rollback
-        Rollback(NewDirName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
-    procedure ExportAttachmentFromDBToClientFile()
-    var
-        Attachment: Record Attachment;
-        ExportToFile: Text;
-    begin
-        // Setup:
-        Initialize();
-
-        // Exercise: Export attachment
-        ExportToFile := FileManagement.ClientTempFileName(FileExtensionTxt);
-        if not FileManagement.DeleteClientFile(ExportToFile) then;
-
-        FindNonEmptyAttachment(Attachment);
-        Attachment.ExportAttachmentToClientFile(ExportToFile);
-
-        // Verify attachment
-        Assert.IsTrue(FileManagement.ClientFileExists(ExportToFile), 'Attachment file not exported to disk.');
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -511,7 +368,7 @@ codeunit 136450 "Attachment Storage Type"
         Attachment: Record Attachment;
     begin
         // [SCENARIO] Attachment is deleted after delete "Interaction Log Entry" record
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateAttachment(Attachment);
         MockInterLogEntry(InteractionLogEntry, InteractionLogEntry."Correspondence Type"::" ", Attachment."No.");
 
@@ -992,24 +849,10 @@ codeunit 136450 "Attachment Storage Type"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialog_Cancel_MPH')]
-    [Scope('OnPrem')]
-    procedure SendAttachment_HTML_CancelSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        SendAttachment_HTML_Cancel_Internal();
-    end;
-
-    [Test]
     [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure SendAttachment_HTML_Cancel()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         SendAttachment_HTML_Cancel_Internal();
     end;
 
@@ -1019,13 +862,11 @@ codeunit 136450 "Attachment Storage Type"
         Attachment: Record Attachment;
         TempDeliverySorter: Record "Delivery Sorter" temporary;
         LibraryWorkflow: Codeunit "Library - Workflow";
-        EmailFeature: Codeunit "Email Feature";
     begin
         // [FEATURE] [Send]
         // [SCENARIO] AttachmentManagement.Send() with "html" attachment: InteractLogEntry."Delivery Status" = Error in case of canceling "Email Dialog"
         Initialize();
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount();
+        LibraryWorkflow.SetUpEmailAccount();
 
         LibraryVariableStorage.Enqueue(CreateHTMLReadyAttachment(Attachment));
         MockInterLogEntry(InteractionLogEntry, InteractionLogEntry."Correspondence Type"::Email, Attachment."No.");
@@ -1282,7 +1123,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // Create new directory on server
         if NewDirName = '' then
-            NewDirName := TemporaryPath + '\' + LibraryUtility.GenerateGUID;
+            NewDirName := TemporaryPath + '\' + LibraryUtility.GenerateGUID();
 
         if Directory.Exists(NewDirName) then begin
             Directory.Delete(NewDirName, true);
@@ -1425,23 +1266,6 @@ codeunit 136450 "Attachment Storage Type"
         exit(FileName);
     end;
 
-#if not CLEAN17
-    [Obsolete('DeleteClientFile will always throw an error.', '17.3')]
-    local procedure CreateClientTxtFile(FileName: Text)
-    var
-        [RunOnClient]
-        ClientFileHelper: DotNet File;
-        [RunOnClient]
-        StreamWriter: DotNet StreamWriter;
-    begin
-        if not FileManagement.DeleteClientFile(FileName) then;
-
-        StreamWriter := ClientFileHelper.CreateText(FileName);
-        StreamWriter.WriteLine('Text');
-        StreamWriter.Close();
-    end;
-#endif
-
     local procedure GetSimpleHTMLContent(): Text
     begin
         exit(
@@ -1504,14 +1328,6 @@ codeunit 136450 "Attachment Storage Type"
     [Scope('OnPrem')]
     procedure ContentPreviewMPH(var ContentPreview: TestPage "Content Preview")
     begin
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure EmailDialog_Cancel_MPH(var EmailDialog: TestPage "Email Dialog")
-    begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), EmailDialog.BodyText.Value);
-        EmailDialog.Cancel.Invoke();
     end;
 
     [ModalPageHandler]

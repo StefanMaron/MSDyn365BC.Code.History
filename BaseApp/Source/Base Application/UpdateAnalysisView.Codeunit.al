@@ -88,7 +88,7 @@ codeunit 410 "Update Analysis View"
             AnalysisView2.SetFilter("Last Entry No.", '<%1', LastGLEntryNo);
 
         AnalysisView2.LockTable();
-        if AnalysisView2.FindSet then
+        if AnalysisView2.FindSet() then
             repeat
                 UpdateOne(AnalysisView2, Which, not DirectlyFromPosting and (AnalysisView2."Last Entry No." < LastGLEntryNo - 1000));
             until AnalysisView2.Next() = 0;
@@ -241,7 +241,7 @@ codeunit 410 "Update Analysis View"
 
             OnUpdateEntriesForGLAccountDetailedOnAfterGLEntrySetFilters(GLEntry, AnalysisView);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if DimSetIDInFilter("Dimension Set ID", AnalysisView) then
                         UpdateAnalysisViewEntry(
@@ -434,7 +434,7 @@ codeunit 410 "Update Analysis View"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast then begin
+                        if AccountingPeriod.FindLast() then begin
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
                         end else
                             PrevCalculatedPostingDate := PostingDate;
@@ -447,32 +447,23 @@ codeunit 410 "Update Analysis View"
         exit(PostingDate);
     end;
 
-    local procedure FlushAnalysisViewEntry()
+    procedure FlushAnalysisViewEntry()
     begin
         if ShowProgressWindow then
             Window.Update(6, Text011);
-        if TempAnalysisViewEntry.FindSet then
+        if TempAnalysisViewEntry.FindSet() then
             repeat
                 AnalysisViewEntry.Init();
                 AnalysisViewEntry := TempAnalysisViewEntry;
                 OnFlushAnalysisViewEntryOnBeforeAnalysisViewEntryInsert(AnalysisViewEntry, TempAnalysisViewEntry);
                 if not AnalysisViewEntry.Insert() then begin
-                    AnalysisViewEntry.Find;
-                    AnalysisViewEntry.Amount :=
-                      AnalysisViewEntry.Amount + TempAnalysisViewEntry.Amount;
-                    AnalysisViewEntry."Debit Amount" :=
-                      AnalysisViewEntry."Debit Amount" + TempAnalysisViewEntry."Debit Amount";
-                    AnalysisViewEntry."Credit Amount" :=
-                      AnalysisViewEntry."Credit Amount" + TempAnalysisViewEntry."Credit Amount";
-                    AnalysisViewEntry."Add.-Curr. Amount" :=
-                      AnalysisViewEntry."Add.-Curr. Amount" +
-                      TempAnalysisViewEntry."Add.-Curr. Amount";
-                    AnalysisViewEntry."Add.-Curr. Debit Amount" :=
-                      AnalysisViewEntry."Add.-Curr. Debit Amount" +
-                      TempAnalysisViewEntry."Add.-Curr. Debit Amount";
-                    AnalysisViewEntry."Add.-Curr. Credit Amount" :=
-                      AnalysisViewEntry."Add.-Curr. Credit Amount" +
-                      TempAnalysisViewEntry."Add.-Curr. Credit Amount";
+                    AnalysisViewEntry.Find();
+                    AnalysisViewEntry.Amount += TempAnalysisViewEntry.Amount;
+                    AnalysisViewEntry."Debit Amount" += TempAnalysisViewEntry."Debit Amount";
+                    AnalysisViewEntry."Credit Amount" += TempAnalysisViewEntry."Credit Amount";
+                    AnalysisViewEntry."Add.-Curr. Amount" += TempAnalysisViewEntry."Add.-Curr. Amount";
+                    AnalysisViewEntry."Add.-Curr. Debit Amount" += TempAnalysisViewEntry."Add.-Curr. Debit Amount";
+                    AnalysisViewEntry."Add.-Curr. Credit Amount" += TempAnalysisViewEntry."Add.-Curr. Credit Amount";
                     AnalysisViewEntry.Modify();
                 end;
             until TempAnalysisViewEntry.Next() = 0;
@@ -482,18 +473,17 @@ codeunit 410 "Update Analysis View"
             Window.Update(6, Text010);
     end;
 
-    local procedure FlushAnalysisViewBudgetEntry()
+    procedure FlushAnalysisViewBudgetEntry()
     begin
         if ShowProgressWindow then
             Window.Update(6, Text011);
-        if TempAnalysisViewBudgetEntry.FindSet then
+        if TempAnalysisViewBudgetEntry.FindSet() then
             repeat
                 AnalysisViewBudgetEntry.Init();
                 AnalysisViewBudgetEntry := TempAnalysisViewBudgetEntry;
                 if not AnalysisViewBudgetEntry.Insert() then begin
-                    AnalysisViewBudgetEntry.Find;
-                    AnalysisViewBudgetEntry.Amount :=
-                      AnalysisViewBudgetEntry.Amount + TempAnalysisViewBudgetEntry.Amount;
+                    AnalysisViewBudgetEntry.Find();
+                    AnalysisViewBudgetEntry.Amount += TempAnalysisViewBudgetEntry.Amount;
                     AnalysisViewBudgetEntry.Modify();
                 end;
             until TempAnalysisViewBudgetEntry.Next() = 0;
@@ -607,7 +597,7 @@ codeunit 410 "Update Analysis View"
             exit(TempDimEntryBuffer."Dimension Entry No." <> 0);
 
         InFilters := true;
-        if AnalysisViewFilter.FindSet then
+        if AnalysisViewFilter.FindSet() then
             repeat
                 if DimSetEntry.Get(DimSetID, AnalysisViewFilter."Dimension Code") then
                     InFilters :=

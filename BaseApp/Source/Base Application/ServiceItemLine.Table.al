@@ -1,4 +1,4 @@
-﻿table 5901 "Service Item Line"
+table 5901 "Service Item Line"
 {
     Caption = 'Service Item Line';
     DrillDownPageID = "Service Item Lines";
@@ -16,10 +16,7 @@
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Service Item", "Service Item No.",
-                  DATABASE::"Service Item Group", "Service Item Group Code",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(0);
             end;
         }
         field(2; "Line No."; Integer)
@@ -52,10 +49,7 @@
                               Text011,
                               FieldCaption("Service Item No."), TableCaption, ServLine.TableCaption);
                     end else begin
-                        CreateDim(
-                            DATABASE::"Service Item", "Service Item No.",
-                            DATABASE::"Service Item Group", "Service Item Group Code",
-                            DATABASE::"Responsibility Center", "Responsibility Center");
+                        CreateDimFromDefaultDim(0);
 
                         if ServItem.Get("Service Item No.") then begin
                             SetServItemInfo(ServItem);
@@ -88,7 +82,7 @@
                         ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                         ServContractLine.SetRange("Contract No.", ServHeader."Contract No.");
                         ServContractLine.SetRange("Service Item No.", "Service Item No.");
-                        if not ServContractLine.FindFirst then
+                        if not ServContractLine.FindFirst() then
                             Error(Text050, ServHeader."Contract No.", "Service Item No.");
                         IsHandled := false;
                         OnValidateServiceItemNoOnBeforeValidateServicePeriod(Rec, xRec, CurrFieldNo, IsHandled);
@@ -125,7 +119,7 @@
                                     end;
                                 end;
                             end else begin
-                                ServContractLine.FindFirst;
+                                ServContractLine.FindFirst();
                                 ServContractExist := true;
                             end;
                     end;
@@ -161,10 +155,7 @@
                     Modify(true);
                 end;
                 UpdateResponseTimeHours;
-                CreateDim(
-                  DATABASE::"Service Item", "Service Item No.",
-                  DATABASE::"Service Item Group", "Service Item Group Code",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(0);
             end;
         }
         field(4; "Service Item Group Code"; Code[10])
@@ -189,10 +180,7 @@
                 end;
                 UpdateResponseTimeHours;
 
-                CreateDim(
-                  DATABASE::"Service Item Group", "Service Item Group Code",
-                  DATABASE::"Service Item", "Service Item No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(Rec.FieldNo("Service Item Group Code"));
             end;
         }
         field(5; "Item No."; Code[20])
@@ -255,7 +243,7 @@
                 case true of
                     NoOfRec = 1:
                         begin
-                            ServItem.FindFirst;
+                            ServItem.FindFirst();
                             Validate("Service Item No.", ServItem."No.");
                         end;
                     NoOfRec > 1:
@@ -805,7 +793,7 @@
                 if "Contract No." <> '' then begin
                     ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                     ServContractLine.SetRange("Contract No.", "Contract No.");
-                    if ServContractLine.FindFirst then
+                    if ServContractLine.FindFirst() then
                         ServContractList.SetRecord(ServContractLine);
                     ServContractLine.Reset();
                 end;
@@ -827,7 +815,6 @@
 
             trigger OnValidate()
             var
-                ConfirmManagement: Codeunit "Confirm Management";
                 IsHandled: Boolean;
             begin
                 ServHeader.Get("Document Type", "Document No.");
@@ -854,7 +841,7 @@
                     ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     ServContractLine.SetRange("Service Item No.", "Service Item No.");
-                    if not ServContractLine.FindFirst then
+                    if not ServContractLine.FindFirst() then
                         Error(Text049, "Contract No.", "Service Item No.");
                     if ServContractLine."Customer No." <> ServHeader."Customer No." then
                         Error(Text051, "Contract No.");
@@ -870,12 +857,7 @@
                     "Contract Line No." := 0;
                 ServLine.SetRange("Quantity Invoiced", 0);
 
-                if ServLine.Find('-') and ("Line No." <> 0) then
-                    if ConfirmManagement.GetResponseOrDefault(Text054, true) then begin
-                        Modify(true);
-                        RecreateServLines(ServLine);
-                    end else
-                        "Contract No." := xRec."Contract No.";
+                CheckRecreateServLines();
                 UpdateResponseTimeHours;
             end;
         }
@@ -1446,7 +1428,7 @@
                 ServContractLine.SetRange("Contract Status", ServContractLine."Contract Status"::Signed);
                 ServContractLine.SetFilter("Starting Date", '<=%1', ServHeader."Order Date");
                 ServContractLine.SetFilter("Contract Expiration Date", '>%1 | =%2', ServHeader."Order Date", 0D);
-                if ServContractLine.FindFirst then
+                if ServContractLine.FindFirst() then
                     "Contract No." := ServHeader."Contract No.";
             end;
         if ("Contract No." <> '') and ("Service Price Group Code" <> '') then
@@ -1790,7 +1772,6 @@
         HoursLeft: Decimal;
         HoursOnLastDay: Decimal;
         Holiday: Boolean;
-        NewDescription: Text[30];
         ContractServHourExist: Boolean;
         ErrorDate: Date;
         WholeResponseDays: Integer;
@@ -1815,7 +1796,7 @@
 
         HoursLeft := "Response Time (Hours)";
 
-        if not ServHour.FindFirst then begin
+        if not ServHour.FindFirst() then begin
             WholeResponseDays := HoursLeft div 24;
             HoursOnLastDay := HoursLeft - WholeResponseDays * 24;
             if CalendarMgmt.CalcTimeDelta(OrderTime, 000000T) / 3600000 + HoursOnLastDay >= 24 then begin
@@ -1839,7 +1820,7 @@
             HoursOnLastDay := 0;
             ServHour.SetFilter("Starting Date", '<=%1', TempDate);
             ServHour.SetRange(Day, TempDay);
-            if ServHour.FindLast then begin
+            if ServHour.FindLast() then begin
                 if ServHour."Valid on Holidays" then
                     Holiday := false
                 else
@@ -1999,7 +1980,13 @@
         exit(ServHour2.FindFirst);
     end;
 
-    local procedure UpdateStartFinishDateTime(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; LineNo: Integer; StartingDate: Date; StartingTime: Time; FinishingDate: Date; FinishingTime: Time; Erasing: Boolean)
+    local procedure UpdateStartFinishDateTime(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20];
+                                                                LineNo: Integer;
+                                                                StartingDate: Date;
+                                                                StartingTime: Time;
+                                                                FinishingDate: Date;
+                                                                FinishingTime: Time;
+                                                                Erasing: Boolean)
     var
         ServOrderMgt: Codeunit ServOrderManagement;
         GoOut: Boolean;
@@ -2174,6 +2161,24 @@
         PAGE.RunModal(PAGE::"Service Comment Sheet", ServCommentLine);
     end;
 
+    local procedure CheckRecreateServLines()
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckRecreateServLines(Rec, xRec, ServLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ServLine.Find('-') and ("Line No." <> 0) then
+            if ConfirmManagement.GetResponseOrDefault(Text054, true) then begin
+                Modify(true);
+                RecreateServLines(ServLine);
+            end else
+                "Contract No." := xRec."Contract No.";
+    end;
+
     local procedure RecreateServLines(var ServLine2: Record "Service Line")
     var
         TempServLine: Record "Service Line" temporary;
@@ -2262,7 +2267,7 @@
                 ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetRange("Service Item No.", "Service Item No.");
-                if ServContractLine.FindFirst then
+                if ServContractLine.FindFirst() then
                     if ServContractLine."Response Time (Hours)" > 0 then
                         exit(ServContractLine."Response Time (Hours)");
             end;
@@ -2319,6 +2324,8 @@
             ServLogMgt.ServHeaderRepairStatusChange(Rec, OldServItemLine);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -2352,6 +2359,37 @@
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Service Management",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ServHeader."Dimension Set ID", DATABASE::"Service Header");
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        SourceCodeSetup.Get();
+
+        if "Document No." = '' then
+            exit;
+
+        GetServHeader();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Service Management",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ServHeader."Dimension Set ID", DATABASE::"Service Header");
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
@@ -2496,11 +2534,65 @@
         SetRange("Date Filter", 0D, WorkDate());
     end;
 
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Service Item", Rec."Service Item No.", FieldNo = Rec.FieldNo("Service Item No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Service Item Group", Rec."Service Item Group Code", FieldNo = Rec.FieldNo("Service Item Group Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Service Item Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Service Item Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Service Item Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var ServiceItemLine: Record "Service Item Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ServiceItemLine: Record "Service Item Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignItemValues(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; Item: Record Item; ServiceHeader: Record "Service Header"; CurrFieldNo: Integer)
     begin
@@ -2518,6 +2610,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRecreateServLines(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; var ServLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 

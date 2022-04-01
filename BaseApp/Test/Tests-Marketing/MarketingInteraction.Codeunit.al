@@ -55,7 +55,7 @@ codeunit 136208 "Marketing Interaction"
         // Test that it is possible to create a new Interaction Group.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Interaction Group.
         LibraryMarketing.CreateInteractionGroup(InteractionGroup);
@@ -74,7 +74,7 @@ codeunit 136208 "Marketing Interaction"
         // Test that it is possible to create a new Interaction Template.
 
         // 1. Setup: Create Interaction Group.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionGroup(InteractionGroup);
 
         // 2. Exercise: Create Interaction Template with Interaction Group Code.
@@ -100,7 +100,7 @@ codeunit 136208 "Marketing Interaction"
         // Test that it is possible to open Interaction Group Statistics with correct values.
 
         // 1. Setup: Create Interaction Group, Interaction Template. Create a Segment.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionGroup(InteractionGroup);
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
 
@@ -115,7 +115,7 @@ codeunit 136208 "Marketing Interaction"
         LibraryVariableStorage.Enqueue(InteractionTemplate."Unit Duration (Min.)");
         Clear(InteractionGroupStatistics);
         InteractionGroupStatistics.SetRecord(InteractionGroup);
-        InteractionGroupStatistics.RunModal;
+        InteractionGroupStatistics.RunModal();
     end;
 
     [Test]
@@ -129,9 +129,9 @@ codeunit 136208 "Marketing Interaction"
         // Test that it is possible to Remove Attachment from Interaction Template.
 
         // 1. Setup: Find the Interaction Template with Attachment.
-        Initialize;
+        Initialize();
         InteractionTemplate.SetFilter("Attachment No.", '<>0');  // Check for an Template that has some attachment.
-        InteractionTemplate.FindFirst;
+        InteractionTemplate.FindFirst();
 
         // 2. Exercise: Remove the Attachment.
         InteractionTmplLanguage.Get(InteractionTemplate.Code, InteractionTemplate."Language Code (Default)");
@@ -157,7 +157,7 @@ codeunit 136208 "Marketing Interaction"
         // Test that application generates an error on creating Interaction without Interaction Template code in Interaction Wizard.
 
         // 1. Setup: Create a Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // 2. Exercise: Create Interaction without Interaction Template code in Interaction Wizard.
@@ -178,7 +178,7 @@ codeunit 136208 "Marketing Interaction"
         LibraryMarketing: Codeunit "Library - Marketing";
     begin
         // [SCENARIO] Application generates an error on creating Interaction without Description in "Create Interaction" page.
-        Initialize;
+        Initialize();
         // [GIVEN] Create a Contact.
         LibraryMarketing.CreateCompanyContact(Contact);
         // [GIVEN] Create Interaction Template, where Description is <blank>
@@ -207,7 +207,7 @@ codeunit 136208 "Marketing Interaction"
         // Test for successful Contact Interaction.
 
         // 1. Setup: Create Interaction Group, Create Interaction Template, Create Contact, Save Template Code in Global Variable.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionGroup(InteractionGroup);
         TemplateCode := CreateAndUpdateTemplate(InteractionGroup.Code);
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -232,7 +232,7 @@ codeunit 136208 "Marketing Interaction"
         // Test to check that it is possible to create Interaction for a Contact from Interaction Log Entries.
 
         // 1. Setup: Create Interaction Group, Interaction Templates, Create Contact and Interaction for the Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionGroup(InteractionGroup);
         TemplateCode[1] := CreateAndUpdateTemplate(InteractionGroup.Code);
         TemplateCode[2] := CreateAndUpdateTemplate(InteractionGroup.Code);
@@ -260,7 +260,7 @@ codeunit 136208 "Marketing Interaction"
         DurationMin: Decimal;
     begin
         // Test to check Interaction Details can be successfully updated while creating Interaction for Contact.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Interaction Group, Interaction Template, Create Contact and Interaction for the Contact.
         LibraryMarketing.CreateInteractionGroup(InteractionGroup);
@@ -277,7 +277,7 @@ codeunit 136208 "Marketing Interaction"
         CreateInteractionFromLogEntry(InteractionLogEntry, InteractionTemplate.Code, true, CostLCY, DurationMin);
 
         // 3. Verify: Verify that new Cost and Duration updated in Interaction Log Entry.
-        InteractionLogEntry.FindLast;
+        InteractionLogEntry.FindLast();
         InteractionLogEntry.TestField("Cost (LCY)", CostLCY);
         InteractionLogEntry.TestField("Duration (Min.)", DurationMin);
     end;
@@ -295,7 +295,7 @@ codeunit 136208 "Marketing Interaction"
         DurationMin: Decimal;
     begin
         // Test to verify Interaction Template Statistics after creating Interaction.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Interaction Group, Interaction Template, Create Contact and Interaction for the Contact.
         LibraryMarketing.CreateInteractionGroup(InteractionGroup);
@@ -329,7 +329,7 @@ codeunit 136208 "Marketing Interaction"
         // Test to verify Interaction Group Statistics after creating Interaction.
 
         // 1. Setup: Create Interaction Group, Interaction Templates, Create Contact and Interaction for the Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionGroup(InteractionGroup);
         TemplateCode[1] := CreateAndUpdateTemplate(InteractionGroup.Code);  // Set value in global variable.
         TemplateCode[2] := CreateAndUpdateTemplate(InteractionGroup.Code);
@@ -353,7 +353,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Interaction Template]
         // [SCENARIO] "Wizard Action" can be validated with any value for an Interaction Template without Interaction Tmpl. Language
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
 
         with InteractionTemplate do
@@ -372,7 +372,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Interaction Template]
         // [SCENARIO] "Wizard Action" can not be validated with "Merge" value for an Interaction Template with Interaction Tmpl. Language without attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
 
@@ -400,10 +400,10 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Interaction Template]
         // [SCENARIO] "Wizard Action" value can not be validated with "Merge" value for an Interaction Template with Interaction Tmpl. Language with Word attachment
-        Initialize;
+        Initialize();
 
         InteractionTmplLanguage.SetRange("Attachment No.", FindWordAttachment);
-        InteractionTmplLanguage.FindFirst;
+        InteractionTmplLanguage.FindFirst();
         InteractionTemplate.Get(InteractionTmplLanguage."Interaction Template Code");
         SavedWizardAction := InteractionTemplate."Wizard Action";
 
@@ -434,7 +434,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Interaction Template]
         // [SCENARIO] "Wizard Action" value can be only "Merge" for an Interaction Template with Interaction Tmpl. Language with Email Merge attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
         Commit();
@@ -462,7 +462,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Interaction Template]
         // [SCENARIO] "Wizard Action" value is changed from "" to "Merge" after validate Interaction Tmpl. Language with Email Merge attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         LanguageCode[1] :=
           CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
@@ -487,7 +487,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Interaction Template]
         // [SCENARIO] "Wizard Action" value is changed from "Merge" to "" after validate Interaction Tmpl. Language without attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         LanguageCode[1] :=
           CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
@@ -513,7 +513,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
         // [SCENARIO] Email Merge attachment is created when validate "Custom Layout No." field on "Interact. Tmpl. Languages" page
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
 
         InteractTmplLanguages.OpenView;
@@ -540,7 +540,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
         // [SCENARIO] Email Merge attachment is created when validate a new "Custom Layout No." field on "Interact. Tmpl. Languages" page
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
 
         InteractTmplLanguages.OpenView;
@@ -577,7 +577,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
         // [SCENARIO] Email Merge attachment is deleted after validate "Custom Layout No." = 0 "Interact. Tmpl. Languages" page
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
         Count := DummyAttachment.Count();
 
@@ -605,7 +605,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
         // [SCENARIO] Email Merge attachments are removed when delete Interaction Template with several attachments
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         Count := DummyAttachment.Count();
 
@@ -626,7 +626,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Attachment]
         // [SCENARIO] Attachment is removed when delete "Interaction Log Entry" record with attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateAttachment(Attachment);
         MockInterLogEntryWithAttachment(InteractionLogEntry, Attachment."No.");
 
@@ -647,7 +647,7 @@ codeunit 136208 "Marketing Interaction"
         // [FEATURE] [Attachment]
         // [SCENARIO 285790] Attachment is removed when delete all canceled Interaction Log Entries
         // [SCENARIO 285790] with one related attachment
-        Initialize;
+        Initialize();
         InteractionLogEntry.ModifyAll(Canceled, false);
 
         // [GIVEN] Two canceled Interaction Log Entries with one attachment
@@ -674,7 +674,7 @@ codeunit 136208 "Marketing Interaction"
         // [FEATURE] [Attachment]
         // [SCENARIO 285790] Attachment is not removed when delete one of canceled Interaction Log Entries
         // [SCENARIO 285790] with one related attachment
-        Initialize;
+        Initialize();
         InteractionLogEntry.ModifyAll(Canceled, false);
 
         // [GIVEN] Two canceled Interaction Log Entries with one attachment
@@ -698,12 +698,8 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.IsHTMLAttachment() returns FALSE for empty record
-        Initialize;
-#if CLEAN17
-                TempSegmentLine.LoadSegLineAttachment(false);
-#else
-        TempSegmentLine.LoadAttachment(false);
-#endif
+        Initialize();
+        TempSegmentLine.LoadSegLineAttachment(false);
         Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
     end;
 
@@ -716,15 +712,11 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.IsHTMLAttachment() returns FALSE for the record with not a HTML attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
 
-#if CLEAN17
-                TempSegmentLine.LoadSegLineAttachment(false);
-#else
-        TempSegmentLine.LoadAttachment(false);
-#endif
+        TempSegmentLine.LoadSegLineAttachment(false);
 
         Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
     end;
@@ -738,15 +730,11 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment] [Email Merge]
         // [SCENARIO] SegmentLine.IsHTMLAttachment() returns TRUE for the record with Email Merge attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
 
-#if CLEAN17
-                TempSegmentLine.LoadSegLineAttachment(false);
-#else
-        TempSegmentLine.LoadAttachment(false);
-#endif
+        TempSegmentLine.LoadSegLineAttachment(false);
 
         Assert.IsTrue(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
 
@@ -764,17 +752,11 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment] [Email Merge]
         // [SCENARIO] SegmentLine.PreviewHTMLContent() opens "Content Preview" page for Email Merge attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
-#if CLEAN17
-                TempSegmentLine.LoadSegLineAttachment(false);
-                TempSegmentLine.PreviewSegLineHTMLContent();
-#else
-        TempSegmentLine.LoadAttachment(false);
-        TempSegmentLine.PreviewHTMLContent();
-#endif
-
+        TempSegmentLine.LoadSegLineAttachment(false);
+        TempSegmentLine.PreviewSegLineHTMLContent();
 
         // Verify "Content Preview" page is opened in ContentPreviewMPH handler
 
@@ -792,14 +774,10 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment] [Email Merge]
         // [SCENARIO] SegmentLine.LoadContentBodyTextFromCustomLayoutAttachment() returns content text
-        Initialize;
+        Initialize();
         ContentBodyText := LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
-#if CLEAN17
-                TempSegmentLine.LoadSegLineAttachment(false);
-#else
-        TempSegmentLine.LoadAttachment(false);
-#endif
+        TempSegmentLine.LoadSegLineAttachment(false);
 
         Assert.AreEqual(
           ContentBodyText,
@@ -820,15 +798,11 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment] [Email Merge]
         // [SCENARIO] SegmentLine.UpdateContentBodyTextInCustomLayoutAttachment() updates content text
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         NewContentBodyText := LibraryUtility.GenerateRandomAlphabeticText(LibraryRandom.RandIntInRange(2000, 3000), 0);
         TempSegmentLine."Attachment No." := Attachment."No.";
-#if CLEAN17
-                TempSegmentLine.LoadSegLineAttachment(false);
-#else
-        TempSegmentLine.LoadAttachment(false);
-#endif
+        TempSegmentLine.LoadSegLineAttachment(false);
 
         TempSegmentLine.UpdateContentBodyTextInCustomLayoutAttachment(NewContentBodyText);
 
@@ -852,7 +826,7 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO 220243] When using Attachment loading with optimization new attachment is not loaded if attachment already exists
 
         // [GIVEN] Create Attachment "A1" and load it to Segment Line "SL"
-        Initialize;
+        Initialize();
         CreateSegmentLineWithAttachment(TempSegmentLine, Attachment[1], FirstContentBodyTxt);
 
         // [GIVEN] Create Attachment "A2"
@@ -860,11 +834,7 @@ codeunit 136208 "Marketing Interaction"
         TempSegmentLine."Attachment No." := Attachment[2]."No.";
 
         // [WHEN] Load attachment to "SL" with optimization (check if attachment already exists).
-#if CLEAN17
-                TempSegmentLine.LoadSegLineAttachment(false);
-#else
-        TempSegmentLine.LoadAttachment(false);
-#endif
+        TempSegmentLine.LoadSegLineAttachment(false);
 
         // [THEN] Attachment was not loaded ("SL" Attachment = "A1")
         Assert.AreEqual(
@@ -889,7 +859,7 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO 220243] When using Attachment loading with reload forcing new attachment is loaded even if attachment already exists
 
         // [GIVEN] Create Attachment "A1" and load it to Segment Line "SL"
-        Initialize;
+        Initialize();
         CreateSegmentLineWithAttachment(TempSegmentLine, Attachment[1], FirstContentBodyTxt);
 
         // [GIVEN] Create Attachment "A2"
@@ -897,11 +867,7 @@ codeunit 136208 "Marketing Interaction"
         TempSegmentLine."Attachment No." := Attachment[2]."No.";
 
         // [WHEN] Load attachment to "SL" with Reload forcing
-#if CLEAN17
-                TempSegmentLine.LoadSegLineAttachment(true);
-#else
-        TempSegmentLine.LoadAttachment(true);
-#endif
+        TempSegmentLine.LoadSegLineAttachment(true);
 
         // [THEN] Attachment was loaded ("SL" Attachment = "A2")
         Assert.AreEqual(
@@ -925,16 +891,12 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.LanguageCodeOnLookup() opens "Interact. Tmpl. Languages" page
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
 
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
-#if CLEAN17
-                TempSegmentLine.LoadSegLineAttachment(false);
-#else
-        TempSegmentLine.LoadAttachment(false);
-#endif
+        TempSegmentLine.LoadSegLineAttachment(false);
 
         LibraryVariableStorage.Enqueue(TempSegmentLine."Interaction Template Code");
         LibraryVariableStorage.Enqueue(TempSegmentLine."Language Code");
@@ -955,13 +917,9 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.FinishWizard(FALSE): asks for confirm action
-        Initialize;
+        Initialize();
 
-#if CLEAN17
-                TempSegmentLine.FinishSegLineWizard(false);
-#else
-        TempSegmentLine.FinishWizard(false);
-#endif
+        TempSegmentLine.FinishSegLineWizard(false);
 
         // Verify finish later confirm question in ConfirmHandlerNo handler
     end;
@@ -975,13 +933,9 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.FinishWizard(FALSE): "Contact No." field is mandatory for empty Segment Line
-        Initialize;
+        Initialize();
 
-#if CLEAN17
-                asserterror TempSegmentLine.FinishSegLineWizard(false);
-#else
-        asserterror TempSegmentLine.FinishWizard(false);
-#endif
+        asserterror TempSegmentLine.FinishSegLineWizard(false);
 
         // Verify finish later confirm question in ConfirmHandlerNo handler
         Assert.ExpectedErrorCode('Dialog');
@@ -997,16 +951,12 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.FinishWizard(TRUE): "Contact No." field is mandatory
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
 
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
 
-#if CLEAN17
-                asserterror TempSegmentLine.FinishSegLineWizard(true);
-#else
-        asserterror TempSegmentLine.FinishWizard(true);
-#endif
+        asserterror TempSegmentLine.FinishSegLineWizard(true);
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(SelectContactErr);
     end;
@@ -1020,16 +970,12 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.FinishWizard(TRUE): "Salesperson Code" field is mandatory
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
 
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), '', 0D, '');
 
-#if CLEAN17
-                asserterror TempSegmentLine.FinishSegLineWizard(true);
-#else
-        asserterror TempSegmentLine.FinishWizard(true);
-#endif
+        asserterror TempSegmentLine.FinishSegLineWizard(true);
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption("Salesperson Code")));
     end;
@@ -1043,16 +989,12 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.FinishWizard(TRUE): Date field is mandatory
-        Initialize;
+        Initialize();
 
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), MockSalesPersonCode, 0D, '');
 
-#if CLEAN17
-                asserterror TempSegmentLine.FinishSegLineWizard(true);
-#else
-        asserterror TempSegmentLine.FinishWizard(true);
-#endif
+        asserterror TempSegmentLine.FinishSegLineWizard(true);
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption(Date)));
     end;
@@ -1067,17 +1009,13 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.FinishWizard(TRUE): Description field is mandatory
-        Initialize;
+        Initialize();
 
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
         ContactCode := MockContactNo('');
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, ContactCode, MockSalesPersonCode, WorkDate, '');
 
-#if CLEAN17
-                asserterror TempSegmentLine.FinishSegLineWizard(true);
-#else
-        asserterror TempSegmentLine.FinishWizard(true);
-#endif
+        asserterror TempSegmentLine.FinishSegLineWizard(true);
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption(Description)));
     end;
@@ -1092,18 +1030,14 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Segment]
         // [SCENARIO] SegmentLine.FinishWizard(TRUE): Interaction Log Entry is created in case of not Email Correspondence Type
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
         MockSegmentLine(
           TempSegmentLine, InteractionTmplLanguage, MockContactNo(InteractionTmplLanguage."Language Code"),
-          MockSalesPersonCode, WorkDate, LibraryUtility.GenerateGUID);
+          MockSalesPersonCode, WorkDate, LibraryUtility.GenerateGUID());
 
-        InteractionLogEntry.FindLast;
-#if CLEAN17
-                TempSegmentLine.FinishSegLineWizard(true);
-#else
-        TempSegmentLine.FinishWizard(true);
-#endif
+        InteractionLogEntry.FindLast();
+        TempSegmentLine.FinishSegLineWizard(true);
 
         VerifyInteractionLogEntryDetails(InteractionLogEntry."Entry No." + 1, TempSegmentLine);
     end;
@@ -1118,7 +1052,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Email Merge]
         // [SCENARIO] "Create Interaction" page is opened with not visible HTML content for not Email Merge template
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
         MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage);
 
@@ -1138,7 +1072,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Email Merge]
         // [SCENARIO] "Create Interaction" page is opened with visible HTML content for Email Merge template
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithEmailMergeAttachment(InteractionTmplLanguage);
         MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage);
 
@@ -1158,7 +1092,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Email Merge]
         // [SCENARIO] "Create Interaction" page: html content is hide when validate Language Code for not Email Merge template
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage[1]);
         CreateInteractionTmplLangWithEmailMergeAttachment(
           InteractionTmplLanguage[2], InteractionTmplLanguage[1]."Interaction Template Code",
@@ -1183,7 +1117,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Email Merge]
         // [SCENARIO] "Create Interaction" page: html content is shown when validate Language Code for Email Merge template
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage[1]);
         CreateInteractionTmplLangWithEmailMergeAttachment(
           InteractionTmplLanguage[2], InteractionTmplLanguage[1]."Interaction Template Code",
@@ -1208,7 +1142,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT] [Email Merge]
         // [SCENARIO] "Create Interaction" page: validate and preview html content
-        Initialize;
+        Initialize();
         PrepareInteractionTmplLangCodeWithEmailMergeAttachment(InteractionTmplLanguage);
         MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage);
 
@@ -1218,24 +1152,10 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure LogSegmentWithEmailWordAttachmentSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        LogSegmentWithEmailWordAttachmentInternal();
-    end;
-
-    [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure LogSegmentWithEmailWordAttachment()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LogSegmentWithEmailWordAttachmentInternal();
     end;
 
@@ -1243,18 +1163,12 @@ codeunit 136208 "Marketing Interaction"
     var
         SegmentHeader: Record "Segment Header";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        EmailFeature: Codeunit "Email Feature";
         Segment: TestPage Segment;
         FileExtension: Text[250];
     begin
         // [SCENARIO 178203] User sends email with Word document as attachment in Web client
-        Initialize;
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount()
-        else begin
-            LibraryWorkflow.SetUpSMTPEmailSetup;
-            UpdateSMTPSetup;
-        end;
+        Initialize();
+        LibraryWorkflow.SetUpEmailAccount();
         // [GIVEN] Interaction Template with Word attachment
         FileExtension := 'DOC';
         // [GIVEN] Segment for email
@@ -1270,24 +1184,10 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure LogSegmentWithEmailTextAttachmentSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        LogSegmentWithEmailTextAttachmentInternal();
-    end;
-
-    [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure LogSegmentWithEmailTextAttachment()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LogSegmentWithEmailTextAttachmentInternal();
     end;
 
@@ -1295,19 +1195,12 @@ codeunit 136208 "Marketing Interaction"
     var
         SegmentHeader: Record "Segment Header";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        LibraryWorkflow: Codeunit "Library - Workflow";
-        EmailFeature: Codeunit "Email Feature";
         Segment: TestPage Segment;
         FileExtension: Text[250];
     begin
         // [SCENARIO 178203] User sends email with text document as attachment in Web client
-        Initialize;
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount()
-        else begin
-            LibraryWorkflow.SetUpSMTPEmailSetup;
-            UpdateSMTPSetup;
-        end;
+        Initialize();
+        LibraryWorkflow.SetUpEmailAccount();
         // [GIVEN] Interaction Template with text attachment
         FileExtension := 'TXT';
         // [GIVEN] Segment for email
@@ -1332,7 +1225,7 @@ codeunit 136208 "Marketing Interaction"
         // [FEATURE] [UT]
         // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of long field filters
         // [SCENARIO 255837]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Log Entry with "Salesperson Code" = "A" (and applied field filter =  "A"), where "A" - 20-char length value
         // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
@@ -1367,7 +1260,7 @@ codeunit 136208 "Marketing Interaction"
         // [FEATURE] [UT]
         // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of blanked field filters
         // [SCENARIO 255837]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Log Entry with "Salesperson Code" = "A" (and no applied field filter)
         // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
@@ -1395,7 +1288,7 @@ codeunit 136208 "Marketing Interaction"
         // [FEATURE] [UT]
         // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of blanked field values
         // [SCENARIO 255837]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Log Entry with "Salesperson Code" = ""
         // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
@@ -1420,7 +1313,7 @@ codeunit 136208 "Marketing Interaction"
         // [FEATURE] [UT]
         // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of "Salesperson Code" = "A", filter "A|B" and two records
         // [SCENARIO 255837]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Log Entry "X" with "Salesperson Code" = "A"
         // [GIVEN] Interaction Log Entry "Y" with "Salesperson Code" = "B"
@@ -1428,8 +1321,8 @@ codeunit 136208 "Marketing Interaction"
         // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
         // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "A" (and applied field filter =  "A")
         // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
-        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[1], LibraryUtility.GenerateGUID);
-        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[2], LibraryUtility.GenerateGUID);
+        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[1], LibraryUtility.GenerateGUID());
+        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[2], LibraryUtility.GenerateGUID());
         with InteractionLogEntry[1] do begin
             SetFilter("Salesperson Code", "Salesperson Code" + '|' + InteractionLogEntry[2]."Salesperson Code");
 
@@ -1452,7 +1345,7 @@ codeunit 136208 "Marketing Interaction"
         // [FEATURE] [UT]
         // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of "Salesperson Code" "B", filter "A|B" and two records
         // [SCENARIO 255837]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Log Entry "X" with "Salesperson Code" = "A"
         // [GIVEN] Interaction Log Entry "Y" with "Salesperson Code" = "B"
@@ -1460,8 +1353,8 @@ codeunit 136208 "Marketing Interaction"
         // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
         // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "B" (and applied field filter =  "B")
         // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
-        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[1], LibraryUtility.GenerateGUID);
-        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[2], LibraryUtility.GenerateGUID);
+        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[1], LibraryUtility.GenerateGUID());
+        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[2], LibraryUtility.GenerateGUID());
         with InteractionLogEntry[2] do begin
             SetFilter("Salesperson Code", InteractionLogEntry[1]."Salesperson Code" + '|' + "Salesperson Code");
 
@@ -1483,7 +1376,7 @@ codeunit 136208 "Marketing Interaction"
         SegManagement: Codeunit SegManagement;
     begin
         // [SCENARIO] Create a sales invoice for a customer that has a contact with correspondence type email but no email address
-        Initialize;
+        Initialize();
         // [GIVEN] Marketing setup with default correspondence type of email
         SetDefaultCorrespondenceType(InteractionLogEntry."Correspondence Type"::Email);
         // [GIVEN] A Sales Invoice to a customer with a contact without email
@@ -1507,7 +1400,7 @@ codeunit 136208 "Marketing Interaction"
         SegManagement: Codeunit SegManagement;
     begin
         // [SCENARIO] Create a sales invoice for a customer that has a contact with correspondence type fax but no fax number
-        Initialize;
+        Initialize();
         // [GIVEN] Marketing setup with default correspondence type of fax
         SetDefaultCorrespondenceType(InteractionLogEntry."Correspondence Type"::Fax);
 
@@ -1533,8 +1426,8 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 199812] Action "Interaction log entries" on sales order page opens list of related interaciton log entries if #Suite app area enabled
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] Create sales order XXX
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -1565,7 +1458,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 199812] Action "Interaction log entries" is not available on sales order page if only #Basic app area enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
 
         // [GIVEN] Create sales order XXX
@@ -1593,8 +1486,8 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 199812] Action "Interaction log entries" on sales quote page opens list of related interaciton log entries if #Suite app area enabled
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] Create sales quote XXX
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -1626,7 +1519,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 199812] Action "Interaction log entries" is not available on sales quote page if only #Basic app area enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
 
         // [GIVEN] Create sales quote XXX
@@ -1655,7 +1548,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 199903] User is able to add comments for interaction log entry when user experience is Suite
-        Initialize;
+        Initialize();
 
         // [GIVEN] User experience set to Suite
         LibraryApplicationArea.EnableRelationshipMgtSetup;
@@ -1691,7 +1584,7 @@ codeunit 136208 "Marketing Interaction"
         RlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line";
     begin
         // [SCENARIO 202036] Creating opportunity from interaction log copies comments to opportunity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock interaction log entry XXX
         MockInterLogEntry(InteractionLogEntry);
@@ -1721,7 +1614,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 202034] Comments entered from Make Phone Call page saved into interaction log entries comments
-        Initialize;
+        Initialize();
 
         // [GIVEN] User experience set to Suite
         LibraryApplicationArea.EnableRelationshipMgtSetup;
@@ -1756,30 +1649,13 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('SimpleEmailDialogModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure EmailDraftInteractionLogEntryFromSalesOrderSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        PopulateCompanyInformation();
-        ResetReportSelection();
-
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        EmailDraftInteractionLogEntryFromSalesOrderInternal();
-    end;
-
-    [Test]
     [HandlerFunctions('SimpleEmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailDraftInteractionLogEntryFromSalesOrder()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
         PopulateCompanyInformation();
         ResetReportSelection();
 
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         EmailDraftInteractionLogEntryFromSalesOrderInternal();
     end;
 
@@ -1790,12 +1666,10 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry: Record "Interaction Log Entry";
         DocumentPrint: Codeunit "Document-Print";
         LibraryWorkflow: Codeunit "Library - Workflow";
-        EmailFeature: Codeunit "Email Feature";
     begin
         // [SCENARIO 199993] Sending by mail sales order confirmation does not lead to generation of interaction log entry with Email Draft template
-        Initialize;
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount();
+        Initialize();
+        LibraryWorkflow.SetUpEmailAccount();
 
         // [GIVEN] New interaction template XXX
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -1816,24 +1690,10 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('SelectSendingOptionsModalPageHandler,SimpleEmailDialogModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure EmailDraftInteractionLogEntryFromPurchOrderSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        EmailDraftInteractionLogEntryFromPurchOrderInternal();
-    end;
-
-    [Test]
     [HandlerFunctions('SelectSendingOptionsModalPageHandler,SimpleEmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailDraftInteractionLogEntryFromPurchOrder()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         EmailDraftInteractionLogEntryFromPurchOrderInternal();
     end;
 
@@ -1843,12 +1703,10 @@ codeunit 136208 "Marketing Interaction"
         PurchaseHeader: Record "Purchase Header";
         InteractionLogEntry: Record "Interaction Log Entry";
         LibraryWorkflow: Codeunit "Library - Workflow";
-        EmailFeature: Codeunit "Email Feature";
     begin
         // [SCENARIO 199993] Sending by mail Purchase order does not lead to generation of interaction log entry with Email Draft template
-        Initialize;
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount();
+        Initialize();
+        LibraryWorkflow.SetUpEmailAccount();
 
         // [GIVEN] New interaction template XXX
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -1878,7 +1736,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 199993] Email Draft Template field enabled on the page Interaction Template Setup with Suit user experience
-        Initialize;
+        Initialize();
 
         // [GIVEN] User experience set to Suite
         LibraryApplicationArea.EnableRelationshipMgtSetup;
@@ -1907,7 +1765,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [Merge Source]
         // [SCENARIO 278291] PopulateInterLogEntryToMergeSource HTML merge file generation for specific Interaction Log Entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Attachment Record
         LibraryMarketing.CreateAttachment(Attachment);
@@ -1938,7 +1796,7 @@ codeunit 136208 "Marketing Interaction"
         ExportFilePath: Text;
     begin
         // [SCENARIO 323680] Attachment file path is valid when export Interaction Template.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Marketing Setup stores attachments on disk.
         MarketingSetup.Validate("Attachment Storage Type", MarketingSetup."Attachment Storage Type"::"Disk File");
@@ -1977,7 +1835,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 390586] Contact Interaction Subform shows title for Inbound interaction template
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Template "X" with "Information Flow" = Inbound and Description "TD"
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -2010,7 +1868,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 390586] Contact Interaction Subform shows title for Outbound interaction template
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Template "X" with "Information Flow" = Outbound and Description "TD"
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -2048,7 +1906,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 390586] Contact Interaction Subform shows title for Empty flow interaction template
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Template "X" with "Information Flow" = " " and Description "TD"
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -2081,7 +1939,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
         // [SCENARIO 386492] Action "Create Opportunity" of Contact Interaction Subform
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C"
         LibraryMarketing.CreatePersonContact(Contact);
@@ -2118,7 +1976,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
         // [SCENARIO 386492] Action "Show Attachments" of Contact Interaction Subform opens entry attachment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C"
         LibraryMarketing.CreatePersonContact(Contact);
@@ -2156,7 +2014,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
         // [SCENARIO 386492] Action "Show Attachments" of Contact Interaction Subform opens related document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST" with Contact "C"
         LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
@@ -2193,7 +2051,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
         // [SCENARIO 386492] AssistEdit for "Title" field of Contact Interaction Subform opens related document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST" with Contact "C"
         LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
@@ -2228,7 +2086,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
         // [SCENARIO 386492] Action "Evaluate Interaction" of Contact Interaction Subform 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C"
         LibraryMarketing.CreatePersonContact(Contact);
@@ -2263,7 +2121,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
         // [SCENARIO 386492] Action "Switch Checkmark in Canceled" of Contact Interaction Subform 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C"
         LibraryMarketing.CreatePersonContact(Contact);
@@ -2296,7 +2154,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
         // [SCENARIO 390586] Action "Create Interaction" of Contact Interaction Subform for person contact
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C"
         LibraryMarketing.CreatePersonContact(Contact);
@@ -2322,7 +2180,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         // [FEATURE] [UI] [Contact Interaction Subform]
         // [SCENARIO 390586] Action "Create Interaction" of Contact Interaction Subform for company contact
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C"
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -2531,7 +2389,7 @@ codeunit 136208 "Marketing Interaction"
         FileExtension: Text[250];
     begin
         // [SCENARIO 412541] Segment with Correspondence Type = Email, Contact with no Email, Deliver = true should not be logged
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Template with Word attachment
         FileExtension := 'DOC';
@@ -2576,7 +2434,7 @@ codeunit 136208 "Marketing Interaction"
         FileExtension: Text[250];
     begin
         // [SCENARIO 412541] Segment with Correspondence Type = Fax, Contact with empty "Fax No", Deliver = true should not be logged
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Template with Word attachment
         FileExtension := 'DOC';
@@ -2619,12 +2477,11 @@ codeunit 136208 "Marketing Interaction"
         Contact: Record Contact;
         InteractionLogEntry: Record "Interaction Log Entry";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        EmailFeature: Codeunit "Email Feature";
         Segment: TestPage Segment;
         FileExtension: Text[250];
     begin
         // [SCENARIO 412541] Segment with Correspondence Type = Email, Contact with empty "Email", Deliver = false should be logged
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Template with Word attachment
         FileExtension := 'DOC';
@@ -2664,12 +2521,11 @@ codeunit 136208 "Marketing Interaction"
         Contact: Record Contact;
         InteractionLogEntry: Record "Interaction Log Entry";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        EmailFeature: Codeunit "Email Feature";
         Segment: TestPage Segment;
         FileExtension: Text[250];
     begin
         // [SCENARIO 412541] Segment with Correspondence Type = Fax, Contact with empty "Fax", Deliver = false should be logged
-        Initialize;
+        Initialize();
 
         // [GIVEN] Interaction Template with Word attachment
         FileExtension := 'DOC';
@@ -2706,19 +2562,11 @@ codeunit 136208 "Marketing Interaction"
     procedure LogSegmentWithWordTemplateAndSendAsAttachmentToggle()
     var
         SegmentHeader: Record "Segment Header";
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-        EmailFeature: Codeunit "Email Feature";
         Segment: TestPage Segment;
     begin
         // [SCENARIO] Log a segment with a Word template using Send As Attachment toggle, will attach document to email and not insert in body.
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         Initialize();
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount()
-        else begin
-            LibraryWorkflow.SetUpSMTPEmailSetup();
-            UpdateSMTPSetup();
-        end;
+        LibraryWorkflow.SetUpEmailAccount();
         // [GIVEN] Segment for email and Interaction Template with Word template and given wizard action
         PrepareSegmentForEmail(SegmentHeader, WizardAction::Open);
         SegmentHeader.Validate("Send Word Docs. as Attmt.", true);
@@ -2735,30 +2583,21 @@ codeunit 136208 "Marketing Interaction"
     [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandlerVerifyBody,CloseEmailEditorHandler')]
     procedure LogSegmentWithWordTemplateAndWizardActionOpen()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LogSegmentWithWordTemplateAndWizardAction(WizardAction::Open);
     end;
 
     [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler')]
     procedure LogSegmentWithWordTemplateAndWizardActionMerge()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LogSegmentWithWordTemplateAndWizardAction(WizardAction::"Merge");
     end;
 
     [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler')]
     procedure LogSegmentWithWordTemplateAndWizardActionEmpty()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         LogSegmentWithWordTemplateAndWizardAction(WizardAction::" ");
     end;
 
@@ -2767,18 +2606,12 @@ codeunit 136208 "Marketing Interaction"
         SegmentHeader: Record "Segment Header";
         InteractionLogEntry: Record "Interaction Log Entry";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        EmailFeature: Codeunit "Email Feature";
         Segment: TestPage Segment;
         ExpectedEntryNo: Integer;
     begin
         // [SCENARIO] User log segment and sends email with Word template using given wizard action
         Initialize();
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount()
-        else begin
-            LibraryWorkflow.SetUpSMTPEmailSetup();
-            UpdateSMTPSetup();
-        end;
+        LibraryWorkflow.SetUpEmailAccount();
 
         InteractionLogEntry.FindLast();
         ExpectedEntryNo := InteractionLogEntry."Entry No." + 1;
@@ -2805,8 +2638,8 @@ codeunit 136208 "Marketing Interaction"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Interaction");
         BindActiveDirectoryMockEvents;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -2853,7 +2686,7 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry.SetRange("Contact No.", ContactNo);
         InteractionLogEntry.SetRange("Interaction Group Code", InteractionGroupCode);
         InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplateCode);
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
         Attachment.Get(InteractionLogEntry."Attachment No.");
     end;
 
@@ -3061,7 +2894,7 @@ codeunit 136208 "Marketing Interaction"
 
         LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
         Contact.SetFilter("Salesperson Code", '<>''''');
-        Contact.FindFirst;
+        Contact.FindFirst();
         SegmentLine.Validate("Contact No.", Contact."No.");
         SegmentLine.Modify(true);
     end;
@@ -3100,11 +2933,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
-#if CLEAN17
         TempSegmentLine.LoadSegLineAttachment(false);
-#else
-        TempSegmentLine.LoadAttachment(false);
-#endif  
         TempSegmentLine.UpdateContentBodyTextInCustomLayoutAttachment(ContentBodyText);
     end;
 
@@ -3123,7 +2952,7 @@ codeunit 136208 "Marketing Interaction"
         SalutationFormula: Record "Salutation Formula";
     begin
         LibraryMarketing.CreateSalutationFormula(SalutationFormula, SalutationCode, LanguageCode, SalutationType);
-        SalutationFormula.Validate(Salutation, LibraryUtility.GenerateGUID);
+        SalutationFormula.Validate(Salutation, LibraryUtility.GenerateGUID());
         SalutationFormula.Modify();
     end;
 
@@ -3139,14 +2968,14 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry.SetRange("Contact No.", ContactNo);
         InteractionLogEntry.SetRange("Interaction Group Code", InteractionGroupCode);
         InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplateCode);
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
     end;
 
     local procedure FindInteractionLogEntryByDocument(var InteractionLogEntry: Record "Interaction Log Entry"; DocumentNo: Code[20]; DocumentType: Enum "Interaction Log Entry Document Type")
     begin
         InteractionLogEntry.SetRange("Document No.", DocumentNo);
         InteractionLogEntry.SetRange("Document Type", DocumentType);
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
     end;
 
     local procedure FindWordAttachment(): Integer
@@ -3156,7 +2985,7 @@ codeunit 136208 "Marketing Interaction"
         with Attachment do begin
             SetRange("Storage Type", "Storage Type"::Embedded);
             SetFilter("File Extension", StrSubstNo('%1|%2', 'DOC', 'DOCX'));
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -3167,7 +2996,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         with Language do begin
             SetFilter(Code, CodeFilter);
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -3182,13 +3011,13 @@ codeunit 136208 "Marketing Interaction"
     local procedure FindContactInteractionLogEntry(var InteractionLogEntry: Record "Interaction Log Entry"; ContactNo: Code[20])
     begin
         InteractionLogEntry.SetRange("Contact No.", ContactNo);
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
     end;
 
     local procedure FindIntLogEntryCommentLine(EntryNo: Integer; var InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line")
     begin
         InterLogEntryCommentLine.SetRange("Entry No.", EntryNo);
-        InterLogEntryCommentLine.FindFirst;
+        InterLogEntryCommentLine.FindFirst();
     end;
 
     local procedure GetAttachmentFilePath(AttachmentNo: Integer): Text
@@ -3327,7 +3156,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         MockSegmentLine(
           SegmentLine, InteractionTmplLanguage, MockContactNo(InteractionTmplLanguage."Language Code"),
-          MockSalesPersonCode, WorkDate, LibraryUtility.GenerateGUID);
+          MockSalesPersonCode, WorkDate, LibraryUtility.GenerateGUID());
     end;
 
     local procedure MockSegmentLine(var SegmentLine: Record "Segment Line"; InteractionTmplLanguage: Record "Interaction Tmpl. Language"; ContactNo: Code[20]; SalespersonCode: Code[10]; NewDate: Date; NewDescription: Text[50])
@@ -3425,7 +3254,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         LogSegment.SetSegmentNo(SegmentNo);
         LogSegment.UseRequestPage(false);
-        LogSegment.RunModal;
+        LogSegment.RunModal();
     end;
 
     local procedure SetEmailDraftInteractionTemplate(TemplateCode: Code[10])
@@ -3482,7 +3311,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
         with InteractionLogEntry do begin
-            FindLast;
+            FindLast();
             Assert.AreEqual(ExpectedEntryNo, "Entry No.", FieldCaption("Entry No."));
             Assert.AreEqual(SegmentLine."Contact No.", "Contact No.", FieldCaption("Contact No."));
             Assert.AreEqual(SegmentLine."Salesperson Code", "Salesperson Code", FieldCaption("Salesperson Code"));
@@ -3603,11 +3432,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         end;
 
         TempSegmentLine.CheckStatus;
-#if CLEAN17
         TempSegmentLine.FinishSegLineWizard(true);
-#else
-        TempSegmentLine.FinishWizard(true);
-#endif
     end;
 
     [ModalPageHandler]
@@ -3742,16 +3567,6 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure EmailDialogModalPageHandler(var EmailDialog: TestPage "Email Dialog")
-    begin
-        EmailDialog.SendTo.AssertEquals(LibraryVariableStorage.DequeueText);
-        EmailDialog.Subject.AssertEquals(LibraryVariableStorage.DequeueText);
-        // Assert.IsSubstring(EmailDialog."Attachment Name".Value, LibraryVariableStorage.DequeueText); // bug 397659
-        EmailDialog.Cancel.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
     begin
         EmailEditor.ToField.AssertEquals(LibraryVariableStorage.DequeueText);
@@ -3848,13 +3663,6 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure SimpleEmailDialogModalPageHandler(var EmailDialog: TestPage "Email Dialog")
-    begin
-        EmailDialog.Cancel.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure SimpleEmailEditorHandler(var EmailEditor: TestPage "Email Editor")
     begin
     end;
@@ -3895,7 +3703,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
     begin
         InteractionLogEntry.SetRange("Contact No.", ContactNo);
         Assert.RecordCount(InteractionLogEntry, 1);
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
         InteractionLogEntry.TestField("Correspondence Type", InteractionLogEntry."Correspondence Type"::" ");
         InteractionLogEntry.TestField("Document No.", DocumentNo);
     end;
@@ -3921,7 +3729,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
     begin
         Opportunity.SetRange("Contact No.", Contact."No.");
         Opportunity.SetRange("Salesperson Code", Contact."Salesperson Code");
-        Opportunity.FindLast;
+        Opportunity.FindLast();
         Opportunity.TestField("No.", OpportunityNo);
     end;
 
@@ -3991,14 +3799,6 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         CanRunWordModified := true;
     end;
 #endif
-    local procedure UpdateSMTPSetup()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-    begin
-        SMTPMailSetup.Get();
-        SMTPMailSetup."User ID" := 'test@test.com';
-        SMTPMailSetup.Modify();
-    end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)

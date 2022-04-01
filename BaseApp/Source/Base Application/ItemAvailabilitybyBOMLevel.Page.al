@@ -1,4 +1,4 @@
-﻿page 5871 "Item Availability by BOM Level"
+page 5871 "Item Availability by BOM Level"
 {
     Caption = 'Item Availability by BOM Level';
     DeleteAllowed = false;
@@ -433,7 +433,6 @@
         DemandDate: Date;
         IsCalculated: Boolean;
         ShowTotalAvailability: Boolean;
-        ShowBy: Option Item,Assembly,Production;
         Text000: Label 'Could not find items with BOM levels.';
         Text001: Label 'There are no warnings.';
         [InDataSet]
@@ -444,6 +443,7 @@
         ItemFilter: Code[250];
         LocationFilter: Code[250];
         VariantFilter: Code[250];
+        ShowBy: Option Item,Assembly,Production;
 
     procedure InitItem(var NewItem: Record Item)
     begin
@@ -486,7 +486,7 @@
         case ShowBy of
             ShowBy::Item:
                 begin
-                    Item.FindFirst;
+                    Item.FindFirst();
                     IsHandled := false;
                     OnRefreshPageOnBeforeCheckItemHasBOM(Item, IsHandled);
                     if not IsHandled then

@@ -100,7 +100,7 @@ page 5730 "Item Categories"
         ItemCategoryManagement.CheckPresentationOrder();
     end;
 
-    var
+    protected var
         ItemCategoryManagement: Codeunit "Item Category Management";
         StyleTxt: Text;
 

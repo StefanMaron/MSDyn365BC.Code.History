@@ -23,7 +23,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEvent3: Record "Workflow Event";
         WorkflowEventHierarchies: TestPage "Workflow Event Hierarchies";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -60,7 +60,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombination: Record "WF Event/Response Combination";
         WorkflowEventHierarchies: TestPage "Workflow Event Hierarchies";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -91,7 +91,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombination: Record "WF Event/Response Combination";
         WorkflowEventHierarchies: TestPage "Workflow Event Hierarchies";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -121,7 +121,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEventHierarchies: TestPage "Workflow Event Hierarchies";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         for i := 1 to 24 do begin
@@ -164,7 +164,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombination: Record "WF Event/Response Combination";
         WorkflowEventHierarchies: TestPage "Workflow Event Hierarchies";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -207,7 +207,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEvent2: Record "Workflow Event";
         WorkflowEventHierarchies: TestPage "Workflow Event Hierarchies";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -243,7 +243,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowResponse2: Record "Workflow Response";
         WFEventResponseCombinations: TestPage "WF Event/Response Combinations";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -280,7 +280,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombination: Record "WF Event/Response Combination";
         WFEventResponseCombinations: TestPage "WF Event/Response Combinations";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -315,7 +315,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombination: Record "WF Event/Response Combination";
         WFEventResponseCombinations: TestPage "WF Event/Response Combinations";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -350,7 +350,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombinations: TestPage "WF Event/Response Combinations";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -399,7 +399,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombination: Record "WF Event/Response Combination";
         WFEventResponseCombinations: TestPage "WF Event/Response Combinations";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -440,7 +440,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowResponse2: Record "Workflow Response";
         WFEventResponseCombinations: TestPage "WF Event/Response Combinations";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -478,7 +478,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowResponse2: Record "Workflow Response";
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnyEvent(WorkflowEvent1);
@@ -548,7 +548,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
-        Initialize;
+        Initialize();
         WorkflowEventHandling.CreateEventsLibrary;
         WorkflowResponseHandling.CreateResponsesLibrary;
         WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetReceiveFromOCRCode,
@@ -570,7 +570,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
-        Initialize;
+        Initialize();
         WorkflowEventHandling.CreateEventsLibrary;
         WorkflowResponseHandling.CreateResponsesLibrary;
         WorkflowEvent.FindSet();
@@ -610,7 +610,7 @@ codeunit 134207 "WF Supported Combinations Test"
     begin
         // [FEATURE] [Field Length]
         // [SCENARIO 334262] WF Event/Response Combinations page shows Captions of MAXIMUM(WorkflowResponse.Description) length.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created two WorkflowEvents and WorkflowResponses, cross-connected
         CreateAnyEvent(WorkflowEvent1);
@@ -637,7 +637,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowResponse: Record "Workflow Response";
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         WorkflowEvent.DeleteAll();
         WorkflowResponse.DeleteAll();
         WFEventResponseCombination.DeleteAll();
@@ -646,8 +646,8 @@ codeunit 134207 "WF Supported Combinations Test"
     local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event")
     begin
         WorkflowEvent.Init();
-        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
-        WorkflowEvent.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
+        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
+        WorkflowEvent.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";
         WorkflowEvent."Request Page ID" := REPORT::"Workflow Event Simple Args";
         WorkflowEvent.Insert(true);
@@ -656,8 +656,8 @@ codeunit 134207 "WF Supported Combinations Test"
     local procedure CreateAnyResponse(var WorkflowResponse: Record "Workflow Response")
     begin
         WorkflowResponse.Init();
-        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
-        WorkflowResponse.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
+        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID();
+        WorkflowResponse.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";
         WorkflowResponse.Insert(true);
     end;
@@ -665,7 +665,7 @@ codeunit 134207 "WF Supported Combinations Test"
     local procedure CreateLongResponse(var WorkflowResponse: Record "Workflow Response")
     begin
         WorkflowResponse.Init();
-        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
+        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID();
         WorkflowResponse.Description := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(WorkflowResponse.Description)), 1);
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";
         WorkflowResponse.Insert(true);

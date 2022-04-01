@@ -32,7 +32,7 @@ codeunit 134074 "ERM Record Link Management"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 375015] Posted Sales Order with notification to a user produces record links without notification flag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with notification note ("Record Link".Notify = TRUE)
         CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order);
@@ -59,7 +59,7 @@ codeunit 134074 "ERM Record Link Management"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 375015] Posted Purchase Order with notification to a user produces record link without notification flag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with notification note ("Record Link".Notify = TRUE)
         CreatePurchaseOrder(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -86,7 +86,7 @@ codeunit 134074 "ERM Record Link Management"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 375015] Posted Service Order with notification to a user produces record link without notification flag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with notification note ("Record Link".Notify = TRUE)
         UpdateServiceMgtSetup(true, true);
@@ -115,7 +115,7 @@ codeunit 134074 "ERM Record Link Management"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 375015] Archived Sales Order with notification to a user produces record links without notification flag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with notification note ("Record Link".Notify = TRUE)
         CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order);
@@ -140,7 +140,7 @@ codeunit 134074 "ERM Record Link Management"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 375015] Archived Purchase Order with notification to a user produces record link without notification flag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with notification note ("Record Link".Notify = TRUE)
         CreatePurchaseOrder(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -166,7 +166,7 @@ codeunit 134074 "ERM Record Link Management"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 375015] Restored from archive Sales Order with notification to a user produces record link without notification flag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with notification note ("Record Link".Notify = TRUE)
         CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order);
@@ -192,14 +192,14 @@ codeunit 134074 "ERM Record Link Management"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Record Link Management");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Record Link Management");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Record Link Management");
@@ -254,56 +254,56 @@ codeunit 134074 "ERM Record Link Management"
     begin
         SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure FindSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header")
     begin
         SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
     end;
 
     local procedure FindSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")
     begin
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
     end;
 
     local procedure FindPurchaseInvoiceHeader(var PurchInvHeader: Record "Purch. Inv. Header"; PurchaseHeader: Record "Purchase Header")
     begin
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
     end;
 
     local procedure FindPurchaseReceiptHeader(var PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchaseHeader: Record "Purchase Header")
     begin
         PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
     end;
 
     local procedure FindPurchaseHeaderArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
     end;
 
     local procedure FindServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceHeader: Record "Service Header")
     begin
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
         ServiceInvoiceHeader.SetRange("Customer No.", ServiceHeader."Customer No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure FindServiceShipmentHeader(var ServiceShipmentHeader: Record "Service Shipment Header"; ServiceHeader: Record "Service Header")
     begin
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
         ServiceShipmentHeader.SetRange("Customer No.", ServiceHeader."Customer No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
     end;
 
     local procedure SetupNotificationOnRecordLink(SourceRecord: Variant; NewNotification: Boolean)
@@ -312,9 +312,9 @@ codeunit 134074 "ERM Record Link Management"
         RecRef: RecordRef;
     begin
         RecRef.GetTable(SourceRecord);
-        RecRef.AddLink(LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        RecRef.AddLink(LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
         RecordLink.SetRange("Record ID", RecRef.RecordId);
-        RecordLink.FindFirst;
+        RecordLink.FindFirst();
         RecordLink.Notify := NewNotification;
         RecordLink."To User ID" := UserId;
         RecordLink.Modify();
@@ -338,7 +338,7 @@ codeunit 134074 "ERM Record Link Management"
         RecRef.GetTable(RecVar);
         RecordLink.SetRange("To User ID", UserId);
         RecordLink.SetRange("Record ID", RecRef.RecordId);
-        RecordLink.FindFirst;
+        RecordLink.FindFirst();
 
         Assert.AreEqual(1, RecordLink.Count, RecordLinkCountErr);
         Assert.AreEqual(ExpectedNotification, RecordLink.Notify, RecordLink.FieldCaption(Notify));

@@ -62,7 +62,7 @@ table 7701 "Miniform Line"
                     Field.Reset();
                     Field.SetRange(TableNo, "Table No.");
                     Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-                    Field.FindFirst;
+                    Field.FindFirst();
                 end else
                     Validate("Field No.", 0);
             end;

@@ -134,7 +134,7 @@ codeunit 2380 "O365 Email Customer Data"
     begin
         Field.SetRange(TableNo, TableNo);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 if ShouldFieldBeExported(TableNo, Field."No.") then
                     if not FieldExistsInBuffer(Field."No.") then
@@ -188,7 +188,7 @@ codeunit 2380 "O365 Email Customer Data"
     var
         "Field": Record "Field";
     begin
-        if TempLineNumberBuffer.FindSet then
+        if TempLineNumberBuffer.FindSet() then
             repeat
                 if TempLineNumberBuffer."New Line Number" > 0 then begin
                     Field.Get(TableNo, TempLineNumberBuffer."New Line Number");
@@ -204,7 +204,7 @@ codeunit 2380 "O365 Email Customer Data"
     var
         "Field": Record "Field";
     begin
-        if TempLineNumberBuffer.FindSet then
+        if TempLineNumberBuffer.FindSet() then
             repeat
                 if TempLineNumberBuffer."New Line Number" > 0 then begin
                     Field.Get(TableNo, TempLineNumberBuffer."New Line Number");
@@ -220,7 +220,7 @@ codeunit 2380 "O365 Email Customer Data"
     var
         FieldRef: FieldRef;
     begin
-        if TempLineNumberBuffer.FindSet then
+        if TempLineNumberBuffer.FindSet() then
             repeat
                 if TempLineNumberBuffer."New Line Number" > 0 then begin
                     FieldRef := RecRef.Field(TempLineNumberBuffer."New Line Number");
@@ -238,7 +238,7 @@ codeunit 2380 "O365 Email Customer Data"
     var
         FieldRef: FieldRef;
     begin
-        if TempLineNumberBuffer.FindSet then
+        if TempLineNumberBuffer.FindSet() then
             repeat
                 if TempLineNumberBuffer."New Line Number" > 0 then begin
                     FieldRef := RecRef.Field(TempLineNumberBuffer."New Line Number");
@@ -405,7 +405,7 @@ codeunit 2380 "O365 Email Customer Data"
 
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer."No.");
-        if not ContactBusinessRelation.FindFirst then
+        if not ContactBusinessRelation.FindFirst() then
             exit;
         // NB. There can only be one contact for one customer
         with Contact do begin
@@ -459,7 +459,7 @@ codeunit 2380 "O365 Email Customer Data"
 
         with SalesInvoiceHeader do begin
             SetRange("Sell-to Customer No.", Customer."No.");
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
 
             AddColumnToList(ColNo, FieldNo("No."), '');
@@ -504,7 +504,7 @@ codeunit 2380 "O365 Email Customer Data"
 
         with SalesInvoiceLine do begin
             SetRange("Sell-to Customer No.", Customer."No.");
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
 
             AddColumnToList(ColNo, FieldNo("Posting Date"), '');
@@ -547,7 +547,7 @@ codeunit 2380 "O365 Email Customer Data"
 
         with CustLedgerEntry do begin
             SetRange("Customer No.", Customer."No.");
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
 
             AddColumnToList(ColNo, FieldNo("Document Date"), '');
@@ -604,7 +604,7 @@ codeunit 2380 "O365 Email Customer Data"
         with SalesHeader do begin
             SetRange("Document Type", DocumentType);
             SetRange("Sell-to Customer No.", Customer."No.");
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
 
             AddColumnToList(ColNo, FieldNo("No."), '');
@@ -652,7 +652,7 @@ codeunit 2380 "O365 Email Customer Data"
         with SalesLine do begin
             SetRange("Sell-to Customer No.", Customer."No.");
             SetRange("Document Type", DocumentType);
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
 
             AddColumnToList(Colno, FieldNo("Posting Date"), '');

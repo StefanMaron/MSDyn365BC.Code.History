@@ -30,8 +30,8 @@ codeunit 137211 "SCM Update Unit Cost"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Update Unit Cost");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();
@@ -50,7 +50,7 @@ codeunit 137211 "SCM Update Unit Cost"
         ExpectedCostAmount: Decimal;
     begin
         // Setup. Create Production BOM Structure.
-        Initialize;
+        Initialize();
         SetupProdItem(Item, ParentCostingMethod, CompCostingMethod);
 
         // Create and Refresh Released Production Order.
@@ -217,7 +217,7 @@ codeunit 137211 "SCM Update Unit Cost"
         UpdateUnitCost.InitializeRequest(CalcMethod, UpdateReservations);
         UpdateUnitCost.SetTableView(ProductionOrder);
         UpdateUnitCost.UseRequestPage(false);
-        UpdateUnitCost.RunModal;
+        UpdateUnitCost.RunModal();
     end;
 
     [Normal]
@@ -232,7 +232,7 @@ codeunit 137211 "SCM Update Unit Cost"
         ProdOrderCost := 0;
 
         // Add actual component cost.
-        if ProdOrderComponent.FindSet then
+        if ProdOrderComponent.FindSet() then
             repeat
                 Item.Get(ProdOrderComponent."Item No.");
                 ProdOrderCost += Item."Unit Cost" * ProdOrderComponent."Expected Qty. (Base)";
@@ -254,7 +254,7 @@ codeunit 137211 "SCM Update Unit Cost"
         ReservationEntry.SetRange("Source Type", 5406);
         ReservationEntry.SetRange("Source ID", ProductionOrder."No.");
         ReservationEntry.SetRange("Item No.", ProductionOrder."Source No.");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
 
         // Find Sales side reservation entry.
         ReservationEntry.Get(ReservationEntry."Entry No.", false);
@@ -262,7 +262,7 @@ codeunit 137211 "SCM Update Unit Cost"
         // Find Sales Line based on reservation info.
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", ReservationEntry."Source ID");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         Assert.AreNearlyEqual(ExpectedUnitCost, SalesLine."Unit Cost (LCY)", LibraryERM.GetUnitAmountRoundingPrecision,
           'Wrong unit cost in reserved sales line.');
@@ -273,7 +273,7 @@ codeunit 137211 "SCM Update Unit Cost"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 }
 

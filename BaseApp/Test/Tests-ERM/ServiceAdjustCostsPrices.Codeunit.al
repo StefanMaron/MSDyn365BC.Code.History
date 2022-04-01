@@ -29,8 +29,8 @@ codeunit 136124 "Service Adjust Costs/Prices"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Adjust Costs/Prices");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();
@@ -173,7 +173,7 @@ codeunit 136124 "Service Adjust Costs/Prices"
 
     local procedure CreateResource(var Resource: Record Resource)
     begin
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
     end;
 
@@ -186,7 +186,7 @@ codeunit 136124 "Service Adjust Costs/Prices"
         AdjustResourceCostsPrices.SetTableView(Resource);
         AdjustResourceCostsPrices.InitializeRequest(Selection, AdjFactor, '');
         AdjustResourceCostsPrices.UseRequestPage(false);
-        AdjustResourceCostsPrices.RunModal;
+        AdjustResourceCostsPrices.RunModal();
     end;
 }
 

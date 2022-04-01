@@ -83,7 +83,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify Consumption Entry after post Consumption for the Child Item for Released Production Order.
         // Setup.
-        Initialize;
+        Initialize();
         PostJournalsForReleasedProductionOrderWithLocationAndBin(false);  // Post Output FALSE.
     end;
 
@@ -93,7 +93,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify Output Entry after post Output of the Parent Item for Released Production Order.
         // Setup.
-        Initialize;
+        Initialize();
         PostJournalsForReleasedProductionOrderWithLocationAndBin(true);  // Post Output TRUE.
     end;
 
@@ -152,7 +152,7 @@ codeunit 137079 "SCM Production Order III"
         QuantityPer: Integer;
     begin
         // Setup: Update Components at a Location. Create Parent and Child Items in a Production BOM and certify it. Update Inventory for the Child Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationRed.Code);
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         QuantityPer := LibraryRandom.RandInt(5);
@@ -184,7 +184,7 @@ codeunit 137079 "SCM Production Order III"
         ComponentsAtLocation: Code[10];
     begin
         // Setup: Update Components at blank Location. Create Parent and Child Items in a Production BOM and certify it. Update Inventory for the Child Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation('');  // Using blank Location.
         Quantity := LibraryRandom.RandInt(10);
         QuantityPer := LibraryRandom.RandInt(5);
@@ -214,7 +214,7 @@ codeunit 137079 "SCM Production Order III"
         Quantity: Decimal;
     begin
         // Setup: Craete Item. Update Order Tracking Policy on Item. Create and release Sales Order with multiple Sales Lines.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         UpdateOrderTrackingPolicyOnItem(Item, Item."Order Tracking Policy"::"Tracking & Action Msg.");
@@ -237,7 +237,7 @@ codeunit 137079 "SCM Production Order III"
         Quantity: Decimal;
     begin
         // Setup: Create Item. Update Order Tracking Policy on Item. Update Planning parameters on Item.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         UpdateOrderTrackingPolicyOnItem(Item, Item."Order Tracking Policy"::"Tracking & Action Msg.");
@@ -260,7 +260,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Due Date, Action Message and Quantity on Requisition Line created for Maximum Quantity Item.
         // Setup.
-        Initialize;
+        Initialize();
         CalcPlanReqWkshWithMaximumQuantityItemForEqualDemand(false);  // Accept and Carry Out Action FALSE.
     end;
 
@@ -271,7 +271,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Quantity on Purchase Line created for Maximum Quantity Item after Calc. Plan and Carry Out Action.
         // Setup.
-        Initialize;
+        Initialize();
         CalcPlanReqWkshWithMaximumQuantityItemForEqualDemand(true);  // Accept and Carry Out Action TRUE.
     end;
 
@@ -309,7 +309,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Requisition Line after Calculate Plan on Planning Worksheet with demand generated from Blanket Order with Location.
         // Setup.
-        Initialize;
+        Initialize();
         CalcPlanOnPlanWkshForDemandFromBlanketOrderWithLocation(false);  // Accept and Carry Out FALSE.
     end;
 
@@ -319,7 +319,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Prod. Order Line after Calculate Plan and Carry Out on Planning Worksheet with demand generated from Blanket Order with Location.
         // Setup.
-        Initialize;
+        Initialize();
         CalcPlanOnPlanWkshForDemandFromBlanketOrderWithLocation(true);  // Accept and Carry Out TRUE.
     end;
 
@@ -370,7 +370,7 @@ codeunit 137079 "SCM Production Order III"
         Quantity: Integer;
     begin
         // Setup: Update Sales and Receivables setup. Create Item with Planning parameters with Reordering Policy of Lot for Lot. Create Sales Order from Blanket Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(OldStockoutWarning, OldCreditWarnings, false, SalesReceivablesSetup."Credit Warnings"::"No Warning");
         CreateItem(Item);
         UpdateItemParametersForPlanning(Item, Item."Replenishment System"::"Prod. Order", Item."Reordering Policy"::"Lot-for-Lot");
@@ -402,7 +402,7 @@ codeunit 137079 "SCM Production Order III"
         Quantity: Integer;
     begin
         // Setup: Create Item with Planning parameters with Reordering Policy of Lot for Lot. Create a Blanket Order.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         UpdateItemParametersForPlanning(Item, Item."Replenishment System"::Purchase, Item."Reordering Policy"::"Lot-for-Lot");
         Quantity := LibraryRandom.RandInt(10);
@@ -433,7 +433,7 @@ codeunit 137079 "SCM Production Order III"
         ReservationEntry: Record "Reservation Entry";
     begin
         // Setup: Create Item with Item Tracking Code and Routing. Create and refresh Released Production Order.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item);
         CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), '', '');
@@ -454,7 +454,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Purchase Line created after Calculate Subcontracts and Carry Out on Subcontracting Worksheet.
         // Setup.
-        Initialize;
+        Initialize();
         CalcSubcontractOrderForReleasedProductionOrderWithTracking(false);  // Assign Tracking on Purchase Line FALSE.
     end;
 
@@ -465,7 +465,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Tracking error on Purchase Line after Calculate Subcontracts and Carry Out.
         // Setup.
-        Initialize;
+        Initialize();
         CalcSubcontractOrderForReleasedProductionOrderWithTracking(true);  // Assign Tracking on Purchase Line TRUE.
     end;
 
@@ -508,7 +508,7 @@ codeunit 137079 "SCM Production Order III"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Item with Item Tracking Code and Routing. Create and refresh Released Production Order.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item);
         CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(100, 2), '', '');
@@ -537,7 +537,7 @@ codeunit 137079 "SCM Production Order III"
         ReservationEntry: Record "Reservation Entry";
     begin
         // Setup: Create Item with Item Tracking Code and Routing. Create and refresh Released Production Order with Location.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item);
         CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), LocationBlue.Code, '');
@@ -561,7 +561,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         // Setup: Create Item. Create Routing Setup and update Routing on Item. Create a Released Production Order.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateRoutingAndUpdateItem(Item, WorkCenter);
         LibraryManufacturing.CreateProductionOrder(
@@ -586,7 +586,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         // Setup: Create parent and child Items, create Production BOM. Create Routing Setup and update Routing on Item. Create a Firm Planned Production Order.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateRoutingAndUpdateItem(Item, WorkCenter);
         LibraryManufacturing.CreateProductionOrder(
@@ -609,7 +609,7 @@ codeunit 137079 "SCM Production Order III"
         // [SCENARIO] Verify Cost Amount Actual on Production Order Statistics page after post Consumption for Released Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostJournalsForReleasedProductionOrder(false);  // Post Output FALSE.
     end;
 
@@ -621,7 +621,7 @@ codeunit 137079 "SCM Production Order III"
         // [SCENARIO] Verify Cost Amount Actual on Production Order Statistics page after post Consumption and Output for Released Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         PostJournalsForReleasedProductionOrder(true);  // Post Output TRUE.
     end;
 
@@ -672,7 +672,7 @@ codeunit 137079 "SCM Production Order III"
         FamilyItemQuantity: Decimal;
     begin
         // Setup: Create parent and child Items for a Family. Update Inventory for child Items. Create a Family.
-        Initialize;
+        Initialize();
         FamilyItemQuantity := LibraryRandom.RandDec(10, 2);
         CreateItemHierarchyForFamily(ParentItem, ParentItem2, ChildItem, ChildItem2, LibraryRandom.RandInt(5));
         CreateFamily(Family, ParentItem."No.", ParentItem2."No.", FamilyItemQuantity);
@@ -704,7 +704,7 @@ codeunit 137079 "SCM Production Order III"
         // [SCENARIO] Verify the correct Total Actual Cost on Finished Production Order with source type Family.
 
         // Setup: Create parent and child Items for a Family. Update Inventory for child Items. Create a Family. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         QuantityPer := LibraryRandom.RandInt(5);
         FamilyItemQuantity := LibraryRandom.RandInt(10);
         CreateItemHierarchyForFamily(ParentItem, ParentItem2, ChildItem, ChildItem2, QuantityPer);
@@ -736,7 +736,7 @@ codeunit 137079 "SCM Production Order III"
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
         // Setup: Create Item with multiple Item Unit of Measure, create and release Purchase Order.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateMultipleItemUnitOfMeasureSetup(Item, ItemUnitOfMeasure, ItemUnitOfMeasure2);
 
@@ -760,7 +760,7 @@ codeunit 137079 "SCM Production Order III"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Setup: Create Item with multiple Item Unit of Measure. Create and release Purchase Order, create Whse Receipt.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateMultipleItemUnitOfMeasureSetup(Item, ItemUnitOfMeasure, ItemUnitOfMeasure2);
         CreateWhseReceiptFromPurchaseOrder(PurchaseHeader, Item."No.", LocationWhite.Code, LibraryRandom.RandDec(10, 2));
@@ -791,7 +791,7 @@ codeunit 137079 "SCM Production Order III"
         ComponentsAtLocation: Code[10];
     begin
         // Setup: Update Components at Location. Create parent and child Items with multiple Item Unit of Measure in a Prod. BOM, create and release Purchase Order. Create and post Warehouse Receipt.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandInt(100);
         CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(5));
@@ -831,7 +831,7 @@ codeunit 137079 "SCM Production Order III"
         Quantity: Decimal;
     begin
         // Setup: Create parent and child Items with multiple Item Unit of Measure in a Prod. BOM, create and release Purchase Order. Create and post Warehouse Receipt.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);
         CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(5));
         CreateMultipleItemUnitOfMeasureSetup(ChildItem, ItemUnitOfMeasure, ItemUnitOfMeasure2);
@@ -864,7 +864,7 @@ codeunit 137079 "SCM Production Order III"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateAndRefreshProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandDec(100, 2), LocationWhite.Code,
@@ -889,7 +889,7 @@ codeunit 137079 "SCM Production Order III"
         Quantity: Decimal;
     begin
         // Setup: Update Location Setup, update Components at Location.
-        Initialize;
+        Initialize();
         AlwaysCreatePickLine := UpdateLocationSetup(LocationWhite, true);  // Always Create Pick Line as TRUE.
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
 
@@ -927,7 +927,7 @@ codeunit 137079 "SCM Production Order III"
         Quantity: Decimal;
     begin
         // Setup: Update Components at a Location. Create parent and multiple components in a Production BOM and certify it. Update Inventory for component Items. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationSilver.Code);
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
         Quantity := LibraryRandom.RandInt(100);
@@ -968,7 +968,7 @@ codeunit 137079 "SCM Production Order III"
         Quantity: Decimal;
     begin
         // Setup: Update Components at a Location. Create parent and multiple components in a Production BOM and certify it. Update Inventory for component Items. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationSilver.Code);
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
         Quantity := LibraryRandom.RandInt(100);
@@ -1006,7 +1006,7 @@ codeunit 137079 "SCM Production Order III"
         WorkCenter: Record "Work Center";
     begin
         // Setup: Create Parent and Child Items in Certified Production BOM. Update Flushing method on child Item. Update Inventory for the Child Item. Create Routing. Create and Refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(5));
         UpdateFlushingMethodOnItem(ChildItem, ChildItem."Flushing Method"::Backward);
         CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(10, 2) + 100, '', '');  // Large Component Quantity is required.
@@ -1034,7 +1034,7 @@ codeunit 137079 "SCM Production Order III"
         // [SCENARIO] Verify Finished Quantity is correct on Prod. Order Line with component Flushing Method = Backward, after Prod. Order change Status from Released to Finished.
 
         // Setup: Create Parent and Child Items in Certified Production BOM. Update Flushing method on child Item. Update Inventory for the Child Item. Create Routing. Create and Refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(5));
         UpdateFlushingMethodOnItem(ChildItem, ChildItem."Flushing Method"::Backward);
         CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(10, 2) + 100, '', '');  // Large Component Quantity is required.
@@ -1060,7 +1060,7 @@ codeunit 137079 "SCM Production Order III"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create Parent and Child Items in Certified Production BOM. Update Backward Flushing method on child Item. Create and post Purchase Order for Child Item. Create and Refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateProdOrderItemSetupWithOutputJournalAndExplodeRouting(Item, ChildItem, ProductionOrder);
 
         // Exercise: Post the negative Output for the Production Order.
@@ -1083,7 +1083,7 @@ codeunit 137079 "SCM Production Order III"
         // [SCENARIO] Verify that Cost Amount is correct in Value Entry after Production Order post Output and change status from Released to Finished, child item has Flushing Method = Backward.
 
         // Setup: Create Parent and Child Items in Certified Production BOM. Update Backward Flushing method on child Item. Create and post Purchase Order for Child Item. Create and Refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateProdOrderItemSetupWithOutputJournalAndExplodeRouting(Item, ChildItem, ProductionOrder);
 
         // Exercise: Change Status from Released to Finished.
@@ -1106,7 +1106,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Setup: Create parent and child Items in a Certified Production BOM. Create Certified Production BOM version with Copy Version and certify it. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(5));
         CreateCertifiedProductionBOMVersionWithCopyBOM(Item."Production BOM No.", Item."Base Unit of Measure");
         CreateAndRefreshProductionOrder(
@@ -1133,7 +1133,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Setup: Update Location Setup. Create parent and child Items in a Production BOM and certify it. Update Inventory for Child Item. Create and refresh a Released Production Order.
         // Create Warehouse Pick from the Released Production Order.
-        Initialize;
+        Initialize();
         AlwaysCreatePickLine := UpdateLocationSetup(LocationWhite, true);  // Always Create Pick Line as TRUE.
         Quantity := LibraryRandom.RandInt(100);
         CreateItemsSetup(Item, ChildItem, 1);  // Value required to avoid Bin Code mismatch.
@@ -1167,7 +1167,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Setup: Update Location Setup. Create parent and child Items in a Production BOM and certify it. Update Inventory for Child Item. Create and refresh a Released Production Order.
         // Create Warehouse Pick from the Released Production Order.
-        Initialize;
+        Initialize();
         AlwaysCreatePickLine := UpdateLocationSetup(LocationWhite, true);  // Always Create Pick Line as TRUE.
         Quantity := LibraryRandom.RandInt(100);
         CreateItemsSetup(Item, ChildItem, 1);  // Value required to avoid Bin Code mismatch.
@@ -1205,7 +1205,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Movement Warehouse Entries created after create Whse Pick with Child Item Flushing method Pick + Backward.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndRegisterWhsePickForProductionOrderWithItemFlushingPickAndBackward(false);  // Register Pick FALSE.
     end;
 
@@ -1215,7 +1215,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Movement Warehouse Entries created after Register Whse Pick with Child Item Flushing method Pick + Backward.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndRegisterWhsePickForProductionOrderWithItemFlushingPickAndBackward(true);  // Register Pick TRUE.
     end;
 
@@ -1270,7 +1270,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Movement Warehouse Entries created after post Whse Receipt for Item with Backward Flushing method.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndRegisterWhsePutAwayForProductionOrderWithItemFlushingBackward(false);  // Register Put Away FALSE.
     end;
 
@@ -1280,7 +1280,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Verify the Movement Warehouse Entries created after Register Whse Put Away for Item with Backward Flushing method.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndRegisterWhsePutAwayForProductionOrderWithItemFlushingBackward(true);  // Register Put Away TRUE.
     end;
 
@@ -1334,7 +1334,7 @@ codeunit 137079 "SCM Production Order III"
         // [SCENARIO] Verify that Value Entries are correct for Finished Production Order if Prod. Order Line is updated with new UOM, then Production Journal posted, then status changed from Released to Finished.
 
         // Setup: Create parent and child Items in a Production BOM and certify it. Update Overhead rate, Unit of measure and Quantity per unit of measure on Parent Item. Create and Post Purchase Order as Receive.
-        Initialize;
+        Initialize();
         UpdateInventorySetup(InventorySetup);
         CreateItemsSetup(ParentItem, ChildItem, LibraryRandom.RandInt(5));
         UpdateItemOverheadRate(ParentItem);
@@ -1378,7 +1378,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Test that after changing VAT bus posting group from Purchase Header created from subcontacting worksheet, Purchase line should not be updated with Item card.
         // Setup: Create Item. Create Routing and update on Item.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), '', '');
@@ -1424,7 +1424,7 @@ codeunit 137079 "SCM Production Order III"
         Location: Record Location;
     begin
         // Setup: Create Production Item
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         if HasRouting then begin
@@ -1509,7 +1509,7 @@ codeunit 137079 "SCM Production Order III"
         WorkCenter: Record "Work Center";
     begin
         // Setup: Create Production Item
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateRoutingAndUpdateItem(Item, WorkCenter); // Set Routing No. for Item
         FindLastRoutingLine(RoutingLine, Item."Routing No."); // The Operation No. for last routing line is needed when posting output with negative quantity
@@ -1608,7 +1608,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 266675] When a user posts reversed output with serial no. and does not set an entry to apply, the program finds the sole original output with the same serial no. and populates "Applies-to Entry" field.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Serial no.-tracked item "I".
         LibraryItemTracking.CreateSerialItem(Item);
@@ -1655,7 +1655,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 266675] When a user posts reversed output with item tracking, the program does not populate "Applies-to Entry" automatically in case the original output entry cannot be selected unambiguously.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I".
         CreateItemWithItemTrackingCode(Item);
@@ -1665,7 +1665,7 @@ codeunit 137079 "SCM Production Order III"
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", 2 * LibraryRandom.RandInt(10), '', '');
 
         // [GIVEN] Post two output entries with item "I" and lot "L", each output for "Q" pcs.
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         for i := 1 to 2 do begin
             CreateOutputJournalWithExplodeRouting(ItemJournalLine, ProductionOrder."No.");
             ItemJournalLine.Validate(Quantity, ProductionOrder.Quantity / 2);
@@ -1706,7 +1706,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 266675] When a user posts reversed output with item tracking, the program does not populate "Applies-to Entry" automatically in case item tracking in the original output does not match.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I".
         CreateItemWithItemTrackingCode(Item);
@@ -1720,7 +1720,7 @@ codeunit 137079 "SCM Production Order III"
 
         // [GIVEN] Create a reversed line in the output journal with item = "I", quantity = "-Q", blank "Applies-to Entry" and new lot no. = "L2".
         LibraryVariableStorage.Enqueue(ItemTrackingMode::SetValue);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(-ProductionOrder.Quantity);
         CreateReversedOutputJournalLine(
@@ -1750,7 +1750,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 266675] When a user posts reversed output with item tracking, the program does not populate "Applies-to Entry" automatically in case the remaining quantity in the original output does not suffice for full application.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I".
         CreateItemWithItemTrackingCode(Item);
@@ -1796,7 +1796,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 266675] When a user posts reversed output with item tracking, the program does not populate "Applies-to Entry" automatically in case the original output was posted for a different prod. order line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item "I".
         CreateItemWithItemTrackingCode(Item);
@@ -1869,7 +1869,7 @@ codeunit 137079 "SCM Production Order III"
         // Test to verify Output Quantity in Production Journal is correct with setting Fixed Scrap Quantity and Scrap Factor % in Routing.
 
         // Setup: Create Routing with Item. Set "Scrap Factor %" and "Fixed Scrap Quantity" for Routing Lines.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateRoutingWithScrapAndFlushingMethod(
           Item, WorkCenter."Flushing Method"::Manual, true, LibraryRandom.RandDec(10, 2), LibraryRandom.RandInt(5));
@@ -1905,7 +1905,7 @@ codeunit 137079 "SCM Production Order III"
         UnitCost: Decimal;
     begin
         // Test to verify Capacity Cost should be recognized in Production order Statistics as Actual Cost when posting output journal with Output Quantity = 0.
-        Initialize;
+        Initialize();
 
         // Setup: Create and refresh release Production Order with setting blank Location code
         LibraryInventory.CreateItem(Item);
@@ -1942,7 +1942,7 @@ codeunit 137079 "SCM Production Order III"
         // in Prod. Order Component with Item Flushing Method is Pick + Backward.
 
         // Setup: Create Item with BOM and Routing. Update Inventory with Item Journal.
-        Initialize;
+        Initialize();
         CreateItemWithBOMAndRouting(Item, ChildItem, LibraryRandom.RandInt(5));
         UpdateLocationAndBins(LocationSilver);
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1); // Find Bin of Index 1.
@@ -1978,7 +1978,7 @@ codeunit 137079 "SCM Production Order III"
         // Bin Code should be From-Production Bin Code of LocationWhite.
 
         // Setup: Create Item. Create Sales Order and update Location on Sales Line.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         UpdateItemParametersForPlanning(Item, Item."Replenishment System"::"Prod. Order", Item."Reordering Policy"::"Lot-for-Lot");
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandInt(50), false); // Multiple Sales Lines is FALSE.
@@ -2008,7 +2008,7 @@ codeunit 137079 "SCM Production Order III"
         // Test to verify the Quantity in Warehouse Entry is based on the UOM with Posting after changing UOM on Production Order Line.
 
         // Setup: Create Item with Routing. Create Item UOM. Create and refresh Release Production Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithRouting;
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ItemNo, LibraryRandom.RandInt(10));
         CreateAndRefreshReleasedProductionOrder(
@@ -2046,7 +2046,7 @@ codeunit 137079 "SCM Production Order III"
 
         // Setup: Create Item with BOM and Routing. Create ChildItem UOM. Update UOM of Prod. BOM line.
         // Create and refresh Released Production Order.
-        Initialize;
+        Initialize();
         QuantityPer := LibraryRandom.RandIntInRange(2, 5); // It must be greater than 1.
         CreateItemWithBOMAndRouting(Item, ChildItem, QuantityPer);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ChildItem."No.", QuantityPer);
@@ -2116,7 +2116,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Setup: Create Production BOM, Parent Item and attach Production BOM. Create Child Item UOM. Update UOM of Prod. BOM line.
         // Create and post Item Journal Line for Child Item.
-        Initialize;
+        Initialize();
         CreateItem(ChildItem);
         InitSetupForProdBOMWithMultipleUOM(Item, ChildItem, QuantityPer, QtyPerUnitOfMeasure, AvailableQty);
         InitSetupForProdBOMWithMultipleUOM(TopItem, Item, QuantityPer2, QtyPerUnitOfMeasure2, AvailableQty2);
@@ -2151,7 +2151,7 @@ codeunit 137079 "SCM Production Order III"
         // [FEATURE] [Warehouse] [Manufacturing] [Warehouse Request]
         // [SCENARIO 109052.1] Verify 'Warehouse Request' exists when adding new component with zero Qty
 
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);  // Require Pick
 
         // [GIVEN] Create Released Production Order "PO"
@@ -2186,7 +2186,7 @@ codeunit 137079 "SCM Production Order III"
         // [FEATURE] [Warehouse] [Manufacturing] [Warehouse Request]
         // [SCENARIO 109052.2] Verify 'Whse. Pick Request' exists when adding new component after fully consumed previous component
 
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);  // Require Pick, Shipment
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
@@ -2225,7 +2225,7 @@ codeunit 137079 "SCM Production Order III"
         // [FEATURE] [Production] [Manufacturing] [Output Journal]
         // [SCENARIO 109053] Posting of Output Journal is not allowed with ItemNo different from Order Line's Item
 
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItem(Item2);
 
@@ -2263,7 +2263,7 @@ codeunit 137079 "SCM Production Order III"
         // [FEATURE] [Planning] [Bin] [Planning Worksheet] [Work Center]
         // [SCENARIO 360750.1] ProdOrderLine gets BinCode from Work Center through Planning Routing Line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Requisition Line by calculating Regenerative Plan. Update Work Center No on Planning Routing.
         CreateRequisitionLineWithPlanningRouting(RequisitionLine, WorkCenter, ItemNo);
@@ -2289,7 +2289,7 @@ codeunit 137079 "SCM Production Order III"
         // [FEATURE] [Production] [Item Substitutions]
         // [SCENARIO] No duplicate items in Substitution list for ALL-to-ALL subtitution setup
 
-        Initialize;
+        Initialize();
         ItemCount := ArrayLen(ItemNo);
 
         // [GIVEN] N Items with ALL-to-ALL substitution setup
@@ -2332,7 +2332,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Adjust Cost] [Subcontracting]
         // [SCENARIO 361968] Adjust Cost Item Entries creates Value Entry with "Source Type" and "Source No." taken from original VE during Subcontracting
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subcontracting Work Center
         // [GIVEN] Item with Routing
@@ -2369,7 +2369,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Adjust Cost] [Subcontracting]
         // [SCENARIO 361968] Adjust Cost Item Entries creates Value Entry with "Source Type" and "Source No." taken from original VE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Routing
         Quantity := LibraryRandom.RandInt(5);
@@ -2401,7 +2401,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Production Journal] [Subcontracting]
         // [SCENARIO 363578] Production Journal should fill "Output Quantity" with zero while linked to Subcontracted Work Center
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order with Subcontracting
         LibraryInventory.CreateItem(Item);
@@ -2410,7 +2410,7 @@ codeunit 137079 "SCM Production Order III"
 
         // [WHEN] Open Production Journal
         ProdOrderLine.SetRange("Item No.", Item."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
 
         // [THEN] Production Journal has "Output Quantity" = 0
@@ -2425,7 +2425,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Production Journal] [Subcontracting]
         // [SCENARIO 363578] Item Journal Line should keep "Output Quantity" zero while linked to Subcontracted Work Center
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Journal Line linked to Subcontracted Workcenter
         MockSubcontractedJournalLine(ItemJournalLine);
@@ -2445,7 +2445,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Production Journal] [Subcontracting]
         // [SCENARIO 363578] Item Journal Line should keep "Run Time" zero while linked to Subcontracted Work Center
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Journal Line linked to Subcontracted Workcenter
         MockSubcontractedJournalLine(ItemJournalLine);
@@ -2465,7 +2465,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Production Journal] [Subcontracting]
         // [SCENARIO 363578] Item Journal Line should keep "Setup Time" zero while linked to Subcontracted Work Center
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Journal Line linked to Subcontracted Workcenter
         MockSubcontractedJournalLine(ItemJournalLine);
@@ -2484,7 +2484,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         // [SCENARIO 378650] Post Consumption Journal Job for Component with Zero Expected Quantity should set Remaining Quantity for this Component to zero.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order.
         // [GIVEN] Prod. Order Component with "Quantity Per" = 0.
@@ -2506,7 +2506,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Prod. Order Component] [UT]
         // [SCENARIO 379075] Remaining Quantity should be 0 if Expected Qty. is validated to 0, regardless of posted consumption quantity.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Ledger Entry with Entry Type = Consumption and Quantity <> 0.
         // [GIVEN] Prod. Order Component.
@@ -2531,7 +2531,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Planning Worksheet] [Work Center] [Bin]
         // [SCENARIO 379347] Prod. Order Routing Line gets "To-Production Bin Code" from Work Center with Manual Flushing Method through Planning.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Work Center with "Flushing Method" = Manual and "To-Production Bin Code" = "B".
         // [GIVEN] Create Requisition Line by calculating Regenerative Plan. Update Work Center on Planning Routing.
@@ -2558,7 +2558,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Planning Worksheet] [Work Center] [Bin]
         // [SCENARIO 379347] Prod. Order Routing Line gets "Open Shop Floor Bin Code" from Work Center with non-Manual Flushing Method through Planning.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Work Center with "Flushing Method" <> Manual and "Open Shop Floor Bin Code" = "B".
         // [GIVEN] Create Requisition Line by calculating Regenerative Plan. Update Work Center on Planning Routing.
@@ -2589,7 +2589,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Production] [Bin]
         // [SCENARIO 379950] Released Production Order should successfully post output on changing status to finished if variant code was changed before it in Production Order Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create parent Item with routing, child Item and Production BOM.
         CreateItemsSetup(Item, ChildItem, LibraryRandom.RandInt(5));
@@ -2630,7 +2630,7 @@ codeunit 137079 "SCM Production Order III"
         // [FEATURE] [Bin] [Routing] [Production BOM] [Routing Link]
         // [SCENARIO 253201] Bin code in the planning component line shoud be taken from the "To-Production Bin Code" field of the work center linked to the corresponding production BOM line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Manufactured item "I" with two components "C1" and "C2"
         LibraryInventory.CreateItem(ParentItem);
@@ -2680,7 +2680,7 @@ codeunit 137079 "SCM Production Order III"
         // [FEATURE] [Bin] [Routing] [Production BOM]
         // [SCENARIO 253201] Bin code in the planning component line shoud be taken from the "To-Production Bin Code" field of the work center in the first routing operation if there is no routing link
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Manufactured item "I" with two components "C1" and "C2"
         CreateAndCertifyProdBOMWithMultipleComponent(ParentItem, ComponentItem[1], ComponentItem[2]);
@@ -2720,7 +2720,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Bin]
         // [SCENARIO 262029] Non-blank bin code on a production order line is not redefined, despite the different "From-Production Bin Code" setting on the location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with two bins - "B1", "B2".
         // [GIVEN] Set "From-Production Bin Code" on the location = "B1".
@@ -2762,7 +2762,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Bin]
         // [SCENARIO 262029] Blank bin code on a production order line is populated with a bin code, that has a default bin content for the item, location and variant on the prod. order line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with mandatory bin.
         LibraryInventory.CreateItem(Item);
@@ -2798,7 +2798,7 @@ codeunit 137079 "SCM Production Order III"
         UnitCost: Decimal;
     begin
         // [SCENARIO 262029] If you open and close Routing page in a production order, it won't affect unit cost on production order lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released production order.
         CreateAndRefreshProductionOrder(
@@ -2828,7 +2828,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Expected Cost]
         // [SCENARIO 266183] Unit cost on item card is posted as expected unit cost of output if no stockkeeping unit exists for the item and location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with "Unit Cost" = 0.
         LibraryInventory.CreateItem(Item);
@@ -2846,7 +2846,7 @@ codeunit 137079 "SCM Production Order III"
 
         // [THEN] Expected cost of the output is equal to "Q" * "X".
         ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Cost Amount (Expected)", ProductionOrder.Quantity * Item."Unit Cost");
     end;
 
@@ -2861,7 +2861,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Expected Cost] [Stockkeeping Unit]
         // [SCENARIO 266183] Unit cost on stockkeeping unit card is posted as expected unit cost of output if SKU exists for the item and location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Unit Cost" = 0.
         // [GIVEN] Stockkeeping unit for item "I" on location "L".
@@ -2884,7 +2884,7 @@ codeunit 137079 "SCM Production Order III"
 
         // [THEN] xpected cost of the output is equal to "Q" * "Y".
         ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Cost Amount (Expected)", ProductionOrder.Quantity * SKU."Unit Cost");
     end;
 
@@ -2901,7 +2901,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Prod. Order Component] [Consumption] [UT]
         // [SCENARIO 287655] Adding new prod. order component does not check for lack of previously posted consumption.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component item "C" is in inventory.
         LibraryInventory.CreateItem(CompItem);
@@ -2942,7 +2942,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Prod. Order Component] [Consumption] [UT]
         // [SCENARIO 287655] Updating item no. on prod. order component checks that there were no previously posted consumption for this prod. order component line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component item "C" is in inventory.
         // [GIVEN] Production item "P" has a production BOM with item "C" as a component.
@@ -2967,7 +2967,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 291614] AdjustStartEndingDate function on Production Order table finds the earliest and the latest dates among prod. order lines to populate Starting Date and Ending Date respectively.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released production order.
         LibraryManufacturing.CreateProductionOrder(
@@ -3009,7 +3009,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 291614] Invoking Recalculate function on a production order line updates dates on the production order without running 'AdjustStartEndingDate' on the production order explicitly.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released production order.
         LibraryManufacturing.CreateProductionOrder(
@@ -3048,7 +3048,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Routing]
         // [SCENARIO 291617] "Next/Previous Operation No." are automatically relinked on deletion of Prod. Order Routing Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Item "IT" with Routing of type "Serial" and 3 Routing Lines
         ItemNo := CreateItemSerialRoutingSeveralLines(3);
@@ -3066,7 +3066,7 @@ codeunit 137079 "SCM Production Order III"
         FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
         FindProductionOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
         FirstOperationNo := ProdOrderRoutingLine."Operation No.";
-        ProdOrderRoutingLine.FindLast;
+        ProdOrderRoutingLine.FindLast();
         LastOperationNo := ProdOrderRoutingLine."Operation No.";
 
         // [WHEN] CheckPreviousAndNext called on the middle Prod. Order Routing Line
@@ -3074,11 +3074,11 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderRoutingLine.CheckPreviousAndNext;
 
         // [THEN] "Next Operation No." = 30 on the first Prod. Order Routing Line
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         Assert.AreEqual(LastOperationNo, ProdOrderRoutingLine."Next Operation No.", '');
 
         // [THEN] "Previous Operation No." = 10 on the last Prod. Order Routing Line
-        ProdOrderRoutingLine.FindLast;
+        ProdOrderRoutingLine.FindLast();
         Assert.AreEqual(FirstOperationNo, ProdOrderRoutingLine."Previous Operation No.", '');
     end;
 
@@ -3097,7 +3097,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Inventory Put-away] [Output]
         // [SCENARIO 297641] Warehouse handling is not mandatory when posting production output on location set up for required put-away.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with "Require Put-away" = TRUE, "Require Receive" = FALSE.
         LibraryWarehouse.CreateLocationWMS(Location, true, true, false, false, false);
@@ -3143,7 +3143,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Inventory Put-away] [Output]
         // [SCENARIO 297641] A user cannot proceed posting output directly from output journal after they created an inventory put-away.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with "Require Put-away" = TRUE, "Require Receive" = FALSE.
         LibraryWarehouse.CreateLocationWMS(Location, true, true, false, false, false);
@@ -3188,7 +3188,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Bin] [UT]
         // [SCENARIO 321444] Bin Code is by default blank on production order despite the "From-Production Bin Code" setting on location with directed put-away and pick.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
 
@@ -3214,7 +3214,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Bin] [UT]
         // [SCENARIO 321444] Bin Code is not set to "Default Bin" when you select location code with enabled directed put-away and pick on production order and "From-Production Bin Code" is not defined.
-        Initialize;
+        Initialize();
 
         LocationWhite.Find;
         FromProdBinCode := LocationWhite."From-Production Bin Code";
@@ -3253,7 +3253,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Bin] [UT]
         // [SCENARIO 321444] Bin Code is set to "Default Bin" when you select a location with disabled directed put-away and pick on production order and "From-Production Bin Code" is not defined.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
 
@@ -3283,10 +3283,10 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Calendar Entry] [UT]
         // [SCENARIO 331428] GetStartingEndingDateAndTime function in Calendar Entry table initializes StartingTime,EndingTime and Date variables used as expressions on date and time controls on Calendar Entry page.
-        Initialize;
+        Initialize();
 
         CalendarEntry.Init();
-        CalendarEntry."No." := LibraryUtility.GenerateGUID;
+        CalendarEntry."No." := LibraryUtility.GenerateGUID();
         CalendarEntry."Starting Date-Time" := CreateDateTime(WorkDate, 120000T);
         CalendarEntry."Ending Date-Time" := CreateDateTime(WorkDate + 30, 120000T);
 
@@ -3301,63 +3301,20 @@ codeunit 137079 "SCM Production Order III"
     [Scope('OnPrem')]
     procedure StartingEndingDatesOnProductionOrderLists()
     var
-        PlannedProdOrder: Record "Production Order";
         FirmPlannedProdOrder: Record "Production Order";
-        ReleasedProdOrder: Record "Production Order";
-        FinishedProdOrder: Record "Production Order";
-        SimulatedProdOrder: Record "Production Order";
-        PlannedProductionOrders: TestPage "Planned Production Orders";
         FirmPlannedProdOrders: TestPage "Firm Planned Prod. Orders";
-        ReleasedProductionOrders: TestPage "Released Production Orders";
-        FinishedProductionOrders: TestPage "Finished Production Orders";
-        SimulatedProductionOrders: TestPage "Simulated Production Orders";
-        ProductionOrderList: TestPage "Production Order List";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 331428] "Starting Date" and "Ending Date" controls on production order lists are expressions calculated from "Starting Date-Time" and "Ending Date-Time" fields in accordance with the current time zone.
-        Initialize;
+        Initialize();
 
-        MockProductionOrder(PlannedProdOrder, PlannedProdOrder.Status::Planned);
         MockProductionOrder(FirmPlannedProdOrder, FirmPlannedProdOrder.Status::"Firm Planned");
-        MockProductionOrder(ReleasedProdOrder, ReleasedProdOrder.Status::Released);
-        MockProductionOrder(FinishedProdOrder, FinishedProdOrder.Status::Finished);
-        MockProductionOrder(SimulatedProdOrder, SimulatedProdOrder.Status::Simulated);
-
-        PlannedProductionOrders.OpenView;
-        PlannedProductionOrders.FILTER.SetFilter("No.", PlannedProdOrder."No.");
-        PlannedProductionOrders."Starting Date".AssertEquals(DT2Date(PlannedProdOrder."Starting Date-Time"));
-        PlannedProductionOrders."Ending Date".AssertEquals(DT2Date(PlannedProdOrder."Ending Date-Time"));
-        PlannedProductionOrders.Close;
 
         FirmPlannedProdOrders.OpenView;
         FirmPlannedProdOrders.FILTER.SetFilter("No.", FirmPlannedProdOrder."No.");
         FirmPlannedProdOrders."Starting Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Starting Date-Time"));
         FirmPlannedProdOrders."Ending Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Ending Date-Time"));
         FirmPlannedProdOrders.Close;
-
-        ReleasedProductionOrders.OpenView;
-        ReleasedProductionOrders.FILTER.SetFilter("No.", ReleasedProdOrder."No.");
-        ReleasedProductionOrders."Starting Date".AssertEquals(DT2Date(ReleasedProdOrder."Starting Date-Time"));
-        ReleasedProductionOrders."Ending Date".AssertEquals(DT2Date(ReleasedProdOrder."Ending Date-Time"));
-        ReleasedProductionOrders.Close;
-
-        FinishedProductionOrders.OpenView;
-        FinishedProductionOrders.FILTER.SetFilter("No.", FinishedProdOrder."No.");
-        FinishedProductionOrders."Starting Date".AssertEquals(DT2Date(FinishedProdOrder."Starting Date-Time"));
-        FinishedProductionOrders."Ending Date".AssertEquals(DT2Date(FinishedProdOrder."Ending Date-Time"));
-        FinishedProductionOrders.Close;
-
-        SimulatedProductionOrders.OpenView;
-        SimulatedProductionOrders.FILTER.SetFilter("No.", SimulatedProdOrder."No.");
-        SimulatedProductionOrders."Starting Date".AssertEquals(DT2Date(SimulatedProdOrder."Starting Date-Time"));
-        SimulatedProductionOrders."Ending Date".AssertEquals(DT2Date(SimulatedProdOrder."Ending Date-Time"));
-        SimulatedProductionOrders.Close;
-
-        ProductionOrderList.OpenView;
-        ProductionOrderList.FILTER.SetFilter("No.", PlannedProdOrder."No.");
-        ProductionOrderList."Starting Date".AssertEquals(DT2Date(PlannedProdOrder."Starting Date-Time"));
-        ProductionOrderList."Ending Date".AssertEquals(DT2Date(PlannedProdOrder."Ending Date-Time"));
-        ProductionOrderList.Close;
     end;
 
     [Test]
@@ -3367,46 +3324,18 @@ codeunit 137079 "SCM Production Order III"
         PlannedProdOrder: Record "Production Order";
         PlannedProductionOrderCard: TestPage "Planned Production Order";
         NewDate: Date;
-        NewTime: Time;
         ItemNo: Code[20];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Planned Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field i
         // [SCENARIO 379091] Validating "Starting Date-Time" and "Ending Date-Time" on a new planned prod. order line does not reset previously entered data.
-        Initialize;
+        Initialize();
 
         MockProductionOrder(PlannedProdOrder, PlannedProdOrder.Status::Planned);
 
-        PlannedProductionOrderCard.OpenEdit;
+        PlannedProductionOrderCard.OpenEdit();
         PlannedProductionOrderCard.FILTER.SetFilter("No.", PlannedProdOrder."No.");
-        PlannedProductionOrderCard."Starting Time".AssertEquals(DT2Time(PlannedProdOrder."Starting Date-Time"));
-        PlannedProductionOrderCard."Starting Date".AssertEquals(DT2Date(PlannedProdOrder."Starting Date-Time"));
-        PlannedProductionOrderCard."Ending Time".AssertEquals(DT2Time(PlannedProdOrder."Ending Date-Time"));
-        PlannedProductionOrderCard."Ending Date".AssertEquals(DT2Date(PlannedProdOrder."Ending Date-Time"));
 
         NewDate := LibraryRandom.RandDate(30);
-        PlannedProductionOrderCard."Starting Date".SetValue(NewDate);
-        PlannedProdOrder.Find;
-        PlannedProdOrder.TestField("Starting Date", NewDate);
-
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
-        PlannedProductionOrderCard."Starting Time".SetValue(NewTime);
-        PlannedProdOrder.Find;
-        PlannedProdOrder.TestField("Starting Time", NewTime);
-
-        NewDate := LibraryRandom.RandDate(30);
-        PlannedProductionOrderCard."Ending Date".SetValue(NewDate);
-        PlannedProdOrder.Find;
-        PlannedProdOrder.TestField("Ending Date", NewDate);
-
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
-        PlannedProductionOrderCard."Ending Time".SetValue(NewTime);
-        PlannedProdOrder.Find;
-        PlannedProdOrder.TestField("Ending Time", NewTime);
-
-        NewDate := LibraryRandom.RandDate(30);
-        PlannedProductionOrderCard."Due Date".SetValue(NewDate);
-        PlannedProductionOrderCard."Ending Date".AssertEquals(NewDate - 1);
 
         ItemNo := LibraryInventory.CreateItemNo();
         PlannedProductionOrderCard.ProdOrderLines.New();
@@ -3419,7 +3348,7 @@ codeunit 137079 "SCM Production Order III"
         PlannedProductionOrderCard.ProdOrderLines."Starting Date-Time".SetValue(NewDate);
         PlannedProductionOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
 
-        PlannedProductionOrderCard.Close;
+        PlannedProductionOrderCard.Close();
     end;
 
     [Test]
@@ -3429,42 +3358,20 @@ codeunit 137079 "SCM Production Order III"
         FirmPlannedProdOrder: Record "Production Order";
         FirmPlannedProdOrderCard: TestPage "Firm Planned Prod. Order";
         NewDate: Date;
-        NewTime: Time;
         ItemNo: Code[20];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Firm Planned Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding fi
         // [SCENARIO 379091] Validating "Starting Date-Time" and "Ending Date-Time" on a new firm planned prod. order line does not reset previously entered data.
-        Initialize;
+        Initialize();
 
         MockProductionOrder(FirmPlannedProdOrder, FirmPlannedProdOrder.Status::"Firm Planned");
 
-        FirmPlannedProdOrderCard.OpenEdit;
+        FirmPlannedProdOrderCard.OpenEdit();
         FirmPlannedProdOrderCard.FILTER.SetFilter("No.", FirmPlannedProdOrder."No.");
         FirmPlannedProdOrderCard."Starting Time".AssertEquals(DT2Time(FirmPlannedProdOrder."Starting Date-Time"));
         FirmPlannedProdOrderCard."Starting Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Starting Date-Time"));
         FirmPlannedProdOrderCard."Ending Time".AssertEquals(DT2Time(FirmPlannedProdOrder."Ending Date-Time"));
         FirmPlannedProdOrderCard."Ending Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Ending Date-Time"));
-
-        NewDate := LibraryRandom.RandDate(30);
-        FirmPlannedProdOrderCard."Starting Date".SetValue(NewDate);
-        FirmPlannedProdOrder.Find;
-        FirmPlannedProdOrder.TestField("Starting Date", NewDate);
-
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
-        FirmPlannedProdOrderCard."Starting Time".SetValue(NewTime);
-        FirmPlannedProdOrder.Find;
-        FirmPlannedProdOrder.TestField("Starting Time", NewTime);
-
-        NewDate := LibraryRandom.RandDate(30);
-        FirmPlannedProdOrderCard."Ending Date".SetValue(NewDate);
-        FirmPlannedProdOrder.Find;
-        FirmPlannedProdOrder.TestField("Ending Date", NewDate);
-
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
-        FirmPlannedProdOrderCard."Ending Time".SetValue(NewTime);
-        FirmPlannedProdOrder.Find;
-        FirmPlannedProdOrder.TestField("Ending Time", NewTime);
 
         NewDate := LibraryRandom.RandDate(30);
         FirmPlannedProdOrderCard."Due Date".SetValue(NewDate);
@@ -3481,7 +3388,7 @@ codeunit 137079 "SCM Production Order III"
         FirmPlannedProdOrderCard.ProdOrderLines."Starting Date-Time".SetValue(NewDate);
         FirmPlannedProdOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
 
-        FirmPlannedProdOrderCard.Close;
+        FirmPlannedProdOrderCard.Close();
     end;
 
     [Test]
@@ -3491,46 +3398,18 @@ codeunit 137079 "SCM Production Order III"
         ReleasedProdOrder: Record "Production Order";
         ReleasedProductionOrderCard: TestPage "Released Production Order";
         NewDate: Date;
-        NewTime: Time;
         ItemNo: Code[20];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Released Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field
         // [SCENARIO 379091] Validating "Starting Date-Time" and "Ending Date-Time" on a new released prod. order line does not reset previously entered data.
-        Initialize;
+        Initialize();
 
         MockProductionOrder(ReleasedProdOrder, ReleasedProdOrder.Status::Released);
 
-        ReleasedProductionOrderCard.OpenEdit;
+        ReleasedProductionOrderCard.OpenEdit();
         ReleasedProductionOrderCard.FILTER.SetFilter("No.", ReleasedProdOrder."No.");
-        ReleasedProductionOrderCard."Starting Time".AssertEquals(DT2Time(ReleasedProdOrder."Starting Date-Time"));
-        ReleasedProductionOrderCard."Starting Date".AssertEquals(DT2Date(ReleasedProdOrder."Starting Date-Time"));
-        ReleasedProductionOrderCard."Ending Time".AssertEquals(DT2Time(ReleasedProdOrder."Ending Date-Time"));
-        ReleasedProductionOrderCard."Ending Date".AssertEquals(DT2Date(ReleasedProdOrder."Ending Date-Time"));
 
         NewDate := LibraryRandom.RandDate(30);
-        ReleasedProductionOrderCard."Starting Date".SetValue(NewDate);
-        ReleasedProdOrder.Find;
-        ReleasedProdOrder.TestField("Starting Date", NewDate);
-
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
-        ReleasedProductionOrderCard."Starting Time".SetValue(NewTime);
-        ReleasedProdOrder.Find;
-        ReleasedProdOrder.TestField("Starting Time", NewTime);
-
-        NewDate := LibraryRandom.RandDate(30);
-        ReleasedProductionOrderCard."Ending Date".SetValue(NewDate);
-        ReleasedProdOrder.Find;
-        ReleasedProdOrder.TestField("Ending Date", NewDate);
-
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
-        ReleasedProductionOrderCard."Ending Time".SetValue(NewTime);
-        ReleasedProdOrder.Find;
-        ReleasedProdOrder.TestField("Ending Time", NewTime);
-
-        NewDate := LibraryRandom.RandDate(30);
-        ReleasedProductionOrderCard."Due Date".SetValue(NewDate);
-        ReleasedProductionOrderCard."Ending Date".AssertEquals(NewDate - 1);
 
         ItemNo := LibraryInventory.CreateItemNo();
         ReleasedProductionOrderCard.ProdOrderLines.New();
@@ -3548,73 +3427,23 @@ codeunit 137079 "SCM Production Order III"
 
     [Test]
     [Scope('OnPrem')]
-    procedure StartingEndingDatesOnFinishedProductionOrderCard()
-    var
-        FinishedProdOrder: Record "Production Order";
-        FinishedProductionOrderCard: TestPage "Finished Production Order";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Finished Production Order page are expressions calculated from datetime fields. Finished production orders are not editable.
-        Initialize;
-
-        MockProductionOrder(FinishedProdOrder, FinishedProdOrder.Status::Finished);
-
-        FinishedProductionOrderCard.OpenView;
-        FinishedProductionOrderCard.FILTER.SetFilter("No.", FinishedProdOrder."No.");
-        FinishedProductionOrderCard."Starting Time".AssertEquals(DT2Time(FinishedProdOrder."Starting Date-Time"));
-        FinishedProductionOrderCard."Starting Date".AssertEquals(DT2Date(FinishedProdOrder."Starting Date-Time"));
-        FinishedProductionOrderCard."Ending Time".AssertEquals(DT2Time(FinishedProdOrder."Ending Date-Time"));
-        FinishedProductionOrderCard."Ending Date".AssertEquals(DT2Date(FinishedProdOrder."Ending Date-Time"));
-        FinishedProductionOrderCard.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure StartingEndingDatesOnSimulatedProductionOrderCard()
     var
         SimulatedProdOrder: Record "Production Order";
         SimulatedProductionOrderCard: TestPage "Simulated Production Order";
         NewDate: Date;
-        NewTime: Time;
         ItemNo: Code[20];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Simulated Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field
         // [SCENARIO 379091] Validating "Starting Date-Time" and "Ending Date-Time" on a new simulated prod. order line does not reset previously entered data.
-        Initialize;
+        Initialize();
 
         MockProductionOrder(SimulatedProdOrder, SimulatedProdOrder.Status::Simulated);
 
-        SimulatedProductionOrderCard.OpenEdit;
+        SimulatedProductionOrderCard.OpenEdit();
         SimulatedProductionOrderCard.FILTER.SetFilter("No.", SimulatedProdOrder."No.");
-        SimulatedProductionOrderCard."Starting Time".AssertEquals(DT2Time(SimulatedProdOrder."Starting Date-Time"));
-        SimulatedProductionOrderCard."Starting Date".AssertEquals(DT2Date(SimulatedProdOrder."Starting Date-Time"));
-        SimulatedProductionOrderCard."Ending Time".AssertEquals(DT2Time(SimulatedProdOrder."Ending Date-Time"));
-        SimulatedProductionOrderCard."Ending Date".AssertEquals(DT2Date(SimulatedProdOrder."Ending Date-Time"));
 
         NewDate := LibraryRandom.RandDate(30);
-        SimulatedProductionOrderCard."Starting Date".SetValue(NewDate);
-        SimulatedProdOrder.Find;
-        SimulatedProdOrder.TestField("Starting Date", NewDate);
-
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
-        SimulatedProductionOrderCard."Starting Time".SetValue(NewTime);
-        SimulatedProdOrder.Find;
-        SimulatedProdOrder.TestField("Starting Time", NewTime);
-
-        NewDate := LibraryRandom.RandDate(30);
-        SimulatedProductionOrderCard."Ending Date".SetValue(NewDate);
-        SimulatedProdOrder.Find;
-        SimulatedProdOrder.TestField("Ending Date", NewDate);
-
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
-        SimulatedProductionOrderCard."Ending Time".SetValue(NewTime);
-        SimulatedProdOrder.Find;
-        SimulatedProdOrder.TestField("Ending Time", NewTime);
-
-        NewDate := LibraryRandom.RandDate(30);
-        SimulatedProductionOrderCard."Due Date".SetValue(NewDate);
-        SimulatedProductionOrderCard."Ending Date".AssertEquals(NewDate - 1);
 
         ItemNo := LibraryInventory.CreateItemNo();
         SimulatedProductionOrderCard.ProdOrderLines.New();
@@ -3627,7 +3456,7 @@ codeunit 137079 "SCM Production Order III"
         SimulatedProductionOrderCard.ProdOrderLines."Starting Date-Time".SetValue(NewDate);
         SimulatedProductionOrderCard.ProdOrderLines."Item No.".AssertEquals(ItemNo);
 
-        SimulatedProductionOrderCard.Close;
+        SimulatedProductionOrderCard.Close();
     end;
 
     [Test]
@@ -3641,10 +3470,10 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Capacity Need] [UI]
         // [SCENARIO 331428] "Starting Time", "Ending Time" and "Date" controls on Capacity Need page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field in the table.
-        Initialize;
+        Initialize();
 
         ProdOrderCapacityNeed.Init();
-        ProdOrderCapacityNeed."Prod. Order No." := LibraryUtility.GenerateGUID;
+        ProdOrderCapacityNeed."Prod. Order No." := LibraryUtility.GenerateGUID();
         ProdOrderCapacityNeed."Starting Date-Time" := CreateDateTime(WorkDate, 120000T);
         ProdOrderCapacityNeed."Ending Date-Time" := CreateDateTime(WorkDate + 30, 120000T);
         ProdOrderCapacityNeed.Insert();
@@ -3685,10 +3514,10 @@ codeunit 137079 "SCM Production Order III"
     begin
         // [FEATURE] [Production Order Routing Line] [UT]
         // [SCENARIO 331428] GetStartingEndingDateAndTime function in Prod. Order Routing Line table initializes StartingTime, EndingTime, StartingDate, EndingDate variables used as expressions on time and date controls on Prod. Order Routing page.
-        Initialize;
+        Initialize();
 
         ProdOrderRoutingLine.Init();
-        ProdOrderRoutingLine."Prod. Order No." := LibraryUtility.GenerateGUID;
+        ProdOrderRoutingLine."Prod. Order No." := LibraryUtility.GenerateGUID();
         ProdOrderRoutingLine."Starting Date-Time" := CreateDateTime(WorkDate, 120000T);
         ProdOrderRoutingLine."Ending Date-Time" := CreateDateTime(WorkDate + 30, 120000T);
 
@@ -5000,6 +4829,117 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure QtyRndingPrecisionRespectedOnPurchLineFromSubcontracting()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemUnitOfMeasure: record "Item Unit of Measure";
+        BaseUOM: record "Unit of Measure";
+        NonBaseUOM: record "Unit of Measure";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        NonBaseQtyPerUOM: Integer;
+    begin
+        // Setup: Create Item with two unit of measures and set the base rounding precision to 1
+        Initialize();
+        NonBaseQtyPerUOM := 6;
+        SetupUoMTest(Item, ItemUnitOfMeasure, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, 1);
+
+        // Setup: Create a subcontracting work center for the created item
+        CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
+
+        // Setup: Create production order where production order line contains quantity on non base unit of measure
+        CreateProdOrderAndLineForUoMTest(ProductionOrder, ProdOrderLine, Item, 1, NonBaseUOM, 1);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, true, false);
+
+        // Setup: Calculate subcontrats and carry out suggested requests to create needed purchase lines
+        CalculateSubcontractOrder(WorkCenter);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+        FindPurchaseOrderLine(PurchaseLine, Item."No.");
+
+        // Exercise: When Quanity field is changed
+        PurchaseLine.Validate(Quantity, 0.99999);
+
+        // Verify: Quantity (Base) field is recalculated and rounded using the base rounding precision
+        PurchaseLine.TestField("Quantity (Base)", 0);
+
+        // Exercise: Purchase document is posted
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Verify: Item ledger quantity is rounded
+        FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Output, Item."No.");
+        ItemLedgerEntry.TestField(Quantity, 6);
+    end;
+
+    [Test]
+    procedure ConsiderLeadTimeBeforeCalculateComponents()
+    var
+        OldCompItem: Record Item;
+        NewCompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        LeadTime: DateFormula;
+        StartingEndingDate: Date;
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO 425879] Lead Time period is considered before calculating components to respect Starting Date and Ending Date in production BOM.
+        Initialize();
+        Evaluate(LeadTime, '<10D>');
+        StartingEndingDate := CalcDate('<-5D>', WorkDate());
+
+        // [GIVEN] Component items "Old", "New".
+        // [GIVEN] Finished item "P".
+        LibraryInventory.CreateItem(OldCompItem);
+        LibraryInventory.CreateItem(NewCompItem);
+        LibraryInventory.CreateItem(ProdItem);
+
+        // [GIVEN] Production BOM with two lines:
+        // [GIVEN] Line 1: item "Old", ending date = WORKDATE - 5 days.
+        // [GIVEN] Line 2: item "New", starting date = WORKDATE - 5 days.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, OldCompItem."No.", 1);
+        ProductionBOMLine.Validate("Ending Date", StartingEndingDate);
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, NewCompItem."No.", 1);
+        ProductionBOMLine.Validate("Starting Date", StartingEndingDate);
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Set "Lead Time Calculation" = 10 days for item "P".
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Lead Time Calculation", LeadTime);
+        ProdItem.Modify(true);
+
+        // [WHEN] Create and refresh production order for "P".
+        LibraryManufacturing.CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 1);
+
+        // [THEN] The item "Old" is included in prod. order components.
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Item No.", OldCompItem."No.");
+        ProdOrderComponent.FindFirst();
+        Assert.IsTrue(ProdOrderComponent."Due Date" < WorkDate(), '');
+
+        // [THEN] The item "New" is NOT included in prod. order components.
+        ProdOrderComponent.SetRange("Item No.", NewCompItem."No.");
+        Assert.RecordIsEmpty(ProdOrderComponent);
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingHandlerWithoutApplyToItemEntry,ItemTrackingSummaryPageHandler')]
     procedure NegativeConsumptionWithItemTracking()
     var
@@ -5065,15 +5005,15 @@ codeunit 137079 "SCM Production Order III"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Production Order III");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         CreateLocationSetup;
         LibraryERMCountryData.UpdateInventoryPostingSetup;
         ItemJournalSetup;
@@ -5190,8 +5130,8 @@ codeunit 137079 "SCM Production Order III"
     begin
         with WorkCenter do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
-            "Subcontractor No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
+            "Subcontractor No." := LibraryUtility.GenerateGUID();
             Insert;
         end;
 
@@ -5362,7 +5302,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.OpenItemTrackingLines();  // Invokes ItemTrackingPageHandler.
     end;
 
@@ -5448,7 +5388,7 @@ codeunit 137079 "SCM Production Order III"
         WorkCenter: Record "Work Center";
     begin
         // Setup: Create Production Item, create a Require-Pick Location
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item);
         CreateRoutingAndUpdateItem(Item, WorkCenter); // Set Routing No. for Item
         FindLastRoutingLine(RoutingLine, Item."Routing No."); // The Operation No. for last routing line is needed when posting output with negative quantity
@@ -5550,7 +5490,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
@@ -5692,7 +5632,7 @@ codeunit 137079 "SCM Production Order III"
         CreateWorkCenter(WorkCenter, IsSubcontracted);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
-        RoutingLink.FindFirst;
+        RoutingLink.FindFirst();
         RoutingLine.Validate("Routing Link Code", RoutingLink.Code);
         RoutingLine.Modify(true);
 
@@ -5971,7 +5911,7 @@ codeunit 137079 "SCM Production Order III"
             Validate("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
             Validate("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
             Validate("Worksheet Line No.", RequisitionLine."Line No.");
-            Validate("Operation No.", LibraryUtility.GenerateGUID);
+            Validate("Operation No.", LibraryUtility.GenerateGUID());
             Insert(true);
         end;
     end;
@@ -6017,7 +5957,7 @@ codeunit 137079 "SCM Production Order III"
 
         // Set Scrap on Routing Line
         RoutingLine.SetRange("Routing No.", Item."Routing No.");
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
         UpdateScrapOnRoutingLine(RoutingLine, ScrapFactor, FixedScrapQuantity);
 
         if MultipleRoutingLine then begin
@@ -6079,7 +6019,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
         FindPurchaseOrderLine(PurchaseLine, ItemNo);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
         PurchaseHeader.Modify();
         PurchaseLine."Direct Unit Cost" := LibraryRandom.RandInt(5);
         PurchaseLine.Modify();
@@ -6162,21 +6102,21 @@ codeunit 137079 "SCM Production Order III"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindFirmPlannedProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::"Firm Planned");
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
@@ -6184,7 +6124,7 @@ codeunit 137079 "SCM Production Order III"
         with ProdOrderLine do begin
             SetRange(Status, ProdOrderStatus);
             SetRange("Prod. Order No.", ProdOrderNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -6193,7 +6133,7 @@ codeunit 137079 "SCM Production Order III"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -6202,14 +6142,14 @@ codeunit 137079 "SCM Production Order III"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptNo(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure PostPurchaseOrderAsShip(ItemNo: Code[20])
@@ -6226,7 +6166,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::Released);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure FindLastProductionOrderCompLine(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line")
@@ -6235,7 +6175,7 @@ codeunit 137079 "SCM Production Order III"
             SetRange(Status, ProdOrderLine.Status);
             SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             SetRange("Line No.", ProdOrderLine."Line No.");
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -6243,7 +6183,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
@@ -6251,14 +6191,14 @@ codeunit 137079 "SCM Production Order III"
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; ActivityType: Enum "Warehouse Activity Type")
@@ -6266,7 +6206,7 @@ codeunit 137079 "SCM Production Order III"
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
         RegisteredWhseActivityLine.SetRange("Activity Type", ActivityType);
         RegisteredWhseActivityLine.SetRange("Action Type", ActionType);
-        RegisteredWhseActivityLine.FindFirst;
+        RegisteredWhseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10])
@@ -6290,13 +6230,13 @@ codeunit 137079 "SCM Production Order III"
     local procedure FindLastRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20])
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.FindLast;
+        RoutingLine.FindLast();
     end;
 
     local procedure FindFirstRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20])
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
     end;
 
     local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ItemNo: Code[20])
@@ -6304,9 +6244,9 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure FindProdOrderRoutingLineWithSpecifiedOperationNo(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ItemNo: Code[20]; OperationNo: Code[10])
@@ -6332,7 +6272,7 @@ codeunit 137079 "SCM Production Order III"
             SetRange("Production BOM No.", ProductionBOMHeaderNo);
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -6349,7 +6289,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         // Setup: Create a Product Item for Manual Flushing and scrap Routing
         // Create Child Item for Backward Flushing and Lot Tracking
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);
         QtyPer := 0.01 * LibraryRandom.RandInt(99); // Qty per need less than 1
         FixedScrapQuantity := LibraryRandom.RandInt(10);
@@ -6418,7 +6358,7 @@ codeunit 137079 "SCM Production Order III"
         with ProductionOrder do begin
             Init;
             Status := ProdOrderStatus;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Starting Date-Time" := CreateDateTime(WorkDate, 120000T);
             "Ending Date-Time" := CreateDateTime(WorkDate + 30, 120000T);
             Insert;
@@ -6430,9 +6370,9 @@ codeunit 137079 "SCM Production Order III"
         with ProdOrderComponent do begin
             Init;
             Status := Status::Released;
-            "Prod. Order No." := LibraryUtility.GenerateGUID;
+            "Prod. Order No." := LibraryUtility.GenerateGUID();
             "Line No." := LibraryRandom.RandInt(10);
-            "Item No." := LibraryUtility.GenerateGUID;
+            "Item No." := LibraryUtility.GenerateGUID();
             "Qty. per Unit of Measure" := LibraryRandom.RandInt(10);
             Insert;
 
@@ -6475,7 +6415,7 @@ codeunit 137079 "SCM Production Order III"
         ItemAvailabilityByBOMLevel: Page "Item Availability by BOM Level";
     begin
         ItemAvailabilityByBOMLevel.InitItem(Item);
-        ItemAvailabilityByBOMLevel.Run;
+        ItemAvailabilityByBOMLevel.Run();
     end;
 
     local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -6491,14 +6431,14 @@ codeunit 137079 "SCM Production Order III"
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure SelectSalesOrderLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure SelectItemTrackingForProdOrderComponents(ItemNo: Code[20])
@@ -6603,7 +6543,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::Released);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         ProdOrderRoutingLine.Validate("Flushing Method", ProdOrderRoutingLine."Flushing Method"::Backward);
         ProdOrderRoutingLine.Modify(true);
     end;
@@ -6614,7 +6554,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         ProductionBOMVersion.SetRange("Production BOM No.", Item."Production BOM No.");
-        ProductionBOMVersion.FindFirst;
+        ProductionBOMVersion.FindFirst();
         FindReleasedProdOrderLine(ProdOrderLine, Item."No.");
         ProdOrderLine.Validate("Production BOM Version Code", ProductionBOMVersion."Version Code");
         ProdOrderLine.Modify(true);
@@ -6725,7 +6665,7 @@ codeunit 137079 "SCM Production Order III"
         // Update Routing link Code on specified BOM component Lines.
         with ProductionBOMHeader do begin
             SetRange("No.", ProductionBOMNo);
-            FindFirst;
+            FindFirst();
             Validate(Status, Status::"Under Development");
             Modify(true);
         end;
@@ -6750,7 +6690,7 @@ codeunit 137079 "SCM Production Order III"
         // Update Unit of Measure Code on specified BOM component Line.
         with ProductionBOMHeader do begin
             SetRange("No.", ProductionBOMNo);
-            FindFirst;
+            FindFirst();
             Validate(Status, Status::"Under Development");
             Modify(true);
         end;
@@ -6781,7 +6721,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.Validate("Variant Code", ItemVariantCode);
         ProdOrderLine.Modify(true);
     end;
@@ -6838,7 +6778,7 @@ codeunit 137079 "SCM Production Order III"
         VATBusPostingGroup: Record "VAT Business Posting Group";
     begin
         VATBusPostingGroup.SetFilter(Code, '<>%1', VATBusPostingGroupCode);
-        VATBusPostingGroup.FindFirst;
+        VATBusPostingGroup.FindFirst();
         exit(VATBusPostingGroup.Code);
     end;
 
@@ -6861,7 +6801,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         FilterValueEntry(ValueEntry, DocumentNo, ValueEntry."Item Ledger Entry Type"::Output);
         ValueEntry.SetRange("Entry Type", EntryType);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Item Ledger Entry Quantity", ItemLedgerEntryQuantity);
         ValueEntry.TestField("Cost Posted to G/L", CostPostedToGL);
         ValueEntry.TestField("Invoiced Quantity", InvoicedQuantity);
@@ -6902,7 +6842,7 @@ codeunit 137079 "SCM Production Order III"
             SetRange("Entry Type", EntryType);
             SetRange("Item No.", ItemNo);
             SetRange("Source No.", SourceNo);
-            FindFirst;
+            FindFirst();
             TestField("Location Code", LocationCode);
             TestField("Bin Code", BinCode);
             TestField(Quantity, Qty);
@@ -6918,7 +6858,7 @@ codeunit 137079 "SCM Production Order III"
         FindFirmPlannedProdOrderLine(ProdOrderLine, ItemNo);
         OrderTracking.SetProdOrderLine(ProdOrderLine);
         OrderTracking2.Trap;
-        OrderTracking.Run;
+        OrderTracking.Run();
         repeat
             OrderTracking2."Item No.".AssertEquals(ItemNo);
             OrderTracking2.Quantity.AssertEquals(Quantity);
@@ -6930,7 +6870,7 @@ codeunit 137079 "SCM Production Order III"
         PlanningComponent: Record "Planning Component";
     begin
         PlanningComponent.SetRange("Item No.", ItemNo);
-        PlanningComponent.FindFirst;
+        PlanningComponent.FindFirst();
         PlanningComponent.TestField("Location Code", LocationCode);
         PlanningComponent.TestField("Bin Code", BinCode);
     end;
@@ -6941,7 +6881,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         with ProdOrderLine do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(WorkCenterBinCode, "Bin Code", ProdOrderLineBinCodeErr);
         end;
     end;
@@ -6953,7 +6893,7 @@ codeunit 137079 "SCM Production Order III"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField(Quantity, Quantity);
     end;
 
@@ -6964,7 +6904,7 @@ codeunit 137079 "SCM Production Order III"
         with RecreatedPurchaseLine do begin
             SetRange("Document Type", PurchaseLine."Document Type");
             SetRange("Document No.", PurchaseLine."Document No.");
-            FindFirst;  // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
+            FindFirst();  // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
             TestField(Description, PurchaseLine.Description);
             TestField("Unit Cost (LCY)", PurchaseLine."Unit Cost (LCY)");
             TestField("Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -7038,7 +6978,7 @@ codeunit 137079 "SCM Production Order III"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, Quantity);
         ReservationEntry.TestField("Reservation Status", ReservationStatus);
         ReservationEntry.TestField("Lot No.");
@@ -7078,7 +7018,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Finished);
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.TestField(Quantity, Quantity);
         ProdOrderLine.TestField("Finished Quantity", Quantity);
     end;
@@ -7100,7 +7040,7 @@ codeunit 137079 "SCM Production Order III"
     local procedure VerifyWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; Quantity: Decimal)
     begin
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.TestField(Quantity, Quantity);
         WarehouseActivityLine.TestField("Qty. (Base)", Quantity);
     end;
@@ -7111,7 +7051,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         FilterValueEntry(ValueEntry, DocumentNo, ItemLedgerEntryType);
         ValueEntry.SetRange("Item No.", ItemNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Cost Amount (Actual)", CostAmountActual);
     end;
 
@@ -7135,7 +7075,7 @@ codeunit 137079 "SCM Production Order III"
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.TestField(Status, Status);
         ProdOrderComponent.TestField("Qty. Picked", QtyPicked);
         ProdOrderComponent.TestField("Qty. Picked (Base)", QtyPicked);

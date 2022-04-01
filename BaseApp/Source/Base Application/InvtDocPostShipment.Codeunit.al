@@ -87,11 +87,10 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
             InvtShptHeader."Shipment No." := "No.";
             InvtShptHeader."External Document No." := "External Document No.";
             InvtShptHeader."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            InvtShptHeader."No. Series" := InvtSetup."Posted Invt. Shipment Nos.";
-            InvtShptHeader."No." :=
-              NoSeriesMgt.GetNextNo(
-                InvtSetup."Posted Invt. Shipment Nos.", "Posting Date", true);
-            "Posting No." := InvtShptHeader."No.";
+            if "Posting No." = '' then
+                "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
+            InvtShptHeader."No." := "Posting No.";
+            InvtShptHeader."No. Series" := "Posting No. Series";
             InvtShptHeader."Posting Description" := "Posting Description";
             InvtShptHeader.Correction := Correction;
             InvtShptHeader."Dimension Set ID" := "Dimension Set ID";

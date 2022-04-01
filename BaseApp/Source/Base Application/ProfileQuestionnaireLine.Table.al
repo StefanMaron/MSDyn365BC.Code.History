@@ -122,7 +122,7 @@ table 5088 "Profile Questionnaire Line"
                 if xRec."Contact Class. Field" = "Contact Class. Field"::Rating then begin
                     Rating.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
                     Rating.SetRange("Profile Questionnaire Line No.", "Line No.");
-                    if Rating.FindFirst then
+                    if Rating.FindFirst() then
                         if Confirm(Text000, false) then
                             Rating.DeleteAll
                         else
@@ -444,7 +444,7 @@ table 5088 "Profile Questionnaire Line"
         ProfileQuestnLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
         ProfileQuestnLine.SetFilter("Line No.", '<%1', "Line No.");
         ProfileQuestnLine.SetRange(Type, Type::Question);
-        if ProfileQuestnLine.FindLast then
+        if ProfileQuestnLine.FindLast() then
             exit(ProfileQuestnLine.Description);
     end;
 
@@ -454,7 +454,7 @@ table 5088 "Profile Questionnaire Line"
         ProfileQuestnLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
         ProfileQuestnLine.SetFilter("Line No.", '<%1', "Line No.");
         ProfileQuestnLine.SetRange(Type, Type::Question);
-        if ProfileQuestnLine.FindLast then
+        if ProfileQuestnLine.FindLast() then
             exit(ProfileQuestnLine."Line No.");
     end;
 
@@ -579,7 +579,7 @@ table 5088 "Profile Questionnaire Line"
         QuestionLineNo: Integer;
     begin
         ProfileQuestionnaireLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
-        if ProfileQuestionnaireLine.FindLast then
+        if ProfileQuestionnaireLine.FindLast() then
             QuestionLineNo := ProfileQuestionnaireLine."Line No." + 10000
         else
             QuestionLineNo := 10000;
@@ -590,7 +590,7 @@ table 5088 "Profile Questionnaire Line"
 
         NextLineNo := QuestionLineNo;
         TempProfileQuestionnaireLine.Reset();
-        if TempProfileQuestionnaireLine.FindSet then
+        if TempProfileQuestionnaireLine.FindSet() then
             repeat
                 NextLineNo := NextLineNo + 10000;
                 ProfileQuestionnaireLine := TempProfileQuestionnaireLine;

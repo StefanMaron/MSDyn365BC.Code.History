@@ -36,7 +36,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         // Journal Lines.
 
         // Create Sales Invoice, Finance Charge Memo and Issue it, Post General Journal Lines and Take backup for Current Workdate.
-        Initialize;
+        Initialize();
         CurrentDate := WorkDate;
         ChargeMemoNo := CreateInvoiceFinanceChargeMemo(GenJournalLine);
 
@@ -62,7 +62,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
 
         // Create Sales Invoice, Finance Charge Memo and Issue it, Post General Journal Lines, Apply and unapply them and
         // Take backup for Current Workdate
-        Initialize;
+        Initialize();
         CurrentDate := WorkDate;
         CreateInvoiceFinanceChargeMemo(GenJournalLine);
         ApplyAndPostCustomerEntry(GenJournalLine."Document No.", GenJournalLine.Amount);
@@ -274,8 +274,8 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Finance Charge Memo Apply");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Finance Charge Memo Apply");
@@ -337,7 +337,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         Customer: Record Customer;
         FinanceChargeTerms: Record "Finance Charge Terms";
     begin
-        FinanceChargeTerms.FindFirst;
+        FinanceChargeTerms.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
         Customer.Modify(true);
@@ -380,7 +380,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader.Insert(true);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         FinChrgMemoMake.Set(Customer, CustLedgerEntry, FinanceChargeMemoHeader);
         FinChrgMemoMake.Code;
     end;
@@ -461,7 +461,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
     begin
         FinanceChargeMemoLine.SetRange("Document Type", FinanceChargeMemoLine."Document Type"::Invoice);
         FinanceChargeMemoLine.SetRange("Document No.", DocumentNo);
-        FinanceChargeMemoLine.FindFirst;
+        FinanceChargeMemoLine.FindFirst();
         FinanceChargeMemoHeader.Get(FinanceChargeMemoLine."Finance Charge Memo No.");
         LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
         exit(FinanceChargeMemoHeader."No.");
@@ -489,7 +489,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
@@ -527,7 +527,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         CustLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(GenJournalLine.Amount, CustLedgerEntry."Remaining Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(RemainingAmountError, CustLedgerEntry."Remaining Amount", GenJournalLine.Amount));

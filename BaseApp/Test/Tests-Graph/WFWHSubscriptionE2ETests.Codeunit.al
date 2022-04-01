@@ -42,7 +42,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"WFWH Subscription E2E Tests");
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         LibraryWorkflow.DisableAllWorkflows;
         WorkflowWebhookSubscription.DeleteAll();
         UnbindSubscription(MockOnFindTaskSchedulerAllowed);
@@ -69,7 +69,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
     begin
         // [SCENARIO] Get a WorkflowWebhookSubscripiton with a GET request to the service
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Workflow Webhook Subscripiton exists.
         CreateWorkflowWebhookSubscriptionNoWorkflow;
@@ -96,7 +96,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
     begin
         // [SCENARIO] Create a WorkflowWebhookSubscripiton and Workflow through a POST request to the service.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a WorkflowWebhookSubscription JSON object to send in body of POST.
         CreateTempWorkflowWebhookSubscription(TempWorkflowWebhookSubscription, DummyConditionsTxt);
@@ -135,7 +135,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
     begin
         // [SCENARIO] Delete a WorkflowWebhookSubscripiton and Workflow through a DELETE request to the service.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A WorkflowWebhookSubscripiton and corresponding workflow exist.
         CreateWorkflowWebhookSubscriptionAndWorkflow;
@@ -167,7 +167,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
     begin
         // [SCENARIO] Delete a WorkflowWebhookSubscripiton that has Workflow with active workflow steps through a DELETE request to the service.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A WorkflowWebhookSubscripiton and corresponding workflow exist.
         CreateWorkflowWebhookSubscriptionAndWorkflow;
@@ -212,7 +212,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         // Updates by way of PATCH/PUT requests. Updates from MSFT Flow are sent as 2 parallel POST and DELETE requests. In this scenario
         // we consider the case where the POST request happens assuming we already have the initial subscription and workflow.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A WorkflowWebhookSubscripiton and corresponding workflow exist.
         CreateWorkflowWebhookSubscriptionAndWorkflow;
@@ -270,7 +270,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         // we consider the case where the POST request happens assuming we already have the initial subscription and workflow and then
         // corresponding DELETE request which completes the Update.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A WorkflowWebhookSubscripiton and corresponding workflow exist.
         CreateWorkflowWebhookSubscriptionAndWorkflow;
@@ -328,7 +328,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         // Updates by way of PATCH/PUT requests. Updates from MSFT Flow are sent as 2 parallel POST and DELETE requests. In this scenario
         // we consider the case where the DELETE request for the initial subscription happens and then corresponding POST request which completes the Update.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A WorkflowWebhookSubscripiton and corresponding workflow exist.
         CreateWorkflowWebhookSubscriptionAndWorkflow;
@@ -1372,7 +1372,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
         // Verify that sales order is pending approval
         SalesHeader.SetRecFilter;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesHeader.TestField(Status, SalesHeader.Status::"Pending Approval");
         Commit();
     end;
@@ -1416,7 +1416,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
     begin
         TenantWebService.SetRange("Object ID", PageNumber);
         TenantWebService.SetRange(Published, true);
-        TenantWebService.FindFirst;
+        TenantWebService.FindFirst();
 
         OdataV4Url := GetUrl(CLIENTTYPE::ODataV4, CompanyName, OBJECTTYPE::Page, PageNumber);
     end;

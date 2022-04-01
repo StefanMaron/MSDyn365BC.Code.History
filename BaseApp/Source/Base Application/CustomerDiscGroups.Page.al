@@ -49,7 +49,7 @@ page 512 "Customer Disc. Groups"
             {
                 Caption = 'Cust. &Disc. Groups';
                 Image = Group;
-#if not CLEAN17
+#if not CLEAN19
                 action(SalesLineDiscounts)
                 {
                     ApplicationArea = Basic, Suite;

@@ -325,7 +325,7 @@ table 1270 "OCR Service Setup"
           CODEUNIT::"OCR - Send to Service",
           CODEUNIT::"OCR - Receive from Service",
           CODEUNIT::"OCR - Sync Master Data");
-        if JobQueueEntry.FindFirst then
+        if JobQueueEntry.FindFirst() then
             PAGE.Run(PAGE::"Job Queue Entries", JobQueueEntry);
     end;
 

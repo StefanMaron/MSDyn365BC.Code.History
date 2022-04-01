@@ -53,7 +53,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         PurchApprovalAmountLimit: Decimal;
     begin
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [GIVEN] More than 2 NAV users
         LibraryPermissions.CreateWindowsUserSecurityID(UserId);
@@ -61,7 +61,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [GIVEN] One user is unlimited approper and the others have approval limits
         User.SetRange("User Name", UserId);
-        User.FindFirst; // The Windows user is set as unlimited approver
+        User.FindFirst(); // The Windows user is set as unlimited approver
         SalesApprovalAmountLimit := LibraryRandom.RandInt(100);
         PurchApprovalAmountLimit := LibraryRandom.RandInt(100);
 
@@ -88,7 +88,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         WorkflowCode: Code[20];
     begin
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [WHEN] A Sales Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
@@ -106,7 +106,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         WorkflowCode: Code[20];
     begin
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [WHEN] A Purchase Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
@@ -131,7 +131,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         // New workflow (WZ-SIAPW) is created, and the old one is disabled.
 
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Invoice Approval Workflow is created and enabled
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
@@ -163,7 +163,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         // New workflow (WZ-PIAPW) is created, and the old one is disabled.
 
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Invoice Approval Workflow is created and enabled
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
@@ -194,7 +194,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         // The workflow is updated accordingly.
 
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
@@ -224,7 +224,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         // The workflow is updated accordingly.
 
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
@@ -259,7 +259,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         // The wokflow is updated accordingly.
 
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
@@ -303,7 +303,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         // New workflow is created, and the old one is disabled.
 
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [GIVEN] A request for a Sales invoice approval workflow to be created is made
         WorkflowCode :=
@@ -341,7 +341,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         PurchApprovalAmountLimit: Decimal;
     begin
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data
-        Initialize;
+        Initialize();
 
         // [GIVEN] More than 2 NAV users
         LibraryPermissions.CreateWindowsUserSecurityID(UserId);
@@ -349,7 +349,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         // [GIVEN] All created users have approval user setup
         User.SetRange("User Name", UserId);
-        User.FindFirst; // The Windows user is set as unlimited approver
+        User.FindFirst(); // The Windows user is set as unlimited approver
         SalesApprovalAmountLimit := LibraryRandom.RandInt(100);
         PurchApprovalAmountLimit := LibraryRandom.RandInt(100);
         InsertWizardData(
@@ -421,14 +421,14 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         WorkflowStep.SetFilter("Workflow Code", WorkflowCode);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
         WorkflowStep.SetFilter("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         Assert.RecordIsNotEmpty(WorkflowStep);
 
         // Get the step arguments
         WorkflowStepArgument.SetFilter(ID, WorkflowStep.Argument);
         WorkflowStepArgument.SetRange(Type, WorkflowStepArgument.Type::Response);
         WorkflowStepArgument.SetFilter("Response Function Name", WorkflowStep."Function Name");
-        WorkflowStepArgument.FindFirst;
+        WorkflowStepArgument.FindFirst();
         Assert.RecordIsNotEmpty(WorkflowStepArgument);
 
         // Verify user's input from wizard and default settings
@@ -449,7 +449,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
         User.SetFilter("User Name", '<>%1', TempApprovalWorkflowWizard."Approver ID");
 
-        if User.FindSet then
+        if User.FindSet() then
             repeat
                 ApprovalUserSetup.Get(User."User Name");
                 if TempApprovalWorkflowWizard."Sales Invoice App. Workflow" then

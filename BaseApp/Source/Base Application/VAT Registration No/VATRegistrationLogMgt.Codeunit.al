@@ -321,7 +321,14 @@ codeunit 249 "VAT Registration Log Mgt."
 
     procedure CheckVIESForVATNo(var RecordRef: RecordRef; var VATRegistrationLog: Record "VAT Registration Log"; RecordVariant: Variant; EntryNo: Code[20]; CountryCode: Code[10]; AccountType: Option)
     var
-        Customer: Record Customer;
+        DummyCustomer: Record Customer;
+    begin
+        CheckVIESForVATNoField(
+            RecordRef, VATRegistrationLog, RecordVariant, EntryNo, CountryCode, AccountType, DummyCustomer.FieldName("VAT Registration No."));
+    end;
+
+    procedure CheckVIESForVATNoField(var RecordRef: RecordRef; var VATRegistrationLog: Record "VAT Registration Log"; RecordVariant: Variant; EntryNo: Code[20]; CountryCode: Code[10]; AccountType: Option; VATNoFieldName: Text)
+    var
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
         CountryRegion: Record "Country/Region";
         VatRegNoFieldRef: FieldRef;
@@ -333,7 +340,7 @@ codeunit 249 "VAT Registration Log Mgt."
 
         if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
             DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
-            if not DataTypeManagement.FindFieldByName(RecordRef, VatRegNoFieldRef, Customer.FieldName("VAT Registration No.")) then
+            if not DataTypeManagement.FindFieldByName(RecordRef, VatRegNoFieldRef, VATNoFieldName) then
                 exit;
             VATRegNo := VatRegNoFieldRef.Value;
 

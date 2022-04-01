@@ -153,7 +153,7 @@ page 249 "VAT Registration Log"
 
     trigger OnOpenPage()
     begin
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     trigger OnAfterGetCurrRecord()

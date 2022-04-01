@@ -31,9 +31,9 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo SalesOrder CL Approval");
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         UserSetup.DeleteAll();
         LibraryWorkflow.DisableAllWorkflows;
@@ -61,7 +61,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [THEN] The user will get an error that he cannot post a Sales order that is not approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderCreditLimitApprovalWorkflowCode);
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, LibraryRandom.RandIntInRange(5000, 10000));
@@ -91,7 +91,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [THEN] The user will get an error that he cannot release a Sales order that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderCreditLimitApprovalWorkflowCode);
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, LibraryRandom.RandIntInRange(5000, 10000));
@@ -123,7 +123,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [WHEN] A user sends the Sales order for approval and all users in the chain of approvals approve the document.
         // [THEN] The Sales order is approved and released.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, SalesHeader, LineAmount);
 
@@ -173,7 +173,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [WHEN] A user sends the Sales order for approval, the first approver approves it and last approver rejects it.
         // [THEN] The Sales order is rejected and open.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, SalesHeader, LineAmount);
 
@@ -223,7 +223,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [WHEN] A user sends the Sales order for approval and the first approver rejects it.
         // [THEN] The Sales order is rejected and open.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, SalesHeader, LineAmount);
 
@@ -266,7 +266,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [WHEN] A user sends the Sales order for approval and then the user cancels it.
         // [THEN] The Sales order is canceled and open.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, SalesHeader, LineAmount);
 
@@ -302,7 +302,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [WHEN] A user sends the Sales order for approval and the second user delegates the approval to the 3rd user and the last user approves it.
         // [THEN] The Sales order is approved and released.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, SalesHeader, LineAmount);
         LibraryDocumentApprovals.SetSubstitute(CurrentUserSetup, FinalApproverUserSetup);
@@ -360,7 +360,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [THEN] An approval entry is created and automatically approved.
         // [THEN] The Sales order is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderCreditLimitApprovalWorkflowCode);
 
@@ -405,7 +405,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         LineAmount := LibraryRandom.RandIntInRange(5000, 10000);
@@ -487,7 +487,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         LineAmount := LibraryRandom.RandIntInRange(5000, 10000);
@@ -557,7 +557,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [WHEN] Salesperson approves the approval request.
         // [THEN] Sales Order is released.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, SalesHeader, LineAmount);
 
@@ -610,7 +610,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, SalesHeader, LineAmount);
 
@@ -752,7 +752,7 @@ codeunit 134177 "WF Demo SalesOrder CL Approval"
     local procedure VerifySalesDocumentStatus(SalesHeader: Record "Sales Header"; Status: Enum "Sales Document Status")
     begin
         SalesHeader.SetRecFilter;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesHeader.TestField(Status, Status);
     end;
 

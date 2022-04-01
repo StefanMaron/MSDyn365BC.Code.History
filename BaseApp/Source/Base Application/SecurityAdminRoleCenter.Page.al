@@ -37,23 +37,35 @@ page 9024 "Security Admin Role Center"
             {
                 ApplicationArea = Basic, Suite;
             }
+#if not CLEAN20
             part("Subscription Plans"; "Plans FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Subscription Plans';
+                Caption = 'Licenses';
                 Editable = false;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The part is not actionable.';
+                ObsoleteTag = '20.0';
             }
+#endif
             part(Control4; "User Groups FactBox")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
             }
+#if not CLEAN20
             part("Plan Permission Set"; "Plan Permission Set")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Plan Permission Set';
                 Editable = false;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The part is irrelevant as it shows only the default permission sets plans since now custom permissions set can be configured per plan.';
+                ObsoleteTag = '20.0';
             }
+#endif
             part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
             {
                 AccessByPermission = TableData "Power BI User Configuration" = I;

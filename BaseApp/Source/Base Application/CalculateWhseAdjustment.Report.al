@@ -24,7 +24,7 @@ report 7315 "Calculate Whse. Adjustment"
                         Location.Reset();
                         Item.CopyFilter("Location Filter", Location.Code);
                         Location.SetRange("Directed Put-away and Pick", true);
-                        if Location.FindSet then
+                        if Location.FindSet() then
                             repeat
                                 AdjmtBin.Get(Location.Code, Location."Adjustment Bin Code");
 
@@ -61,7 +61,7 @@ report 7315 "Calculate Whse. Adjustment"
                         ReservationEntry.SetCurrentKey("Source ID");
                         ItemJnlLine.Reset();
                         ItemJnlLine.SetCurrentKey("Item No.");
-                        if FindSet then begin
+                        if FindSet() then begin
                             repeat
                                 ItemJnlLine.Reset();
                                 ItemJnlLine.SetCurrentKey("Item No.");
@@ -71,7 +71,7 @@ report 7315 "Calculate Whse. Adjustment"
                                 ItemJnlLine.SetRange("Location Code", "Location Code");
                                 ItemJnlLine.SetRange("Unit of Measure Code", "Unit of Measure Code");
                                 ItemJnlLine.SetRange("Warehouse Adjustment", true);
-                                if ItemJnlLine.FindSet then
+                                if ItemJnlLine.FindSet() then
                                     repeat
                                         ReservationEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
                                         ReservationEntry.SetRange("Source ID", ItemJnlLine."Journal Template Name");
@@ -98,7 +98,7 @@ report 7315 "Calculate Whse. Adjustment"
                 begin
                     with TempAdjmtBinContentBuffer do begin
                         Reset;
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 SetRange("Location Code", "Location Code");
                                 SetRange("Variant Code", "Variant Code");
@@ -131,7 +131,7 @@ report 7315 "Calculate Whse. Adjustment"
                                 if (QtyInUOM = 0) and ("Qty. to Handle (Base)" > 0) then
                                     InsertItemJnlLine(TempAdjmtBinContentBuffer, -"Qty. to Handle (Base)", -"Qty. to Handle (Base)", "Base Unit of Measure", 1);
 
-                                FindLast;
+                                FindLast();
                                 SetRange("Location Code");
                                 SetRange("Variant Code");
                                 SetRange("Unit of Measure Code");
@@ -369,7 +369,7 @@ report 7315 "Calculate Whse. Adjustment"
         ReservationEntry.SetRange("Item No.", Item."No.");
         ReservationEntry.SetFilter("Variant Code", Item."Variant Filter");
 
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 TempReservationEntryBuffer := ReservationEntry;
                 TempReservationEntryBuffer.Insert();
@@ -397,7 +397,7 @@ report 7315 "Calculate Whse. Adjustment"
             WarehouseEntry.SetTrackingFilterFromBinContentBuffer(TempBinContentBuffer);
             WarehouseEntry.SetFilter("Entry Type", '%1|%2', EntryType, WarehouseEntry."Entry Type"::Movement);
             OnCreateReservationEntryOnAfterWarehouseEntrySetFilters(WarehouseEntry, TempBinContentBuffer);
-            if not WarehouseEntry.FindFirst then
+            if not WarehouseEntry.FindFirst() then
                 exit;
 
             TempReservationEntryBuffer.Reset();

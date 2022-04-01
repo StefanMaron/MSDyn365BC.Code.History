@@ -15,13 +15,8 @@ table 277 "Bank Account Posting Group"
         {
             Caption = 'G/L Bank Account No.';
             ObsoleteReason = 'Moved to G/L Account No.';
-#if SLICE3771430
             ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
-#endif
+            ObsoleteTag = '20.0';
         }
         field(3; "G/L Account No."; Code[20])
         {

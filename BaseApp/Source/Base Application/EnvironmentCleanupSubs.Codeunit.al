@@ -10,7 +10,6 @@ codeunit 8912 "Environment Cleanup Subs"
         CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup";
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
         GraphMailSetup: Record "Graph Mail Setup";
-        SMTPMailSetup: Record "SMTP Mail Setup";
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
         ServiceConnection: Record "Service Connection";
@@ -30,8 +29,6 @@ codeunit 8912 "Environment Cleanup Subs"
         VATRegNoSrvConfig.ModifyAll(Enabled, false);
 
         GraphMailSetup.ModifyAll(Enabled, false);
-
-        SMTPMailSetup.ModifyAll("SMTP Server", '');
 
         CRMConnectionSetup.ModifyAll("Is Enabled", false);
 

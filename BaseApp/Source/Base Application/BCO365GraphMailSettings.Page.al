@@ -46,13 +46,10 @@ page 2398 "BC O365 Graph Mail Settings"
     trigger OnAfterGetCurrRecord()
     var
         GraphMail: Codeunit "Graph Mail";
-        O365SetupEmail: Codeunit "O365 Setup Email";
-        EmailFeature: Codeunit "Email Feature";
     begin
         if not IsEnabled then
-            if not O365SetupEmail.SMTPEmailIsSetUp or EmailFeature.IsEnabled() then
-                if GraphMail.HasConfiguration then
-                    Initialize(false);
+            if GraphMail.HasConfiguration then
+                Initialize(false);
     end;
 
     trigger OnOpenPage()

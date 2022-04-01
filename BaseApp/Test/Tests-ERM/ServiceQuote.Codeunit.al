@@ -41,7 +41,7 @@ codeunit 136115 "Service Quote"
 
         // 1. Setup: Create a new Service Item with a random Customer and new Service Item Component of Type as Item. Create
         // Service Quote for the Service Item - Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         ItemNo := CreateServiceItemWithComponent(ServiceItem);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -66,7 +66,7 @@ codeunit 136115 "Service Quote"
 
         // 1. Setup: Create a new Service Item with a random Customer. Create a Service Quote for the Service Item - Service Header,
         // Service Item Line and Service Line with Random Quantity.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Quote);
 
         // 2. Exercise: Save Service Quote Report as XML and XLSX in local Temp folder.
@@ -94,7 +94,7 @@ codeunit 136115 "Service Quote"
 
         // 1. Setup: Create a new Service Item with a random Customer. Create a Service Quote for the Service Item - Service Header,
         // Service Item Line and Service Line with random Quantity.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Quote);
 
         // 2. Exercise: Change the Customer No of the Service Quote.
@@ -117,7 +117,7 @@ codeunit 136115 "Service Quote"
 
         // 1. Setup: Create a new Service Item with a random Customer. Create a Service Quote for the Service Item - Service Header,
         // Service Item Line and Service Line with random Quantity.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Quote);
 
         // 2. Exercise: Convert Service Quote to Service Order.
@@ -139,7 +139,7 @@ codeunit 136115 "Service Quote"
 
         // 1. Setup: Create a new Service Item with a random Customer. Create a Service Quote for the Service Item - Service Header,
         // Service Item Line and Service Line with random Quantity.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Quote);
         Customer.Get(ServiceHeader."Customer No.");
         Customer.Validate(Blocked, Customer.Blocked::All);
@@ -162,7 +162,7 @@ codeunit 136115 "Service Quote"
 
         // 1. Setup: Create a new Service Item with a random Customer. Create a Service Quote for the Service Item - Service Header,
         // Service Item Line and Service Line with random Quantity.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Quote);
         Customer.Get(ServiceHeader."Customer No.");
         Customer.Validate("Privacy Blocked", true);
@@ -185,7 +185,7 @@ codeunit 136115 "Service Quote"
 
         // 1. Setup: Create a new Service Item with a random Customer. Create a Service Quote for the Service Item - Service Header,
         // Service Item Line and Service Line with random Quantity.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Quote);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         ServiceHeader."Salesperson Code" := SalespersonPurchaser.Code;
@@ -212,7 +212,7 @@ codeunit 136115 "Service Quote"
 
         // 1. Setup: Create a new Service Item with a random Customer. Create a Service Order for the Service Item - Service Header,
         // Service Item Line and Service Line with Random Quantity.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
 
         // 2. Exercise: Save Service Order Report as XML and XLSX in local Temp folder.
@@ -241,7 +241,7 @@ codeunit 136115 "Service Quote"
 
         // 1. Setup: Create Customer with Customer Invoice Discount, Service Header with Document Type as Quote and Service Line with
         // Type as Item.
-        Initialize;
+        Initialize();
         CreateCustomerWithDiscount(CustInvoiceDisc);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, CustInvoiceDisc.Code);
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo, '');
@@ -268,7 +268,7 @@ codeunit 136115 "Service Quote"
     begin
         // [SCENARIO 378534] Service Line of Service Order which was made from Servive Quote is equal Work Date
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Quote with "Posting Date" = "01.01". Work Date = "10.01"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
         ServiceHeader.Validate("Posting Date", ServiceHeader."Posting Date" + 1);
@@ -293,7 +293,7 @@ codeunit 136115 "Service Quote"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 228188] Location Code is shown on Service Quote page and is copied to Service Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L".
         LibraryWarehouse.CreateLocation(Location);
@@ -341,9 +341,9 @@ codeunit 136115 "Service Quote"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Quote");
 
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
         LibrarySales.SetStockoutWarning(false);
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
         isInitialized := true;
         BindSubscription(LibraryJobQueue);
@@ -410,7 +410,7 @@ codeunit 136115 "Service Quote"
     begin
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.SetRange("Quote No.", QuoteNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
     end;
 
     local procedure VerifyUnitPrice(ServiceLine: Record "Service Line"; UnitPrice: Decimal)
@@ -418,7 +418,7 @@ codeunit 136115 "Service Quote"
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
         ServiceLine.SetRange(Type, ServiceLine.Type::"G/L Account");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField(Quantity, 1);  // Use 1 as it's required for test case.
         ServiceLine.TestField("Unit Price", UnitPrice);
     end;
@@ -431,7 +431,7 @@ codeunit 136115 "Service Quote"
         FindServOrderByQuoteNo(ServiceHeader, QuoteNo);
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField("Posting Date", ExpectedPostingDate);
     end;
 

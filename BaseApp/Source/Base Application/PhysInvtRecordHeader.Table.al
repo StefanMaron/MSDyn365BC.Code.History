@@ -137,7 +137,7 @@ table 5877 "Phys. Invt. Record Header"
             LockTable();
             PhysInvtRecordHeader.Reset();
             PhysInvtRecordHeader.SetRange("Order No.", "Order No.");
-            if PhysInvtRecordHeader.FindLast then
+            if PhysInvtRecordHeader.FindLast() then
                 "Recording No." := PhysInvtRecordHeader."Recording No." + 1
             else
                 "Recording No." := 1;

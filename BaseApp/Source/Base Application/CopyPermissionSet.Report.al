@@ -24,7 +24,7 @@ report 9802 "Copy Permission Set"
                     Scope::System:
                         begin
                             SourcePermission.SetRange("Role ID", "Role ID");
-                            if not SourcePermission.FindSet then
+                            if not SourcePermission.FindSet() then
                                 exit;
                             repeat
                                 CopyPermissionToNewTenantPermission(InputRoleID, SourcePermission);
@@ -42,7 +42,7 @@ report 9802 "Copy Permission Set"
                         begin
                             SourceTenantPermission.SetRange("App ID", "App ID");
                             SourceTenantPermission.SetRange("Role ID", "Role ID");
-                            if SourceTenantPermission.FindSet then
+                            if SourceTenantPermission.FindSet() then
                                 repeat
                                     CopyTenantPermissionToNewTenantPermission(InputRoleID, SourceTenantPermission);
                                 until SourceTenantPermission.Next() = 0;

@@ -281,7 +281,7 @@ page 9621 "Add Page Fields"
                                     else
                                         AvailableTables.SetRange(Name, RelatedTableName);
 
-                                    if AvailableTables.FindFirst then begin
+                                    if AvailableTables.FindFirst() then begin
                                         RelatedTableNumber := AvailableTables.ID;
                                         RelatedTableName := AvailableTables.Name;
                                         RelatedTableFilterFieldName := '';
@@ -318,7 +318,7 @@ page 9621 "Add Page Fields"
                                     FieldTable.SetFilter(TableNo, Format(RelatedTableNumber));
                                     FieldTable.SetFilter(ObsoleteState, '<>%1', FieldTable.ObsoleteState::Removed);
 
-                                    if FieldTable.FindFirst then
+                                    if FieldTable.FindFirst() then
                                         RelatedTableFieldName := FieldTable."Field Caption"
                                     else
                                         if RelatedTableFieldName <> '' then
@@ -369,7 +369,7 @@ page 9621 "Add Page Fields"
                                     FieldTable.SetRange("Field Caption", RelatedTableFilterFieldName);
                                     FieldTable.SetFilter(TableNo, Format(RelatedTableNumber));
                                     FieldTable.SetFilter(ObsoleteState, '<>%1', FieldTable.ObsoleteState::Removed);
-                                    if FieldTable.FindFirst then
+                                    if FieldTable.FindFirst() then
                                         FieldType := Format(FieldTable.Type)
                                     else
                                         if RelatedTableFilterFieldName <> '' then
@@ -419,7 +419,7 @@ page 9621 "Add Page Fields"
                                         PageTableField: Record "Page Table Field";
                                     begin
                                         PageTableField.SetRange(Caption, CurrentTableFilterFieldName);
-                                        if PageTableField.FindFirst then
+                                        if PageTableField.FindFirst() then
                                             RelatedTableFilterFieldName := PageTableField.Caption
                                         else
                                             if RelatedTableFilterFieldName <> '' then
@@ -665,7 +665,7 @@ page 9621 "Add Page Fields"
 
             FieldDetails.SetFilter(TableNo, Format(RelatedTableNumber));
             FieldDetails.SetFilter(FieldName, RelatedTableFieldName);
-            if FieldDetails.FindFirst then begin
+            if FieldDetails.FindFirst() then begin
                 FieldType := Format(FieldDetails.Type);
                 TextFieldTypeDataLength := 0;
                 if (FieldType = 'Text') or (FieldType = 'Code') then

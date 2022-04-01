@@ -33,7 +33,7 @@ codeunit 134067 "Test VAT Clause"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // acc. criteria 6 - When a Sales Document is created, then the VAT Clause is defaulted to the correct value on the Sales Line.
-        Initialize;
+        Initialize();
 
         // set up
         CreateVATPostingSetupAndAssignVATClause(VATPostingSetup, VATClause);
@@ -60,7 +60,7 @@ codeunit 134067 "Test VAT Clause"
         VATProdPostingGroup: Record "VAT Product Posting Group";
     begin
         // acc. criteria 7 - When the VAT Prod. Posting Group is changed on a Sales Line, then the VAT Clause is updated correctly.
-        Initialize;
+        Initialize();
 
         // set up
         CreateVATPostingSetupAndAssignVATClause(VATPostingSetup1, VATClause1);
@@ -97,7 +97,7 @@ codeunit 134067 "Test VAT Clause"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
         // acc. criteria 7 - When the VAT Bus. Posting group is changed on a Sales Line, then the VAT Clause is updated correctly.
-        Initialize;
+        Initialize();
 
         // set up
         CreateVATPostingSetupAndAssignVATClause(VATPostingSetup1, VATClause1);
@@ -130,7 +130,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 259058] "VAT Clause Code" field has same FIELDNO in "Sales Line", "Service Line" and "Sales Line Archive", and all "VAT Clause Code" fields have length = length of field Code in "VAT Clause"
-        Initialize;
+        Initialize();
 
         Assert.AreEqual(SalesLine.FieldNo("VAT Clause Code"), SalesLineArchive.FieldNo("VAT Clause Code"), '');
         Assert.AreEqual(SalesLine.FieldNo("VAT Clause Code"), ServiceLine.FieldNo("VAT Clause Code"), '');
@@ -149,7 +149,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 303986] Function GetDescription does not change descriptions when VAT Clause does not have translations and document type setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
         CreateVATClause(VATClause);
@@ -173,7 +173,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         // [FEATURE] [UT] [Invoice]
         // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause Translation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
         CreateVATClause(VATClause);
@@ -202,7 +202,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         // [FEATURE] [UT] [Invoice]
         // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
         CreateVATClause(VATClause);
@@ -230,7 +230,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         // [FEATURE] [UT] [Invoice]
         // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type Translation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
         CreateVATClause(VATClause);
@@ -263,7 +263,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         // [FEATURE] [UT] [Credit Memo]
         // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type Translation for credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
         CreateVATClause(VATClause);
@@ -296,7 +296,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         // [FEATURE] [UT] [Reminder]
         // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type Translation for reminder
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
         CreateVATClause(VATClause);
@@ -327,7 +327,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         // [FEATURE] [UT] [Finance Charge Memo]
         // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type Translation for finance charge memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
         CreateVATClause(VATClause);
@@ -355,7 +355,7 @@ codeunit 134067 "Test VAT Clause"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test VAT Clause");
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySales.SetInvoiceRounding(false);
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test VAT Clause");
@@ -450,7 +450,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeaderNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure GenerateVATClauseDescription(): Text[250]

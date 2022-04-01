@@ -1,6 +1,14 @@
 table 398 "XBRL Rollup Line"
 {
     Caption = 'XBRL Rollup Line';
+    ObsoleteReason = 'XBRL feature will be discontinued';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {
@@ -21,7 +29,7 @@ table 398 "XBRL Rollup Line"
         }
         field(5; "From XBRL Taxonomy Line Name"; Text[250])
         {
-            CalcFormula = Lookup ("XBRL Taxonomy Line".Name WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
+            CalcFormula = Lookup("XBRL Taxonomy Line".Name WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                                                                   "Line No." = FIELD("From XBRL Taxonomy Line No.")));
             Caption = 'From XBRL Taxonomy Line Name';
             Editable = false;
@@ -29,7 +37,7 @@ table 398 "XBRL Rollup Line"
         }
         field(6; "From XBRL Taxonomy Line Label"; Text[250])
         {
-            CalcFormula = Lookup ("XBRL Taxonomy Label".Label WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
+            CalcFormula = Lookup("XBRL Taxonomy Label".Label WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                                                                     "XBRL Taxonomy Line No." = FIELD("From XBRL Taxonomy Line No."),
                                                                     "XML Language Identifier" = FIELD("Label Language Filter")));
             Caption = 'From XBRL Taxonomy Line Label';

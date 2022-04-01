@@ -215,7 +215,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 1168217811" size-unit="char" translate="yes" xml:space="preserve">
           <source>We're updating the inventory forecast for item #1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">#1 = an Item No.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType UpdateDialogTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3420482273 - NamedType 2614170639" size-unit="char" translate="yes" xml:space="preserve">
@@ -667,6 +667,21 @@
           <source>Has Sales Forecast</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension ItemForecastExtension - Field Has Sales Forecast - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 122279174 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SalesAndInventoryForecast - Edit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SalesForecast - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2248664108 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SalesAndInventoryForecast - Objects</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SalesForecast - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1805333520 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SalesAndInventoryForecast - Read</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SalesForecast - Read - Property Caption</note>
         </trans-unit>
       </group>
     </body>

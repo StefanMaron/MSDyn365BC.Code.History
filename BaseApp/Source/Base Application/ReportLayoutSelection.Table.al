@@ -22,8 +22,8 @@ table 9651 "Report Layout Selection"
         field(4; Type; Option)
         {
             Caption = 'Type';
-            OptionCaption = 'RDLC (built-in),Word (built-in),Custom Layout';
-            OptionMembers = "RDLC (built-in)","Word (built-in)","Custom Layout";
+            OptionCaption = 'RDLC,Word,Custom,Excel,External';
+            OptionMembers = "RDLC (built-in)","Word (built-in)","Custom Layout","Excel Layout","External Layout";
 
             trigger OnValidate()
             begin
@@ -41,6 +41,18 @@ table 9651 "Report Layout Selection"
                         begin
                             if not HasWordLayout("Report ID") then
                                 Error(NoWordLayoutErr, "Report Name");
+                            "Custom Report Layout Code" := '';
+                        end;
+                    Type::"Excel Layout":
+                        begin
+                            if not HasExcelLayout("Report ID") then
+                                Error(NoExcelLayoutErr, "Report Name");
+                            "Custom Report Layout Code" := '';
+                        end;
+                    Type::"External Layout":
+                        begin
+                            if not HasExternalLayout("Report ID") then
+                                Error(NoExternalLayoutErr, "Report Name");
                             "Custom Report Layout Code" := '';
                         end;
                 end;
@@ -61,14 +73,13 @@ table 9651 "Report Layout Selection"
         }
         field(7; "Report Layout Description"; Text[250])
         {
-            CalcFormula = Lookup ("Custom Report Layout".Description WHERE(Code = FIELD("Custom Report Layout Code")));
+            CalcFormula = Lookup("Custom Report Layout".Description WHERE(Code = FIELD("Custom Report Layout Code")));
             Caption = 'Report Layout Description';
             FieldClass = FlowField;
         }
         field(8; "Report Caption"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
-                                                                           "Object ID" = FIELD("Report ID")));
+            CalcFormula = Lookup("Report Metadata".Caption WHERE(ID = FIELD("Report ID")));
             Caption = 'Report Caption';
             Editable = false;
             FieldClass = FlowField;
@@ -95,14 +106,27 @@ table 9651 "Report Layout Selection"
     end;
 
     var
-        NoRdlcLayoutErr: Label 'Report ''%1'' has no built-in RDLC layout.', Comment = '%1=a report name';
-        NoWordLayoutErr: Label 'Report ''%1'' has no built-in Word layout.', Comment = '%1=a report name';
+        NoRdlcLayoutErr: Label 'Report ''%1'' has no RDLC layout.', Comment = '%1=a report name';
+        NoWordLayoutErr: Label 'Report ''%1'' has no Word layout.', Comment = '%1=a report name';
+        NoExcelLayoutErr: Label 'Report ''%1'' has no Excel layout.', Comment = '%1=a report name';
+        NoExternalLayoutErr: Label 'Report ''%1'' has no External layout.', Comment = '%1=a report name';
 
     procedure GetDefaultType(ReportID: Integer): Integer
+    var
+        reportDefaultLayout: DefaultLayout;
     begin
-        if REPORT.DefaultLayout(ReportID) = DEFAULTLAYOUT::Word then
-            exit(Type::"Word (built-in)");
-        exit(Type::"RDLC (built-in)");
+        reportDefaultLayout := REPORT.DefaultLayout(ReportID);
+
+        case reportDefaultLayout of
+            DEFAULTLAYOUT::Word:
+                exit(Type::"Word (built-in)");
+            DefaultLayout::Excel:
+                exit(Type::"Excel Layout");
+            DefaultLayout::RDLC:
+                exit(Type::"RDLC (built-in)");
+            DefaultLayout::None:
+                exit(Type::"RDLC (built-in)");
+        end;
     end;
 
     procedure IsProcessingOnly(ReportID: Integer): Boolean
@@ -112,20 +136,38 @@ table 9651 "Report Layout Selection"
 
     local procedure HasRdlcLayout(ReportID: Integer): Boolean
     var
-        InStr: InStream;
+        ReportLayoutList: Record "Report Layout List";
     begin
-        if REPORT.RdlcLayout(ReportID, InStr) then
-            exit(not InStr.EOS);
-        exit(false);
+        ReportLayoutList.SetFilter("Report ID", '=%1', ReportID);
+        ReportLayoutList.SetFilter("Layout Format", '=%1', ReportLayoutList."Layout Format"::RDLC);
+        exit(not ReportLayoutList.IsEmpty());
     end;
 
     procedure HasWordLayout(ReportID: Integer): Boolean
     var
-        InStr: InStream;
+        ReportLayoutList: Record "Report Layout List";
     begin
-        if REPORT.WordLayout(ReportID, InStr) then
-            exit(not InStr.EOS);
-        exit(false);
+        ReportLayoutList.SetFilter("Report ID", '=%1', ReportID);
+        ReportLayoutList.SetFilter("Layout Format", '=%1', ReportLayoutList."Layout Format"::Word);
+        exit(not ReportLayoutList.IsEmpty());
+    end;
+
+    local procedure HasExcelLayout(ReportID: Integer): Boolean
+    var
+        ReportLayoutList: Record "Report Layout List";
+    begin
+        ReportLayoutList.SetFilter("Report ID", '=%1', ReportID);
+        ReportLayoutList.SetFilter("Layout Format", '=%1', ReportLayoutList."Layout Format"::Excel);
+        exit(not ReportLayoutList.IsEmpty());
+    end;
+
+    local procedure HasExternalLayout(ReportID: Integer): Boolean
+    var
+        ReportLayoutList: Record "Report Layout List";
+    begin
+        ReportLayoutList.SetFilter("Report ID", '=%1', ReportID);
+        ReportLayoutList.SetFilter("Layout Format", '=%1', ReportLayoutList."Layout Format"::Custom);
+        exit(not ReportLayoutList.IsEmpty());
     end;
 
     procedure HasCustomLayout(ReportID: Integer): Integer
@@ -144,6 +186,24 @@ table 9651 "Report Layout Selection"
         exit(HasNormalCustomLayoutSelection(ReportID));
     end;
 
+    procedure SelectedBuiltinLayoutType(ReportID: Integer): Integer
+    begin
+        if not Get(ReportID, CompanyName) then
+            exit(0);
+        case Type of
+            Type::"RDLC (built-in)":
+                exit(1);
+            Type::"Word (built-in)":
+                exit(2);
+            Type::"Excel Layout":
+                exit(3);
+            Type::"External Layout":
+                exit(4);
+            else
+                exit(0);
+        end;
+    end;
+
     local procedure HasNormalCustomLayoutSelection(ReportID: Integer) Result: Integer
     var
         CustomReportLayout: Record "Custom Report Layout";
@@ -157,22 +217,17 @@ table 9651 "Report Layout Selection"
         if not Get(ReportID, CompanyName) then
             exit(0);
         case Type of
-            Type::"RDLC (built-in)":
-                begin
-                    if REPORT.DefaultLayout(ReportID) = DEFAULTLAYOUT::RDLC then
-                        exit(0);
-                    exit(1);
-                end;
-            Type::"Word (built-in)":
-                exit(2);
             Type::"Custom Layout":
                 begin
                     if not CustomReportLayout.Get("Custom Report Layout Code") then
                         exit(0);
                     if CustomReportLayout.Type = CustomReportLayout.Type::RDLC then
                         exit(1);
-                    exit(2);
+                    if CustomReportLayout.Type = CustomReportLayout.Type::Word then
+                        exit(2);
                 end;
+            else
+                exit(0);
         end;
     end;
 

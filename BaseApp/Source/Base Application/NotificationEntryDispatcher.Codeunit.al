@@ -18,7 +18,6 @@ codeunit 1509 "Notification Entry Dispatcher"
         NotificationManagement: Codeunit "Notification Management";
         NotificationMailSubjectTxt: Label 'Notification overview';
         NoEmailAccountsErr: Label 'Cannot send the email. No email accounts have been added.';
-        SMTPNotDefinedErr: Label 'Cannot send the email. SMTP Setup is not defined.';
         HtmlBodyFilePath: Text;
 
     local procedure DispatchInstantNotifications()
@@ -55,14 +54,10 @@ codeunit 1509 "Notification Entry Dispatcher"
     var
         UserSetup: Record "User Setup";
         NotificationEntry: Record "Notification Entry";
-        EmailFeature: Codeunit "Email Feature";
     begin
         NotificationEntry.SetView(Parameter);
         UserSetup.Get(NotificationEntry.GetRangeMax("Recipient User ID"));
-        if EmailFeature.IsEnabled() then
-            DispatchForNotificationType(NotificationEntry.GetRangeMax(Type), UserSetup, CopyStr(UserId(), 1, 50))
-        else
-            DispatchForNotificationType(NotificationEntry.GetRangeMax(Type), UserSetup, '');
+        DispatchForNotificationType(NotificationEntry.GetRangeMax(Type), UserSetup, CopyStr(UserId(), 1, 50));
     end;
 
     local procedure DispatchForNotificationType(NotificationType: Enum "Notification Entry Type"; UserSetup: Record "User Setup"; SenderUserID: Code[50])
@@ -77,7 +72,7 @@ codeunit 1509 "Notification Entry Dispatcher"
 
         DeleteOutdatedApprovalNotificationEntires(NotificationEntry);
 
-        if not NotificationEntry.FindFirst then
+        if not NotificationEntry.FindFirst() then
             exit;
 
         FilterToActiveNotificationEntries(NotificationEntry);
@@ -105,7 +100,6 @@ codeunit 1509 "Notification Entry Dispatcher"
     local procedure CreateMailAndDispatch(var NotificationEntry: Record "Notification Entry"; Email: Text)
     var
         NotificationSetup: Record "Notification Setup";
-        EmailFeature: Codeunit "Email Feature";
         MailManagement: Codeunit "Mail Management";
         DocumentMailing: Codeunit "Document-Mailing";
         ErrorMessageMgt: Codeunit "Error Message Management";
@@ -132,12 +126,8 @@ codeunit 1509 "Notification Entry Dispatcher"
         SourceReference.GetTable(NotificationEntry);
         SourceReference.GetBySystemId(NotificationEntry.SystemId);
 
-        if EmailFeature.IsEnabled() then
-            IsEmailedSuccessfully := DocumentMailing.EmailFile(
-             AttachmentStream, '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification", SourceReference)
-        else
-            IsEmailedSuccessfully := DocumentMailing.EmailFileWithSubjectAndSender(
-             '', '', HtmlBodyFilePath, MailSubject, Email, true, NotificationEntry."Sender User ID");
+        IsEmailedSuccessfully := DocumentMailing.EmailFile(
+         AttachmentStream, '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification", SourceReference);
         FileManagement.DeleteServerFile(HtmlBodyFilePath);
         if IsEmailedSuccessfully then
             NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
@@ -146,10 +136,7 @@ codeunit 1509 "Notification Entry Dispatcher"
             ErrorText := GetLastErrorText();
             if ErrorText = '' then
                 if not MailManagement.IsEnabled() then
-                    if EmailFeature.IsEnabled() then
-                        ErrorText := NoEmailAccountsErr
-                    else
-                        ErrorText := SMTPNotDefinedErr;
+                    ErrorText := NoEmailAccountsErr;
 
             NotificationEntry."Error Message" := ErrorText;
             NotificationEntry.Modify(true);
@@ -298,7 +285,7 @@ codeunit 1509 "Notification Entry Dispatcher"
 
     local procedure DeleteOutdatedApprovalNotificationEntires(var NotificationEntry: Record "Notification Entry")
     begin
-        if NotificationEntry.FindFirst then
+        if NotificationEntry.FindFirst() then
             repeat
                 if ApprovalNotificationEntryIsOutdated(NotificationEntry) then
                     NotificationEntry.Delete();
@@ -334,10 +321,8 @@ codeunit 1509 "Notification Entry Dispatcher"
     local procedure GetTempNotificationEntryFromTo(var TempNotificationEntryFromTo: Record "Notification Entry" temporary)
     var
         NotificationEntry: Record "Notification Entry";
-        EmailFeature: Codeunit "Email Feature";
     begin
-        if EmailFeature.IsEnabled() then
-            NotificationEntry.SetRange("Sender User ID", UserId());
+        NotificationEntry.SetRange("Sender User ID", UserId());
 
         if NotificationEntry.FindSet() then
             repeat

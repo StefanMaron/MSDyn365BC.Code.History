@@ -49,7 +49,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Sales] [Posting]
         // [SCENARIO 303270] "Customer Name" is blank in customer ledger entry if "Copy Customer Name to Entries" is 'No'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase setup field "Copy Customer Name to Entries" set to 'No' (default)
         SetCopyCustNameToLedgerEntriesSilent(false);
@@ -74,7 +74,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Sales] [Posting]
         // [SCENARIO 303270] "Customer Name" in customer ledger entry gets customer's name if "Copy Customer Name to Entries" is 'Yes'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory setup field "Copy Customer Name Entries" set to 'Yes'
         SetCopyCustNameToLedgerEntriesSilent(true);
@@ -103,7 +103,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Sales] [Setup]
         // [SCENARIO 303270] Fill blank "Customer Name" in ledger entries if "Copy Customer Name Entries" changed to 'Yes'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup field "Copy Customer Name Entries" set to 'No'
         SetCopyCustNameToLedgerEntries(false);
@@ -152,7 +152,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Sales] [Setup]
         // [SCENARIO 303270] Create job queue entry for filling blank "Customer Name" if "Copy Customer Name Entries" changed to 'Yes'
-        Initialize;
+        Initialize();
         // [GIVEN] Setup field "Copy Customer Name Entries" set to 'No'
         SetCopyCustNameToLedgerEntries(false);
 
@@ -199,7 +199,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Sales] [Setup]
         // [SCENARIO 303270] Job queue entry is not created if scheduling cancelled
-        Initialize;
+        Initialize();
         // [GIVEN] Setup field "Copy Customer Name Entries" set to 'No'
         SetCopyCustNameToLedgerEntries(false);
 
@@ -241,7 +241,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Sales] [Setup]
         // [SCENARIO 303270] "Copy Customer Name Entries" changed to 'Yes' does nothing if all "Customer Name" in ledger entries are filled
-        Initialize;
+        Initialize();
         // [GIVEN] All ledger entries have "Customer Name"
         CustLedgerEntry.SetFilter("Customer No.", '<>''''');
         CustLedgerEntry.SetRange("Customer Name", '');
@@ -263,7 +263,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Purchase] [Posting]
         // [SCENARIO 303270] "Vendor Name" is blank in vendor ledger entry if "Copy Vendor Name to Entries" is 'No'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase setup field "Copy Vendor Name to Entries" set to 'No' (default)
         SetCopyVendNameToLedgerEntriesSilent(false);
@@ -288,7 +288,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Purchase] [Posting]
         // [SCENARIO 303270] "Vendor Name" in vendor ledger entry gets vendor's name if "Copy Vendor Name to Entries" is 'Yes'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory setup field "Copy Vendor Name Entries" set to 'Yes'
         SetCopyVendNameToLedgerEntriesSilent(true);
@@ -317,7 +317,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Purchase] [Setup]
         // [SCENARIO 303270] Fill blank "Vendor Name" in ledger entries if "Copy Vendor Name Entries" changed to 'Yes'
-        Initialize;
+        Initialize();
         // [GIVEN] Setup field "Copy Vendor Name Entries" set to 'No'
         SetCopyVendNameToLedgerEntries(false);
 
@@ -364,7 +364,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Purchase] [Setup]
         // [SCENARIO 303270] Create job queue entry for filling blank "Vendor Name" if "Copy Vendor Name Entries" changed to 'Yes'
-        Initialize;
+        Initialize();
         // [GIVEN] Setup field "Copy Vendor Name Entries" set to 'No'
         SetCopyVendNameToLedgerEntries(false);
 
@@ -411,7 +411,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Purchase] [Setup]
         // [SCENARIO 303270] Job queue entry is not created if scheduling cancelled
-        Initialize;
+        Initialize();
         // [GIVEN] Setup field "Copy Vendor Name Entries" set to 'No'
         SetCopyVendNameToLedgerEntries(false);
 
@@ -453,7 +453,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Purchase] [Setup]
         // [SCENARIO 303270] "Copy Vendor Name Entries" changed to 'Yes' does nothing if all "Vendor Name" in ledger entries are filled
-        Initialize;
+        Initialize();
         VendLedgerEntry.SetFilter("Vendor No.", '<>''''');
         VendLedgerEntry.SetRange("Vendor Name", '');
         Assert.RecordIsEmpty(VendLedgerEntry);
@@ -476,7 +476,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         // [FEATURE] [Inventory] [Posting]
         // [SCENARIO 303271] "Description" is blank in item ledger entry if "Copy Item Descr. to Entries" is 'No'
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory setup field "Copy Item Descr. to Entries" set to 'No'
         SetCopyItemDescrToLedgerEntriesSilent(false);
@@ -504,7 +504,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Inventory] [Posting]
         // [SCENARIO 303271] "Description" in item ledger entry gets item's description if "Copy Item Descr. to Entries" is 'Yes'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory setup field "Copy Item Descr. to Entries" set to 'Yes'
         SetCopyItemDescrToLedgerEntriesSilent(true);
@@ -533,7 +533,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Inventory] [Variant] [Posting]
         // [SCENARIO 303271] "Description" in item ledger entry gets item variant's description if "Copy Item Descr. to Entries" is 'Yes'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory setup field "Copy Item Descr. to Entries" set to 'Yes'
         SetCopyItemDescrToLedgerEntriesSilent(true);
@@ -566,7 +566,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Inventory] [Setup]
         // [SCENARIO 303271] Fill blank "Description" in ledger entries if "Copy Item Descr. To Entries" changed to 'Yes'
-        Initialize;
+        Initialize();
         // [GIVEN] Item 'X'
         // [GIVEN] There are Item Ledger Entries, Value Entries and Phys. Inv. Ledger Entries, where Description is <blank>
         CreateItemWithEntries(Item);
@@ -603,7 +603,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Inventory] [Variant] [Setup]
         // [SCENARIO 303271] Fill blank "Description" in ledger entries if "Copy Item Descr. To Entries" changed to 'Yes'
-        Initialize;
+        Initialize();
         // [GIVEN] Item Variant 'Y' for Item 'X'
         // [GIVEN] There are Item Ledger Entries, Value Entries and Phys. Inv. Ledger Entries, where Description is <blank>
         CreateItemVariantWithEntries(ItemVariant);
@@ -641,7 +641,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Inventory] [Setup]
         // [SCENARIO 303271] Create job queue entry for filling blank Descrioption if "Copy Item Descr. To Entries" changed to 'Yes'
-        Initialize;
+        Initialize();
         // [GIVEN] Item 'X'
         // [GIVEN] There are Item Ledger Entries, Value Entries and Phys. Inv. Ledger Entries, where Description is <blank>
         CreateItemWithEntries(Item);
@@ -678,7 +678,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Inventory] [Setup]
         // [SCENARIO 303271] Create job queue entry for filling blank Descrioption if "Copy Item Descr. To Entries" changed to 'Yes'
-        Initialize;
+        Initialize();
         // [GIVEN] Item 'X'
         // [GIVEN] There are Item Ledger Entries, Value Entries and Phys. Inv. Ledger Entries, where Description is <blank>
         CreateItemWithEntries(Item);
@@ -709,7 +709,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         // [FEATURE] [Inventory] [Setup]
         // [SCENARIO 303271] "Copy Item Descr. To Entries" changed to 'Yes' does nothing if all "Description" in ledger entries are filled
-        Initialize;
+        Initialize();
 
         // [WHEN] Inventory setup field "Copy Item Descr. to Entries" set to 'Yes'
         SetCopyItemDescrToLedgerEntries(true);
@@ -721,7 +721,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Copy Name To Ledg. Entries");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         FillCVNames(false);
         FillItemDesciptions(false);
 
@@ -729,9 +729,9 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Copy Name To Ledg. Entries");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         FillCVNames(true);
         FillItemDesciptions(true);
         SetCopyCustNameToLedgerEntriesSilent(false);
@@ -750,7 +750,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         EntryNo: Integer;
     begin
         RecRef.Open(TableNo);
-        if RecRef.FindLast then begin
+        if RecRef.FindLast() then begin
             FieldRef := RecRef.Field(EntryNoFieldNo);
             EntryNo := FieldRef.Value;
         end;
@@ -869,7 +869,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         LastEntryNo: Integer;
     begin
         RecRef.Open(TableNo);
-        if RecRef.FindLast then begin
+        if RecRef.FindLast() then begin
             FieldRef := RecRef.Field(1); // Entry No.
             LastEntryNo := FieldRef.Value;
         end;
@@ -888,7 +888,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("System Task ID", TaskID);
-        if not JobQueueEntry.FindFirst then
+        if not JobQueueEntry.FindFirst() then
             exit(false);
         CODEUNIT.Run(CODEUNIT::"Update Name In Ledger Entries", JobQueueEntry);
         exit(true);
@@ -1018,7 +1018,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     begin
         ExpectedDateTime := LibraryVariableStorage.DequeueDateTime; // from OKScheduleAJobModalPageHandler
         JobQueueEntry.SetRange("System Task ID", ExpectedTaskID);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         JobQueueEntry.TestField("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.TestField("Object ID to Run", CODEUNIT::"Update Name In Ledger Entries");
         JobQueueEntry.TestField("Earliest Start Date/Time", ExpectedDateTime);

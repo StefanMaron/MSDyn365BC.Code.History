@@ -69,7 +69,7 @@ codeunit 136103 "Service Items"
         // 4. Verify that the value of the Parts Used field in the Service Item is the product of the Unit Cost applicable and the Quantity in the Service Line.
 
         // [GIVEN] Setup demonstration data.
-        Initialize;
+        Initialize();
 
         // [WHEN] Create and Post Service Order as Ship and Invoice.
         CreateServiceItemWithAmounts(ServiceItem);
@@ -98,7 +98,7 @@ codeunit 136103 "Service Items"
         // 3. Verify that the Troubleshooting assigned to the Item has been populated on the Service Item linked to it.
 
         // [GIVEN] Setup demonstration data, create and assign Troubleshooting to the Item and create Service Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndAssignTroubleshooting(TroubleshootingLineNo, Type::Item, Item."No.");
         CreateServiceItem(ServiceItem);
@@ -126,7 +126,7 @@ codeunit 136103 "Service Items"
         // 3 Verify that the Troubleshooting assigned to the Service Item Group has been populated on the Service Item linked to it.
 
         // [GIVEN] Setup demonstration data, create Service Item Group and create and assign Troubleshooting to it. Create Service Item.
-        Initialize;
+        Initialize();
         ServiceItemGroupCode := CreateServiceItemGroup;
         CreateAndAssignTroubleshooting(TroubleshootingLineNo, Type::"Service Item Group", ServiceItemGroupCode);
         CreateServiceItem(ServiceItem);
@@ -155,7 +155,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Check that once Service Item has been created from the Service Item Line it cannot be created again.
 
         // [GIVEN] Setup demonstration data. Create Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         CreateServOrderForServItemCrea(ServiceItemLine, Type::Item);
 
         // [WHEN] Create Service Item from Service Order.
@@ -185,7 +185,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Check that the Service Item has the same Service Item Group Code as the Service Item Line.
 
         // [GIVEN] Setup demonstration data.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Service Header, Service Line and Service Item Group. Assign Service Item Group to the Service Line.
         CreateServOrderForServItemCrea(ServiceItemLine, Type::"Service Item Group");
@@ -219,7 +219,7 @@ codeunit 136103 "Service Items"
         // 5. Verify the Service Item.
 
         // [GIVEN] Setup demonstration data.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Service Item Group and create a new Item with it.
         LibraryInventory.CreateItem(Item);
@@ -234,7 +234,7 @@ codeunit 136103 "Service Items"
         // [THEN] Verify that the number of Service Items created matches the Quantity on the Sales Line.
         ServiceItem.SetRange("Item No.", Item."No.");
         Assert.AreEqual(Quantity, ServiceItem.Count, StrSubstNo(ServiceItemCreationErr, ServiceItem.TableCaption));
-        ServiceItem.FindFirst;
+        ServiceItem.FindFirst();
         ServiceItem.TestField("Service Item Group Code", Item."Service Item Group");
         ServiceItemGroup.Get(ServiceItem."Service Item Group Code");
         ServiceItem.TestField("Response Time (Hours)", ServiceItemGroup."Default Response Time (Hours)");
@@ -257,7 +257,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the Resource Skill attached to the Service Item has been updated according to the Service Item Group changed.
 
         // [GIVEN] Setup demonstration data. Create Service Item Group with Skill and a new Service Item. Attach Service Item Group to Service Item.
-        Initialize;
+        Initialize();
         CreateServiceItemGrpWithSkill(ServiceItemGroupCode, ResourceSkill);
         CreateServiceItem(ServiceItem);
         ServiceItem.Validate("Service Item Group Code", ServiceItemGroupCode);
@@ -289,7 +289,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the Service Item does not exist in the Service Item table after deletion.
 
         // [GIVEN] Setup demonstration data and create a new Service Item.
-        Initialize;
+        Initialize();
         CreateServiceItem(ServiceItem);
 
         // [WHEN] Delete the Service Item.
@@ -321,7 +321,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the Replaced Component list for the first Item selected as component has exactly one line for manual creation of components.
 
         // [GIVEN] Setup demonstration data and create a new Service Item with Service Item Components. Create Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateServiceItemWithTwoCompon(ServiceItem, ServiceItemComponent, ServiceItemComponent2, ItemNo);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -356,7 +356,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the Replaced Component list for the first Item selected as component has exactly one line for automatic creation of components.
 
         // [GIVEN] Setup demonstration data and create a new Service Item with an Item having two BOM Components. Create Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateServiceItemWithBOMItem(ServiceHeader, ServiceItemNoForComponent, ItemNo);
 
         // [WHEN] Create a Service Line for the Service Item with an Item that is different from the Item created.
@@ -383,7 +383,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the value of the Default Contract Value is 0 when Contract Value Calc. Method as None and Contract Value % as any random value.
 
         // [GIVEN] Setup demonstration data and Service Management Setup.
-        Initialize;
+        Initialize();
         ContractValuePercentage := LibraryRandom.RandInt(100);
         ContractValueCalcMethodOld := ServMgtSetupForContractValCalc(ContractValueCalcMethod::None, ContractValuePercentage);
 
@@ -415,7 +415,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the values of the Default Contract Value and Default Contract Cost are equal to 0.
 
         // [GIVEN] Setup demonstration data and Service Management Setup.
-        Initialize;
+        Initialize();
         ContractValueCalcMethodOld := ServMgtSetupForContractValCalc(ContractValueCalcMethod::None, 0);
 
         // [WHEN] Create a Service Item with random Sales Unit Cost and Sales Unit Price.
@@ -443,7 +443,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the value of the Default Contract Cost is equal to the field Sales Unit Cost of the Service Item.
 
         // [GIVEN] Setup demonstration data and Service Management Setup.
-        Initialize;
+        Initialize();
         ContractValueCalcMethodOld := ServMgtSetupForContractValCalc(ContractValueCalcMethod::None, 100);
 
         // [WHEN] Create a Service Item with random Sales Unit Cost and Sales Unit Price.
@@ -474,7 +474,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the value of the Default Contract Cost is the product of the Sales Unit Cost field of the Service Item and the Contract Value % field of the Service Management Setup divided by 100.
 
         // [GIVEN] Setup demonstration data and Service Management Setup.
-        Initialize;
+        Initialize();
         ContractValuePercentage := LibraryRandom.RandInt(100);
         ContractValueCalcMethodOld :=
           ServMgtSetupForContractValCalc(ContractValueCalcMethod::"Based on Unit Price", ContractValuePercentage);
@@ -513,7 +513,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the values of the Default Contract Value and Default Contract Cost are equal to 0 for Contract Value Calc. Method as Based on Unit Price.
 
         // [GIVEN] Setup demonstration data and Service Management Setup.
-        Initialize;
+        Initialize();
         ContractValueCalcMethodOld := ServMgtSetupForContractValCalc(ContractValueCalcMethod::"Based on Unit Price", 0);
 
         // [WHEN] Create a Service Item with random Sales Unit Cost and Sales Unit Price.
@@ -542,7 +542,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the value of the Default Contract Value is equal to the value of the field Sales Unit Price of the Service Item.
 
         // [GIVEN] Setup demonstration data and Service Management Setup.
-        Initialize;
+        Initialize();
         ContractValueCalcMethodOld := ServMgtSetupForContractValCalc(ContractValueCalcMethod::"Based on Unit Price", 100);
 
         // [WHEN] Create a Service Item with random Sales Unit Cost and Sales Unit Price.
@@ -574,7 +574,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the value of the Default Contract Value is equal to the value of the field Default Contract Cost of the Service Item
 
         // [GIVEN] Setup demonstration data and Service Management Setup.
-        Initialize;
+        Initialize();
         ContractValuePercentage := LibraryRandom.RandInt(100);
         ContractValueCalcMethodOld :=
           ServMgtSetupForContractValCalc(ContractValueCalcMethod::"Based on Unit Cost", ContractValuePercentage);
@@ -610,7 +610,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the values of the Default Contract Value and Default Contract Cost are 0.
 
         // [GIVEN] Setup demonstration data and Service Management Setup.
-        Initialize;
+        Initialize();
         ContractValueCalcMethodOld := ServMgtSetupForContractValCalc(ContractValueCalcMethod::"Based on Unit Cost", 0);
 
         // [WHEN] Create a Service Item with random Sales Unit Cost and Sales Unit Price.
@@ -639,7 +639,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the value of the Default Contract Cost is equal to the value of the field Sales Unit Cost of the Service Item.
 
         // [GIVEN] Setup demonstration data and Service Management Setup.
-        Initialize;
+        Initialize();
         ContractValueCalcMethodOld := ServMgtSetupForContractValCalc(ContractValueCalcMethod::"Based on Unit Cost", 100);
 
         // [WHEN] Create a Service Item with random Sales Unit Cost and Sales Unit Price.
@@ -669,7 +669,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the field Service Contract on the Service Item has been updated as TRUE after creation of the Service Contract.
 
         // [GIVEN] Setup demonstration data and Service Management Setup. Create a Service Item with random Sales Unit Cost and Sales Unit Price.
-        Initialize;
+        Initialize();
         CreateServItemWithSalesUnitAmt(ServiceItem);
 
         // [WHEN] Create Service Contract with the Service Item created.
@@ -698,7 +698,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verify that the field Service Contract on the Service Item has been updated as FALSE after deletion of the Service Contract.
 
         // [GIVEN] Setup demonstration data and Service Management Setup. Create a Service Item with random Sales Unit Cost and Sales Unit Price and a new Service Contract with the Service Item created.
-        Initialize;
+        Initialize();
         CreateServItemWithSalesUnitAmt(ServiceItem);
         LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
         CreateServiceContractHeader(ServiceContractHeader, ServiceItem."Customer No.");
@@ -776,7 +776,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Check that the values in the Service Line table are the same as Service Shipment Line table.
 
         // [GIVEN] Setup demonstration data and Service Management.
-        Initialize;
+        Initialize();
 
         // [WHEN] Create and Post Service Order as Ship.
         CreateServiceItemWithAmounts(ServiceItem);
@@ -799,7 +799,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Check Service Item Log entry after the creation of Service Item.
 
         // [GIVEN] Setup demonstration data.
-        Initialize;
+        Initialize();
 
         // [WHEN] Create a Service Item with random Sales Unit Cost and Sales Unit Price.
         LibraryService.CreateServiceItem(ServiceItem, '');
@@ -818,7 +818,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Check Service Item Log entry after the Ship-to Code has been updated as a result of validating Customer.
 
         // [GIVEN] Setup demonstration data.
-        Initialize;
+        Initialize();
 
         // [WHEN] Create a Service Item with random Sales Unit Cost and Sales Unit Price.
         CreateServItemWithSalesUnitAmt(ServiceItem);
@@ -842,7 +842,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Check Service Item Log entry after the creation of the Service Contract.
 
         // [GIVEN] Setup demonstration data. Create a Service Item with random Sales Unit Cost and Sales Unit Price
-        Initialize;
+        Initialize();
         CreateServItemWithSalesUnitAmt(ServiceItem);
 
         // [WHEN] Create Service Contract for the Service Item created above.
@@ -867,7 +867,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Check Service Item Log entry after the creation of the Service Order.
 
         // [GIVEN] Setup demonstration data. Create a Service Item with random Sales Unit Cost and Sales Unit Price
-        Initialize;
+        Initialize();
         CreateServItemWithSalesUnitAmt(ServiceItem);
 
         // [WHEN] Create Service Order for the Service Item created above.
@@ -892,7 +892,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Check Service Item Log entry after the creation of the Service Quote.
 
         // [GIVEN] Setup demonstration data. Create a Service Item with random Sales Unit Cost and Sales Unit Price
-        Initialize;
+        Initialize();
         CreateServItemWithSalesUnitAmt(ServiceItem);
 
         // [WHEN] Create Service Quote for the Service Item created above.
@@ -916,7 +916,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Document Log created on creation of Service Quote.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Quote.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -937,7 +937,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Document Log created on creation of Service Invoice.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Header of Document Type Invoice.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -960,7 +960,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Document Log created after Posting Service Invoice.
 
         // 1. Setup: Create Service Header with Document Type Invoice and Service Line of Type Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Randon because value is not important.
@@ -972,7 +972,7 @@ codeunit 136103 "Service Items"
         // 3. Verify: Verify Service document Log for Posted Service Invoice.
         // The value 22, 20 is the event number for Service Invoice and Posted Invoice Creation.
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         VerifyServiceDocumentLogEntry(ServiceInvoiceHeader."No.", ServiceDocumentLog."Document Type"::"Posted Invoice", 22);
         VerifyServiceDocumentLogEntry(ServiceHeader."No.", ServiceDocumentLog."Document Type"::Invoice, 20);
     end;
@@ -988,7 +988,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Document Log created on creation of Service Credit Memo.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Header of Document Type Credit Memo.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
@@ -1012,7 +1012,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Document Log created after Posting Service Credit Memo.
 
         // 1. Setup: Create Service Header with Document Type Credit Memo and Service Line of Type Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Randon because value is not important.
@@ -1025,7 +1025,7 @@ codeunit 136103 "Service Items"
         // 3. Verify: Verify Service document Log for Posted Service Credit Memo.
         // The value 16, 21 is the event number for Service Credit Memo and Posted Credit Memo Creation.
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         VerifyServiceDocumentLogEntry(ServiceCrMemoHeader."No.", ServiceDocumentLog."Document Type"::"Posted Credit Memo", 16);
         VerifyServiceDocumentLogEntry(ServiceHeader."No.", ServiceDocumentLog."Document Type"::"Credit Memo", 21);
     end;
@@ -1040,7 +1040,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Item Log created after Item No. changed on Service Item.
 
         // 1. Setup: Create Service Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
 
         // 2. Exercise: Change Item No. on Service Item.
@@ -1061,7 +1061,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Item Log created after Serial No. changed on Service Item.
 
         // 1. Setup: Create Service Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
 
         // 2. Exercise: Change Serial No. on Service Item.
@@ -1082,7 +1082,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Item Log created after Renamed Service Item.
 
         // 1. Setup: Create Service Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
 
         // 2. Exercise: Rename Service Item.
@@ -1102,7 +1102,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Item Log created after Status Changing.
 
         // 1. Setup: Create Service Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
 
         // 2. Exercise: Change Status on Service Item.
@@ -1129,7 +1129,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create a new Service Item with an Item having two BOM Components and Create a Service Line with Selection of Replace
         // Component Option.
-        Initialize;
+        Initialize();
         CreateServiceItemWithBOMItem(ServiceHeader, ServiceItemNoForComponent, ItemNo);
         CreateServiceLine(ServiceLine, ItemNo, ServiceHeader, ServiceItemNoForComponent);
 
@@ -1138,7 +1138,7 @@ codeunit 136103 "Service Items"
 
         // 3. Verify: Verify Value Entry after Posting Service Order.
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         VerifyValueEntry(ValueEntry."Document Type"::"Service Invoice", ServiceInvoiceHeader."No.", ItemNo, ServiceLine.Quantity);
     end;
 
@@ -1156,7 +1156,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create a new Service Item with an Item having two BOM Components and Create a Service Line with Selection of New
         // Component Option.
-        Initialize;
+        Initialize();
         CreateServiceItemWithBOMItem(ServiceHeader, ServiceItemNoForComponent, ItemNo);
         CreateServiceLine(ServiceLine, ItemNo, ServiceHeader, ServiceItemNoForComponent);
 
@@ -1186,7 +1186,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Service Item Group with Skill and a new Item. Attach Service Item Group to  Item, Create Sales Header with
         // Currency Code and Sales Line.
-        Initialize;
+        Initialize();
         CreateServiceItemGrpWithSkill(ServiceItemGroupCode, ResourceSkill);
         LibraryInventory.CreateItem(Item);
         Item.Validate("Service Item Group", ServiceItemGroupCode);
@@ -1240,7 +1240,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test the Customer information on Service Order.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
 
         // [WHEN] Find Customer and Create Service Header.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -1261,7 +1261,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test the Service Item details on Service Item Line.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
 
         // [WHEN] Find Customer, create Service Header, create Service Item, create Service Item Line.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -1285,7 +1285,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Service Order - Service Header, Service Item Line with Description and attach Item on Service Item Line,
         // Create Service Item from Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceItemFromOrder(ServiceItemLine);
 
         // 2. Exercise: Create Service Line.
@@ -1311,7 +1311,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Service Order - Service Header, Service Item Line with Description and attach Item on Service Item Line,
         // Create Service Item from Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceItemFromOrder(ServiceItemLine);
 
         // 2. Exercise: Create Service Line and Post Service Order as Ship.
@@ -1361,7 +1361,7 @@ codeunit 136103 "Service Items"
     begin
         // 1. Setup: Create Service Order - Service Header, Service Item Line with Description and attach Item on Service Item Line,
         // Create Service Item from Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceItemFromOrder(ServiceItemLine);
 
         // 2. Exercise: Create Component for Service Item and Create Service Line.
@@ -1389,7 +1389,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Service Order - Service Header, Service Item Line with Description and attach Item on Service Item Line,
         // Create Service Item from Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceItemFromOrder(ServiceItemLine);
 
         // 2. Exercise: Create Component for Service Item, Create Service Line and Post Service Order as Ship.
@@ -1419,14 +1419,14 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test deletion of Service Document Log created on creation of Service Order.
 
         // 1. Setup: Create Service Header of Document Type Order.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
 
         // 2. Exercise: Delete the Service Document log. The value 1 is the event number for Service Order Creation.
         FilterServiceDocumentLog(ServiceDocumentLog, ServiceHeader."Document Type", ServiceHeader."No.", 1);
         DeleteServiceDocumentLog.UseRequestPage(false);
         DeleteServiceDocumentLog.SetTableView(ServiceDocumentLog);
-        DeleteServiceDocumentLog.Run;
+        DeleteServiceDocumentLog.Run();
 
         // 3. Verify: Verify Service Document Log has been deleted.
         Assert.AreEqual(
@@ -1445,7 +1445,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Document Log is not deleted for current document if Process Deleted Only option is TRUE.
 
         // 1. Setup: Create Service Header of Document Type Order.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
 
         // 2. Exercise: Try to delete the Service Document log with Process Deleted Only option as TRUE.
@@ -1454,10 +1454,10 @@ codeunit 136103 "Service Items"
         DeleteServiceDocumentLog.UseRequestPage(false);
         DeleteServiceDocumentLog.SetProcessDeletedOnly(true);
         DeleteServiceDocumentLog.SetTableView(ServiceDocumentLog);
-        DeleteServiceDocumentLog.Run;
+        DeleteServiceDocumentLog.Run();
 
         // 3. Verify: Verify Service Document Log still exists.
-        ServiceDocumentLog.FindFirst;
+        ServiceDocumentLog.FindFirst();
     end;
 
     [Test]
@@ -1475,7 +1475,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Service Header of Document Type Order, Service Item, ServiceItem Line, multiple Service Lines.
         // Post the Document as Ship and Invoice.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -1489,7 +1489,7 @@ codeunit 136103 "Service Items"
         DeleteServiceDocumentLog.UseRequestPage(false);
         DeleteServiceDocumentLog.SetProcessDeletedOnly(true);
         DeleteServiceDocumentLog.SetTableView(ServiceDocumentLog);
-        DeleteServiceDocumentLog.Run;
+        DeleteServiceDocumentLog.Run();
 
         // 3. Verify: Verify Service Document Log has been deleted.
         Assert.AreEqual(
@@ -1505,7 +1505,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test create Service Item and verify that the Service Item Created.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create a new service Item.
         PageCreateServiceItem(ServiceItemNo);
@@ -1526,7 +1526,7 @@ codeunit 136103 "Service Items"
         // Verify that the Service Item is being assigned with correct values.
 
         // 1. Setup: Create a Service Item.
-        Initialize;
+        Initialize();
         PageCreateServiceItem(ServiceItemNo);
         PageUpdateServiceItem(ServiceItemNo);
 
@@ -1548,7 +1548,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Item is not created after posting Item Journal.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Post Item Journal.
         CreateAndPostItemJournalLine(ItemJournalLine);
@@ -1570,7 +1570,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Item Status After Posting Sales Order.
 
         // 1. Setup: Create Item With Service Item Group.
-        Initialize;
+        Initialize();
         CreateAndPostItemJournalLine(ItemJournalLine);
 
         // 2. Exercise: Post Item Journal.
@@ -1593,9 +1593,9 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Return Order]
         // [SCENARIO] Service Item doesn't exist After posting Sales Return Order.
-        Initialize;
+        Initialize();
         UpdateNoSeries;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Item With Service Item Group. Make positive Inventory Adjustment.
         CreateAndPostItemJournalLine(ItemJournalLine);
@@ -1622,9 +1622,9 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Return Order]
         // [SCENARIO 376221] System doesn't delete Service Item with Open Service Ledger Entries After posting Sales Return Order.
-        Initialize;
+        Initialize();
         UpdateNoSeries;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Item With Service Item Group. Make positive Inventory Adjustment.
         CreateAndPostItemJournalLine(ItemJournalLine);
@@ -1653,7 +1653,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Item Status when Sales Order is posted after Sales Return Order.
 
         // 1. Setup: Create Item With Service Item Group.
-        Initialize;
+        Initialize();
         UpdateNoSeries;
         CreateAndPostItemJournalLine(ItemJournalLine);
 
@@ -1680,7 +1680,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Check that programm does not populate any error Message with validate of the Variant Code in an existing Component Service Item line.
 
         // [GIVEN] Create Service Item with variant.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItem(Item));
         LibraryService.CreateServiceItem(ServiceItem, '');
         ServiceItem.Validate("Item No.", ItemVariant."Item No.");
@@ -1733,7 +1733,7 @@ codeunit 136103 "Service Items"
     begin
         // [SCENARIO] Verify that only 1 Service Item with the same Serial No. can be existed in Service Items List
         // [GIVEN] Create Item With Service Item Group, create and post Item Journal.
-        Initialize;
+        Initialize();
         CreateAndPostMutipleItemJournalLine(ItemJournalLine);
 
         // [GIVEN] Create numbers of Service Items with Item No. and Serial No. matches the Quantity on the Item Journal.
@@ -1761,7 +1761,7 @@ codeunit 136103 "Service Items"
         // [THEN] Verify that only 1 Service Item with the same Serial No. can be existed in Service Items List
         for i := 1 to ItemJournalLine.Quantity do begin
             ServiceItem.SetRange("Serial No.", SerialNo[i]);
-            ServiceItem.FindFirst;
+            ServiceItem.FindFirst();
             Assert.AreEqual(1, ServiceItem.Count, StrSubstNo(ServiceItemCreationDuplicateErr, SerialNo[i]));
             ServiceItem.TestField("Item No.", ItemJournalLine."Item No.");
             ServiceItem.TestField(Status, ServiceItem.Status::Installed);
@@ -1779,7 +1779,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verifying that Line Discount and prices are correctly populated on Sales Return Order Line when using "Get Posted Document Lines to Reverse".
 
         // [GIVEN] Create and post Sales Order and create Sales Return Order
-        Initialize;
+        Initialize();
         CreateAndPostSalesOrder(SalesLine);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesLine."Sell-to Customer No.");
 
@@ -1801,7 +1801,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Verifying that Line Discount and prices are correctly populated on Purchase Return Order Line when using "Get Posted Document Lines to Reverse".
 
         // [GIVEN] Create and post purchase order and create Purchase Return Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrder(PurchaseLine);
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", PurchaseLine."Buy-from Vendor No.");
@@ -1824,7 +1824,7 @@ codeunit 136103 "Service Items"
         VATIdentifier: Code[20];
     begin
         // [SCENARIO 109048.1] Verify "VAT Identifier" is correctly copied when Copy Posted Sales Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post Sales Order
         CreateAndPostSalesOrder(SalesLine);
@@ -1854,7 +1854,7 @@ codeunit 136103 "Service Items"
         VATIdentifier: Code[20];
     begin
         // [SCENARIO 109048.2] Verify "VAT Identifier" is correctly copied when Copy Posted Purchase Receipt
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post Purchase Order
         CreateAndPostPurchaseOrder(PurchaseLine);
@@ -1887,7 +1887,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Item] [Drop Shipment]
         // [SCENARIO 375379] Posting Drop Shipment Purchase Order job should create Service Item if Quantity to Ship on appropriate Sales Order is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Service Item Group where "Create Service Item" = TRUE
         CreateItemWithVendor(Item);
@@ -1917,7 +1917,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376221] TAB5940 CheckIfCanBeDeleted() returns empty result in positive case
-        Initialize;
+        Initialize();
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, false);
@@ -1933,7 +1933,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376221] TAB5940 CheckIfCanBeDeleted() returns returns error text in case of existing Service Ledger Entry with Posting Date within Accounting Period
-        Initialize;
+        Initialize();
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", LibraryFiscalYear.GetFirstPostingDate(false), false);
@@ -1951,7 +1951,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376221] TAB5940 CheckIfCanBeDeleted() returns error text in case of Open Service Ledger Entry
-        Initialize;
+        Initialize();
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, true);
@@ -1971,7 +1971,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376221] COD361 MoveEntries.CheckIfServiceItemCanBeDeleted() returns empty result in positive case
-        Initialize;
+        Initialize();
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, false);
@@ -1989,7 +1989,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376221] COD361 MoveEntries.CheckIfServiceItemCanBeDeleted() returns error text in case of existing Service Ledger Entry with Posting Date within Accounting Period
-        Initialize;
+        Initialize();
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", LibraryFiscalYear.GetFirstPostingDate(false), false);
@@ -2009,7 +2009,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376221] COD361 MoveEntries.CheckIfServiceItemCanBeDeleted() returns error text in case of Open Service Ledger Entry
-        Initialize;
+        Initialize();
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, true);
@@ -2029,7 +2029,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376221] COD361 MoveEntries.MoveServiceItemLedgerEntries() clears "Service Ledger Entry"."Service Item No. (Serviced)"
-        Initialize;
+        Initialize();
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, false);
@@ -2052,7 +2052,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376221] COD361 MoveEntries.MoveServiceItemLedgerEntries() throws an error in case of existing Service Ledger Entry with Posting Date within Accounting Period
-        Initialize;
+        Initialize();
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", LibraryFiscalYear.GetFirstPostingDate(false), false);
@@ -2072,7 +2072,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376221] COD361 MoveEntries.MoveServiceItemLedgerEntries() throws an error in case of Open Service Ledger Entry
-        Initialize;
+        Initialize();
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, true);
@@ -2093,7 +2093,7 @@ codeunit 136103 "Service Items"
         ExpectedErrorString: Text;
     begin
         // [SCENARIO 169304] System does not allow to change Customer in Service Item when it has Service Item Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Item "SI1": serial number "SN1"
         // [GIVEN] Service order "O1": service line "L1"; Customer No. = "C1"
@@ -2130,7 +2130,7 @@ codeunit 136103 "Service Items"
         // [FEATURE] [Troubleshooting Setup] [UI]
         // [SCENARIO 201242] Troubleshooting Setup created for an Item, should be shown in Troubleshooting setup page called for this Item
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "III"
         LibraryInventory.CreateItem(Item);
@@ -2174,7 +2174,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Item Component] [UI]
         // [SCENARIO 221262] New Service Item Component is inserted with "Line No." = 20000 when only one component exists and for it Active = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Item "SI" and two Items "I1" and "I2"
         CreateServiceItem(ServiceItem);
@@ -2203,7 +2203,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Item Component] [UI] [UT]
         // [SCENARIO 221262] When single "Service Item Component" is inserted it has "Line No." = 10000
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Item "SI" and Item "I"
         CreateServiceItem(ServiceItem);
@@ -2230,7 +2230,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Item Component] [UI] [UT]
         // [SCENARIO 221262] When new "Service Item Component" is inserted before existing lines it has "Line No." = 5000
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Item "SI" and two Items "I1" and "I2" are Service Item Components "SIC1" and "SIC2"
         CreateServiceItem(ServiceItem);
@@ -2259,7 +2259,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Item Component] [UI] [UT]
         // [SCENARIO 221262] When new "Service Item Component" is inserted after two existing lines it has "Line No." = 30000
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Item "SI" and two Items "I1" and "I2" are Service Item Components "SIC1" and "SIC2"
         CreateServiceItem(ServiceItem);
@@ -2284,7 +2284,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Item Component] [UI] [UT]
         // [SCENARIO 221262] When new "Service Item Component" is inserted between two existing lines it has "Line No." = 15000
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Item "SI" and two Items "I1" and "I2" are Service Item Components "SIC1" and "SIC2"
         CreateServiceItem(ServiceItem);
@@ -2307,7 +2307,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Item Component] [UI] [UT]
         // [SCENARIO 221262] If "Service Item Component" SplitLineNo called and "Parent Service Item No." is blank then error "Parent Service Item No. must have a value in Service Item Component" occurs.
-        Initialize;
+        Initialize();
 
         // [WHEN] "Service Item Component" SplitLineNo called and "Parent Service Item No." is blank
         asserterror ServiceItemComponent.SplitLineNo(ServiceItemComponent, true);
@@ -2327,7 +2327,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Item] [UT]
         // [SCENARIO 322232] Service item Vendor No. could be updated during the vendor deletion
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V1"
         LibraryPurchase.CreateVendor(Vendor);
@@ -2362,7 +2362,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Contract] [UT]
         // [SCENARIO 322232] Cancelled service contract Customer No. could be updated during the customer deletion
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cancelled Service Contract with Customer No. = "C1"
         CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo());
@@ -2395,7 +2395,7 @@ codeunit 136103 "Service Items"
     begin
         // [FEATURE] [Service Item] [UT]
         // [SCENARIO 322232] Service item Item No. could be updated during the Item deletion
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Item with Item No. = "I1"
         CreateServiceItem(ServiceItem);
@@ -2420,16 +2420,16 @@ codeunit 136103 "Service Items"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Items");
         // Lazy Setup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Items");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Items");
@@ -2462,7 +2462,7 @@ codeunit 136103 "Service Items"
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.OpenItemTrackingLines(false);
     end;
 
@@ -2470,7 +2470,7 @@ codeunit 136103 "Service Items"
     var
         ServiceItemCard: TestPage "Service Item Card";
     begin
-        ServiceItemCard.OpenNew;
+        ServiceItemCard.OpenNew();
         ServiceItemCard.Description.Activate;
         ServiceItemNo := ServiceItemCard."No.".Value;
     end;
@@ -2641,7 +2641,7 @@ codeunit 136103 "Service Items"
         RetrieveDimensionsFrom: Option Item,"Sales Line";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::"Sales Line");
@@ -2753,7 +2753,7 @@ codeunit 136103 "Service Items"
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // Find the next Item.
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         ServiceItemNo := ServiceItem."No.";
     end;
 
@@ -2765,7 +2765,7 @@ codeunit 136103 "Service Items"
           ServiceItemComponent, ServiceItem."No.", ServiceItemComponent.Type::Item, LibraryInventory.CreateItemNo);
         LibraryService.CreateServiceItemComponent(
           ServiceItemComponent2, ServiceItem."No.", ServiceItemComponent.Type::Item, LibraryInventory.CreateItemNo);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
     end;
 
     local procedure CreateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; CustomerNo: Code[20])
@@ -2940,7 +2940,7 @@ codeunit 136103 "Service Items"
     begin
         // Create and Post Item Journal with Entry Type Purchase after assigning Lotno.
         // Create Item Journal with Entry Type Sale and Update Lot no. using Select Entries Or Assist Edit.
-        Initialize;
+        Initialize();
         CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, WorkDate,
           CreateItemWithTwoUnitsOfMeasure(ItemUnitOfMeasure), ItemUnitOfMeasure."Item No.", LibraryRandom.RandDecInRange(11, 20, 2));
         LibraryVariableStorage.Enqueue(ItemTrackingLinesAssignment::AssignLotNo);
@@ -3031,13 +3031,13 @@ codeunit 136103 "Service Items"
     begin
         ServiceItem.SetRange("Item No.", ServiceItemLine."Item No.");
         ServiceItem.SetRange("Serial No.", ServiceItemLine."Document No.");
-        ServiceItem.FindFirst;
+        ServiceItem.FindFirst();
     end;
 
     local procedure FindServiceItemByItemNo(var ServiceItem: Record "Service Item"; ItemNo: Code[20])
     begin
         ServiceItem.SetRange("Item No.", ItemNo);
-        ServiceItem.FindFirst;
+        ServiceItem.FindFirst();
     end;
 
     local procedure FindItemTrackingCode(LotSpecific: Boolean; SNSpecific: Boolean): Code[10]
@@ -3059,7 +3059,7 @@ codeunit 136103 "Service Items"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetFilter(Type, '<>%1', Type::" ");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3070,7 +3070,7 @@ codeunit 136103 "Service Items"
         with SalesShipmentHeader do begin
             SetRange("Sell-to Customer No.", CustNo);
             SetRange("Order No.", OrderNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -3081,7 +3081,7 @@ codeunit 136103 "Service Items"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetFilter(Type, '<>%1', Type::" ");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3090,7 +3090,7 @@ codeunit 136103 "Service Items"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
     end;
 
@@ -3101,7 +3101,7 @@ codeunit 136103 "Service Items"
         with PurchRcptHeader do begin
             SetRange("Buy-from Vendor No.", VendNo);
             SetRange("Order No.", OrderNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -3111,7 +3111,7 @@ codeunit 136103 "Service Items"
     begin
         ServiceItemComponent.SetRange("Parent Service Item No.", ServiceItemNo);
         ServiceItemComponent.SetRange("No.", ItemNo);
-        ServiceItemComponent.FindFirst;
+        ServiceItemComponent.FindFirst();
     end;
 
     local procedure GetRefinedUnitCost(Item: Record Item; ServiceLineUnitCostLCY: Decimal): Decimal
@@ -3167,7 +3167,7 @@ codeunit 136103 "Service Items"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.Validate("Expiration Date", CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(5), WorkDate)));
         ReservationEntry.Modify(true);
     end;
@@ -3192,7 +3192,7 @@ codeunit 136103 "Service Items"
     begin
         FindServiceItem(ServiceItem, ServiceItemLine);
         ServiceItemComponent2.SetRange("Parent Service Item No.", ServiceItem."No.");
-        ServiceItemComponent2.FindFirst;
+        ServiceItemComponent2.FindFirst();
         ServiceItemComponent2.TestField(Type, ServiceItemComponent.Type);
         ServiceItemComponent2.TestField("No.", ServiceItemComponent."No.");
     end;
@@ -3214,10 +3214,10 @@ codeunit 136103 "Service Items"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
         ItemLedgerEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Item No.", ItemNo);
         ItemLedgerEntry.TestField(Quantity, -Quantity);
         ItemLedgerEntry.TestField("Invoiced Quantity", -Quantity);
@@ -3231,7 +3231,7 @@ codeunit 136103 "Service Items"
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             TestField("Line Amount", LineAmount);
             TestField("Line Discount %", LineDiscount);
             TestField("Unit Price (LCY)", UnitPrice);
@@ -3246,7 +3246,7 @@ codeunit 136103 "Service Items"
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             TestField("Line Discount %", LineDiscount);
             TestField("Line Amount", LineAmount);
             TestField("Unit Price", UnitPrice);
@@ -3329,7 +3329,7 @@ codeunit 136103 "Service Items"
     begin
         ServiceLedgerEntry.SetRange("Service Order No.", ServiceLine."Document No.");
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         ServiceLedgerEntry.TestField("No.", ServiceLine."No.");
         ServiceLedgerEntry.TestField(Quantity, ServiceLine.Quantity);
     end;
@@ -3370,7 +3370,7 @@ codeunit 136103 "Service Items"
         // Verify that the values in the Service Line flow correctly as the values in the Service Shipment Line after Posting.
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceShipmentLine.TestField(Type, ServiceLine.Type);
         ServiceShipmentLine.TestField("No.", ServiceLine."No.");
         ServiceShipmentLine.TestField(Quantity, ServiceLine.Quantity);
@@ -3383,7 +3383,7 @@ codeunit 136103 "Service Items"
         // Verify Service Document Log entry contains the Event No. that corresponds to the event that occured due to a certain action.
         ServiceDocumentLog.SetRange("Document Type", DocumentType);
         ServiceDocumentLog.SetRange("Document No.", OrderNo);
-        ServiceDocumentLog.FindFirst;
+        ServiceDocumentLog.FindFirst();
         ServiceDocumentLog.TestField("Event No.", EventNo);
     end;
 
@@ -3393,7 +3393,7 @@ codeunit 136103 "Service Items"
     begin
         // Verify Service Item Log entry contains the Event No. that corresponds to the event that occured due to a certain action.
         ServiceItemLog.SetRange("Service Item No.", ServiceItemNo);
-        ServiceItemLog.FindLast;
+        ServiceItemLog.FindLast();
         ServiceItemLog.TestField("Event No.", EventNo);
     end;
 
@@ -3417,7 +3417,7 @@ codeunit 136103 "Service Items"
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Sale);
         ValueEntry.SetRange("Document Type", DocumentType);
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Item No.", ItemNo);
         ValueEntry.TestField("Valued Quantity", -Quantity);
         ValueEntry.TestField("Invoiced Quantity", -Quantity);
@@ -3453,7 +3453,7 @@ codeunit 136103 "Service Items"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Posting Date", PostingDate);
     end;
 
@@ -3475,7 +3475,7 @@ codeunit 136103 "Service Items"
         ItemLedgerEntry.SetRange("Posting Date", ItemJournalLine."Posting Date");
         ItemLedgerEntry.SetRange("Item No.", ItemJournalLine."Item No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
         ItemLedgerEntry.TestField("Sales Amount (Actual)", ItemJournalLine.Amount);
     end;
@@ -3527,7 +3527,7 @@ codeunit 136103 "Service Items"
     begin
         // Modal form handler. Return Action as LookupOK for first record found.
         ServiceItemComponent.SetRange("Parent Service Item No.", ServiceItemNoForComponent);
-        ServiceItemComponent.FindFirst;
+        ServiceItemComponent.FindFirst();
         ServiceItemComponentList.SetRecord(ServiceItemComponent);
         Response := ACTION::LookupOK;
     end;

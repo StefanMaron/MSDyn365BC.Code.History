@@ -49,7 +49,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Verify computed cash flow date and discounted amount
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         LibrarySales.CreateCustomer(Customer);
         TotalAmount := LibraryRandom.RandInt(500);
@@ -86,7 +86,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // the CF date should be the due date
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.SetupDsctPmtTermsCustLETest(CashFlowForecast, Customer, PaymentTerms, Amount, DiscountedAmount);
         // payment is done 1 day after discount date in order to be overdue
         CustomDateFormula := PlusOneDayFormula;
@@ -125,7 +125,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // BEFORE the payment discount date, therefore the opened entry should be closed and no CF journal line should exist
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.SetupDsctPmtTermsCustLETest(CashFlowForecast, Customer, PaymentTerms, Amount, DiscountedAmount);
         // make sure Customer has discounted default payment terms as well, in order to close open entry
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
@@ -166,7 +166,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // the CF date must be the calculated discount date + tolerance, based on the ledger entries document date
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(CustomDateFormula); // used as pmt discount grace period
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
@@ -209,7 +209,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // The payment has to close the open invoice, therefore no CF journal lines are expected
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
@@ -260,7 +260,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // CF date must be the source due date
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
@@ -304,7 +304,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // be moved to the CF execution date
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
@@ -352,7 +352,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // due to an expired Due date the expected CF date must be moved to the CF execution date
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
@@ -397,7 +397,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // ledger entry and therefore there must not be a CF forecast consideration
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         // max pmt tol amount should be 50% of the invoice amount
         LibraryCashFlowHelper.SetupCustomerPmtTolAmtTestCase(CashFlowForecast, Customer, Amount, 0.5, 50);
@@ -439,7 +439,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // ledger entry open and therefore the difference between payment amount and tolerance deducted amount must be forecasted
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         // max pmt tol amount should be 30% of the invoice amount
         LibraryCashFlowHelper.SetupCustomerPmtTolAmtTestCase(CashFlowForecast, Customer, Amount, 0.3, 30);
@@ -483,7 +483,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // the CF date must be the calculated discount date + tolerance, based on the ledger entries document date
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
@@ -526,7 +526,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // The payment has to close the open invoice, therefore no CF journal lines are expected
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
@@ -574,7 +574,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Covers a partial purchase invoice payment within payment discount tolerance date.
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
@@ -617,7 +617,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Covers a discounted purchase invoice payment outside payment discount tolerance date.
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
@@ -662,7 +662,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // ledger entry and therefore there must not be a CF forecast consideration
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current setup
         // max pmt tol amount should be 50% of the invoice amount
         LibraryCashFlowForecast.ClearJournal;
@@ -706,7 +706,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // ledger entry open and therefore the difference between payment amount and tolerance deducted amount must be forecasted
 
         // Setup
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get(); // keep current state
         // max pmt tol amount should be 30% of the invoice amount
         LibraryCashFlowHelper.SetupVendorPmtTolAmtTestCase(CashFlowForecast, Vendor, Amount, 0.3, 0);
@@ -747,7 +747,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // with a sales order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryCashFlowHelper.CreatePrepmtSalesOrder(SalesHeader, '', PaymentTerms.Code);
@@ -787,7 +787,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // with a sales order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryCashFlowHelper.CreatePrepmtSalesOrder(SalesHeader, PaymentTerms.Code, '');
@@ -827,7 +827,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // with a sales order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTerms2, PaymentTerms.Code);
@@ -868,14 +868,14 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // with a purchase order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryCashFlowHelper.CreatePrepmtPurchaseOrder(PurchaseHeader, '', PaymentTerms.Code);
         PrePmtInvNo := LibraryCashFlowHelper.AddAndPostPOPrepaymentInvoice(PurchaseHeader, LibraryRandom.RandInt(10));
         PurchInvHeader.Get(PrePmtInvNo);
         LibraryCashFlowHelper.CalcPurchExpectedPrepmtAmounts(PurchaseHeader, 0, ExpectedPOAmount, ExpectedPrePmtAmount);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Exercise
         ConsiderSource[SourceType::Payables.AsInteger()] := true;
@@ -909,7 +909,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // with a Purchase order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryCashFlowHelper.CreatePrepmtPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '');
@@ -917,7 +917,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         PurchInvHeader.Get(PrePmtInvNo);
         LibraryCashFlowHelper.CalcPurchExpectedPrepmtAmounts(
           PurchaseHeader, PaymentTerms."Discount %", ExpectedPOAmount, ExpectedPrePmtAmount);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Exercise
         ConsiderSource[SourceType::Payables.AsInteger()] := true;
@@ -951,7 +951,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // with a Purchase order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTerms2, PaymentTerms.Code);
@@ -960,7 +960,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         PurchInvHeader.Get(PrePmtInvNo);
         LibraryCashFlowHelper.CalcPurchExpectedPrepmtAmounts(
           PurchaseHeader, PaymentTerms2."Discount %", ExpectedPOAmount, ExpectedPrePmtAmount);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Exercise
         ConsiderSource[SourceType::Payables.AsInteger()] := true;
@@ -990,7 +990,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Verify Cash Flow Forcast show in Account Schedule with Cashflow Layout.
 
         // Setup: Create Cash Flow Forecast, suggest Cash Flow Worksheet Line and Register.
-        Initialize;
+        Initialize();
         CreateAndPostCashFlowForecast(CashFlowForecast);
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         CreateColumnLayout(ColumnLayout);
@@ -1021,7 +1021,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Verify Cash Flow Forcast show in Analysis by Dimesnion with view by Month.
 
         // Setup: Create Cash Flow Forecast, suggest Cash Flow Worksheet Line and Register, find Cash Flow Analysis by Dimension and Update.
-        Initialize;
+        Initialize();
         CreateAndPostCashFlowForecast(CashFlowForecast);
         ExecuteUIHandler;
         LibraryCashFlowForecast.FindCashFlowAnalysisView(AnalysisView);
@@ -1086,7 +1086,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
 
         // Exercise & Verify
@@ -1100,7 +1100,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
 
         // Exercise & Verify
@@ -1139,7 +1139,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Verify
         CFWorksheetLine.SetRange("Document No.", SalesInvoiceNo);
-        CFWorksheetLine.FindFirst;
+        CFWorksheetLine.FindFirst();
         Assert.AreEqual(ExpectedAmount, CFWorksheetLine."Amount (LCY)", 'Unexpected forecast amount when converting from FCY to LCY');
     end;
 
@@ -1150,7 +1150,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
 
         // Exercise & Verify
@@ -1164,7 +1164,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
 
         // Exercise & Verify
@@ -1204,7 +1204,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Verify
         CFWorksheetLine.SetRange("Document No.", PurchaseInvoiceNo);
-        CFWorksheetLine.FindFirst;
+        CFWorksheetLine.FindFirst();
         Assert.AreEqual(ExpectedAmount, CFWorksheetLine."Amount (LCY)", 'Unexpected forecast amount when converting from FCY to LCY');
     end;
 
@@ -1222,7 +1222,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         CustomerNo := CreateCustomerWithPaymentTerms(PaymentTerms.Code);
         LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsDifferent, PaymentTerms.Code);
@@ -1258,7 +1258,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         VendorNo := CreateVendorWithPaymentTerms(PaymentTerms.Code);
         LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsDifferent, PaymentTerms.Code);
@@ -1284,7 +1284,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure CashFlowWorksheetLineWithGroupByDocumentTypeOption()
     begin
-        Initialize;
+        Initialize();
         CashFlowWorksheetLineGroupByDocumentTypeOption(true);
     end;
 
@@ -1292,7 +1292,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure CashFlowWorksheetLineWithoutGroupByDocumentTypeOption()
     begin
-        Initialize;
+        Initialize();
         CashFlowWorksheetLineGroupByDocumentTypeOption(false);
     end;
 
@@ -1311,7 +1311,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryCashFlowHelper.CreateDefaultSalesOrder(SalesHeader);
         LibraryCashFlowHelper.CreateDefaultPurchaseOrder(PurchaseHeader);
         LibraryCashFlowHelper.CreateDefaultServiceOrder(ServiceHeader);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Excercise
         ConsiderSource[SourceType::"Sales Orders".AsInteger()] := true;
@@ -1340,7 +1340,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure SalesOrderInFCYWithGroupByDocumentTypeOption()
     begin
-        Initialize;
+        Initialize();
         SalesOrderInFCYGroupByDocumentTypeOption(true);
     end;
 
@@ -1348,7 +1348,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure SalesOrderInFCYWithoutGroupByDocumentTypeOption()
     begin
-        Initialize;
+        Initialize();
         SalesOrderInFCYGroupByDocumentTypeOption(false);
     end;
 
@@ -1395,7 +1395,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
@@ -1425,7 +1425,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
@@ -1456,7 +1456,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsCashFlow, PaymentTerms.Code);
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
@@ -1502,13 +1502,13 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Verify computed cash flow forecast amount
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
         VendorNo := CreateVendorWithCurrency(CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
         CreatePurchaseOrderWithLineCount(PurchaseHeader, VendorNo, 2);
         ExpectedAmountLCY := -1 * LibraryCashFlowHelper.GetTotalPurchaseAmount(PurchaseHeader, false);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Excercise
         ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
@@ -1534,7 +1534,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
@@ -1542,7 +1542,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ModifyVendorWithCurrency(VendorNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
         CreatePurchaseOrderWithLineCount(PurchaseHeader, VendorNo, 2);
         ExpectedAmountLCY := -1 * LibraryCashFlowHelper.GetTotalPurchaseAmount(PurchaseHeader, true);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Excercise
         ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
@@ -1565,7 +1565,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
@@ -1573,7 +1573,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ModifyVendorWithCurrency(VendorNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
         CreatePurchaseOrderWithLineCount(PurchaseHeader, VendorNo, 2);
         ExpectedAmountLCY := -1 * LibraryCashFlowHelper.GetTotalPurchaseAmount(PurchaseHeader, false);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Excercise
         ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
@@ -1597,7 +1597,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsCashFlow, PaymentTerms.Code);
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
@@ -1607,7 +1607,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ModifyVendorWithCurrency(VendorNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
         CreatePurchaseOrderWithLineCount(PurchaseHeader, VendorNo, 2);
         ExpectedAmountLCY := -LibraryCashFlowHelper.GetTotalAmountForPurchaseOrderWithCashFlowPaymentTermsDiscount(PurchaseHeader);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Excercise
         ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
@@ -1644,7 +1644,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Verify computed cash flow forecast amount
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
         CustomerNo := CreateCustomerWithCurrency(CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
@@ -1675,7 +1675,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
@@ -1705,7 +1705,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
@@ -1736,7 +1736,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsCashFlow, PaymentTerms.Code);
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
@@ -1764,7 +1764,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 382294] Sales Order without VAT is shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" without VAT
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -1783,13 +1783,17 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     procedure SalesOrderWithoutVATIsNotShownInOrderListWhenSkipNoVATIsTrue()
     var
         SalesHeader: Record "Sales Header";
+        VatPostingSetup: Record "Vat Posting Setup";
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 382294] Sales Order without VAT is not shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" without VAT
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        CreateVATPostingSetup(VatPostingSetup, false);
+        SalesHeader."VAT Bus. Posting Group" := VatPostingSetup."VAT Bus. Posting Group";
+        SalesHeader.Modify();
 
         // [WHEN] Open "Sales Order List" page with SkipShowingLinesWithoutVAT = TRUE
         LibraryVariableStorage.Enqueue('');
@@ -1808,7 +1812,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 382294] Sales Order with VAT is shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" with VAT
         CreateSalesOrderWithVAT(SalesHeader);
@@ -1830,7 +1834,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 382294] Sales Order with VAT is shown on the "Sales Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" with VAT
         CreateSalesOrderWithVAT(SalesHeader);
@@ -1853,7 +1857,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 269334] Page "Sales Order List" is filtering the Sales Orders without VAT and showing Sales Order with VAT when SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" without VAT
         YourReference := CopyStr(LibraryRandom.RandText(MaxStrLen(YourReference)), 1, MaxStrLen(YourReference)); // Needed for filtering orders
@@ -1888,7 +1892,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 269334] Page "Sales Order List" is shown the Sales Orders without VAT and with VAT when SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "A" without VAT
         YourReference := CopyStr(LibraryRandom.RandText(MaxStrLen(YourReference)), 1, MaxStrLen(YourReference)); // Needed for filtering orders
@@ -1924,7 +1928,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 382294] Purchase Order without VAT is shown on the "Purchase Order List" page when called with SkipShowingLinesWithoutVAT = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" without VAT
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -1943,13 +1947,17 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     procedure PurchaseOrderWithoutVATIsNotShownInOrderListWhenSkipNoVATIsTrue()
     var
         PurchaseHeader: Record "Purchase Header";
+        VatPostingSetup: Record "Vat Posting Setup";
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 382294] Purchase Order without VAT is not shown on the "Purchase Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" without VAT
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        CreateVATPostingSetup(VatPostingSetup, false);
+        PurchaseHeader."VAT Bus. Posting Group" := VatPostingSetup."VAT Bus. Posting Group";
+        PurchaseHeader.Modify();
 
         // [WHEN] Open "Purchase Order List" page with SkipShowingLinesWithoutVAT = TRUE
         LibraryVariableStorage.Enqueue('');
@@ -1968,7 +1976,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 382294] Purchase Order with VAT is shown on the "Purchase Order List" page when called with SkipShowingLinesWithoutVAT = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" with VAT
         CreatePurchaseOrderWithVAT(PurchaseHeader);
@@ -1990,7 +1998,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 382294] Purchase Order with VAT is shown on the "Purchase Order List" page when called with SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" with VAT
         CreatePurchaseOrderWithVAT(PurchaseHeader);
@@ -2013,7 +2021,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 269334] Page "Purchase Order List" is filtering the Purchase Orders without VAT and showing Purchase Order with VAT when SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" without VAT
         YourReference := CopyStr(LibraryRandom.RandText(MaxStrLen(YourReference)), 1, MaxStrLen(YourReference)); // Needed for filtering orders
@@ -2048,7 +2056,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UI] [Purchase] [Order]
         // [SCENARIO 269334] Page "Purchase Order List" is shown the Purchase Orders without VAT and with VAT when SkipShowingLinesWithoutVAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "A" without VAT
         YourReference := CopyStr(LibraryRandom.RandText(MaxStrLen(YourReference)), 1, MaxStrLen(YourReference)); // Needed for filtering orders
@@ -2087,7 +2095,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         // [FEATURE] [UT] [CashFlow]
         // [SCENARIO 352901] The "Cash Flow Worksheet Line".MoveDefaultDimToJnlLineDim must return correct Dimension Set ID when Dimension Value Code has max lenght.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Dimension Value".Code = 'longnameofdimensionv'
         // [GIVEN] "G/L Account" with default dimension "Dimension Value"."Dimension Code"
@@ -2112,7 +2120,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cash Flow - Filling II");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         Evaluate(EmptyDateFormula, '<0D>');
         Evaluate(CustomDateFormula, '<0D>');
@@ -2126,12 +2134,12 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         LibraryPurchase.SetInvoiceRounding(false);
         LibrarySales.SetInvoiceRounding(false);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -2336,8 +2344,12 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     end;
 
     local procedure CreateSalesOrderWithoutVATAndWithYourReference(var SalesHeader: Record "Sales Header"; YourReference: Text[35])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
+        CreateVATPostingSetup(VATPostingSetup, false);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        SalesHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesHeader."Your Reference" := YourReference;
         SalesHeader.Modify();
     end;
@@ -2348,7 +2360,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         VATPostingSetup: Record "VAT Posting Setup";
         DummyGLAccount: Record "G/L Account";
     begin
-        CreateVATPostingSetup(VATPostingSetup);
+        CreateVATPostingSetup(VATPostingSetup, true);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order,
           LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
@@ -2393,8 +2405,12 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     end;
 
     local procedure CreatePurchaseOrderWithoutVATAndWithYourReference(var PurchaseHeader: Record "Purchase Header"; YourReference: Text[35])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        CreateVATPostingSetup(VATPostingSetup, false);
+        PurchaseHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         PurchaseHeader."Your Reference" := YourReference;
         PurchaseHeader.Modify();
     end;
@@ -2405,7 +2421,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         VATPostingSetup: Record "VAT Posting Setup";
         DummyGLAccount: Record "G/L Account";
     begin
-        CreateVATPostingSetup(VATPostingSetup);
+        CreateVATPostingSetup(VATPostingSetup, true);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order,
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         LibraryPurchase.CreatePurchaseLine(
@@ -2423,7 +2439,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         PurchaseHeader.Modify();
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; WithVat: Boolean)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -2431,7 +2447,8 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
-        VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(10, 50));
+        if WithVat then
+            VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(10, 50));
         VATPostingSetup.Modify(true);
     end;
 
@@ -2518,7 +2535,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         if SkipShowingLinesWithoutVAT then
             SalesOrderList.SkipShowingLinesWithoutVAT;
         SalesOrderList.SetTableView(SalesHeader);
-        SalesOrderList.Run;
+        SalesOrderList.Run();
     end;
 
     local procedure OpenSalesOrdList(SalesHeader: Record "Sales Header"; SkipShowingLinesWithoutVAT: Boolean; YourReference: Text[35])
@@ -2533,7 +2550,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         if SkipShowingLinesWithoutVAT then
             SalesOrderList.SkipShowingLinesWithoutVAT;
         SalesOrderList.SetTableView(SalesHeader);
-        SalesOrderList.Run;
+        SalesOrderList.Run();
     end;
 
     local procedure OpenPurchaseOrderList(PurchaseHeader: Record "Purchase Header"; SkipShowingLinesWithoutVAT: Boolean)
@@ -2545,7 +2562,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         if SkipShowingLinesWithoutVAT then
             PurchaseOrderList.SkipShowingLinesWithoutVAT;
         PurchaseOrderList.SetTableView(PurchaseHeader);
-        PurchaseOrderList.Run;
+        PurchaseOrderList.Run();
     end;
 
     local procedure OpenPurchaseOrdList(PurchaseHeader: Record "Purchase Header"; SkipShowingLinesWithoutVAT: Boolean; YourReference: Text[35])
@@ -2560,7 +2577,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         if SkipShowingLinesWithoutVAT then
             PurchaseOrderList.SkipShowingLinesWithoutVAT;
         PurchaseOrderList.SetTableView(PurchaseHeader);
-        PurchaseOrderList.Run;
+        PurchaseOrderList.Run();
     end;
 
     local procedure VerifyCFWorksheetLineAmount(CashFlowForecastNo: Code[20]; DocumentNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; ExpectedAmount: Decimal; ErrorText: Text[150])

@@ -1,4 +1,4 @@
-﻿table 7001 "Price List Line"
+table 7001 "Price List Line"
 {
     fields
     {

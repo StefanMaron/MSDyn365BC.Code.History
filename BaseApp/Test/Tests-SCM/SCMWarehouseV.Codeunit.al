@@ -67,7 +67,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure CrossDockWithFullWarehouseReceipt()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalculateCrossDockFromWarehouseReceipt(false);  // Partial Receipt FALSE.
     end;
 
@@ -76,7 +76,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure CrossDockWithPartialWarehouseReceipt()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalculateCrossDockFromWarehouseReceipt(true);  // Partial Receipt TRUE.
     end;
 
@@ -129,7 +129,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 380301] Quantities in Whse. Cross-Dock Opportunity should be calculated with consideration of "Qty. to Cross-Dock", "Qty. to Pick" and "Picked Qty." already calculated for the same demand in another Receipt.
-        Initialize;
+        Initialize();
         DefineQuantitiesForPurchaseAndSalesDocuments(InventoryQty, PurchaseQty, SalesQty, PickQty, CrossDockQty);
         LibraryInventory.CreateItem(Item);
 
@@ -183,7 +183,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 380301] If Unit of Measure code is changed in a demand, then "Needed Qty." in Whse. Cross-Dock Opportunity should be calculated for the new UOM code with consideration of "Qty. to Cross-Dock" in previous UOM.
-        Initialize;
+        Initialize();
         GLSetup.Get();
         DefineQuantitiesForPurchaseAndSalesDocuments(InventoryQty, PurchaseQty, SalesQty, PickQty, CrossDockQty);
 
@@ -240,7 +240,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 380301] If Quantity is decreased in a demand so that already defined "Qty. to Cross-Dock" covers the demand, then the next calculation of Whse. Cross-Dock opportunity shows no needed quantity to be cross-docked.
-        Initialize;
+        Initialize();
         DefineQuantitiesForPurchaseAndSalesDocuments(InventoryQty, PurchaseQty, SalesQty, PickQty, CrossDockQty);
         LibraryInventory.CreateItem(Item);
 
@@ -278,7 +278,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 380520] Qty. to Cross-Dock in Warehouse Receipt should consider the quantity that has been already received yet not put-away.
-        Initialize;
+        Initialize();
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
 
         // [GIVEN] WMS Location with cross-docking enabled.
@@ -308,7 +308,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity is automatically filled with the residual qty. to cross-dock if other receipts do not fully cover the demand.
-        Initialize;
+        Initialize();
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
 
         // [GIVEN] WMS Location with cross-docking enabled.
@@ -338,7 +338,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity is automatically filled with the quantity of the receipt if it does not cover the demand together with other receipts.
-        Initialize;
+        Initialize();
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
         ReceiptQty := LibraryRandom.RandIntInRange(30, 50);
 
@@ -369,7 +369,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity cannot exceed the quantity in the Receipt minus what has already been cross-docked.
-        Initialize;
+        Initialize();
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
 
         // [GIVEN] WMS Location with cross-docking enabled.
@@ -402,7 +402,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 381303] Overall cross-docked quantity equals to actual quantity in cross-dock bins, plus received quantity that has not been placed into a bin in bulk zone.
-        Initialize;
+        Initialize();
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
 
         // [GIVEN] WMS Location with cross-docking enabled.
@@ -439,7 +439,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 381303] Overall cross-docked quantity equals to actual quantity in cross-dock bins, plus partially put-away received quantity if it has not been placed into a bin in bulk zone.
-        Initialize;
+        Initialize();
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
 
         // [GIVEN] WMS Location with cross-docking enabled.
@@ -476,7 +476,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Cross-Dock]
         // [SCENARIO 381303] Overall cross-docked quantity equals to actual quantity in cross-dock bins, if received quantity has been completely put-away into a bin in bulk zone.
-        Initialize;
+        Initialize();
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
 
         // [GIVEN] WMS Location with cross-docking enabled.
@@ -514,7 +514,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Integer;
     begin
         // Setup: Create Item, create and release Sales Order, create and release Purchase Order, create Put Away.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);
         CreateWarehouseReceiptSetup(Item, SalesHeader, PurchaseHeader, LocationWhite.Code, Quantity, Quantity);
         FindWarehouseReceiptNo(WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
@@ -551,7 +551,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Integer;
     begin
         // Setup: Create Item, create and release Sales Order, create and release Purchase Order, create Put Away, pos Whse Receipt and register Whse Activity.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);
         CreateWarehouseReceiptSetup(Item, SalesHeader, PurchaseHeader, LocationWhite.Code, Quantity, Quantity);
         FindWarehouseReceiptNo(WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
@@ -588,7 +588,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Integer;
     begin
         // Setup: Create Item, create and release Sales Order, create and release Purchase Order, create Put Away, post Whse Receipt and register Whse Activity. Create Pick.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100) + 100;  // Large Integer value required.
         CreateWarehouseReceiptSetup(Item, SalesHeader, PurchaseHeader, LocationWhite.Code, Quantity, Quantity);
         UpdateQtyToReceiveOnWhseReceipt(WarehouseReceiptLine, PurchaseHeader."No.", Quantity / 2);  // Partial Quantity.
@@ -624,7 +624,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Integer;
     begin
         // Setup: Create Item, create and release Sales Order with reservation, create and release Purchase Order, create Put Away, post Whse Receipt and register Whse Activity. Create Pick.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);
         LibraryInventory.CreateItem(Item);
         CreateAndReleaseSalesOrderWithReservation(SalesHeader, Item."No.", Quantity, LocationWhite.Code);
@@ -652,7 +652,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure SpecialOrderWithCrossDocking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseCrossDockingWithSpecialOrder(false, false);  // Change UOM on Put Away and Pick FALSE.
     end;
 
@@ -662,7 +662,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure ChangeUOMOnPutAwayWithSpecialOrderCrossDocking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseCrossDockingWithSpecialOrder(true, false);  // Change UOM on Put Away TRUE.
     end;
 
@@ -672,7 +672,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure ChangeUOMOnPickWithSpecialOrderCrossDocking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseCrossDockingWithSpecialOrder(true, true);  // Change UOM on Put Away and Pick TRUE.
     end;
 
@@ -747,7 +747,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure WarehouseReceiptUsingItemVariantsWithCrossDocking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WhseActivityUsingItemVariantsWithCrossDocking(false, false);  // Register Put Away and Pick FALSE.
     end;
 
@@ -756,7 +756,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure RegisterPutAwayUsingItemVariantsWithCrossDocking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WhseActivityUsingItemVariantsWithCrossDocking(true, false);  // Register Put Away TRUE.
     end;
 
@@ -765,7 +765,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure RegisterPickUsingItemVariantsWithCrossDocking()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WhseActivityUsingItemVariantsWithCrossDocking(true, true);  // Register Put Away and Pick TRUE.
     end;
 
@@ -830,7 +830,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure WarehouseReceiptWithWarehouseClassCrossDock()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseActivityWithWarehouseClassCrossDock(false);  // Update Bin Code and Post on Whse Receipt FALSE.
     end;
 
@@ -839,7 +839,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PostWhseReceiptWithWarehouseClassCrossDock()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseActivityWithWarehouseClassCrossDock(true);  // Update Bin Code and Post on Whse Receipt TRUE.
     end;
 
@@ -896,7 +896,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Warehouse class code, create and release sales Order, create Whse Shipment. Create and update Bin code on Whse Shipment Line.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemWithWarehouseClass(Item, WarehouseClass);
         CreateAndReleaseSalesOrderWithVariant(SalesHeader, SalesLine, Item."No.", Quantity, LocationWhite.Code, '');
@@ -917,7 +917,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure UOMOnPickLines()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UOMOnWarehouseEntries(false);  // Change UOM FALSE.
     end;
 
@@ -927,7 +927,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure ChangeUOMOnPickLines()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UOMOnWarehouseEntries(true);  // Change UOM TRUE.
     end;
 
@@ -1004,7 +1004,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Decimal;
     begin
         // Setup: Create Item with multiple Item Unit Of Measure, create and release Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateMultipleItemUnitOfMeasureSetup(Item, ItemUnitOfMeasure, ItemUnitOfMeasure2, ItemUnitOfMeasure3);
         CreateAndReleasePurchaseOrder(PurchaseHeader, Item."No.", LocationWhite.Code, Quantity, '', '', false);
@@ -1023,7 +1023,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure UnitOfMeasureOnPutAway()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ChangeUOMOnPutAway(false);  // Change UOM FALSE.
     end;
 
@@ -1033,7 +1033,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PutAwayWithNewUOM()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ChangeUOMOnPutAway(true);  // Change UOM TRUE.
     end;
 
@@ -1097,7 +1097,7 @@ codeunit 137056 "SCM Warehouse-V"
         ExpectedQuantity: Decimal;
     begin
         // Setup: Create Item with multiple Item Unit Of Measure, create and release Purchase Order, create Whse Receipt. Register Put Away. Create and release Sales Order.
-        Initialize;
+        Initialize();
         PostWhseReceiptWithUOMAndCreateSalesHeader(ItemUnitOfMeasure, ExpectedQuantity, SalesHeader, 1);
 
         // Exercise: Create and release Warehouse Shipment.
@@ -1115,7 +1115,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure UOMOnWarehouseReceiptWithSpecialOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UOMOnWarehouseEntriesWithSpecialOrder(false);  // UOM on Warehouse Receipt.
     end;
 
@@ -1124,7 +1124,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure UOMOnPutAwayWithSpecialOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UOMOnWarehouseEntriesWithSpecialOrder(true);  // UOM on Put Away.
     end;
 
@@ -1175,7 +1175,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure UOMOnRegisteredPutAwayWithSpecialOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UOMOnWhseDocumentsWithSpecialOrder(true, false);  // UOM on Registered Put Away TRUE.
     end;
 
@@ -1184,7 +1184,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure UOMOnRegisteredPickWithSpecialOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UOMOnWhseDocumentsWithSpecialOrder(false, true);  // UOM Registered Pick TRUE.
     end;
 
@@ -1250,7 +1250,7 @@ codeunit 137056 "SCM Warehouse-V"
         ExpectedQuantity: Decimal;
     begin
         // Setup: Create Item with multiple Item Unit Of Measure, create and release Purchase Order, create Whse Receipt. Register Put Away. Create and release Sales Order.
-        Initialize;
+        Initialize();
         PostWhseReceiptWithUOMAndCreateSalesHeader(ItemUnitOfMeasure, ExpectedQuantity, SalesHeader, 2);
 
         // Exercise: Create and release Warehouse Shipment.
@@ -1269,7 +1269,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PickFromPurchaseReturnOrderWithoutStrictExpirationSerialAndLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromPurchaseReturnOrder(false);  // Strict Expiration Posting FALSE.
     end;
 
@@ -1279,7 +1279,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PickFromPurchaseReturnOrderWithStrictExpirationSerialAndLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromPurchaseReturnOrder(true);  // Strict Expiration Posting TRUE.
     end;
 
@@ -1338,7 +1338,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PickFromPurchaseReturnOrderWithoutStrictExpirationWithSerialNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromPurchaseReturnOrderWithSerialNo(false);  // Strict Expiration Posting FALSE.
     end;
 
@@ -1348,7 +1348,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PickFromPurchaseReturnOrderWithStrictExpirationWithSerialNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromPurchaseReturnOrderWithSerialNo(true);  // Strict Expiration Posting TRUE.
     end;
 
@@ -1404,7 +1404,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PickFromSalesOrderWithoutStrictExpirationSerialAndLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromSalesOrder(false);  // Strict Expiration Posting FALSE.
     end;
 
@@ -1414,7 +1414,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PickFromSalesOrderWithStrictExpirationSerialAndLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromSalesOrder(true);  // Strict Expiration Posting TRUE.
     end;
 
@@ -1473,7 +1473,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PickFromSalesOrderWithoutStrictExpirationWithSerialNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromSalesOrderWithSerialNo(false);  // Strict Expiration Posting FALSE.
     end;
 
@@ -1483,7 +1483,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PickFromSalesOrderWithStrictExpirationWithSerialNo()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PickFromSalesOrderWithSerialNo(true);  // Strict Expiration Posting TRUE.
     end;
 
@@ -1545,7 +1545,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Setup: Create Item with Item Tracking Code, create and release Purchase Order with multiple Lines, Warehouse Receipt.
-        Initialize;
+        Initialize();
         TrackingQuantity := LibraryRandom.RandInt(10);  // Integer value Required.
         CreateLotTrackedItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -1578,7 +1578,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Setup: Create Item with Item Tracking Code, create and release Purchase Order with multiple Lines, Warehouse Receipt and post Warehouse Receipt.
-        Initialize;
+        Initialize();
         TrackingQuantity := LibraryRandom.RandInt(10);  // Integer value Required.
         CreateLotTrackedItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -1614,7 +1614,7 @@ codeunit 137056 "SCM Warehouse-V"
         DocumentNo: Code[20];
     begin
         // Setup: Create Item with Item Tracking Code, create Purchase Order and open Item Tracking Lines.
-        Initialize;
+        Initialize();
         CreateLotTrackedItem(Item);
         TrackingQuantity := LibraryRandom.RandInt(10);  // Integer value Required.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -1635,7 +1635,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PostedInventoryPutAwayWithExpirationDateAndLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ExpirationDateOnInventoryPutAwayAndPick(false);  // Expiration Date on Posted Inventory Pick -FALSE.
     end;
 
@@ -1645,7 +1645,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PostedInventoryPickWithExpirationDateAndLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ExpirationDateOnInventoryPutAwayAndPick(true);  // Expiration Date on Posted Inventory Pick -TRUE.
     end;
 
@@ -1706,7 +1706,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure WarehousePickWithExpirationDateAndLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ExpirationDateOnWhsePickLine(false);  // Change Expiration Date On Whse Pick - FALSE.
     end;
 
@@ -1716,7 +1716,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure WarehousePickWithErrorChangedExpirationDateAndLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ExpirationDateOnWhsePickLine(true);  // Change Expiration Date On Whse Pick - TRUE.
     end;
 
@@ -1764,7 +1764,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure InventoryPutAwayWithExpirationDate()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ExpirationDateOnInventoryPutAway(false);  // Change Expiration Date On Inventory Put Away FALSE.
     end;
 
@@ -1774,7 +1774,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure InventoryPutAwayWithErrorChangedExpirationDate()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ExpirationDateOnInventoryPutAway(true);   // Change Expiration Date On Inventory Put Away TRUE.
     end;
 
@@ -1830,7 +1830,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Setup: Create Item with Item Tracking Code, create and release Purchase Order with multiple Lines and Warehouse Receipt. Update Expiration Date.
-        Initialize;
+        Initialize();
         TrackingQuantity := LibraryRandom.RandInt(10);  // Integer value Required.
         CreateLotTrackedItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -1867,7 +1867,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // Setup: Create Item with Item Tracking Code, update Item Inventory, create and release Sales Order.
-        Initialize;
+        Initialize();
         LibraryWarehouse.FindBin(Bin, LocationSilver2.Code, '', 1);  // Find Bin of Index 1.
         TrackingQuantity := LibraryRandom.RandInt(5);  // Integer value Required.
         CreateLotTrackedItem(Item);
@@ -1902,7 +1902,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // Setup: Create Item with Item Tracking Code, create and release Purchase Order with multiple Lines and Warehouse Receipt. Update Expiration Date on Reservation Entry, post and register the Whse Receipt.
         // Create and release Sales Order and Whse Shipment.
-        Initialize;
+        Initialize();
         TrackingQuantity := LibraryRandom.RandInt(5);  // Integer value Required.
         WarehousePickChangeExpirationDateSetup(Item, SalesHeader, WarehouseShipmentHeader);
         EnsureTrackingCodeUsesExpirationDate(Item."Item Tracking Code");
@@ -1935,7 +1935,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
         // Setup: Create Item with Item Tracking Code, create and release Purchase Order with multiple Lines and Warehouse Receipt. Update Expiration Date on Reservation Entry, post and register the Whse Receipt.
-        Initialize;
+        Initialize();
         TrackingQuantity := LibraryRandom.RandInt(5);  // Integer value Required.
         CreateLotTrackedItem(Item);
         EnsureTrackingCodeUsesExpirationDate(Item."Item Tracking Code");
@@ -1969,7 +1969,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Setup: Create Item with Item Tracking Code, create and release Purchase Order, Assign serial No. on Purchase Line. Create, Post and register warehouse Receipt.
-        Initialize;
+        Initialize();
         CreateItemTrackingCode(ItemTrackingCode, false, true, false);  // Serial No -True.
         LotSpecific := false;
         CreateItemWithTrackingCode(Item, ItemTrackingCode.Code);
@@ -2002,7 +2002,7 @@ codeunit 137056 "SCM Warehouse-V"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
         // Setup: Create Item with Item Tracking code, Assign Lot No tracking and Update expiration Date on Whse. Item Journal. Get Bin Content on Movement Worksheet.
-        Initialize;
+        Initialize();
         TrackingQuantity := LibraryRandom.RandInt(10) + 10;  // Integer value Required.
         CreateItemTrackingCode(ItemTrackingCode, true, false, true);  // Lot No and Strict Expiration Posting True.
         CreateItemWithTrackingCode(Item, ItemTrackingCode.Code);
@@ -2037,7 +2037,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Decimal;
     begin
         // Setup: Create Item, create Pick from Sales Order, create and post Warehouse Receipt from Purchase Order. Delete shipment and pick created and recreate Shipment and Pick from last Sales order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.FindBin(Bin, LocationSilver2.Code, '', 1);  // Find Bin of Index 1.
         LibraryWarehouse.FindBin(Bin2, LocationSilver2.Code, '', 2);  // Find Bin of Index 2.
@@ -2074,7 +2074,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PostedInventoryPutAwayWithSerialAndLotNoAndExpirationDate()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InventoryPutAwayAndPickWithSerialAndLotNo(false);  // Post Inventory Pick FALSE.
     end;
 
@@ -2084,7 +2084,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure PostedInventoryPickWithSerialAndLotNoAndExpirationDate()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         InventoryPutAwayAndPickWithSerialAndLotNo(true);  // Post Inventory Pick TRUE.
     end;
 
@@ -2167,7 +2167,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Decimal;
     begin
         // Setup:  Create Item, update Item Inventory.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         LibraryWarehouse.FindBin(Bin, LocationSilver2.Code, '', 1);  // Find Bin of Index 1.
         LibraryInventory.CreateItem(Item);
@@ -2191,7 +2191,7 @@ codeunit 137056 "SCM Warehouse-V"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         // Setup: Create Item with Item Tracking Code, create and release Purchase Order.
-        Initialize;
+        Initialize();
         TrackingQuantity := LibraryRandom.RandInt(10) + 10;  // Integer value Required.
         LibraryWarehouse.FindBin(Bin, LocationGreen.Code, '', 1);  // Find Bin of Index 1.
         CreateItemTrackingCode(ItemTrackingCode, false, true, false);  // Create Iten Tracking with Serial TRUE.
@@ -2217,7 +2217,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Integer;
     begin
         // Setup: Create Item with Item Tracking Code, create and release Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10) + 10;  // Integer value Required.
         TrackingQuantity := Quantity;
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
@@ -2238,7 +2238,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure RegisterWhseMovementWithLotNoAndExpirationDate()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WhseMovementFromMovementWorksheetWithLotNoAndExpirationDate(false);  // Expiarion Date on Registered Pick FALSE.
     end;
 
@@ -2248,7 +2248,7 @@ codeunit 137056 "SCM Warehouse-V"
     procedure RegisterPickWithWhseMovementWithLotNoAndExpirationDate()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         WhseMovementFromMovementWorksheetWithLotNoAndExpirationDate(true);  // Expiarion Date on Registered Pick TRUE.
     end;
 
@@ -2317,7 +2317,7 @@ codeunit 137056 "SCM Warehouse-V"
         // Setup: Create Item, create whse item journal with item then adjust it in item journal.
         // Create Whse. Internal Put-Away by Get Bin Content.
         IsInitialized := false;
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         WhseInternalPutAwayHeader.Init();
         UpdateInvtAndCreateWhseInternalPutAwayByGetBinContent(Item, WhseInternalPutAwayHeader, Quantity, 1, false); // Get Bin Content once.
@@ -2340,7 +2340,7 @@ codeunit 137056 "SCM Warehouse-V"
         // Setup : Create Item, create whse item journal with item then adjust it in item journal.
         // Create Whse. Internal Put-Away by Get Bin Content.
         IsInitialized := false;
-        Initialize;
+        Initialize();
         WhseInternalPutAwayHeader.Init();
         UpdateInvtAndCreateWhseInternalPutAwayByGetBinContent(Item, WhseInternalPutAwayHeader, LibraryRandom.RandInt(10), 2, true); // Get Bin Content twice.
 
@@ -2366,7 +2366,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Decimal;
     begin
         // Setup: Create Item tracking code with lot, create item, create whse item journal with lot tracking then adjust it in item journal.
-        Initialize;
+        Initialize();
         WhseInternalPutAwayLine.Init();
         CreateItemTrackingCode(ItemTrackingCode, true, false, false);
         CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code, false);
@@ -2410,7 +2410,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Integer;
     begin
         // Setup: Create Item Tracking Code with series, create item, create whse item journal with lot tracking then adjust it in item journal.
-        Initialize;
+        Initialize();
         WhseInternalPutAwayLine.Init();
         CreateItemTrackingCode(ItemTrackingCode, false, true, false);
         CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code, true);
@@ -2523,7 +2523,7 @@ codeunit 137056 "SCM Warehouse-V"
         TrackingQuantity2: Decimal;
     begin
         // Setup: General preparation for Get Bin Content with Lot No / Series No.
-        Initialize;
+        Initialize();
 
         case TrackingType of
             TrackingType::Lot:
@@ -2571,7 +2571,7 @@ codeunit 137056 "SCM Warehouse-V"
         // Test to verify Put-away can be created from Internal Put-away with Dedicated Bin.
 
         // Setup: Create a Bin with Dedicated. Create a Release Production Order with a new item. Create and post Output Journal.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         UpdateBinWithDedicated(Bin, LocationWhite);
         LibraryInventory.CreateItem(Item);
@@ -2601,7 +2601,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Integer;
     begin
         IsInitialized := false; // Need re-create Location due to cannot update location with entries exist.
-        Initialize;
+        Initialize();
 
         // Setup: Update Location
         Location.Get(LocationWhite.Code);
@@ -2648,7 +2648,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // Setup: Create Lot-for-Lot Item with Item Tracking Code. Create and release Purchase Order. Create and post Inventory Put Away.
         // Create and partially register Pick from Purchase Return order.
-        Initialize;
+        Initialize();
         LocationCode := InitSetupItemAndLocaiton(Item);
         PickQty := LibraryRandom.RandInt(5);
         TrackingQuantity := PickQty + LibraryRandom.RandInt(5); // Integer value Required.
@@ -2673,7 +2673,7 @@ codeunit 137056 "SCM Warehouse-V"
         // Test to verify there is no UOM Rounding Coversion issue when register Movement using "Get Bin Content"
 
         // Setup: Create a Purchase Order, create and post whse. receipt, create and register Put-away using another UOM
-        Initialize;
+        Initialize();
         ItemNo := RegisterWarehousePutawayWithDifferentUOM(Quantity);
 
         // Exercise: Create Movement by "Get Bin Content" in Movement Worksheet, Register Movement
@@ -2694,7 +2694,7 @@ codeunit 137056 "SCM Warehouse-V"
         // Test to verify there is no UOM Rounding Coversion issue when register Whse. Internal Put-away using "Get Bin Content"
 
         // Setup: Create a Purchase Order, create and post whse. receipt, create and register Put-away using another UOM
-        Initialize;
+        Initialize();
         ItemNo := RegisterWarehousePutawayWithDifferentUOM(Quantity);
 
         // Exercise: Create Whse. Internal Put-away by "Get Bin Content", create and register Put-away
@@ -2717,7 +2717,7 @@ codeunit 137056 "SCM Warehouse-V"
         PartialPickQty: Decimal;
     begin
         // Setup: Create Lot-for-Lot Item with Item Tracking Code. Create and release Purchase Order. Create and post Inventory Put Away.
-        Initialize;
+        Initialize();
         LocationCode := InitSetupItemAndLocaiton(Item);
         PickQty := LibraryRandom.RandIntInRange(5, 10);
         PartialPickQty := LibraryRandom.RandInt(4); // To make sure not partial pick.
@@ -2748,7 +2748,7 @@ codeunit 137056 "SCM Warehouse-V"
         Quantity: Integer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         Quantity := LibraryRandom.RandInt(100) + 100;
         CreateWarehouseReceiptSetup(Item, SalesHeader, PurchaseHeader, LocationSilver3.Code, Quantity, Quantity * 2);
@@ -2784,7 +2784,7 @@ codeunit 137056 "SCM Warehouse-V"
         DeltaQty: Decimal;
     begin
         // Setup: Create Item tracking code with lot, create item, create whse item journal with lot tracking then adjust it in item journal.
-        Initialize;
+        Initialize();
         WhseInternalPutAwayLine.Init();
         CreateItemTrackingCode(ItemTrackingCode, true, false, false);
         CreateItemWithItemTrackingCode(Item, ItemTrackingCode.Code, false);
@@ -2837,7 +2837,7 @@ codeunit 137056 "SCM Warehouse-V"
         // [SCENARIO 361861] Verify that cannot post Purchase Return Order with "Prevent Negative Inventory" set and no Item on hand.
 
         // [GIVEN] Set "Prevent Negative Inventory" to TRUE.
-        Initialize;
+        Initialize();
         PrevNoNegInventory := SetPreventNegInventory(true);
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -2870,7 +2870,7 @@ codeunit 137056 "SCM Warehouse-V"
         // [FEATURE] [Warehouse Journal] [UT]
         // [SCENARIO 376129] Adjustment bin code is copied from location to warehouse journal line while initializig the journal line in "Item" journal template
 
-        Initialize;
+        Initialize();
         WarehouseItemJournalSetupSetTemplateType(LocationWhite.Code, WarehouseJournalTemplate.Type::Item);
         SetupWhseJournalLine(WarehouseJournalLine, LocationWhite.Code, '');
         WarehouseJournalLine.TestField("From Bin Code", LocationWhite."Adjustment Bin Code");
@@ -2883,7 +2883,7 @@ codeunit 137056 "SCM Warehouse-V"
         // [FEATURE] [Warehouse Journal] [UT]
         // [SCENARIO 376129] Adjustment bin code is copied from location to warehouse journal line while initializig the journal line in "Physical Inventory" journal template
 
-        Initialize;
+        Initialize();
         WarehouseItemJournalSetupSetTemplateType(LocationWhite.Code, WarehouseJournalTemplate.Type::"Physical Inventory");
         SetupWhseJournalLine(WarehouseJournalLine, LocationWhite.Code, '');
         WarehouseJournalLine.TestField("From Bin Code", LocationWhite."Adjustment Bin Code");
@@ -2896,7 +2896,7 @@ codeunit 137056 "SCM Warehouse-V"
         // [FEATURE] [Warehouse Journal] [UT]
         // [SCENARIO 376129] Adjustment bin code is not copied from location to warehouse journal line while initializig the journal line in "Reclassification" journal template
 
-        Initialize;
+        Initialize();
         WarehouseItemJournalSetupSetTemplateType(LocationWhite.Code, WarehouseJournalTemplate.Type::Reclassification);
         SetupWhseJournalLine(WarehouseJournalLine, LocationWhite.Code, '');
         WarehouseJournalLine.TestField("From Bin Code", '');
@@ -2941,7 +2941,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Warehouse Journal Line]
         // [SCENARIO 379012] Warehouse Journal Line for Positive Adjustment should be registered correctly if blank "From Bin Code" is set before that.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Whse. Item Journal Line for Positive Adjustment with blank "From Bin Code".
         WhseDocumentNo := CreatePositiveAdjmtWhseItemLineWithBlankFromBin;
@@ -2962,7 +2962,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         // [FEATURE] [Warehouse Journal Line]
         // [SCENARIO 379012] Warehouse Journal Line for Negative Adjustment should be registered correctly if blank "To Bin Code" is set before that.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse Journal Line for Negative Adjustment with blank "To Bin Code".
         WhseDocumentNo := CreateNegAdjmtWhseItemLineWithBlankToBin;
@@ -3140,7 +3140,7 @@ codeunit 137056 "SCM Warehouse-V"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse-V");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(NewUnitOfMeasure);
         Clear(NewUnitOfMeasure2);
         Clear(NewUnitOfMeasure3);
@@ -3155,10 +3155,10 @@ codeunit 137056 "SCM Warehouse-V"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse-V");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         CreateLocationSetup;
-        NoSeriesSetup;
+        NoSeriesSetup();
         ItemJournalSetup;
         IsInitialized := true;
         Commit();
@@ -3239,7 +3239,7 @@ codeunit 137056 "SCM Warehouse-V"
         // Verify that after Item No. validation "From Bin Code" is updated automatically to Location "Adjustment Bin Code" for positive adjustment lines.
 
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseItemJournalSetup(LocationWhite.Code);
         LibraryInventory.CreateItem(Item);
         SetupWhseJournalLine(WarehouseJournalLine, LocationWhite.Code, Item."No.");
@@ -3262,7 +3262,7 @@ codeunit 137056 "SCM Warehouse-V"
         // Verify that after Item No. validation "To Bin Code" is updated automatically to Location "Adjustment Bin Code" for negative adjustment lines.
 
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseItemJournalSetup(LocationWhite.Code);
         LibraryInventory.CreateItem(Item);
         SetupWhseJournalLine(WarehouseJournalLine, LocationWhite.Code, Item."No.");
@@ -3359,7 +3359,7 @@ codeunit 137056 "SCM Warehouse-V"
         // [SCENARIO 377187] After posting Inventory Put-Away Warehouse Entry "Whse. Document Type" = " "
 
         // [GIVEN] Create Item, create and release Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Qty := LibraryRandom.RandInt(10);  // Integer value Required.
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
@@ -3379,7 +3379,7 @@ codeunit 137056 "SCM Warehouse-V"
         with WarehouseEntry do begin
             SetRange("Item No.", Item."No.");
             SetRange("Location Code", LocationSilver.Code);
-            FindFirst;
+            FindFirst();
             TestField("Whse. Document Type", "Whse. Document Type"::" ");
         end;
     end;
@@ -3405,7 +3405,7 @@ codeunit 137056 "SCM Warehouse-V"
         // [SCENARIO 377187] After posting Inventory Pick Warehouse Entry "Whse. Document Type" = " "
 
         // [GIVEN] Create Item, create and release Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Qty := LibraryRandom.RandInt(10);  // Integer value Required.
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
@@ -3439,7 +3439,7 @@ codeunit 137056 "SCM Warehouse-V"
         with WarehouseEntry do begin
             SetRange("Item No.", Item."No.");
             SetRange("Location Code", LocationSilver.Code);
-            FindLast;
+            FindLast();
             TestField("Whse. Document Type", "Whse. Document Type"::" ");
         end;
     end;
@@ -3463,7 +3463,7 @@ codeunit 137056 "SCM Warehouse-V"
         // [SCENARIO 377187] After registering Inventory Movement Warehouse Entry "Whse. Document Type" = " "
 
         // [GIVEN] Create Item, create and release Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Qty := LibraryRandom.RandInt(10);  // Integer value Required.
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
@@ -3485,7 +3485,7 @@ codeunit 137056 "SCM Warehouse-V"
         with WarehouseActivityHeader do begin
             SetCurrentKey("Location Code");
             SetRange("Location Code", LocationSilver.Code);
-            FindLast;
+            FindLast();
         end;
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
 
@@ -3496,7 +3496,7 @@ codeunit 137056 "SCM Warehouse-V"
         with WarehouseEntry do begin
             SetRange("Item No.", Item."No.");
             SetRange("Location Code", LocationSilver.Code);
-            FindFirst;
+            FindFirst();
             TestField("Whse. Document Type", "Whse. Document Type"::" ");
         end;
     end;
@@ -3634,8 +3634,8 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         FindWhseEntry(WarehouseEntry, ItemNo, LocationCode);
         FindWhseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, SourceNo, ActionType);
-        WarehouseEntry.FindFirst;
-        WarehouseActivityLine.FindFirst;
+        WarehouseEntry.FindFirst();
+        WarehouseActivityLine.FindFirst();
         AssignSerialNoAndLotNo(WarehouseActivityLine, WarehouseEntry);  // For first line.
         FindNextLineAndAssignSerialNoAndLotNo(WarehouseActivityLine, WarehouseEntry);  // For Second Line.
         FindNextLineAndAssignSerialNoAndLotNo(WarehouseActivityLine, WarehouseEntry);  // For Last line.
@@ -3695,7 +3695,7 @@ codeunit 137056 "SCM Warehouse-V"
         WhseCrossDockOpportunity.SetCurrentKey("Item No.", "Location Code");
         WhseCrossDockOpportunity.SetRange("Item No.", ItemNo);
         WhseCrossDockOpportunity.SetRange("Location Code", LocationWhite.Code);
-        WhseCrossDockOpportunity.FindFirst;
+        WhseCrossDockOpportunity.FindFirst();
         WhseCrossDockOpportunity.AutoFillQtyToCrossDock(WhseCrossDockOpportunity);
         WhseCrossDockOpportunity.CalcSums("Qty. to Cross-Dock");
     end;
@@ -3714,7 +3714,7 @@ codeunit 137056 "SCM Warehouse-V"
         CalculateCrossDockSimple(WhseReceiptLineNo);
         with WhseCrossDockOpportunity do begin
             SetRange("Source Name/No.", WhseReceiptLineNo);
-            FindFirst;
+            FindFirst();
             AutoFillQtyToCrossDock(WhseCrossDockOpportunity);
             Find;
         end;
@@ -3798,12 +3798,12 @@ codeunit 137056 "SCM Warehouse-V"
         exit(WarehouseJournalLine."Whse. Document No.");
     end;
 
-    local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line"; TemplateType: Option)
+    local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line"; TemplateType: Enum "Req. Worksheet Template Type")
     var
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         RequisitionWkshName.SetRange("Template Type", TemplateType);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
@@ -4062,7 +4062,7 @@ codeunit 137056 "SCM Warehouse-V"
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
     begin
         WhseWorksheetTemplate.SetRange(Type, WhseWorksheetTemplate.Type::Movement);
-        WhseWorksheetTemplate.FindFirst;
+        WhseWorksheetTemplate.FindFirst();
         LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
     end;
 
@@ -4286,7 +4286,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         CreateWhseInternalPutAway(WhseInternalPutAwayHeader, LocationCode, ZoneCode, BinCode, ItemNo, 1);
         WhseInternalPutAwayLine.SetRange("No.", WhseInternalPutAwayHeader."No.");
-        WhseInternalPutAwayLine.FindFirst;
+        WhseInternalPutAwayLine.FindFirst();
         if UpdateQty then
             WhseInternalPutAwayLine.Validate(Quantity, NewQuantity);
         WhseInternalPutAwayLine.Modify(true);
@@ -4304,7 +4304,7 @@ codeunit 137056 "SCM Warehouse-V"
 
         with WhseInternalPutAwayLine do begin
             SetRange("No.", WhseInternalPutAwayHeader."No.");
-            FindFirst;
+            FindFirst();
             CreatePutAwayDoc(WhseInternalPutAwayLine);
         end;
     end;
@@ -4395,7 +4395,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", BinTypeCode);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
@@ -4410,7 +4410,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWhseActivityLineByItem(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type")
@@ -4428,21 +4428,21 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindWhseShipmentNo(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20]; LocationCode: Code[10])
     begin
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
         PurchaseHeader.SetRange("Location Code", LocationCode);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -4450,7 +4450,7 @@ codeunit 137056 "SCM Warehouse-V"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindRegisterWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; SourceNo: Code[20])
@@ -4459,7 +4459,7 @@ codeunit 137056 "SCM Warehouse-V"
         RegisteredWhseActivityLine.SetRange("Location Code", LocationCode);
         RegisteredWhseActivityLine.SetRange("Action Type", ActionType);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
-        RegisteredWhseActivityLine.FindFirst;
+        RegisteredWhseActivityLine.FindFirst();
     end;
 
     local procedure FindWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; ItemNo: Code[20]; LocationCode: Code[10])
@@ -4486,7 +4486,7 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20])
     begin
         WarehouseActivityHeader.SetRange("Source No.", SourceNo);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
     end;
 
     local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10]; IsCrossDock: Boolean)
@@ -4500,14 +4500,14 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure FindBinContent(var BinContent: Record "Bin Content"; ItemNo: Code[20])
     begin
         BinContent.SetRange("Item No.", ItemNo);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
     end;
 
     local procedure FindBinWithZone(var Bin: Record Bin; LocationCode: Code[10]; ZoneCode: Code[10])
     begin
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Zone Code", ZoneCode);
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure FindWhseMovementLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20])
@@ -4531,7 +4531,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityHeader.SetRange(Type, Type);
         WarehouseActivityHeader.SetRange("Source Document", SourceDocument);
         WarehouseActivityHeader.SetRange("Source No.", SourceNo);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
     end;
 
     local procedure FindItemLedgEntryNo(DocumentNo: Code[20]): Integer
@@ -4786,7 +4786,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseRequest.SetRange("Source Document", SourceDocument);
         WarehouseRequest.SetRange("Source Type", SourceType);
         WarehouseRequest.SetRange("Location Code", LocationCode);
-        WarehouseRequest.FindFirst;
+        WarehouseRequest.FindFirst();
     end;
 
     local procedure SelectWarehouseRequestAndCreateInvPutAwayPick(var WarehouseRequest: Record "Warehouse Request"; DocumentNo: Code[20]; SourceDocument: Enum "Warehouse Request Source Document"; SourceType: Option; LocationCode: Code[10]; PutAway: Boolean)
@@ -4822,7 +4822,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Vendor No.", VendorNo);
         RequisitionLine.Modify(true);
     end;
@@ -4838,7 +4838,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
         WarehouseReceiptLine.SetRange("Item No.", ItemNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         WarehouseReceiptLine.Validate("Bin Code", BinCode);
         WarehouseReceiptLine.Modify(true);
     end;
@@ -4848,7 +4848,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         WarehouseShipmentLine.SetRange("Item No.", ItemNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.Validate("Bin Code", BinCode);
         WarehouseShipmentLine.Modify(true);
     end;
@@ -4979,7 +4979,7 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure UpdateBinAndZoneOnWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10])
     begin
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.Validate("To Zone Code", WhseWorksheetLine."From Zone Code");
         WhseWorksheetLine.Validate("To Bin Code", WhseWorksheetLine."From Bin Code");
         WhseWorksheetLine.Modify(true);
@@ -4995,7 +4995,7 @@ codeunit 137056 "SCM Warehouse-V"
         FindWhseMovementLine(WarehouseActivityLine, ItemNo, ActivityType, LocationCode, SourceNo);
         with WarehouseActivityLine do begin
             SetRange("Action Type", "Action Type"::Place);
-            FindFirst;
+            FindFirst();
             Validate("Bin Code", BinCode);
             Modify(true);
         end;
@@ -5058,7 +5058,7 @@ codeunit 137056 "SCM Warehouse-V"
             Modify(true);
 
             SetRange("Action Type", "Action Type"::Place);
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Handle", QtyToHandle);
             Validate("Zone Code", ZoneCode);
             Validate("Bin Code", BinCode);
@@ -5110,7 +5110,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         with BinContent do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Quantity (Base)");
             Assert.AreEqual(QuantityBase, "Quantity (Base)", StrSubstNo(QuantityBaseErr, QuantityBase, ItemNo, TableCaption));
         end;
@@ -5135,7 +5135,7 @@ codeunit 137056 "SCM Warehouse-V"
         PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
     begin
         PostedWhseShipmentLine.SetRange("Source No.", SourceNo);
-        PostedWhseShipmentLine.FindFirst;
+        PostedWhseShipmentLine.FindFirst();
         PostedWhseShipmentLine.TestField("Unit of Measure Code", UnitOfMeasureCode);
         PostedWhseShipmentLine.TestField(Quantity, Quantity);
         PostedWhseShipmentLine.TestField("Zone Code", ZoneCode);
@@ -5165,7 +5165,7 @@ codeunit 137056 "SCM Warehouse-V"
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
     begin
         PostedWhseReceiptLine.SetRange("Whse. Receipt No.", WhseReceiptNo);
-        PostedWhseReceiptLine.FindFirst;
+        PostedWhseReceiptLine.FindFirst();
         PostedWhseReceiptLine.TestField("Bin Code", BinCode);
         PostedWhseReceiptLine.TestField("Qty. Cross-Docked", QtyCrossDocked);
     end;
@@ -5175,7 +5175,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         WarehouseShipmentLine.SetRange("No.", No);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.TestField(Quantity, Quantity);
         WarehouseShipmentLine.TestField("Bin Code", BinCode);
     end;
@@ -5212,7 +5212,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         PurchRcptHeader.Get(No);
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         PurchRcptLine.TestField("Order No.", OrderNo);
         PurchRcptLine.TestField(Quantity, Quantity);
         PurchRcptLine.TestField("Location Code", LocationCode);
@@ -5241,7 +5241,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
         PostedInvtPickLine.SetRange("Location Code", LocationCode);
-        PostedInvtPickLine.FindFirst;
+        PostedInvtPickLine.FindFirst();
         PostedInvtPickLine.TestField("Item No.", ItemNo);
         PostedInvtPickLine.TestField("Expiration Date", ExpirationDate);
         PostedInvtPickLine.TestField("Bin Code", BinCode);
@@ -5252,7 +5252,7 @@ codeunit 137056 "SCM Warehouse-V"
         PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line";
     begin
         PostedInvtPutAwayLine.SetRange("Source No.", SourceNo);
-        PostedInvtPutAwayLine.FindFirst;
+        PostedInvtPutAwayLine.FindFirst();
         PostedInvtPutAwayLine.TestField("Location Code", LocationCode);
         PostedInvtPutAwayLine.TestField("Item No.", ItemNo);
         PostedInvtPutAwayLine.TestField("Expiration Date", ExpirationDate);
@@ -5265,7 +5265,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.TestField("Location Code", LocationCode);
         WarehouseActivityLine.TestField(Quantity, Quantity);
     end;
@@ -5273,7 +5273,7 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure VerifyWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10]; ItemNo: Code[20]; UnitofMeasureCode: Code[10]; Quantity: Integer)
     begin
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.TestField("Item No.", ItemNo);
         WhseWorksheetLine.TestField("Unit of Measure Code", UnitofMeasureCode);
         WhseWorksheetLine.TestField(Quantity, Quantity);
@@ -5285,7 +5285,7 @@ codeunit 137056 "SCM Warehouse-V"
         BinContent: Record "Bin Content";
     begin
         BinContent.SetRange("Item No.", ItemNo);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.TestField("Bin Code", BinCode);
         BinContent.TestField("Location Code", LocationCode);
     end;
@@ -5295,7 +5295,7 @@ codeunit 137056 "SCM Warehouse-V"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Location Code", LocationCode);
         ItemJournalLine.TestField("Bin Code", BinCode);
         ItemJournalLine.TestField(Quantity, Quantity);
@@ -5308,7 +5308,7 @@ codeunit 137056 "SCM Warehouse-V"
         with ReservationEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Reservation Status", Status);
-            FindFirst;
+            FindFirst();
             TestField("Qty. to Handle (Base)", QtyToHandleBase);
         end;
     end;
@@ -5340,7 +5340,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         WhseItemTrackingLine.SetRange("Item No.", ItemNo);
         Assert.AreEqual(Count, WhseItemTrackingLine.Count, ItemTrackingLineErr);
-        WhseItemTrackingLine.FindFirst;
+        WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.TestField("Quantity (Base)", QuantityBase);
     end;
 
@@ -5351,7 +5351,7 @@ codeunit 137056 "SCM Warehouse-V"
         with WarehouseActivityLine do begin
             SetRange("Item No.", ItemNo);
             SetRange("Action Type", ActionType);
-            FindFirst;
+            FindFirst();
             TestField("Bin Code", BinCode);
         end;
     end;
@@ -5362,7 +5362,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         FindWhseActivityLine(WarehouseActivityLine, ActivityType, LocationCode, SourceNo, ActionType);
         WarehouseActivityLine.SetRange(Quantity, Qty);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.TestField("Bin Code", BinCode);
     end;
 
@@ -5374,7 +5374,7 @@ codeunit 137056 "SCM Warehouse-V"
             SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
             SetRange(Quantity, Qty);
-            FindFirst;
+            FindFirst();
             TestField("Bin Code", BinCode);
         end;
     end;
@@ -5674,7 +5674,7 @@ codeunit 137056 "SCM Warehouse-V"
         EntryNo: Integer;
     begin
         with WarehouseEntry do begin
-            FindLast;
+            FindLast();
             EntryNo := "Entry No." + 1;
             Init;
             "Entry No." := EntryNo;
@@ -5766,7 +5766,7 @@ codeunit 137056 "SCM Warehouse-V"
 
     local procedure SetupWhseItemJnlLineWrongBinCode(var Zone: Record Zone; var Bin: Record Bin)
     begin
-        Initialize;
+        Initialize();
         WarehouseItemJournalSetup(LocationWhite.Code);
         FindZone(Zone, LocationWhite.Code, LibraryWarehouse.SelectBinType(false, false, true, true));
         FindBinWithZone(Bin, LocationWhite.Code, Zone.Code);
@@ -5775,7 +5775,7 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure ClearWhiteLocationAdjBin()
     begin
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        CalculateWhseAdjustment(ItemJournalBatch, LibraryUtility.GenerateGUID);
+        CalculateWhseAdjustment(ItemJournalBatch, LibraryUtility.GenerateGUID());
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 

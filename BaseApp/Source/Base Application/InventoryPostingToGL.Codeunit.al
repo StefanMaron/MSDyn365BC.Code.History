@@ -1,4 +1,4 @@
-﻿codeunit 5802 "Inventory Posting To G/L"
+codeunit 5802 "Inventory Posting To G/L"
 {
     Permissions = TableData "G/L Account" = r,
                   TableData "Invt. Posting Buffer" = rimd,
@@ -75,11 +75,19 @@
         CalledFromTestReport: Boolean;
         GlobalPostPerPostGroup: Boolean;
         Text003: Label '%1 %2';
+        GlobalJnlTemplName: Code[10];
+        GlobalJnlBatchName: Code[10];
 
     procedure Initialize(PostPerPostGroup: Boolean)
     begin
         GlobalPostPerPostGroup := PostPerPostGroup;
         GlobalInvtPostBufEntryNo := 0;
+    end;
+
+    procedure SetGenJnlBatch(JnlTemplName: Code[10]; JnlBatchName: Code[10])
+    begin
+        GlobalJnlTemplName := JnlTemplName;
+        GlobalJnlBatchName := JnlBatchName;
     end;
 
     procedure SetRunOnlyCheck(SetCalledFromItemPosting: Boolean; SetCheckOnly: Boolean; SetCalledFromTestReport: Boolean)
@@ -108,7 +116,7 @@
             exit(Result);
 
         with ValueEntry do begin
-            GetGLSetup;
+            GetGLSetup();
             GetInvtSetup;
             if (not InvtSetup."Expected Cost Posting to G/L") and
                ("Expected Cost Posted to G/L" = 0) and
@@ -713,6 +721,8 @@
                     else
                         if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                             exit;
+                    if not CalledFromTestReport then
+                        GenPostingSetup.TestField(Blocked, false);
                 end;
 
             OnSetAccNoOnAfterGetPostingSetup(InvtPostBuf, InvtPostingSetup, GenPostingSetup, ValueEntry, UseInvtPostSetup());
@@ -920,7 +930,7 @@
         LastLineNo: Integer;
     begin
         InvtPostToGLTestBuffer := TempInvtPostToGLTestBuf;
-        if TempInvtPostToGLTestBuf.FindLast then
+        if TempInvtPostToGLTestBuf.FindLast() then
             LastLineNo := TempInvtPostToGLTestBuf."Line No." + 10000
         else
             LastLineNo := 10000;
@@ -957,7 +967,7 @@
         with GlobalInvtPostBuf do begin
             Reset;
             OnPostInvtPostBufferOnBeforeFind(GlobalInvtPostBuf, TempGLItemLedgRelation, ValueEntry);
-            if not FindSet then
+            if not FindSet() then
                 exit;
 
             PostInvtPostBufInitGenJnlLine(GenJnlLine, ValueEntry, DocNo, ExternalDocNo, Desc);
@@ -983,6 +993,11 @@
         GenJnlLine."Job No." := ValueEntry."Job No.";
         GenJnlLine."Reason Code" := ValueEntry."Reason Code";
         GenJnlLine."Prod. Order No." := ValueEntry."Order No.";
+        GetGLSetup();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            GenJnlLine."Journal Template Name" := GlobalJnlTemplName;
+            GenJnlLine."Journal Batch Name" := GlobalJnlBatchName;
+        end;
         OnPostInvtPostBufOnAfterInitGenJnlLine(GenJnlLine, ValueEntry);
     end;
 
@@ -1042,7 +1057,7 @@
             "Additional-Currency Posting" := "Additional-Currency Posting"::None;
             Validate(Amount, Amt);
 
-            GetGLSetup;
+            GetGLSetup();
             if GLSetup."Additional Reporting Currency" <> '' then begin
                 "Source Currency Code" := GLSetup."Additional Reporting Currency";
                 "Source Currency Amount" := AmtACY;
@@ -1162,7 +1177,7 @@
     procedure GetTempInvtPostToGLTestBuf(var InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer")
     begin
         InvtPostToGLTestBuf.DeleteAll();
-        if not TempInvtPostToGLTestBuf.FindSet then
+        if not TempInvtPostToGLTestBuf.FindSet() then
             exit;
 
         repeat
@@ -1200,7 +1215,7 @@
         InvtPostBuf.DeleteAll();
 
         GlobalInvtPostBuf.Reset();
-        if GlobalInvtPostBuf.FindSet then
+        if GlobalInvtPostBuf.FindSet() then
             repeat
                 InvtPostBuf := GlobalInvtPostBuf;
                 InvtPostBuf.Insert();

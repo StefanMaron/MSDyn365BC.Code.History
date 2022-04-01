@@ -1405,7 +1405,7 @@ codeunit 134202 "Document Approval - Users"
         // Test Case for HF344645
         // Create NAV user linked to current Windows User account with SUPER permissions
         // It is necessary to create further users
-        Initialize;
+        Initialize();
         SetupUsers(RequestorUserSetup, '', false, false, false, 0, 0, 0);
 
         // Create NAV Users that are not linked to any Windows Account with SUPER pemissions.
@@ -1458,7 +1458,7 @@ codeunit 134202 "Document Approval - Users"
     begin
         // [FEATURE] [UT] [Drop Shipment]
         // [SCENARIO 378540] In a Drop Shipment scenario Purchase Order posting errors by not approved Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable Sales Order Approval Template. Set approval chain of two users
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", SalesHeader."Document Type"::Order, '');
@@ -1474,7 +1474,7 @@ codeunit 134202 "Document Approval - Users"
         // [GIVEN] Set restriction for Sales Header
         RecordRestrictionMgt.RestrictRecordUsage(SalesHeader, '');
         RestrictedRecord.SetRange("Record ID", SalesHeader.RecordId);
-        RestrictedRecord.FindFirst;
+        RestrictedRecord.FindFirst();
         ExpectedErrorMessage := StrSubstNo(RecordRestrictedTxt,
             Format(Format(RestrictedRecord."Record ID", 0, 1)));
 
@@ -1503,7 +1503,7 @@ codeunit 134202 "Document Approval - Users"
     begin
         // [FEATURE] [UT] [Workflow]
         // [SCENARIO 379158] Approving Sales Order after reopen
-        Initialize;
+        Initialize();
 
         // [GIVEN] Approval chain of two users and Workflow on Sales Order Approval Template
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", SalesHeader."Document Type"::Order, '');
@@ -1554,7 +1554,7 @@ codeunit 134202 "Document Approval - Users"
     begin
         // [FEATURE] [UT] [Workflow]
         // [SCENARIO 379158] Approving Purchase Order after reopen
-        Initialize;
+        Initialize();
 
         // [GIVEN] Approval chain of two users and Workflow on Purchase Order Approval Template
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", PurchaseHeader."Document Type"::Order, '');
@@ -1606,7 +1606,7 @@ codeunit 134202 "Document Approval - Users"
         BlankDateFormula: DateFormula;
     begin
         // [SCENARIO] status of sales order is "Release" after the successfullt request approval.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create user setup, approval template and customer with Credit Limit.
         SetupCurrUser(UserSetup);
@@ -1648,7 +1648,7 @@ codeunit 134202 "Document Approval - Users"
         BlankDateFormula: DateFormula;
     begin
         // [SCENARIO] status of purchase order is "Release" after the successfullt request approval.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create user setup and approval template.
         SetupCurrUser(UserSetup);
@@ -1682,7 +1682,7 @@ codeunit 134202 "Document Approval - Users"
         UserSetup: Record "User Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
 
@@ -1956,10 +1956,10 @@ codeunit 134202 "Document Approval - Users"
 
         // [GIVEN] Four approval entries
         // [GIVEN] Approval Entry 1 has "Approver ID" = User1 and "Sender ID" = User2
-        MockApprovalEntry(ApprovalEntry[1], UserId, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry[1], UserId, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Approval Entry 2 has "Approver ID" = User2 and "Sender ID" = User2
-        MockApprovalEntry(ApprovalEntry[2], LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry[2], LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Approval Entry 3 has "Approver ID" = User2 and "Sender ID" = User1
         MockApprovalEntry(ApprovalEntry[3], LibraryUtility.GenerateGUID, UserId);
@@ -1996,7 +1996,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry.DeleteAll();
 
         // [GIVEN] Record of "Approval Entry" with "Approver ID" <> USERID
-        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
         UpdateApprovalAdministrator(false);
 
         // [WHEN] Approve approval entry
@@ -2024,7 +2024,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry.DeleteAll();
 
         // [GIVEN] Record of "Approval Entry" with "Approver ID" <> USERID
-        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
         UpdateApprovalAdministrator(false);
 
         // [WHEN] Reject approval entry
@@ -2053,7 +2053,7 @@ codeunit 134202 "Document Approval - Users"
 
         // [GIVEN] Record of "Approval Entry" with "Approver ID" <> USERID
         // [GIVEN] Record of "Approval Entry" with "Sender ID" <> USERID
-        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
         UpdateApprovalAdministrator(false);
 
         // [WHEN] Delegate approval entry
@@ -2081,7 +2081,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry.DeleteAll();
 
         // [GIVEN] Record of "Approval Entry" with "Approver ID" <> USERID
-        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [WHEN] Approve approval entry
         asserterror ApprovalsMgmt.ApproveApprovalRequests(ApprovalEntry);
@@ -2108,7 +2108,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry.DeleteAll();
 
         // [GIVEN] Record of "Approval Entry" with "Approver ID" <> USERID
-        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [WHEN] Reject approval entry
         asserterror ApprovalsMgmt.RejectApprovalRequests(ApprovalEntry);
@@ -2136,7 +2136,7 @@ codeunit 134202 "Document Approval - Users"
 
         // [GIVEN] Record of "Approval Entry" with "Approver ID" <> USERID
         // [GIVEN] Record of "Approval Entry" with "Sender ID" <> USERID
-        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [WHEN] Delegate approval entry
         asserterror ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
@@ -2200,7 +2200,7 @@ codeunit 134202 "Document Approval - Users"
         UpdateApprovalAdministrator(true);
 
         // [GIVEN] Approval Entry has "Approver ID" = User2 and "Sender ID" = User3
-        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [WHEN] User1 opened page "Approval Entries"
         ApprovalEntriesPage.OpenView;
@@ -2329,10 +2329,10 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry.DeleteAll();
 
         // [GIVEN] Approval Entry[1]."Approver ID" = USERID Approval Entry[1]."Sender ID" = "USER_A"
-        MockApprovalEntry(ApprovalEntry, UserId, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, UserId, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Approval Entry[2]."Approver ID" = "USER_A" Approval Entry[2]."Sender ID" = "USER_A"
-        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Approval Entry[3]."Approver ID" = "USER_A" Approval Entry[3]."Sender ID" = USERID
         MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, UserId);
@@ -2364,10 +2364,10 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry.DeleteAll();
 
         // [GIVEN] Approval Entry[1]."Approver ID" = USERID Approval Entry[1]."Sender ID" = "USER_A"
-        MockApprovalEntry(ApprovalEntry, UserId, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, UserId, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Approval Entry[2]."Approver ID" = "USER_A" Approval Entry[2]."Sender ID" = "USER_A"
-        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Approval Entry[3]."Approver ID" = "USER_A" Approval Entry[3]."Sender ID" = USERID
         MockApprovalEntry(ApprovalEntry, LibraryUtility.GenerateGUID, UserId);
@@ -2398,11 +2398,11 @@ codeunit 134202 "Document Approval - Users"
     begin
         // [FEATURE] [Notification Setup] [UT]
         // [SCENARIO 284134] URL created in Approval Entry
-        Initialize;
+        Initialize();
         NotificationEntry.DeleteAll();
 
         // [GIVEN] Notification Recipient has User table entry, where Recipient <> USERID
-        RecipientUser := LibraryUtility.GenerateGUID;
+        RecipientUser := LibraryUtility.GenerateGUID();
         LibraryPermissions.CreateUser(User, RecipientUser, true);
 
         // [GIVEN] Notification Setup with Approval type, Email method, for all users, DisplayTarget = Windows
@@ -2462,7 +2462,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", DocumentType, '');
 
         // Setup
@@ -2491,7 +2491,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", DocumentType, '');
 
         // Setup
@@ -2520,7 +2520,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", DocumentType, '');
 
         // Setup
@@ -2546,7 +2546,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", DocumentType, '');
 
         // Setup
@@ -2614,7 +2614,7 @@ codeunit 134202 "Document Approval - Users"
         CreatePurchDocument(PurchHeader, DocumentType);
         with PurchLine do begin
             SetRange("Document No.", PurchHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate("Direct Unit Cost", Cost);
             Modify(true);
         end;
@@ -2723,7 +2723,7 @@ codeunit 134202 "Document Approval - Users"
     begin
         with ApprovalCommentLine do begin
             LastEntryNo := 0;
-            if FindLast then
+            if FindLast() then
                 LastEntryNo := "Entry No.";
             Init;
             "Entry No." := LastEntryNo + 1;
@@ -3217,7 +3217,7 @@ codeunit 134202 "Document Approval - Users"
     begin
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
         PurchLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         PurchLine.Validate("Direct Unit Cost", 0);
         PurchLine.Modify(true);
@@ -3229,7 +3229,7 @@ codeunit 134202 "Document Approval - Users"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Unit Price", 0);
         SalesLine.Modify(true);
@@ -3258,7 +3258,7 @@ codeunit 134202 "Document Approval - Users"
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Sell-to Customer No.", CustomerNo);
             SetRange("Quote No.", QuoteNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -3271,7 +3271,7 @@ codeunit 134202 "Document Approval - Users"
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange("Quote No.", QuoteNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -3280,7 +3280,7 @@ codeunit 134202 "Document Approval - Users"
     begin
         ApprovalEntry.SetRange("Sender ID", SenderId);
         ApprovalEntry.SetRange("Document No.", DocumentNo);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
     end;
 
     local procedure TestCleanup()
@@ -3314,7 +3314,7 @@ codeunit 134202 "Document Approval - Users"
         User: Record User;
         UserPersonalization: Record "User Personalization";
     begin
-        if User.FindFirst then begin
+        if User.FindFirst() then begin
             if UserPersonalization.Get(User."User Security ID") then
                 UserPersonalization.Delete();
             User.Delete();

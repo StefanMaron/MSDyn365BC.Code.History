@@ -35,7 +35,7 @@ codeunit 132216 "Library - Permissions Verify"
         UserGroupAccessControl.SetRange("User Security ID", UserID);
         UserGroupAccessControl.SetRange("User Group Code", UserGroupCode);
         UserGroupAccessControl.SetRange("Company Name", CompanyName);
-        if UserGroupAccessControl.FindFirst then
+        if UserGroupAccessControl.FindFirst() then
             Error(UserGroupAccessControlErr, User."Full Name", UserGroupCode, CompanyName);
     end;
 
@@ -48,7 +48,7 @@ codeunit 132216 "Library - Permissions Verify"
         UserGroupAccessControl.SetRange("User Security ID", UserID);
         UserGroupAccessControl.SetRange("User Group Code", UserGroupCode);
         UserGroupAccessControl.SetRange("Company Name", CompanyName);
-        if not UserGroupAccessControl.FindFirst then
+        if not UserGroupAccessControl.FindFirst() then
             Error(UserGroupAccessControlMissingErr, User."Full Name", UserGroupCode, CompanyName);
     end;
 
@@ -72,7 +72,7 @@ codeunit 132216 "Library - Permissions Verify"
     begin
         UserGroupMember.SetRange("User Group Code", UserGroupCode);
         UserGroupMember.SetRange("Company Name", CompanyName);
-        if UserGroupMember.FindFirst then
+        if UserGroupMember.FindFirst() then
             Error(UserGroupMemberFoundErr, UserGroupCode);
     end;
 
@@ -82,7 +82,7 @@ codeunit 132216 "Library - Permissions Verify"
     begin
         UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
         UserGroupPermissionSet.SetRange("Role ID", PermissionSetCode);
-        if not UserGroupPermissionSet.FindFirst then
+        if not UserGroupPermissionSet.FindFirst() then
             Error(UserGroupPermissionSetDoesNotExistErr, UserGroupCode, PermissionSetCode);
     end;
 
@@ -91,7 +91,7 @@ codeunit 132216 "Library - Permissions Verify"
         UserGroupPermissionSet: Record "User Group Permission Set";
     begin
         UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
-        if UserGroupPermissionSet.FindFirst then
+        if UserGroupPermissionSet.FindFirst() then
             Error(UserGroupPermissionSetFoundErr, UserGroupCode);
     end;
 
@@ -100,7 +100,7 @@ codeunit 132216 "Library - Permissions Verify"
         UserGroupPlan: Record "User Group Plan";
     begin
         UserGroupPlan.SetRange("User Group Code", UserGroupCode);
-        if UserGroupPlan.FindFirst then
+        if UserGroupPlan.FindFirst() then
             Error(UserGroupPlanFoundErr, UserGroupCode);
     end;
 
@@ -118,7 +118,7 @@ codeunit 132216 "Library - Permissions Verify"
         AccessControl.SetRange("User Security ID", UserID);
         AccessControl.SetRange("Role ID", PermissionSetCode);
         AccessControl.SetRange("Company Name", Company);
-        if not AccessControl.FindFirst then
+        if not AccessControl.FindFirst() then
             Error(UserDoesNotHavePermissionSetErr, User."Full Name", PermissionSetCode, Company);
     end;
 
@@ -204,7 +204,7 @@ codeunit 132216 "Library - Permissions Verify"
         TableRelationsMetadata.SetFilter("Field No.", '<>%1&<>%2',
             TableRelationsMetadata.FieldNo(SystemCreatedBy),
             TableRelationsMetadata.FieldNo(SystemModifiedBy));
-        if TableRelationsMetadata.FindSet then
+        if TableRelationsMetadata.FindSet() then
             repeat
                 RelatedRecordRef.Open(TableRelationsMetadata."Related Table ID");
                 RelatedRecordId := RelatedRecordRef.RecordId;
@@ -219,7 +219,7 @@ codeunit 132216 "Library - Permissions Verify"
         RecordRef: RecordRef;
     begin
         RecordRef.Open(TableNo);
-        RecordRef.FindFirst;
+        RecordRef.FindFirst();
         Assert.IsTrue(RecordRef.ReadPermission, StrSubstNo(MissingPermissionErr, 'Read', Format(RecordRef.Caption)));
     end;
 
@@ -228,7 +228,7 @@ codeunit 132216 "Library - Permissions Verify"
         RecordRef: RecordRef;
     begin
         RecordRef.Open(TableNo);
-        asserterror RecordRef.FindFirst;
+        asserterror RecordRef.FindFirst();
         Assert.ExpectedError(StrSubstNo(MissingPermissionErr, Format(RecordRef.Caption)))
     end;
 

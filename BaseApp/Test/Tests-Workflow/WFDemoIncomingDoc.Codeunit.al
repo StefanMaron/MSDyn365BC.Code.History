@@ -74,7 +74,7 @@ codeunit 134178 "WF Demo Incoming Doc"
         // [THEN] A Notification record is created for that user.
 
         // Setup
-        Initialize;
+        Initialize();
         SetNotificationSetup(Workflow);
 
         // Exercise
@@ -101,7 +101,7 @@ codeunit 134178 "WF Demo Incoming Doc"
         // [THEN] A copy of all the workflow steps is created.
 
         // Setup
-        Initialize;
+        Initialize();
         SetNotificationSetup(Workflow);
 
         // Exercise
@@ -146,7 +146,7 @@ codeunit 134178 "WF Demo Incoming Doc"
     begin
         NotificationEntry.SetRange("Recipient User ID", UserID);
         NotificationEntry.SetRange("Triggered By Record", RecordID);
-        NotificationEntry.FindFirst;
+        NotificationEntry.FindFirst();
     end;
 
     local procedure VerifyNotificationEntry(var NotificationEntry: Record "Notification Entry"; UserID: Code[50]; RecordID: RecordID)
@@ -171,7 +171,7 @@ codeunit 134178 "WF Demo Incoming Doc"
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         LibraryWorkflow.InsertNotificationArgument(WorkflowStep.ID, UserId, 0, '');
 
         LibraryWorkflow.EnableWorkflow(Workflow);

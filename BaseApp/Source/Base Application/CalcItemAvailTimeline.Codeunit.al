@@ -41,15 +41,15 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         with TempInventoryEventBuffer do begin
             SetCurrentKey("Availability Date", Type);
             SetFilter("Availability Date", '<> %1', 0D);
-            if FindFirst then
+            if FindFirst() then
                 InitialDate := "Availability Date";
-            if FindLast then
+            if FindLast() then
                 FinalDate := "Availability Date";
 
             // Initial Inventory
             SetRange("Availability Date");
             SetRange(Type, Type::Inventory);
-            if not FindSet then
+            if not FindSet() then
                 InsertInitialEvent(TempTimelineEvent, InitialDate)
             else begin // Sum up inventory
                 TempInventoryEventBuffer2 := TempInventoryEventBuffer;
@@ -66,7 +66,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             SetFilter(Type,
               '%1..%2|%3|%4',
               Type::Purchase, Type::"Blanket Sales Order", Type::"Assembly Order", Type::"Assembly Component");
-            if FindSet then
+            if FindSet() then
                 repeat
                     InsertTimelineEvent(TempTimelineEvent, TempInventoryEventBuffer);
                 until Next() = 0;
@@ -77,14 +77,14 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             SetFilter("Availability Date", '<> %1', 0D);
             SetRange(Type, Type::Plan);
             SetRange("Action Message", "Action Message"::New);
-            if FindSet then
+            if FindSet() then
                 repeat
                     InsertTimelineEvent(TempTimelineEvent, TempInventoryEventBuffer);
                 until Next() = 0;
 
             // Final Inventory
             Reset;
-            if FindLast then
+            if FindLast() then
                 InsertFinalEvent(TempTimelineEvent, "Entry No." + 1, FinalDate);
         end;
     end;
@@ -311,7 +311,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         else
             ReqLine.SetRange("Ref. Line No.", SourceRefNo);
 
-        if not ReqLine.FindFirst then
+        if not ReqLine.FindFirst() then
             // An existing supply can only be changed if it's linked to an existing planning line
             TempToTimelineEvent."Transaction Type" := TempToTimelineEvent."Transaction Type"::"Fixed Supply"
         else begin
@@ -458,7 +458,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             SetCurrentKey(Type, "No.", "Variant Code", "Location Code");
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            if FindFirst then begin
+            if FindFirst() then begin
                 CurrTemplateName := "Worksheet Template Name";
                 CurrWorksheetName := "Journal Batch Name";
             end else begin
@@ -469,7 +469,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                     ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
                 ReqWkshTemplate.SetRange(Recurring, false);
                 if ReqWkshTemplate.Count = 1 then begin
-                    ReqWkshTemplate.FindFirst;
+                    ReqWkshTemplate.FindFirst();
                     CurrTemplateName := ReqWkshTemplate.Name
                 end else
                     if PAGE.RunModal(0, ReqWkshTemplate) = ACTION::LookupOK then
@@ -481,7 +481,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                 ReqWkshName.SetRange("Worksheet Template Name", CurrTemplateName);
                 ReqWkshName.FilterGroup(0);
                 if ReqWkshName.Count = 1 then begin
-                    ReqWkshName.FindFirst;
+                    ReqWkshName.FindFirst();
                     CurrWorksheetName := ReqWkshName.Name
                 end else
                     if PAGE.RunModal(0, ReqWkshName) = ACTION::LookupOK then
@@ -500,7 +500,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             Reset;
             SetRange("Worksheet Template Name", CurrTemplateName);
             SetRange("Journal Batch Name", CurrWorksheetName);
-            if FindLast then
+            if FindLast() then
                 NextLineNo := "Line No." + 10000
             else
                 NextLineNo := 10000;
@@ -520,7 +520,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             RefreshPlanningDemand.UseRequestPage := false;
             RefreshPlanningDemand.InitializeRequest(1, true, true); // Refresh Backward from Due Date
             RefreshPlanningDemand.SetTableView(ReqLine2);
-            RefreshPlanningDemand.Run;
+            RefreshPlanningDemand.Run();
         end;
     end;
 
@@ -539,7 +539,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             exit('');
 
         Location.SetFilter(Code, LocationFilter);
-        Location.FindFirst;
+        Location.FindFirst();
         exit(Location.Code);
     end;
 
@@ -561,7 +561,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
 
         ItemVariant.SetRange("Item No.", ItemNo);
         ItemVariant.SetFilter(Code, VariantFilter);
-        ItemVariant.FindFirst;
+        ItemVariant.FindFirst();
         exit(ItemVariant.Code);
     end;
 
@@ -636,7 +636,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         VariantCodeNewSupply := FindVariantWithinFilter(ItemNo, VariantFilter);
         NewSupplyTransfer := false;
 
-        if TimelineEventChange.FindSet then
+        if TimelineEventChange.FindSet() then
             repeat
                 TransferChangeToPlanningLine(
                   TimelineEventChange, ItemNo, TemplateNameNewSupply, WorksheetNameNewSupply, LocationCodeNewSupply, VariantCodeNewSupply);

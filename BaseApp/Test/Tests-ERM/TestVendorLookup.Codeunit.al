@@ -25,7 +25,7 @@ codeunit 134836 "Test Vendor Lookup"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Vendor Lookup");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
         ConfigTemplateHeader.DeleteAll(true);
@@ -37,7 +37,7 @@ codeunit 134836 "Test Vendor Lookup"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Vendor Lookup");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := false;
@@ -55,12 +55,12 @@ codeunit 134836 "Test Vendor Lookup"
         Vend: Record Vendor;
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreateVend(Vend);
 
         // Exercise: Select existing Vend.
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
         PurchaseQuote."Buy-from Vendor Name".SetValue(Vend.Name);
 
         // Verify.
@@ -77,12 +77,12 @@ codeunit 134836 "Test Vendor Lookup"
         Vend: Record Vendor;
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        Initialize;
+        Initialize();
         CreateVend(Vend);
         CreateVend(Vend1);
 
         // Exercise: Select existing Vend.
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
         PurchaseQuote.PurchLines.First;
         PurchaseQuote."Buy-from Vendor Name".SetValue(Vend.Name);
         PurchaseQuote."Buy-from Vendor Name".SetValue(Vend1.Name);
@@ -99,14 +99,14 @@ codeunit 134836 "Test Vendor Lookup"
         PurchaseQuote: TestPage "Purchase Quote";
         VendName: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateVendorTemplate(ConfigTemplateHeader);
 
         // Exercise.
         VendName := CopyStr(Format(CreateGuid), 1, 50);
 
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
         PurchaseQuote.PurchLines.First;
 
         // Verify
@@ -121,13 +121,13 @@ codeunit 134836 "Test Vendor Lookup"
         Vend: Record Vendor;
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoVendorsSameName(Vend);
 
         // Exercise: Select existing Vend - second one in the page handler
         LibraryVariableStorage.Enqueue(Vend.Name); // for the Vend list page handler
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
         PurchaseQuote."Buy-from Vendor Name".SetValue(CopyStr(Vend.Name, 2, StrLen(Vend.Name) - 1));
 
         // Verify.
@@ -142,13 +142,13 @@ codeunit 134836 "Test Vendor Lookup"
         Vend: Record Vendor;
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoVendorsSameName(Vend);
 
         // Exercise: Select existing Vend - second one in the page handler
         LibraryVariableStorage.Enqueue(Vend.Name); // for the Vend list page handler
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
         asserterror PurchaseQuote."Buy-from Vendor Name".SetValue(CopyStr(Vend.Name, 2, StrLen(Vend.Name) - 1));
         Assert.ExpectedError(SelectVendErr);
     end;

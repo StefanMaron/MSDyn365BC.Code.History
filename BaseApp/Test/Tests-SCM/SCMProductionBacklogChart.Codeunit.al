@@ -27,8 +27,8 @@ codeunit 137111 "SCM Production Backlog Chart"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Production Backlog Chart");
 
         isInitialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -49,7 +49,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         "count": Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
             LibraryAssembly.CreateBOM(Item, 1);
@@ -112,7 +112,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         "count": Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
             LibraryAssembly.CreateBOM(Item, 1);
@@ -165,7 +165,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         "count": Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
             LibraryAssembly.CreateBOM(Item, 1);
@@ -229,7 +229,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         "count": Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
             LibraryAssembly.CreateBOM(Item, 1);
@@ -289,7 +289,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         "count": Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         for count := 1 to ProdItems do begin
             LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::"Prod. Order", '', '');
             LibraryAssembly.CreateBOM(Item, 1);
@@ -381,7 +381,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         if UseMyItem and (not MyItem.Get(UserId, ItemNo)) then
             exit;
 
-        if ProdOrderLine.FindSet then
+        if ProdOrderLine.FindSet() then
             repeat
                 Qty += ProdOrderLine."Remaining Quantity";
                 CostAmount += ProdOrderLine."Cost Amount";

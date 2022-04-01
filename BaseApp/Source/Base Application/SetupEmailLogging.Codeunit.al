@@ -6,50 +6,11 @@ codeunit 1641 "Setup Email Logging"
     end;
 
     var
-#if not CLEAN17
-        TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
-        ExchangePowerShellRunner: Codeunit "Exchange PowerShell Runner";
-#endif
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
-#if not CLEAN17
-        PublicFoldersCreationProgressMsg: Label 'Public folder creation  @1@@@@@@@@@@@@@@@@@@';
-        Initialized: Boolean;
-        AdminCredentialsRequiredErr: Label 'Could not create a public Exchange folder. Check if the credentials of the Exchange administrator are entered correctly.';
-#endif
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
-#if not CLEAN17
-        CloseConnectionTxt: Label 'Close connection to Exchange.', Locked = true;
-        InitializeConnectionTxt: Label 'Initialize connection to Exchange.', Locked = true;
-        ConnectionNotInitializedTxt: Label 'Connection to Exchange is not initialized.', Locked = true;
-        ConnectionAlreadyInitializedTxt: Label 'Connection to Exchange has already been initialized.', Locked = true;
-        CreatePublicFoldersTxt: Label 'Create Exchange public folders.', Locked = true;
-        PublicFoldersCreatedTxt: Label 'Exchange public folders are created.', Locked = true;
-        CreateEmailLoggingRulesTxt: Label 'Create email logging rules.', Locked = true;
-        CreateEmailLoggingIncomingRuleTxt: Label 'Create email logging incoming rule.', Locked = true;
-        CreateEmailLoggingOutgoingRuleTxt: Label 'Create email logging outgoing rule.', Locked = true;
-        EmailLoggingRulesCreatedTxt: Label 'Email logging rules are created.', Locked = true;
-#endif
         ClearEmailLoggingSetupTxt: Label 'Clear email logging setup.', Locked = true;
-#if not CLEAN17
-        SetDeployCredentialsTxt: Label 'Set deploy credentials.', Locked = true;
-#endif
         CreateEmailLoggingJobTxt: Label 'Create email logging job.', Locked = true;
         DeleteEmailLoggingJobTxt: Label 'Delete email logging job.', Locked = true;
-#if not CLEAN17
-        SetupEmailLoggingTxt: Label 'Setup email logging.', Locked = true;
-        CannotFindMarketingSetupTxt: Label 'Cannot find marketing setup record.', Locked = true;
-        EnableOrganizationCustomizationTxt: Label 'Enabling organization customization to be able to add new role group.', Locked = true;
-        AddRoleGroupForPublicFoldersTxt: Label 'Add new role group for public folders.', Locked = true;
-        AddUserAsMemberOfRoleGroupTxt: Label 'Add user as a member of created role group.', Locked = true;
-        CreateNewMailBoxTxt: Label 'Creation of new mail box.', Locked = true;
-        CreateNewPublicRootFolderTxt: Label 'Creation of new root public folder.', Locked = true;
-        AdminCredentialsRequiredTxt: Label 'Admin credentials are required.', Locked = true;
-        CheckIfFolderAlreadyExistsTxt: Label 'Check if folder already exists.', Locked = true;
-        CreateQueuePublicFolderTxt: Label 'Creation of new queue public folder.', Locked = true;
-        CreateStoragePublicFolderTxt: Label 'Creation of new storage public folder.', Locked = true;
-        CreatePublicFolderEmailSettingsTxt: Label 'Creation of queue public folder email settings.', Locked = true;
-        AddPublicFolderClientPermissionTxt: Label 'Add public folder client permission.', Locked = true;
-#endif
         MissingClientIdOrSecretErr: Label 'The client ID or client secret have not been initialized.';
         MissingClientIdTelemetryTxt: Label 'The client ID has not been initialized.', Locked = true;
         MissingClientSecretTelemetryTxt: Label 'The client secret has not been initialized.', Locked = true;
@@ -74,10 +35,6 @@ codeunit 1641 "Setup Email Logging"
         IgnoredClientCredentialsTxt: Label 'Ignored client credentials.', Locked = true;
         InvalidClientCredentialsTxt: Label 'Invalid client credentials.', Locked = true;
         EmptyRedirectUrlTxt: Label 'Redirect URL is empty, the default URL will be used.', Locked = true;
-#if not CLEAN17
-        RootFolderPathTemplateTxt: Label '\%1\', Locked = true;
-        PublicFolderPathTemplateTxt: Label '\%1\%2\', Locked = true;
-#endif
         FolderDoesNotExistErr: Label 'The specified Exchange folder does not exist.';
         FolderDoesNotExistTxt: Label 'Exchange folder %1 (%2) does not exist.', Locked = true;
         SetupEmailLoggingTitleTxt: Label 'Set up email logging';
@@ -89,261 +46,7 @@ codeunit 1641 "Setup Email Logging"
         TenantIdExtractedTxt: Label 'Tenant ID has been extracted from token.', Locked = true;
         CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token.', Locked = true;
         CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
-
-#if not CLEAN17
-    [TryFunction]
-    [Obsolete('Will be removed', '17.0')]
-    [Scope('OnPrem')]
-    procedure InitializeExchangePSConnection()
-    var
-        ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
-        NetworkCredential: DotNet NetworkCredential;
-    begin
-        if not Initialized then begin
-            Session.LogMessage('0000BY5', InitializeConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-            if not ExchangePowerShellRunner.PromptForCredentials() then begin
-                Session.LogMessage('0000BY6', ConnectionNotInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-                Error(GetLastErrorText);
-            end;
-            ExchangePowerShellRunner.GetCredentials(TempOfficeAdminCredentials);
-            ExchangePowerShellRunner.InitializePSRunner();
-
-            NetworkCredential := NetworkCredential.NetworkCredential(TempOfficeAdminCredentials.Email,
-                TempOfficeAdminCredentials.GetPassword());
-            ExchangeWebServicesClient.InitializeOnServer(
-              TempOfficeAdminCredentials.Email, GetDomainFromEmail(TempOfficeAdminCredentials.Email), NetworkCredential);
-            ExchangeWebServicesClient.ValidateCredentialsOnServer();
-        end else
-            Session.LogMessage('0000BY7', ConnectionAlreadyInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-        Initialized := true;
-    end;
-
-    [TryFunction]
-    [Obsolete('Will be removed', '17.0')]
-    [Scope('OnPrem')]
-    procedure CreatePublicFolders(PublicMailBoxName: Text; RootFolderName: Text; QueueFolderName: Text; StorageFolderName: Text)
-    var
-        Enum: DotNet IEnumerator;
-        Window: Dialog;
-        QueueFolderPath: Text;
-        StorageFolderPath: Text;
-    begin
-        Session.LogMessage('0000BY8', CreatePublicFoldersTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-        Window.Open(PublicFoldersCreationProgressMsg);
-
-        // Enabling Organization Customization to be able to add new Role Group
-        Session.LogMessage('0000BYT', EnableOrganizationCustomizationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        Window.Update(1, 0);
-        ExchangePowerShellRunner.AddCommand('Enable-OrganizationCustomization', true);
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        // Add new Role Group for Public Folders
-        Session.LogMessage('0000BYU', AddRoleGroupForPublicFoldersTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        Window.Update(1, 2000);
-        ExchangePowerShellRunner.AddCommand('New-RoleGroup', true);
-        ExchangePowerShellRunner.AddParameter('Name', 'Public Folders Management');
-        ExchangePowerShellRunner.AddParameter('Roles', 'Public Folders');
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        // Add user as a member of created Role Group
-        Session.LogMessage('0000BYV', AddUserAsMemberOfRoleGroupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        Window.Update(1, 3000);
-        ExchangePowerShellRunner.AddCommand('Add-RoleGroupMember', true);
-        ExchangePowerShellRunner.AddParameter('Identity', 'Public Folders Management');
-        ExchangePowerShellRunner.AddParameter('Member', TempOfficeAdminCredentials.Email);
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        // Creation of new Mail Box
-        Session.LogMessage('0000BYW', CreateNewMailBoxTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        Window.Update(1, 4000);
-        ExchangePowerShellRunner.AddCommand('New-Mailbox', true);
-        ExchangePowerShellRunner.AddParameterFlag('PublicFolder');
-        ExchangePowerShellRunner.AddParameter('Name', PublicMailBoxName);
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        // Creation of new Root public Folder
-        Session.LogMessage('0000BYX', CreateNewPublicRootFolderTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        Window.Update(1, 5000);
-        ExchangePowerShellRunner.AddCommand('New-PublicFolder', true);
-        ExchangePowerShellRunner.AddParameter('Name', RootFolderName);
-        ExchangePowerShellRunner.AddParameter('Mailbox', PublicMailBoxName);
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        ExchangePowerShellRunner.GetResultEnumerator(Enum);
-
-        // If returned nothing then check if folder already exists
-        if not Enum.MoveNext() then begin
-            Session.LogMessage('0000BY9', CheckIfFolderAlreadyExistsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            ExchangePowerShellRunner.ClearLog();
-            ExchangePowerShellRunner.AddCommand('Get-PublicFolder', true);
-            ExchangePowerShellRunner.AddParameter('Identity', StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
-            ExchangePowerShellRunner.Invoke();
-            ExchangePowerShellRunner.AwaitCompletion();
-
-            ExchangePowerShellRunner.GetResultEnumerator(Enum);
-            // If Public Folder does not exist then user has no admin rights
-            if not Enum.MoveNext() then begin
-                Session.LogMessage('0000BYA', AdminCredentialsRequiredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-                ClosePSConnection();
-                Error(AdminCredentialsRequiredErr);
-            end;
-        end;
-
-        // Creation of new Queue public Folder /Root/Queue
-        Session.LogMessage('0000BY9', CreateQueuePublicFolderTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        Window.Update(1, 6000);
-        ExchangePowerShellRunner.AddCommand('New-PublicFolder', true);
-        ExchangePowerShellRunner.AddParameter('Name', QueueFolderName);
-        ExchangePowerShellRunner.AddParameter('Path', StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
-        ExchangePowerShellRunner.AddParameter('Mailbox', PublicMailBoxName);
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        // Creation of new Storage public Folder /Root/Storage
-        Session.LogMessage('0000BY9', CreateStoragePublicFolderTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        Window.Update(1, 7000);
-        ExchangePowerShellRunner.AddCommand('New-PublicFolder', true);
-        ExchangePowerShellRunner.AddParameter('Name', StorageFolderName);
-        ExchangePowerShellRunner.AddParameter('Path', StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
-        ExchangePowerShellRunner.AddParameter('Mailbox', PublicMailBoxName);
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        // Grant Queue public folder Mail Settings (email address)
-        Session.LogMessage('0000BY9', CreatePublicFolderEmailSettingsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        Window.Update(1, 8000);
-        QueueFolderPath := StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, QueueFolderName);
-        StorageFolderPath := StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, StorageFolderName);
-        ExchangePowerShellRunner.AddCommand('Enable-MailPublicFolder', true);
-        ExchangePowerShellRunner.AddParameter('Identity', QueueFolderPath);
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        // Grant users to send email to mail enabled folder
-        Session.LogMessage('0000BY9', AddPublicFolderClientPermissionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        Window.Update(1, 9000);
-        ExchangePowerShellRunner.AddCommand('Add-PublicFolderClientPermission', true);
-        ExchangePowerShellRunner.AddParameter('Identity', QueueFolderPath);
-        ExchangePowerShellRunner.AddParameter('AccessRights', 'CreateItems');
-        ExchangePowerShellRunner.AddParameter('User', 'Anonymous');
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        Session.LogMessage('0000BYY', AddPublicFolderClientPermissionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        ExchangePowerShellRunner.AddCommand('Add-PublicFolderClientPermission', true);
-        ExchangePowerShellRunner.AddParameter('Identity', QueueFolderPath);
-        ExchangePowerShellRunner.AddParameter('AccessRights', 'Owner');
-        ExchangePowerShellRunner.AddParameter('User', TempOfficeAdminCredentials.Email);
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        Session.LogMessage('0000BYZ', AddPublicFolderClientPermissionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        ExchangePowerShellRunner.AddCommand('Add-PublicFolderClientPermission', true);
-        ExchangePowerShellRunner.AddParameter('Identity', StorageFolderPath);
-        ExchangePowerShellRunner.AddParameter('AccessRights', 'Owner');
-        ExchangePowerShellRunner.AddParameter('User', TempOfficeAdminCredentials.Email);
-        ExchangePowerShellRunner.Invoke();
-        ExchangePowerShellRunner.AwaitCompletion();
-
-        Window.Close();
-
-        Session.LogMessage('0000BYB', PublicFoldersCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-    end;
-
-    [TryFunction]
-    [Obsolete('Will be removed', '17.0')]
-    [Scope('OnPrem')]
-    procedure CreateEmailLoggingRules(QueueEmailAddress: Text; IncomingRuleName: Text; OutgoingRuleName: Text)
-    begin
-        Session.LogMessage('0000BYC', CreateEmailLoggingRulesTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-        // Create new Transport Rule for Ingoing mail from outside organization
-        if IncomingRuleName <> '' then begin
-            Session.LogMessage('0000BYD', CreateEmailLoggingIncomingRuleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            ExchangePowerShellRunner.AddCommand('New-TransportRule', true);
-            ExchangePowerShellRunner.AddParameter('Name', IncomingRuleName);
-            ExchangePowerShellRunner.AddParameter('FromScope', 'NotInOrganization');
-            ExchangePowerShellRunner.AddParameter('SentToScope', 'InOrganization');
-            ExchangePowerShellRunner.AddParameter('BlindCopyTo', QueueEmailAddress);
-            ExchangePowerShellRunner.Invoke();
-            ExchangePowerShellRunner.AwaitCompletion();
-        end;
-
-        // Create new Transport Rule for Outgoing mail to outside organization
-        if OutgoingRuleName <> '' then begin
-            Session.LogMessage('0000BYE', CreateEmailLoggingOutgoingRuleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            ExchangePowerShellRunner.AddCommand('New-TransportRule', true);
-            ExchangePowerShellRunner.AddParameter('Name', OutgoingRuleName);
-            ExchangePowerShellRunner.AddParameter('FromScope', 'InOrganization');
-            ExchangePowerShellRunner.AddParameter('SentToScope', 'NotInOrganization');
-            ExchangePowerShellRunner.AddParameter('BlindCopyTo', QueueEmailAddress);
-            ExchangePowerShellRunner.Invoke();
-            ExchangePowerShellRunner.AwaitCompletion();
-        end;
-        ClosePSConnection();
-
-        Session.LogMessage('0000BYF', EmailLoggingRulesCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-    end;
-
-    [Obsolete('Will be removed', '17.0')]
-    procedure SetDeployCredentials(Username: Text[80]; Password: Text[30])
-    begin
-        Session.LogMessage('0000BYJ', SetDeployCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        ExchangePowerShellRunner.SetCredentials(Username, Password);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Will be removed', '17.0')]
-    [NonDebuggable]
-    procedure SetupEmailLoggingFolderMarketingSetup(RootFolderName: Text; QueueFolderName: Text; StorageFolderName: Text)
-    var
-        MarketingSetup: Record "Marketing Setup";
-        TempExchangeFolder: Record "Exchange Folder" temporary;
-        ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
-        OAuthCredentials: DotNet OAuthCredentials;
-        Token: Text;
-    begin
-        Session.LogMessage('0000BYH', SetupEmailLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-        if not MarketingSetup.Get() then begin
-            Session.LogMessage('0000BYI', CannotFindMarketingSetupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            exit;
-        end;
-
-        GetClientCredentialsAccessToken(MarketingSetup.GetExchangeTenantId(), Token);
-        OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
-        ExchangeWebServicesClient.InitializeOnServerWithImpersonation(
-          TempOfficeAdminCredentials.Email, GetDomainFromEmail(TempOfficeAdminCredentials.Email), OAuthCredentials);
-        ExchangeWebServicesClient.ValidateCredentialsOnServer();
-        ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
-        TempExchangeFolder.Get(StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
-        ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
-        TempExchangeFolder.Get(StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, QueueFolderName));
-        TempExchangeFolder.CalcFields("Unique ID");
-        MarketingSetup.SetQueueFolder(TempExchangeFolder);
-        TempExchangeFolder.Get(StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, StorageFolderName));
-        TempExchangeFolder.CalcFields("Unique ID");
-        MarketingSetup.SetStorageFolder(TempExchangeFolder);
-    end;
-
-    [Obsolete('End of support for Exchange Online PowerShell', '17.0')]
-    [Scope('OnPrem')]
-    procedure ClosePSConnection()
-    begin
-        Session.LogMessage('0000BYL', CloseConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        if Initialized then
-            ExchangePowerShellRunner.RemoveRemoteConnectionInformation();
-        Initialized := false;
-    end;
-#endif
+        EmailLoggingUsingGraphApiFeatureIdTok: Label 'EmailLoggingUsingGraphApi', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetExchangeFolder(var ExchangeWebServicesClient: Codeunit "Exchange Web Services Client"; var ExchangeFolder: Record "Exchange Folder"; FoldersCaption: Text): Boolean
@@ -681,9 +384,17 @@ codeunit 1641 "Setup Email Logging"
         Error(MissingClientIdOrSecretErr);
     end;
 
+    internal procedure IsEmailLoggingUsingGraphApiFeatureEnabled() FeatureEnabled: Boolean;
+    var
+        FeatureManagementFacade: Codeunit "Feature Management Facade";
+    begin
+        FeatureEnabled := FeatureManagementFacade.IsEnabled(EmailLoggingUsingGraphApiFeatureIdTok);
+    end;
+
     [Scope('OnPrem')]
     procedure RegisterAssistedSetup()
     var
+        SetupEmailLogging: Codeunit "Setup Email Logging";
         GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
         ModuleInfo: ModuleInfo;
@@ -692,6 +403,12 @@ codeunit 1641 "Setup Email Logging"
         GuidedExperienceType: Enum "Guided Experience Type";
         CurrentGlobalLanguage: Integer;
     begin
+        if SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled() then begin
+            if GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging") then
+                GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging");
+            exit;
+        end;
+
         if GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging") then
             exit;
 

@@ -106,7 +106,7 @@ report 5986 "Prepaid Contr. Entries - Test"
             trigger OnAfterGetRecord()
             begin
                 ServContractHdr.SetFilter("Contract No.", "Service Contract No.");
-                if ServContractHdr.FindFirst then begin
+                if ServContractHdr.FindFirst() then begin
                     ServContractHdr.CalcFields("No. of Unposted Credit Memos");
                     if ServContractHdr."No. of Unposted Credit Memos" <> 0 then
                         AddError(Text002);

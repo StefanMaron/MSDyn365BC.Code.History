@@ -37,7 +37,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue] [SB Owner Cue]
         // [SCENARIO 347046] Cues in Sales Cue and SB Owner Cue display number of sales documents of corresponding type, status and ship state.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Several not shipped sales documents with different types and statuses, covering all activities shown in Sales Cue and SB Owner Cue.
         // [GIVEN] Partially and fully shipped sales orders.
@@ -73,7 +73,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Purchase Cue]
         // [SCENARIO 347046] Cues in Purchase Cue display number of purchase documents of corresponding type, status and receive state.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Several purchase documents with different types and statutes, covering all activities shown in Purchase Cue.
         CreateResponsibilityCenterAndUserSetup;
@@ -101,7 +101,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Service Cue]
         // [SCENARIO 347046] Cues in Service Cue display number of service documents and service contracts of corresponding type and status.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Several service documents and service contrancts with different types and statutes, covering all activities shown in Service Cue.
         CreateResponsibilityCenterAndUserSetup;
@@ -127,7 +127,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue] [Partial Shipment]
         // [SCENARIO 377251] Sales Cue "Partially Shipped" number corresponds to partially shipped orders, if one has been invoiced partially after shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order, shipped partially, then invoice partially.
         CreateResponsibilityCenterAndUserSetup;
@@ -146,7 +146,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue] [Partial Shipment] [UT]
         // [SCENARIO 377251] Sales Order with no lines has Shipped = FALSE
-        Initialize;
+        Initialize();
 
         with SalesHeader do begin
             MockSalesHeader(SalesHeader, "Document Type"::Order, Status::Released);
@@ -165,7 +165,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue] [Partial Shipment] [UT]
         // [SCENARIO 377251] Sales Order with one line with "Qty. Shipped (Base)" = 0 has Shipped = FALSE
-        Initialize;
+        Initialize();
 
         with SalesHeader do begin
             CreateShippedSalesOrder(SalesHeader, ShipStatus::"Not Shipped");
@@ -184,7 +184,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue] [Partial Shipment] [UT]
         // [SCENARIO 377251] Sales Order with one line with "Qty. Shipped (Base)" > 0 has Shipped = TRUE
-        Initialize;
+        Initialize();
 
         with SalesHeader do begin
             CreateShippedSalesOrder(SalesHeader, ShipStatus::Full);
@@ -205,7 +205,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue] [Partial Shipment] [UT]
         // [SCENARIO 377251] Sales Order with two lines (line 1 partially shipped, line 2 not shipped) has Shipped = TRUE
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandInt(10);
 
@@ -228,7 +228,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue] [Partial Shipment] [UT]
         // [SCENARIO 377251] Two Sales Orders - SO1 with not shipped line, SO2 with partially shipped line, SO1 Shipped = FALSE
-        Initialize;
+        Initialize();
 
         CreateShippedSalesOrder(SalesHeader[1], ShipStatus::"Not Shipped");
         CreateShippedSalesOrder(SalesHeader[2], ShipStatus::Partial);
@@ -250,7 +250,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue]
         // [SCENARIO 380585] Sales Order is considered delayed if there is an outstanding Sales Line with "Shipment Date" < WORKDATE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Sales Orders "S1" and "S2".
         // [GIVEN] "S1" has two partially shipped Sales Lines with "Shipment Date" < WORKDATE and one line with blank "Shipment Date".
@@ -285,7 +285,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue]
         // [SCENARIO 380585] List of delayed Sales Orders only contains documents that have lines with outstanding quantity and "Shipment Date" < WORKDATE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Sales Orders "S1" and "S2".
         // [GIVEN] "S1" has two partially shipped Sales Lines with "Shipment Date" < WORKDATE and one line with blank "Shipment Date".
@@ -318,7 +318,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue]
         // [SCENARIO 380585] "Average Days Delayed" cue is calculated as an average delay among delayed Sales Orders. Delay of Sales Order is equal to a maximum delay among Sales Lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two pairs of Sales Orders ("X1", "X2") and ("Y1", "Y2").
         // [GIVEN] "X1" and "Y1" have two partially shipped Sales Lines with "Shipment Date" < WORKDATE
@@ -349,7 +349,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue]
         // [SCENARIO 380585] "Average Days Delayed" cue reads 0 when a Sales Line is fully shipped.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Sales Order with fully shipped Sales Line and "Shipment Date" < WORKDATE.
         Qty := LibraryRandom.RandInt(10);
@@ -375,7 +375,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Sales Cue]
         // [SCENARIO 380585] "Average Days Delayed" cue reads 0 when a Sales Line has blank "Shipment Date".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Sales Order with partially shipped Sales Line and blank "Shipment Date".
         MockSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader.Status::Released);
@@ -396,7 +396,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Warehouse WMS Cue] [UT]
         // [SCENARIO 380096] "Posted Shipments - Today" cue in Warehouse WMS Cue shows number of Posted Whse. Shipments within period "Date Filter2".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Whse. Shipment. Posting Date = WORKDATE.
         MockPostedWhseShipmentHeader;
@@ -414,7 +414,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [SB Owner Cue]
         // [SCENARIO 380096] "Purchase Invoices Due Today" on SB Owner Cue shows number of Vendor Ledger Entries with "Due Date" <= WORKDATE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry with Due Date <= WORKDATE.
         MockVendorLedgerEntry(WorkDate - LibraryRandom.RandIntInRange(0, 10));
@@ -434,7 +434,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [SB Owner Cue]
         // [SCENARIO 380096] "Purchase Invoices Due Today" on SB Owner Cue shows 0 if no Vendor Ledger Entries are within the period 0D..WORKDATE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry with Due Date > WORKDATE.
         MockVendorLedgerEntry(WorkDate + LibraryRandom.RandInt(10));
@@ -455,7 +455,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [Warehouse WMS Cue] [Location] [UT]
         // [SCENARIO 208416] GetEmployeeLocation function in Warehouse WMS Cue should return a valid filter for blank location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order on blank location.
         MockSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader.Status::Open);
@@ -482,7 +482,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [UT] [Location]
         // [SCENARIO 338933] WarehouseWMSCue.GetEmployeeLocation returns Locations filter created using SelectionFilterManagement codeunit
-        Initialize;
+        Initialize();
         WarehouseEmployee[1].DeleteAll;
 
         // [GIVEN] 10 Locations "L001..L010" where "L001..L003" and "L007" and "L009" are assigned to a WarehouseEmployee
@@ -517,7 +517,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [UT] [Location] [Warehouse Employee]
         // [SCENARIO 339308] WarehouseWMSCue.GetEmployeeLocation returns valid filter when a user is a warehouse employee only on blank location.
-        Initialize;
+        Initialize();
         WarehouseEmployee.DeleteAll;
 
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, '', false);
@@ -535,7 +535,7 @@ codeunit 134924 "ERM Cues"
     begin
         // [FEATURE] [UT] [Location] [Warehouse Employee]
         // [SCENARIO 339308] WarehouseWMSCue.GetEmployeeLocation returns valid filter when a user is a warehouse employee on several locations including blank.
-        Initialize;
+        Initialize();
         WarehouseEmployee.DeleteAll;
 
         LibraryWarehouse.CreateLocation(Location);
@@ -801,7 +801,7 @@ codeunit 134924 "ERM Cues"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            if FindLast then;
+            if FindLast() then;
 
             Init;
             "Document Type" := SalesHeader."Document Type";

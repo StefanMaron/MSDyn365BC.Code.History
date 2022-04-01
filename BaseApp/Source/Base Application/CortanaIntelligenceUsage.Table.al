@@ -111,7 +111,7 @@ table 2003 "Cortana Intelligence Usage"
             exit(false);
 
         SetRange(Service, ServiceOption);
-        if not FindFirst then begin
+        if not FindFirst() then begin
             Init;
             Service := ServiceOption;
             "Last DateTime Updated" := GetCurrentDateTime;

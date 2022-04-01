@@ -37,7 +37,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, false);
@@ -58,7 +58,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -83,7 +83,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostMultilineSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -108,7 +108,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostMultilineSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, false);
@@ -133,7 +133,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostServiceDoc(ServiceShipmentHeader, ServiceHeader."Document Type"::Order, false);
@@ -154,7 +154,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostServiceDoc(ServiceShipmentHeader, ServiceHeader."Document Type"::Order, true);
@@ -179,7 +179,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostMultilineServiceDoc(ServiceShipmentHeader, ServiceHeader."Document Type"::Order, true);
@@ -204,7 +204,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostMultilineServiceDoc(ServiceShipmentHeader, ServiceHeader."Document Type"::Order, false);
@@ -229,7 +229,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostPurchaseDoc(ReturnShipmentHeader, PurchaseHeader."Document Type"::"Return Order", false);
@@ -249,7 +249,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostPurchaseDoc(ReturnShipmentHeader, PurchaseHeader."Document Type"::"Return Order", true);
@@ -274,7 +274,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostMultilinePurchaseDoc(ReturnShipmentHeader, PurchaseHeader."Document Type"::"Return Order", true);
@@ -299,7 +299,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 2 - Certificate of Supply posted with Ship option, then shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         PostMultilinePurchaseDoc(ReturnShipmentHeader, PurchaseHeader."Document Type"::"Return Order", false);
@@ -327,7 +327,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // then Sales shipment created from that order will have Certificate of Supply Status set to Required
 
         // setup
-        Initialize;
+        Initialize();
 
         // exercise
         CreateVATPostingGroup(VATPostingSetup);
@@ -337,7 +337,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ReleaseSalesOrderDropShipment(SalesHeader, VATPostingSetup, Purchasing.Code);
 
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
 
         // verify
         CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
@@ -361,7 +361,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ExpectedStatus: Option;
     begin
         // acceptance criteria 7 - Certificate of Supply status can be manually changed to Not Received from status Required
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -387,7 +387,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ExpectedStatus: Option;
     begin
         // acceptance criteria 7 - Certificate of Supply status can be manually changed to Received from status Required (Receipt Date blank)
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -414,7 +414,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ExpectedStatus: Option;
     begin
         // acceptance criteria 7 - Certificate of Supply status can be manually changed to Received from status Required (Receipt Date not blank)
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -442,7 +442,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ExpectedStatus: Option;
     begin
         // acceptance criteria 8 - Certificate of Supply status can be manually changed to Required from status Not Applicable
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, false);
@@ -469,13 +469,13 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertificateNo: Code[20];
     begin
         // acceptance criteria 8 - Certificate of Supply status can be manually changed to Required from status Received
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
         CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
         SetCertofSupplyStatus(CertificateOfSupply, CertificateOfSupply.Status::Received);
-        CertificateNo := LibraryUtility.GenerateGUID;
+        CertificateNo := LibraryUtility.GenerateGUID();
         SetCertofSupplyNo(CertificateOfSupply, CertificateNo);
 
         // exercise
@@ -499,13 +499,13 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertificateNo: Code[20];
     begin
         // acceptance criteria 12 - Certificate of Supply status can be manually changed to Not Received from status Received
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
         CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
         SetCertofSupplyStatus(CertificateOfSupply, CertificateOfSupply.Status::Received);
-        CertificateNo := LibraryUtility.GenerateGUID;
+        CertificateNo := LibraryUtility.GenerateGUID();
         SetCertofSupplyNo(CertificateOfSupply, CertificateNo);
 
         // exercise
@@ -528,7 +528,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ExpectedStatus: Option;
     begin
         // acceptance criteria 12 - Certificate of Supply status can be manually changed to Not Received from status Not Applicable
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, false);
@@ -554,7 +554,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ExpectedStatus: Option;
     begin
         // acceptance criteria 24 - Certificate of Supply status can be manually changed to Not Applicable from status Received
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -581,7 +581,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ExpectedStatus: Option;
     begin
         // acceptance criteria 24 - Certificate of Supply status can be manually changed to Not Applicable from status Not Received
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -608,7 +608,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ExpectedStatus: Option;
     begin
         // acceptance criteria 24 - Certificate of Supply status can be manually changed to Not Applicable from status Required
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -635,13 +635,13 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertificateNo: Code[20];
     begin
         // acceptance criteria 8 - Certificate of Supply status can be manually changed to Required from status Not Received
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
         CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
         SetCertofSupplyStatus(CertificateOfSupply, CertificateOfSupply.Status::"Not Received");
-        CertificateNo := LibraryUtility.GenerateGUID;
+        CertificateNo := LibraryUtility.GenerateGUID();
         SetCertofSupplyNo(CertificateOfSupply, CertificateNo);
 
         // exercise
@@ -665,13 +665,13 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertificateNo: Code[20];
     begin
         // acceptance criteria 8 - Certificate of Supply status can be manually changed to Received from status Not Received
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
         CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
         SetCertofSupplyStatus(CertificateOfSupply, CertificateOfSupply.Status::"Not Received");
-        CertificateNo := LibraryUtility.GenerateGUID;
+        CertificateNo := LibraryUtility.GenerateGUID();
         SetCertofSupplyNo(CertificateOfSupply, CertificateNo);
 
         // exercise
@@ -694,7 +694,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ExpectedStatus: Option;
     begin
         // acceptance criteria 12 - Certificate of Supply status can be manually changed to Received from status Not Applicable
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, false);
@@ -719,7 +719,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // acceptance criteria 23 - If user clears Certificate Receipt Date value and the  Certificate of Supply Status is Received then error is thrown
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -740,7 +740,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // acceptance criteria 25 - If user clears Certificate No. value and the  Certificate of Supply Status is Received then error is thrown
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -760,7 +760,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // acceptance criteria 25 - If user clears Certificate No.  value and the  Certificate of Supply Status is Received then error is thrown
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -781,7 +781,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // acceptance criteria 25 - If user changes Vehicle Reg. No. and the  Certificate of Supply Status is Received then error is thrown
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -807,7 +807,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // acceptance criteria 25 - If user clears Certificate No. value and the  Certificate of Supply Status is Received then error is thrown
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -828,7 +828,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // acceptance criteria 18 - Certificate Receipt Date must be after Shipment Date
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -850,7 +850,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         // acceptance criteria 18 - Certificate Receipt Date must be after Shipment Date
-        Initialize;
+        Initialize();
 
         // setup
         PostServiceDoc(ServiceShipmentHeader, ServiceHeader."Document Type"::Order, true);
@@ -872,7 +872,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ReturnShipmentHeader: Record "Return Shipment Header";
     begin
         // acceptance criteria 18 - Certificate Receipt Date must be after Shipment Date
-        Initialize;
+        Initialize();
 
         // setup
         PostPurchaseDoc(ReturnShipmentHeader, PurchaseHeader."Document Type"::"Return Order", true);
@@ -896,12 +896,12 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertificateNo: Code[20];
     begin
         // acceptance criteria 26 - Certificate of Supply status can be manually changed to Not Received from status Required (not-default Certificate No.)
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
         CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
-        CertificateNo := LibraryUtility.GenerateGUID;
+        CertificateNo := LibraryUtility.GenerateGUID();
         SetCertofSupplyNo(CertificateOfSupply, CertificateNo);
 
         // exercise
@@ -925,12 +925,12 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertificateNo: Code[20];
     begin
         // acceptance criteria 26 - Certificate of Supply status can be manually changed to Received from status Required (not-default Certificate No.)
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
         CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
-        CertificateNo := LibraryUtility.GenerateGUID;
+        CertificateNo := LibraryUtility.GenerateGUID();
         SetCertofSupplyNo(CertificateOfSupply, CertificateNo);
 
         // exercise
@@ -953,7 +953,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesHeader: Record "Sales Header";
     begin
         // Test verifies the content of the Certificate of Supply report for Sales Shipment Header as source
-        Initialize;
+        Initialize();
 
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -981,7 +981,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesHeader: Record "Sales Header";
     begin
         // Test verifies the content of the Certificate of Supply report for Sales Shipment Header as source for multiline document
-        Initialize;
+        Initialize();
 
         // setup
         PostMultilineSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -1007,7 +1007,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ServiceHeader: Record "Service Header";
     begin
         // Test verifies the content of the Certificate of Supply report for Service Shipment Header as source
-        Initialize;
+        Initialize();
 
         // setup
         PostServiceDoc(ServiceShipmentHeader, ServiceHeader."Document Type"::Order, true);
@@ -1035,7 +1035,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ServiceHeader: Record "Service Header";
     begin
         // Test verifies the content of the Certificate of Supply report for Service Shipment Header as source for multiline document
-        Initialize;
+        Initialize();
 
         // setup
         PostMultilineServiceDoc(ServiceShipmentHeader, ServiceHeader."Document Type"::Order, true);
@@ -1061,7 +1061,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Test verifies the content of the Certificate of Supply report for Return Shipment Header as source
-        Initialize;
+        Initialize();
 
         // setup
         PostPurchaseDoc(ReturnShipmentHeader, PurchaseHeader."Document Type"::"Return Order", true);
@@ -1089,7 +1089,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Test verifies the content of the Certificate of Supply report for Return Shipment Header as source
-        Initialize;
+        Initialize();
 
         // setup
         PostMultilinePurchaseDoc(ReturnShipmentHeader, PurchaseHeader."Document Type"::"Return Order", true);
@@ -1117,7 +1117,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 27 - Delete Sales/Service/Return Shipment must delete associated Certificate of Supply
 
         // setup
-        Initialize;
+        Initialize();
 
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
         SalesShipmentNo := SalesShipmentHeader."No.";
@@ -1145,7 +1145,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 27 - Delete Sales/Service/Return Shipment must delete associated Certificate of Supply
 
         // setup
-        Initialize;
+        Initialize();
 
         PostServiceDoc(ServiceShipmentHeader, ServiceHeader."Document Type"::Order, true);
         ServiceShipmentNo := ServiceShipmentHeader."No.";
@@ -1173,7 +1173,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // acceptance criteria 27 - Delete Sales/Service/Return Shipment must delete associated Certificate of Supply
 
         // setup
-        Initialize;
+        Initialize();
 
         PostPurchaseDoc(ReturnShipmentHeader, PurchaseHeader."Document Type"::"Return Order", true);
         ReturnShipmentNo := ReturnShipmentHeader."No.";
@@ -1199,7 +1199,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // [SCENARIO 333888] Report "Certificate of Supply" can be printed without errors
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare Certificate of Supply
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
@@ -1217,7 +1217,7 @@ codeunit 137112 "SCM Certificate Of Supply"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Certificate Of Supply");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure AddSalesLine(var SalesHeader: Record "Sales Header"; CertOfSupplyRequired: Boolean)
@@ -1256,7 +1256,7 @@ codeunit 137112 "SCM Certificate Of Supply"
 
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetFilter("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
 
         CreateServiceLine(ServiceLine, ServiceHeader, ItemNo, ServiceItemLine."Line No.");
     end;
@@ -1383,7 +1383,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         AddPurchaseLine(PurchaseHeader, not CertOfSupplyRequired);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ReturnShipmentHeader.SetRange("Return Order No.", PurchaseHeader."No.");
-        ReturnShipmentHeader.FindFirst;
+        ReturnShipmentHeader.FindFirst();
     end;
 
     local procedure PostMultilineSalesDoc(var SalesShipmentHeader: Record "Sales Shipment Header"; DocumentType: Enum "Sales Document Type"; CertOfSupplyRequired: Boolean)
@@ -1397,7 +1397,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         AddSalesLine(SalesHeader, not CertOfSupplyRequired);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
     end;
 
     local procedure PostMultilineServiceDoc(var ServiceShipmentHeader: Record "Service Shipment Header"; DocumentType: Enum "Service Document Type"; CertOfSupplyRequired: Boolean)
@@ -1411,7 +1411,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         AddServiceLine(ServiceHeader, not CertOfSupplyRequired);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
     end;
 
     local procedure PostPurchaseDoc(var ReturnShipmentHeader: Record "Return Shipment Header"; DocumentType: Enum "Purchase Document Type"; CertOfSupplyRequired: Boolean)
@@ -1450,7 +1450,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         CreateServiceOrder(ServiceHeader, VATPostingSetup, DocumentType);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
     end;
 
     local procedure ReleaseSalesOrderDropShipment(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; PurchasingCode: Code[10])
@@ -1484,7 +1484,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ReqWkshCarryOutActionMessage(RequisitionLine);
 
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
@@ -1674,7 +1674,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         RetrieveDimensions: Option "Sales Line",Item;
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshName."Template Type"::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
 
         LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, ReqWkshTemplate.Name);
         RequisitionLine.Init();
@@ -1688,10 +1688,10 @@ codeunit 137112 "SCM Certificate Of Supply"
         GetSalesOrders.InitializeRequest(RetrieveDimensions::"Sales Line");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 0);
         GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.Run;
+        GetSalesOrders.Run();
 
         RequisitionLine.SetRange("Journal Batch Name", ReqWkshName.Name);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure ReqWkshCarryOutActionMessage(var RequisitionLine: Record "Requisition Line")
@@ -1703,7 +1703,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         CarryOutActionMessage.SetHideDialog(true);
 
         CarryOutActionMessage.UseRequestPage(false);
-        CarryOutActionMessage.RunModal;
+        CarryOutActionMessage.RunModal();
     end;
 
     [RequestPageHandler]

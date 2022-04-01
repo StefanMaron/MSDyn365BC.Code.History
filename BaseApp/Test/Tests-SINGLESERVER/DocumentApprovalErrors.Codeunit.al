@@ -69,7 +69,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 380033] Post Purchase Invoice if restriction for Vendor record exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI" with "Buy-from Vendor No." = "V1"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -93,7 +93,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 380033] Post Purchase Invoice if restriction for Vendor record exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI" with "Buy-from Vendor No." = "V1", "Pay-to Vendor No." = "V2"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -117,7 +117,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 380033] Post Sales Invoice if restriction for Customer record exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice "SI" with "Sell-to Customer No." = "C1"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -142,7 +142,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 380033] Post Sales Invoice if restriction for Customer record exists
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         // [GIVEN] Sales Invoice "SI" with "Sell-to Customer No." = "C1", "Bill-to Customer No." = "C2"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -226,7 +226,7 @@ codeunit 134200 "Document Approval - Errors"
         UserSetup: Record "User Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
         LibraryDocumentApprovals.UpdateApprovalLimits(UserSetup, false, true, false, 0, 0, 0);
 
@@ -468,7 +468,7 @@ codeunit 134200 "Document Approval - Errors"
         UserSetup: Record "User Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
         LibraryDocumentApprovals.UpdateApprovalLimits(UserSetup, false, false, true, 0, 0, 0);
 
@@ -488,7 +488,7 @@ codeunit 134200 "Document Approval - Errors"
         UserSetup: Record "User Setup";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
         LibraryDocumentApprovals.UpdateApprovalLimits(UserSetup, true, false, false, 0, 0, 0);
 
@@ -731,12 +731,12 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 380230] Post Payment to Vendor when restriction for Vendor record exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment where "Account Type" = Vendor and "Account No." = "V1"
         GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
-        GenJournalLine."Account No." := LibraryPurchase.CreateVendorNo;
+        GenJournalLine."Account No." := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Vendor "V1" has restriction.
         SetRestrictionToVendor(GenJournalLine."Account No.");
@@ -757,12 +757,12 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 380230] Post Payment to Vendor as balance account when restriction for Vendor record exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment where "Bal. Account Type" = Vendor and "Bal. Account No." = "V1"
         GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Vendor;
-        GenJournalLine."Bal. Account No." := LibraryPurchase.CreateVendorNo;
+        GenJournalLine."Bal. Account No." := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Vendor "V1" has restriction.
         SetRestrictionToVendor(GenJournalLine."Bal. Account No.");
@@ -783,12 +783,12 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 380230] Post Payment from Customer when restriction for Customer record exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment where "Account Type" = Customer and "Account No." = "C1"
         GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
-        GenJournalLine."Account No." := LibrarySales.CreateCustomerNo;
+        GenJournalLine."Account No." := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Customer "C1" has restriction.
         SetRestrictionToCustomer(GenJournalLine."Account No.");
@@ -809,12 +809,12 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 380230] Post Payment from Customer as Balance Account when restriction for Customer record exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment where "Bal. Account Type" = Customer and "Bal. Account No." = "C1"
         GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
-        GenJournalLine."Bal. Account No." := LibrarySales.CreateCustomerNo;
+        GenJournalLine."Bal. Account No." := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Customer "C1" has restriction.
         SetRestrictionToCustomer(GenJournalLine."Bal. Account No.");
@@ -835,13 +835,13 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 380230] Post Payment to Vendor when Vendor record does not exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V1" does not exist
         // [GIVEN] Payment where "Account Type" = Vendor and "Account No." = "V1"
         GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
-        GenJournalLine."Account No." := LibraryUtility.GenerateGUID;
+        GenJournalLine."Account No." := LibraryUtility.GenerateGUID();
 
         // [WHEN] Check post restriction
         asserterror RecordRestrictionMgt.VendorCheckGenJournalLinePostRestrictions(GenJournalLine);
@@ -859,13 +859,13 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 380230] Post Payment to Vendor as balance account when Vendor record does not exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V1" does not exist
         // [GIVEN] Payment where "Bal. Account Type" = Vendor and "Bal. Account No." = "V1"
         GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Vendor;
-        GenJournalLine."Bal. Account No." := LibraryUtility.GenerateGUID;
+        GenJournalLine."Bal. Account No." := LibraryUtility.GenerateGUID();
 
         // [WHEN] Check post restriction
         asserterror RecordRestrictionMgt.VendorCheckGenJournalLinePostRestrictions(GenJournalLine);
@@ -883,13 +883,13 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 380230] Post Payment from Customer when Customer record does not exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" does not exist
         // [GIVEN] Payment where "Account Type" = Customer and "Account No." = "C1"
         GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
-        GenJournalLine."Account No." := LibraryUtility.GenerateGUID;
+        GenJournalLine."Account No." := LibraryUtility.GenerateGUID();
 
         // [WHEN] Check post restriction
         asserterror RecordRestrictionMgt.CustomerCheckGenJournalLinePostRestrictions(GenJournalLine);
@@ -907,13 +907,13 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 380230] Post Payment from Customer as Balance Account when Customer record does not exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" does not exist
         // [GIVEN] Payment where "Bal. Account Type" = Customer and "Bal. Account No." = "C1"
         GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
-        GenJournalLine."Bal. Account No." := LibraryUtility.GenerateGUID;
+        GenJournalLine."Bal. Account No." := LibraryUtility.GenerateGUID();
 
         // [WHEN] Check post restriction
         asserterror RecordRestrictionMgt.CustomerCheckGenJournalLinePostRestrictions(GenJournalLine);
@@ -1000,7 +1000,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Item Journal]
         // [SCENARIO 206308] Post Item Journal when restriction for Item exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Journal Line with Item "I"
         LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
@@ -1028,7 +1028,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 206308] Post Sales Order when restriction for Item exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with item "I"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
@@ -1056,7 +1056,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 206308] Preview Posting for Sales Order when restriction for Item exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with item "I"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
@@ -1086,7 +1086,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 206308] Post Purchase Order when restriction for Item exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with item "I"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -1113,7 +1113,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 206308] Preview Posting for Purchase Order when restriction for Item exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with item "I"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -1141,7 +1141,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Creating approval entries for an approver chain fails when there is a loop
-        Initialize;
+        Initialize();
 
         // [GIVEN] An approver chain setup with a loop
         SetupUsersWithLoop(UserSetup);
@@ -1160,13 +1160,13 @@ codeunit 134200 "Document Approval - Errors"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         // Lazy Setup.
         if isInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts;
         isInitialized := true;
         Commit();
@@ -1274,7 +1274,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, true);
         SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType.AsInteger());
         CreatePurchaseDocumentWithPurchaserCode(PurchaseHeader, DocumentType, UserSetup."Salespers./Purch. Code");
@@ -1298,7 +1298,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, true);
         SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType.AsInteger());
         CreateSalesDocumentWithSalespersonCode(SalesHeader, DocumentType, UserSetup."Salespers./Purch. Code");
@@ -1321,7 +1321,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, DocumentType);
 
         // Exercise
@@ -1339,7 +1339,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, false);
         SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType.AsInteger());
         CreatePurchaseDocumentWithPurchaserCode(PurchaseHeader, DocumentType, UserSetup."Salespers./Purch. Code");
@@ -1359,7 +1359,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, true);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType.AsInteger());
@@ -1381,7 +1381,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, true);
         ApprovalAdminUserSetup.ModifyAll("Approval Administrator", false, true);
         SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType.AsInteger());
@@ -1407,7 +1407,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, DocumentType);
 
         // Exercise
@@ -1425,7 +1425,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, false);
         SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType.AsInteger());
         CreateSalesDocumentWithSalespersonCode(SalesHeader, DocumentType, UserSetup."Salespers./Purch. Code");
@@ -1445,7 +1445,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, true);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType.AsInteger());
@@ -1467,7 +1467,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDocumentApprovals(UserSetup, true);
         ApprovalAdminUserSetup.ModifyAll("Approval Administrator", false, true);
         SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType.AsInteger());

@@ -472,7 +472,7 @@ page 99000818 "Prod. Order Components"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -584,7 +584,7 @@ page 99000818 "Prod. Order Components"
                         TrackingForm: Page "Order Tracking";
                     begin
                         TrackingForm.SetProdOrderComponent(Rec);
-                        TrackingForm.RunModal;
+                        TrackingForm.RunModal();
                     end;
                 }
             }

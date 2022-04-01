@@ -16,7 +16,6 @@ codeunit 135541 "Actions E2E Test"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
-        EmailFeature: Codeunit "Email Feature";
         Initialized: Boolean;
         InvoiceServiceNameTxt: Label 'salesInvoices';
         QuoteServiceNameTxt: Label 'salesQuotes', Locked = true;
@@ -45,10 +44,7 @@ codeunit 135541 "Actions E2E Test"
     local procedure Initialize(ForSending: Boolean)
     begin
         if ForSending then begin
-            if EmailFeature.IsEnabled() then
-                RegisterEmailAccount()
-            else
-                CreateSMTPMailSetup();
+            RegisterEmailAccount();
             DeleteJobQueueEntry(CODEUNIT::"Document-Mailing");
             DeleteJobQueueEntry(CODEUNIT::"O365 Sales Cancel Invoice");
         end;
@@ -114,21 +110,8 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestPostAndSendInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        PostAndSendInvoice();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestPostAndSendInvoice()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         PostAndSendInvoice();
     end;
 
@@ -204,21 +187,8 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestCancelAndSendInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        CancelAndSendInvoice();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestCancelAndSendInvoice()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         CancelAndSendInvoice();
     end;
 
@@ -257,21 +227,8 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestSendPostedInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        SendPostedInvoice();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestSendPostedInvoice()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         SendPostedInvoice();
     end;
 
@@ -306,21 +263,8 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestSendDraftInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        SendDraftInvoice();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestSendDraftInvoice()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         SendDraftInvoice();
     end;
 
@@ -355,21 +299,8 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestSendCanceledInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        SendCanceledInvoice();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestSendCanceledInvoice()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         SendCanceledInvoice();
     end;
 
@@ -404,21 +335,8 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestSendQuoteSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        SendQuote();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestSendQuote()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         SendQuote();
     end;
 
@@ -536,8 +454,8 @@ codeunit 135541 "Actions E2E Test"
         // [GIVEN] A general journal batch with a general journal line
         BalAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
         BalAccountType := GenJournalLine."Bal. Account Type"::"G/L Account";
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        Customer2No := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        Customer2No := LibrarySales.CreateCustomerNo();
         Amount := LibraryRandom.RandDecInRange(10000, 50000, 2);
         Amount2 := LibraryRandom.RandDecInRange(10000, 50000, 2);
         CreateGeneralJournalBatch(GenJournalBatch, BalAccountType, BalAccountNo);
@@ -637,27 +555,6 @@ codeunit 135541 "Actions E2E Test"
     begin
         LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, Customer."No.");
         SetCustomerEmail(SalesHeader."Sell-to Customer No.");
-    end;
-
-    local procedure CreateSMTPMailSetup()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        IsNew: Boolean;
-    begin
-        IsNew := not SMTPMailSetup.FindFirst;
-
-        if IsNew then
-            SMTPMailSetup.Init();
-        SMTPMailSetup."SMTP Server" := 'SomeServer';
-        SMTPMailSetup."SMTP Server Port" := 1000;
-        SMTPMailSetup."Secure Connection" := true;
-        SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
-        SMTPMailSetup."User ID" := 'somebody@somewhere.com';
-        SMTPMailSetup.SetPassword('Some Password');
-        if IsNew then
-            SMTPMailSetup.Insert(true)
-        else
-            SMTPMailSetup.Modify(true);
     end;
 
     local procedure RegisterEmailAccount()

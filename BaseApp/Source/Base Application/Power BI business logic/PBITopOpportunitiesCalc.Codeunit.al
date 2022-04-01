@@ -11,7 +11,7 @@ codeunit 6310 "PBI Top Opportunities Calc."
     begin
         CalcTopFiveOpportunities(TempOpportunity);
         TempOpportunity.SetAutoCalcFields("Estimated Value (LCY)");
-        if TempOpportunity.FindSet then
+        if TempOpportunity.FindSet() then
             repeat
                 InsertToBuffer(TempPowerBIChartBuffer, TempOpportunity);
             until TempOpportunity.Next() = 0;
@@ -26,7 +26,7 @@ codeunit 6310 "PBI Top Opportunities Calc."
         Opportunity.SetRange(Closed, false);
         Opportunity.SetCurrentKey("Estimated Value (LCY)");
         Opportunity.Ascending(false);
-        if Opportunity.FindSet then
+        if Opportunity.FindSet() then
             repeat
                 TempOpportunity := Opportunity;
                 TempOpportunity.Insert();
@@ -36,7 +36,7 @@ codeunit 6310 "PBI Top Opportunities Calc."
     local procedure InsertToBuffer(var TempPowerBIChartBuffer: Record "Power BI Chart Buffer" temporary; TempOpportunity: Record Opportunity temporary)
     begin
         with TempPowerBIChartBuffer do begin
-            if FindLast then
+            if FindLast() then
                 ID += 1
             else
                 ID := 1;

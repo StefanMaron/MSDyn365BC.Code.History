@@ -51,7 +51,7 @@ codeunit 134462 "ERM Copy Item"
         Comment := CreateItemWithCommentLine(Item);
 
         // [WHEN] Run "Copy Item" report for item "I" with Comments = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Comments := true;
         CopyItemBuffer."Units of Measure" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
@@ -60,7 +60,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Comment line copied
         VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -82,7 +82,7 @@ codeunit 134462 "ERM Copy Item"
         Description := CreateItemTranslation(Item."No.");
 
         // [WHEN] Run "Copy Item" report for item "I" with Comments = "Yes", "Item Translation" = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Comments := true;
         CopyItemBuffer.Translations := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
@@ -92,7 +92,7 @@ codeunit 134462 "ERM Copy Item"
         VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
         VerifyItemTranslation(CopyItemBuffer."Target Item No.", Description);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -114,7 +114,7 @@ codeunit 134462 "ERM Copy Item"
         CreateDefaultDimensionForItem(DefaultDimension, Item."No.");
 
         // [WHEN] Run "Copy Item" report for item "I" with Comments = "Yes", Dimensions = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Comments := true;
         CopyItemBuffer.Dimensions := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
@@ -124,7 +124,7 @@ codeunit 134462 "ERM Copy Item"
         VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
         VerifyDefaultDimension(DefaultDimension, CopyItemBuffer."Target Item No.");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -167,7 +167,7 @@ codeunit 134462 "ERM Copy Item"
 
         // [GIVEN] Create item "I1", copy it to item "I2"
         CreateItemWithCommentLine(Item);
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Comments := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
         CopyItem(Item."No.");
@@ -178,7 +178,7 @@ codeunit 134462 "ERM Copy Item"
 
         // [THEN] Error "Target item I2 already exists"
         Assert.ExpectedError(StrSubstNo(TargetItemNoErr, CopyItemBuffer."Target Item No."));
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -199,7 +199,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
         // [WHEN] Run copy item report with Comments = "Yes", Item Variant = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Comments := true;
         CopyItemBuffer."Item Variants" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
@@ -209,7 +209,7 @@ codeunit 134462 "ERM Copy Item"
         VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
         VerifyItemVariant(ItemVariant, CopyItemBuffer."Target Item No.");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -228,14 +228,14 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItem(Item);
 
         // [WHEN] Run copy item report with "Unit of Measure" = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer."Units of Measure" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
         CopyItem(Item."No.");
 
         // [THEN] Unit of Measure copied
         VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -257,7 +257,7 @@ codeunit 134462 "ERM Copy Item"
         CreateExtendedText(ExtendedTextLine, Item."No.");
 
         // [WHEN] Run copy item report with Comment = "Yes" and "Extended Text" = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Comments := true;
         CopyItemBuffer."Extended Texts" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
@@ -266,7 +266,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Comment line and Extended Text copied
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
         VerifyExtendedText(ExtendedTextLine, CopyItemBuffer."Target Item No.");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -291,7 +291,7 @@ codeunit 134462 "ERM Copy Item"
         CreateBOMComponent(Item, ParentItem."No.", QuantityPer);
 
         // [WHEN] Run copy item report with Comment = "Yes" and "BOM Component" = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Comments := true;
         CopyItemBuffer."BOM Components" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
@@ -300,7 +300,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Comment line and BOM Component copied
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
         VerifyBOMComponent(CopyItemBuffer."Target Item No.", Item."No.", QuantityPer);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -325,7 +325,7 @@ codeunit 134462 "ERM Copy Item"
         CreateResourceSkill(ResourceSkill, Item."No.");
 
         // [WHEN] Run copy item report with "Troubleshooting Setup" = "Yes", "Resource Skills" = Yes
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer."Resource Skills" := true;
         CopyItemBuffer.Troubleshooting := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
@@ -334,7 +334,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Troubleshooting Setup and resource skill copied
         ResourceSkill2.Get(ResourceSkill.Type, CopyItemBuffer."Target Item No.", ResourceSkill."Skill Code");
         TroubleshootingSetup2.Get(TroubleshootingSetup.Type, CopyItemBuffer."Target Item No.", TroubleshootingSetup."Troubleshooting No.");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -387,7 +387,7 @@ codeunit 134462 "ERM Copy Item"
 
         // [WHEN] Run copy item report, where "Sales Price" = "Yes", "Sales Line Discount" = "Yes",
         // [WHEN] "Purchase Price" = "Yes", "Purchase Line Discount" = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer."Sales Prices" := true;
         CopyItemBuffer."Sales Line Discounts" := true;
         CopyItemBuffer."Purchase Prices" := true;
@@ -397,7 +397,7 @@ codeunit 134462 "ERM Copy Item"
 
         // [THEN] Sales/Purcchase Price and Line Discount copied
         VerifyPriceListLines(PriceListLine, CopyItemBuffer."Target Item No.");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
 #if not CLEAN19
@@ -420,7 +420,7 @@ codeunit 134462 "ERM Copy Item"
         CreateSalesPriceWithLineDiscount(SalesPrice, SalesLineDiscount, Item);
 
         // [WHEN] Run copy item report with "Sales Price" = "Yes" and "Sales Line Discount" = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer."Sales Prices" := true;
         CopyItemBuffer."Sales Line Discounts" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
@@ -429,7 +429,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Sales Price and Sales Line Discount copied
         VerifySalesPrice(SalesPrice, CopyItemBuffer."Target Item No.");
         VerifySalesLineDiscount(CopyItemBuffer."Target Item No.", SalesLineDiscount."Line Discount %");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -451,7 +451,7 @@ codeunit 134462 "ERM Copy Item"
         CreatePurchasePriceWithLineDiscount(PurchasePrice, PurchaseLineDiscount, Item);
 
         // [WHEN] Run copy item report with "Purchase Price" = "Yes" and "Purchase Line Discount" = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer."Purchase Line Discounts" := true;
         CopyItemBuffer."Purchase Prices" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
@@ -460,7 +460,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Purchase Price and Purchase Line Discount copied
         VerifyPurchasePrice(PurchasePrice, CopyItemBuffer."Target Item No.");
         VerifyPurchaseLineDiscount(PurchaseLineDiscount, CopyItemBuffer."Target Item No.");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 #endif
     [Test]
@@ -482,7 +482,7 @@ codeunit 134462 "ERM Copy Item"
         CreateItemWithSeveralCommentLines(Item, Comments);
 
         // [WHEN] Copy comment lines from item "S" to "D".
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Comments := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
         CopyItem(Item."No.");
@@ -494,7 +494,7 @@ codeunit 134462 "ERM Copy Item"
             CommentLine.Next;
             CommentLine.TestField(Comment, Comments[i]);
         end;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -520,7 +520,7 @@ codeunit 134462 "ERM Copy Item"
         CreateSeveralDefaultDimensionsForItem(Item."No.", NoOfDims);
 
         // [WHEN] Copy default dimensions from item "S" to "D".
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Dimensions := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
         CopyItem(Item."No.");
@@ -535,7 +535,7 @@ codeunit 134462 "ERM Copy Item"
             TargetDefaultDimension.TestField("Dimension Code", SourceDefaultDimension."Dimension Code");
             TargetDefaultDimension.TestField("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
         end;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -554,7 +554,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Target Item No.
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
 
         // [WHEN] Copy Item
@@ -563,7 +563,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Item Card opens on target Item in modal mode
         Assert.AreEqual(CopyItemBuffer."Target Item No.", LibraryVariableStorage.DequeueText, 'Invalid Item No.');
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -588,7 +588,7 @@ codeunit 134462 "ERM Copy Item"
             CreateItemAttributeMappedToItem(Item."No.");
 
         // [WHEN] Copy item "SRC" into a new item "DST" with "Copy Attributes" option selected
-        TargetItemNo := LibraryUtility.GenerateGUID;
+        TargetItemNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(TargetItemNo);
         LibraryVariableStorage.Enqueue(true);
         CopyItem(Item."No.");
@@ -597,7 +597,7 @@ codeunit 134462 "ERM Copy Item"
         VerifyItemAttributes(Item."No.", TargetItemNo);
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -618,7 +618,7 @@ codeunit 134462 "ERM Copy Item"
         CreateItemAttributeMappedToItem(Item."No.");
 
         // [WHEN] Copy item "SRC" into a new item "DST" with "Copy Attributes" option switched off
-        TargetItemNo := LibraryUtility.GenerateGUID;
+        TargetItemNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(TargetItemNo);
         LibraryVariableStorage.Enqueue(false);
         CopyItem(Item."No.");
@@ -629,7 +629,7 @@ codeunit 134462 "ERM Copy Item"
         Assert.RecordIsEmpty(ItemAttributeValueMapping);
 
         LibraryVariableStorage.AssertEmpty;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -654,7 +654,7 @@ codeunit 134462 "ERM Copy Item"
         Item.Modify(true);
 
         // [WHEN] Run "Item Copy" report for item "I" for item "I" with option "Item General Information" selected. All other options are disabled.
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer."General Item Information" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
         CopyItem(Item."No.");
@@ -668,7 +668,7 @@ codeunit 134462 "ERM Copy Item"
         Item.TestField("Purch. Unit of Measure", '');
         Item.TestField("Sales Unit of Measure", '');
         Item.TestField("Put-away Unit of Measure Code", '');
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -698,7 +698,7 @@ codeunit 134462 "ERM Copy Item"
         Item.Modify(true);
 
         // [WHEN] Run "Item Copy" report for item "I" for item "I" with option "Units of measure" selected
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer."Units of Measure" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
         CopyItem(Item."No.");
@@ -711,7 +711,7 @@ codeunit 134462 "ERM Copy Item"
 
         for I := 1 to 3 do
             VerifyItemUnitOfMeasure(CopyItemBuffer."Target Item No.", ItemUnitOfMeasure[I].Code);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -791,7 +791,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] New item created with "No." = "ITEM1"
         VerifyItemGeneralInformation(TargetItemNo, Item.Description);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -826,7 +826,7 @@ codeunit 134462 "ERM Copy Item"
                 TargetItemNo := IncStr(TargetItemNo);
             VerifyItemGeneralInformation(TargetItemNo, Item.Description);
         end;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -847,7 +847,7 @@ codeunit 134462 "ERM Copy Item"
 
         // [WHEN] Run "Item Copy" report for item "I" with Number Of Copies = 5
         NumberOfCopies := LibraryRandom.RandIntInRange(5, 10);
-        TargetItemNo := LibraryUtility.GenerateGUID;
+        TargetItemNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(TargetItemNo);
         LibraryVariableStorage.Enqueue(NumberOfCopies);
         CopyItem(Item."No.");
@@ -858,7 +858,7 @@ codeunit 134462 "ERM Copy Item"
                 TargetItemNo := IncStr(TargetItemNo);
             VerifyItemGeneralInformation(TargetItemNo, Item.Description);
         end;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -899,7 +899,7 @@ codeunit 134462 "ERM Copy Item"
           LibraryVariableStorage.DequeueText,
           'Invalid item No. filter');
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -925,14 +925,14 @@ codeunit 134462 "ERM Copy Item"
         InventorySetup.Modify(true);
 
         // [WHEN] Run "Copy Item" with default "Target Item No." = "ITEM1"
-        TargetItemNo := LibraryUtility.GenerateGUID;
+        TargetItemNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(TargetItemNo);
         LibraryVariableStorage.Enqueue(1);
         asserterror CopyItem(Item."No.");
 
         // [THEN] Error "You may not enter numbers manually..."
         Assert.ExpectedError('You may not enter numbers manually');
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -966,7 +966,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Sales Line created, Description = "D2"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField(Description, Description);
     end;
 
@@ -1002,7 +1002,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Purchase Line created, Description = "D2"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField(Description, Description);
     end;
 
@@ -1034,7 +1034,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Created Sales Line has Description = "D2"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField(Description, StandardSalesLine.Description);
     end;
 
@@ -1066,7 +1066,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Created Purchase Line has Description = "D2"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField(Description, StandardPurchaseLine.Description);
     end;
 
@@ -1097,7 +1097,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Created Sales Line has Description = "D1"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Item.Get(SalesLine."No.");
         SalesLine.TestField(Description, Item.Description);
     end;
@@ -1129,7 +1129,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Created Purchase Line has Description = "D1"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         Item.Get(PurchaseLine."No.");
         PurchaseLine.TestField(Description, Item.Description);
     end;
@@ -1152,7 +1152,7 @@ codeunit 134462 "ERM Copy Item"
 
         // [GIVEN] Prepare CopyItemBuffer
         CopyItemBuffer."Source Item No." := Item."No.";
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer.Comments := true;
         CopyItemBuffer."Units of Measure" := true;
         CopyItemBuffer."Number of Copies" := 1;
@@ -1193,7 +1193,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItemParameters.TestField(Comments, true);
         CopyItemParameters.TestField("Units of Measure", true);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1274,7 +1274,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
         // [WHEN] Run copy item report with Item Variant = "Yes"
-        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
         CopyItemBuffer."Item Variants" := true;
         EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
         CopyItem(Item."No.");
@@ -1284,7 +1284,7 @@ codeunit 134462 "ERM Copy Item"
         ItemVariant.Get(CopyItemBuffer."Target Item No.", ItemVariant.Code);
         ItemVariant.TestField("Item Id", Item.SystemId);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1368,6 +1368,7 @@ codeunit 134462 "ERM Copy Item"
         InventorySetup: Record "Inventory Setup";
         Item: Record Item;
         NoSeries: Record "No. Series";
+        SavedNoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         TargetItemNo: Code[20];
@@ -1385,6 +1386,7 @@ codeunit 134462 "ERM Copy Item"
         NoSeries.Get(InventorySetup."Item Nos.");
         NoSeries.Validate("Default Nos.", false);
         NoSeries.Modify(true);
+        SavedNoSeries := NoSeries;
 
         // [GIVEN] New no. series "ITEM-X" with next number "X-00001" and "Default Nos." = TRUE.
         LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
@@ -1400,6 +1402,34 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] New item created with "No." = "X-00001".
         VerifyItemGeneralInformation(TargetItemNo, Item.Description);
 
+        // Teardown
+        SavedNoSeries.Validate("Default Nos.", true);
+        SavedNoSeries.Modify(true);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyItemItemReferencesPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyItemPageSavesItemReferencesParameter()
+    var
+        Item: Record Item;
+        CopyItemParameters: Record "Copy Item Parameters";
+    begin
+        // [FEATURE] [Item References]
+        // [SCENARIO 420320] Parameter "Item References" saved when copying item
+        Initialize();
+        // [GIVEN] Item "I".
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Run "Item Copy" report for item "I" with parameter "Item References" = yes (CopyItemItemReferencesPageHandler)
+        CopyItem(Item."No.");
+
+        // [THEN] Copy Item Parameters entry created for current user with "Item References" = "Yes"
+        CopyItemParameters.Get(UserId());
+        CopyItemParameters.TestField("Item References", true);
+
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -1410,15 +1440,15 @@ codeunit 134462 "ERM Copy Item"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Copy Item");
         ClearCopyItemParameters();
 
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Copy Item");
 
         IsInitialized := true;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -1488,7 +1518,7 @@ codeunit 134462 "ERM Copy Item"
         CommentLine: Record "Comment Line";
     begin
         LibraryFixedAsset.CreateCommentLine(CommentLine, CommentLine."Table Name"::Item, ItemNo);
-        CommentLine.Validate(Comment, LibraryUtility.GenerateGUID);
+        CommentLine.Validate(Comment, LibraryUtility.GenerateGUID());
         CommentLine.Modify(true);
         exit(CommentLine.Comment);
     end;
@@ -1499,7 +1529,7 @@ codeunit 134462 "ERM Copy Item"
         ItemTranslations: TestPage "Item Translations";
         LibraryERM: Codeunit "Library - ERM";
     begin
-        Description := LibraryUtility.GenerateGUID;
+        Description := LibraryUtility.GenerateGUID();
         ItemCard.OpenEdit;
         ItemTranslations.Trap;
         ItemCard.FILTER.SetFilter("No.", ItemNo);
@@ -1613,7 +1643,7 @@ codeunit 134462 "ERM Copy Item"
         LibrarySales.CreateStandardSalesLine(StandardSalesLine, StandardSalesCode.Code);
         StandardSalesLine.Type := StandardSalesLine.Type::Item;
         StandardSalesLine.Quantity := LibraryRandom.RandInt(10);
-        StandardSalesLine."No." := LibraryInventory.CreateItemNo;
+        StandardSalesLine."No." := LibraryInventory.CreateItemNo();
         StandardSalesLine.Modify();
 
         LibrarySales.CreateCustomer(Customer);
@@ -1630,7 +1660,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryPurchase.CreateStandardPurchaseLine(StandardPurchaseLine, StandardPurchaseCode.Code);
         StandardPurchaseLine.Type := StandardPurchaseLine.Type::Item;
         StandardPurchaseLine.Quantity := LibraryRandom.RandInt(10);
-        StandardPurchaseLine."No." := LibraryInventory.CreateItemNo;
+        StandardPurchaseLine."No." := LibraryInventory.CreateItemNo();
         StandardPurchaseLine.Modify();
 
         LibraryPurchase.CreateVendor(Vendor);
@@ -1682,7 +1712,7 @@ codeunit 134462 "ERM Copy Item"
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
         BOMComponent.SetRange("No.", ItemNo);
-        BOMComponent.FindFirst;
+        BOMComponent.FindFirst();
         BOMComponent.TestField("Quantity per", QuantityPer);
     end;
 
@@ -1692,7 +1722,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Item);
         CommentLine.SetRange("No.", ItemNo);
-        CommentLine.FindFirst;
+        CommentLine.FindFirst();
         CommentLine.TestField(Comment, Comment);
     end;
 
@@ -1714,7 +1744,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         PurchasePrice2.SetRange("Item No.", ItemNo);
         PurchasePrice2.SetRange("Vendor No.", PurchasePrice."Vendor No.");
-        PurchasePrice2.FindFirst;
+        PurchasePrice2.FindFirst();
         PurchasePrice2.TestField("Minimum Quantity", PurchasePrice."Minimum Quantity");
     end;
 
@@ -1722,7 +1752,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         PurchaseLineDiscount.SetRange("Item No.", ItemNo);
         PurchaseLineDiscount.SetRange("Vendor No.", PurchaseLineDiscount."Vendor No.");
-        PurchaseLineDiscount.FindFirst;
+        PurchaseLineDiscount.FindFirst();
         PurchaseLineDiscount.TestField("Minimum Quantity", PurchaseLineDiscount."Minimum Quantity");
     end;
 
@@ -1732,7 +1762,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         SalesLineDiscount.SetRange(Type, SalesLineDiscount.Type::Item);
         SalesLineDiscount.SetRange(Code, ItemNo);
-        SalesLineDiscount.FindFirst;
+        SalesLineDiscount.FindFirst();
         SalesLineDiscount.TestField("Line Discount %", LineDiscount);
     end;
 
@@ -1743,7 +1773,7 @@ codeunit 134462 "ERM Copy Item"
         SalesPrice2.SetRange("Item No.", ItemNo);
         SalesPrice2.SetRange("Sales Type", SalesPrice."Sales Type"::Customer);
         SalesPrice2.SetRange("Sales Code", SalesPrice."Sales Code");
-        SalesPrice2.FindFirst;
+        SalesPrice2.FindFirst();
         SalesPrice2.TestField("Minimum Quantity", SalesPrice."Minimum Quantity");
     end;
 #endif
@@ -1761,7 +1791,7 @@ codeunit 134462 "ERM Copy Item"
         ItemTranslation: Record "Item Translation";
     begin
         ItemTranslation.SetRange("Item No.", ItemNo);
-        ItemTranslation.FindFirst;
+        ItemTranslation.FindFirst();
         ItemTranslation.TestField(Description, Description);
     end;
 
@@ -1867,6 +1897,14 @@ codeunit 134462 "ERM Copy Item"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure CopyItemItemReferencesPageHandler(var CopyItem: TestPage "Copy Item")
+    begin
+        CopyItem.ItemReferences.SetValue(true);
+        CopyItem.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure CopyItemNumberOfEntriesTargetNoPageHandler(var CopyItem: TestPage "Copy Item")
     begin
         CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText);
@@ -1895,6 +1933,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         LibraryVariableStorage.Enqueue(ItemCard."No.".Value);
     end;
+
 
     [ModalPageHandler]
     [Scope('OnPrem')]

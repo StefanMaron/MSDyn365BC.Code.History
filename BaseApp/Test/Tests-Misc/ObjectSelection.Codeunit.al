@@ -533,7 +533,7 @@ codeunit 134562 "Object Selection"
         // [GIVEN] Report Selection for M1
         ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M1, REPORT::"Prod. Order - Job Card");
-        FirmPlannedProdOrders.OpenNew;
+        FirmPlannedProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderJobCard" action on "Firm Planned Prod. Order" Page
         Commit();
@@ -557,7 +557,7 @@ codeunit 134562 "Object Selection"
         // [GIVEN] Report Selection for M2
         ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M2, REPORT::"Prod. Order - Mat. Requisition");
-        FirmPlannedProdOrders.OpenNew;
+        FirmPlannedProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Firm Planned Prod. Order" Page
         Commit();
@@ -581,7 +581,7 @@ codeunit 134562 "Object Selection"
         // [GIVEN] Report Selection for M3
         ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M3, REPORT::"Prod. Order - Shortage List");
-        FirmPlannedProdOrders.OpenNew;
+        FirmPlannedProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderShortageList" action on "Firm Planned Prod. Order" Page
         Commit();
@@ -605,7 +605,7 @@ codeunit 134562 "Object Selection"
         // [GIVEN] Report Selection for M1
         ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M1, REPORT::"Prod. Order - Job Card");
-        RelProdOrders.OpenNew;
+        RelProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderJobCard" action on "Released Production Orders" Page
         Commit();
@@ -629,7 +629,7 @@ codeunit 134562 "Object Selection"
         // [GIVEN] Report Selection for M2
         ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M2, REPORT::"Prod. Order - Mat. Requisition");
-        RelProdOrders.OpenNew;
+        RelProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Released Production Orders" Page
         Commit();
@@ -653,7 +653,7 @@ codeunit 134562 "Object Selection"
         // [GIVEN] Report Selection for M3
         ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M3, REPORT::"Prod. Order - Shortage List");
-        RelProdOrders.OpenNew;
+        RelProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderShortageList" action on "Released Production Orders" Page
         Commit();
@@ -677,7 +677,7 @@ codeunit 134562 "Object Selection"
         // [GIVEN] Report Selection for M1
         ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M1, REPORT::"Prod. Order - Job Card");
-        FinProdOrders.OpenNew;
+        FinProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderJobCard" action on "Finished Production Orders" Page
         Commit();
@@ -701,7 +701,7 @@ codeunit 134562 "Object Selection"
         // [GIVEN] Report Selection for M2
         ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M2, REPORT::"Prod. Order - Mat. Requisition");
-        FinProdOrders.OpenNew;
+        FinProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Finished Production Orders" Page
         Commit();
@@ -725,7 +725,7 @@ codeunit 134562 "Object Selection"
         // [GIVEN] Report Selection for M3
         ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M3, REPORT::"Prod. Order - Shortage List");
-        FinProdOrders.OpenNew;
+        FinProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderShortageList" action on "Finished Production Orders" Page
         Commit();
@@ -747,7 +747,7 @@ codeunit 134562 "Object Selection"
 
         // [GIVEN] No Report Selection for M1
         ReportSelections.DeleteAll();
-        FirmPlannedProdOrders.OpenNew;
+        FirmPlannedProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderJobCard" action on "Firm Planned Prod. Order" Page
         asserterror FirmPlannedProdOrders.ProdOrderJobCard.Invoke;
@@ -768,7 +768,7 @@ codeunit 134562 "Object Selection"
 
         // [GIVEN] No Report Selection for M2
         ReportSelections.DeleteAll();
-        FirmPlannedProdOrders.OpenNew;
+        FirmPlannedProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Firm Planned Prod. Order" Page
         asserterror FirmPlannedProdOrders.ProdOrderMaterialRequisition.Invoke;
@@ -789,7 +789,7 @@ codeunit 134562 "Object Selection"
 
         // [GIVEN] No Report Selection for M3
         ReportSelections.DeleteAll();
-        FirmPlannedProdOrders.OpenNew;
+        FirmPlannedProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderShortageList" action on "Firm Planned Prod. Order" Page
         asserterror FirmPlannedProdOrders.ProdOrderShortageList.Invoke;
@@ -810,7 +810,7 @@ codeunit 134562 "Object Selection"
 
         // [GIVEN] No Report Selection for M1
         ReportSelections.DeleteAll();
-        RelProdOrders.OpenNew;
+        RelProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderJobCard" action on "Released Production Orders" Page
         asserterror RelProdOrders.ProdOrderJobCard.Invoke;
@@ -831,7 +831,7 @@ codeunit 134562 "Object Selection"
 
         // [GIVEN] No Report Selection for M2
         ReportSelections.DeleteAll();
-        RelProdOrders.OpenNew;
+        RelProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Released Production Orders" Page
         asserterror RelProdOrders.ProdOrderMaterialRequisition.Invoke;
@@ -852,7 +852,7 @@ codeunit 134562 "Object Selection"
 
         // [GIVEN] No Report Selection for M3
         ReportSelections.DeleteAll();
-        RelProdOrders.OpenNew;
+        RelProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderShortageList" action on "Released Production Orders" Page
         asserterror RelProdOrders.ProdOrderShortageList.Invoke;
@@ -873,7 +873,7 @@ codeunit 134562 "Object Selection"
 
         // [GIVEN] No Report Selection for M1
         ReportSelections.DeleteAll();
-        FinProdOrders.OpenNew;
+        FinProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderJobCard" action on "Finished Production Orders" Page
         asserterror FinProdOrders.ProdOrderJobCard.Invoke;
@@ -894,7 +894,7 @@ codeunit 134562 "Object Selection"
 
         // [GIVEN] No Report Selection for M2
         ReportSelections.DeleteAll();
-        FinProdOrders.OpenNew;
+        FinProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Finished Production Orders" Page
         asserterror FinProdOrders.ProdOrderMaterialRequisition.Invoke;
@@ -915,7 +915,7 @@ codeunit 134562 "Object Selection"
 
         // [GIVEN] No Report Selection for M3
         ReportSelections.DeleteAll();
-        FinProdOrders.OpenNew;
+        FinProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderShortageList" action on "Finished Production Orders" Page
         asserterror FinProdOrders.ProdOrderShortageList.Invoke;
@@ -1023,7 +1023,7 @@ codeunit 134562 "Object Selection"
     begin
         with AllObjWithCaption do begin
             SetRange("Object Type", ObjectType);
-            FindFirst;
+            FindFirst();
             ObjectId := "Object ID";
         end;
     end;

@@ -44,7 +44,7 @@ page 2129 "O365 Export Invoices"
 
     trigger OnInit()
     begin
-        Initialize;
+        Initialize();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -71,7 +71,7 @@ page 2129 "O365 Export Invoices"
     begin
         StartDate := CalcDate('<-CM>', WorkDate);
         EndDate := WorkDate;
-        if O365EmailSetup.FindLast then
+        if O365EmailSetup.FindLast() then
             Email := O365EmailSetup.Email;
     end;
 }

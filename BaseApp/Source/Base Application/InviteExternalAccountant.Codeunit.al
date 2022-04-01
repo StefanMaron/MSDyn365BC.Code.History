@@ -32,7 +32,6 @@ codeunit 9033 "Invite External Accountant"
         InviteExternalAccountantWizardFailedTxt: Label 'Invite External Accountant wizard has failed on step %1, ErrorMessage %2.', Locked = true;
         InvokeWebRequestFailedTxt: Label 'Invoking web request has failed. Status %1, Message %2', Locked = true;
         InvokeWebRequestFailedDetailedTxt: Label 'Invoking web request has failed. Status %1, Message %2, Response Details %3', Locked = true;
-        ResponseCodeTxt: Label 'responseCode', Locked = true;
         InsufficientDataReturnedFromInvitationsApiTxt: Label 'Insufficient information was returned when inviting the user. Please contact your administrator.';
         WidsClaimNameTok: Label 'WIDS', Locked = true;
         ExternalAccountantLicenseAvailabilityErr: Label 'Failed to determine if an External Accountant license is available. Please try again later.';
@@ -174,18 +173,6 @@ codeunit 9033 "Invite External Accountant"
 
         ErrorMessage := GetMessageFromErrorJSON(ResponseContent);
         exit(false);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced IsAnyAccountRegistered from codeunit "Email Account" from "System Application".', '17.0')]
-    procedure VerifySMTPIsEnabledAndSetup(): Boolean
-    var
-        SMTPMail: Codeunit "SMTP Mail";
-    begin
-        if not SMTPMail.IsEnabled then
-            exit(false);
-
-        exit(true);
     end;
 
     [Scope('OnPrem')]

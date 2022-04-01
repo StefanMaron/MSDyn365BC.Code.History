@@ -459,7 +459,7 @@ page 9295 "Work Ctr. Grp. Calendar Matrix"
             CapacityUoM := MfgSetup."Show Capacity In";
         WorkCenter.SetCurrentKey("Work Center Group Code");
         WorkCenter.SetRange("Work Center Group Code", Code);
-        if WorkCenter.FindSet then
+        if WorkCenter.FindSet() then
             repeat
                 if GetFilter("Work Shift Filter") <> '' then
                     CopyFilter("Work Shift Filter", WorkCenter."Work Shift Filter");

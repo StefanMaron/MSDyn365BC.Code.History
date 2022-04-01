@@ -49,7 +49,7 @@ codeunit 135502 "Customer Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 184717] User can get a simple customer with a GET request to the service.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer exists in the system.
         CreateSimpleCustomer(Customer);
@@ -71,7 +71,7 @@ codeunit 135502 "Customer Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 184717] User can get a customer that has non-empty values for complex type fields.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer exists and has values assigned to some of the fields contained in complex types.
         CreateCustomerWithAddress(Customer);
@@ -95,7 +95,7 @@ codeunit 135502 "Customer Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 184717] User can get a customer that has non-empty values for complex type fields.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer exists and has values assigned to some of the fields contained in complex types.
         CreateCustomerWithAddress(Customer);
@@ -130,7 +130,7 @@ codeunit 135502 "Customer Entity E2E Test"
         Response: Text;
     begin
         // [SCENARIO 184717] User can create a new Customer through a POST method.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a detailed customer JSON object to send to the service
         if GeneralLedgerSetup.UseVat then begin
@@ -170,7 +170,7 @@ codeunit 135502 "Customer Entity E2E Test"
         Response: Text;
     begin
         // [SCENARIO 184717] User can create a new customer through a POST method and provide values for a complex type.
-        Initialize;
+        Initialize();
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Customer Entity", ServiceNameTxt);
 
         // [GIVEN] The user has constructed a customer object containing the address field.
@@ -205,11 +205,11 @@ codeunit 135502 "Customer Entity E2E Test"
     begin
         // [FEATURE] [Template]
         // [SCENARIO 184717] User can create a new customer and have the system apply a template.
-        Initialize;
+        Initialize();
         ConfigTmplSelectionRules.DeleteAll();
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Customer Entity", ServiceNameTxt);
-        CountryRegion.FindLast;
-        CityName := LibraryUtility.GenerateGUID;
+        CountryRegion.FindLast();
+        CityName := LibraryUtility.GenerateGUID();
 
         // [GIVEN] A template selection rule exists to set the city based on the country code.
         with Customer do
@@ -245,7 +245,7 @@ codeunit 135502 "Customer Entity E2E Test"
         Response: Text;
     begin
         // [SCENARIO 184717] User can delete a customer by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer exists.
         CreateSimpleCustomer(Customer);
@@ -273,12 +273,12 @@ codeunit 135502 "Customer Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 184717] User can modify a customer through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer exists.
         CreateSimpleCustomer(Customer);
         TempCustomer.TransferFields(Customer);
-        TempCustomer.Name := LibraryUtility.GenerateGUID;
+        TempCustomer.Name := LibraryUtility.GenerateGUID();
         RequestBody := GetSimpleCustomerJSON(TempCustomer);
 
         // [WHEN] The user makes a patch request to the service.
@@ -304,13 +304,13 @@ codeunit 135502 "Customer Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 184717] User can modify a complex type in a customer through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer exists with an address.
         CreateCustomerWithAddress(Customer);
         TempCustomer.TransferFields(Customer);
-        TempCustomer.Address := LibraryUtility.GenerateGUID;
-        TempCustomer.City := LibraryUtility.GenerateGUID;
+        TempCustomer.Address := LibraryUtility.GenerateGUID();
+        TempCustomer.City := LibraryUtility.GenerateGUID();
         RequestBody := GetCustomerWithAddressJSON(TempCustomer);
 
         // [WHEN] The user makes a patch request to the service and specifies address fields.
@@ -337,7 +337,7 @@ codeunit 135502 "Customer Entity E2E Test"
         Response: Text;
     begin
         // [SCENARIO 184717] User can clear the values encapsulated in a complex type by specifying null.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer exists with a specific address.
         CreateCustomerWithAddress(Customer);
@@ -465,12 +465,12 @@ codeunit 135502 "Customer Entity E2E Test"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         CreateSimpleCustomer(Customer);
-        Customer.Address := LibraryUtility.GenerateGUID;
-        Customer."Address 2" := LibraryUtility.GenerateGUID;
-        Customer.City := LibraryUtility.GenerateGUID;
-        Customer.County := LibraryUtility.GenerateGUID;
+        Customer.Address := LibraryUtility.GenerateGUID();
+        Customer."Address 2" := LibraryUtility.GenerateGUID();
+        Customer.City := LibraryUtility.GenerateGUID();
+        Customer.County := LibraryUtility.GenerateGUID();
         Customer."Country/Region Code" := CountryRegion.Code;
         Customer.Modify(true);
     end;
@@ -481,7 +481,7 @@ codeunit 135502 "Customer Entity E2E Test"
     begin
         Customer.Init();
         Customer."No." := NextCustomerNo;
-        Customer.Name := LibraryUtility.GenerateGUID;
+        Customer.Name := LibraryUtility.GenerateGUID();
         Customer.Insert(true);
 
         GraphMgtCustomer.UpdateIntegrationRecords(true); // Currently need to do this as integration records aren't be created otherwise.
@@ -511,7 +511,7 @@ codeunit 135502 "Customer Entity E2E Test"
         if Customer."No." = '' then
             Customer."No." := NextCustomerNo;
         if Customer.Name = '' then
-            Customer.Name := LibraryUtility.GenerateGUID;
+            Customer.Name := LibraryUtility.GenerateGUID();
         JsonMgt.AddJPropertyToJObject(JsonObject, 'number', Customer."No.");
         JsonMgt.AddJPropertyToJObject(JsonObject, 'displayName', Customer.Name);
         exit(JsonMgt.WriteObjectToString)
@@ -522,7 +522,7 @@ codeunit 135502 "Customer Entity E2E Test"
         Customer: Record Customer;
     begin
         Customer.SetFilter("No.", StrSubstNo('%1*', CustomerNoPrefixTxt));
-        if Customer.FindLast then
+        if Customer.FindLast() then
             exit(IncStr(Customer."No."));
 
         exit(CopyStr(CustomerNoPrefixTxt + '0001', 1, 20));

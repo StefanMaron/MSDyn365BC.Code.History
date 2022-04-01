@@ -61,7 +61,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
                 Window.Update(2, LineCount);
                 CAJnlCheckLine.RunCheck(CostJnlLine);
                 if Next() = 0 then
-                    FindFirst;
+                    FindFirst();
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
 
@@ -69,7 +69,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
             CheckBalance;
 
             CostReg.LockTable();
-            if CostReg.FindLast then
+            if CostReg.FindLast() then
                 CostRegNo := CostReg."No." + 1
             else
                 CostRegNo := 1;

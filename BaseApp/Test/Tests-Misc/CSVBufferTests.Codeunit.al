@@ -25,7 +25,7 @@ codeunit 135100 "CSV Buffer Tests"
 
         // [WHEN] The file is loaded into the buffer
         TempCSVBuffer.LoadData(ServerTempFileName, ';');
-        TempCSVBuffer.FindLast;
+        TempCSVBuffer.FindLast();
 
         // [THEN] Every field in the CSV file results in one record
         Assert.AreEqual(12, TempCSVBuffer.Count, 'The number of records do not match.');
@@ -227,6 +227,34 @@ codeunit 135100 "CSV Buffer Tests"
         TestFileSource.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestInitializeReaderWithEncoding()
+    var
+        TempCSVBuffer: Record "CSV Buffer" temporary;
+        Encoding: DotNet Encoding;
+        ServerTempFileName: Text;
+        SpecialEncodingCode: Text;
+        EncodedText: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413075] Load an CSV file with some encoding which is not default
+
+        // [GIVEN] CSV file with "Windows-1252" encoding
+        SpecialEncodingCode := 'Windows-1252';
+        EncodedText := 'ÅåØøÆæ';
+        ServerTempFileName := CreateSampleCSVFileWithSpecialEncoding(SpecialEncodingCode, EncodedText);
+
+        // [GIVEN] Run InitializeReader with "Windows-1252" encoding
+        Encoding := Encoding.GetEncoding(SpecialEncodingCode);
+        TempCSVBuffer.InitializeReader(ServerTempFileName, ';', '', Encoding);
+        // [WHEN] The file is loaded into the buffer
+        TempCSVBuffer.ReadLines(0);
+
+        // [THEN] Loaded value properly encoded
+        Assert.AreEqual(EncodedText, TempCSVBuffer.GetValue(1, 1), 'The loaded value is incorrect.');
+    end;
+
     local procedure CreateSampleCSVFile() ServerTempFileName: Text
     var
         FileManagement: Codeunit "File Management";
@@ -244,6 +272,26 @@ codeunit 135100 "CSV Buffer Tests"
         OutStream.WriteText;
         OutStream.WriteText('03;Test 2;3456');
         File.Close;
+    end;
+
+    local procedure CreateSampleCSVFileWithSpecialEncoding(EncodingCode: Text; EncodedText: Text) ServerTempFileName: Text
+    var
+        FileManagement: Codeunit "File Management";
+        File: File;
+        OutStream: OutStream;
+        Encoding: DotNet Encoding;
+        Writer: DotNet StreamWriter;
+    begin
+        ServerTempFileName := FileManagement.ServerTempFileName('csv');
+
+        File.Create(ServerTempFileName);
+        File.CreateOutStream(OutStream);
+
+        Encoding := Encoding.GetEncoding(EncodingCode);
+        Writer := Writer.StreamWriter(OutStream, Encoding);
+        Writer.Write(Encoding.GetString(Encoding.GetBytes(EncodedText)));
+        Writer.Close();
+        File.Close();
     end;
 
     local procedure CreateEmptyCSVFile() ServerTempFileName: Text

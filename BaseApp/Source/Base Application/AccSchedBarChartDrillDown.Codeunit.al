@@ -101,7 +101,7 @@ codeunit 436 "Acc. Sched. BarChart DrillDown"
                             Clear(ChartofAccAnalysisView);
                             ChartofAccAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
                             ChartofAccAnalysisView.SetTableView(GLAccAnalysisView);
-                            ChartofAccAnalysisView.Run;
+                            ChartofAccAnalysisView.Run();
                         end;
                     end;
     end;

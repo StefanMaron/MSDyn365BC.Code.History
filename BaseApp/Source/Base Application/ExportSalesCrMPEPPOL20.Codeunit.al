@@ -6,20 +6,33 @@ codeunit 1603 "Export Sales Cr.M. - PEPPOL2.0"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         RecordRef: RecordRef;
+        OutStr: OutStream;
     begin
-        RecordRef.Get(RecordID);
+        RecordRef.Get(Rec.RecordID);
         RecordRef.SetTable(SalesCrMemoHeader);
 
-        ServerFilePath := GenerateXMLFile(SalesCrMemoHeader);
+        Rec."File Content".CreateOutStream(OutStr);
+        GenerateXMLFile(SalesCrMemoHeader, OutStr);
 
-        Modify;
+        Rec.Modify();
     end;
 
     [Scope('OnPrem')]
+    procedure GenerateXMLFile(VariantRec: Variant; var OutStr: OutStream)
+    var
+        SalesCreditMemoPEPPOL20: XMLport "Sales Credit Memo - PEPPOL 2.0";
+    begin
+        SalesCreditMemoPEPPOL20.Initialize(VariantRec);
+        SalesCreditMemoPEPPOL20.SetDestination(OutStr);
+        SalesCreditMemoPEPPOL20.Export;
+    end;
+
+#if not CLEAN20
+    [Scope('OnPrem')]
+    [Obsolete('Replaced by GenerateXMLFile with OutStream parameter.', '20.0')]
     procedure GenerateXMLFile(VariantRec: Variant): Text[250]
     var
         PEPPOLManagement: Codeunit "PEPPOL Management";
-        SalesCreditMemoPEPPOL20: XMLport "Sales Credit Memo - PEPPOL 2.0";
         OutFile: File;
         OutStream: OutStream;
         XmlServerPath: Text;
@@ -27,12 +40,11 @@ codeunit 1603 "Export Sales Cr.M. - PEPPOL2.0"
         PEPPOLManagement.InitializeXMLExport(OutFile, XmlServerPath);
 
         OutFile.CreateOutStream(OutStream);
-        SalesCreditMemoPEPPOL20.Initialize(VariantRec);
-        SalesCreditMemoPEPPOL20.SetDestination(OutStream);
-        SalesCreditMemoPEPPOL20.Export;
+        GenerateXMLFile(VariantRec, OutStream);
         OutFile.Close;
 
         exit(CopyStr(XmlServerPath, 1, 250));
     end;
+#endif
 }
 

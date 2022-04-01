@@ -556,7 +556,7 @@ page 6660 "Posted Return Receipt"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -581,7 +581,7 @@ page 6660 "Posted Return Receipt"
                 begin
                     PostedReturnReceiptUpdate.LookupMode := true;
                     PostedReturnReceiptUpdate.SetRec(Rec);
-                    PostedReturnReceiptUpdate.RunModal;
+                    PostedReturnReceiptUpdate.RunModal();
                 end;
             }
         }

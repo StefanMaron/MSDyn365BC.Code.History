@@ -17,6 +17,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         AmountError: Label 'Additional Fee must be %1.';
@@ -28,16 +29,20 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reminder For Additinal Fee");
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reminder For Additinal Fee");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         IsInitialized := true;
         Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reminder For Additinal Fee");
     end;
 
@@ -54,7 +59,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         // Create Sales Invoice with Reminder and Check Additional Fee after Suggest Reminder Lines.
 
         // Setup: Create Reminder with Additional Fee and Sales Invoice and Post it.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         CreateReminderTerms(ReminderLevel, CurrencyCode);
         CreateAndPostSalesInvoice(SalesHeader, CreateCustomer(ReminderLevel."Reminder Terms Code", CurrencyCode));
@@ -81,7 +86,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         // Test Reminder Lines after Suggesting Lines for Reminder.
 
         // 1. Setup: Create Reminder Terms, Create Customer, Create and Post General Journal Line for Refund.
-        Initialize;
+        Initialize();
         CreateReminderTerms(ReminderLevel, '');
         CreateAndPostGeneralJournal(GenJournalLine, CreateCustomer(ReminderLevel."Reminder Terms Code", ''));
 
@@ -111,7 +116,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
 
         // 1. Setup: Create Reminder Terms, Create Customer, Create and Post General Journal Line for Refund, Create Reminder Header
         // and Suggest Lines.
-        Initialize;
+        Initialize();
         CreateReminderTerms(ReminderLevel, '');
         CreateAndPostGeneralJournal(GenJournalLine, CreateCustomer(ReminderLevel."Reminder Terms Code", ''));
         ReminderHeader.Get(
@@ -124,7 +129,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
 
         // 3. Verify: Verify Issued Reminder Lines.
         IssuedReminderHeader.SetRange("Pre-Assigned No.", ReminderHeader."No.");
-        IssuedReminderHeader.FindFirst;
+        IssuedReminderHeader.FindFirst();
         VerifyIssuedReminderLine(IssuedReminderHeader."No.", IssuedReminderLine.Type::"Customer Ledger Entry", GenJournalLine.Amount, 0);
         VerifyIssuedReminderLine(
           IssuedReminderHeader."No.", IssuedReminderLine.Type::"G/L Account", 0, ReminderLevel."Additional Fee (LCY)");
@@ -141,7 +146,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         ReminderTermsCode: Code[10];
     begin
         // Setup: Set the Rounding Precision.
-        Initialize;
+        Initialize();
         LibraryERM.SetInvRoundingPrecisionLCY(LibraryRandom.RandDec(1, 2));
         ReminderTermsCode := CreateReminderTerms(ReminderLevel, '');
         LibraryERM.CreateReminderText(ReminderText, ReminderTermsCode, ReminderLevel."No.",
@@ -233,7 +238,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         Reminder: Report Reminder;
     begin
         // [SCENARIO 252587] Interest Amount is printed with Issued Reminder when begin text exist
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder with Interest amount "RM" and Beginning Text = "AAA"
         // [GIVEN] "RM" is issued
@@ -241,7 +246,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
 
         // [WHEN] Print issued "RM"
         Commit();
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         IssuedReminderHeader.SetRecFilter;
         Reminder.SetTableView(IssuedReminderHeader);
         Reminder.SaveAsExcel(LibraryReportValidation.GetFileName);
@@ -402,7 +407,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
 
         LibraryERM.CreateReminderText(
           ReminderText, ReminderTerms.Code, ReminderLevel."No.",
-          ReminderText.Position::Beginning, LibraryUtility.GenerateGUID);
+          ReminderText.Position::Beginning, LibraryUtility.GenerateGUID());
     end;
 
     local procedure CreateReminderTerms(var ReminderLevel: Record "Reminder Level"; CurrencyCode: Code[10]): Code[10]
@@ -472,13 +477,13 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
     begin
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange(Type, Type);
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
     end;
 
     local procedure FindReminderLevel(var ReminderLevel: Record "Reminder Level"; ReminderTermsCode: Code[10])
     begin
         ReminderLevel.SetRange("Reminder Terms Code", ReminderTermsCode);
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
     end;
 
     local procedure IssueReminder(ReminderHeader: Record "Reminder Header")
@@ -531,7 +536,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
     begin
         IssuedReminderLine.SetRange("Reminder No.", ReminderNo);
         IssuedReminderLine.SetRange(Type, Type);
-        IssuedReminderLine.FindFirst;
+        IssuedReminderLine.FindFirst();
         IssuedReminderLine.TestField("Remaining Amount", RemainingAmount);
         IssuedReminderLine.TestField(Amount, Amount);
     end;
@@ -546,7 +551,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange(Type, ReminderLine.Type::"G/L Account");
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Additional Fee");
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
         Assert.AreNearlyEqual(Amount, ReminderLine.Amount, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, Amount));
     end;
 
@@ -557,7 +562,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetFilter("Line Type", '%1|%2',
           ReminderLine."Line Type"::Rounding, ReminderLine."Line Type"::"Ending Text");
-        ReminderLine.FindLast;
+        ReminderLine.FindLast();
         Assert.AreNotEqual(ReminderLine."Line Type"::Rounding, ReminderLine."Line Type", ErrMsg);
     end;
 }

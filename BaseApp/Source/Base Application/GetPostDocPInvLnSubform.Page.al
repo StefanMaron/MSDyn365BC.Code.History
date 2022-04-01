@@ -48,17 +48,6 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -286,7 +275,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -370,6 +359,8 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
         FillExactCostReverse: Boolean;
         Visible: Boolean;
         ShowRec: Boolean;
+
+    protected var
         [InDataSet]
         DocumentNoHideValue: Boolean;
 
@@ -383,13 +374,13 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
         TempPurchInvLine.Reset();
         TempPurchInvLine.CopyFilters(Rec);
         TempPurchInvLine.SetRange("Document No.", "Document No.");
-        if not TempPurchInvLine.FindFirst then begin
+        if not TempPurchInvLine.FindFirst() then begin
             PurchInvHeader2 := PurchInvHeader;
             RemainingQty2 := RemainingQty;
             RevUnitCostLCY2 := RevUnitCostLCY;
             PurchInvLine2.CopyFilters(Rec);
             PurchInvLine2.SetRange("Document No.", "Document No.");
-            if not PurchInvLine2.FindSet then
+            if not PurchInvLine2.FindSet() then
                 exit(false);
             repeat
                 ShowRec := IsShowRec(PurchInvLine2);

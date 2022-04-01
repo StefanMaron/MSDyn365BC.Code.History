@@ -181,7 +181,7 @@ codeunit 139053 "Office Addin Popout"
 
         // [GIVEN] Vendor Ledger Entry is create
         VendLedgEntry.SetRange(Open, true);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
 
         // [WHEN] The applies entry opens to expose the actions on the page
         AppliesVendorEntries.Trap;
@@ -306,7 +306,7 @@ codeunit 139053 "Office Addin Popout"
         // Create Contact from Customer by running the report Create Conts. from Customers.
         CreateContsFromCustomers.UseRequestPage(false);
         CreateContsFromCustomers.SetTableView(Customer);
-        CreateContsFromCustomers.Run;
+        CreateContsFromCustomers.Run();
 
         ContactNo := UpdateContactEmail(BusinessRelation.Code, ContactBusinessRelation."Link to Table"::Customer, Customer."No.", Email);
         exit(Customer."No.");
@@ -348,7 +348,7 @@ codeunit 139053 "Office Addin Popout"
         // Create Contact from Vendor by running the report Create Conts. from Vendors.
         CreateContsFromVendors.UseRequestPage(false);
         CreateContsFromVendors.SetTableView(Vendor);
-        CreateContsFromVendors.Run;
+        CreateContsFromVendors.Run();
 
         ContactNo := UpdateContactEmail(BusinessRelation.Code, ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.", Email);
         exit(Vendor."No.");
@@ -392,7 +392,7 @@ codeunit 139053 "Office Addin Popout"
         ContactBusinessRelation.SetRange("Business Relation Code", BusinessRelationCode);
         ContactBusinessRelation.SetRange("Link to Table", LinkToTable);
         ContactBusinessRelation.SetRange("No.", LinkNo);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         exit(ContactBusinessRelation."Contact No.");
     end;
 

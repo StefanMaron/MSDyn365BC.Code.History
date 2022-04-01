@@ -69,7 +69,7 @@ page 7504 "Item Attribute Value List"
                         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
                         ItemAttributeValueMapping.SetRange("No.", RelatedRecordCode);
                         ItemAttributeValueMapping.SetRange("Item Attribute ID", ItemAttributeValue."Attribute ID");
-                        if ItemAttributeValueMapping.FindFirst then begin
+                        if ItemAttributeValueMapping.FindFirst() then begin
                             ItemAttributeValueMapping."Item Attribute Value ID" := ItemAttributeValue.ID;
                             OnBeforeItemAttributeValueMappingModify(ItemAttributeValueMapping, ItemAttributeValue, RelatedRecordCode);
                             ItemAttributeValueMapping.Modify();
@@ -118,7 +118,7 @@ page 7504 "Item Attribute Value List"
         RelatedRecordCode := ItemNo;
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.SetRange("No.", ItemNo);
-        if ItemAttributeValueMapping.FindSet then
+        if ItemAttributeValueMapping.FindSet() then
             repeat
                 ItemAttributeValue.Get(ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID");
                 TempItemAttributeValue.TransferFields(ItemAttributeValue);
@@ -137,7 +137,7 @@ page 7504 "Item Attribute Value List"
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.SetRange("No.", RelatedRecordCode);
         ItemAttributeValueMapping.SetRange("Item Attribute ID", AttributeToDeleteID);
-        if ItemAttributeValueMapping.FindFirst then begin
+        if ItemAttributeValueMapping.FindFirst() then begin
             ItemAttributeValueMapping.Delete();
             OnAfterItemAttributeValueMappingDelete(AttributeToDeleteID, RelatedRecordCode, Rec);
         end;

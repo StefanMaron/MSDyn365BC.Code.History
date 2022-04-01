@@ -6,6 +6,7 @@ page 357 Companies
     RefreshOnActivate = true;
     SourceTable = Company;
     UsageCategory = Lists;
+    Permissions = tabledata "Company Information" = r;
 
     layout
     {
@@ -165,7 +166,7 @@ page 357 Companies
 
                     Company.SetRange(Name, Name);
                     CopyCompany.SetTableView(Company);
-                    CopyCompany.RunModal;
+                    CopyCompany.RunModal();
 
                     if Get(CopyCompany.GetCompanyName) then
                         AssistedCompanySetupStatus.CopySaaSCompanySetupStatus(Name, CopyCompany.GetCompanyName);

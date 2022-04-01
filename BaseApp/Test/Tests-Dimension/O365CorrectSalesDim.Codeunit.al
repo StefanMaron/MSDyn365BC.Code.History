@@ -30,7 +30,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         SalesHeaderCorrection: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
 
@@ -44,7 +44,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         // Block the Dimension
         BlockDimValue(DimValue);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE CHECK IT SHOULD BE POSSIBLE TO UNDO IF ITEM IS BLOCKED
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -74,7 +74,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         SalesHeaderCorrection: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
         LibrarySales.CreateCustomer(Cust);
@@ -87,7 +87,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         // Block the Dimension
         BlockDimValue(DimValue);
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE CHECK IT SHOULD BE POSSIBLE TO UNDO IF ITEM IS BLOCKED
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -116,7 +116,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         GLEntry: Record "G/L Entry";
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
 
@@ -130,7 +130,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         LibrarySales.CreateCustomer(Cust);
         SellItem(Cust, Item, 1, SalesInvoiceHeader);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE AND VERIFY CHECK IT SHOULD BE POSSIBLE TO UNDO IF ITEM IS BLOCKED
         TryCorrectingABlockedDimCombOnAPostedInvoice(
@@ -150,7 +150,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue1, 1);
         LibrarySmallBusiness.InitGlobalDimCodeValue(DimValue2, 2);
@@ -170,7 +170,7 @@ codeunit 138034 "O365 Correct Sales Dim."
 
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE AND VERIFY
         TryCorrectingABlockedDimCombOnAPostedInvoice(
@@ -193,7 +193,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         SalesHeaderCorrection: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 1);
         CreateSellToWithDifferentBillToCust(SellToCust, BillToCust);
@@ -216,7 +216,7 @@ codeunit 138034 "O365 Correct Sales Dim."
             DefaultDim.Insert(true);
             Commit();
 
-            GLEntry.FindLast;
+            GLEntry.FindLast();
 
             // EXERCISE
             asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -247,7 +247,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         GLAcc: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 1);
 
@@ -321,7 +321,7 @@ codeunit 138034 "O365 Correct Sales Dim."
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Correct Sales Dim.");
         // Initialize setup.
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
@@ -329,7 +329,7 @@ codeunit 138034 "O365 Correct Sales Dim."
 
         IsInitialized := true;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         LibrarySmallBusiness.SetNoSeries;
         SalesSetup.Get();
@@ -477,7 +477,7 @@ codeunit 138034 "O365 Correct Sales Dim."
           DefaultDim, DATABASE::"G/L Account", GLAcc."No.", DefaultDim."Value Posting"::"Code Mandatory");
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);

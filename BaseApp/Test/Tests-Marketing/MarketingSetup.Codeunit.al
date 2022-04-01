@@ -35,8 +35,8 @@ codeunit 136205 "Marketing Setup"
 
         LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -55,7 +55,7 @@ codeunit 136205 "Marketing Setup"
         // Contact with Inheritance Setup.
 
         // 1. Setup: Create Contact of Type Company and Update all values marked on Inheritance Setup on Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         UpdateContact(Contact);
 
@@ -87,7 +87,7 @@ codeunit 136205 "Marketing Setup"
 
         // 1. Setup: Create Contact of Type Company, Update all values marked on Inheritance Setup on Contact and Update all Values to
         // False on Inheritance Tab of Marketing Setup.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         UpdateContact(Contact);
         UpdateInheritanceSetup(false);
@@ -135,7 +135,7 @@ codeunit 136205 "Marketing Setup"
         // Test Default values not Update on Creation Contact of Type Person after clear Default values from Marketing Setup.
 
         // 1. Setup: Update Default values on Marketing Setup.
-        Initialize;
+        Initialize();
         ClearDefaultValueSetup(TempMarketingSetup);
 
         // 2. Exercise: Create Contact of Type as per parameter.
@@ -186,7 +186,7 @@ codeunit 136205 "Marketing Setup"
         // Test Default values successfully update on Creation Contact of Type Person with Default values on Marketing Setup.
 
         // 1. Setup: Update Default values on Marketing Setup.
-        Initialize;
+        Initialize();
         UpdateDefaultValueSetup(TempMarketingSetup, MarketingSetup);
 
         // 2. Exercise: Create Contact of Type as per parameter.
@@ -219,11 +219,11 @@ codeunit 136205 "Marketing Setup"
         // Test Opportunity for contact successfully created with Default Sales Cycle Code on Marketing Setup.
 
         // 1. Setup: Create Contact and Update Default Sales Cycle Code on Marketing Setup.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
 
         SalespersonCode := Contact."Salesperson Code";  // Set Global Variable for Form Handler.
-        SalesCycle.FindFirst;
+        SalesCycle.FindFirst();
         MarketingSetup.Get();
         DefaultSalesCycleCode := MarketingSetup."Default Sales Cycle Code";
         MarketingSetup.Validate("Default Sales Cycle Code", SalesCycle.Code);
@@ -235,7 +235,7 @@ codeunit 136205 "Marketing Setup"
 
         // 3. Verify: Verify Opportunity successfully created.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.TestField("Salesperson Code", Contact."Salesperson Code");
 
         // 4. Teardown: Set Default Sales Cycle Code on Marketing Setup to default value.
@@ -258,7 +258,7 @@ codeunit 136205 "Marketing Setup"
         // Test error occurs on creation of Opportunity for Contact without Default Sales Cycle Code on Marketing Setup.
 
         // 1. Setup: Create Contact and Clear Default Sales Cycle Code on Marketing Setup.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
 
         SalespersonCode := Contact."Salesperson Code";  // Set Global Variable for Form Handler.
@@ -292,8 +292,8 @@ codeunit 136205 "Marketing Setup"
         // Test Contact successfully created on creation of Customer with Bus. Relation Code for Customers on Marketing Setup.
 
         // 1. Setup: Set value of Bus. Relation Code for Customers on Marketing Setup.
-        Initialize;
-        BusinessRelation.FindFirst;
+        Initialize();
+        BusinessRelation.FindFirst();
         DefaultBusRelCodeforCustomers := UpdateBusRelCodeforCustomers(BusinessRelation.Code);
 
         // 2. Exercise: Create Customer.
@@ -320,8 +320,8 @@ codeunit 136205 "Marketing Setup"
         // Test Contact successfully created on creation of Vendor with Bus. Relation Code for Vendors on Marketing Setup.
 
         // 1. Setup: Set value of Bus. Relation Code for Vendors on Marketing Setup.
-        Initialize;
-        BusinessRelation.FindFirst;
+        Initialize();
+        BusinessRelation.FindFirst();
         DefaultBusRelCodeforVendors := UpdateBusRelCodeforVendors(BusinessRelation.Code);
 
         // 2. Exercise: Create Vendor.
@@ -349,9 +349,9 @@ codeunit 136205 "Marketing Setup"
         // Test Contact successfully created on creation of Bank Account with Bus. Relation Code for Bank Acc. on Marketing Setup.
 
         // 1. Setup: Set value of Bus. Relation Code for Bank Acc. on Marketing Setup.
-        Initialize;
+        Initialize();
         ExecuteUIHandler;
-        BusinessRelation.FindFirst;
+        BusinessRelation.FindFirst();
         DefaultBusRelCodeforBankAccs := UpdateBusRelCodeforBankAccount(BusinessRelation.Code);
 
         // 2. Exercise: Create Bank Account.
@@ -379,8 +379,8 @@ codeunit 136205 "Marketing Setup"
         // Test Vendor successfully created from Contact with Bus. Relation Code for Vendors on Marketing Setup.
 
         // 1. Setup: Set value of Bus. Relation Code for Vendors on Marketing Setup and Create Contact.
-        Initialize;
-        BusinessRelation.FindFirst;
+        Initialize();
+        BusinessRelation.FindFirst();
         DefaultBusRelCodeforVendors := UpdateBusRelCodeforVendors(BusinessRelation.Code);
         LibraryMarketing.CreateCompanyContact(Contact);
 
@@ -390,7 +390,7 @@ codeunit 136205 "Marketing Setup"
         // 3. Verify: Verify Contact Business Relation and Vendor successfully created.
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
         ContactBusinessRelation.SetRange("Contact No.", Contact."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
 
         Vendor.Get(ContactBusinessRelation."No.");
 
@@ -413,8 +413,8 @@ codeunit 136205 "Marketing Setup"
         // Test Bank Account successfully created from Contact with Bus. Relation Code for Bank Acc. on Marketing Setup.
 
         // 1. Setup: Set value of Bus. Relation Code for Bank Acc. on Marketing Setup and Create Contact.
-        Initialize;
-        BusinessRelation.FindFirst;
+        Initialize();
+        BusinessRelation.FindFirst();
         DefaultBusRelCodeforBankAccs := UpdateBusRelCodeforBankAccount(BusinessRelation.Code);
         LibraryMarketing.CreateCompanyContact(Contact);
 
@@ -424,7 +424,7 @@ codeunit 136205 "Marketing Setup"
         // 3. Verify: Verify Contact Business Relation and Bank Account successfully created.
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::"Bank Account");
         ContactBusinessRelation.SetRange("Contact No.", Contact."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
 
         BankAccount.Get(ContactBusinessRelation."No.");
 
@@ -443,7 +443,7 @@ codeunit 136205 "Marketing Setup"
         // Test Campaign successfully created with Campaign Nos. on Marketing Setup.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Campaign.
         LibraryMarketing.CreateCampaign(Campaign);
@@ -465,7 +465,7 @@ codeunit 136205 "Marketing Setup"
         // Test Segment Header successfully created with Segment Nos. on Marketing Setup.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Segment Header.
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
@@ -487,7 +487,7 @@ codeunit 136205 "Marketing Setup"
         // Test Contact successfully created with Contact Nos. on Marketing Setup.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Contact.
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -509,7 +509,7 @@ codeunit 136205 "Marketing Setup"
         // Test error occurs on creation of Campaign without Campaign Nos. on Marketing Setup.
 
         // 1. Setup: Clear Campaign Nos. on Marketing Setup.
-        Initialize;
+        Initialize();
         MarketingSetup.Get();
         MarketingSetup.Validate("Campaign Nos.", '');
         MarketingSetup.Modify(true);
@@ -533,7 +533,7 @@ codeunit 136205 "Marketing Setup"
         // Test error occurs on creation of Segment Header without Segment Nos. on Marketing Setup.
 
         // 1. Setup: Clear Segment Nos. on Marketing Setup.
-        Initialize;
+        Initialize();
         MarketingSetup.Get();
         MarketingSetup.Validate("Segment Nos.", '');
         MarketingSetup.Modify(true);
@@ -557,7 +557,7 @@ codeunit 136205 "Marketing Setup"
         // Test error occurs on creation of Contact without Contact Nos. on Marketing Setup.
 
         // 1. Setup: Clear Contact Nos. on Marketing Setup.
-        Initialize;
+        Initialize();
         MarketingSetup.Get();
         MarketingSetup.Validate("Contact Nos.", '');
         MarketingSetup.Modify(true);
@@ -584,7 +584,7 @@ codeunit 136205 "Marketing Setup"
         // Test error occurs on creation of Task for Salesperson without Task Nos. on Marketing Setup.
 
         // 1. Setup: Clear Task Nos. on Marketing Setup.
-        Initialize;
+        Initialize();
         MarketingSetup.Get();
         MarketingSetup.Validate("To-do Nos.", '');
         MarketingSetup.Modify(true);
@@ -614,11 +614,11 @@ codeunit 136205 "Marketing Setup"
         // Test error occurs on creation of Opportunity for Contact without Opportunity Nos. on Marketing Setup.
 
         // 1. Setup: Create Contact and Clear Opportunity Nos. on Marketing Setup.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
 
         SalespersonCode := Contact."Salesperson Code";  // Set Global Variable for Form Handler.
-        SalesCycle.FindFirst;
+        SalesCycle.FindFirst();
         MarketingSetup.Get();
         MarketingSetup.Validate("Default Sales Cycle Code", SalesCycle.Code);
         MarketingSetup.Validate("Opportunity Nos.", '');
@@ -642,7 +642,7 @@ codeunit 136205 "Marketing Setup"
         // Test Salutation Successfully Created.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Salutation.
         LibraryMarketing.CreateSalutation(Salutation);
@@ -705,7 +705,7 @@ codeunit 136205 "Marketing Setup"
         SalutationFormula: Record "Salutation Formula";
     begin
         // 1. Setup: Create Salutation.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateSalutation(Salutation);
 
         // 2. Exercise: Create and Update Salutation Formula with Specified SalutationType.
@@ -729,7 +729,7 @@ codeunit 136205 "Marketing Setup"
         // Test Salutation Code Successfully updated on Contact.
 
         // 1. Setup: Create Contact of Type Person and Salutation.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate(Type, Contact.Type::Person);
         Contact.Modify(true);
@@ -740,7 +740,7 @@ codeunit 136205 "Marketing Setup"
         // 2. Exercise: Run Name Details form and Update Salutation code on it.
         Clear(NameDetails);
         NameDetails.SetRecord(Contact);
-        NameDetails.RunModal;
+        NameDetails.RunModal();
 
         // 3. Verify: Verify Salutation Code updated on Contact.
         Contact.Get(Contact."No.");
@@ -755,7 +755,7 @@ codeunit 136205 "Marketing Setup"
         MarketingSetupPage: TestPage "Marketing Setup";
     begin
         // [SCENARIO 215623] Marketing Setup General fasstab should not be visible in SaaS
-        Initialize;
+        Initialize();
 
         // [GIVEN] SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -781,7 +781,7 @@ codeunit 136205 "Marketing Setup"
         MarketingSetupPage: TestPage "Marketing Setup";
     begin
         // [SCENARIO 215623] Marketing Setup General fasstab should be visible in on-prem and in PaaS
-        Initialize;
+        Initialize();
 
         // [GIVEN] on-prem or PaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
@@ -834,7 +834,7 @@ codeunit 136205 "Marketing Setup"
     var
         Language: Record Language;
     begin
-        Language.FindFirst;
+        Language.FindFirst();
         exit(Language.Code);
     end;
 
@@ -875,10 +875,10 @@ codeunit 136205 "Marketing Setup"
         CountryRegion: Record "Country/Region";
         Language: Record Language;
     begin
-        SalespersonPurchaser.FindFirst;
-        Territory.FindFirst;
-        CountryRegion.FindFirst;
-        Language.FindFirst;
+        SalespersonPurchaser.FindFirst();
+        Territory.FindFirst();
+        CountryRegion.FindFirst();
+        Language.FindFirst();
         Contact.Validate(Type, Contact.Type::Company);
         Contact.Validate("Salesperson Code", SalespersonPurchaser.Code);
         Contact.Validate("Territory Code", Territory.Code);
@@ -896,9 +896,9 @@ codeunit 136205 "Marketing Setup"
         Language: Record Language;
         Salutation: Record Salutation;
     begin
-        Territory.FindFirst;
-        CountryRegion.FindFirst;
-        Language.FindFirst;
+        Territory.FindFirst();
+        CountryRegion.FindFirst();
+        Language.FindFirst();
         Salutation.FindSet();
 
         MarketingSetup.Get();
@@ -942,7 +942,7 @@ codeunit 136205 "Marketing Setup"
     begin
         ContactBusinessRelation.SetRange("Link to Table", LinkToTable);
         ContactBusinessRelation.SetRange("No.", No);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
 
         Contact.Get(ContactBusinessRelation."Contact No.");
     end;

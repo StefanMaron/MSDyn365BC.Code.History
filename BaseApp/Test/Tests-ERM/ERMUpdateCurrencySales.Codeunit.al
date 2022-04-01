@@ -1,5 +1,6 @@
-codeunit 134087 "ERM Update Currency - Sales"
+﻿codeunit 134087 "ERM Update Currency - Sales"
 {
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -18,6 +19,8 @@ codeunit 134087 "ERM Update Currency - Sales"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        ERMUpdateCurrencySales: Codeunit "ERM Update Currency - Sales";
         isInitialized: Boolean;
         AmountError: Label '%1 must be %2 in \\%3 %4=%5.';
         UnitPriceError: Label '%1 must be %2 in %3.';
@@ -31,16 +34,21 @@ codeunit 134087 "ERM Update Currency - Sales"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryERM.SetJournalTemplNameMandatory(false);
+
         isInitialized := true;
         Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
     [Test]
@@ -55,7 +63,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // Check after changing Posting Date, Application generates a confirm dialog if Exchange Rate does not exist and opens page 483.
 
         // 1. Setup: Create Sales Invoice and new Currency with Exchange Rate.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, CurrencyExchangeRate, SalesHeader."Document Type"::Invoice);
 
         // 2. Exercise: Modify Posting Date with a date lesser that Existing Starting Date of Exchange Rate.
@@ -66,7 +74,7 @@ codeunit 134087 "ERM Update Currency - Sales"
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -81,7 +89,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // Check after changing Posting Date, Unit Price and Line Amount of Sales Line get updated as per new Exchange Rate.
 
         // 1. Setup: Create Sales Invoice and new Currency with Exchange Rate.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, CurrencyExchangeRate, SalesHeader."Document Type"::Invoice);
 
         // 2. Exercise: Create new Exchange Rate for Currency with different Starting Date.
@@ -141,7 +149,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // 1. Setup: Create Sales Document and new Currency with Exchange rate.
-        Initialize;
+        Initialize();
         CreateSalesHeaderWithCurrency(SalesHeader, CurrencyExchangeRate, DocumentType);
 
         // 2. Exercise: Create new Currency with Exchange rate and update Sales Header.
@@ -206,7 +214,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // 1. Setup: Create Sales Document and new Currency with Exchange rate.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, CurrencyExchangeRate, DocumentType);
 
         // 2. Exercise: Create new Currency with Exchange rate and update Sales Header and Line.
@@ -227,7 +235,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
@@ -283,7 +291,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         SalesHeader: Record "Sales Header";
     begin
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create new Currency, Customer, Sales Document and update with Currency.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomerWithCurrencyExchangeRate(CurrencyExchangeRate));
@@ -303,7 +311,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // Check Customer get updated with Currency Code.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create new Currency and update Customer.
         CustomerNo := CreateCustomerWithCurrencyExchangeRate(CurrencyExchangeRate);
@@ -326,7 +334,7 @@ codeunit 134087 "ERM Update Currency - Sales"
 
         // 1. Setup: Create Currency with Exchange rate, Create another Currency with two Exchange rates and assign first Currency as
         // Relational Currency.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate2);
         ModifyCurrency(CurrencyExchangeRate, CurrencyExchangeRate2);
@@ -358,7 +366,7 @@ codeunit 134087 "ERM Update Currency - Sales"
 
         // 1. Setup: Create Currency with Exchange rate, Create another Currency with two Exchange rates and assign first Currency as
         // Relational Currency.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate2);
         ModifyCurrency(CurrencyExchangeRate, CurrencyExchangeRate2);
@@ -386,7 +394,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // Check Currency Code and Currency Factor posted properly in Posted Sales Invoice.
 
         // 1. Setup: Create Customer and Currency with Exchange rate.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomerWithCurrencyExchangeRate(CurrencyExchangeRate);
 
         // 2. Exercise: Create Sales Invoice and Post.
@@ -409,7 +417,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // Check Amount posted correctly as per Currency Exchange Rate from Invoice to GL Entry.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Customer, Currency, Sales Invoice, Post and Apply.
         PostedSaleInvoiceNo := CreateAndPostSalesInvoice(SalesHeader, CreateCustomerWithCurrencyExchangeRate(CurrencyExchangeRate));
@@ -436,7 +444,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // Create New Currency with Exchange rate.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create new Currency with Exchange rate.
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
@@ -457,7 +465,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // Create New Currency with Exchange rate and Customer.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise:  Create Customer and Currency with Exchange rate.
         CustomerNo := CreateCustomerWithCurrencyExchangeRate(CurrencyExchangeRate);
@@ -477,7 +485,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         DocumentNo: Code[20];
     begin
         // Check after Posting Sales Credit Memo, Currency flow in Customer Ledger Entry.
-        Initialize;
+        Initialize();
         DocumentNo := PostDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::"Credit Memo", false, true);
 
         // 3. Verify: Verify Currency flow in Customer Ledger Entry.
@@ -493,7 +501,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         DocumentNo: Code[20];
     begin
         // Check after Posting Sales Invoice, Currency flow in Customer Ledger Entry.
-        Initialize;
+        Initialize();
         DocumentNo := PostDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Invoice, false, true);
 
         // 3. Verify: Verify Currency flow in Customer Ledger Entry.
@@ -509,7 +517,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         DocumentNo: Code[20];
     begin
         // Check after Posting Sales Order, Currency flow in Customer Ledger Entry.
-        Initialize;
+        Initialize();
         DocumentNo := PostDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Order, true, true);
 
         // 3. Verify: Verify Currency flow in Customer Ledger Entry.
@@ -528,6 +536,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         ExecuteUIHandler;
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
@@ -539,7 +548,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry created
         // with Correct Amount in Sales Order.
-        Initialize;
+        Initialize();
         OldRelationalExchangeRate := AdjustExchangeRateDocument(SalesHeader, CurrencyExchangeRate, SalesHeader."Document Type"::Order);
 
         // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
@@ -557,7 +566,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry created
         // with Correct Amount in Sales Invoice.
-        Initialize;
+        Initialize();
         OldRelationalExchangeRate := AdjustExchangeRateDocument(SalesHeader, CurrencyExchangeRate, SalesHeader."Document Type"::Invoice);
 
         // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
@@ -575,7 +584,59 @@ codeunit 134087 "ERM Update Currency - Sales"
         // 2. Exercise: Run Adjust Exchange Rate batch job.
         RunAdjustExchangeRates(CurrencyExchangeRate, SalesHeader."No.");
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ExchRateAdjustmentOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        OldRelationalExchangeRate: Decimal;
+    begin
+        // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry created
+        // with Correct Amount in Sales Order.
+        Initialize();
+        BindSubscription(ERMUpdateCurrencySales);
+        OldRelationalExchangeRate := ExchRateAdjustmentDocument(SalesHeader, CurrencyExchangeRate, SalesHeader."Document Type"::Order);
+        UnbindSubscription(ERMUpdateCurrencySales);
+
+        // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
+        VerifyGLEntryForOrder(CurrencyExchangeRate, SalesHeader."No.", OldRelationalExchangeRate);
+    end;
+
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ExchRateAdjustmentInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        OldRelationalExchangeRate: Decimal;
+    begin
+        // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry created
+        // with Correct Amount in Sales Invoice.
+        Initialize();
+        OldRelationalExchangeRate := ExchRateAdjustmentDocument(SalesHeader, CurrencyExchangeRate, SalesHeader."Document Type"::Invoice);
+
+        // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
+        VerifyGLEntryForInvoice(CurrencyExchangeRate, SalesHeader."No.", OldRelationalExchangeRate);
+    end;
+
+    local procedure ExchRateAdjustmentDocument(var SalesHeader: Record "Sales Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Enum "Sales Document Type") OldRelationalExchangeRate: Decimal
+    begin
+        // 1. Setup: Create and Post Sales Document with new Currency and Exchange rate.
+        CreateSalesDocument(SalesHeader, CurrencyExchangeRate, DocumentType);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        OldRelationalExchangeRate := CurrencyExchangeRate."Relational Exch. Rate Amount";
+        UpdateExchangeRate(CurrencyExchangeRate);
+
+        // 2. Exercise: Run Adjust Exchange Rate batch job.
+        RunExchRateAdjustment(CurrencyExchangeRate, SalesHeader."No.");
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
@@ -589,7 +650,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // Detailed Customer Ledger Entry created with Correct Amount.
 
         // 1. Setup: Create and Post General Journal Line for Customer.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomerWithCurrencyExchangeRate(CurrencyExchangeRate);
         // Required Random Value for Amount.
         CreateGeneralJournalLine(
@@ -620,7 +681,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // GL Entry updated with Correct Amount for Customer.
 
         // 1. Setup: Create and Post General Journal Line for Customer and Update Exchange rate.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
 
         // Required Random Value for Amount.
@@ -652,7 +713,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // GL Entry updated with Correct Amount for Customer with payment.
 
         // 1. Setup: Create and Post General Journal Line for Customer, Update Exchange Rate and run adjust exchange batch job.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
 
         // Required Random Value for Amount.
@@ -688,7 +749,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // GL Entry updated with Correct Amount for Bank.
 
         // 1. Setup: Create and Post General Journal Line for Bank Account and Update Lower Exchange rate.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
 
         // Required Random Value for Amount.
@@ -718,7 +779,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         // GL Entry updated with Correct Amount for Bank.
 
         // 1. Setup: Create and Post General Journal Line for Bank Account and Update Upper Exchange rate.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
 
         // Required Random Value for Amount.
@@ -731,6 +792,178 @@ codeunit 134087 "ERM Update Currency - Sales"
 
         // 2. Exercise: Run Adjust Exchange Rate batch job.
         RunAdjustExchangeRates(CurrencyExchangeRate, GenJournalLine."Document No.");
+
+        // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
+        VerifyGLEntryAdjustExchange(GenJournalLine, CurrencyExchangeRate, GenJournalLine."Document No.");
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure EntriesAfterExchRateAdjustment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        CustomerNo: Code[20];
+    begin
+        // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry and
+        // Detailed Customer Ledger Entry created with Correct Amount.
+
+        // 1. Setup: Create and Post General Journal Line for Customer.
+        Initialize();
+        BindSubscription(ERMUpdateCurrencySales);
+        CustomerNo := CreateCustomerWithCurrencyExchangeRate(CurrencyExchangeRate);
+        // Required Random Value for Amount.
+        CreateGeneralJournalLine(
+          GenJournalLine, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Currency Code", CustomerNo,
+          LibraryRandom.RandDec(100, 2), GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        UpdateExchangeRate(CurrencyExchangeRate);
+
+        // 2. Exercise: Run Adjust Exchange Rate batch job.
+        RunExchRateAdjustment(CurrencyExchangeRate, GenJournalLine."Document No.");
+        UnbindSubscription(ERMUpdateCurrencySales);
+
+        // 3. Verify: Verify G/L Entry and Detailed Customer Ledger Entry made for correct Amount after running
+        // Adjust Exchange Rate Batch Job.
+        VerifyGLEntryAdjustExchange(GenJournalLine, CurrencyExchangeRate, GenJournalLine."Document No.");
+        VerifyDetailedCustomerLedger(GenJournalLine, CurrencyExchangeRate, GenJournalLine."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure LossEntryExchRateAdjustment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        CustomerNo: Code[20];
+    begin
+        // Check that after Modify lower Relational Exch. Rate Amount and run Adjust Exchange rate batch job,
+        // GL Entry updated with Correct Amount for Customer.
+
+        // 1. Setup: Create and Post General Journal Line for Customer and Update Exchange rate.
+        Initialize();
+        BindSubscription(ERMUpdateCurrencySales);
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+
+        // Required Random Value for Amount.
+        CustomerNo := CreateCustomerWithCurrency('');
+        CreateGeneralJournalLine(
+          GenJournalLine, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Currency Code", CustomerNo,
+          LibraryRandom.RandDec(100, 2), GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        UpdateLowerExchangeRate(CurrencyExchangeRate);
+
+        // 2. Exercise: Run Adjust Exchange Rate batch job.
+        RunExchRateAdjustment(CurrencyExchangeRate, GenJournalLine."Document No.");
+        UnbindSubscription(ERMUpdateCurrencySales);
+
+        // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
+        VerifyGLEntryLowerExchangeRate(GenJournalLine, CurrencyExchangeRate);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyEntryPageHandler,StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentAfterExchRateAdjustment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        CustomerNo: Code[20];
+    begin
+        // Check that after Modify lower Relational Exch. Rate Amount and run Adjust Exchange rate batch job,
+        // GL Entry updated with Correct Amount for Customer with payment.
+
+        // 1. Setup: Create and Post General Journal Line for Customer, Update Exchange Rate and run adjust exchange batch job.
+        Initialize();
+        BindSubscription(ERMUpdateCurrencySales);
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+
+        // Required Random Value for Amount.
+        CustomerNo := CreateCustomerWithCurrency('');
+        CreateGeneralJournalLine(
+          GenJournalLine, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Currency Code", CustomerNo,
+          LibraryRandom.RandDec(100, 2), GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        UpdateLowerExchangeRate(CurrencyExchangeRate);
+
+        RunExchRateAdjustment(CurrencyExchangeRate, GenJournalLine."Document No.");
+
+        // 2. Exercise: Make payment and apply invoice.
+        // Passing Amount as 0 because it will update after apply.
+        CreateGeneralJournalLine(
+          GenJournalLine2, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Currency Code", GenJournalLine."Account No.", 0,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer);
+        ApplyInvoice(GenJournalLine2, GenJournalLine."Document No.", GenJournalLine2."Document Type"::Invoice);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+        UnbindSubscription(ERMUpdateCurrencySales);
+
+        // 3. Verify: Verify Payment applies properly to the invoice.
+        VerifyRemaningAmount(GenJournalLine."Account No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure LossExchRateAdjustmentForBank()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        // Check that after Modify Lower Relational Exch. Rate Amount and run Adjust Exchange rate batch job,
+        // GL Entry updated with Correct Amount for Bank.
+
+        // 1. Setup: Create and Post General Journal Line for Bank Account and Update Lower Exchange rate.
+        Initialize();
+        BindSubscription(ERMUpdateCurrencySales);
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+
+        // Required Random Value for Amount.
+        CreateGeneralJournalLine(
+          GenJournalLine, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Currency Code",
+          CreateBankWithCurrency(CurrencyExchangeRate."Currency Code"), LibraryRandom.RandDec(100, 2),
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"Bank Account");
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        UpdateLowerExchangeRate(CurrencyExchangeRate);
+
+        // 2. Exercise: Run Adjust Exchange Rate batch job.
+        RunExchRateAdjustment(CurrencyExchangeRate, GenJournalLine."Document No.");
+        UnbindSubscription(ERMUpdateCurrencySales);
+
+        // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
+        VerifyGLEntryLowerExchangeRate(GenJournalLine, CurrencyExchangeRate);
+    end;
+
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ExchRateAdjustmentForBank()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        // Check that after Modify Upper Relational Exch. Rate Amount and run Adjust Exchange rate batch job,
+        // GL Entry updated with Correct Amount for Bank.
+
+        // 1. Setup: Create and Post General Journal Line for Bank Account and Update Upper Exchange rate.
+        Initialize();
+        BindSubscription(ERMUpdateCurrencySales);
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+
+        // Required Random Value for Amount.
+        CreateGeneralJournalLine(
+          GenJournalLine, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Currency Code",
+          CreateBankWithCurrency(CurrencyExchangeRate."Currency Code"), LibraryRandom.RandDec(100, 2),
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"Bank Account");
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        UpdateExchangeRate(CurrencyExchangeRate);
+
+        // 2. Exercise: Run Adjust Exchange Rate batch job.
+        RunExchRateAdjustment(CurrencyExchangeRate, GenJournalLine."Document No.");
+        UnbindSubscription(ERMUpdateCurrencySales);
 
         // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
         VerifyGLEntryAdjustExchange(GenJournalLine, CurrencyExchangeRate, GenJournalLine."Document No.");
@@ -940,7 +1173,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         // [FEATURE] [UI] [Journal] [Application]
         // [SCENARIO 230918] Stan fill "Applies-to Doc. No." of Gen. Journal Line with a Posted Document Number. When a confirm message about a Currency Code update appears, it contains correct Currency Codes.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Currency code" = "C1".
         CreateSalesDocument(SalesHeader, CurrencyExchangeRate, SalesHeader."Document Type"::Invoice);
@@ -969,7 +1202,7 @@ codeunit 134087 "ERM Update Currency - Sales"
 
         // [THEN] Confirm message appeared: "The Currency Code will be changed from C2 to C1".
         Assert.ExpectedMessage(ExpectedMsg, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ApplyInvoice(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type")
@@ -1149,6 +1382,7 @@ codeunit 134087 "ERM Update Currency - Sales"
           CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', CurrencyExchangeRate2."Starting Date"));
     end;
 
+#if not CLEAN20
     local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
     var
         Currency: Record Currency;
@@ -1162,7 +1396,24 @@ codeunit 134087 "ERM Update Currency - Sales"
           CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date", 'Test', CurrencyExchangeRate."Starting Date",
           DocumentNo, true, false);
         AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
+    end;
+#endif
+
+    local procedure RunExchRateAdjustment(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
+    var
+        Currency: Record Currency;
+        ExchRateAdjustment: Report "Exch. Rate Adjustment";
+    begin
+        // Using Random Number Generator for Document No.
+        Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
+        Clear(ExchRateAdjustment);
+        ExchRateAdjustment.SetTableView(Currency);
+        ExchRateAdjustment.InitializeRequest2(
+          CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date", 'Test', CurrencyExchangeRate."Starting Date",
+          DocumentNo, true, false);
+        ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.Run();
     end;
 
     local procedure UpdateCurrencyOnSalesHeader(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10])
@@ -1214,7 +1465,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetFilter(Amount, '>0');
-        GLEntry.FindLast;
+        GLEntry.FindLast();
     end;
 
     local procedure GetCurrency(var Currency: Record Currency; CurrencyCode: Code[10])
@@ -1294,7 +1545,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("No.", SalesInvoiceNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.TestField("Currency Code", CurrencyExchangeRate."Currency Code");
         SalesInvoiceHeader.TestField("Currency Factor", CalcCurrencyFactor(CurrencyExchangeRate));
     end;
@@ -1307,7 +1558,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetFilter(Amount, '<0');
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Currency.Get(CurrencyExchangeRate."Currency Code");
         GLEntry.TestField("Posting Date", CurrencyExchangeRate."Starting Date");
         Assert.AreNearlyEqual(
@@ -1343,7 +1594,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Order No.", DocumentNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         VerifyGLEntryAmount(CurrencyExchangeRate, SalesInvoiceHeader."No.", DocumentNo, OldRelationalExchangeRate);
     end;
 
@@ -1353,7 +1604,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", DocumentNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         VerifyGLEntryAmount(CurrencyExchangeRate, SalesInvoiceHeader."No.", DocumentNo, OldRelationalExchangeRate);
     end;
 
@@ -1386,7 +1637,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         GetCurrency(Currency, CurrencyExchangeRate."Currency Code");
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedCustLedgEntry.FindLast;
+        DetailedCustLedgEntry.FindLast();
         ExpectedDetailCustEntryAmount :=
           GenJournalLine.Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount" -
           GenJournalLine."Amount (LCY)";
@@ -1402,7 +1653,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Currency Code", CurrencyCode);
     end;
 
@@ -1448,7 +1699,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(No, "No.",
               StrSubstNo(IncorrectValueErr, "No.", FieldCaption("No.")));
             Assert.AreEqual(CurrencyCode, "Currency Code",
@@ -1517,6 +1768,15 @@ codeunit 134087 "ERM Update Currency - Sales"
           '');
 
         exit(true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Exch. Rate Adjmt. Run Handler", 'OnBeforeRunCustExchRateAdjustment', '', false, false)]
+    local procedure RunCustExchRateAdjustment(GenJnlLine: Record "Gen. Journal Line"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var IsHandled: Boolean)
+    var
+        ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
+    begin
+        ExchRateAdjmtProcess.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
+        IsHandled := true;
     end;
 }
 

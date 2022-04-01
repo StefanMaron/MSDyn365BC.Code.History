@@ -117,6 +117,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetPurchOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         PurchLine: Record "Purchase Line";
     begin
         if not PurchLine.ReadPermission then
@@ -133,6 +134,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetSalesRetOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
     begin
         if not SalesLine.ReadPermission then
@@ -149,6 +151,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetProdOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         ProdOrderLine: Record "Prod. Order Line";
     begin
         if not ProdOrderLine.ReadPermission then
@@ -165,6 +168,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetTransferOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         TransLine: Record "Transfer Line";
     begin
         if not TransLine.ReadPermission then
@@ -181,6 +185,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetSalesOrdersDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
     begin
         if not SalesLine.ReadPermission then
@@ -197,6 +202,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetServOrdersDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         ServLine: Record "Service Line";
     begin
         if not ServLine.ReadPermission then
@@ -213,6 +219,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetJobOrdersDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         JobPlanningLine: Record "Job Planning Line";
     begin
         if not JobPlanningLine.ReadPermission then
@@ -229,6 +236,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetPurchRetOrderDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         PurchLine: Record "Purchase Line";
     begin
         if not PurchLine.ReadPermission then
@@ -245,6 +253,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetProdOrderCompDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         ProdOrderComp: Record "Prod. Order Component";
     begin
         if not ProdOrderComp.ReadPermission then
@@ -261,6 +270,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetTransOrderDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         TransLine: Record "Transfer Line";
     begin
         if not TransLine.ReadPermission then
@@ -277,6 +287,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetAsmOrderDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         AsmLine: Record "Assembly Line";
     begin
         if not AsmLine.ReadPermission then
@@ -293,6 +304,7 @@ codeunit 5530 "Calc. Item Availability"
 
     local procedure TryGetAsmOrderSupllyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         AsmHeader: Record "Assembly Header";
     begin
         if not AsmHeader.ReadPermission then
@@ -365,7 +377,7 @@ codeunit 5530 "Calc. Item Availability"
             Module := ModuleLoop = 2;
             ProdForecastEntry.SetRange("Component Forecast", Module);
             ProdForecastEntry2.SetRange("Component Forecast", Module);
-            if ProdForecastEntry2.FindSet then
+            if ProdForecastEntry2.FindSet() then
                 repeat
                     if MfgSetup."Use Forecast on Locations" then begin
                         ProdForecastEntry2.SetRange("Location Code", ProdForecastEntry2."Location Code");
@@ -385,7 +397,7 @@ codeunit 5530 "Calc. Item Availability"
                         Item.CopyFilter("Variant Filter", ItemLedgEntry."Variant Code");
                         Item.CopyFilter("Variant Filter", InvtEventBuf."Variant Code");
                     end;
-                    ProdForecastEntry2.FindLast;
+                    ProdForecastEntry2.FindLast();
                     ProdForecastEntry2.CopyFilter("Location Code", ProdForecastEntry."Location Code");
                     ProdForecastEntry2.CopyFilter("Variant Code", ProdForecastEntry."Variant Code");
                     Item.CopyFilter("Location Filter", ProdForecastEntry2."Location Code");
@@ -409,13 +421,13 @@ codeunit 5530 "Calc. Item Availability"
                             Item.CopyFilter("Variant Filter", ItemLedgEntry."Variant Code");
                             if Module then begin
                                 ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Consumption);
-                                if ItemLedgEntry.FindSet then
+                                if ItemLedgEntry.FindSet() then
                                     repeat
                                         RemainingForecastQty += ItemLedgEntry.Quantity;
                                     until ItemLedgEntry.Next() = 0;
                             end else begin
                                 ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Sale);
-                                if ItemLedgEntry.FindSet then begin
+                                if ItemLedgEntry.FindSet() then begin
                                     repeat
                                         if not ItemLedgEntry."Derived from Blanket Order" then
                                             RemainingForecastQty += ItemLedgEntry.Quantity;
@@ -506,7 +518,7 @@ codeunit 5530 "Calc. Item Availability"
             SetFilter("Location Code", Item.GetFilter("Location Filter"));
             SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
             OnGetPlanningLinesOnAfterReqLineSetFilters(ReqLine, Item);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(ReqLine);
                     case "Action Message" of
@@ -593,7 +605,7 @@ codeunit 5530 "Calc. Item Availability"
         Item.CopyFilter("Location Filter", TransferReqLine."Transfer-from Code");
         Item.CopyFilter("Variant Filter", TransferReqLine."Variant Code");
         Item.CopyFilter("Date Filter", TransferReqLine."Transfer Shipment Date");
-        if TransferReqLine.FindSet then
+        if TransferReqLine.FindSet() then
             repeat
                 if TransferReqLine."Action Message" <> TransferReqLine."Action Message"::New then begin
                     // Neutralize demand from the related document
@@ -626,13 +638,13 @@ codeunit 5530 "Calc. Item Availability"
     begin
         NextProdForecastEntry.Copy(ProdForecastEntry);
         NextProdForecastEntry.SetRange("Forecast Date", ProdForecastEntry."Forecast Date" + 1, ToDate);
-        if NextProdForecastEntry.FindFirst then
+        if NextProdForecastEntry.FindFirst() then
             repeat
                 NextProdForecastEntry.SetRange("Forecast Date", NextProdForecastEntry."Forecast Date");
                 NextProdForecastEntry.CalcSums("Forecast Quantity (Base)");
                 if NextProdForecastEntry."Forecast Quantity (Base)" = 0 then begin
                     NextProdForecastEntry.SetRange("Forecast Date", NextProdForecastEntry."Forecast Date" + 1, ToDate);
-                    if not NextProdForecastEntry.FindLast then
+                    if not NextProdForecastEntry.FindLast() then
                         NextProdForecastEntry."Forecast Date" := ToDate + 1;
                 end else
                     NextForecastExist := true;
@@ -649,7 +661,7 @@ codeunit 5530 "Calc. Item Availability"
         CorItemLedgEntry.Copy(ItemLedgEntry);
         CorItemLedgEntry.SetRange(Positive, true);
         CorItemLedgEntry.SetRange(Correction, true);
-        if CorItemLedgEntry.FindSet then
+        if CorItemLedgEntry.FindSet() then
             repeat
                 if not CorItemLedgEntry."Derived from Blanket Order" then
                     AdjustQty += CorItemLedgEntry.Quantity;
@@ -674,7 +686,7 @@ codeunit 5530 "Calc. Item Availability"
         ReqLine.SetRange("Ref. Order No.", ProdOrderComp."Prod. Order No.");
         ReqLine.SetRange("Ref. Line No.", ProdOrderComp."Prod. Order Line No.");
         ReqLine.SetRange("Operation No.", '');
-        if ReqLine.FindFirst then begin
+        if ReqLine.FindFirst() then begin
             ParentActionMessage := ReqLine."Action Message";
             exit(true);
         end;
@@ -858,7 +870,7 @@ codeunit 5530 "Calc. Item Availability"
                     RecRef.SetTable(JobPlngLine);
                     SourceType := DATABASE::"Job Planning Line";
                     JobPlngLine.Get(JobPlngLine."Job No.", JobPlngLine."Job Task No.", JobPlngLine."Line No.");
-                    SourceSubtype := JobPlngLine.Status;
+                    SourceSubtype := JobPlngLine.Status.AsInteger();
                     SourceID := JobPlngLine."Job No.";
                     SourceRefNo := JobPlngLine."Job Contract Entry No.";
                 end;
@@ -921,9 +933,16 @@ codeunit 5530 "Calc. Item Availability"
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
         ReqWkshTemplate: Record "Req. Wksh. Template";
+#if not CLEAN20
+        FeatureManagement: Codeunit "Feature Management Facade";
         DemandForecast: Page "Demand Forecast";
+#endif
+        DemandForecastCard: Page "Demand Forecast Card";
         PlanningWorksheet: Page "Planning Worksheet";
         RecRef: RecordRef;
+#if not CLEAN20
+        NewDemandForcastUILbl: Label 'NewDemandForcastUI', Locked = true;
+#endif
         IsHandled: Boolean;
     begin
         if Format(RecordID) = '' then
@@ -1062,8 +1081,17 @@ codeunit 5530 "Calc. Item Availability"
             DATABASE::"Production Forecast Name":
                 begin
                     RecRef.SetTable(ProdForecastName);
-                    DemandForecast.SetProductionForecastName(ProdForecastName.Name);
-                    DemandForecast.RunModal;
+#if not CLEAN20
+                    if FeatureManagement.IsEnabled(NewDemandForcastUILbl) then begin
+#endif
+                        DemandForecastCard.SetRecord(ProdForecastName);
+                        DemandForecastCard.RunModal();
+#if not CLEAN20
+                    end else begin
+                        DemandForecast.SetProductionForecastName(ProdForecastName.Name);
+                        DemandForecast.RunModal();
+                    end;
+#endif
                 end;
             DATABASE::"Requisition Line":
                 begin
@@ -1080,7 +1108,7 @@ codeunit 5530 "Calc. Item Availability"
                       PlanningComponent."Worksheet Line No.");
                     PlanningWorksheet.SetTableView(RequisitionLine);
                     PlanningWorksheet.SetRecord(RequisitionLine);
-                    PlanningWorksheet.Run;
+                    PlanningWorksheet.Run();
                     PlanningWorksheet.OpenPlanningComponent(PlanningComponent);
                 end;
             DATABASE::"Assembly Header":

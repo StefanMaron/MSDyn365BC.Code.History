@@ -131,7 +131,7 @@ page 1216 "Data Exch Col Def Part"
     begin
         DataExchLineDef.Get("Data Exch. Def Code", "Data Exch. Line Def Code");
         GetFileStructure.Initialize(DataExchLineDef);
-        GetFileStructure.RunModal;
+        GetFileStructure.RunModal();
     end;
 }
 

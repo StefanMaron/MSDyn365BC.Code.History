@@ -29,7 +29,7 @@ page 481 "Dimension Set ID Filter"
                     begin
                         if not Dimension.Get(Code) then begin
                             Dimension.SetFilter(Code, '%1', '@' + Code + '*');
-                            if not Dimension.FindFirst then
+                            if not Dimension.FindFirst() then
                                 Dimension.Get(Code);
                             Code := Dimension.Code;
                         end;
@@ -121,7 +121,7 @@ page 481 "Dimension Set ID Filter"
     begin
         TempDimensionSetIDFilterLine.SetRange(Code, '');
         TempDimensionSetIDFilterLine.SetRange("Line No.", 1);
-        if TempDimensionSetIDFilterLine.FindSet then
+        if TempDimensionSetIDFilterLine.FindSet() then
             repeat
                 Code := TempDimensionSetIDFilterLine."Dimension Code";
                 Insert;
@@ -143,7 +143,7 @@ page 481 "Dimension Set ID Filter"
     begin
         DimSetIDFilterPage.SetTempDimensionSetIDFilterLine(TempDimensionSetIDFilterLine);
         DimSetIDFilterPage.Editable(true);
-        DimSetIDFilterPage.RunModal;
+        DimSetIDFilterPage.RunModal();
         DimSetIDFilterPage.GetTempDimensionSetIDFilterLine(TempDimensionSetIDFilterLine);
         TempDimensionSetIDFilterLine.Reset();
         if not TempDimensionSetIDFilterLine.IsEmpty() then begin
@@ -161,7 +161,7 @@ page 481 "Dimension Set ID Filter"
         TempDimensionSetIDFilterLine.Reset();
         TempDimensionSetIDFilterLine.SetRange(Code, '');
         TempDimensionSetIDFilterLine.SetRange("Line No.", 1);
-        if TempDimensionSetIDFilterLine.FindSet then
+        if TempDimensionSetIDFilterLine.FindSet() then
             repeat
                 DimensionMgt.GetDimSetIDsForFilter(TempDimensionSetIDFilterLine."Dimension Code",
                   TempDimensionSetIDFilterLine.GetDimensionValueFilter(
@@ -184,7 +184,7 @@ page 481 "Dimension Set ID Filter"
         TempDimensionSetIDFilterLine.Reset();
         TempDimensionSetIDFilterLine.SetRange(Code, '');
         TempDimensionSetIDFilterLine.SetRange("Line No.", 1);
-        if TempDimensionSetIDFilterLine.FindSet then begin
+        if TempDimensionSetIDFilterLine.FindSet() then begin
             MessageTxt := StrSubstNo('%1 %2: %3', NotificationMsg, TempDimensionSetIDFilterLine."Dimension Code",
                 TempDimensionSetIDFilterLine.GetDimensionValueFilter('', TempDimensionSetIDFilterLine."Dimension Code"));
             if TempDimensionSetIDFilterLine.Next <> 0 then

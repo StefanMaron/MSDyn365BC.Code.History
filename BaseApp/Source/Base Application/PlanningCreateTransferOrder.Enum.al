@@ -1,0 +1,10 @@
+enum 5527 "Planning Create Transfer Order"
+{
+    Extensible = false;
+    AssignmentCompatibility = true;
+
+    value(0; " ") { Caption = ' '; }
+    value(1; "Make Trans. Orders") { Caption = 'Make Trans. Orders'; }
+    value(2; "Make Trans. Order & Print") { Caption = 'Make Trans. Order & Print'; }
+    value(3; "Copy to Req. Wksh") { Caption = 'Copy to Req. Wksh'; }
+}

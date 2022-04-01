@@ -22,10 +22,10 @@ codeunit 1328 "Top Customers By Sales Job"
         if Sender."Object ID to Run" <> CODEUNIT::"Top Customers By Sales Job" then
             exit;
 
-        if not LastCustLedgerEntry.FindLast then
+        if not LastCustLedgerEntry.FindLast() then
             exit;
 
-        if TopCustomersBySalesBuffer.FindFirst then
+        if TopCustomersBySalesBuffer.FindFirst() then
             if TopCustomersBySalesBuffer.LastCustLedgerEntryNo = LastCustLedgerEntry."Entry No." then
                 exit;
 
@@ -50,7 +50,7 @@ codeunit 1328 "Top Customers By Sales Job"
         if ChartManagement.TopCustomerListUpdatedRecently(LastCustomerLedgerEntryNo) then
             exit;
 
-        if not LastCustLedgerEntry.FindLast then
+        if not LastCustLedgerEntry.FindLast() then
             exit;
 
         if LastCustLedgerEntry."Entry No." = LastCustomerLedgerEntryNo then
@@ -74,7 +74,7 @@ codeunit 1328 "Top Customers By Sales Job"
               CustomerCounter, '', AllOtherCustomersTxt, OtherCustomersSalesLCY, LastCustLedgerEntry."Entry No.", DTUpdated);
         end;
 
-        if TempTopCustomersBySalesBuffer.FindSet then begin
+        if TempTopCustomersBySalesBuffer.FindSet() then begin
             TopCustomersBySalesBuffer.LockTable();
             TopCustomersBySalesBuffer.DeleteAll();
             repeat

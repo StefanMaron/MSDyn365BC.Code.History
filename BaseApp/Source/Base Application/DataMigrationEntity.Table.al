@@ -16,7 +16,7 @@ table 1801 "Data Migration Entity"
             begin
                 AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
                 AllObjWithCaption.SetRange("Object ID", "Table ID");
-                if AllObjWithCaption.FindFirst then
+                if AllObjWithCaption.FindFirst() then
                     "Table Name" := AllObjWithCaption."Object Caption";
             end;
         }

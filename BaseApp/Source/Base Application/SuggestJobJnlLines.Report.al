@@ -87,7 +87,7 @@ report 952 "Suggest Job Jnl. Lines"
         DateFilter := TimeSheetMgt.GetDateFilter(StartingDate, EndingDate);
         FillTimeSheetLineBuffer;
 
-        if TempTimeSheetLine.FindSet then begin
+        if TempTimeSheetLine.FindSet() then begin
             JobJnlLine.LockTable();
             JobJnlTemplate.Get(JobJnlLine."Journal Template Name");
             JobJnlBatch.Get(JobJnlLine."Journal Template Name", JobJnlLine."Journal Batch Name");
@@ -98,7 +98,7 @@ report 952 "Suggest Job Jnl. Lines"
 
             JobJnlLine.SetRange("Journal Template Name", JobJnlLine."Journal Template Name");
             JobJnlLine.SetRange("Journal Batch Name", JobJnlLine."Journal Batch Name");
-            if JobJnlLine.FindLast then;
+            if JobJnlLine.FindLast() then;
             LineNo := JobJnlLine."Line No.";
 
             repeat
@@ -109,7 +109,7 @@ report 952 "Suggest Job Jnl. Lines"
                     TimeSheetDetail.SetFilter(Date, DateFilter);
                 TimeSheetDetail.SetFilter(Quantity, '<>0');
                 TimeSheetDetail.SetRange(Posted, false);
-                if TimeSheetDetail.FindSet then
+                if TimeSheetDetail.FindSet() then
                     repeat
                         QtyToPost := TimeSheetDetail.GetMaxQtyToPost;
                         if QtyToPost <> 0 then begin
@@ -187,7 +187,7 @@ report 952 "Suggest Job Jnl. Lines"
             TimeSheetHeader.SetFilter("Ending Date", '%1..', TimeSheetHeader.GetRangeMin("Ending Date"));
         end;
 
-        if TimeSheetHeader.FindSet then
+        if TimeSheetHeader.FindSet() then
             repeat
                 TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
                 TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
@@ -197,7 +197,7 @@ report 952 "Suggest Job Jnl. Lines"
                 if JobTaskNoFilter <> '' then
                     TimeSheetLine.SetFilter("Job Task No.", JobTaskNoFilter);
                 TimeSheetLine.SetRange(Posted, false);
-                if TimeSheetLine.FindSet then
+                if TimeSheetLine.FindSet() then
                     repeat
                         TempTimeSheetLine := TimeSheetLine;
                         OnBeforeInsertTempTimeSheetLine(JobJnlLine, TimeSheetHeader, TempTimeSheetLine, SkipLine);

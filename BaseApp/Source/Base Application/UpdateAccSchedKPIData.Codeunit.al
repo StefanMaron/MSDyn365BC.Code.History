@@ -64,12 +64,12 @@ codeunit 197 "Update Acc. Sched. KPI Data"
 
         AccSchedKPIBuffer.DeleteAll();
 
-        if not AccSchedKPIWebSrvLine.FindSet then
+        if not AccSchedKPIWebSrvLine.FindSet() then
             exit;
         AccScheduleLine.SetFilter(Totaling, '<>%1', '');
         repeat
             AccScheduleLine.SetRange("Schedule Name", AccSchedKPIWebSrvLine."Acc. Schedule Name");
-            if AccScheduleLine.FindSet then
+            if AccScheduleLine.FindSet() then
                 repeat
                     NoOfActiveAccSchedLines += 1;
                     TempAccScheduleLine := AccScheduleLine;
@@ -120,7 +120,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
     local procedure InsertTempColumn(ColumnType: Enum "Column Layout Type"; EntryType: Enum "Column Layout Entry Type"; LastYear: Boolean)
     begin
         with TempColumnLayout do begin
-            if FindLast then;
+            if FindLast() then;
             Init;
             "Line No." += 10000;
             "Column Type" := ColumnType;

@@ -27,7 +27,7 @@ codeunit 744 "VAT Report Validate"
 
     local procedure InsertErrorLog(ErrorMessage: Text[250])
     begin
-        if TempVATReportErrorLog.FindLast then
+        if TempVATReportErrorLog.FindLast() then
             ErrorID := TempVATReportErrorLog."Entry No." + 1
         else
             ErrorID := 1;

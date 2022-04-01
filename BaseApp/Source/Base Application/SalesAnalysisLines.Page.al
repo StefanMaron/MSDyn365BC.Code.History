@@ -248,7 +248,7 @@ page 7120 "Sales Analysis Lines"
                     begin
                         CurrPage.SetSelectionFilter(AnalysisLine);
                         RenAnalysisLines.Init(AnalysisLine);
-                        RenAnalysisLines.RunModal;
+                        RenAnalysisLines.RunModal();
                     end;
                 }
             }

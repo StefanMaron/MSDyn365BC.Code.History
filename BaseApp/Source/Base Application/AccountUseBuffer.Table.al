@@ -37,7 +37,7 @@ table 63 "Account Use Buffer"
         FieldRef: FieldRef;
         AccNo: Code[20];
     begin
-        if RecRef.FindSet then
+        if RecRef.FindSet() then
             repeat
                 FieldRef := RecRef.Field(AccountFieldNo);
                 AccNo := FieldRef.Value;

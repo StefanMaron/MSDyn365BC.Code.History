@@ -23,13 +23,13 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard: TestPage "Standard Purchase Code Card";
     begin
         // [SCENARIO] Show Type field in OnPrem environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] An OnPrem environment
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [WHEN] Opening a new Standard Purchase Code page
-        StandardPurchaseCodeCard.OpenNew;
+        StandardPurchaseCodeCard.OpenNew();
 
         // [THEN] The Type field is visible and the SaaS type field is not
         Assert.IsTrue(StandardPurchaseCodeCard.StdPurchaseLines.Type.Visible, 'Regular type field should be visible for OnPrem');
@@ -44,12 +44,12 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard: TestPage "Standard Purchase Code Card";
     begin
         // [SCENARIO] Show the SaaS type field in SaaS environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] A SaaS environment
 
         // [WHEN] Opening a new standard purchase code page
-        StandardPurchaseCodeCard.OpenNew;
+        StandardPurchaseCodeCard.OpenNew();
 
         // [THEN] The SaaS type field is visible and the type field is not
         asserterror StandardPurchaseCodeCard.StdPurchaseLines.Type.Activate;
@@ -68,12 +68,12 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard: TestPage "Standard Purchase Code Card";
     begin
         // [SCENARIO] The lookup on SaaS type contains the expected values for Standard Purchase Code and all values can be selected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A standard purchase code
-        StandardPurchaseCodeCard.OpenNew;
+        StandardPurchaseCodeCard.OpenNew();
         StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseCode.Code));
-        StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID;
+        StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID();
         StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency;
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
@@ -98,12 +98,12 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard: TestPage "Standard Purchase Code Card";
     begin
         // [SCENARIO] A partial SaaS type is entered into the type field triggers autocomplete
-        Initialize;
+        Initialize();
 
         // [GIVEN] A standard purchase code
-        StandardPurchaseCodeCard.OpenNew;
+        StandardPurchaseCodeCard.OpenNew();
         StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseCode.Code));
-        StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID;
+        StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID();
         StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency;
 
         // [WHEN] Setting the saas type on the standard Purchase Line to ac
@@ -132,12 +132,12 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard: TestPage "Standard Purchase Code Card";
     begin
         // [SCENARIO] A partial SaaS type is entered into the SaaS type field triggers autocomplete
-        Initialize;
+        Initialize();
 
         // [GIVEN] A standard purchase code
-        StandardPurchaseCodeCard.OpenNew;
+        StandardPurchaseCodeCard.OpenNew();
         StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseCode.Code));
-        StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID;
+        StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID();
         StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency;
 
         // [WHEN] Setting the saas type on the standard Purchase Line to ' '
@@ -160,12 +160,12 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard: TestPage "Standard Purchase Code Card";
     begin
         // [SCENARIO] When invalid values are entered into SaaS type, an Item Subtype is selected
-        Initialize;
+        Initialize();
 
         // [GIVEN] A standard purchase code
-        StandardPurchaseCodeCard.OpenNew;
+        StandardPurchaseCodeCard.OpenNew();
         StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseCode.Code));
-        StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID;
+        StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID();
         StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency;
 
         // [WHEN] Setting the saas type to Fixed Asset on the standard Purchase Line
@@ -174,7 +174,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(Format(StandardPurchaseLine.Type::Item));
 
         // [WHEN] Setting the saas type to a random value on the standard Purchase Line
-        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID);
+        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID());
         // [THEN] The Subtype is set to Item
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(Format(StandardPurchaseLine.Type::Item));
     end;
@@ -191,13 +191,13 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         // [SCENARIO 225925] Stan can create Standard Purchase Code with Type = G/L Account under SaaS
 
         // [GIVEN] SaaS
-        // Called by LibraryApplicationArea.EnableFoundationSetup;
-        Initialize;
+        // Called by LibraryApplicationArea.EnableFoundationSetup();
+        Initialize();
 
         StandardPurchaseCodeValue := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseLine."Standard Purchase Code"));
 
         // [GIVEN] Open "Standard Purchase Code" card and assign "X" to Code
-        StandardPurchaseCodeCard.OpenNew;
+        StandardPurchaseCodeCard.OpenNew();
         StandardPurchaseCodeCard.Code.Value := StandardPurchaseCodeValue;
 
         // [WHEN] Validate Type with "G/L Account" and "No." with new "G/L Account" = "Y"
@@ -215,8 +215,8 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Purch Code Type Lkup Test");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateOrFindCurrency(): Code[10]
@@ -224,7 +224,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         Currency: Record Currency;
         LibraryERM: Codeunit "Library - ERM";
     begin
-        if not Currency.FindFirst then begin
+        if not Currency.FindFirst() then begin
             LibraryERM.CreateCurrency(Currency);
             LibraryERM.CreateRandomExchangeRate(Currency.Code);
         end;

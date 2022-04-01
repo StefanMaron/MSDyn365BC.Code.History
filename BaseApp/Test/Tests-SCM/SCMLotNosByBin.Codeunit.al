@@ -31,7 +31,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         WhseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Create WMS location and tracked item.
         AssignLotNo := true;  // Used in ItemTrackingLinesHandler.
@@ -86,7 +86,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         WhseActivityHeader: Record "Warehouse Activity Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Create WMS location and tracked item.
         AssignLotNo := true;  // Used in ItemTrackingLinesHandler.
@@ -147,7 +147,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         WhseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Create WMS location and tracked item.
         AssignLotNo := true;  // Used in ItemTrackingLinesHandler.
@@ -175,7 +175,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", Location.Code, LibraryRandom.RandIntInRange(2, Item.Inventory));
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WhseShipmentHeader.SetRange("Location Code", Location.Code);
-        WhseShipmentHeader.FindFirst;
+        WhseShipmentHeader.FindFirst();
         LibraryWarehouse.CreatePick(WhseShipmentHeader);
 
         // Update Qty to Handle on Pick. Assign item tracking on Pick.
@@ -222,7 +222,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         SalesHeader: Record "Sales Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Create WMS location and tracked item.
         AssignLotNo := true;  // Used in ItemTrackingLinesHandler.
@@ -302,9 +302,9 @@ codeunit 137165 "SCM Lot Nos By Bin"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Lot Nos By Bin");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Lot Nos By Bin");
@@ -393,10 +393,10 @@ codeunit 137165 "SCM Lot Nos By Bin"
     begin
         BinType.SetRange(Pick, true);
         BinType.SetRange("Put Away", true);
-        BinType.FindFirst;
+        BinType.FindFirst();
         Bin.SetFilter("Location Code", LocationCode);
         Bin.SetFilter("Bin Type Code", BinType.Code);
-        Bin.FindFirst;
+        Bin.FindFirst();
         exit(Bin.Code);
     end;
 
@@ -411,7 +411,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure NoSeriesSetup()
@@ -460,7 +460,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         // Check Whse Activity Line - Query consistency.
 
         FindWarehouseActivityLines(WhseActivityLine, SourceNo, ActivityType);
-        if WhseActivityLine.FindSet then
+        if WhseActivityLine.FindSet() then
             repeat
                 Count := 0;
                 ExpCount := 0;
@@ -488,7 +488,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
             until WhseActivityLine.Next = 0;
 
         // Check Query - Whse Activity Line consistency.
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
         LotNosByBin.SetRange(Item_No, WhseActivityLine."Item No.");
         LotNosByBin.SetRange(Variant_Code, WhseActivityLine."Variant Code");
         LotNosByBin.SetRange(Location_Code, WhseActivityLine."Location Code");

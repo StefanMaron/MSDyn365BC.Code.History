@@ -47,7 +47,7 @@ codeunit 135500 "Item Entity E2E Test"
     begin
         // [SCENARIO 184721] Create an item through a POST method and check if it was created
         // [GIVEN] a JSON text with an Item only with a ItemID property
-        Initialize;
+        Initialize();
         ItemJSON := CreateMinimalItemJSON(ItemID);
 
         // [WHEN] we POST the JSON to the web service
@@ -71,7 +71,7 @@ codeunit 135500 "Item Entity E2E Test"
     begin
         // [SCENARIO 218727] Cannot create an item when inventory is > 0
         // [GIVEN] a JSON text with an Item with a ItemID property and inventory amount
-        Initialize;
+        Initialize();
 
         ItemJSON := CreateMinimalItemJSON(ItemID);
         AddItemInventoryAmountJSON(ItemJSON);
@@ -94,7 +94,7 @@ codeunit 135500 "Item Entity E2E Test"
         ResponseText: Text;
         ItemCategoryCode: Text;
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItemCategory(ItemCategory);
 
@@ -125,7 +125,7 @@ codeunit 135500 "Item Entity E2E Test"
         ResponseText: Text;
         ItemCategoryCode: Text;
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItemCategory(ItemCategory);
 
@@ -160,7 +160,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [FEATURE] [Complex Type]
         // [SCENARIO 184721] Create an item with a complex type through a POST method and check if it was created
         // [GIVEN] a unit of measure
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         Commit();
@@ -195,7 +195,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [FEATURE] [Template]
         // [SCENARIO 184721] Create an item with a template through a POST method and check if it was created
         // [GIVEN] a field to bese template on
-        Initialize;
+        Initialize();
 
         ItemJSON := CreateMinimalItemJSON(ItemID);
 
@@ -240,14 +240,14 @@ codeunit 135500 "Item Entity E2E Test"
         // [FEATURE] [Template]
         // [SCENARIO 184721] Create an item with a template through a POST method
         // [GIVEN] a field to base template on
-        Initialize;
+        Initialize();
         UnitCost := LibraryRandom.RandIntInRange(1100, 1200);
 
         // [GIVEN] a template selection rules that adds the Unit of Measure if an item has the specific inventory
         CreateTemplateSelectionRulewithUoM(
           DummyItem.FieldNo("Unit Cost"), Format(UnitCost), UnitOfMeasure.Code, ConfigTmplSelectionRules);
 
-        ExpectedUnitOfMeasureCode := LibraryUtility.GenerateGUID;
+        ExpectedUnitOfMeasureCode := LibraryUtility.GenerateGUID();
 
         ItemJSON := CreateMinimalItemJSON(ItemID);
         ItemJSON := LibraryGraphMgt.AddPropertytoJSON(ItemJSON, 'unitCost', UnitCost);
@@ -272,7 +272,7 @@ codeunit 135500 "Item Entity E2E Test"
         Assert.IsTrue(Item.Get(ItemNumber), 'Item was not created.');
         ItemUnitOfMeasure.SetRange("Item No.", Item."No.");
         Assert.AreEqual(1, ItemUnitOfMeasure.Count, 'Only single unit of measure should be found');
-        ItemUnitOfMeasure.FindFirst;
+        ItemUnitOfMeasure.FindFirst();
         Assert.AreEqual(ExpectedUnitOfMeasureCode, ItemUnitOfMeasure.Code, 'Wrong unit of measure was created');
     end;
 
@@ -289,7 +289,7 @@ codeunit 135500 "Item Entity E2E Test"
     begin
         // [SCENARIO 184721] Create items and use a GET method to retrieve them
         // [GIVEN] 2 items in the Item Table
-        Initialize;
+        Initialize();
         ItemID1 := CreateSimpleItem;
         ItemID2 := CreateSimpleItem;
         Commit();
@@ -342,7 +342,7 @@ codeunit 135500 "Item Entity E2E Test"
         CreateSampleTemplate(DATABASE::Item, PAGE::"Item Entity");
 
         ConfigTmplSelectionRules.SetRange("Template Code", SampleTempCodeTxt);
-        if ConfigTmplSelectionRules.FindFirst then begin
+        if ConfigTmplSelectionRules.FindFirst() then begin
             ConfigTmplSelectionRules."Selection Criteria".CreateOutStream(OutStream);
             OutStream.WriteText(ConditionTxt);
             ConfigTmplSelectionRules.Modify();
@@ -393,7 +393,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemCategoryCode: Text;
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
@@ -432,7 +432,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [FEATURE] [Complex Type]
         // [SCENARIO 184721] Create items with complex type and use a GET method to retrieve them
         // [GIVEN] a Unit of Measure
-        Initialize;
+        Initialize();
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
 
         // [GIVEN] 2 items with the Unit of Measure as property
@@ -467,7 +467,7 @@ codeunit 135500 "Item Entity E2E Test"
     begin
         // [SCENARIO 184721] Create an item, use a PATCH method to change it and then verify the changes
         // [GIVEN] an item in the Item Table
-        Initialize;
+        Initialize();
         ItemID := CreateSimpleItem;
         Commit();
 
@@ -479,7 +479,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] the item's unique GUID
         Item.Reset();
         Item.SetFilter("No.", ItemID);
-        Item.FindFirst;
+        Item.FindFirst();
         ItemGUID := Item.SystemId;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
@@ -509,7 +509,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [SCENARIO 184721] Create an item witha Unit of Measure, use a PATCH method to change it and then verify the changes
 
         // [GIVEN] a Unit of Measure
-        Initialize;
+        Initialize();
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
 
         // [GIVEN] an item in the Item Table with the Unit of Measure
@@ -519,7 +519,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] the item's unique GUID
         Item.Reset();
         Item.SetFilter("No.", ItemID);
-        Item.FindFirst;
+        Item.FindFirst();
         ItemGUID := Item.SystemId;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
@@ -552,11 +552,11 @@ codeunit 135500 "Item Entity E2E Test"
         // [SCENARIO 184721] Create an item with ItemCategory, use a PATCH method to empty it's ItemCategory and then verify the changes
 
         // [GIVEN] an Item in the table with a ItemCategory
-        Initialize;
+        Initialize();
         ItemID := CreateMinimalItem;
         Item.Reset();
         Item.SetFilter("No.", ItemID);
-        Item.FindFirst;
+        Item.FindFirst();
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
         Item.Modify(true);
@@ -565,7 +565,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] the item's unique GUID
         Item.Reset();
         Item.SetFilter("No.", ItemID);
-        Item.FindFirst;
+        Item.FindFirst();
         ItemGUID := Item.SystemId;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
@@ -598,13 +598,13 @@ codeunit 135500 "Item Entity E2E Test"
         // [SCENARIO 184721] Create an item with ItemCategory, use a PATCH method to empty it's ItemCategory and then verify the changes
 
         // [GIVEN] an Item in the table with a ItemCategory
-        Initialize;
+        Initialize();
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
 
         ItemID := CreateMinimalItem;
         Item.Reset();
         Item.SetFilter("No.", ItemID);
-        Item.FindFirst;
+        Item.FindFirst();
         Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
         Item.Modify(true);
         ItemGUID := Item.SystemId;
@@ -637,14 +637,14 @@ codeunit 135500 "Item Entity E2E Test"
     begin
         // [SCENARIO 184721] Create an item, use a DELETE method to remove it and then verify the deletion
         // [GIVEN] an item in the table
-        Initialize;
+        Initialize();
         ItemID := CreateSimpleItem;
         Commit();
 
         // [GIVEN] the item's unique GUID
         Item.Reset();
         Item.SetFilter("No.", ItemID);
-        Item.FindFirst;
+        Item.FindFirst();
         ItemGUID := Item.SystemId;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
@@ -668,7 +668,7 @@ codeunit 135500 "Item Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 233459] Create an item through a POST method and check if the Item Unit Of Measure is created
-        Initialize;
+        Initialize();
 
         // [GIVEN] a unit of measure
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -701,7 +701,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemId: Text;
     begin
         // [SCENARIO 233459] Update an item through a PATCH method and check if the Item Unit Of Measure is created
-        Initialize;
+        Initialize();
 
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
@@ -736,7 +736,7 @@ codeunit 135500 "Item Entity E2E Test"
         ResponseText: Text;
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
@@ -768,7 +768,7 @@ codeunit 135500 "Item Entity E2E Test"
         ResponseText: Text;
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
@@ -801,7 +801,7 @@ codeunit 135500 "Item Entity E2E Test"
         UoMJSON: Text;
     begin
         // [SCENARIO 233459] Create an item through a POST method and check if the Item Unit Of Measure is created
-        Initialize;
+        Initialize();
 
         // [GIVEN] a unit of measure
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -836,7 +836,7 @@ codeunit 135500 "Item Entity E2E Test"
         UoMJSON: Text;
     begin
         // [SCENARIO 233459] Update an item through a PATCH method and check if the Item Unit Of Measure is created
-        Initialize;
+        Initialize();
 
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
@@ -874,7 +874,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [FEATURE] [Complex Type]
         // [SCENARIO] Create an item through a POST method and check if the Unit Of Measure Code and the Unit Of Measure Id Sync correctly
         // [GIVEN] a unit of measure
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         Commit();
@@ -922,7 +922,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [FEATURE] [Complex Type]
         // [SCENARIO] Create an item through a POST method with unit of measure and id and check if the Sync throws the errors
         // [GIVEN] a unit of measure
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[2]);
@@ -971,7 +971,7 @@ codeunit 135500 "Item Entity E2E Test"
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
         ConfigTemplateHeader.SetRange(Code, SampleTempCodeTxt);
-        if ConfigTemplateHeader.FindFirst then
+        if ConfigTemplateHeader.FindFirst() then
             ConfigTemplateHeader.Delete();
 
         ConfigTemplateHeader.Init();
@@ -1075,7 +1075,7 @@ codeunit 135500 "Item Entity E2E Test"
         Item: Record Item;
     begin
         Item.SetFilter("No.", StrSubstNo('%1*', ItemKeyPrefixTxt));
-        if Item.FindLast then
+        if Item.FindLast() then
             exit(IncStr(Item."No."));
 
         exit(CopyStr(ItemKeyPrefixTxt + '00001', 1, 20));

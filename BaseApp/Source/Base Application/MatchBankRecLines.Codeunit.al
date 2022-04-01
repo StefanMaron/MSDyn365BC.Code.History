@@ -70,7 +70,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         PaymentMatchingDetails: Record "Payment Matching Details";
         BankAccEntrySetReconNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
     begin
-        if SelectedBankAccReconciliationLine.FindFirst then begin
+        if SelectedBankAccReconciliationLine.FindFirst() then begin
             BankAccReconciliationLine.Get(
               SelectedBankAccReconciliationLine."Statement Type",
               SelectedBankAccReconciliationLine."Bank Account No.",
@@ -79,7 +79,7 @@ codeunit 1252 "Match Bank Rec. Lines"
             if BankAccReconciliationLine.Type <> BankAccReconciliationLine.Type::"Bank Account Ledger Entry" then
                 exit;
 
-            if SelectedBankAccountLedgerEntry.FindSet then begin
+            if SelectedBankAccountLedgerEntry.FindSet() then begin
                 repeat
                     BankAccountLedgerEntry.Get(SelectedBankAccountLedgerEntry."Entry No.");
                     BankAccEntrySetReconNo.RemoveApplication(BankAccountLedgerEntry);
@@ -90,7 +90,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         end;
     end;
 
-    local procedure RemoveMatchesFromRecLines(var SelectedBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    procedure RemoveMatchesFromRecLines(var SelectedBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -258,7 +258,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         ShowMatchSummary(BankAccReconciliation);
     end;
 
-    local procedure ListOfMatchedFields(AmountMatched: Boolean; DocumentNoMatched: Boolean; ExternalDocumentNoMatched: Boolean; TransactionDateMatched: Boolean; RelatedPartyMatched: Boolean; DescriptionMatched: Boolean): Text
+    procedure ListOfMatchedFields(AmountMatched: Boolean; DocumentNoMatched: Boolean; ExternalDocumentNoMatched: Boolean; TransactionDateMatched: Boolean; RelatedPartyMatched: Boolean; DescriptionMatched: Boolean): Text
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         ListOfFields: Text;
@@ -322,7 +322,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         exit(Score);
     end;
 
-    local procedure SaveOneToOneMatching(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; BankAccountNo: Code[20]; StatementNo: Code[20])
+    procedure SaveOneToOneMatching(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; BankAccountNo: Code[20]; StatementNo: Code[20])
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
@@ -333,7 +333,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         TempBankStatementMatchingBuffer.SetCurrentKey(Quality);
         TempBankStatementMatchingBuffer.Ascending(false);
 
-        if TempBankStatementMatchingBuffer.FindSet then
+        if TempBankStatementMatchingBuffer.FindSet() then
             repeat
                 BankAccountLedgerEntry.Get(TempBankStatementMatchingBuffer."Entry No.");
                 BankAccReconciliationLine.Get(
@@ -345,7 +345,7 @@ codeunit 1252 "Match Bank Rec. Lines"
             until TempBankStatementMatchingBuffer.Next() = 0;
     end;
 
-    local procedure ShowMatchSummary(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    procedure ShowMatchSummary(BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         FinalText: Text;
@@ -368,7 +368,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         Message(FinalText);
     end;
 
-    local procedure GetDescriptionMatchScore(BankRecDescription: Text; BankEntryDescription: Text; DocumentNo: Code[20]; ExternalDocumentNo: Code[35]): Integer
+    procedure GetDescriptionMatchScore(BankRecDescription: Text; BankEntryDescription: Text; DocumentNo: Code[20]; ExternalDocumentNo: Code[35]): Integer
     var
         RecordMatchMgt: Codeunit "Record Match Mgt.";
         Nearness: Integer;
@@ -411,12 +411,12 @@ codeunit 1252 "Match Bank Rec. Lines"
         NormalizingFactor := NewNormalizingFactor;
     end;
 
-    local procedure GetMatchLengthTreshold(): Integer
+    procedure GetMatchLengthTreshold(): Integer
     begin
         exit(MatchLengthTreshold);
     end;
 
-    local procedure GetNormalizingFactor(): Integer
+    procedure GetNormalizingFactor(): Integer
     begin
         exit(NormalizingFactor);
     end;

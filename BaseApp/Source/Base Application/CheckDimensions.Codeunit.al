@@ -64,7 +64,7 @@ codeunit 481 "Check Dimensions"
         with TempPurchLine do begin
             Reset;
             SetFilter(Type, '<>%1', Type::" ");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if (PurchHeader.Receive and ("Qty. to Receive" <> 0)) or
                        (PurchHeader.Invoice and ("Qty. to Invoice" <> 0)) or
@@ -113,7 +113,7 @@ codeunit 481 "Check Dimensions"
         NumberArr: array[10] of Code[20];
     begin
         with PurchLine do begin
-            TableIDArr[1] := DimMgt.TypeToTableID3(Type.AsInteger());
+            TableIDArr[1] := DimMgt.PurchLineTypeToTableID(Type);
             NumberArr[1] := "No.";
             TableIDArr[2] := DATABASE::Job;
             NumberArr[2] := "Job No.";
@@ -149,7 +149,7 @@ codeunit 481 "Check Dimensions"
             SetRange("Document No.", PurchHeader."No.");
             SetFilter(Type, '<>%1', Type::" ");
             SetFilter("Prepayment %", '<>0');
-            if FindSet then
+            if FindSet() then
                 repeat
                     CheckPurchDimCombLine(PurchLine);
                     CheckPurchDimValuePostingLine(PurchLine);
@@ -208,7 +208,7 @@ codeunit 481 "Check Dimensions"
         with TempSalesLine do begin
             Reset;
             SetFilter(Type, '<>%1', Type::" ");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if (SalesHeader.Invoice and ("Qty. to Invoice" <> 0)) or
                        (SalesHeader.Ship and ("Qty. to Ship" <> 0)) or
@@ -256,7 +256,7 @@ codeunit 481 "Check Dimensions"
         NumberArr: array[10] of Code[20];
     begin
         with SalesLine do begin
-            TableIDArr[1] := DimMgt.TypeToTableID3(Type.AsInteger());
+            TableIDArr[1] := DimMgt.SalesLineTypeToTableID(Type);
             NumberArr[1] := "No.";
             TableIDArr[2] := DATABASE::Job;
             NumberArr[2] := "Job No.";
@@ -290,7 +290,7 @@ codeunit 481 "Check Dimensions"
             SetRange("Document No.", SalesHeader."No.");
             SetFilter(Type, '<>%1', Type::" ");
             SetFilter("Prepayment %", '<>0');
-            if FindSet then
+            if FindSet() then
                 repeat
                     CheckSalesDimCombLine(SalesLine);
                     CheckSalesDimValuePostingLine(SalesLine);
@@ -323,7 +323,7 @@ codeunit 481 "Check Dimensions"
                     if RecRef.Find then
                         RecRef.SetTable(DimensionCombination);
                     DimensionCombinations.SetSelectedRecord(DimensionCombination);
-                    DimensionCombinations.Run;
+                    DimensionCombinations.Run();
                 end;
             DATABASE::"Dimension Value":
                 begin
@@ -338,7 +338,7 @@ codeunit 481 "Check Dimensions"
                     if RecRef.Find then
                         RecRef.SetTable(DimensionValueCombination);
                     MyDimValueCombinations.SetSelectedDimValueComb(DimensionValueCombination);
-                    MyDimValueCombinations.Run;
+                    MyDimValueCombinations.Run();
                 end;
             DATABASE::"Default Dimension":
                 begin

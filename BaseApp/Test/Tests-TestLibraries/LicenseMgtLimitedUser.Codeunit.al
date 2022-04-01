@@ -51,7 +51,7 @@ codeunit 130030 "License Mgt. Limited User"
 
         User.SetRange("User Name", UserId);
         User.SetRange("License Type", User."License Type"::"Full User");
-        User.FindLast;
+        User.FindLast();
         User.Validate("License Type", User."License Type"::"Limited User");
         User.Modify(true);
 

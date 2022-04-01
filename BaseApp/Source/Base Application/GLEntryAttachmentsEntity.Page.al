@@ -95,7 +95,7 @@ page 5512 "G/L Entry Attachments Entity"
 
             GraphMgtAttachmentBuffer.LoadAttachments(Rec, GLEntryNoFilter, AttachmentIdFilter);
             SetView(FilterView);
-            AttachmentsFound := FindFirst;
+            AttachmentsFound := FindFirst();
             if not AttachmentsFound then
                 exit(false);
             AttachmentsLoaded := true;

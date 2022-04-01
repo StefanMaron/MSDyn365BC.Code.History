@@ -87,7 +87,7 @@ codeunit 73 "Purch.-Explode BOM"
             if ToPurchLine.Find('>') then
                 if ToPurchLine."Attached to Line No." = "Line No." then begin
                     ToPurchLine.SetRange("Attached to Line No.", "Line No.");
-                    ToPurchLine.FindLast;
+                    ToPurchLine.FindLast();
                     ToPurchLine.SetRange("Attached to Line No.");
                     NextLineNo := ToPurchLine."Line No.";
                     InsertLinesBetween := ToPurchLine.Find('>');

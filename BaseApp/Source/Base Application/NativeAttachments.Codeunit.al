@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 2820 "Native - Attachments"
 {
     ObsoleteState = Pending;
@@ -64,7 +65,7 @@ codeunit 2820 "Native - Attachments"
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Native - Attachments");
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Ready);
         JobQueueEntry.SetFilter("Earliest Start Date/Time", '%1..%2', CleanupStartTime, JobStartTime);
-        if JobQueueEntry.FindFirst then
+        if JobQueueEntry.FindFirst() then
             exit;
 
         JobQueueEntry.LockTable();
@@ -110,4 +111,4 @@ codeunit 2820 "Native - Attachments"
         ScheduleCleanupJob;
     end;
 }
-
+#endif

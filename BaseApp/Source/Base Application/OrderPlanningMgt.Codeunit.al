@@ -65,7 +65,7 @@ codeunit 5522 "Order Planning Mgt."
         RequisitionLine.Reset();
         RequisitionLine.SetRange("Worksheet Template Name", '');
         RequisitionLine.SetRange("Journal Batch Name", RequisitionLine.GetJnlBatchNameForOrderPlanning());
-        if RequisitionLine.FindLast then;
+        if RequisitionLine.FindLast() then;
     end;
 
     local procedure TransformUnplannedDemandToRequisitionLines(var RequisitionLine: Record "Requisition Line")
@@ -101,7 +101,7 @@ codeunit 5522 "Order Planning Mgt."
             RequisitionLine.Reset();
             RequisitionLine.SetCurrentKey("User ID", "Worksheet Template Name");
             RequisitionLine.SetRange("User ID", UserId);
-            if not RequisitionLine.FindFirst then
+            if not RequisitionLine.FindFirst() then
                 Error(Text004);
 
             OnAfterTransformUnplannedDemandToRequisitionLines(RequisitionLine);
@@ -276,7 +276,8 @@ codeunit 5522 "Order Planning Mgt."
         Evaluate(ODF, '<0D>');
 
         OnCalcATPQtyOnBeforeCalcQtyAvailabletoPromise(Item);
-        exit(AvailableToPromise.QtyAvailabletoPromise(Item, GrossRequirement, ScheduledRcpt, DemandDate, 0, ODF))
+        exit(
+            AvailableToPromise.CalcQtyAvailableToPromise(Item, GrossRequirement, ScheduledRcpt, DemandDate, "Analysis Period Type"::Day, ODF))
     end;
 
     procedure CalcATPEarliestDate(ItemNo: Text[250]; VariantFilter: Text[250]; LocationFilter: Text[250]; DemandDate: Date; Quantity: Decimal): Date
@@ -297,7 +298,7 @@ codeunit 5522 "Order Planning Mgt."
         Item.SetRange("Location Filter", LocationFilter);
         Item.SetRange("Drop Shipment Filter", false);
         exit(
-          AvailableToPromise.EarliestAvailabilityDate(
+          AvailableToPromise.CalcEarliestAvailabilityDate(
             Item, Quantity, DemandDate, Quantity, DemandDate, AvailableQty,
             CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc."));
     end;
@@ -360,7 +361,7 @@ codeunit 5522 "Order Planning Mgt."
         TempItemSub.Reset();
         TempItemSub.SetRange("Variant Code", ReqLine."Variant Code");
         TempItemSub.SetRange("Location Filter", ReqLine."Location Code");
-        if TempItemSub.FindFirst then;
+        if TempItemSub.FindFirst() then;
         if PAGE.RunModal(PAGE::"Item Substitution Entries", TempItemSub) = ACTION::LookupOK then begin
             // Update sourceline
             with ReqLine do

@@ -302,12 +302,12 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         FileName: Text;
     begin
         RecRef.GetTable(GenJournalLine);
-        RecRef.FindLast;
+        RecRef.FindLast();
 
         IncomingDocumentAttachment.SetFiltersFromMainRecord(RecRef, IncomingDocumentAttachment);
 
         FileName := LibraryPlainTextFile.Create('txt');
-        LibraryPlainTextFile.AddLine(LibraryUtility.GenerateGUID);
+        LibraryPlainTextFile.AddLine(LibraryUtility.GenerateGUID());
         LibraryPlainTextFile.Close();
 
         FileManagement.BLOBImportFromServerFile(TempBlob, FileName);

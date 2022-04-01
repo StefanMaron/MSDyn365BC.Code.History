@@ -3,6 +3,7 @@ page 9633 "Page Inspection Extensions"
     Caption = 'Page Inspection Extensions';
     PageType = ListPart;
     SourceTable = "NAV App Installed App";
+    SourceTableView = WHERE(Name = FILTER(<> '_Exclude_*'));
 #if not CLEAN19
     ObsoleteState = Pending;
     ObsoleteReason = 'This page is used to generate system metadata and will be marked as non-extensible. You can keep using this page but remove any page extension referencing it.';
@@ -244,6 +245,7 @@ page 9633 "Page Inspection Extensions"
             Clear(TempGuid);
             SetFilter("Package ID", '%1', TempGuid);
         end;
+
         CurrPage.Update(false);
     end;
 

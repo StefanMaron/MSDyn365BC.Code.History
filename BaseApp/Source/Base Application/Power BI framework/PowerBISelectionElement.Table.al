@@ -5,6 +5,7 @@ table 6313 "Power BI Selection Element"
 {
     Caption = 'Power BI Selection Element';
     TableType = Temporary;
+    ReplicateData = false;
 
     fields
     {

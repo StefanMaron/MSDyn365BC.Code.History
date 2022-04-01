@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 2801 "Native - EDM Types"
 {
     ObsoleteState = Pending;
@@ -86,7 +87,7 @@ codeunit 2801 "Native - EDM Types"
         SalesLineJSON: Text;
         SalesLinesArrayJSON: Text;
     begin
-        if TempSalesInvoiceLineAggregate.FindSet then
+        if TempSalesInvoiceLineAggregate.FindSet() then
             repeat
                 SalesLineJSON := SalesLineToJSON(TempSalesInvoiceLineAggregate);
 
@@ -272,7 +273,7 @@ codeunit 2801 "Native - EDM Types"
 
         O365CouponClaimDocLink.SetRange("Document Type", DocumentType);
         O365CouponClaimDocLink.SetRange("Document No.", DocumentNo);
-        if O365CouponClaimDocLink.FindSet then
+        if O365CouponClaimDocLink.FindSet() then
             repeat
                 O365CouponClaim.Get(O365CouponClaimDocLink."Claim ID", O365CouponClaimDocLink."Graph Contact ID");
                 O365CouponClaimDocLinkRecordRef.GetTable(O365CouponClaim);
@@ -295,7 +296,7 @@ codeunit 2801 "Native - EDM Types"
         JSONManagement.GetJsonArray(JsonArray);
 
         O365PostedCouponClaim.SetRange("Sales Invoice No.", PostedInvoiceNo);
-        if O365PostedCouponClaim.FindSet then
+        if O365PostedCouponClaim.FindSet() then
             repeat
                 O365PostedCouponClaimRecordRef.GetTable(O365PostedCouponClaim);
                 CouponToJSON(O365PostedCouponClaimRecordRef, JsonObject);
@@ -371,7 +372,7 @@ codeunit 2801 "Native - EDM Types"
         JSONManagement.InitializeEmptyCollection;
         JSONManagement.GetJsonArray(JsonArray);
 
-        if TempAttachmentEntityBuffer.FindSet then
+        if TempAttachmentEntityBuffer.FindSet() then
             repeat
                 AttachmentToJSON(TempAttachmentEntityBuffer, JsonObject);
                 JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
@@ -515,7 +516,7 @@ codeunit 2801 "Native - EDM Types"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);
@@ -590,4 +591,4 @@ codeunit 2801 "Native - EDM Types"
         exit(not (NonTaxableTaxGroup.SystemId = TaxGroupID));
     end;
 }
-
+#endif

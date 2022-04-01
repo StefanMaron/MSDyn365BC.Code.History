@@ -52,7 +52,7 @@ report 1495 "Delete Check Ledger Entries"
                 SourceCodeSetup.TestField("Compress Check Ledger");
 
                 CheckLedgEntry2.LockTable();
-                if CheckLedgEntry3.FindLast then;
+                if CheckLedgEntry3.FindLast() then;
                 DateComprReg.LockTable();
 
                 SetRange("Check Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
@@ -153,7 +153,7 @@ report 1495 "Delete Check Ledger Entries"
     var
         NextRegNo: Integer;
     begin
-        if DateComprReg.FindLast then
+        if DateComprReg.FindLast() then
             NextRegNo := DateComprReg."No." + 1;
 
         DateComprReg.InitRegister(
@@ -178,7 +178,7 @@ report 1495 "Delete Check Ledger Entries"
         Commit();
 
         CheckLedgEntry2.LockTable();
-        if CheckLedgEntry3.FindLast then;
+        if CheckLedgEntry3.FindLast() then;
         DateComprReg.LockTable();
 
         InitRegister;

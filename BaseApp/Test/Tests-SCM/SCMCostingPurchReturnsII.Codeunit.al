@@ -71,7 +71,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         BaseExactCostReversingMand: Boolean;
     begin
         // 1. Setup: Create required Purchase Setup.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, false);
         CreatePurchaseReturnSetup(PurchaseHeader, TempPurchaseLine, CostingMethod);
 
@@ -104,17 +104,16 @@ codeunit 137032 "SCM Costing Purch Returns II"
         PurchaseHeader: Record "Purchase Header";
         TempPurchaseLine: Record "Purchase Line" temporary;
         TempPurchaseLine2: Record "Purchase Line" temporary;
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         BaseExactCostReversingMand: Boolean;
     begin
         // 1. Setup: Create required Purchase setup.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, false);
         CreatePurchaseReturnSetup(PurchaseHeader, TempPurchaseLine, Item."Costing Method"::Average);
 
         // 2. Exercise: Create Purchase Return Order using Copy Document of Posted Purchase shipment.
         PurchaseCopyDocument(
-          PurchaseHeader, TempPurchaseLine2, PurchaseHeader."Document Type"::"Return Order", DocumentType::"Posted Shipment");
+          PurchaseHeader, TempPurchaseLine2, PurchaseHeader."Document Type"::"Return Order", "Purchase Document Type From"::"Posted Receipt");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Run Adjust Cost Batch job.
@@ -136,12 +135,11 @@ codeunit 137032 "SCM Costing Purch Returns II"
         Vendor: Record Vendor;
         TempPurchaseLine: Record "Purchase Line" temporary;
         TempPurchaseLine2: Record "Purchase Line" temporary;
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         BaseExactCostReversingMand: Boolean;
     begin
         // 1. Setup: Create required Purchase setup.Random Values used are notImportant for Test.
         // Update Apply From Item Entry No.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item."Costing Method"::Average);
         Item.Get(PurchaseLine."No.");
@@ -157,7 +155,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
 
         // 2. Exercise: Create Purchase Invoice using Copy Document of Posted Credit Memo.
         PurchaseCopyDocument(
-          PurchaseHeader, TempPurchaseLine2, PurchaseHeader."Document Type"::Invoice, DocumentType::"Posted Credit Memo");
+          PurchaseHeader, TempPurchaseLine2, PurchaseHeader."Document Type"::Invoice, "Purchase Document Type From"::"Posted Credit Memo");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Run Adjust Cost Batch job.
@@ -180,7 +178,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
     begin
         // Covers TFS_TC_ID 120935.
         // 1. Setup: Create required Purchase setup.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", Item."Costing Method"::FIFO);
 
@@ -207,7 +205,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         BaseExactCostReversingMand: Boolean;
     begin
         // 1. Setup: Create required Purchase setup.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, false);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item."Costing Method"::FIFO);
         CreatePurchaseLines(PurchaseLine, PurchaseHeader, Item."Costing Method"::Average, 1, 0);
@@ -258,7 +256,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         BaseExactCostReversingMand: Boolean;
     begin
         // 1. Setup: Create required Purchase setup.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, false);
         CreatePurchaseReturnSetup(PurchaseHeader, TempPurchaseLine, CostingMethod);
 
@@ -291,7 +289,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         BaseExactCostReversingMand: Boolean;
     begin
         // 1. Setup: Create required Purchase setup.Random Values used are notImportant for Test.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item."Costing Method"::FIFO);
         CreatePurchaseLines(PurchaseLine, PurchaseHeader, Item."Costing Method"::Average, 1, 0);
@@ -335,7 +333,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         BaseExactCostReversingMand: Boolean;
     begin
         // 1. Setup: Create required Purchase setup.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, true);
         CreatePurchaseReturnSetup(PurchaseHeader, TempPurchaseLine, Item."Costing Method"::FIFO);
 
@@ -380,7 +378,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
     begin
         // 1. Setup: Create Purchase Order with two Item Lines.Update Quantity to Ship as ZERO for first Line.
         // Post Partial Purchase Order. Create Item Charge Assignment and apply using Get Receipt Lines.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, false);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
@@ -398,9 +396,9 @@ codeunit 137032 "SCM Costing Purch Returns II"
 
         // 3. Verify: Posted Purchase Order.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         // 4. Tear Down: Set value of 'Ext. Doc. No. Mandatory' to default in Purchase and Payable Setup.
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, BaseExactCostReversingMand);
@@ -420,7 +418,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         // [SCENARIO 375439] When undoing purchase return shipment for standard cost item, variance of original receipt is recognized.
 
         // [GIVEN] "Exact Cost Reversing Mandatory" = TRUE, "Automatic Cost Posting" = TRUE, "Automatic Cost Adjustment" = Always.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, true);
         InventorySetup.Get();
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
@@ -453,7 +451,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         // [SCENARIO 375842] When undoing purchase return shipment for standard cost item, variance of original receipt is recognized.
 
         // [GIVEN] "Exact Cost Reversing Mandatory" = TRUE, "Automatic Cost Posting" = FALSE, "Automatic Cost Adjustment" = Never.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, true);
         InventorySetup.Get();
         UpdateInventorySetup(false, InventorySetup."Automatic Cost Adjustment"::Never);
@@ -489,7 +487,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         // [SCENARIO 375439] When undoing purchase return shipment for standard cost item, variance of original receipt is recognized.
 
         // [GIVEN] "Exact Cost Reversing Mandatory" = FALSE, "Automatic Cost Posting" = TRUE, "Automatic Cost Adjustment" = Always.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, false);
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
@@ -522,7 +520,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         // [SCENARIO 375842] When undoing purchase return shipment for standard cost item, variance of original receipt is recognized.
 
         // [GIVEN] "Exact Cost Reversing Mandatory" = FALSE, "Automatic Cost Posting" = FALSE, "Automatic Cost Adjustment" = Never.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         UpdatePurchasesPayablesSetup(PrevExactCostReversingMand, false);
         UpdateInventorySetup(false, InventorySetup."Automatic Cost Adjustment"::Never);
@@ -552,11 +550,11 @@ codeunit 137032 "SCM Costing Purch Returns II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Purch Returns II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         isInitialized := true;
         Commit();
@@ -593,7 +591,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         ReturnShipmentLine.SetRange("Document No.", DocumentNo);
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
         LibraryPurchase.UndoReturnShipmentLine(ReturnShipmentLine);
 
         exit(PurchaseLine."No.");
@@ -609,7 +607,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Option)
+    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -669,21 +667,17 @@ codeunit 137032 "SCM Costing Purch Returns II"
         end;
     end;
 
-    local procedure PurchaseHeaderCopyPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Option; DocNo: Code[20])
+    local procedure PurchaseHeaderCopyPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type From"; DocNo: Code[20])
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-#if CLEAN17
         CopyPurchaseDocument.SetParameters(DocType, DocNo, true, true);
-#else
-        CopyPurchaseDocument.InitializeRequest(DocType, DocNo, true, true);
-#endif
         CopyPurchaseDocument.UseRequestPage(false);
-        CopyPurchaseDocument.RunModal;
+        CopyPurchaseDocument.RunModal();
     end;
 
-    local procedure PurchaseCopyDocument(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; DocumentType: Enum "Purchase Document Type"; FromDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo")
+    local procedure PurchaseCopyDocument(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; DocumentType: Enum "Purchase Document Type"; FromDocType: Enum "Purchase Document Type From")
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
@@ -692,11 +686,11 @@ codeunit 137032 "SCM Costing Purch Returns II"
     begin
         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Return Order" then begin
             PurchCrMemoHdr.SetRange("Return Order No.", PurchaseHeader."No.");
-            PurchCrMemoHdr.FindFirst;
+            PurchCrMemoHdr.FindFirst();
             DocumentNo := PurchCrMemoHdr."No.";
         end else begin
             PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
-            PurchRcptHeader.FindFirst;
+            PurchRcptHeader.FindFirst();
             DocumentNo := PurchRcptHeader."No.";
         end;
 
@@ -706,7 +700,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         PurchaseHeaderCopyPurchaseDoc(PurchaseHeader, FromDocType, DocumentNo);
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         TransferPurchaseLineToTemp(TempPurchaseLine, PurchaseLine);
         UpdatePurchaseHeader(PurchaseHeader);
     end;
@@ -742,7 +736,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         ItemLedgerEntry.SetRange("Item No.", PurchaseLine."No.");
         ItemLedgerEntry.SetRange(Open, true);
         ItemLedgerEntry.SetRange(Positive, true);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         PurchaseLine.Validate(Quantity, SignFactor * ItemLedgerEntry.Quantity);
         PurchaseLine.Validate("Appl.-to Item Entry", ItemLedgerEntry."Entry No.");
@@ -773,7 +767,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         with PurchRcptLine do begin
             SetRange("Order No.", PurchaseOrderNo);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             ItemChargeAssgntPurch.CreateRcptChargeAssgnt(PurchRcptLine, ItemChargeAssignmentPurch);
         end;
     end;
@@ -785,7 +779,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         with ItemChargeAssignmentPurch do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Assign", QtyToAssign);
             Modify(true);
         end;
@@ -805,7 +799,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -828,7 +822,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", "Document No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             ItemNo := "No.";
             Next;
             Validate("Qty. to Receive", 0);
@@ -853,11 +847,11 @@ codeunit 137032 "SCM Costing Purch Returns II"
         ExpectedPurchaseAmt: Decimal;
     begin
         ItemLedgerEntry.SetRange("Item No.", TempPurchaseLine."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Purchase Amount (Actual)");
 
         TempPurchaseLine2.SetRange(Type, TempPurchaseLine2.Type::"Charge (Item)");
-        TempPurchaseLine2.FindFirst;
+        TempPurchaseLine2.FindFirst();
 
         case TempPurchaseLine2."Document Type" of
             TempPurchaseLine2."Document Type"::Invoice:

@@ -116,7 +116,7 @@ table 99000880 "Order Promising Line"
                         begin
                             JobPlanningLine.SetRange("Job No.", "Source ID");
                             JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
-                            JobPlanningLine.FindFirst;
+                            JobPlanningLine.FindFirst();
                             "Requested Shipment Date" := JobPlanningLine."Planning Date";
                         end;
                 end;
@@ -248,7 +248,7 @@ table 99000880 "Order Promising Line"
     procedure TransferFromJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
     begin
         "Source Type" := "Source Type"::Job;
-        "Source Subtype" := JobPlanningLine.Status;
+        "Source Subtype" := JobPlanningLine.Status.AsInteger();
         "Source ID" := JobPlanningLine."Job No.";
         "Source Line No." := JobPlanningLine."Job Contract Entry No.";
 
@@ -290,7 +290,7 @@ table 99000880 "Order Promising Line"
         AvailableToPromise: Codeunit "Available to Promise";
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
-        PeriodType: Option Day,Week,Month,Quarter,Year;
+        PeriodType: Enum "Analysis Period Type";
         LookaheadDateformula: DateFormula;
         AvailabilityDate: Date;
     begin
@@ -306,7 +306,7 @@ table 99000880 "Order Promising Line"
             Item.SetRange("Location Filter", "Location Code");
             Item.SetRange("Drop Shipment Filter", false);
             exit(
-              AvailableToPromise.QtyAvailabletoPromise(
+              AvailableToPromise.CalcQtyAvailabletoPromise(
                 Item,
                 GrossRequirement,
                 ScheduledReceipt,

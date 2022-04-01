@@ -173,7 +173,7 @@ page 5351 "CRM Sales Quote List"
         Style: Integer;
     begin
         CRMIntegrationRecord.SetRange("CRM ID", QuoteId);
-        if CRMIntegrationRecord.FindFirst then begin
+        if CRMIntegrationRecord.FindFirst() then begin
             if CurrentlyCoupledCRMQuote.QuoteId = QuoteId then
                 Style := 1
             else

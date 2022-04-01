@@ -1,4 +1,4 @@
-﻿codeunit 5053 TAPIManagement
+codeunit 5053 TAPIManagement
 {
 
     trigger OnRun()
@@ -51,7 +51,7 @@
                             OnDialContCustVendBankCaseElse(ContBusRel, TableNo);
                     end;
                     ContBusRel.SetRange("No.", No);
-                    if ContBusRel.FindFirst then
+                    if ContBusRel.FindFirst() then
                         Contact.Get(ContBusRel."Contact No.")
                     else
                         Error(Text001);
@@ -92,7 +92,7 @@
 
             CreateCommMethod(Contact2, TempCommunicationMethod, ContactNo, ContAltAddrCode2);
         end;
-        if TempCommunicationMethod.FindFirst then begin
+        if TempCommunicationMethod.FindFirst() then begin
             if PAGE.RunModal(PAGE::"Contact Through", TempCommunicationMethod) = ACTION::LookupOK then
                 exit(TempCommunicationMethod.Number);
         end else

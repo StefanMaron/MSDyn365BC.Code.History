@@ -219,14 +219,14 @@ page 364 "Select Sending Options"
         else begin
             ElectronicDocumentFormat.SetRange(Code, LastFormat);
             ElectronicDocumentFormat.SetRange(Usage, Usage);
-            if not ElectronicDocumentFormat.FindFirst then
+            if not ElectronicDocumentFormat.FindFirst() then
                 FindNewFormat := true;
         end;
 
         if FindNewFormat then begin
             ElectronicDocumentFormat.SetRange(Code);
             ElectronicDocumentFormat.SetRange(Usage, Usage);
-            if not ElectronicDocumentFormat.FindFirst then
+            if not ElectronicDocumentFormat.FindFirst() then
                 LastFormat := ''
             else
                 LastFormat := ElectronicDocumentFormat.Code;

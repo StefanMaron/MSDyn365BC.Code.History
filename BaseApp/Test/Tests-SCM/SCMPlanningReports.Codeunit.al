@@ -45,7 +45,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForPurchase(Item."Reordering Policy"::"Lot-for-Lot");
     end;
 
@@ -57,7 +57,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForPurchase(Item."Reordering Policy"::"Fixed Reorder Qty.");
     end;
 
@@ -69,7 +69,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForPurchase(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
@@ -115,7 +115,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReport(ProductionOrder.Status::"Firm Planned", Item."Reordering Policy"::"Lot-for-Lot");
     end;
 
@@ -128,7 +128,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReport(ProductionOrder.Status::Released, Item."Reordering Policy"::"Lot-for-Lot");
     end;
 
@@ -141,7 +141,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReport(ProductionOrder.Status::"Firm Planned", Item."Reordering Policy"::"Fixed Reorder Qty.");
     end;
 
@@ -154,7 +154,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReport(ProductionOrder.Status::Released, Item."Reordering Policy"::"Fixed Reorder Qty.");
     end;
 
@@ -185,7 +185,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure CalcRegenerativePlanWithoutReorderPolicy()
     begin
         // Setup: Create Item without Re-order policy. Create Sales Order.
-        Initialize;
+        Initialize();
         CalcPlanWithoutReorderPolicy(true);
     end;
 
@@ -195,7 +195,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure CalcNetChangePlanWithoutReorderPolicy()
     begin
         // Setup: Create Item without Re-order policy. Create Sales Order.
-        Initialize;
+        Initialize();
         CalcPlanWithoutReorderPolicy(false);
     end;
 
@@ -233,7 +233,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalcRegenerativePlanAndPlanningAvailability(Item."Replenishment System"::Purchase);
     end;
 
@@ -245,7 +245,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalcRegenerativePlanAndPlanningAvailability(Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -278,7 +278,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMessageAndPlanningAvailability(Item."Replenishment System"::Purchase);
     end;
 
@@ -290,7 +290,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMessageAndPlanningAvailability(Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -326,7 +326,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMessageAndDeleteOrder(Item."Replenishment System"::Purchase);
     end;
 
@@ -338,7 +338,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMessageAndDeleteOrder(Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -382,7 +382,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMessageForDiffReplenishmentReorderPolicy(
           Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::Purchase);
     end;
@@ -395,7 +395,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMessageForDiffReplenishmentReorderPolicy(
           Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
     end;
@@ -408,7 +408,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMessageForDiffReplenishmentReorderPolicy(Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
     end;
 
@@ -420,7 +420,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMessageForDiffReplenishmentReorderPolicy(
           Item."Reordering Policy"::Order, Item."Replenishment System"::"Prod. Order");
     end;
@@ -465,7 +465,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Item, create and refresh Production Order.
-        Initialize;
+        Initialize();
         CreateItem(Item, '', '', Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", Item."No.");
 
@@ -488,7 +488,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersion(ProductionBOMVersion.Status::New, false, false);  // Calculate Regenerative Plan - False, BOM Version Item - False.
     end;
 
@@ -500,7 +500,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersion(ProductionBOMVersion.Status::New, true, false);  // Calculate Regenerative Plan - True, BOM Version Item - False.
     end;
 
@@ -512,7 +512,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersion(ProductionBOMVersion.Status::Certified, false, false);  // Calculate Regenerative Plan - False, BOM Version Item - False.
     end;
 
@@ -524,7 +524,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersion(ProductionBOMVersion.Status::Certified, false, true);  // Calculate Regenerative Plan - False, BOM Version Item - True.
     end;
 
@@ -581,7 +581,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Item, create and refresh Firm Planned Production Order and create Sales Order.
-        Initialize;
+        Initialize();
         CreateItem(Item, '', '', Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", Item."No.");
         CreateSalesOrder(SalesLine, ProductionOrder."Source No.");
@@ -605,7 +605,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalcNetChangePlanAndPlanningAvailability(Item."Replenishment System"::Purchase);
     end;
 
@@ -617,7 +617,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalcNetChangePlanAndPlanningAvailability(Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -651,7 +651,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersionAndItemReorderPolicyFRQ(ProductionBOMVersion.Status::New, false, false);  // Calculate Net Change Plan - False, BOM Version Item - False.
     end;
 
@@ -663,7 +663,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersionAndItemReorderPolicyFRQ(ProductionBOMVersion.Status::New, true, false);  // Calculate Net Change Plan - True, BOM Version Item - False.
     end;
 
@@ -675,7 +675,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersionAndItemReorderPolicyFRQ(
           ProductionBOMVersion.Status::Certified, false, false);  // Calculate Net Change Plan - False, BOM Version Item - False.
     end;
@@ -688,7 +688,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersionAndItemReorderPolicyFRQ(ProductionBOMVersion.Status::Certified, false, true);  // Calculate Net Change Plan - False, BOM Version Item - True.
     end;
 
@@ -745,7 +745,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReportForProdWithRoutingAndMultipleSales(Item."Reordering Policy"::"Lot-for-Lot");
     end;
 
@@ -757,7 +757,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReportForProdWithRoutingAndMultipleSales(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
@@ -790,7 +790,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalcRegenerativePlanForProdWithRoutingAndMultipleSales(Item."Reordering Policy"::"Lot-for-Lot");
     end;
 
@@ -802,7 +802,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalcRegenerativePlanForProdWithRoutingAndMultipleSales(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
@@ -842,7 +842,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMsgForProdWithRoutingAndMultipleSales(Item."Reordering Policy"::"Lot-for-Lot");
     end;
 
@@ -854,7 +854,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMsgForProdWithRoutingAndMultipleSales(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
@@ -892,7 +892,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure PlanningAvailabilityReportForProdOrderWithBOMHierarchy()
     begin
         // Setup: Create Item with Order attributes. Create Production BOM and Routing with BOM hierarchy, create Sales Order and Firm Planned Production Order.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReportForProdOrderSetup(true);  // BOM Hierarchy- TRUE;
     end;
 
@@ -902,7 +902,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure PlanningAvailabilityReportForProdItemWithoutRouting()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReportForProdOrderSetup(false);
     end;
 
@@ -939,7 +939,7 @@ codeunit 137308 "SCM Planning Reports"
         CurrentProductionForecast: Code[10];
     begin
         // 1) Setup: Create a production forecast entry for an item with a Production BOM
-        Initialize;
+        Initialize();
         ManufacturingSetup.Get();
         CurrentProductionForecast := ManufacturingSetup."Current Production Forecast";
         CreateItemWithProductionBOM(Item);
@@ -963,7 +963,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure CalcRegenerativePlanForProdOrderWithBOMHierarchy()
     begin
         // Setup: Create Item with Order attributes. Create Production BOM and Routing with BOM hierarchy, create Sales Order and Firm Planned Production Order.
-        Initialize;
+        Initialize();
         CalcRegenerativePlanForProdOrderSetup(true);  // BOM Hierarchy- TRUE;
     end;
 
@@ -973,7 +973,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure CalcRegenerativePlanForProdItemWithoutRouting()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalcRegenerativePlanForProdOrderSetup(false);
     end;
 
@@ -1008,7 +1008,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure CarryOutActionMsgForProdOrderWithBOMHierarchy()
     begin
         // Setup: Create Item with Order attributes. Create Production BOM and Routing with BOM hierarchy, create Sales Order and Firm Planned Production Order.
-        Initialize;
+        Initialize();
         CarryOutActionMessageForProductionSetup(true);  // BOM Hierarchy - TRUE.
     end;
 
@@ -1018,7 +1018,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure CarryOutActionMsgForProdItemWithoutRouting()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CarryOutActionMessageForProductionSetup(false);
     end;
 
@@ -1054,7 +1054,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure PlanningAvailabilityAfterSalesPostAndCalcRegenPlanReorderPolicyFRQ()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityAfterSalesPostReorderPolicyFRQ(false);  // Carry Out Action Message - False.
     end;
 
@@ -1064,7 +1064,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure PlanningAvailabilityAfterSalesPostAndCarryOutActionMsgReorderPolicyFRQ()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityAfterSalesPostReorderPolicyFRQ(true);  // Carry Out Action Message - True.
     end;
 
@@ -1095,7 +1095,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure PlanningAvailabilityAfterSalesPostAndCalcPlanReqWkhstReorderPolicyFRQ()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityAfterSalesPostReqWkshtReorderPolicyFRQ(false);  // Carry Out Action Message - False.
     end;
 
@@ -1105,7 +1105,7 @@ codeunit 137308 "SCM Planning Reports"
     procedure PlanningAvailabilityAfterSalesPostReqWkhstCarryOutActionMsgReorderPolicyFRQ()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityAfterSalesPostReqWkshtReorderPolicyFRQ(true);  // Carry Out Action Message - True.
     end;
 
@@ -1149,7 +1149,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForSalesWithProdOrder(Item."Reordering Policy"::"Fixed Reorder Qty.");
     end;
 
@@ -1161,7 +1161,7 @@ codeunit 137308 "SCM Planning Reports"
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityForSalesWithProdOrder(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
@@ -1198,7 +1198,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReportForProdOrderStatusUpdate(ProductionOrder.Status::"Firm Planned");
 
         LibraryVariableStorage.AssertEmpty;
@@ -1212,7 +1212,7 @@ codeunit 137308 "SCM Planning Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningAvailabilityReportForProdOrderStatusUpdate(ProductionOrder.Status::Released);
 
         LibraryVariableStorage.AssertEmpty;
@@ -1273,7 +1273,7 @@ codeunit 137308 "SCM Planning Reports"
         // [SCENARIO] No planning worksheet infinite cycle appears if reservation on supply deleted manually.
 
         // [GIVEN] Demand from Production order component on an Item with SKU having Order reordering policy.
-        Initialize;
+        Initialize();
         CreateItemAndSKU(Item);
         CreateProductionOrderWithComponent(Item."No.", Item.GetFilter("Location Filter"));
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
@@ -1300,7 +1300,7 @@ codeunit 137308 "SCM Planning Reports"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Reports");
         RequisitionWkshName.DeleteAll();
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         LibraryApplicationArea.EnableEssentialSetup;
 
@@ -1308,9 +1308,9 @@ codeunit 137308 "SCM Planning Reports"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning Reports");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
         ItemJournalSetup;
 
         isInitialized := true;
@@ -1554,7 +1554,7 @@ codeunit 137308 "SCM Planning Reports"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -1598,7 +1598,7 @@ codeunit 137308 "SCM Planning Reports"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.Validate("Planning Flexibility", ProdOrderLine."Planning Flexibility"::None);
         ProdOrderLine.Modify(true);
     end;
@@ -1655,7 +1655,7 @@ codeunit 137308 "SCM Planning Reports"
         if Item."Replenishment System" = Item."Replenishment System"::Purchase then begin
             SelectPurchaseLine(PurchaseLine, Item."No.");
             PurchaseHeader.SetRange("No.", PurchaseLine."Document No.");
-            PurchaseHeader.FindFirst;
+            PurchaseHeader.FindFirst();
             PurchaseHeader.Delete(true);
         end else begin
             SelectProductionOrder(ProductionOrder, Item."No.");
@@ -1744,7 +1744,7 @@ codeunit 137308 "SCM Planning Reports"
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
         RequisitionWkshName.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 

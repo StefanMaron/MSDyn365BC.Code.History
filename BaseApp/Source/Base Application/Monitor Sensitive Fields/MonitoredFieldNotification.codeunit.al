@@ -25,7 +25,6 @@ codeunit 1368 "Monitored Field Notification"
 
     local procedure SendEmail(var FieldMonitoringSetup: record "Field Monitoring Setup"; RecRef: RecordRef; var ChangeLogEntry: Record "Change Log Entry"; UseNewEmailFeature: Boolean): Boolean
     var
-        MailManagement: Codeunit "Mail Management";
         EmailMessage: Codeunit "Email Message";
         SendToList: List of [Text];
     begin
@@ -37,23 +36,16 @@ codeunit 1368 "Monitored Field Notification"
             Email.Enqueue(EmailMessage, FieldMonitoringSetup."Email Account Id", FieldMonitoringSetup."Email Connector");
             ChangeLogEntry."Notification Message Id" := EmailMessage.GetId();
             exit(true);
-        end else
-            if SMTPMail.CreateMessage(FromMsg, MailManagement.GetSenderEmailAddress(), SendToList, GetEmailSubject(RecRef, ChangeLogEntry."Field No."),
-                GetEmailBody(RecRef, ChangeLogEntry."Field No.", ChangeLogEntry.GetLocalOldValue(), ChangeLogEntry.GetLocalNewValue()), true) then
-                exit(SMTPMail.Send());
+        end;
     end;
 
     local procedure IsMonitorReadyToSendEmails(var FieldMonitoringSetup: record "Field Monitoring Setup"; var UseNewEmailFeature: Boolean): Boolean
     begin
-        if EmailFeature.IsEnabled() then
-            if FieldMonitoringSetup.Get() then
-                if (FieldMonitoringSetup."Email Account Name" <> '') and (not IsNullGuid(FieldMonitoringSetup."Email Account Id")) and EmailAccount.IsAnyAccountRegistered() then begin
-                    UseNewEmailFeature := true;
-                    exit(true);
-                end;
-
-        if not UseNewEmailFeature then
-            exit(SMTPMail.IsEnabled());
+        if FieldMonitoringSetup.Get() then
+            if (FieldMonitoringSetup."Email Account Name" <> '') and (not IsNullGuid(FieldMonitoringSetup."Email Account Id")) and EmailAccount.IsAnyAccountRegistered() then begin
+                UseNewEmailFeature := true;
+                exit(true);
+            end;
     end;
 
     local procedure GetRecipient(): Text
@@ -103,37 +95,9 @@ codeunit 1368 "Monitored Field Notification"
         exit((RecRef.Number = Database::"Field Monitoring Setup") and (FieldNo = FieldMonitoringSetup.FieldNo("Monitor Status")));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::Email, 'OnAfterSendEmail', '', false, false)]
-    local procedure OnAfterSendEmail(MessageId: Guid; Status: Boolean)
-    begin
-        UpdateEmailStatus(MessageId, Status);
-    end;
-
-    procedure UpdateEmailStatus(MessageId: Guid; Status: Boolean)
-    var
-        ChangeLogEntry: Record "Change Log Entry";
-    begin
-        if IsNullGuid(MessageId) then
-            exit;
-
-        ChangeLogEntry.SetRange("Notification Message Id", MessageId);
-        ChangeLogEntry.SetRange("Field Log Entry Feature", ChangeLogEntry."Field Log Entry Feature"::"Monitor Sensitive Fields");
-        ChangeLogEntry.SetRange("Notification Status", ChangeLogEntry."Notification Status"::"Email Enqueued");
-        if ChangeLogEntry.FindFirst() then begin
-            if Status then
-                ChangeLogEntry."Notification Status" := ChangeLogEntry."Notification Status"::"Email Sent"
-            else
-                ChangeLogEntry."Notification Status" := ChangeLogEntry."Notification Status"::"Sending Email Failed";
-
-            ChangeLogEntry.Modify();
-        end;
-    end;
-
     var
         Email: Codeunit Email;
         EmailAccount: Codeunit "Email Account";
-        SMTPMail: Codeunit "SMTP Mail";
-        EmailFeature: Codeunit "Email Feature";
         ChangeStateSubjMsg: Label 'Business Central Extended Security - %1', Comment = '%1 is started or stopped as see in MonitorEnabledTxt,MonitorDisabledTxt labels';
         ChangeStateBodyMsg: Label '<p style="font-family:Verdana,Arial;font-size:10pt"><b>You are signed up to receive email notifications when certain data is changed in the %1 company in Microsoft Dynamics 365 Business Central. <BR>This message is to inform you that the following change was made:</b></p><p style="font-family:Verdana,Arial;font-size:9pt"><b>Extended Security State has changed:</b><BR><b>Original State:</b> %2<BR><b>New State:</b> %3<BR><b>Changed By:</b> %4<BR><b>Changed Date/Time:</b> %5</p><p>Notification messages are sent automatically and cannot be replied to.</p>',
         Comment = '{Locked="p style=","font-family:","font-size","pt","<b>","</b>","</p>","<BR>","SMTP"} %1 is Company Name; %2 is original state, started or stopped; %3 is new state, started or stopped; %4 is Changed By, User who made the change; %5  date time';
@@ -142,5 +106,4 @@ codeunit 1368 "Monitored Field Notification"
         MonitorFieldChangeMsg: Label 'Monitored Change Notification';
         FieldChangeBodyMsg: Label '<p style="font-family:Verdana,Arial;font-size:10pt"><b>You are signed up to receive email notifications when certain data is changed in the %1 company in Microsoft Dynamics 365 Business Central. <BR>This message is to inform you that the following change was made:</b></p><p style="font-family:Verdana,Arial;font-size:9pt"><b><BR>Extended Security has detected a <a href="%2">change</a> in a %3 field marked for monitoring:</b><BR><b>Original "%4" Value:</b> %5<BR><b>New "%4" Value:</b> %6<BR><b>Changed By:</b> %7<BR><b>Changed Date/Time:</b> %8<BR></p><p><a href="%9">Effective permissions</a> for user %7 allowed for this change.</p><p>Notification messages are sent automatically and cannot be replied to.</p>',
         Comment = '{Locked="p style=","font-family:","font-size","pt","<b>","</b>","</p>","<BR>","SMTP"} %1 is Company Name;%2 Link, example https://Businesscentral.com/?page=1; %3 table caption; %4 field caption; %5 is original state, started or stopped; %6 is new state, started or stopped; %7 is Changed By, User who made the change; %8  date time;%9 Link to effective permission page';
-        FromMsg: Label 'Business Central Extended Security';
 }

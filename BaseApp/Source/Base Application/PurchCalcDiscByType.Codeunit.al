@@ -83,7 +83,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
         with PurchHeader do begin
             PurchLine.SetRange("Document No.", "No.");
             PurchLine.SetRange("Document Type", "Document Type");
-            if PurchLine.FindFirst then begin
+            if PurchLine.FindFirst() then begin
                 CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
                 Get("Document Type", "No.");
             end;

@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2820 "Native - Attachments"
 {
     Caption = 'nativeInvoicingAttachments', Locked = true;
@@ -125,7 +126,7 @@ page 2820 "Native - Attachments"
             end;
             GraphMgtAttachmentBuffer.LoadAttachments(Rec, DocumentIdFilter, AttachmentIdFilter);
             SetView(FilterView);
-            AttachmentsFound := FindFirst;
+            AttachmentsFound := FindFirst();
             if not AttachmentsFound then
                 exit(false);
             AttachmentsLoaded := true;
@@ -216,4 +217,4 @@ page 2820 "Native - Attachments"
         SetActionResponse(ActionContext, UnlinkedAttachment);
     end;
 }
-
+#endif

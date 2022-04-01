@@ -88,7 +88,7 @@ table 5912 "Service Document Log"
         ServOrderLog.Reset();
         ServOrderLog.SetRange("Document Type", "Document Type");
         ServOrderLog.SetRange("Document No.", "Document No.");
-        if ServOrderLog.FindLast then
+        if ServOrderLog.FindLast() then
             "Entry No." := ServOrderLog."Entry No." + 1
         else
             "Entry No." := 1;
@@ -108,7 +108,7 @@ table 5912 "Service Document Log"
         ServDocLog.Reset();
         ServDocLog.SetRange("Document Type", DocType);
         ServDocLog.SetRange("Document No.", DocNo);
-        if ServDocLog.FindSet then
+        if ServDocLog.FindSet() then
             repeat
                 Rec := ServDocLog;
                 Insert;

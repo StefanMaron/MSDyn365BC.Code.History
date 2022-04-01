@@ -156,7 +156,7 @@ table 1265 "Data Exch. Field Mapping Buf."
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchLineDef.SetRange("Parent Code", '');
 
-        if DataExchLineDef.FindSet then
+        if DataExchLineDef.FindSet() then
             repeat
                 InsertFromDataExchDefinitionLine(TempDataExchFieldMappingBuf, DataExchLineDef, TempSuggestedField, 0);
             until DataExchLineDef.Next() = 0;
@@ -170,7 +170,7 @@ table 1265 "Data Exch. Field Mapping Buf."
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
 
-        if DataExchMapping.FindSet then
+        if DataExchMapping.FindSet() then
             repeat
                 InsertDataExchLineDefMappingLine(TempDataExchFieldMappingBuf, DataExchMapping, NewDepth);
                 InsertFieldMappingDefinition(TempDataExchFieldMappingBuf, DataExchMapping, NewDepth + 1);
@@ -180,7 +180,7 @@ table 1265 "Data Exch. Field Mapping Buf."
         ChildDataExchLineDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         ChildDataExchLineDef.SetRange("Parent Code", DataExchLineDef.Code);
 
-        if ChildDataExchLineDef.FindSet then
+        if ChildDataExchLineDef.FindSet() then
             repeat
                 InsertFromDataExchDefinitionLine(TempDataExchFieldMappingBuf, ChildDataExchLineDef, TempSuggestedField, NewDepth + 1);
             until ChildDataExchLineDef.Next() = 0;
@@ -194,7 +194,7 @@ table 1265 "Data Exch. Field Mapping Buf."
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
         DataExchFieldMapping.SetRange("Table ID", DataExchMapping."Table ID");
 
-        if not DataExchFieldMapping.FindSet then
+        if not DataExchFieldMapping.FindSet() then
             exit;
 
         repeat
@@ -208,7 +208,7 @@ table 1265 "Data Exch. Field Mapping Buf."
     begin
         TempSuggestedField.SetRange(TableNo, DataExchMapping."Table ID");
 
-        if not TempSuggestedField.FindSet then
+        if not TempSuggestedField.FindSet() then
             exit;
 
         repeat
@@ -216,7 +216,7 @@ table 1265 "Data Exch. Field Mapping Buf."
             DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
             DataExchFieldMapping.SetRange("Table ID", DataExchMapping."Table ID");
             DataExchFieldMapping.SetRange("Field ID", TempSuggestedField."No.");
-            if not DataExchFieldMapping.FindFirst then begin
+            if not DataExchFieldMapping.FindFirst() then begin
                 InitializeDataExchangeSetupLine(
                   TempDataExchFieldMappingBuf, DataExchMapping, TempSuggestedField."No.", Indentation, TempSuggestedField."Field Caption");
                 TempDataExchFieldMappingBuf.Insert(true);
@@ -300,7 +300,7 @@ table 1265 "Data Exch. Field Mapping Buf."
     begin
         DataExchColumnDef.SetRange("Data Exch. Def Code", "Data Exchange Def Code");
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", "Data Exchange Line Def Code");
-        if DataExchColumnDef.FindLast then
+        if DataExchColumnDef.FindLast() then
             exit(DataExchColumnDef."Column No.");
 
         exit(GetIncrement);

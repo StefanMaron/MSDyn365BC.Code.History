@@ -50,7 +50,7 @@ codeunit 99000771 "BOM Matrix Management"
         ComponentEntry.SetRange("Item No.", No);
         ComponentEntry.SetRange("Variant Code", VariantCode);
         ComponentEntry.SetRange(ID, ID);
-        if not ComponentEntry.FindFirst then
+        if not ComponentEntry.FindFirst() then
             Clear(ComponentEntry);
 
         exit(ComponentEntry.Quantity);
@@ -178,7 +178,7 @@ codeunit 99000771 "BOM Matrix Management"
                                 ComponentEntry.SetRange("Item No.", ComponentEntry2."Item No.");
                                 ComponentEntry.SetRange("Variant Code", ComponentEntry2."Variant Code");
                                 ComponentEntry.SetRange(ID, ComponentEntry2.ID);
-                                if ComponentEntry.FindFirst then begin
+                                if ComponentEntry.FindFirst() then begin
                                     ComponentEntry.Quantity :=
                                       ComponentEntry.Quantity + ComponentEntry2.Quantity;
                                     ComponentEntry.Modify();
@@ -203,7 +203,7 @@ codeunit 99000771 "BOM Matrix Management"
     begin
         ProdBOMVersion2.SetRange("Production BOM No.", ProdBOMNo);
         ProdBOMVersion2.SetFilter("Starting Date", '%1|..%2', 0D, GlobalCalcDate);
-        if ProdBOMVersion2.FindLast then
+        if ProdBOMVersion2.FindLast() then
             exit(ProdBOMVersion2."Version Code");
 
         exit('');

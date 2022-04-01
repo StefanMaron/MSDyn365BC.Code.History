@@ -2,6 +2,7 @@ table 1543 "Flow Service Configuration"
 {
     Caption = 'Power Automate Service Configuration';
     DataPerCompany = false;
+    ReplicateData = false;
 
     fields
     {

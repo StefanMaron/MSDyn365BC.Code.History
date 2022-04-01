@@ -26,6 +26,8 @@ codeunit 32 "Customer Card Calculations"
         NoOutstandingInvoices: Integer;
         NoOutstandingCrMemos: Integer;
         NewWorkDate: Date;
+        BalanceAsVendor: Decimal;
+        LinkedVendorNo: Code[20];
     begin
         Params := Page.GetBackgroundParameters();
         CustomerNo := CopyStr(Params.Get(GetCustomerNoLabel()), 1, MaxStrLen(CustomerNo));
@@ -48,6 +50,8 @@ codeunit 32 "Customer Card Calculations"
           CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY,
           CustProfit);
 
+        BalanceAsVendor := Customer.GetBalanceAsVendor(LinkedVendorNo);
+
         Results.Add(GetAvgDaysPastDueDateLabel(), Format(AgedAccReceivable.InvoicePaymentDaysAverage(Customer."No.")));
         Results.Add(GetExpectedMoneyOwedLabel(), Format(CustomerMgt.CalculateAmountsWithVATOnUnpostedDocuments(Customer."No.")));
         Results.Add(GetAvgDaysToPayLabel(), Format(CustomerMgt.AvgDaysToPay(Customer."No.")));
@@ -68,6 +72,8 @@ codeunit 32 "Customer Card Calculations"
         Results.Add(GetNoOutstandingInvoicesLabel(), Format(NoOutstandingInvoices));
         Results.Add(GetNoOutstandingCrMemosLabel(), Format(NoOutstandingCrMemos));
         Results.Add(GetOverdueBalanceLabel(), Format(Customer.CalcOverdueBalance()));
+        Results.Add(GetBalanceAsVendorLabel(), Format(BalanceAsVendor));
+        Results.Add(GetLinkedVendorNoLabel(), Format(LinkedVendorNo));
 
         Page.SetBackgroundTaskResult(Results);
     end;
@@ -95,8 +101,9 @@ codeunit 32 "Customer Card Calculations"
         OverdueBalanceLbl: label 'Overdue Balance', Locked = true;
         CustomerNoLbl: label 'Customer No.', Locked = true;
         FiltersLbl: label 'Filters', Locked = true;
+        BalanceAsVendorLbl: Label 'BalanceAsVendor', Locked = true;
+        LinkedVendorNoLbl: Label 'LinkedVendorNo', Locked = true;
         WorkDateLbl: label 'Work Date', Locked = true;
-
 
     internal procedure GetWorkDateLabel(): Text
     begin
@@ -211,5 +218,15 @@ codeunit 32 "Customer Card Calculations"
     internal procedure GetFiltersLabel(): Text
     begin
         exit(FiltersLbl);
+    end;
+
+    internal procedure GetBalanceAsVendorLabel(): Text
+    begin
+        exit(BalanceAsVendorLbl);
+    end;
+
+    internal procedure GetLinkedVendorNoLabel(): Text
+    begin
+        exit(LinkedVendorNoLbl);
     end;
 }

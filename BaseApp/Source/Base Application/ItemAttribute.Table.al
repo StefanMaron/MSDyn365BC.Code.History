@@ -100,7 +100,7 @@ table 7500 "Item Attribute"
         ItemAttributeValue: Record "Item Attribute Value";
     begin
         ItemAttributeValue.SetRange("Attribute ID", xRec.ID);
-        if ItemAttributeValue.FindSet then
+        if ItemAttributeValue.FindSet() then
             repeat
                 ItemAttributeValue.Rename(ID, ItemAttributeValue.ID);
             until ItemAttributeValue.Next() = 0;
@@ -152,7 +152,7 @@ table 7500 "Item Attribute"
         if Type <> Type::Option then
             exit('');
         ItemAttributeValue.SetRange("Attribute ID", ID);
-        if ItemAttributeValue.FindSet then
+        if ItemAttributeValue.FindSet() then
             repeat
                 if Values <> '' then
                     Values += ',';
@@ -177,7 +177,7 @@ table 7500 "Item Attribute"
             exit;
 
         ItemAttributeValue.SetRange("Attribute ID", ID);
-        if ItemAttributeValue.FindSet then
+        if ItemAttributeValue.FindSet() then
             repeat
                 if not ItemAttributeValue.HasBeenUsed then
                     ItemAttributeValue.Delete();

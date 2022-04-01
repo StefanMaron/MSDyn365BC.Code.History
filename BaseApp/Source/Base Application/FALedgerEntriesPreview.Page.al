@@ -258,7 +258,7 @@ page 5606 "FA Ledger Entries Preview"
 
     procedure Set(var TempFALedgerEntry: Record "FA Ledger Entry" temporary)
     begin
-        if TempFALedgerEntry.FindSet then
+        if TempFALedgerEntry.FindSet() then
             repeat
                 Rec := TempFALedgerEntry;
                 Insert;

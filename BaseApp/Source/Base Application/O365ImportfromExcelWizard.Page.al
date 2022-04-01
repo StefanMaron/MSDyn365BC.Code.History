@@ -384,7 +384,7 @@ page 2180 "O365 Import from Excel Wizard"
 
         TempExcelBuffer.Reset();
         TempExcelBuffer.SetRange("Row No.", StartRowNo);
-        if TempExcelBuffer.FindSet then
+        if TempExcelBuffer.FindSet() then
             repeat
                 i += 1;
                 TempStartRowCellNameValueBuffer.ID := i;
@@ -457,7 +457,7 @@ page 2180 "O365 Import from Excel Wizard"
     begin
         TempExcelBuffer.Reset();
         TempExcelBuffer.DeleteAll();
-        if NewExcelBuffer.FindSet then
+        if NewExcelBuffer.FindSet() then
             repeat
                 TempExcelBuffer := NewExcelBuffer;
                 TempExcelBuffer.Insert();
@@ -505,14 +505,14 @@ page 2180 "O365 Import from Excel Wizard"
     local procedure GetMaxExcelRowNo(): Integer
     begin
         TempExcelBuffer.Reset();
-        if TempExcelBuffer.FindLast then;
+        if TempExcelBuffer.FindLast() then;
         exit(TempExcelBuffer."Row No.");
     end;
 
     local procedure GetMaxExcelExcelColumnNo(): Integer
     begin
         TempExcelBuffer.Reset();
-        if TempExcelBuffer.FindLast then;
+        if TempExcelBuffer.FindLast() then;
         exit(TempExcelBuffer."Column No.");
     end;
 }

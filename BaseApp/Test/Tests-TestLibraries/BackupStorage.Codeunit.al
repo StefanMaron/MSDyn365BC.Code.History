@@ -77,14 +77,14 @@ codeunit 130012 "Backup Storage"
         // trigger when restoring a table.
         TempTaintedTable.Reset();
         TempTaintedTable.SetRange("Snapshot No.", BackupNo);
-        if TempTaintedTable.FindSet then
+        if TempTaintedTable.FindSet() then
             repeat
                 TempTaintedTable2.Init();
                 TempTaintedTable2.Copy(TempTaintedTable);
                 TempTaintedTable2.Insert();
             until TempTaintedTable.Next = 0;
 
-        if TempTaintedTable2.FindSet then
+        if TempTaintedTable2.FindSet() then
             repeat
                 RestoreTableFromBackupNo(BackupNo, CompanyName, TempTaintedTable2."Table No.");
             until TempTaintedTable2.Next = 0;
@@ -102,7 +102,7 @@ codeunit 130012 "Backup Storage"
     procedure GetTaintedTables(var TempTaintedTable2: Record "Tainted Table" temporary)
     begin
         TempTaintedTable.Reset();
-        if TempTaintedTable.FindSet then
+        if TempTaintedTable.FindSet() then
             repeat
                 TempTaintedTable2.Init();
                 TempTaintedTable2.Copy(TempTaintedTable);
@@ -126,13 +126,13 @@ codeunit 130012 "Backup Storage"
         // If table <TableNo> is empty, nothing happens.
         RecordRef.Open(TableNo, false, CompanyName);
         // we only backup non-empty tables
-        if not RecordRef.FindSet then
+        if not RecordRef.FindSet() then
             exit;
 
         if GetTableBackup(BackupNo, TableNo, BackupRecordRef) then begin
             // Table has been backed up before: only continue if it is empty.
             // This implies that the table backup was deleted and we don't need to use a new index
-            if BackupRecordRef.FindFirst then
+            if BackupRecordRef.FindFirst() then
                 // ... do nothing when backup is not empty
                 exit
         end else
@@ -168,13 +168,13 @@ codeunit 130012 "Backup Storage"
         end;
 
         // if the table in the backup is empty: empty table, exit
-        if not BackupRecordRef.FindSet then begin
+        if not BackupRecordRef.FindSet() then begin
             RecordRef.DeleteAll();
             exit
         end;
 
         // if the current table is empty: copy all backed up records, exit
-        if not RecordRef.FindFirst then begin
+        if not RecordRef.FindFirst() then begin
             repeat
                 CopyFields(BackupRecordRef, RecordRef);
                 RecordRef.Insert();
@@ -338,10 +338,10 @@ codeunit 130012 "Backup Storage"
         repeat
             GLEntry.SetFilter("G/L Account No.", '>%1', GLEntry."G/L Account No.");
             GLEntry.SetFilter("Posting Date", '>%1', GLEntry."Posting Date");
-            if GLEntry.FindFirst then begin
+            if GLEntry.FindFirst() then begin
                 GLEntry.SetRange("G/L Account No.", GLEntry."G/L Account No.");
                 GLEntry.SetRange("Posting Date");
-                GLEntry.FindLast;
+                GLEntry.FindLast();
             end else
                 OK := false
         until not OK;
@@ -358,7 +358,7 @@ codeunit 130012 "Backup Storage"
         if CompanyName = '' then
             exit(false);
 
-        exit(TableID in [1 .. 99999, 150000 .. 1999999999, 2000000080, 2000000165, 2000000166]);
+        exit(TableID in [1 .. 99999, 150000 .. 1999999999, 2000000080, 2000000165, 2000000166, 2000000253, 2000000053]);
     end;
 
     local procedure IsSupportedTableType(TableNo: Integer): Boolean

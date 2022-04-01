@@ -246,13 +246,6 @@ table 840 "Cash Flow Forecast"
         exit(CalcAmount);
     end;
 
-    [Obsolete('Replaced by CalsSourceTypeAmount.', '17.0')]
-    procedure CalcAmountFromSource(SourceType: Option): Decimal
-    begin
-        SetSourceTypeEntriesFilter("Cash Flow Source Type".FromInteger(SourceType));
-        exit(CalcAmount);
-    end;
-
     procedure SetSourceTypeEntriesFilter(SourceType: Enum "Cash Flow Source Type")
     begin
         if SourceType = SourceType::" " then
@@ -261,22 +254,10 @@ table 840 "Cash Flow Forecast"
             SetRange("Source Type Filter", SourceType);
     end;
 
-    [Obsolete('Replaced by SetSourceTypeEntriesFilter().', '17.0')]
-    procedure SetSourceTypeFilter(SourceType: Option)
-    begin
-        SetSourceTypeEntriesFilter("Cash Flow Source Type".FromInteger(SourceType));
-    end;
-
     procedure DrillDownSourceTypeEntries(SourceType: Enum "Cash Flow Source Type")
     begin
         SetSourceTypeEntriesFilter(SourceType);
         DrillDown();
-    end;
-
-    [Obsolete('Replaced by DrillDownSourceTypeEntries', '17.0')]
-    procedure DrillDownEntriesFromSource(SourceType: Option)
-    begin
-        DrillDownSourceTypeEntries("Cash Flow Source Type".FromInteger(SourceType));
     end;
 
     procedure CalcAmount(): Decimal
@@ -304,7 +285,7 @@ table 840 "Cash Flow Forecast"
         with CashFlowForecast do begin
             Copy(Rec);
             CFReportSelection.SetFilter("Report ID", '<>0');
-            if CFReportSelection.FindSet then
+            if CFReportSelection.FindSet() then
                 repeat
                     REPORT.RunModal(CFReportSelection."Report ID", true, false, CashFlowForecast);
                 until CFReportSelection.Next() = 0;
@@ -370,10 +351,10 @@ table 840 "Cash Flow Forecast"
         CFForecastEntry.SetRange("Cash Flow Forecast No.", "No.");
         case Which of
             Which::First:
-                if not CFForecastEntry.FindFirst then
+                if not CFForecastEntry.FindFirst() then
                     exit(0D);
             Which::Last:
-                if not CFForecastEntry.FindLast then
+                if not CFForecastEntry.FindLast() then
                     exit(0D);
         end;
         exit(CFForecastEntry."Cash Flow Date");

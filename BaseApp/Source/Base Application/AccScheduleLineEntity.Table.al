@@ -1,10 +1,8 @@
 table 5503 "Acc. Schedule Line Entity"
 {
     Caption = 'Acc. Schedule Line Entity';
-    // TableType = Temporary;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records';
-    ObsoleteTag = '17.0';
+    TableType = Temporary;
+    ReplicateData = false;
 
     fields
     {

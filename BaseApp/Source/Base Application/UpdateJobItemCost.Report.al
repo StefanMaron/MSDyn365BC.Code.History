@@ -82,7 +82,7 @@ report 1095 "Update Job Item Cost"
                             end;
                         end else begin
                             ValueEntry.SetRange(Adjustment, false);
-                            if ValueEntry.FindFirst then begin
+                            if ValueEntry.FindFirst() then begin
                                 AddJobCostValue(JobLedgerEntryCostValue, JobLedgerEntryCostValueACY, ValueEntry, ValueEntry.Inventoriable);
 
                                 ValueEntry2.SetRange("Item Ledger Entry No.", "Entry No.");

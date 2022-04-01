@@ -23,7 +23,7 @@
         </trans-unit>
         <trans-unit id="Table 2804880794 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Universal Printer Settings</source>
-          <target state="translated">Nastavení univerzální tiskárny</target>
+          <target state="translated">Nastavení tiskárny Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Property Caption</note>
         </trans-unit>
@@ -131,7 +131,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1382942930 - NamedType 1254422327" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You don't have access to the data. Make sure your account has been assigned a Universal Print license and you have the required permissions.</source>
-          <target state="translated">Nemáte přístup k datům. Ujistěte se, že vašemu účtu byla přiřazena licence Universal Print a že máte požadovaná oprávnění.</target>
+          <target state="translated">Nemáte přístup k datům. Ujistěte se, že vašemu účtu byla přiřazena licence Univerzálního tisku a že máte požadovaná oprávnění.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - NamedType NoAccessTxt</note>
         </trans-unit>
@@ -167,7 +167,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 4208063072 - NamedType 123382634" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Universal Print share name is not valid. Do you want to exit?</source>
-          <target state="translated">Název sdílené složky Universal Print není platný. Chcete ukončit program?</target>
+          <target state="translated">Název sdílené složky Univerzálního tisku není platný. Chcete ukončit program?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType InvalidPrintShareClosePageQst</note>
         </trans-unit>
@@ -185,7 +185,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add Universal Print Printers</source>
-          <target state="translated">Přidání tiskáren Universal Print</target>
+          <target state="translated">Přidání tiskáren Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Property Caption</note>
         </trans-unit>
@@ -203,25 +203,25 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - NamedType 3334639707" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more about Universal Print.</source>
-          <target state="translated">Přečtěte si další informace o Universal Print.</target>
+          <target state="translated">Přečtěte si další informace o Univerzálním tisku.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreTxt</note>
         </trans-unit>
         <trans-unit id="Page 669761542 - NamedType 209090251" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Universal Print portal</source>
-          <target state="translated">Portál Universal Print</target>
+          <target state="translated">Portál Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreUniversalPrintPortalTxt</note>
         </trans-unit>
         <trans-unit id="Page 669761542 - NamedType 2402058382" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You do not have the necessary table permissions to access Universal Print printers. Ask your system administrator for permissions, then run this page again.</source>
-          <target state="translated">Nemáte potřebná oprávnění k přístupu k tiskárnám Universal Print. Požádejte správce systému o oprávnění a spusťte tuto stránku znovu.</target>
+          <target state="translated">Nemáte potřebná oprávnění k přístupu k tiskárnám Univerzálního tisku. Požádejte správce systému o oprávnění a spusťte tuto stránku znovu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NoTablePermissionsErr</note>
         </trans-unit>
         <trans-unit id="Page 669761542 - NamedType 2724577049" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We couldn't connect to Universal Print using your Azure AD application registration. Run the Set Up Azure Active Directory assisted setup again, and make sure all the values are set correctly.</source>
-          <target state="translated">Nemohli jsme se připojit k Universal Print pomocí registrace aplikace Azure AD. Spusťte znovu asistované nastavení Azure Active Directory a ujistěte se, že jsou všechny hodnoty nastaveny správně.</target>
+          <target state="translated">Nemohli jsme se připojit k Univerzálnímu tisku pomocí registrace aplikace Azure AD. Spusťte znovu asistované nastavení Azure Active Directory a ujistěte se, že jsou všechny hodnoty nastaveny správně.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NoTokenForOnPremErr</note>
         </trans-unit>
@@ -237,6 +237,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType PrivacyLbl</note>
         </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 2182510485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about our Privacy Statement.</source>
+          <target state="translated">Přečtěte si další informace o našem Prohlášení o ochraně osobních údajů.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType PrivacyStatementTxt</note>
+        </trans-unit>
         <trans-unit id="Page 669761542 - NamedType 3362432993" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Wizard step out of range.</source>
           <target state="translated">Krok průvodce je mimo rozsah.</target>
@@ -245,7 +251,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 631782546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Adding Universal Print Printers</source>
-          <target state="translated">Přidání tiskáren Universal Print</target>
+          <target state="translated">Přidání tiskáren Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control AutoAdd - Property Caption</note>
         </trans-unit>
@@ -256,7 +262,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 2339249964 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You don't seem to have access to Universal Print. Make sure you have a Universal Print subscription, and that your account has been assigned a Universal Print license.</source>
-          <target state="translated">Zdá se, že nemáte přístup k Universal Print. Ujistěte se, že máte předplatné Univesal Print a že vašemu účtu byla přiřazena licence Universal Print.</target>
+          <target state="translated">Zdá se, že nemáte přístup k Univerzálnímu tisku. Ujistěte se, že máte předplatné Univerzálního tisku a že vašemu účtu byla přiřazena licence Univerzálního tisku.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.1.1 - Property Caption</note>
         </trans-unit>
@@ -272,13 +278,13 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 4208574773 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The next step will add all of the printers that are shared with you through Universal Print into Business Central.</source>
-          <target state="translated">Dalším krokem bude přidání všech tiskáren, které jsou s vámi sdíleny prostřednictvím Universal Print, do Business Central.</target>
+          <target state="translated">Dalším krokem bude přidání všech tiskáren, které jsou s vámi sdíleny prostřednictvím Univerzálního tisku, do Business Central.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2.1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 3570878156 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You'll first need to manage and share printers in Universal Print portal.</source>
-          <target state="translated">Nejprve budete muset spravovat a sdílet tiskárny na portálu Universal Print Portal.</target>
+          <target state="translated">Nejprve budete muset spravovat a sdílet tiskárny na portálu Univerzálního tisku.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2.2 - Property Caption</note>
         </trans-unit>
@@ -313,7 +319,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 36166686 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Now you are ready to use Universal Print printers inside Business Central.</source>
-          <target state="translated">Nyní jste připraveni používat Universal Print v rámci Business Central.</target>
+          <target state="translated">Nyní jste připraveni používat Univerzální tisk v rámci Business Central.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.2 - Property Caption</note>
         </trans-unit>
@@ -364,7 +370,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 2155394695 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Welcome to Universal Print Setup</source>
-          <target state="translated">Vítejte v nastavení Universal Print</target>
+          <target state="translated">Vítejte v nastavení Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.1 - Property Caption</note>
         </trans-unit>
@@ -375,7 +381,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 128523262 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Universal Print is a Microsoft 365 subscription-based cloud printing solution. This setup helps you to add your registered cloud printers from Universal Print into Business Central.</source>
-          <target state="translated">Universal Print je cloudové tiskové řešení založené na předplatném Microsoft 365. Toto nastavení vám pomůže přidat registrované cloudové tiskárny z Universal Print do Business Central.</target>
+          <target state="translated">Univerzální tisk je cloudové tiskové řešení založené na předplatném Microsoft 365. Toto nastavení vám pomůže přidat registrované cloudové tiskárny z Univerzálního tisku do Business Central.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.1.1 - Property Caption</note>
         </trans-unit>
@@ -423,7 +429,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 21734773 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>To add Universal Print printers to Business Central on-premises, you'll first need a registered application for Business Central in Azure Active Directory (Azure AD).</source>
-          <target state="translated">Chcete-li přidat tiskárny Universal Print do Business Central on-promises, budete nejprve potřebovat registrovanou aplikaci pro Business Central ve službě Azure Active Directory (Azure AD).</target>
+          <target state="translated">Chcete-li přidat tiskárny Univerzálního tisku do Business Central on-premises, budete nejprve potřebovat registrovanou aplikaci pro Business Central ve službě Azure Active Directory (Azure AD).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para1.1.1 - Property Caption</note>
         </trans-unit>
@@ -432,6 +438,18 @@
           <target state="translated">Jakmile je aplikace Azure AD zaregistrovaná, můžete v tomto nastavení pokračovat. Během instalace poskytnete informace o aplikaci Azure AD. Chcete-li pokračovat, zvolte Další.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para1.1.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3145364638 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your privacy is important to us</source>
+          <target state="translated">Vaše soukromí je pro nás důležité</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control PrivacyNoticeInner - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3950012862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature utilizes Microsoft Universal Print. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Universal Print may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Universal Print to learn more.</source>
+          <target state="translated">Tato funkce využívá Microsoft Universal Print. Pokračováním potvrzujete, že chápete, že standardy zpracování dat a dodržování předpisů služby Microsoft Universal Print nemusí být stejné jako standardy poskytované aplikací Microsoft Dynamics 365 Business Central. Další informace naleznete v dokumentaci k nástroji Universal Print.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control PrivacyNoticeLabel - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 4119205609 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies an image to be shown on top of the wizard page when the wizard is in progress.</source>
@@ -505,15 +523,15 @@
         </trans-unit>
         <trans-unit id="Page 2804880794 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Universal Printer Settings</source>
-          <target state="translated">Nastavení univerzální tiskárny</target>
+          <target state="translated">Nastavení tiskárny Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 2804880794 - NamedType 757360088" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about how the data is handled.</source>
-          <target state="translated">Přečtěte si další informace o tom, jak se s daty nakládá.</target>
+        <trans-unit id="Page 2804880794 - NamedType 2182510485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your privacy is important to us. To learn more read our Privacy Statement.</source>
+          <target state="translated">Vaše soukromí je pro nás důležité. Chcete-li se dozvědět více, přečtěte si naše Prohlášení o ochraně osobních údajů.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - NamedType PrivacyLbl</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - NamedType PrivacyStatementTxt</note>
         </trans-unit>
         <trans-unit id="Page 2804880794 - Control 3154152211 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the height of the paper.</source>
@@ -569,6 +587,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Privacy - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 3950012862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature utilizes Microsoft Universal Print. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Universal Print may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Universal Print to learn more.</source>
+          <target state="translated">Tato funkce využívá Microsoft Universal Print. Pokračováním potvrzujete, že chápete, že standardy zpracování dat a dodržování předpisů služby Microsoft Universal Print nemusí být stejné jako standardy poskytované aplikací Microsoft Dynamics 365 Business Central. Další informace naleznete v dokumentaci k nástroji Universal Print.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PrivacyNoticeLabel - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2804880794 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the unique name of the printer settings.</source>
           <target state="translated">Určuje jedinečný název nastavení tiskárny.</target>
@@ -619,19 +643,19 @@
         </trans-unit>
         <trans-unit id="Page 2804880794 - Action 709640958 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens new Universal Print printer card.</source>
-          <target state="translated">Otevře novou kartu tiskárny Universal Print.</target>
+          <target state="translated">Otevře novou kartu tiskárny Univerzálního tisku.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Action NewPrinter - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2804880794 - Action 709640958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add another Universal Print printer</source>
-          <target state="translated">Přidání další tiskárny Universal Print</target>
+          <target state="translated">Přidání další tiskárny Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Action NewPrinter - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3991539297 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Universal Printer Trays</source>
-          <target state="translated">Univerzální zásobníky tiskáren</target>
+          <target state="translated">Zásobníky Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Tray List - Property Caption</note>
         </trans-unit>
@@ -649,7 +673,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New, Process, Report, Manage, Email Print, Universal Print</source>
-          <target state="translated">Nové, Proces, Sestava, Spravovat, Tisk e-mailu, Universal Print</target>
+          <target state="translated">Nové, Proces, Sestava, Spravovat, E-mailová tiskárna, Univerzální tisk</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
@@ -663,14 +687,14 @@
         </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Action 571354942 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add a selected Universal Print printers that is shared with you, into Business Central.</source>
-          <target state="translated">Přidejte vybrané tiskárny Universal Print, které jsou s vámi sdíleny, do Business Central.</target>
+          <target state="translated">Přidejte vybrané tiskárny Univerzálního tisku, které jsou s vámi sdíleny, do Business Central.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Action 571354942 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add a Universal Print printer</source>
-          <target state="translated">Přidání tiskárny Universal Print</target>
+          <target state="translated">Přidání tiskárny Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
@@ -684,21 +708,21 @@
         </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Action 1626578475 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add all Universal Print printers</source>
-          <target state="translated">Přidání všech tiskáren Universal Print</target>
+          <target state="translated">Přidání všech tiskáren Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Action 3147545632 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens Universal Print portal.</source>
-          <target state="translated">Otevře portál Universal Print.</target>
+          <target state="translated">Otevře portál Univerzálního tisku.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Action 3147545632 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Universal Print portal</source>
-          <target state="translated">Portál Universal Print</target>
+          <target state="translated">Portál Univerzálního tisku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
@@ -738,6 +762,24 @@
           <target state="translated">Milimetry (mm)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Paper Unit - EnumValue Millimeters - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3156248255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MicrosoftUniversalPrint - Edit</source>
+          <target state="translated">MicrosoftUniversalPrint - Upravit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UniversalPrint - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3401988625 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft Universal Print - Objects</source>
+          <target state="translated">Microsoft Universal Print - Objekty</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UniversalPrint - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2226491525 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft Universal Print - Read</source>
+          <target state="translated">Microsoft Universal Print – Číst</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UniversalPrint - Read - Property Caption</note>
         </trans-unit>
       </group>
     </body>

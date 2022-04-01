@@ -12,25 +12,25 @@ page 9053 "WMS Ship & Receive Activities"
             cuegroup("Outbound - Today")
             {
                 Caption = 'Outbound - Today';
-                field("Released Sales Orders - Today"; "Released Sales Orders - Today")
+                field("Released Sales Orders - Today"; Rec."Released Sales Orders - Today")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of released sales orders that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Shipments - Today"; "Shipments - Today")
+                field("Shipments - Today"; Rec."Shipments - Today")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Shipment List";
                     ToolTip = 'Specifies the number of shipments that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Picked Shipments - Today"; "Picked Shipments - Today")
+                field("Picked Shipments - Today"; Rec."Picked Shipments - Today")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Shipment List";
                     ToolTip = 'Specifies the number of picked shipments that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Posted Shipments - Today"; "Posted Shipments - Today")
+                field("Posted Shipments - Today"; Rec."Posted Shipments - Today")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Posted Whse. Shipment List";
@@ -60,19 +60,19 @@ page 9053 "WMS Ship & Receive Activities"
             cuegroup("Inbound - Today")
             {
                 Caption = 'Inbound - Today';
-                field("Expected Purchase Orders"; "Expected Purchase Orders")
+                field("Expected Purchase Orders"; Rec."Expected Purchase Orders")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Purchase Order List";
                     ToolTip = 'Specifies the number of expected purchase orders that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field(Arrivals; Arrivals)
+                field(Arrivals; Rec.Arrivals)
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Receipts";
                     ToolTip = 'Specifies the number of arrivals that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Posted Receipts - Today"; "Posted Receipts - Today")
+                field("Posted Receipts - Today"; Rec."Posted Receipts - Today")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Posted Whse. Receipt List";
@@ -102,19 +102,19 @@ page 9053 "WMS Ship & Receive Activities"
             cuegroup(Internal)
             {
                 Caption = 'Internal';
-                field("Picks - All"; "Picks - All")
+                field("Picks - All"; Rec."Picks - All")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Picks";
                     ToolTip = 'Specifies the number of picks that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Unassigned Picks"; "Unassigned Picks")
+                field("Unassigned Picks"; Rec."Unassigned Picks")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Picks";
                     ToolTip = 'Specifies the number of unassigned picks that are displayed in the Warehouse Worker WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Put-aways - All"; "Put-aways - All")
+                field("Put-aways - All"; Rec."Put-aways - All")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Put-aways";
@@ -126,19 +126,19 @@ page 9053 "WMS Ship & Receive Activities"
                     DrillDownPageID = "Warehouse Put-aways";
                     ToolTip = 'Specifies the number of unassigned put-always that are displayed in the Warehouse Worker WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Movements - All"; "Movements - All")
+                field("Movements - All"; Rec."Movements - All")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Movements";
                     ToolTip = 'Specifies the number of movements that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Unassigned Movements"; "Unassigned Movements")
+                field("Unassigned Movements"; Rec."Unassigned Movements")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Movements";
                     ToolTip = 'Specifies the number of unassigned movements that are displayed in the Warehouse Worker WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Registered Picks - Today"; "Registered Picks - Today")
+                field("Registered Picks - Today"; Rec."Registered Picks - Today")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Registered Whse. Picks";
@@ -170,34 +170,6 @@ page 9053 "WMS Ship & Receive Activities"
                     }
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
-                }
-            }
         }
     }
 
@@ -207,22 +179,21 @@ page 9053 "WMS Ship & Receive Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetRange("Date Filter", 0D, WorkDate);
-        SetRange("Date Filter2", WorkDate, WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetRange("Date Filter", 0D, WorkDate());
+        Rec.SetRange("Date Filter2", WorkDate(), WorkDate());
+        Rec.SetRange("User ID Filter", UserId());
 
-        LocationCode := GetEmployeeLocation(UserId);
-        SetFilter("Location Filter", LocationCode);
+        LocationCode := Rec.GetEmployeeLocation(UserId());
+        Rec.SetFilter("Location Filter", LocationCode);
     end;
 
     var
-        UserTaskManagement: Codeunit "User Task Management";
         LocationCode: Text[1024];
 }
 

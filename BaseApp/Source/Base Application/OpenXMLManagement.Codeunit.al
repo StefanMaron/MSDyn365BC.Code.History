@@ -501,7 +501,7 @@ codeunit 6223 "OpenXML Management"
 
         CommentText := CommentText.CommentText;
 
-        Run := Run.Run;
+        Run := Run.Run();
 
         RunProperties := RunProperties.RunProperties;
         Bold := Bold.Bold;

@@ -14,7 +14,7 @@ report 1199 "Delete Empty Res. Registers"
             trigger OnAfterGetRecord()
             begin
                 ResLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
-                if ResLedgEntry.FindFirst then
+                if ResLedgEntry.FindFirst() then
                     CurrReport.Skip();
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");

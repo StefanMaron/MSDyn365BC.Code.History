@@ -30,7 +30,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         PmtAmount := InvAmount + LibraryRandom.RandInt(10);  // Over Payment and Before Discount Date.
@@ -57,7 +57,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Credit Memo Amount using RANDOM, it can be anything between 10 and 1000, Amount need to always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := 10 * LibraryRandom.RandInt(100);
         RefAmount := CrMemoAmount + LibraryRandom.RandInt(10);  // Over Refund and Before Discount Date.
@@ -87,7 +87,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
@@ -115,7 +115,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -140,7 +140,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         UpdateAddCurrencySetup;
         ComputeUnderAmountForMinValue(InvAmount, PmtAmount);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -167,7 +167,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         ComputeUnderAmountForMaxValue(CrMemoAmount, RefAmount);
         CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate);
@@ -198,7 +198,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
@@ -232,7 +232,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 1 and 499, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := LibraryRandom.RandInt(499); // To Check Payment Tolerance % taking 499 maximum value.
         PmtTolAmount := InvAmount * GetPaymentTolerancePercent / 100;
@@ -263,7 +263,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 500 and 2500, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := 500 * LibraryRandom.RandInt(5); // To check "Max. Payment Tolerance Amount" using 500 to 2500 range.
         CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate);
@@ -294,7 +294,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -323,7 +323,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate));
@@ -356,7 +356,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
@@ -388,7 +388,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -417,7 +417,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         ComputeUnderAmountForMinValue(InvAmount, PmtAmount);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -446,7 +446,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         ComputeUnderAmountForMaxValue(CrMemoAmount, RefAmount);
         DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate));
@@ -478,7 +478,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
@@ -511,7 +511,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
@@ -540,7 +540,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 501 and 2500, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 501 * LibraryRandom.RandInt(5);
         PmtAmount := InvAmount + GetMaxPaymentToleranceAmount;
@@ -570,7 +570,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 1 and 499, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := LibraryRandom.RandInt(499); // To Check Payment Tolerance % taking 499 maximum value.
         RefAmount := CrMemoAmount + (CrMemoAmount * GetPaymentTolerancePercent / 100);
@@ -597,7 +597,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
@@ -627,7 +627,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 500 and 2500, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         InvAmount := 500 * LibraryRandom.RandInt(5); // To Check Max Payment Tolerance Amount taking minimum 500 value.
         PmtAmount := InvAmount - GetMaxPaymentToleranceAmount;
@@ -657,7 +657,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 1 and 499, Amount always greater than
         // Maximum Payment Tolerance Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := LibraryRandom.RandInt(499); // To Check Payment Tolerance % taking 499 maximum value.
         RefAmount := CrMemoAmount - (CrMemoAmount * GetPaymentTolerancePercent / 100);
@@ -688,7 +688,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // [FEATURE] [UI] [Apply]
         // [SCENARIO 277758] No application post if user choose "No" in "Payment Discount Tolerance Warning" window when apply payment to invoice with discount
 
-        Initialize;
+        Initialize();
         UpdateAddCurrencySetup;
 
         // [GIVEN] Payment Discount Tolerance Warning is set in General Ledger Setup
@@ -716,7 +716,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // [THEN] "Accepted Payment Discount Tolerance" is not set on invoice customer ledger entry
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
 
         // [THEN] "Remainig Amount" equals "Amount" on invoice customer ledger entry
@@ -730,12 +730,12 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         Commit();
@@ -777,10 +777,10 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Remaining Amount");
 
         // Find Posted Customer Ledger Entries.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         CustLedgerEntry2.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         CustLedgerEntry2.SetRange("Applying Entry", false);
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
@@ -936,7 +936,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         CustomerPostingGroup.Get(PostingGroupCode);
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange(Blocked, false);
-        if GLAccount.FindSet then
+        if GLAccount.FindSet() then
             repeat
                 Counter += 1;
                 CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
@@ -994,7 +994,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         Currency.InitRoundingPrecision;
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, DetailedCustLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
           StrSubstNo(PaymentToleranceError, Amount, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry No."),
@@ -1013,10 +1013,10 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         GeneralLedgerSetup.Get();
         Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
         Currency.InitRoundingPrecision;
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision", StrSubstNo(RoundingMessage, GLEntry.FieldCaption(Amount),
             GLEntry.Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
@@ -1035,7 +1035,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         // Watch Discount Amount expected value should be same as per Delta amount.
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
           DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Original Pmt. Disc. Possible"),
           CustLedgerEntry."Original Pmt. Disc. Possible" - DiscountAmount);

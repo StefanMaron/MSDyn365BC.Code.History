@@ -215,7 +215,7 @@ page 99000868 "Finished Prod. Order Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -262,23 +262,6 @@ page 99000868 "Finished Prod. Order Lines"
         ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
 
         PAGE.Run(PAGE::"Prod. Order Components", ProdOrderComp);
-    end;
-
-    local procedure ShowRouting()
-    var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
-    begin
-        ProdOrderRtngLine.SetRange(Status, Status);
-        ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-        ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
-        ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
-
-        PAGE.Run(PAGE::"Prod. Order Routing", ProdOrderRtngLine);
-    end;
-
-    local procedure OpenItemTrackingLines()
-    begin
-        OpenItemTrackingLines();
     end;
 
     local procedure DescriptionOnFormat()

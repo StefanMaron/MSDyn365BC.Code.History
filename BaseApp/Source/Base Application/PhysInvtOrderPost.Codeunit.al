@@ -55,6 +55,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
         WhsePosting: Boolean;
         OriginalQuantityBase: Decimal;
         SuppressCommit: Boolean;
+        HideProgressWindow: Boolean;
 
     procedure "Code"()
     var
@@ -62,15 +63,18 @@ codeunit 5884 "Phys. Invt. Order-Post"
         InventorySetup: Record "Inventory Setup";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
     begin
-        OnBeforeCode(PhysInvtOrderHeader);
+        OnBeforeCode(PhysInvtOrderHeader, HideProgressWindow, SuppressCommit);
+
         with PhysInvtOrderHeader do begin
             TestField(Status, Status::Finished);
             TestField("Posting Date");
 
-            Window.Open(
-              '#1################################\\' +
-              CheckingLinesMsg + PostingLinesMsg);
-            Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
+            if not HideProgressWindow then begin
+                Window.Open(
+                '#1################################\\' +
+                CheckingLinesMsg + PostingLinesMsg);
+                Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
+            end;
 
             LockTable();
             PhysInvtOrderLine.LockTable();
@@ -102,27 +106,15 @@ codeunit 5884 "Phys. Invt. Order-Post"
             if PhysInvtOrderLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
-                    if not PhysInvtOrderLine.EmptyLine then begin
+                    if not HideProgressWindow then
+                        Window.Update(2, LineCount);
+
+                    if not PhysInvtOrderLine.EmptyLine() then begin
                         CheckOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, Item);
 
                         PhysInvtOrderLine.TestField("Entry Type");
-                        if ((PhysInvtOrderLine."Entry Type" = PhysInvtOrderLine."Entry Type"::"Positive Adjmt.") and
-                            (PhysInvtOrderLine."Quantity (Base)" <>
-                             PhysInvtOrderLine."Pos. Qty. (Base)" - PhysInvtOrderLine."Neg. Qty. (Base)")) or
-                           ((PhysInvtOrderLine."Entry Type" = PhysInvtOrderLine."Entry Type"::"Negative Adjmt.") and
-                            (-PhysInvtOrderLine."Quantity (Base)" <>
-                             PhysInvtOrderLine."Pos. Qty. (Base)" - PhysInvtOrderLine."Neg. Qty. (Base)"))
-                        then
-                            Error(
-                              DifferenceErr,
-                              PhysInvtOrderLine.FieldCaption("Pos. Qty. (Base)"),
-                              PhysInvtOrderLine.FieldCaption("Neg. Qty. (Base)"),
-                              PhysInvtOrderLine.FieldCaption("Quantity (Base)"),
-                              PhysInvtOrderLine."Item No.",
-                              PhysInvtOrderLine."Variant Code",
-                              PhysInvtOrderLine."Location Code",
-                              PhysInvtOrderLine."Bin Code");
+                        if IsDifference() then
+                            ThrowDifferenceError();
 
                         if not LinesToPost then
                             LinesToPost := true;
@@ -216,10 +208,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
         IsHandled := false;
         OnCheckOrderLineOnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, PhysInvtOrderLine2, ErrorText, IsHandled);
         if not IsHandled then
-            if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                 PhysInvtOrderLine."Item No.", PhysInvtOrderLine."Variant Code", PhysInvtOrderLine."Location Code",
-                 PhysInvtOrderLine."Bin Code", ErrorText, PhysInvtOrderLine2) > 1
-            then
+            if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(PhysInvtOrderLine, ErrorText, PhysInvtOrderLine2) > 1 then
                 Error(ErrorText);
     end;
 
@@ -325,11 +314,12 @@ codeunit 5884 "Phys. Invt. Order-Post"
         PstdPhysInvtOrderHdr."Pre-Assigned No." := PhysInvtOrderHeader."No.";
         if PhysInvtOrderHeader."Posting No." <> '' then begin
             PstdPhysInvtOrderHdr."No." := PhysInvtOrderHeader."Posting No.";
-            Window.Update(
-                1,
-                StrSubstNo(
-                    CopyFromToMsg, PhysInvtOrderHeader.TableCaption, PhysInvtOrderHeader."No.",
-                    PstdPhysInvtOrderHdr.TableCaption, PstdPhysInvtOrderHdr."No."));
+            if not HideProgressWindow then
+                Window.Update(
+                    1,
+                    StrSubstNo(
+                        CopyFromToMsg, PhysInvtOrderHeader.TableCaption, PhysInvtOrderHeader."No.",
+                        PstdPhysInvtOrderHdr.TableCaption, PstdPhysInvtOrderHdr."No."));
         end;
         PstdPhysInvtOrderHdr."Source Code" := SourceCode;
         PstdPhysInvtOrderHdr."User ID" := UserId;
@@ -504,7 +494,8 @@ codeunit 5884 "Phys. Invt. Order-Post"
         IsHandled: Boolean;
     begin
         LineCount := LineCount + 1;
-        Window.Update(3, LineCount);
+        if not HideProgressWindow then
+            Window.Update(3, LineCount);
 
         InsertPostedLine(PstdPhysInvtOrderHdr, PhysInvtOrderLine);
 
@@ -561,9 +552,44 @@ codeunit 5884 "Phys. Invt. Order-Post"
         Location.TestField("Directed Put-away and Pick", false);
     end;
 
+    local procedure IsDifference() Result: Boolean
+    begin
+        Result :=
+            ((PhysInvtOrderLine."Entry Type" = PhysInvtOrderLine."Entry Type"::"Positive Adjmt.") and
+             (PhysInvtOrderLine."Quantity (Base)" <>
+              PhysInvtOrderLine."Pos. Qty. (Base)" - PhysInvtOrderLine."Neg. Qty. (Base)")) or
+            ((PhysInvtOrderLine."Entry Type" = PhysInvtOrderLine."Entry Type"::"Negative Adjmt.") and
+             (-PhysInvtOrderLine."Quantity (Base)" <>
+              PhysInvtOrderLine."Pos. Qty. (Base)" - PhysInvtOrderLine."Neg. Qty. (Base)"));
+        OnAfterIsDifference(PhysInvtOrderLine);
+    end;
+
+    local procedure ThrowDifferenceError()
+    var
+        ErrorMsg: Text;
+    begin
+        ErrorMsg :=
+            StrSubstNo(
+                DifferenceErr,
+                PhysInvtOrderLine.FieldCaption("Pos. Qty. (Base)"),
+                PhysInvtOrderLine.FieldCaption("Neg. Qty. (Base)"),
+                PhysInvtOrderLine.FieldCaption("Quantity (Base)"),
+                PhysInvtOrderLine."Item No.",
+                PhysInvtOrderLine."Variant Code",
+                PhysInvtOrderLine."Location Code",
+                PhysInvtOrderLine."Bin Code");
+        OnThrowDifferenceError(PhysInvtOrderLine, ErrorMsg);
+        Error(ErrorMsg);
+    end;
+
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
+    end;
+
+    procedure SetHideProgressWindow(NewHideProgressWindow: Boolean)
+    begin
+        HideProgressWindow := NewHideProgressWindow;
     end;
 
     [IntegrationEvent(false, false)]
@@ -572,7 +598,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header");
+    local procedure OnBeforeCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var HideProgressWindow: Boolean; var SuppressCommit: Boolean);
     begin
     end;
 
@@ -648,6 +674,16 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(var ItemJnlLine: Record "Item Journal Line"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; var OriginalQuantity: Decimal; var OriginalQuantityBase: Decimal; var Positive: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsDifference(PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnThrowDifferenceError(PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var ErrorMsg: Text)
     begin
     end;
 }

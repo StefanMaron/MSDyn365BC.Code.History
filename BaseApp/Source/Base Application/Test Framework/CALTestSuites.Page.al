@@ -62,10 +62,10 @@ page 130400 "CAL Test Suites"
                         CALTestSuite: Record "CAL Test Suite";
                         CALTestLine: Record "CAL Test Line";
                     begin
-                        if CALTestSuite.FindSet then
+                        if CALTestSuite.FindSet() then
                             repeat
                                 CALTestLine.SetRange("Test Suite", CALTestSuite.Name);
-                                if CALTestLine.FindFirst then
+                                if CALTestLine.FindFirst() then
                                     CODEUNIT.Run(CODEUNIT::"CAL Test Runner", CALTestLine);
                             until CALTestSuite.Next() = 0;
                         Commit();

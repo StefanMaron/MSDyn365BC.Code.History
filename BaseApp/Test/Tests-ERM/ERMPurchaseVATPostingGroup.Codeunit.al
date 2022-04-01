@@ -27,7 +27,7 @@ codeunit 134038 "ERM Purchase VAT Posting Group"
         // Check that correct VAT Posting Group updated on Purchase Header when Bill To Sell To VAT Calc is Sell to Buy From No.
 
         // Update General Ledger Setup. Create Purchase Header and Update Pay To Vendor No.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(BillToSellToVATCalc, GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
         CreateAndUpdatePurchaseHeader(PurchaseHeader);
 
@@ -52,7 +52,7 @@ codeunit 134038 "ERM Purchase VAT Posting Group"
         // Check that correct VAT Posting Group updated on Purchase Header when Bill To Sell To VAT Calc is Bill To Pay To No.
 
         // Update General Ledger Setup. Create Purchase Header and Update Pay To Vendor No.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(BillToSellToVATCalc, GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
         PayToVendorNo := CreateAndUpdatePurchaseHeader(PurchaseHeader);
 
@@ -75,7 +75,7 @@ codeunit 134038 "ERM Purchase VAT Posting Group"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase VAT Posting Group");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase VAT Posting Group");

@@ -50,7 +50,7 @@ codeunit 5403 AddOnIntegrManagement
                 ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
                 ProdOrderLine.SetRange("Prod. Order No.", "Prod. Order No.");
                 ProdOrderLine.SetRange("Item No.", "No.");
-                if ProdOrderLine.FindFirst then
+                if ProdOrderLine.FindFirst() then
                     "Routing No." := ProdOrderLine."Routing No.";
                 Item.Get("No.");
                 Validate("Unit of Measure Code", Item."Base Unit of Measure");
@@ -85,7 +85,7 @@ codeunit 5403 AddOnIntegrManagement
                 ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
                 ProdOrderLine.SetRange("Prod. Order No.", "Prod. Order No.");
                 ProdOrderLine.SetRange("Item No.", "No.");
-                if ProdOrderLine.FindFirst then begin
+                if ProdOrderLine.FindFirst() then begin
                     "Routing No." := ProdOrderLine."Routing No.";
                     "Routing Reference No." := ProdOrderLine."Line No.";
                     "Prod. Order Line No." := ProdOrderLine."Line No.";
@@ -102,7 +102,7 @@ codeunit 5403 AddOnIntegrManagement
         MfgSetup: Record "Manufacturing Setup";
     begin
         with MfgSetup do
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Insert;
             end;

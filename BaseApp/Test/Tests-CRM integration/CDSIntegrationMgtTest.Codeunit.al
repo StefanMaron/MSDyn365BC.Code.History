@@ -420,10 +420,10 @@ codeunit 139195 "CDS Integration Mgt Test"
     [Scope('OnPrem')]
     procedure RegisterAssistedSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         CDSIntegrationMgt.RegisterAssistedSetup();
-        Assert.IsTrue(AssistedSetup.Exists(PAGE::"CDS Connection Setup Wizard"), 'Assisted Setup is not registered');
+        Assert.IsTrue(GuidedExperience.Exists("Guided Experience Type"::"Assisted Setup", ObjectType::Page, Page::"CDS Connection Setup Wizard"), 'Assisted Setup is not registered');
     end;
 
     [Test]

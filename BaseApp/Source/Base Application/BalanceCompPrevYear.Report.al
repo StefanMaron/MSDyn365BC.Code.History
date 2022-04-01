@@ -252,7 +252,7 @@ report 37 "Balance Comp. - Prev. Year"
 
                 AccountingPeriod.SetFilter("Starting Date", '<=%1', PeriodStartingDate);
                 AccountingPeriod.SetRange("New Fiscal Year", true);
-                AccountingPeriod.FindLast;
+                AccountingPeriod.FindLast();
                 FYStartingDate := AccountingPeriod."Starting Date";
             end;
         }
@@ -396,7 +396,7 @@ report 37 "Balance Comp. - Prev. Year"
     begin
         AccountingPeriod.Reset();
         AccountingPeriod.SetFilter("Starting Date", '>%1', PeriodStartingDate);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         PeriodEndingDate := AccountingPeriod."Starting Date" - 1;
     end;
 
@@ -414,11 +414,11 @@ report 37 "Balance Comp. - Prev. Year"
     begin
         AccountingPeriod2.SetRange("New Fiscal Year", true);
         AccountingPeriod2.SetFilter("Starting Date", '<=%1', PeriodStartingDate);
-        AccountingPeriod2.FindLast;
+        AccountingPeriod2.FindLast();
 
         AccountingPeriod3.SetRange("New Fiscal Year", true);
         AccountingPeriod3.SetFilter("Starting Date", '<=%1', PeriodEndingDate);
-        AccountingPeriod3.FindLast;
+        AccountingPeriod3.FindLast();
         if AccountingPeriod2."Starting Date" <> AccountingPeriod3."Starting Date" then
             Error(Text014, PeriodStartingDate, PeriodEndingDate);
 
@@ -427,11 +427,11 @@ report 37 "Balance Comp. - Prev. Year"
 
         AccountingPeriod2.SetRange("New Fiscal Year", true);
         AccountingPeriod2.SetFilter("Starting Date", '<=%1', PreviousStartingDate);
-        AccountingPeriod2.FindLast;
+        AccountingPeriod2.FindLast();
 
         AccountingPeriod3.SetRange("New Fiscal Year", true);
         AccountingPeriod3.SetFilter("Starting Date", '<=%1', PreviousEndingDate);
-        AccountingPeriod3.FindLast;
+        AccountingPeriod3.FindLast();
         if AccountingPeriod2."Starting Date" <> AccountingPeriod3."Starting Date" then
             Error(Text014, PreviousStartingDate, PreviousEndingDate);
     end;
@@ -475,7 +475,7 @@ report 37 "Balance Comp. - Prev. Year"
     begin
         GLIndent.Reset();
         MaxIndent := '';
-        if GLIndent.FindSet then
+        if GLIndent.FindSet() then
             repeat
                 if Format(GLIndent.Indentation) > MaxIndent then
                     MaxIndent := Format(GLIndent.Indentation);

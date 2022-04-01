@@ -26,13 +26,13 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
         // [SCENARIO] Pay-To is initialized to "Default (Vendor)" on a Purchase Invoice in new mode
         // [WHEN] Annie opens a new Purhase Invoice card
         // [THEN] Pay-To option is set to Default(Vendor)
-        Initialize;
+        Initialize();
 
         // Setup - Update address in Company Information
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise - Open a New Purchase Invoice
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor No.".SetValue(Vendor."No.");
 
         // Verify - PayToOptions is set to default
@@ -59,7 +59,7 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
         // [SCENARIO] Pay-To address fields is in sync with another vendor address fields when PayToOption is set to a another vendor
         // [WHEN] Annie selects PayToOption as 'Another Vendor' and selects another Vendor on a Purchase Invoice
         // [THEN] Pay-To address fields are updated
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Invocie with default pay to option
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
@@ -96,7 +96,7 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
         // [SCENARIO] Pay-to address fields are editable when the PayToOption is Custom Address on Purchase Invoice
         // [WHEN] Annie creates a Purchase Invoice and sets the PayToOption as Custom Address
         // [THEN] The Pay-to address fields on the Purchase Invoice page is editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Invoice
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
@@ -124,7 +124,7 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
         // [SCENARIO] Pay-to address fields are not visible when the PayToOption is default on Purchase Invoice
         // [WHEN] Annie creates a Purchase Invoice and sets the PayToOption as default
         // [THEN] The Pay-to address fields on the Purchase Invoice page is not editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Invoice
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
@@ -148,7 +148,7 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
         // [SCENARIO] PayToOption is set correctly when opening an existing Purchase Invoice
         // [WHEN] Annie opens a Purchase Invoice where the payto vendor is same as the buy-from vendor
         // [THEN] The Purchase Invoice page has the PayToOption set to "Default (Vendor)"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Invoice
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
@@ -173,7 +173,7 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
         // [SCENARIO] PayToOption is set correctly when opening an existing Purchase Invoice
         // [WHEN] Annie opens a Purchase Invoice where the PAy-to vendor is not the same as buy-from vendor
         // [THEN] The Purchase Invoice page has the PayToOption set to 'Another Vendor'
-        Initialize;
+        Initialize();
 
         // Setup - Create a Vendor
         LibraryPurchase.CreateVendor(Vendor);
@@ -201,7 +201,7 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();

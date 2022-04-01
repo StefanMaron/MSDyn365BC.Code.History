@@ -27,13 +27,13 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         // [SCENARIO] Ship-To is initialized to "Default (Sell-To Address)" on a Blanket Sales Order in new mode
         // [WHEN] Annie opens a new Blanket Sales Order card
         // [THEN] Ship-To option is set to Defualt(Sell-To Address)
-        Initialize;
+        Initialize();
 
         // Setup - Create a customer with address
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // Excercise - Open a New Blanket Sales Order for the customer
-        BlanketSalesOrder.OpenNew;
+        BlanketSalesOrder.OpenNew();
         BlanketSalesOrder."Sell-to Customer Name".Value := Customer."No.";
 
         // Verify - ShipToOptions is set to default
@@ -54,7 +54,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         // [SCENARIO] Ship-To address fields is in sync with Sell-To address fields when ShipToOption is set to default
         // [WHEN] ShipToOption is set to default and Annie changes Sell-To address fields on Blanket Sales Order
         // [THEN] Ship-To address fields are updated
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
@@ -90,7 +90,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         // [SCENARIO] An alternative ship-to address can be selected for a Blanket Sales Order
         // [WHEN] Annie selects 'Alternative Shipping Address' as ShipToOption on a Blanket Sales Order
         // [THEN] Annie is able to select an alternative ship-to address for the customer
-        Initialize;
+        Initialize();
 
         // Setup - Create Customer with an alternative shipping address
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -119,7 +119,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         // [SCENARIO] A custom ship-to address can be selected for a Blanket Sales Order
         // [WHEN] Annie selects 'Customer Address' as ShipToOption on a Blanket Sales Order
         // [THEN] Annie is able to type in values into ship-to address fields
-        Initialize;
+        Initialize();
 
         // Setup - Create a Blanket Sales Order for a customer
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order",
@@ -149,7 +149,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         // [WHEN] Annie selects 'Alternative Shipping Address' as ShipToOption on a Blanket Sales Order and
         // [WHEN] Cancels the page opened to select the alternative shipping address.
         // [THEN] Blanket Sales Order page changes the ShipToOption to "Customer Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create Customer with an alternative shipping address
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -181,7 +181,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         // [SCENARIO] ShipToOption is set correctly when opening an existing Blanket Sales Order
         // [WHEN] Annie opens a Blanket Sales Order where an alternative shipping address is set
         // [THEN] The Blanket Sales Order page has the ShipToOption set to "Alternative Shipping Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create Customer with an alternative shipping address
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -213,7 +213,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         // [SCENARIO] ShipToOption is set correctly when opening an existing Blanket Sales Order
         // [WHEN] Annie opens a Blanket Sales Order where a custom shipping address is set
         // [THEN] The Blanket Sales Order page has the ShipToOption set to "Customer Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Blanket Sales Order for a customer
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order",
@@ -242,7 +242,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         // [SCENARIO] ShipToOption is set correctly when opening an existing Blanket Sales Order
         // [WHEN] Annie opens a Blanket Sales Order where the ship-to address is set to default
         // [THEN] The Blanket Sales Order page has the ShipToOption set to "Default (Sell-to Address)"
-        Initialize;
+        Initialize();
 
         // Setup - Create Customer with an alternative shipping address
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -267,7 +267,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Alt. Ship Addr. B. S. O.");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();

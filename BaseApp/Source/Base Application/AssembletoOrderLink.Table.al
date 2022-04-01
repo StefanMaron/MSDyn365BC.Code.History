@@ -193,7 +193,7 @@ table 904 "Assemble-to-Order Link"
         WhseActivityLine.SetRange("Source No.", InvtPickWhseActivityLine."Source No.");
         WhseActivityLine.SetRange("Source Line No.", InvtPickWhseActivityLine."Source Line No.");
         WhseActivityLine.SetRange("Assemble to Order", true);
-        if WhseActivityLine.FindSet then
+        if WhseActivityLine.FindSet() then
             repeat
                 TotalQtyToAsm += WhseActivityLine."Qty. to Handle";
             until WhseActivityLine.Next() = 0;
@@ -1261,7 +1261,7 @@ table 904 "Assemble-to-Order Link"
             SetRange(Type, Type::Sale);
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not TempAssemblyHeader.Get("Assembly Document Type", "Assembly Document No.") then
                         if AssemblyHeader.Get("Assembly Document Type", "Assembly Document No.") then begin
@@ -1279,7 +1279,7 @@ table 904 "Assemble-to-Order Link"
     begin
         AssemblyLine.SetRange("Document Type", AsmHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AsmHeader."No.");
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 AsmHeader.AutoReserveAsmLine(AssemblyLine);
             until AssemblyLine.Next() = 0;

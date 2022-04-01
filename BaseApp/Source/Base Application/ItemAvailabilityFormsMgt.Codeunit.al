@@ -225,7 +225,7 @@ codeunit 353 "Item Availability Forms Mgt"
         IF QtyByUnitOfMeasure <> 0 THEN
             ItemAvailLineList.SetQtyByUnitOfMeasure(QtyByUnitOfMeasure);
         ItemAvailLineList.Init(What, ItemCopy);
-        ItemAvailLineList.RunModal;
+        ItemAvailLineList.RunModal();
     end;
 
     procedure ShowItemAvailFromItem(var Item: Record Item; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)

@@ -14,8 +14,6 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         LibraryERM: Codeunit "Library - ERM";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DayDateFormulaTxt: Label '<%1D>', Locked = false, Comment = '%1 = no. of days';
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
 
     [Test]
     [Scope('OnPrem')]
@@ -81,8 +79,8 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         // [WHEN] Opening page for item with amount type of balance at date and current date set one week ahead.
         AvailabilityTestPage.OpenView();
         AvailabilityTestPage.GoToRecord(Item);
-        AvailabilityTestPage.PeriodType.SetValue(PeriodType::Week);
-        AvailabilityTestPage.AmountType.SetValue(AmountType::"Balance at Date");
+        AvailabilityTestPage.PeriodType.SetValue("Analysis Period Type"::Week);
+        AvailabilityTestPage.AmountType.SetValue("Analysis Amount Type"::"Balance at Date");
         AvailabilityTestPage.NextPeriod.Invoke();
 
         // [THEN] Only one entry is shown containing the specified lot and correct quantities.
@@ -134,8 +132,8 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         // [WHEN] Opening page for item with amount type of balance at date and current date set one week ahead.
         AvailabilityTestPage.OpenView();
         AvailabilityTestPage.GoToRecord(Item);
-        AvailabilityTestPage.PeriodType.SetValue(PeriodType::Week);
-        AvailabilityTestPage.AmountType.SetValue(AmountType::"Balance at Date");
+        AvailabilityTestPage.PeriodType.SetValue("Analysis Period Type"::Week);
+        AvailabilityTestPage.AmountType.SetValue("Analysis Amount Type"::"Balance at Date");
         AvailabilityTestPage.NextPeriod.Invoke();
 
         // [THEN] Quantities should show for both location A and B.
@@ -215,8 +213,8 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         // [WHEN] Opening page for item with amount type of balance at date and current date set one week ahead.
         AvailabilityTestPage.OpenView();
         AvailabilityTestPage.GoToRecord(Item);
-        AvailabilityTestPage.PeriodType.SetValue(PeriodType::Week);
-        AvailabilityTestPage.AmountType.SetValue(AmountType::"Balance at Date");
+        AvailabilityTestPage.PeriodType.SetValue("Analysis Period Type"::Week);
+        AvailabilityTestPage.AmountType.SetValue("Analysis Amount Type"::"Balance at Date");
         AvailabilityTestPage.NextPeriod.Invoke();
 
         // [THEN] Quantities should show for both variant A and B.
@@ -273,7 +271,7 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         Initialize();
 
         // Set work date to start of week to easen the setup of weekly data.
-        PeriodPageManagement.FindDate('', CalendarDate, PeriodType::Week);
+        PeriodPageManagement.FindDate('', CalendarDate, "Analysis Period Type"::Week);
         WorkDate(CalendarDate."Period Start");
 
         CreateItem(Item);
@@ -323,10 +321,10 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         // [WHEN] Opening page for item with amount type of net change and current date set to current week.
         AvailabilityTestPage.OpenView();
         AvailabilityTestPage.GoToRecord(Item);
-        AvailabilityTestPage.PeriodType.SetValue(PeriodType::Day);
+        AvailabilityTestPage.PeriodType.SetValue("Analysis Period Type"::Day);
         AvailabilityTestPage.DateFilter.SetValue(WorkDate());
-        AvailabilityTestPage.PeriodType.SetValue(PeriodType::Week);
-        AvailabilityTestPage.AmountType.SetValue(AmountType::"Net Change");
+        AvailabilityTestPage.PeriodType.SetValue("Analysis Period Type"::Week);
+        AvailabilityTestPage.AmountType.SetValue("Analysis Amount Type"::"Net Change");
 
         // [THEN] Quantities should only show for current week (except for posted PO as ILE are not filtered).
         Assert.AreEqual(7, AvailabilityTestPage.ItemAvailLoTNoLines.Inventory.AsInteger(), 'Expected inventory of 7.');
@@ -358,7 +356,7 @@ codeunit 134084 "Item Avail. by Lot No Tests"
 
         // [WHEN] Showing balance at date for this week.
         AvailabilityTestPage.PreviousPeriod.Invoke();
-        AvailabilityTestPage.AmountType.SetValue(AmountType::"Balance at Date");
+        AvailabilityTestPage.AmountType.SetValue("Analysis Amount Type"::"Balance at Date");
 
         // [THEN] Quantities should only show for up to and including current week (except for posted PO as ILE are not filtered).
         Assert.AreEqual(7, AvailabilityTestPage.ItemAvailLoTNoLines.Inventory.AsInteger(), 'Expected inventory of 7.');

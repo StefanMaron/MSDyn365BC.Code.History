@@ -113,7 +113,7 @@ page 1515 "Workflow Step Responses"
         TempWorkflowStepBuffer: Record "Workflow Step Buffer" temporary;
     begin
         TempWorkflowStepBuffer.Copy(Rec, true);
-        if TempWorkflowStepBuffer.FindLast then;
+        if TempWorkflowStepBuffer.FindLast() then;
         if ("Next Step Description" = '') and (Order = TempWorkflowStepBuffer.Order) then
             "Next Step Description" := NextStepTxt;
 

@@ -106,7 +106,7 @@ report 718 "Inventory - Sales Back Orders"
 
                     SalesOrderLine.SetRange("Bill-to Customer No.", Cust."No.");
                     SalesOrderLine.SetFilter("No.", '<>' + Item."No.");
-                    OtherBackOrders := SalesOrderLine.FindFirst;
+                    OtherBackOrders := SalesOrderLine.FindFirst();
                 end;
 
                 trigger OnPreDataItem()

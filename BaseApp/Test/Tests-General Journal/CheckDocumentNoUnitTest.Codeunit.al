@@ -274,7 +274,7 @@ codeunit 134073 "Check Document No. Unit Test"
         // [SCENARIO 261484] TAB81.CheckDocNoBasedOnNoSeries updates internal "No Series" instance of NoSeriesManagement without modification. Further modification can be done by NoSeriesManagement.SaveNoSeries
 
         NoSeriesLine.SetRange("Series Code", LibraryERM.CreateNoSeriesCode);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
 
         Commit();
 
@@ -578,7 +578,7 @@ codeunit 134073 "Check Document No. Unit Test"
     begin
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
@@ -591,7 +591,7 @@ codeunit 134073 "Check Document No. Unit Test"
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         DocumentNo := GenJnlLine."Document No.";
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -612,7 +612,7 @@ codeunit 134073 "Check Document No. Unit Test"
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindLast;
+        GenJnlLine.FindLast();
         CorrectDocumentNo := GenJnlLine."Document No.";
 
         GenJnlLine.Validate("Document No.", IncStr(GenJnlLine."Document No."));

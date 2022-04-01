@@ -173,7 +173,7 @@ table 436 "IC Inbox Purchase Header"
         ICInboxPurchLine.SetRange("IC Partner Code", "IC Partner Code");
         ICInboxPurchLine.SetRange("IC Transaction No.", "IC Transaction No.");
         ICInboxPurchLine.SetRange("Transaction Source", "Transaction Source");
-        if ICInboxPurchLine.FindFirst then
+        if ICInboxPurchLine.FindFirst() then
             ICInboxPurchLine.DeleteAll(true);
         DimMgt.DeleteICDocDim(
           DATABASE::"IC Inbox Purchase Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);

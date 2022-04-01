@@ -101,14 +101,14 @@ codeunit 139300 "Assis. Comp. Setup Plat. Tests"
     local procedure CompleteWizardStep()
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         AssistedCompanySetupStatus.Get(CompanyName);
         AssistedCompanySetupStatus."Package Imported" := true;
         AssistedCompanySetupStatus.Modify();
 
         // The compltion status of the wizard is usually set by the wizard, hence the following code
-        AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Assisted Company Setup Wizard");
     end;
 
     local procedure CreateAndPostSalesInvoice(): Code[20]

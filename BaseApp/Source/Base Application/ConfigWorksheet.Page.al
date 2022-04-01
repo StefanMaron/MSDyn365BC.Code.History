@@ -337,7 +337,7 @@ page 8632 "Config. Worksheet"
                     var
                         GetConfigTables: Report "Get Config. Tables";
                     begin
-                        GetConfigTables.RunModal;
+                        GetConfigTables.RunModal();
                         Clear(GetConfigTables);
                     end;
                 }
@@ -355,7 +355,7 @@ page 8632 "Config. Worksheet"
                         ConfigMgt: Codeunit "Config. Management";
                     begin
                         CurrPage.SetSelectionFilter(ConfigLine);
-                        if ConfigLine.FindSet then
+                        if ConfigLine.FindSet() then
                             repeat
                                 AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
                                 AllObj.SetRange("Object ID", ConfigLine."Table ID");
@@ -416,7 +416,7 @@ page 8632 "Config. Worksheet"
                         CurrPage.SaveRecord;
                         ConfigLine.SetCurrentKey("Vertical Sorting");
                         ConfigLine.SetFilter("Vertical Sorting", '..%1', "Vertical Sorting" - 1);
-                        if ConfigLine.FindLast then begin
+                        if ConfigLine.FindLast() then begin
                             ExchangeLines(Rec, ConfigLine);
                             CurrPage.Update(false);
                         end;
@@ -439,7 +439,7 @@ page 8632 "Config. Worksheet"
                         CurrPage.SaveRecord;
                         ConfigLine.SetCurrentKey("Vertical Sorting");
                         ConfigLine.SetFilter("Vertical Sorting", '%1..', "Vertical Sorting" + 1);
-                        if ConfigLine.FindFirst then begin
+                        if ConfigLine.FindFirst() then begin
                             ExchangeLines(Rec, ConfigLine);
                             CurrPage.Update(false);
                         end;
@@ -593,12 +593,12 @@ page 8632 "Config. Worksheet"
     begin
         NextLineNo := 10000;
         ConfigLine.Reset();
-        if ConfigLine.FindLast then
+        if ConfigLine.FindLast() then
             NextLineNo := ConfigLine."Line No." + 10000;
 
         ConfigLine.SetCurrentKey("Vertical Sorting");
         if BelowxRec then begin
-            if ConfigLine.FindLast then;
+            if ConfigLine.FindLast() then;
             "Vertical Sorting" := ConfigLine."Vertical Sorting" + 1;
             "Line No." := NextLineNo;
         end else begin
@@ -680,7 +680,7 @@ page 8632 "Config. Worksheet"
     begin
         PackageCode := '';
         with SelectedConfigLine do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     CheckBlocked;
                     if ("Package Code" <> '') and

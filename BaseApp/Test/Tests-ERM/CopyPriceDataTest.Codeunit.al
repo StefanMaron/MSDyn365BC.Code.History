@@ -2059,7 +2059,7 @@ codeunit 134167 "Copy Price Data Test"
         JobsSetup: Record "Jobs Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Copy Price Data Test");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(CopyFromToPriceListLine);
 
         if isInitialized then

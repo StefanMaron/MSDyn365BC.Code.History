@@ -134,7 +134,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
             Period::"Current Period":
                 begin
                     AccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate);
-                    if AccountingPeriod.FindLast then
+                    if AccountingPeriod.FindLast() then
                         StartDate := AccountingPeriod."Starting Date";
                     AccountingPeriod.SetRange("Starting Date");
                     if AccountingPeriod.Find('>') then
@@ -145,7 +145,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
             Period::"Last Locked Period":
                 begin
                     AccountingPeriod.SetFilter("Starting Date", '<=%1', GetLastClosedAccDate);
-                    if AccountingPeriod.FindLast then
+                    if AccountingPeriod.FindLast() then
                         StartDate := AccountingPeriod."Starting Date";
                     AccountingPeriod.SetRange("Starting Date");
                     if AccountingPeriod.Find('>') then
@@ -178,7 +178,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
                     GetFiscalYear(WorkDate, StartDate, EndDate);
                     StartDate := CalcDate('<-3Y>', StartDate);
                     AccountingPeriod.SetRange("New Fiscal Year", true);
-                    if AccountingPeriod.FindFirst then // Get oldest accounting year
+                    if AccountingPeriod.FindFirst() then // Get oldest accounting year
                         if AccountingPeriod."Starting Date" > StartDate then
                             StartDate := AccountingPeriod."Starting Date";
                 end;
@@ -215,7 +215,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         StartDate := Date;
         AccountingPeriod.SetFilter("Starting Date", '<=%1', Date);
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             StartDate := AccountingPeriod."Starting Date";
         AccountingPeriod.SetRange("Starting Date");
         if AccountingPeriod.Find('>') then
@@ -279,7 +279,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         if "G/L Budget Name" <> '' then
             GLBudgetEntry.SetRange("Budget Name", "G/L Budget Name");
         GLBudgetEntry.SetCurrentKey("Last Date Modified", "Budget Name");
-        if GLBudgetEntry.FindLast then
+        if GLBudgetEntry.FindLast() then
             exit(GLBudgetEntry."Last Date Modified");
         exit(0D);
     end;
@@ -355,7 +355,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
 
     local procedure MarkAndReset(var WebService: Record "Web Service")
     begin
-        if WebService.FindSet then
+        if WebService.FindSet() then
             repeat
                 WebService.Mark(true);
             until WebService.Next() = 0;
@@ -366,7 +366,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
 
     local procedure MarkAndResetTenantWebService(var TenantWebService: Record "Tenant Web Service")
     begin
-        if TenantWebService.FindSet then
+        if TenantWebService.FindSet() then
             repeat
                 TenantWebService.Mark(true);
             until TenantWebService.Next() = 0;

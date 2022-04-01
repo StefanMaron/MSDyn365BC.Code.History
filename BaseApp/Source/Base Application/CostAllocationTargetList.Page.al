@@ -22,7 +22,7 @@ page 1114 "Cost Allocation Target List"
                         TmpCostAllocTarget: Record "Cost Allocation Target";
                     begin
                         TmpCostAllocTarget.CopyFilters(Rec);
-                        if not TmpCostAllocTarget.FindFirst then
+                        if not TmpCostAllocTarget.FindFirst() then
                             CurrPage.SaveRecord;
                     end;
                 }

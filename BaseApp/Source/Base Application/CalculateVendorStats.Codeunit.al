@@ -6,12 +6,18 @@ codeunit 9083 "Calculate Vendor Stats."
         Params: Dictionary of [Text, Text];
         Results: Dictionary of [Text, Text];
         VendorNo: Code[20];
+        BalanceAsCustomer: Decimal;
+        LinkedCustomerNo: Code[20];
     begin
         Params := Page.GetBackgroundParameters();
         VendorNo := CopyStr(Params.Get(GetVendorNoLabel()), 1, MaxStrLen(VendorNo));
         if not Vendor.Get(VendorNo) then
             exit;
 
+        BalanceAsCustomer := Vendor.GetBalanceAsCustomer(LinkedCustomerNo);
+
+        Results.Add(GetLinkedCustomerNoLabel(), Format(LinkedCustomerNo));
+        Results.Add(GetBalanceAsCustomerLabel(), Format(BalanceAsCustomer));
         Results.Add(GetLastPaymentDateLabel(), Format(GetLastPaymentDate(VendorNo)));
         Results.Add(GetOverdueBalanceLabel(), Format(Vendor.CalcOverdueBalance()));
         Results.Add(GetInvoicedPrepmtAmountLCYLabel(), Format(Vendor.GetInvoicedPrepmtAmountLCY()));
@@ -26,6 +32,8 @@ codeunit 9083 "Calculate Vendor Stats."
         OverdueBalanceLbl: label 'Overdue Balance', Locked = true;
         InvoicedPrepmtAmountLCYLbl: label 'Invoiced Prepmt Amount LCY', Locked = true;
         VendorNoLbl: label 'Vendor No.', Locked = true;
+        BalanceAsCustomerLbl: Label 'BalanceAsCustomer', Locked = true;
+        LinkedCustomerNoLbl: Label 'LinkedCustomerNo', Locked = true;
 
     local procedure GetLastPaymentDate(VendorNo: Code[20]): Date
     var
@@ -63,6 +71,16 @@ codeunit 9083 "Calculate Vendor Stats."
     internal procedure GetVendorNoLabel(): Text
     begin
         exit(VendorNoLbl);
+    end;
+
+    internal procedure GetBalanceAsCustomerLabel(): Text
+    begin
+        exit(BalanceAsCustomerLbl);
+    end;
+
+    internal procedure GetLinkedCustomerNoLabel(): Text
+    begin
+        exit(LinkedCustomerNoLbl);
     end;
 
     [IntegrationEvent(false, false)]

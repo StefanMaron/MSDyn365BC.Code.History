@@ -1877,6 +1877,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VAT Group Represent. - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 4081283522 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Management - Edit</source>
+          <target state="translated">Momsgruppshantering – Redigera</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VATGroupManagement - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 4006864840 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VATGroupManagement - Objects</source>
+          <target state="translated">VATGroupManagement – Objekt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VATGroupManagement - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 119978196 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VATGroupManagement - Read</source>
+          <target state="translated">VATGroupManagement – Läs</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VATGroupManagement - Read - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -392,7 +392,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         SourceTrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
-        if not TempTrackingSpecification.FindSet then
+        if not TempTrackingSpecification.FindSet() then
             exit;
         SourceTrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
 

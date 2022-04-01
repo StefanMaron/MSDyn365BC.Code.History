@@ -34,7 +34,7 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
         LineAmount := LibraryRandom.RandIntInRange(1, 1000);
         CreateCustomerAndSalesLineAndExecuteWorkflow(
           LineAmount, LineAmount / 10, WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -80,7 +80,7 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
         Workflow: Record Workflow;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -114,10 +114,10 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Credit Limit Exceeded Tests");
-        LibraryERMCountryData.CreateVATData;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryApplicationArea.EnableFoundationSetup();
 
-        SalesReceivablesSetup.FindFirst;
+        SalesReceivablesSetup.FindFirst();
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
         SalesReceivablesSetup.Modify(true);
         if isInitialized then

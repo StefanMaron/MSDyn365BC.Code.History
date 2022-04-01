@@ -41,6 +41,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         UseCachedDetailedLoggingEnabled: Boolean;
         TooManyJobsMsg: Label 'New job is not created. Count of jobs cannot exceed %1.', Locked = true;
         NoPermissionsTxt: Label 'No permissions.', Locked = true;
+        ToManyNotificationsTxt: Label 'To many notifications', Locked = true;
         FieldTok: Label 'Field', Locked = true;
         EqConstTok: Label '=CONST(', Locked = true;
         EqFilterTok: Label '=FILTER(', Locked = true;
@@ -164,6 +165,8 @@ codeunit 6153 "API Webhook Notification Mgt."
     end;
 
     local procedure GetSubscriptions(var APIWebhookSubscription: Record "API Webhook Subscription"; TableId: Integer): Boolean
+    var
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
     begin
         if not IsApiSubscriptionEnabled() then
             exit(false);
@@ -172,8 +175,12 @@ codeunit 6153 "API Webhook Notification Mgt."
             exit(false);
 
         APIWebhookSubscription.SetFilter("Expiration Date Time", '>%1', CurrentDateTime());
-        APIWebhookSubscription.SetFilter("Company Name", '%1|%2', CompanyName(), '');
         APIWebhookSubscription.SetRange("Source Table Id", TableId);
+        APIWebhookSubscription.SetFilter("Company Name", '%1|%2', CompanyName(), '');
+
+        if not CDSIntegrationMgt.IsBusinessEventsEnabled() then
+            APIWebhookSubscription.SetRange("Subscription Type", APIWebhookSubscription."Subscription Type"::Regular);
+
         exit(APIWebhookSubscription.FindSet());
     end;
 
@@ -369,6 +376,7 @@ codeunit 6153 "API Webhook Notification Mgt."
     local procedure RegisterNotification(var ApiWebhookEntity: Record "Api Webhook Entity"; var APIWebhookSubscription: Record "API Webhook Subscription"; var RecRef: RecordRef; ChangeType: Option; RecordSystemId: Guid): Boolean
     var
         APIWebhookNotification: Record "API Webhook Notification";
+        APIWebhookNotofocationSend: Codeunit "API Webhook Notification Send";
         FieldValue: Text;
     begin
         if not APIWebhookNotification.WritePermission() then begin
@@ -384,6 +392,13 @@ codeunit 6153 "API Webhook Notification Mgt."
         end;
 
         if TryGetEntityKeyValue(APIWebhookSubscription, ApiWebhookEntity, RecRef, FieldValue) then begin
+            APIWebhookNotification.SetRange("Subscription ID", APIWebhookSubscription."Subscription Id");
+            if APIWebhookNotification.Count() > APIWebhookNotofocationSend.GetMaxNumberOfNotifications() then begin
+                Session.LogMessage('0000DY2', ToManyNotificationsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+                exit(false);
+            end;
+
+            APIWebhookNotification.SetRange("Subscription ID");
             APIWebhookNotification.ID := CreateGuid();
             APIWebhookNotification."Subscription ID" := APIWebhookSubscription."Subscription Id";
             APIWebhookNotification."Created By User SID" := UserSecurityId();

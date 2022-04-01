@@ -34,8 +34,9 @@ codeunit 134812 "ERM CA GL Transfer"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM CA GL Transfer");
 
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateLocalData();
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(LibraryFiscalYear.GetPastNewYearDate(5));
+        LibraryERM.SetBlockDeleteGLAccount(false);
 
         isInitialized := true;
         Commit();
@@ -169,7 +170,7 @@ codeunit 134812 "ERM CA GL Transfer"
     begin
         // Post a Gen. Journal Line for a BalanceSheet account type and verify that the G/L entry does not get transferred
 
-        Initialize;
+        Initialize();
 
         // Cost Accounting Setup with Autotransfer = TRUE
         CostAccountingSetup(true);
@@ -201,7 +202,7 @@ codeunit 134812 "ERM CA GL Transfer"
         // Post a Gen. Journal Line and delete the corresponding account afterwards
         // Run the Transfer G/L Entries batch job and verify that the G/L entries whose G/L account got deleted do not get transferred
 
-        Initialize;
+        Initialize();
 
         // Setup:
         CostAccountingSetup(false);
@@ -233,7 +234,7 @@ codeunit 134812 "ERM CA GL Transfer"
         NoOfJnlPostings: Integer;
         I: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CostAccountingSetup(true); // set Autotransfer to TRUE so that all previously untransferred entries get transferred
@@ -262,7 +263,7 @@ codeunit 134812 "ERM CA GL Transfer"
         // Un-block any blocked default dimension values for an account
 
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::"G/L Account", AccountNo);
-        if DefaultDimension.FindSet then
+        if DefaultDimension.FindSet() then
             repeat
                 DimensionValue.Get(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
                 if DimensionValue.Blocked then begin
@@ -340,7 +341,7 @@ codeunit 134812 "ERM CA GL Transfer"
     [Normal]
     local procedure DeleteBlockedDimCombinations(var DimensionCombination: Record "Dimension Combination")
     begin
-        if DimensionCombination.FindSet then
+        if DimensionCombination.FindSet() then
             repeat
                 if DimensionCombination."Combination Restriction" = DimensionCombination."Combination Restriction"::Blocked then
                     DimensionCombination.Delete(true);
@@ -440,7 +441,7 @@ codeunit 134812 "ERM CA GL Transfer"
         GLAccount: Record "G/L Account";
         CostType: Record "Cost Type";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CostAccountingSetup(true);
@@ -465,19 +466,19 @@ codeunit 134812 "ERM CA GL Transfer"
         GLEntry: Record "G/L Entry";
         CostEntry: Record "Cost Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Find transferred G/L Entry
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         // Find corresponfing Cost Register entry
         CostRegister.SetFilter(Source, Format(CostRegister.Source::"Transfer from G/L"));
-        CostRegister.FindLast;
+        CostRegister.FindLast();
 
         // Find corresponding Cost Entry
         CostEntry.SetRange("G/L Entry No.", GLEntry."Entry No.");
-        CostEntry.FindFirst;
+        CostEntry.FindFirst();
 
         Assert.AreEqual(GLEntry.Description, CostEntry.Description,
           StrSubstNo(ExpectedValueIsDifferentError, CostEntry.FieldName(Description)));
@@ -504,7 +505,7 @@ codeunit 134812 "ERM CA GL Transfer"
 
         // Find corresponfing Cost Register entry
         CostRegister.SetFilter(Source, Format(CostRegister.Source::"Transfer from G/L"));
-        CostRegister.FindLast;
+        CostRegister.FindLast();
 
         // Find corresponding Cost Entries
         CostEntry.SetRange("Entry No.", CostRegister."From Cost Entry No.", CostRegister."To Cost Entry No.");
@@ -541,7 +542,7 @@ codeunit 134812 "ERM CA GL Transfer"
 
         // check if corresponding cost center exists first
         CostCenter.SetFilter(Code, DimensionSetEntry."Dimension Value Code");
-        if CostCenter.FindFirst then
+        if CostCenter.FindFirst() then
             Assert.AreEqual(DimensionSetEntry."Dimension Value Code", CostEntry."Cost Center Code",
               StrSubstNo(ExpectedValueIsDifferentError, CostEntry.FieldName("Cost Center Code")));
 

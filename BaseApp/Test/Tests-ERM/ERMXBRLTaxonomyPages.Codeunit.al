@@ -1,7 +1,11 @@
+#if not CLEAN20
 codeunit 134240 "ERM - XBRL Taxonomy Pages"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -132,7 +136,7 @@ codeunit 134240 "ERM - XBRL Taxonomy Pages"
         CreateXBRLTaxonomyWithLine(XBRLTaxonomyLine);
 
         LibraryXBRL.CreateXBRLGLMapLine(XBRLGLMapLine, XBRLTaxonomyLine);
-        XBRLGLMapLine."G/L Account Filter" := LibraryUtility.GenerateGUID;
+        XBRLGLMapLine."G/L Account Filter" := LibraryUtility.GenerateGUID();
         XBRLGLMapLine.Modify();
 
         OpenTaxonomyLinesFromTaxonomyCard(XBRLTaxonomyLines, XBRLTaxonomyLine);
@@ -464,7 +468,7 @@ codeunit 134240 "ERM - XBRL Taxonomy Pages"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure PrepareTaxonomyWithOneLine(var XBRLSchema: Record "XBRL Schema"; var XBRLTaxonomyLine: Record "XBRL Taxonomy Line")
@@ -658,4 +662,4 @@ codeunit 134240 "ERM - XBRL Taxonomy Pages"
         LibraryVariableStorage.Enqueue(Message);
     end;
 }
-
+#endif

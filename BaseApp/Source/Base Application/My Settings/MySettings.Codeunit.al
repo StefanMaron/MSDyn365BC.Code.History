@@ -222,12 +222,12 @@ codeunit 9275 "My Settings"
 #endif
 
     var
+#if not CLEAN19
         RequiresRestart: Boolean;
+        NotEnoughPermissionsErr: Label 'You cannot open this page. Only administrators can access settings for other users.';
+#endif
         AccountantTxt: Label 'ACCOUNTANT', Comment = 'Please translate all caps';
         ProjectManagerTxt: Label 'PROJECT MANAGER', Comment = 'Please translate all caps';
         TeamMemberTxt: Label 'TEAM MEMBER', Comment = 'Please translate all caps';
         ExperienceMsg: Label 'You are changing to a Role Center that has more functionality. To display the full functionality for this role, your Experience setting will be set to Essential.';
-#if not CLEAN19
-        NotEnoughPermissionsErr: Label 'You cannot open this page. Only administrators can access settings for other users.';
-#endif
 }

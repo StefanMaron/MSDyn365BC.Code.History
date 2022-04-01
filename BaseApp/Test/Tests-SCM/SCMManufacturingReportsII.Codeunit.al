@@ -39,7 +39,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         MachineCenter: Record "Machine Center";
     begin
         // Setup: Create Work Center and Machine Center.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDec(100, 2));  // Random Value for Capacity.
 
@@ -59,7 +59,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         MachineCenter: Record "Machine Center";
     begin
         // Setup: Create Work Center and Machine Center.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
         CreateMachineCenter(MachineCenter, WorkCenter."No.");
 
@@ -81,7 +81,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         MachineCenter: Record "Machine Center";
     begin
         // Setup: Create Work Center and Machine Center.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
         CreateMachineCenter(MachineCenter, WorkCenter."No.");
 
@@ -105,7 +105,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Setup: Create Production Item Setup, Create Production Order and update Unit Cost Per on Production Order Routing Line.
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(Item);
         CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(5));
         UpdateUnitCostPerOnProdOrderRoutingLine(ProductionOrder."No.", Item."Routing No.");
@@ -117,7 +117,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
 
         // Verify: Verify Production details on Generated Report.
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.CalcFields("Expected Operation Cost Amt.", "Expected Component Cost Amt.");
         VerifyProdOrderCalculation(ProdOrderLine);
     end;
@@ -131,7 +131,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Item Setup and Production Order.
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(Item);
         CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(5));
 
@@ -152,7 +152,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Item Setup and Production Order.
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(Item);
         CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(5));
 
@@ -172,7 +172,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         WorkCenter: Record "Work Center";
     begin
         // Setup: Create Work Center.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
 
         // Exercise: Run Calculate Work Center List Report.
@@ -192,7 +192,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         WorkCenter: Record "Work Center";
     begin
         // Setup: Create Work Center.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
 
         // Exercise: Generate the Work Center Load/Bar report.
@@ -212,7 +212,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         CalcMethod: Option "No Levels","One level","All levels";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReplanProductionOrderReport(CalcMethod::"No Levels");  // Calculate Method as No Level.
     end;
 
@@ -223,7 +223,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         CalcMethod: Option "No Levels","One level","All levels";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReplanProductionOrderReport(CalcMethod::"One level");  // Calculate Method as One Level.
     end;
 
@@ -234,7 +234,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         CalcMethod: Option "No Levels","One level","All levels";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReplanProductionOrderReport(CalcMethod::"All levels");  // Calculate Method as All Level.
     end;
 
@@ -297,7 +297,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         CalcMethod: Option "No Levels","One level","All levels";
     begin
         // Setup: Create Item hierarchy setup with GrandParent Item (Replenish: Prod order) -> Parent Item (Replenish: Prod order) -> Child Item (Replenish: Prod order).
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(GrandParentItem);   // First Level Hierarchy --> GrandParent - Parent.
         CreateItem(ChildItem, '', '');  // Second Level Hierarchy --> GrandParent - Parent - Child.
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
@@ -331,7 +331,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         // Prod. Order Shortage List Report for the Planned Prod. Order and verify Item No, Needed Quantity and Scheduled Need.
         // Setup.
-        Initialize;
+        Initialize();
         ProdOrderShortageListReport(ProductionOrder.Status::Planned);
     end;
 
@@ -344,7 +344,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         // Prod. Order Shortage List Report for the Firm Planned Prod. Order and verify Item No, Needed Quantity and Scheduled Need.
         // Setup.
-        Initialize;
+        Initialize();
         ProdOrderShortageListReport(ProductionOrder.Status::"Firm Planned");
     end;
 
@@ -357,7 +357,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         // Prod. Order Shortage List Report for the Released Prod. Order and verify Item No, Needed Quantity and Scheduled Need.
         // Setup.
-        Initialize;
+        Initialize();
         ProdOrderShortageListReport(ProductionOrder.Status::Released);
     end;
 
@@ -390,7 +390,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ChildItem: Record Item;
     begin
         // Setup: Create Parent and child Items with certified Production BOM and Routing Setup. Update Inventory for the Child Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         ChildItem.Get(CreateProdOrderItemsSetup(Item));
         CreateAndRefreshProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandDec(100, 2) + 100);  // Value required for Needed Quantity to exist.
@@ -413,7 +413,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         Item: Record Item;
     begin
         // Setup: Create Item. Update Item Inventory.
-        Initialize;
+        Initialize();
         Item.Get(CreateChildItemWithInventory);
 
         // Exercise: Run and save the Inventory Availability Plan Report.
@@ -434,7 +434,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         SKUCreationMethod: Option Location,Variant,"Location & Variant";
     begin
         // Setup: Create Item. Update Item Inventory.
-        Initialize;
+        Initialize();
         Item.Get(CreateChildItemWithInventory);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', LibraryRandom.RandDec(100, 2),
@@ -455,7 +455,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     procedure ProductionOrderStatisticsWithoutConsumption()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProductionOrderStatistics(false);  // Post Consumption Journal as False.
     end;
 
@@ -465,7 +465,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     procedure ProductionOrderStatisticsWithConsumption()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProductionOrderStatistics(true);  // Post Consumption Journal as True.
     end;
 
@@ -508,7 +508,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ValueEntry: Record "Value Entry";
     begin
         // Setup: Update Automatic Cost Setup. Create Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers();
         UpdateInventorySetup(true, true, InventorySetup."Automatic Cost Adjustment"::Never);
         CreateItem(Item, '', '');
@@ -544,7 +544,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ProdOrderComponent: Record "Prod. Order Component";
         ProdOrderCompCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Create Item and Proudction Order
         LibraryInventory.CreateItem(Item);
@@ -592,7 +592,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         // [FEATURE] [Prod. Order Shortage List] [Prod. Order Component]
         // [SCENARIO 225889] Prod. order components should be grouped by item, location and variant in order to calculate the full need with a consideration of item inventory and planned supplies and demands.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production items "P" and "C". "C" is a component of "P".
         LibraryInventory.CreateItem(ProdItem);
@@ -684,13 +684,13 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing Reports -II");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Manufacturing Reports -II");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ItemJournalSetup;
         ConsumptionJournalSetup;
         OutputJournalSetup;
@@ -792,7 +792,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -883,14 +883,14 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindValueEntryForOutput(var ValueEntry: Record "Value Entry"; ItemNo: Code[20])
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Output);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure GenerateProductionOrderStatisticsReport(ProductionOrderNo: Code[20])
@@ -905,14 +905,14 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
     end;
 
     local procedure SelectProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20])
     begin
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
     local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal)
@@ -925,7 +925,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderComponent.SetRange(Status, Status);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure UpdateProductionBOMNoOnItem(var Item: Record Item; ProductionBOMNo: Code[20])
@@ -952,7 +952,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         REPORT.Run(REPORT::"Inventory - Availability Plan", true, false, Item);
     end;
 
-    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; ExpectedCostPosting: Boolean; AutomaticCostAdjustment: Option)
+    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; ExpectedCostPosting: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin

@@ -21,7 +21,7 @@ codeunit 783 "Relationship Performance Mgt."
         Opportunity.SetCurrentKey("Estimated Value (LCY)");
         Opportunity.Ascending(false);
         OnCalcTopFiveOpportunitiesOnAfterOpportunitySetFilters(Opportunity);
-        if Opportunity.FindSet then
+        if Opportunity.FindSet() then
             repeat
                 I += 1;
                 TempOpportunity := Opportunity;
@@ -34,7 +34,7 @@ codeunit 783 "Relationship Performance Mgt."
     var
         Opportunity: Record Opportunity;
     begin
-        if TempOpportunity.FindSet then begin
+        if TempOpportunity.FindSet() then begin
             TempOpportunity.Next(BusinessChartBuffer."Drill-Down X Index");
             Opportunity.SetRange("No.", TempOpportunity."No.");
             PAGE.Run(PAGE::"Opportunity List", Opportunity);
@@ -47,13 +47,13 @@ codeunit 783 "Relationship Performance Mgt."
         I: Integer;
     begin
         with BusinessChartBuffer do begin
-            Initialize;
+            Initialize();
             AddDecimalMeasure(TempOpportunity.FieldCaption("Estimated Value (LCY)"), 1, "Chart Type"::StackedColumn);
             SetXAxis(TempOpportunity.TableCaption, "Data Type"::String);
             CalcTopFiveOpportunities(TempOpportunity);
             TempOpportunity.SetAutoCalcFields("Estimated Value (LCY)");
             OnUpdateDataOnAfterTempOpportunitySetFilters(TempOpportunity);
-            if TempOpportunity.FindSet then
+            if TempOpportunity.FindSet() then
                 repeat
                     I += 1;
                     AddBusinessChartBufferColumn(BusinessChartBuffer, TempOpportunity);
@@ -84,7 +84,7 @@ codeunit 783 "Relationship Performance Mgt."
         CreateOpportunityNotification.Message := StrSubstNo(CreateOpportunityQst, SegmentLine."Contact No.");
         InteractionLogEntry.SetRange("User ID", UserId);
         InteractionLogEntry.SetRange("Contact No.", SegmentLine."Contact No.");
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
         CreateOpportunityNotification.SetData(
           GetSegmentLineNotificationDataItemID, RecordsToXml(SegmentLine, InteractionLogEntry));
         CreateOpportunityNotification.Scope(NOTIFICATIONSCOPE::LocalScope);

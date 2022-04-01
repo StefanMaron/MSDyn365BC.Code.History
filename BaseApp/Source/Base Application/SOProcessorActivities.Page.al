@@ -12,13 +12,13 @@ page 9060 "SO Processor Activities"
             cuegroup("For Release")
             {
                 Caption = 'For Release';
-                field("Sales Quotes - Open"; "Sales Quotes - Open")
+                field("Sales Quotes - Open"; Rec."Sales Quotes - Open")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Quotes";
                     ToolTip = 'Specifies the number of sales quotes that are not yet converted to invoices or orders.';
                 }
-                field("Sales Orders - Open"; "Sales Orders - Open")
+                field("Sales Orders - Open"; Rec."Sales Orders - Open")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Order List";
@@ -57,7 +57,7 @@ page 9060 "SO Processor Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowOrders(FieldNo("Ready to Ship"));
+                        Rec.ShowOrders(Rec.FieldNo("Ready to Ship"));
                     end;
                 }
                 field(PartiallyShipped; PartiallyShipped)
@@ -69,7 +69,7 @@ page 9060 "SO Processor Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowOrders(FieldNo("Partially Shipped"));
+                        Rec.ShowOrders(Rec.FieldNo("Partially Shipped"));
                     end;
                 }
                 field(DelayedOrders; DelayedOrders)
@@ -81,7 +81,7 @@ page 9060 "SO Processor Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowOrders(FieldNo(Delayed));
+                        Rec.ShowOrders(Rec.FieldNo(Delayed));
                     end;
                 }
                 field("Average Days Delayed"; AverageDaysDelayed)
@@ -100,7 +100,7 @@ page 9060 "SO Processor Activities"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Find entries...';
                         RunObject = Page Navigate;
-                        ShortCutKey = 'Shift+Ctrl+I';
+                        ShortCutKey = 'Ctrl+Alt+Q';
                         ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     }
                 }
@@ -108,13 +108,13 @@ page 9060 "SO Processor Activities"
             cuegroup(Returns)
             {
                 Caption = 'Returns';
-                field("Sales Return Orders - Open"; "Sales Return Orders - Open")
+                field("Sales Return Orders - Open"; Rec."Sales Return Orders - Open")
                 {
                     ApplicationArea = SalesReturnOrder;
                     DrillDownPageID = "Sales Return Order List";
                     ToolTip = 'Specifies the number of sales return orders documents that are displayed in the Sales Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Sales Credit Memos - Open"; "Sales Credit Memos - Open")
+                field("Sales Credit Memos - Open"; Rec."Sales Credit Memos - Open")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Credit Memos";
@@ -145,44 +145,17 @@ page 9060 "SO Processor Activities"
             {
                 Caption = 'Document Exchange Service';
                 Visible = ShowDocumentsPendingDodExchService;
-                field("Sales Inv. - Pending Doc.Exch."; "Sales Inv. - Pending Doc.Exch.")
+                field("Sales Inv. - Pending Doc.Exch."; Rec."Sales Inv. - Pending Doc.Exch.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies sales invoices that await sending to the customer through the document exchange service.';
                     Visible = ShowDocumentsPendingDodExchService;
                 }
-                field("Sales CrM. - Pending Doc.Exch."; "Sales CrM. - Pending Doc.Exch.")
+                field("Sales CrM. - Pending Doc.Exch."; Rec."Sales CrM. - Pending Doc.Exch.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies sales credit memos that await sending to the customer through the document exchange service.';
                     Visible = ShowDocumentsPendingDodExchService;
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
                 }
             }
             usercontrol(SATAsyncLoader; SatisfactionSurveyAsync)
@@ -251,19 +224,19 @@ page 9060 "SO Processor Activities"
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetRespCenterFilter;
-        SetRange("Date Filter", 0D, WorkDate());
-        SetFilter("Date Filter2", '>=%1', WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetRespCenterFilter();
+        Rec.SetRange("Date Filter", 0D, WorkDate());
+        Rec.SetFilter("Date Filter2", '>=%1', WorkDate());
+        Rec.SetRange("User ID Filter", UserId());
 
-        RoleCenterNotificationMgt.ShowNotifications;
-        ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;
+        RoleCenterNotificationMgt.ShowNotifications();
+        ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
 
         if PageNotifier.IsAvailable then begin
             PageNotifier := PageNotifier.Create;
@@ -290,7 +263,6 @@ page 9060 "SO Processor Activities"
 
     var
         CuesAndKpis: Codeunit "Cues And KPIs";
-        UserTaskManagement: Codeunit "User Task Management";
         [RunOnClient]
         [WithEvents]
         PageNotifier: DotNet PageNotifier;

@@ -36,7 +36,7 @@ page 5105 Teams
                         Task.SetRange("Team Code", Code);
                         Task.SetRange(Closed, false);
                         Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
-                        if Task.FindFirst then
+                        if Task.FindFirst() then
                             PAGE.Run(0, Task);
                     end;
                 }

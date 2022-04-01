@@ -38,8 +38,8 @@ codeunit 136402 "Resource Batch Jobs"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Batch Jobs");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();
@@ -58,7 +58,7 @@ codeunit 136402 "Resource Batch Jobs"
         // Test Resource Price Change after running Suggest Res. Price Chg. Res. Batch Job.
 
         // 1. Setup: Create Resource with Unit Price.
-        Initialize;
+        Initialize();
         CreateResourceWithUnitPrice(Resource);
         UnitPriceFactor := LibraryRandom.RandDec(10, 2);  // Use Random because value is not important.
 
@@ -68,7 +68,7 @@ codeunit 136402 "Resource Batch Jobs"
         SuggestResPriceChgRes.SetTableView(Resource);
         SuggestResPriceChgRes.InitializeRequest(0, UnitPriceFactor, '', true);
         SuggestResPriceChgRes.UseRequestPage(false);
-        SuggestResPriceChgRes.Run;
+        SuggestResPriceChgRes.Run();
 
         // 3. Verify: Verify New Unit Price on Resource Price Change.
         VerifyResourcePriceChange(Resource."No.", 0, Resource."Unit Price" * UnitPriceFactor);
@@ -85,7 +85,7 @@ codeunit 136402 "Resource Batch Jobs"
         // Test Resource Price Change after running Suggest Res. Price Chg. Price Batch Job.
 
         // 1. Setup: Create Resource and Resource Price with Unit Price.
-        Initialize;
+        Initialize();
         CreateResourceWithUnitPrice(Resource);
         UnitPrice := CreateResourcePrice(Resource."No.");
         UnitPriceFactor := LibraryRandom.RandDec(10, 2);  // Use Random because value is not important.
@@ -111,7 +111,7 @@ codeunit 136402 "Resource Batch Jobs"
         // Test Resource Price after running Implement Res. Price Change Batch Job.
 
         // 1. Setup: Create Resource and Resource Price with Unit Price.
-        Initialize;
+        Initialize();
         CreateResourceWithUnitPrice(Resource);
         UnitPrice := CreateResourcePrice(Resource."No.");
         UnitPriceFactor := LibraryRandom.RandDec(10, 2);  // Use Random because value is not important.
@@ -123,7 +123,7 @@ codeunit 136402 "Resource Batch Jobs"
         ResourcePriceChange.SetRange(Code, Resource."No.");
         ImplementResPriceChange.SetTableView(ResourcePriceChange);
         ImplementResPriceChange.UseRequestPage(false);
-        ImplementResPriceChange.Run;
+        ImplementResPriceChange.Run();
 
         // 3. Verify: Verify Unit Price on Resource Price.
         VerifyResourcePrice(Resource."No.", UnitPrice * UnitPriceFactor);
@@ -137,7 +137,7 @@ codeunit 136402 "Resource Batch Jobs"
         Selection: Option "Direct Unit Cost","Indirect Cost %","Unit Cost","Profit %","Unit Price";
     begin
         // Test Direct Unit Cost after running Adjust Resource Costs Prices Batch Job with Direct Unit Cost.
-        Initialize;
+        Initialize();
         RunAdjustCostPriceBatchJobAndValidateData(Selection::"Direct Unit Cost", '', 0.0);
     end;
 
@@ -152,7 +152,7 @@ codeunit 136402 "Resource Batch Jobs"
         // Test Functionality of Date Compress Resource Ledger without Start date and End Date.
 
         // 1. Setup: Create Resource.
-        Initialize;
+        Initialize();
         CreateResourceWithUnitPrice(Resource);
         NoOfUnCompressedYears := 5;
 
@@ -176,7 +176,7 @@ codeunit 136402 "Resource Batch Jobs"
         // Test Functionality of Date Compress Resource Ledger with Start date and End date.
 
         // 1. Setup: Create Resource, Resource Journal Line and Post.
-        Initialize;
+        Initialize();
         CreateResourceWithUnitPrice(Resource);
         CreateAndPostResourceJournalLine(Resource."No.");
 
@@ -199,7 +199,7 @@ codeunit 136402 "Resource Batch Jobs"
         // Check Resource Register deleted after running Delete Empty Resource Registers Batch job.
 
         // 1. Setup: Create Resource, Resource Journal Line and Post.
-        Initialize;
+        Initialize();
         CreateResourceWithUnitPrice(Resource);
         JournalBatchName := CreateAndPostResourceJournalLine(Resource."No.");
 
@@ -223,8 +223,8 @@ codeunit 136402 "Resource Batch Jobs"
         Selection: Option "Direct Unit Cost","Indirect Cost %","Unit Cost","Profit %","Unit Price";
     begin
         // Test Unit Price after running Adjust Resource Costs Prices Batch Job with Unit Price.
-        Initialize;
-        RoundingMethod.FindFirst;
+        Initialize();
+        RoundingMethod.FindFirst();
         RunAdjustCostPriceBatchJobAndValidateData(Selection::"Unit Price", RoundingMethod.Code, RoundingMethod.Precision);
     end;
 
@@ -245,7 +245,7 @@ codeunit 136402 "Resource Batch Jobs"
         AdjustResourceCostsPrices.SetTableView(Resource);
         AdjustResourceCostsPrices.InitializeRequest(Selection, UnitPriceFactor, RoundingMethod);
         AdjustResourceCostsPrices.UseRequestPage(false);
-        AdjustResourceCostsPrices.Run;
+        AdjustResourceCostsPrices.Run();
 
         // 3. Verify: Verify Unit Price on Resource.
         Resource2.Get(Resource."No.");
@@ -285,7 +285,7 @@ codeunit 136402 "Resource Batch Jobs"
         ResJournalLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Value is not important here.
         ResJournalLine.Modify(true);
         LibraryResource.PostResourceJournalLine(ResJournalLine);
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
         exit(ResJournalBatch.Name);
     end;
 
@@ -303,7 +303,7 @@ codeunit 136402 "Resource Batch Jobs"
         Clear(DateCompressResourceLedger);
         ResLedgerEntry.SetRange("Resource No.", ResourceNo);
         DateCompressResourceLedger.SetTableView(ResLedgerEntry);
-        DateCompressResourceLedger.Run;
+        DateCompressResourceLedger.Run();
     end;
 
     local procedure FindResourceRegister(JournalBatchName: Code[20]): Boolean
@@ -319,7 +319,7 @@ codeunit 136402 "Resource Batch Jobs"
         DeleteEmptyResRegisters: Report "Delete Empty Res. Registers";
     begin
         DeleteEmptyResRegisters.UseRequestPage(false);
-        DeleteEmptyResRegisters.Run;
+        DeleteEmptyResRegisters.Run();
     end;
 
 #if not CLEAN19
@@ -334,7 +334,7 @@ codeunit 136402 "Resource Batch Jobs"
         SuggestResPriceChgPrice.SetTableView(ResourcePrice);
         SuggestResPriceChgPrice.InitializeRequest(0, UnitPriceFactor, '', true);
         SuggestResPriceChgPrice.UseRequestPage(false);
-        SuggestResPriceChgPrice.Run;
+        SuggestResPriceChgPrice.Run();
     end;
 #endif
 
@@ -346,7 +346,7 @@ codeunit 136402 "Resource Batch Jobs"
         SourceCodeSetup.Get();
         ResLedgerEntry.SetRange("Resource No.", ResourceNo);
         ResLedgerEntry.SetRange("Source Code", SourceCodeSetup."Compress Res. Ledger");
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
     end;
 
 #if not CLEAN19
@@ -356,7 +356,7 @@ codeunit 136402 "Resource Batch Jobs"
     begin
         ResourcePrice.SetRange(Type, ResourcePrice.Type::Resource);
         ResourcePrice.SetRange(Code, Code);
-        ResourcePrice.FindFirst;
+        ResourcePrice.FindFirst();
         ResourcePrice.TestField("Unit Price", UnitPrice);
     end;
 
@@ -366,7 +366,7 @@ codeunit 136402 "Resource Batch Jobs"
     begin
         ResourcePriceChange.SetRange(Type, ResourcePriceChange.Type::Resource);
         ResourcePriceChange.SetRange(Code, Code);
-        ResourcePriceChange.FindFirst;
+        ResourcePriceChange.FindFirst();
         ResourcePriceChange.TestField("Current Unit Price", CurrentUnitPrice);
         ResourcePriceChange.TestField("New Unit Price", NewUnitPrice);
     end;

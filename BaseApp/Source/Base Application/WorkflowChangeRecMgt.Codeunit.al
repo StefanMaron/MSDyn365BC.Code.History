@@ -74,7 +74,7 @@ codeunit 1531 "Workflow Change Rec Mgt."
                 WorkflowRecordChange.SetRange("Field No.", WorkflowStepArgument."Field No.");
             end;
 
-        if WorkflowRecordChange.FindSet then
+        if WorkflowRecordChange.FindSet() then
             repeat
                 ApplyNewValueFromChangeRecord(WorkflowRecordChange);
             until WorkflowRecordChange.Next() = 0

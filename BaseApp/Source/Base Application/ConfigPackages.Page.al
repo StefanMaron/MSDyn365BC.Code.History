@@ -91,7 +91,7 @@ page 8615 "Config. Packages"
                     begin
                         CurrPage.SaveRecord;
                         GetPackageTables.Set(Code);
-                        GetPackageTables.RunModal;
+                        GetPackageTables.RunModal();
                         Clear(GetPackageTables);
                     end;
                 }
@@ -239,7 +239,7 @@ page 8615 "Config. Packages"
                     begin
                         TestField(Code);
                         CopyPackage.Set(Rec);
-                        CopyPackage.RunModal;
+                        CopyPackage.RunModal();
                         Clear(CopyPackage);
                     end;
                 }
@@ -282,12 +282,12 @@ page 8615 "Config. Packages"
                             if ActiveSession.Get(ServiceInstanceId, BackgroundSessionId) then
                                 StopSession(BackgroundSessionId, ValidationCanceledMsg);
 
-                            if not Canceled and ConfigPackageTable.FindFirst then begin
+                            if not Canceled and ConfigPackageTable.FindFirst() then begin
                                 SessionEvent.SetAscending("Event Datetime", true);
                                 SessionEvent.SetRange("User ID", UserId);
                                 SessionEvent.SetRange("Server Instance ID", ServiceInstanceId);
                                 SessionEvent.SetRange("Session ID", BackgroundSessionId);
-                                SessionEvent.FindLast;
+                                SessionEvent.FindLast();
                                 Message(SessionEvent.Comment);
                             end;
 

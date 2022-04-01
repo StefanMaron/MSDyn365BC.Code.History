@@ -13,10 +13,10 @@ codeunit 6309 "PBI Sales Pipeline Chart Calc."
         TempSalesCycleStage: Record "Sales Cycle Stage" temporary;
         SalesCycle: Record "Sales Cycle";
     begin
-        if SalesCycle.FindSet then begin
+        if SalesCycle.FindSet() then begin
             repeat
                 SalesPipelineChartMgt.InsertTempSalesCycleStage(TempSalesCycleStage, SalesCycle);
-                if TempSalesCycleStage.FindSet then
+                if TempSalesCycleStage.FindSet() then
                     repeat
                         InsertToBuffer(TempPowerBIChartBuffer, TempSalesCycleStage);
                     until TempSalesCycleStage.Next() = 0;
@@ -27,7 +27,7 @@ codeunit 6309 "PBI Sales Pipeline Chart Calc."
     local procedure InsertToBuffer(var TempPowerBIChartBuffer: Record "Power BI Chart Buffer" temporary; TempSalesCycleStage: Record "Sales Cycle Stage" temporary)
     begin
         with TempPowerBIChartBuffer do begin
-            if FindLast then
+            if FindLast() then
                 ID += 1
             else
                 ID := 1;

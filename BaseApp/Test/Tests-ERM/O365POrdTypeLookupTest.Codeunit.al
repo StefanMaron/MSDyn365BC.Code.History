@@ -22,13 +22,13 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Show Type field in OnPrem environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] An OnPrem environment
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [WHEN] Opening a new Purchase Order
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
 
         // [THEN] The Type field is visible and the Subtype field is not
         Assert.IsTrue(PurchaseOrder.PurchLines.Type.Visible, 'Regular type field should be visible for OnPrem');
@@ -42,12 +42,12 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Show the Subtype field in SaaS environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] A SaaS environment
 
         // [WHEN] Opening a new Purchase Order
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
         asserterror PurchaseOrder.PurchLines.Type.Activate;
@@ -64,10 +64,10 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] The lookup on Subtype contains the expected values for Purchase Order and all values can be selected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Order
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         TempOptionLookupBuffer.FindSet();
@@ -90,10 +90,10 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] A partial Subtype is entered into the Subtype field triggers autocomplete
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Order
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
 
         // [WHEN] Setting the Subtype on the Purchase Line to ac
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(Format(PurchaseLine.Type::"G/L Account"), 1, 2));
@@ -119,10 +119,10 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] A blank Subtype is entered into the Subtype field stays blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Order
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
 
         // [WHEN] Setting the Subtype on the Purchase Line to ' '
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(' ');
@@ -143,10 +143,10 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] When invalid values are entered into Subtype, an error is raised
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Order
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
 
         // [WHEN] Setting the Subtype to Fixed Asset on the Purchase Line
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::"Fixed Asset"));
@@ -154,7 +154,7 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.Type::Item);
 
         // [WHEN] Setting the Subtype to a random value on the Purchase Line
-        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID);
+        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID());
         // [THEN] The Subtype is set to Item
         PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.Type::Item);
     end;
@@ -167,10 +167,10 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO 252686] When Subtype is blank and non standard value is entered into Subtype, Subtype = Item is assigned.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A blank Purchase Order
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to "AAA".
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue('AAA');
@@ -187,10 +187,10 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO 252686] When Subtype is not blank and non standard value is entered into Subtype, Subtype is not changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Order with a line with Subtype = G/L Account.
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::"G/L Account"));
 
         // [WHEN] Setting the Subtype on the Sales Line to "AAA".
@@ -219,8 +219,8 @@ codeunit 134649 "O365 P. Ord. Type Lookup Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 P. Ord. Type Lookup Test");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
     end;
 }
 

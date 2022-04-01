@@ -21,7 +21,7 @@ table 1661 "Import G/L Transaction"
                     exit;
                 ImportGLTransaction.SetRange("App ID", "App ID");
                 ImportGLTransaction.SetRange("External Account", "External Account");
-                if ImportGLTransaction.FindFirst then
+                if ImportGLTransaction.FindFirst() then
                     Validate("G/L Account", ImportGLTransaction."G/L Account");
             end;
         }

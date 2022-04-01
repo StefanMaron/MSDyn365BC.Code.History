@@ -100,7 +100,7 @@ page 1505 "Workflow Templates"
         WorkflowSetup.InitWorkflow;
         InitBufferForTemplates(Rec);
         IsLookupMode := CurrPage.LookupMode;
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

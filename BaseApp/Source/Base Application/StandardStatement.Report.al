@@ -951,7 +951,6 @@ report 1316 "Standard Statement"
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
         Cust2: Record Customer;
-        Currency: Record Currency;
         TempCurrency2: Record Currency temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
@@ -968,7 +967,6 @@ report 1316 "Standard Statement"
         CompanyAddr: array[8] of Text[100];
         Description: Text[100];
         StartBalance: Decimal;
-        RemainingAmount: Decimal;
         CurrencyCode3: Code[10];
         MulticurrencyAppLbl: Label 'Multicurrency Application';
         PaymentDiscountLbl: Label 'Payment Discount';
@@ -981,7 +979,6 @@ report 1316 "Standard Statement"
         AgingBandEndingDate: Date;
         AgingBandEndErr: Label 'You must specify Aging Band Ending Date.';
         AgedSummaryLbl: Label 'Aged Summary by %1 (%2 by %3)', Comment = '%1=Report aging band end date, %2=Aging band period, %3=Type of deadline (''due date'', ''posting date'') as given in DuePostingDateLbl';
-        IncludeAgingBand: Boolean;
         PeriodLengthErr: Label 'Period Length is out of range.';
         AgingBandCurrencyCode: Code[20];
         DuePostingDateLbl: Label 'Due Date,Posting Date';
@@ -1034,6 +1031,8 @@ report 1316 "Standard Statement"
 
     protected var
         CustBalance: Decimal;
+        RemainingAmount: Decimal;
+        IncludeAgingBand: Boolean;
         NumberOfCustLedgerEntryLines: Integer;
         StartDateTime: DateTime;
         FinishDateTime: DateTime;

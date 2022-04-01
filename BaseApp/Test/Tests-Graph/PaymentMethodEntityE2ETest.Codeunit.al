@@ -31,7 +31,7 @@ codeunit 135518 "Payment Method Entity E2E Test"
         "Count": Integer;
     begin
         // [SCENARIO] User can retrieve all Payment Method records from the paymentMethods API.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 payment methods in the Payment Method Table
         for Count := 1 to 2 do
@@ -58,7 +58,7 @@ codeunit 135518 "Payment Method Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a Payment Method through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a Payment Method JSON object to send to the service.
         PaymentMethodJSON := GetPaymentMethodJSON(TempPaymentMethod);
@@ -86,12 +86,12 @@ codeunit 135518 "Payment Method Entity E2E Test"
         PaymentMethodCode: Text;
     begin
         // [SCENARIO] User can modify a Payment Method through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Payment Method exists.
         PaymentMethodCode := CreatePaymentMethod;
         PaymentMethod.Get(PaymentMethodCode);
-        PaymentMethod.Description := LibraryUtility.GenerateGUID;
+        PaymentMethod.Description := LibraryUtility.GenerateGUID();
         RequestBody := GetPaymentMethodJSON(PaymentMethod);
 
         // [WHEN] The user makes a patch request to the service.
@@ -116,7 +116,7 @@ codeunit 135518 "Payment Method Entity E2E Test"
         Responsetext: Text;
     begin
         // [SCENARIO] User can delete a Payment Method by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An Payment Method exists.
         PaymentMethodCode := CreatePaymentMethod;
@@ -164,7 +164,7 @@ codeunit 135518 "Payment Method Entity E2E Test"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.SetFilter(Code, StrSubstNo('%1*', PaymentMethodPrefixTxt));
-        if PaymentMethod.FindLast then
+        if PaymentMethod.FindLast() then
             exit(IncStr(PaymentMethod.Code));
 
         exit(CopyStr(PaymentMethodPrefixTxt + '00001', 1, 10));
@@ -180,7 +180,7 @@ codeunit 135518 "Payment Method Entity E2E Test"
         if PaymentMethod.Code = '' then
             PaymentMethod.Code := GetNextPaymentMethodID;
         if PaymentMethod.Description = '' then
-            PaymentMethod.Description := LibraryUtility.GenerateGUID;
+            PaymentMethod.Description := LibraryUtility.GenerateGUID();
         JSONManagement.AddJPropertyToJObject(JsonObject, 'code', PaymentMethod.Code);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'displayName', PaymentMethod.Description);
         PaymentMethodJSON := JSONManagement.WriteObjectToString;

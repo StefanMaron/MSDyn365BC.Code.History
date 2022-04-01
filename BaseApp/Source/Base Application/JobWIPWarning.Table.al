@@ -93,7 +93,7 @@ table 1007 "Job WIP Warning"
     local procedure InsertWarning(JobWIPTotal: Record "Job WIP Total"; Message: Text[250])
     begin
         Reset;
-        if FindLast then
+        if FindLast() then
             "Entry No." += 1
         else
             "Entry No." := 1;

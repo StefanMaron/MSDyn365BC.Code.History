@@ -16,6 +16,11 @@ page 6622 "Blanket Sales Order Archives"
             repeater(Control26)
             {
                 ShowCaption = false;
+                field("No."; "No.")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the number of the archived sales order.';
+                }
                 field("Version No."; "Version No.")
                 {
                     ApplicationArea = Suite;
@@ -147,6 +152,13 @@ page 6622 "Blanket Sales Order Archives"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code for the amount on the line.';
+                }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
+                    Visible = false;
                 }
             }
         }

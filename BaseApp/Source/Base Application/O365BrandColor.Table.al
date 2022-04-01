@@ -85,7 +85,7 @@ table 2121 "O365 Brand Color"
     procedure FindColor(var O365BrandColor: Record "O365 Brand Color"; ColorValue: Code[10])
     begin
         O365BrandColor.SetRange("Color Value", ColorValue);
-        if O365BrandColor.FindFirst then
+        if O365BrandColor.FindFirst() then
             exit;
 
         if ColorValue = '' then
@@ -97,7 +97,7 @@ table 2121 "O365 Brand Color"
             ColorValue := ConvertARGBToRGB(ColorValue);
 
         O365BrandColor.SetRange("Color Value", ColorValue);
-        if O365BrandColor.FindFirst then
+        if O365BrandColor.FindFirst() then
             exit;
 
         CreateOrUpdateCustomColor(O365BrandColor, ColorValue);

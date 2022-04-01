@@ -29,7 +29,7 @@ codeunit 952 "Time Sheet Chart Mgt."
         TimeSheetChartSetup.Get(UserId);
 
         with BusChartBuf do begin
-            Initialize;
+            Initialize();
             SetXAxis(Text001, "Data Type"::String);
 
             AddColumns(BusChartBuf);
@@ -75,7 +75,7 @@ codeunit 952 "Time Sheet Chart Mgt."
         end else begin
             TimeSheetHeader.SetRange("Starting Date", TimeSheetChartSetup."Starting Date");
             TimeSheetHeader.SetRange("Resource No.", ResourceNo);
-            if TimeSheetHeader.FindFirst then
+            if TimeSheetHeader.FindFirst() then
                 if CurrMeasureType = MeasureType::Posted then begin
                     TimeSheetPostingEntry.FilterGroup(2);
                     TimeSheetPostingEntry.SetRange("Time Sheet No.", TimeSheetHeader."No.");
@@ -105,7 +105,7 @@ codeunit 952 "Time Sheet Chart Mgt."
         Resource.SetRange("Use Time Sheet", true);
         if not UserSetup."Time Sheet Admin." then
             Resource.SetRange("Time Sheet Approver User ID", UserId);
-        if Resource.FindSet then
+        if Resource.FindSet() then
             repeat
                 BusChartBuf.AddColumn(Resource."No.");
             until Resource.Next() = 0;
@@ -155,7 +155,7 @@ codeunit 952 "Time Sheet Chart Mgt."
 
         TimeSheetHeader.SetRange("Starting Date", TimeSheetChartSetup."Starting Date");
         TimeSheetHeader.SetRange("Resource No.", ResourceNo);
-        if not TimeSheetHeader.FindFirst then
+        if not TimeSheetHeader.FindFirst() then
             exit(0);
 
         case TimeSheetChartSetup."Show by" of

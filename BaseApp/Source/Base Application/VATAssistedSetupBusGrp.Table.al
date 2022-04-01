@@ -49,7 +49,7 @@ table 1879 "VAT Assisted Setup Bus. Grp."
         DeleteAll();
 
         SetRange(Default, true);
-        if not FindSet then begin
+        if not FindSet() then begin
             InitWithStandardValues;
             FindSet();
         end;

@@ -153,7 +153,7 @@ page 1799 "Data Migration Overview"
                     OnRequestAbort;
                     DataMigrationStatus.SetFilter(
                       Status, '%1|%2', DataMigrationStatus.Status::"In Progress", DataMigrationStatus.Status::Pending);
-                    if DataMigrationStatus.FindFirst then
+                    if DataMigrationStatus.FindFirst() then
                         DataMigrationMgt.SetAbortStatus(DataMigrationStatus);
                 end;
             }
@@ -221,7 +221,7 @@ page 1799 "Data Migration Overview"
 
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
         AllObjWithCaption.SetRange("Object ID", "Destination Table ID");
-        if AllObjWithCaption.FindFirst then
+        if AllObjWithCaption.FindFirst() then
             TableNameToMigrate := AllObjWithCaption."Object Caption";
     end;
 
@@ -256,7 +256,7 @@ page 1799 "Data Migration Overview"
     begin
         DataMigrationError.SetRange("Migration Type", "Migration Type");
         DataMigrationError.SetRange("Destination Table ID", "Destination Table ID");
-        if DataMigrationError.FindFirst then begin
+        if DataMigrationError.FindFirst() then begin
             PAGE.RunModal(PAGE::"Data Migration Error", DataMigrationError);
             CurrPage.Update();
         end;
@@ -313,7 +313,7 @@ page 1799 "Data Migration Overview"
         DataMigrationFacade.OnFindBatchForItemTransactions("Migration Type", ItemJournalBatchName);
         if ItemJournalBatchName <> '' then begin
             ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatchName);
-            if ItemJournalLine.FindFirst then begin
+            if ItemJournalLine.FindFirst() then begin
                 ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
                 PAGE.Run(PAGE::"Item Journal", ItemJournalLine);
                 exit;
@@ -330,7 +330,7 @@ page 1799 "Data Migration Overview"
         DataMigrationFacade.OnFindBatchForCustomerTransactions("Migration Type", GenJournalBatchName);
         if GenJournalBatchName <> '' then begin
             GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-            if GenJournalLine.FindFirst then begin
+            if GenJournalLine.FindFirst() then begin
                 GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
                 GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Customer);
                 PAGE.Run(PAGE::"General Journal", GenJournalLine);
@@ -348,7 +348,7 @@ page 1799 "Data Migration Overview"
         DataMigrationFacade.OnFindBatchForVendorTransactions("Migration Type", GenJournalBatchName);
         if GenJournalBatchName <> '' then begin
             GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-            if GenJournalLine.FindFirst then begin
+            if GenJournalLine.FindFirst() then begin
                 GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
                 GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
                 PAGE.Run(PAGE::"General Journal", GenJournalLine);
@@ -366,7 +366,7 @@ page 1799 "Data Migration Overview"
         DataMigrationFacade.OnFindBatchForAccountTransactions(Rec, GenJournalBatchName);
         if GenJournalBatchName <> '' then begin
             GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-            if GenJournalLine.FindFirst then begin
+            if GenJournalLine.FindFirst() then begin
                 GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
                 GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
                 PAGE.Run(PAGE::"General Journal", GenJournalLine);

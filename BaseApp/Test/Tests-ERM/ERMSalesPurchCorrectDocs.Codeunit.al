@@ -2329,12 +2329,12 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
         ItemTrackingLines.New;
-        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
         ItemTrackingLines."Quantity (Base)".SetValue(5);
         ItemTrackingLines."Qty. to Handle (Base)".SetValue(5);
         ItemTrackingLines."Qty. to Invoice (Base)".SetValue(5);
         ItemTrackingLines.New;
-        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
         ItemTrackingLines."Quantity (Base)".SetValue(4);
         ItemTrackingLines."Qty. to Handle (Base)".SetValue(2);
         ItemTrackingLines."Qty. to Invoice (Base)".SetValue(0);

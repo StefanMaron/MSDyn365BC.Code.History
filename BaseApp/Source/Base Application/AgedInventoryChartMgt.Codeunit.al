@@ -21,7 +21,7 @@ codeunit 1317 "Aged Inventory Chart Mgt."
         InvtValue: array[5] of Decimal;
     begin
         with BusChartBuf do begin
-            Initialize;
+            Initialize();
             AddDecimalMeasure(YCaptionTxt, 1, "Chart Type"::StackedColumn);
             SetXAxis(XCaptionTxt, "Data Type"::String);
             CalcPeriodStartDates(PeriodStartDate, GetPeriodLengthInDays(BusChartBuf));

@@ -41,7 +41,7 @@ page 436 "Reminder List"
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
-                    ToolTip = 'Specifies the total of the remaining amounts on the reminder lines.';
+                    ToolTip = 'Specifies the outstanding amount that is due for the relevant customer ledger entry.';
                 }
                 field("Post Code"; "Post Code")
                 {

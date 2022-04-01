@@ -306,16 +306,18 @@ page 5417 "Item Avail. by UOM Lines"
     end;
 
     var
-        Item: Record Item;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ExpectedInventory: Decimal;
         QtyAvailable: Decimal;
-        AmountType: Enum "Analysis Amount Type";
         PlannedOrderReleases: Decimal;
         GrossRequirement: Decimal;
         PlannedOrderRcpt: Decimal;
         ScheduledRcpt: Decimal;
         ProjAvailableBalance: Decimal;
+
+    protected var
+        Item: Record Item;
+        AmountType: Enum "Analysis Amount Type";
         PeriodStart: Date;
         PeriodEnd: Date;
 

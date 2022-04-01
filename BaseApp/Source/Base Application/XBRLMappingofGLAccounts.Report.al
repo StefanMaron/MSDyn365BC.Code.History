@@ -1,3 +1,4 @@
+#if not CLEAN20
 report 506 "XBRL Mapping of G/L Accounts"
 {
     DefaultLayout = RDLC;
@@ -5,6 +6,9 @@ report 506 "XBRL Mapping of G/L Accounts"
     ApplicationArea = XBRL;
     Caption = 'XBRL Mapping of G/L Accounts';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     dataset
     {
@@ -305,3 +309,5 @@ report 506 "XBRL Mapping of G/L Accounts"
         TaxonomyLineCaptionLbl: Label 'Used in Taxonomy Lines No.';
 }
 
+
+#endif

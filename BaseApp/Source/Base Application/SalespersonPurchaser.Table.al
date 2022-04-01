@@ -382,7 +382,7 @@ table 13 "Salesperson/Purchaser"
 
     fieldgroups
     {
-        fieldgroup(Dropdown; "Code", Name)
+        fieldgroup(DropDown; "Code", Name)
         {
         }
         fieldgroup(Brick; "Code", Name, Image)

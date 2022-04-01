@@ -26,7 +26,7 @@ codeunit 135152 "Data Classification Wiz. Tests"
         BindSubscription(DataClassificationWizTests);
 
         // [GIVEN] DataSensitivity table is populated with data that is not yet classified
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetO365Basic;
         VerifyFirstTwoPages(DataClassificationWizard);
@@ -66,9 +66,9 @@ codeunit 135152 "Data Classification Wiz. Tests"
         BindSubscription(DataClassificationWizTests);
 
         // [GIVEN] DataSensitivity table is populated with data that is not yet classified
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
 
         // [GIVEN] An Excel worksheet that contains data classifications
         // Happens on the Event Subscriber OnUploadExcelSheet
@@ -110,9 +110,9 @@ codeunit 135152 "Data Classification Wiz. Tests"
         // [SCENARIO] User can classify the sensitivity of the data in fields by using an assisted setup guide
 
         // [GIVEN] DataSensitivity table is populated with data that is not yet classified
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
 
         VerifyFirstTwoPages(DataClassificationWizard);
 

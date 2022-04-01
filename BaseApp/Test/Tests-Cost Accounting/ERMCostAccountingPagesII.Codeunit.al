@@ -31,9 +31,9 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         // [SCENARIO] error is displayed on invoking Indent Cost Type Action when there is no corresponding Begin-Total for a given End-Total.
 
         // [GIVEN] Initialize and Create Cost Type.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit;
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
@@ -64,9 +64,9 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         // [SCENARIO] Indent Cost Type Action on Chart Of Cost Type is working successfully or not.
 
         // [GIVEN] Create four Cost Type of four different Type i.e; Heading,Begin-Total,Cost Type, End-Total.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingSetup;
         LibraryLowerPermissions.AddCostAccountingEdit;
         for i := 1 to 4 do
@@ -102,9 +102,9 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
     begin
         // [FEATURE] [Cost Center]
         // [SCENARIO 280745] In the Cost Center Card page dimensions must be filtered according to Cost Accounting Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingSetup;
         LibraryLowerPermissions.AddCostAccountingEdit;
 
@@ -136,9 +136,9 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
     begin
         // [FEATURE] [Chart of Cost Centers]
         // [SCENARIO 280745] In the Chart of Cost Centers page dimensions must be filtered according to Cost Accounting Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingSetup;
         LibraryLowerPermissions.AddCostAccountingEdit;
 
@@ -170,9 +170,9 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
     begin
         // [FEATURE] [Cost Object]
         // [SCENARIO 280745] In the Cost Object Card page dimensions must be filtered according to Cost Accounting Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingSetup;
         LibraryLowerPermissions.AddCostAccountingEdit;
 
@@ -204,9 +204,9 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
     begin
         // [FEATURE] [Chart of Cost Objects]
         // [SCENARIO 280745] In the Chart of Cost Objects page dimensions must be filtered according to Cost Accounting Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingSetup;
         LibraryLowerPermissions.AddCostAccountingEdit;
 
@@ -264,7 +264,7 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         Type: Option "Cost Type",Heading,Total,"Begin-Total","End-Total";
     begin
         CostType.SetFilter("No.", '%1', ActualCostType."No.");
-        if CostType.FindFirst then
+        if CostType.FindFirst() then
             case ActualCostType.Type of
                 Type::"Cost Type":
                     Assert.AreEqual(CostType.Indentation, 1, IndentationError);

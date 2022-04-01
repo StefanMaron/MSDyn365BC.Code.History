@@ -42,7 +42,7 @@ codeunit 131340 "Library - Cost Accounting"
     begin
         CostAllocationSource.CalcFields("Total Share");
         CostAllocationTarget.SetFilter(ID, '%1', CostAllocationSource.ID);
-        if CostAllocationTarget.FindSet then begin
+        if CostAllocationTarget.FindSet() then begin
             repeat
                 CurrentValue := Round(CostAllocationTarget.Percent, 0.1, '=');
                 ExpectedValue := Round(100 * CostAllocationTarget.Share / CostAllocationSource."Total Share", 0.1, '=');
@@ -74,7 +74,7 @@ codeunit 131340 "Library - Cost Accounting"
         // Un-block any blocked default dimension values for an account
 
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::"G/L Account", AccountNo);
-        if DefaultDimension.FindSet then
+        if DefaultDimension.FindSet() then
             repeat
                 DimensionValue.Get(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
                 if DimensionValue.Blocked then begin
@@ -461,7 +461,7 @@ codeunit 131340 "Library - Cost Accounting"
     var
         CostBudgetRegister: Record "Cost Budget Register";
     begin
-        if CostBudgetRegister.FindFirst then
+        if CostBudgetRegister.FindFirst() then
             DeleteCostBudgetRegEntriesFrom(CostBudgetRegister."No.");
     end;
 
@@ -470,10 +470,10 @@ codeunit 131340 "Library - Cost Accounting"
         CostBudgetRegister: Record "Cost Budget Register";
         DeleteCostBudgetEntries: Report "Delete Cost Budget Entries";
     begin
-        if CostBudgetRegister.FindLast then begin
+        if CostBudgetRegister.FindLast() then begin
             DeleteCostBudgetEntries.InitializeRequest(StartEntry, CostBudgetRegister."No.");
             DeleteCostBudgetEntries.UseRequestPage := false;
-            DeleteCostBudgetEntries.RunModal;
+            DeleteCostBudgetEntries.RunModal();
         end;
     end;
 
@@ -481,7 +481,7 @@ codeunit 131340 "Library - Cost Accounting"
     var
         CostRegister: Record "Cost Register";
     begin
-        if CostRegister.FindFirst then
+        if CostRegister.FindFirst() then
             DeleteCostRegisterEntriesFrom(CostRegister."No.");
     end;
 
@@ -490,16 +490,16 @@ codeunit 131340 "Library - Cost Accounting"
         CostRegister: Record "Cost Register";
         DeleteCostEntries: Report "Delete Cost Entries";
     begin
-        if CostRegister.FindLast then begin
+        if CostRegister.FindLast() then begin
             DeleteCostEntries.InitializeRequest(StartEntry, CostRegister."No.");
             DeleteCostEntries.UseRequestPage := false;
-            DeleteCostEntries.RunModal;
+            DeleteCostEntries.RunModal();
         end;
     end;
 
     procedure DeleteBlockedDimCombinations(var DimensionCombination: Record "Dimension Combination")
     begin
-        if DimensionCombination.FindSet then
+        if DimensionCombination.FindSet() then
             repeat
                 if DimensionCombination."Combination Restriction" = DimensionCombination."Combination Restriction"::Blocked then
                     DimensionCombination.Delete(true);
@@ -579,12 +579,12 @@ codeunit 131340 "Library - Cost Accounting"
         if CostJournalBatch.IsEmpty() then
             CreateCostJournalBatch(CostJournalBatch, CostJournalTemplateName)
         else
-            CostJournalBatch.FindFirst;
+            CostJournalBatch.FindFirst();
     end;
 
     procedure FindCostJournalTemplate(var CostJournalTemplate: Record "Cost Journal Template")
     begin
-        CostJournalTemplate.FindFirst;
+        CostJournalTemplate.FindFirst();
     end;
 
     procedure FindCostObject(var CostObject: Record "Cost Object")
@@ -746,7 +746,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         CostAllocationTarget.SetFilter(ID, '%1', CostAllocationSource.ID);
-        if CostAllocationTarget.FindLast then
+        if CostAllocationTarget.FindLast() then
             exit(CostAllocationTarget."Line No.");
 
         exit(0);
@@ -907,10 +907,10 @@ codeunit 131340 "Library - Cost Accounting"
         CostEntry: Record "Cost Entry";
         GLAccount: Record "G/L Account";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.Get(GLRegister."From Entry No.");
         CostRegister.SetFilter(Source, Format(CostRegister.Source::"Transfer from G/L"));
-        CostRegister.FindLast;
+        CostRegister.FindLast();
         CostEntry.Get(CostRegister."From Cost Entry No.");
         GLAccount.Get(CostEntry."G/L Account");
 

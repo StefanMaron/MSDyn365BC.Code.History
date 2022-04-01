@@ -24,7 +24,6 @@ page 1366 "Field Monitoring Setup"
                 }
                 group(Email)
                 {
-                    Visible = IsEmailSystemModuleEnabled;
                     ShowCaption = false;
                     field("Email Account Name"; "Email Account Name")
                     {
@@ -108,15 +107,12 @@ page 1366 "Field Monitoring Setup"
     }
 
     var
-        EmailFeature: Codeunit "Email Feature";
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
-        IsMonitorEnabled, IsEmailSystemModuleEnabled : Boolean;
+        IsMonitorEnabled : Boolean;
 
     trigger OnOpenPage()
     begin
         MonitorSensitiveField.GetSetupTable(Rec);
-        IsEmailSystemModuleEnabled := EmailFeature.IsEnabled();
-        MonitorSensitiveField.ShowEmailFeatureEnabledInSetupPageNotification();
     end;
 
     trigger OnAfterGetCurrRecord()

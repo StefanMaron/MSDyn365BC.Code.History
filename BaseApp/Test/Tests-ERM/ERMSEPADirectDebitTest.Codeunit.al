@@ -35,7 +35,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         BankAccount: Record "Bank Account";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate, WorkDate, Customer."Partner Type"::Company);
@@ -59,7 +59,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         BankAccount: Record "Bank Account";
         PostedDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate, WorkDate, Customer."Partner Type"::Company);
@@ -85,7 +85,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         PostedDocNo: Code[20];
         PostedDocNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostTwoWorkdateSalesInvoicesSEPADirectDebit(Customer, Customer2, PostedDocNo, PostedDocNo2);
@@ -108,7 +108,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         BankAccount: Record "Bank Account";
         PostedDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate - 30, Customer."Partner Type"::Company);
@@ -131,7 +131,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Customer: Record Customer;
         BankAccount: Record "Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate - 30, Customer."Partner Type"::Company);
@@ -157,7 +157,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         PostedDocNo: Code[20];
         PostedDocNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostTwoWorkdateSalesInvoicesSEPADirectDebit(Customer, Customer2, PostedDocNo, PostedDocNo2);
@@ -182,7 +182,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         PostedDocNo: Code[20];
         PostedDocNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate + 30, Customer."Partner Type"::Company);
@@ -212,7 +212,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry2: Record "Direct Debit Collection Entry";
         PostedDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate + 30, Customer."Partner Type"::Company);
@@ -251,7 +251,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollection: Record "Direct Debit Collection";
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate, WorkDate, Customer."Partner Type"::Company);
@@ -262,7 +262,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         // Setup
         DirectDebitCollection.SetRange("Partner Type", Customer."Partner Type"::Company);
         DirectDebitCollection.SetRange("To Bank Account No.", BankAcc."No.");
-        DirectDebitCollection.FindLast;
+        DirectDebitCollection.FindLast();
         DirectDebitCollection.CloseCollection;
 
         // Exercise
@@ -284,17 +284,17 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
         LastDirectDebitCollectionNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankExportImportSetup.SetRange("Processing XMLport ID", XMLPORT::"SEPA DD pain.008.001.02");
         BankExportImportSetup.FindFirst();
         LibraryERM.CreateBankAccount(BankAcc);
         BankAcc."SEPA Direct Debit Exp. Format" := BankExportImportSetup.Code;
-        BankAcc.IBAN := LibraryUtility.GenerateGUID;
-        BankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
+        BankAcc.IBAN := LibraryUtility.GenerateGUID();
+        BankAcc."SWIFT Code" := LibraryUtility.GenerateGUID();
         BankAcc.Modify();
-        if DirectDebitCollection.FindLast then begin
+        if DirectDebitCollection.FindLast() then begin
             LastDirectDebitCollectionNo := DirectDebitCollection."No.";
             Clear(DirectDebitCollection);
         end;
@@ -328,7 +328,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         SEPADirectDebitMandate2: Record "SEPA Direct Debit Mandate";
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer1);
@@ -357,7 +357,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 300593] "Direct Debit Mandate ID" is filled in when Payment Method validated on Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST" with DD Mandate "DD"
         LibrarySales.CreateCustomer(Customer);
@@ -388,7 +388,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 300593] "Direct Debit Mandate ID" is populated to service invoice header and customer ledger entry when service document is being posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sevice invoice with "Direct Debit Mandate ID" = "DD"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -404,12 +404,12 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
 
         // [THEN] Service invoice header has "Direct Debit Mandate ID" = "DD"
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("Direct Debit Mandate ID", ServiceHeader."Direct Debit Mandate ID");
 
         // [THEN] Customer ledger entry has "Direct Debit Mandate ID" = "DD"
         CustLedgerEntry.SetRange("Customer No.", ServiceHeader."Bill-to Customer No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Direct Debit Mandate ID", ServiceHeader."Direct Debit Mandate ID");
     end;
 
@@ -422,7 +422,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 300593] Clear "Direct Debit Mandate ID" field when "Direct Debit" field is unchecked in validated Payment Method on Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sevice header with "Direct Debit Mandate ID" = "DD"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -454,7 +454,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 327227] Report "Create Direct Debit Collection" works for entries with non-euro currencies.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with random Currency for Customer.
         Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2)));
@@ -687,7 +687,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM SEPA Direct Debit Test");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Found := true;
 
         if IsInitialized then
@@ -695,7 +695,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM SEPA Direct Debit Test");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateEURCurrencyExchRatePreviousYear();
         Commit();
         IsInitialized := true;

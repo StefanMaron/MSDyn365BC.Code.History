@@ -38,13 +38,13 @@ codeunit 134185 "WF Demo Purch. Invoice"
         // [THEN] The Purchase Invoice Workflow is executed.
 
         // Setup
-        Initialize;
+        Initialize();
         ChangeDemoData(Workflow);
         CreatePurchInvoice(PurchaseHeader);
 
         // Execute
         LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJournalsPost;
+        LibraryLowerPermissions.AddJournalsPost();
         LibraryLowerPermissions.AddJobs;
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryLowerPermissions.SetO365Full;
@@ -52,7 +52,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         // Verify
         WorkflowStepInstanceArchive.SetRange("Workflow Code", Workflow.Code);
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         Assert.IsFalse(WorkflowStepInstanceArchive.IsEmpty, 'The workflow was not completed.');
 
         // Tear-down
@@ -76,7 +76,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         // [THEN] The Purchase Invoice Workflow is NOT executed.
 
         // Setup
-        Initialize;
+        Initialize();
         ChangeDemoData(Workflow);
         CreatePurchInvoice(PurchaseHeader);
         Commit(); // need to commit to run posting preview later
@@ -113,14 +113,14 @@ codeunit 134185 "WF Demo Purch. Invoice"
     begin
         // [SCENARIO 376597] Enabling Workflow should not be allowed when "User ID" is mandatory ("Create a notification for <User>." step exists) and "User ID" is not specified.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Workflow for Purchase invoice is set up from the template, has "User ID" field mandatory, has no "User ID" and is not enabled.
         ChangeDemoData(Workflow);
         Workflow.Enabled := false;
         Workflow.Modify();
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 if WorkflowStepArgument.Get(WorkflowStep.Argument) then begin
                     WorkflowStepArgument.CalcFields("Response Option Group");
@@ -134,7 +134,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         Assert.IsTrue(UserIDRequired, UserIDIsNotRequiredErr);
 
         // [WHEN] Enabling Workflow
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         asserterror Workflow.Validate(Enabled, true);
 
         // [THEN] "User ID" should not be empty error appears.
@@ -151,7 +151,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         UserIDRequired: Boolean;
     begin
         // [SCENARIO 279875] Enabling Workflow should be allowed when "User ID" is mandatory ("Create a notification for <User>." step exists) and "Notify Sender" is 'Yes'.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Workflow for Purchase invoice is set up from the template, has "User ID" field mandatory,
         // [GIVEN] "Notification User ID" is blank because "Notify Sender" is 'Yes'
@@ -159,7 +159,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         Workflow.Enabled := false;
         Workflow.Modify();
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 if WorkflowStepArgument.Get(WorkflowStep.Argument) then begin
                     WorkflowStepArgument.CalcFields("Response Option Group");
@@ -173,7 +173,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         Assert.IsTrue(UserIDRequired, UserIDIsNotRequiredErr);
 
         // [WHEN] Enabling Workflow
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         Workflow.Validate(Enabled, true);
 
         // [THEN] Workflow enabled.
@@ -192,7 +192,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
     begin
         // [SCENARIO 376597] Enabling Workflow should be allowed when "User ID" is mandatory ("Create a notification for <User>." step exists) and filled.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Workflow for Purchase invoice is set up from the template, has "User ID" field mandatory and filled and is not enabled.
         ChangeDemoData(Workflow);
@@ -200,7 +200,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         Workflow.Modify();
 
         // [WHEN] Enabling Workflow.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         Workflow.Validate(Enabled, true);
 
         // [THEN] Workflow enabled.
@@ -219,9 +219,9 @@ codeunit 134185 "WF Demo Purch. Invoice"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Purch. Invoice");
         LibraryERMCountryData.InitializeCountry;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         Commit();
 
         BindSubscription(LibraryJobQueue);
@@ -241,13 +241,13 @@ codeunit 134185 "WF Demo Purch. Invoice"
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.PostDocumentAsyncCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowStep.Validate("Function Name", WorkflowResponseHandling.PostDocumentCode);
         WorkflowStep.Modify(true);
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowStep."Function Name" := WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode;
         WorkflowStep.Modify(true);
         WorkflowStepArgument.Get(WorkflowStep.Argument);
@@ -260,7 +260,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowStepArgument.Get(WorkflowStep.Argument);
 
         WorkflowStepArgument."Notification User ID" := UserId;

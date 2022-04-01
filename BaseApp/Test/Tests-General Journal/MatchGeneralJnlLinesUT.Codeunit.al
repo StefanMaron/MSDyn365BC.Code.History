@@ -26,7 +26,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Customer: Record Customer;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertCustomer(Customer);
@@ -53,7 +53,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Customer: Record Customer;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertCustomer(Customer);
@@ -83,7 +83,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertCustomer(Customer);
@@ -110,7 +110,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertCustomer(Customer);
@@ -139,7 +139,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertCustomer(Customer);
@@ -166,7 +166,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertCustomer(Customer);
@@ -195,7 +195,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertCustomer(Customer);
@@ -224,7 +224,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertCustomer(Customer);
@@ -252,7 +252,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Vendor: Record Vendor;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertVendor(Vendor);
@@ -279,7 +279,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Vendor: Record Vendor;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertVendor(Vendor);
@@ -308,7 +308,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Vendor: Record Vendor;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertVendor(Vendor);
@@ -336,7 +336,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Vendor: Record Vendor;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertVendor(Vendor);
@@ -365,7 +365,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Vendor: Record Vendor;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertVendor(Vendor);
@@ -393,7 +393,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Vendor: Record Vendor;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertVendor(Vendor);
@@ -422,7 +422,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Vendor: Record Vendor;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertVendor(Vendor);
@@ -450,7 +450,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Customer: Record Customer;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertCustomer(Customer);
@@ -478,7 +478,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Vendor: Record Vendor;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         Amount := LibraryRandom.RandDec(100, 2);
         InsertVendor(Vendor);
@@ -503,7 +503,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         TextToAccMapping: Record "Text-to-Account Mapping";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToGL(GenJnlLine, TextToAccMapping);
 
@@ -523,7 +523,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         TextToAccMapping: Record "Text-to-Account Mapping";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToGL(GenJnlLine, TextToAccMapping);
         GenJnlLine.Amount := -GenJnlLine.Amount;
@@ -545,7 +545,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         TextToAccMapping: Record "Text-to-Account Mapping";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToCustomer(GenJnlLine, TextToAccMapping);
         // Exercise
@@ -570,7 +570,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         TextToAccMapping: Record "Text-to-Account Mapping";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToCustomer(GenJnlLine, TextToAccMapping);
         GenJnlLine.Amount := -GenJnlLine.Amount;
@@ -598,7 +598,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         TextToAccMapping: Record "Text-to-Account Mapping";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToVendor(GenJnlLine, TextToAccMapping);
 
@@ -624,7 +624,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         TextToAccMapping: Record "Text-to-Account Mapping";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToVendor(GenJnlLine, TextToAccMapping);
         GenJnlLine.Amount := -GenJnlLine.Amount;
@@ -652,7 +652,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         TextToAccMapping: Record "Text-to-Account Mapping";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToGL(GenJnlLine, TextToAccMapping);
 
@@ -676,7 +676,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine1: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToCustomer(GenJnlLine, TextToAccMapping);
         GenJnlLine.Amount := -GenJnlLine.Amount;
@@ -701,7 +701,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine1: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToVendor(GenJnlLine, TextToAccMapping);
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
@@ -725,7 +725,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine1: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToVendor(GenJnlLine, TextToAccMapping);
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
@@ -894,7 +894,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Setup
         SetupMappingToCustomer(GenJnlLine, TextToAccMapping);
         GenJnlLine2.Copy(GenJnlLine);
@@ -919,7 +919,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 267936] General Journal Line mapped to a Account if Mapping Text can be found at the beginning of General Journal Line Description.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup Text to Account mapping.
         SetupMappingToGL(GenJnlLine, TextToAccMapping);
@@ -948,7 +948,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 267936] General Journal Line mapped to a Account if Mapping Text can be found at the end of General Journal Line Description.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup Text to Account mapping.
         SetupMappingToGL(GenJnlLine, TextToAccMapping);
@@ -978,7 +978,7 @@ codeunit 134250 "Match General Jnl Lines UT"
     var
         LastEntryNo: Integer;
     begin
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         LastEntryNo := CustLedgerEntry."Entry No.";
         InsertDetailedCustLedgerEntry(LastEntryNo + 1, Amount);
         CustLedgerEntry.Init();
@@ -995,7 +995,7 @@ codeunit 134250 "Match General Jnl Lines UT"
     var
         LastEntryNo: Integer;
     begin
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         LastEntryNo := VendorLedgerEntry."Entry No.";
         InsertDetailedVendorLedgerEntry(LastEntryNo + 1, Amount);
         VendorLedgerEntry.Init();
@@ -1013,7 +1013,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         LastEntryNo: Integer;
     begin
-        DetailedCustLedgEntry.FindLast;
+        DetailedCustLedgEntry.FindLast();
         LastEntryNo := DetailedCustLedgEntry."Entry No.";
         DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Entry No." := LastEntryNo + 1;
@@ -1028,7 +1028,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         LastEntryNo: Integer;
     begin
-        DetailedVendorLedgEntry.FindLast;
+        DetailedVendorLedgEntry.FindLast();
         LastEntryNo := DetailedVendorLedgEntry."Entry No.";
         DetailedVendorLedgEntry.Init();
         DetailedVendorLedgEntry."Entry No." := LastEntryNo + 1;
@@ -1044,7 +1044,7 @@ codeunit 134250 "Match General Jnl Lines UT"
     begin
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        if GenJnlLine.FindLast then
+        if GenJnlLine.FindLast() then
             LastLineNo := GenJnlLine."Line No.";
 
         GenJnlLine.Init();
@@ -1127,7 +1127,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         LastLineNo: Integer;
     begin
         with TextToAccMapping do begin
-            if FindLast then
+            if FindLast() then
                 LastLineNo := "Line No.";
 
             Init;
@@ -1211,7 +1211,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         GenJnlLine.SetRange("Document Type", DocType);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
     end;
 
     local procedure VerifyGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocNo: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Applied: Boolean)

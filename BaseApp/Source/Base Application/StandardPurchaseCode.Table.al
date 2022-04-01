@@ -72,7 +72,6 @@ table 173 "Standard Purchase Code"
 
     trigger OnDelete()
     var
-        StdVendorPurchCode: Record "Standard Vendor Purchase Code";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         StdVendorPurchCode.Reset();
@@ -90,8 +89,9 @@ table 173 "Standard Purchase Code"
 
     var
         StdPurchLine: Record "Standard Purchase Line";
+        StdVendorPurchCode: Record "Standard Vendor Purchase Code";
         Text001: Label 'If you change the %1, the %2 will be rounded according to the new %3.';
         Text002: Label 'The update has been interrupted to respect the warning.';
-        StdPurchCodeDeletionQst: Label 'If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?', Comment = '%1=Standard Purchase Code, %2=Table Caption';
+        StdPurchCodeDeletionQst: Label 'If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?', Comment = '%1=Standard Purchase Code, %3=Table Caption';
 }
 

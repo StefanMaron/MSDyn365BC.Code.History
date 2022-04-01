@@ -297,7 +297,7 @@ codeunit 99000842 "Service Line-Reserve"
             if TransferQty = 0 then
                 exit;
             OldReservEntry.SetRange("Reservation Status", ReservStatus);
-            if OldReservEntry.FindSet then
+            if OldReservEntry.FindSet() then
                 repeat
                     OldReservEntry.TestItemFields(OldServLine."No.", OldServLine."Variant Code", OldServLine."Location Code");
 
@@ -352,7 +352,7 @@ codeunit 99000842 "Service Line-Reserve"
             ReservEntry.Delete();
         until ReservEntry.Next() = 0;
 
-        OK := TempInvoicingSpecification.FindFirst;
+        OK := TempInvoicingSpecification.FindFirst();
     end;
 
     procedure DeleteInvoiceSpecFromHeader(ServHeader: Record "Service Header")
@@ -538,7 +538,7 @@ codeunit 99000842 "Service Line-Reserve"
             Clear(AvailableServiceLines);
             AvailableServiceLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
             AvailableServiceLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailableServiceLines.RunModal;
+            AvailableServiceLines.RunModal();
         end;
     end;
 
@@ -656,7 +656,7 @@ codeunit 99000842 "Service Line-Reserve"
 
         AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         ServiceLine.FindLinesForReservation(CalcReservEntry, AvailabilityFilter, Positive);
-        if ServiceLine.FindSet then
+        if ServiceLine.FindSet() then
             repeat
                 ServiceLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= ServiceLine."Reserved Qty. (Base)";

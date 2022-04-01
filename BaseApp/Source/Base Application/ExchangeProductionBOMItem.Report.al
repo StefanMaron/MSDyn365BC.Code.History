@@ -452,7 +452,7 @@ report 99001043 "Exchange Production BOM Item"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         ProductionBOMVersion.SetRange("Production BOM No.", ProductionBOMNo);
-        if ProductionBOMVersion.FindLast then begin
+        if ProductionBOMVersion.FindLast() then begin
             Result := IncStr(ProductionBOMVersion."Version Code");
             ProductionBOMVersion.SetRange("Version Code", Result);
             while not ProductionBOMVersion.IsEmpty do begin

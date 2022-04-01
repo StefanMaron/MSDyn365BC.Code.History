@@ -86,7 +86,7 @@ page 5715 "Responsibility Center List"
                         begin
                             CurrPage.SetSelectionFilter(RespCenter);
                             DefaultDimMultiple.SetMultiRecord(RespCenter, FieldNo(Code));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

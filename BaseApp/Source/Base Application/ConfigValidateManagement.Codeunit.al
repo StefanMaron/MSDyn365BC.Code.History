@@ -54,14 +54,6 @@ codeunit 8617 "Config. Validate Management"
             GlobalLanguage(MainLanguageID);
     end;
 
-    local procedure GetOptionsNumber(OptionString: Text): Integer
-    var
-        TypeHelper: Codeunit "Type Helper";
-    begin
-        exit(TypeHelper.GetNumberOfOptions(OptionString));
-    end;
-
-
     procedure OptionNoExists(var FieldRef: FieldRef; OptionValue: Text): Boolean
     var
         OptionNo: Integer;
@@ -307,9 +299,10 @@ codeunit 8617 "Config. Validate Management"
     local procedure EvaluateValueToDate(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         Date: Date;
+        ZeroDate: Date;
         Decimal: Decimal;
     begin
-        if not Evaluate(Decimal, Value) or not Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) then
+        if not Evaluate(Decimal, Value) or not (Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) and (Date <> ZeroDate)) then
             if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat()) then
                 exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Date)));
 
@@ -890,9 +883,15 @@ codeunit 8617 "Config. Validate Management"
         DotNetDateTime: DotNet DateTime;
         ALDateTime: DateTime;
     begin
-        DotNetDateTime := DotNetDateTime.FromOADate(DateTimeDecimal);
-        Evaluate(ALDateTime, DotNetDateTime.ToString());
+        if FromOADate(DotNetDateTime, DateTimeDecimal) then
+            Evaluate(ALDateTime, DotNetDateTime.ToString());
         exit(ALDateTime);
+    end;
+
+    [TryFunction]
+    local procedure FromOADate(var DotNetDateTime: DotNet DateTime; DateTimeDecimal: Decimal)
+    begin
+        DotNetDateTime := DotNetDateTime.FromOADate(DateTimeDecimal);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Config. Package Table", 'OnBeforeInsertEvent', '', true, true)]

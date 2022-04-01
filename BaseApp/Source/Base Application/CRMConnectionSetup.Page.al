@@ -259,8 +259,13 @@ page 5330 "CRM Connection Setup"
             {
                 Caption = 'Advanced Settings';
                 Visible = "Is Enabled";
+#if not CLEAN20
                 field("Is User Mapping Required"; "Is User Mapping Required")
                 {
+                    ObsoleteTag = '20.0';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality is not in use and not supported';
+                    Visible = false;
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies that Dynamics 365 users must have a matching user account in Dynamics 365 Sales to have Dynamics 365 Sales integration capabilities in the user interface.';
 
@@ -272,12 +277,14 @@ page 5330 "CRM Connection Setup"
                 }
                 field("Is User Mapped To CRM User"; "Is User Mapped To CRM User")
                 {
+                    ObsoleteTag = '20.0';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality is not in use and not supported';
                     ApplicationArea = Suite;
                     Caption = 'Current Business Central User is Mapped to a Dynamics 365 Sales User';
                     Editable = false;
-                    StyleExpr = UserMappedToCRMUserStyleExpr;
                     ToolTip = 'Specifies that the user account that you used to sign in with has a matching user account in Dynamics 365 Sales.';
-                    Visible = "Is User Mapping Required";
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -287,6 +294,7 @@ page 5330 "CRM Connection Setup"
                             Message(CurrentuserIsNotMappedToCRMUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.SHORT, CRMProductName.CDSServiceName());
                     end;
                 }
+#endif
                 field("Use Newest UI"; "Use Newest UI")
                 {
                     ApplicationArea = Suite;
@@ -491,14 +499,14 @@ page 5330 "CRM Connection Setup"
                     CRMSystemuserList: Page "CRM Systemuser List";
                 begin
                     CRMSystemuserList.Initialize(true);
-                    CRMSystemuserList.Run;
+                    CRMSystemuserList.Run();
                 end;
             }
             action(StartInitialSynchAction)
             {
                 ApplicationArea = Suite;
                 Caption = 'Run Full Synchronization';
-                Enabled = "Is Enabled For User";
+                Enabled = "Is Enabled";
                 Image = RefreshLines;
                 Promoted = true;
                 PromotedCategory = Category4;
@@ -528,7 +536,7 @@ page 5330 "CRM Connection Setup"
             {
                 ApplicationArea = Suite;
                 Caption = 'Synchronize Modified Records';
-                Enabled = "Is Enabled For User";
+                Enabled = "Is Enabled";
                 Image = Refresh;
                 Promoted = true;
                 PromotedCategory = Category4;
@@ -688,7 +696,7 @@ page 5330 "CRM Connection Setup"
                 Modify;
             end;
             if "Is Enabled" then
-                RegisterUserConnection
+                RegisterConnection
             else
                 if "Disable Reason" <> '' then
                     CRMIntegrationManagement.SendConnectionDisabledNotification("Disable Reason");
@@ -719,8 +727,10 @@ page 5330 "CRM Connection Setup"
         SynchronizeModifiedQst: Label 'This will synchronize all modified records in all integration table mappings.\The synchronization will run in the background so you can continue with other tasks.\\Do you want to continue?';
         ReadyScheduledSynchJobsTok: Label '%1 of %2', Comment = '%1 = Count of scheduled job queue entries in ready or in process state, %2 count of all scheduled jobs';
         ScheduledSynchJobsRunning: Text;
+#if not CLEAN20
         CurrentuserIsMappedToCRMUserMsg: Label '%2 user (%1) is mapped to a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = Dataverse service name';
         CurrentuserIsNotMappedToCRMUserMsg: Label 'Because the %2 Users Must Map to %4 Users field is set, %3 integration is not enabled for %1.\\To enable %3 integration for %2 user %1, the authentication email must match the primary email of a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = CRM product name, %4 = Dataverse service name';
+#endif
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Microsoft Dynamics 365 Connection Setup)';
         PartialScheduledJobsAreRunningMsg: Label 'An active job queue is available but only %1 of the %2 scheduled synchronization jobs are ready or in process.', Comment = '%1 = Count of scheduled job queue entries in ready or in process state, %2 count of all scheduled jobs';
         JobQueueIsNotRunningMsg: Label 'There is no job queue started. Scheduled synchronization jobs require an active job queue to process jobs.\\Contact your administrator to get a job queue configured and started.';
@@ -734,7 +744,6 @@ page 5330 "CRM Connection Setup"
         ScheduledSynchJobsRunningStyleExpr: Text;
         CRMSolutionInstalledStyleExpr: Text;
         CRMVersionStyleExpr: Text;
-        UserMappedToCRMUserStyleExpr: Text;
         ConnectionString: Text;
         WebServiceEnabledStyleExpr: Text;
         ActiveJobs: Integer;
@@ -750,7 +759,9 @@ page 5330 "CRM Connection Setup"
 
     local procedure RefreshData()
     begin
+#if not CLEAN20
         UpdateIsEnabledState;
+#endif
         RefreshDataFromCRM(false);
         SetAutoCreateSalesOrdersEditable;
         RefreshSynchJobsData;
@@ -769,7 +780,6 @@ page 5330 "CRM Connection Setup"
     begin
         CRMSolutionInstalledStyleExpr := GetStyleExpr("Is CRM Solution Installed");
         CRMVersionStyleExpr := GetStyleExpr(IsVersionValid);
-        UserMappedToCRMUserStyleExpr := GetStyleExpr("Is User Mapped To CRM User");
     end;
 
     local procedure SetAutoCreateSalesOrdersEditable()
@@ -804,7 +814,7 @@ page 5330 "CRM Connection Setup"
             if CDSConnectionSetup."Is Enabled" then
                 IsProxyVersionEnabled := false;
 
-        IsWebCliResetEnabled := "Is CRM Solution Installed" and "Is Enabled For User";
+        IsWebCliResetEnabled := "Is CRM Solution Installed" and "Is Enabled";
     end;
 
     local procedure SetVisibilityFlags()

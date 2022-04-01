@@ -1,4 +1,4 @@
-﻿codeunit 99000834 "Purch. Line-Reserve"
+codeunit 99000834 "Purch. Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -340,7 +340,7 @@
                 exit;
             OldReservEntry.SetRange("Reservation Status", ReservStatus);
             OnTransferPurchLineToPurchLineOnAfterOldReservEntrySetFilters(OldPurchLine, NewPurchLine);
-            if OldReservEntry.FindSet then
+            if OldReservEntry.FindSet() then
                 repeat
                     OldReservEntry.TestItemFields(OldPurchLine."No.", OldPurchLine."Variant Code", OldPurchLine."Location Code");
 
@@ -511,7 +511,7 @@
             ReservEntry.Delete();
         until ReservEntry.Next() = 0;
 
-        OK := TempInvoicingSpecification.FindFirst;
+        OK := TempInvoicingSpecification.FindFirst();
     end;
 
     procedure DeleteInvoiceSpecFromHeader(PurchHeader: Record "Purchase Header")
@@ -626,7 +626,7 @@
             Clear(AvailablePurchaseLines);
             AvailablePurchaseLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo);
             AvailablePurchaseLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailablePurchaseLines.RunModal;
+            AvailablePurchaseLines.RunModal();
         end;
     end;
 
@@ -757,7 +757,7 @@
 
         AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         PurchLine.FilterLinesForReservation(CalcReservEntry, DocumentType, AvailabilityFilter, Positive);
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 PurchLine.CalcFields("Reserved Qty. (Base)");
                 OnUpdateStatisticsOnBeforeCheckSpecialOrder(PurchLine);

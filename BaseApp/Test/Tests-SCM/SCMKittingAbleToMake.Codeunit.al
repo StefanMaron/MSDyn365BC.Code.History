@@ -39,8 +39,8 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
         // Setup Demonstration data.
         isInitialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         MfgSetup.Get();
         UpdateMfgSetup('<1D>');
         Commit();
@@ -61,7 +61,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         DueDateDelayDateFormula: DateFormula;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         AbleToMake := LibraryRandom.RandIntInRange(10, 25);
 
         LibraryAssembly.SetupPostingToGL(GenProdPostingGroup, InventoryPostingGroup, InventoryPostingGroup, '');
@@ -713,17 +713,17 @@ codeunit 137107 "SCM Kitting - Able To Make"
     begin
         // [FEATURE] [Production BOM] [UT]
         // [SCENARIO 257036] Description on BOM Buffer entry transferred from a production BOM, is copied from Description field on the production BOM line.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
-        Item.Description := LibraryUtility.GenerateGUID;
+        Item.Description := LibraryUtility.GenerateGUID();
         Item.Modify(true);
 
         with ProductionBOMLine do begin
             Init;
             Type := Type::Item;
             "No." := Item."No.";
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert;
         end;
 
@@ -744,18 +744,18 @@ codeunit 137107 "SCM Kitting - Able To Make"
     begin
         // [FEATURE] [Routing] [UT]
         // [SCENARIO 257036] Description on BOM Buffer entry transferred from a routing, is copied from Description field on the routing line.
-        Initialize;
+        Initialize();
 
         WorkCenter.Init();
-        WorkCenter."No." := LibraryUtility.GenerateGUID;
-        WorkCenter.Name := LibraryUtility.GenerateGUID;
+        WorkCenter."No." := LibraryUtility.GenerateGUID();
+        WorkCenter.Name := LibraryUtility.GenerateGUID();
         WorkCenter.Insert();
 
         with RoutingLine do begin
             Init;
             Type := Type::"Work Center";
             "No." := WorkCenter."No.";
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert;
         end;
 
@@ -776,17 +776,17 @@ codeunit 137107 "SCM Kitting - Able To Make"
     begin
         // [FEATURE] [Assembly BOM] [UT]
         // [SCENARIO 257036] Description on BOM Buffer entry transferred from an assembly BOM, is copied from Description field on the assembly component line.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
-        Item.Description := LibraryUtility.GenerateGUID;
+        Item.Description := LibraryUtility.GenerateGUID();
         Item.Modify(true);
 
         with BOMComponent do begin
             Init;
             Type := Type::Item;
             "No." := Item."No.";
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert;
         end;
 
@@ -854,7 +854,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     [Normal]
@@ -862,7 +862,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     [Normal]
@@ -873,7 +873,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
 
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 BOMBuffer.Reset();
                 BOMComponent.CalcFields("Assembly BOM");
@@ -915,7 +915,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
 
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 BOMBuffer.Reset();
                 Item.Get(AssemblyLine."No.");
@@ -960,7 +960,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         BOMBuffer.Reset();
         BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
         BOMBuffer.SetRange("No.", ItemNo);
-        BOMBuffer.FindFirst;
+        BOMBuffer.FindFirst();
 
         // Validate: The BOM Tree record.
         Assert.AreNearlyEqual(QtyPerParent, BOMBuffer."Qty. per Parent", 0.00001, 'Wrong qty per parent for item ' + ItemNo);
@@ -986,7 +986,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         BOMBuffer.Reset();
         BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
         BOMBuffer.SetRange("No.", ItemNo);
-        BOMBuffer.FindFirst;
+        BOMBuffer.FindFirst();
 
         // Validate: The BOM Tree record.
         if AbleToMake < 0 then

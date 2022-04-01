@@ -62,6 +62,10 @@ codeunit 5478 "Graph Mgt - Journal Lines"
             GenJournalLine.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type");
             GenJournalLine.Validate("Bal. Account No.", GenJournalBatch."Bal. Account No.");
         end;
+        if TempGenJournalLine."Bal. Account Type" <> GenJournalLine."Bal. Account Type" then
+            GenJournalLine.Validate("Bal. Account Type", TempGenJournalLine."Bal. Account Type");
+        if (TempGenJournalLine."Bal. Account No." <> '') and (TempGenJournalLine."Bal. Account No." <> GenJournalLine."Bal. Account No.") then
+            GenJournalLine.Validate("Bal. Account No.", TempGenJournalLine."Bal. Account No.");
         if TempGenJournalLine."VAT Prod. Posting Group" <> GenJournalLine."VAT Prod. Posting Group" then
             GenJournalLine.Validate("VAT Prod. Posting Group", TempGenJournalLine."VAT Prod. Posting Group");
         if TempGenJournalLine."Tax Group Code" <> GenJournalLine."Tax Group Code" then
@@ -122,7 +126,7 @@ codeunit 5478 "Graph Mgt - Journal Lines"
         with GenJournalLine do begin
             SetRange("Account Type", "Account Type"::"G/L Account");
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     UpdateAccountID;
                     UpdateJournalBatchID;

@@ -2098,7 +2098,7 @@ xmlport 1600 "Sales Invoice - PEPPOL 2.1"
             ProcessedDocType::Sale:
                 with SalesInvoiceLine do begin
                     SetRange("Document No.", SalesInvoiceHeader."No.");
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             SalesLine.TransferFields(SalesInvoiceLine);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
@@ -2107,7 +2107,7 @@ xmlport 1600 "Sales Invoice - PEPPOL 2.1"
             ProcessedDocType::Service:
                 with ServiceInvoiceLine do begin
                     SetRange("Document No.", ServiceInvoiceHeader."No.");
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             PEPPOLMgt.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
                             SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(Type);

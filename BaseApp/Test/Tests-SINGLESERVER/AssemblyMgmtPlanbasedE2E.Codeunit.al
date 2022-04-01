@@ -32,7 +32,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Assembly Mgmt. Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -45,9 +45,9 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateManufacturingSetup;
         CreateAssemblySetup;
 
@@ -67,7 +67,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] Setup and use Assembly Mgmt by creating a sales order with a BOM Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer
         CustomerNo := CreateCustomer;
@@ -93,7 +93,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] Setup and use Assembly Mgmt by creating a sales order with a BOM Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer
         CustomerNo := CreateCustomer;
@@ -119,7 +119,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] Setup and use Assembly Mgmt by creating a sales order with a BOM Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer
         CustomerNo := CreateCustomer;
@@ -157,7 +157,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] Setup and use Assembly Mgmt by creating a sales order with a BOM Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer
         CustomerNo := CreateCustomer;
@@ -183,7 +183,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] Setup and use Assembly Mgmt by creating a sales order with a BOM Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer
         CustomerNo := CreateCustomer;
@@ -223,7 +223,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] Setup and use Assembly Mgmt by creating a sales order with a BOM Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer
         CustomerNo := CreateCustomer;
@@ -244,7 +244,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
         SalesOrder.SalesLines.New;
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
@@ -287,9 +287,9 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorNo);
-        PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::Item));
         PurchaseInvoice.PurchLines."No.".SetValue(ItemNo);
         PurchaseInvoice.PurchLines.Quantity.SetValue(10);
@@ -325,7 +325,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard."Vendor No.".SetValue(VendorNo);
@@ -340,7 +340,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         VendorCard: TestPage "Vendor Card";
     begin
         LibraryERM.FindGenBusinessPostingGroup(GenBusinessPostingGroup);
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
         VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup);
@@ -356,7 +356,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CustomerCard: TestPage "Customer Card";
     begin
         LibraryERM.FindGenBusinessPostingGroup(GenBusinessPostingGroup);
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
         CustomerCard."Customer Posting Group".SetValue(LibrarySales.FindCustomerPostingGroup);

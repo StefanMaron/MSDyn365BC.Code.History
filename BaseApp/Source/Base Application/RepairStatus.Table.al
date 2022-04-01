@@ -274,7 +274,7 @@ table 5927 "Repair Status"
                         exit('');
                 end;
         end;
-        if RepairStatus.FindFirst then
+        if RepairStatus.FindFirst() then
             exit(RepairStatus.Code);
 
         exit('');

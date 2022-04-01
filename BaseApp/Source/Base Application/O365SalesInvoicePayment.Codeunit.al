@@ -75,7 +75,7 @@ codeunit 2105 "O365 Sales Invoice Payment"
             0:
                 exit(true); // All payments for the invoice has already been cancelled :)
             1:
-                if TempO365PaymentHistoryBuffer.FindFirst then
+                if TempO365PaymentHistoryBuffer.FindFirst() then
                     exit(TempO365PaymentHistoryBuffer.CancelPayment);
             else
                 // There are multiple payments, so show the history list instead and let the user specify the entries to cancel
@@ -85,6 +85,7 @@ codeunit 2105 "O365 Sales Invoice Payment"
 
     procedure CancelCustLedgerEntry(CustomerLedgerEntry: Integer)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         PaymentCustLedgerEntry: Record "Cust. Ledger Entry";
         ReversalEntry: Record "Reversal Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -98,11 +99,12 @@ codeunit 2105 "O365 Sales Invoice Payment"
         DetailedCustLedgEntry.SetRange("Document No.", PaymentCustLedgerEntry."Document No.");
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustomerLedgerEntry);
         DetailedCustLedgEntry.SetRange(Unapplied, false);
-        if not DetailedCustLedgEntry.FindLast then
+        if not DetailedCustLedgEntry.FindLast() then
             Error(NoDetailedCustomerLedgerEntryForPaymentErr);
 
-        CustEntryApplyPostedEntries.PostUnApplyCustomerCommit(
-          DetailedCustLedgEntry, DetailedCustLedgEntry."Document No.", DetailedCustLedgEntry."Posting Date", false);
+        ApplyUnapplyParameters."Document No." := DetailedCustLedgEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := DetailedCustLedgEntry."Posting Date";
+        CustEntryApplyPostedEntries.PostUnApplyCustomerCommit(DetailedCustLedgEntry, ApplyUnapplyParameters, false);
 
         ReversalEntry.SetHideWarningDialogs;
         ReversalEntry.ReverseTransaction(PaymentCustLedgerEntry."Transaction No.");
@@ -119,7 +121,7 @@ codeunit 2105 "O365 Sales Invoice Payment"
         // Find the customer ledger entry related to the invoice
         InvoiceCustLedgerEntry.SetRange("Document Type", InvoiceCustLedgerEntry."Document Type"::Invoice);
         InvoiceCustLedgerEntry.SetRange("Document No.", SalesInvoiceDocumentNo);
-        if not InvoiceCustLedgerEntry.FindFirst then
+        if not InvoiceCustLedgerEntry.FindFirst() then
             exit(false); // The invoice does not exist
 
         // find the customer ledger entry related to the payment of the invoice

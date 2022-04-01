@@ -112,16 +112,6 @@ codeunit 132221 "EventSubscriber Invoicing App"
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SMTP Mail", 'OnBeforeSend', '', false, false)]
-    local procedure SaveEmailContentBeforeSending(var Sender: Codeunit "SMTP Mail")
-    begin
-        EmailAddress := Sender.GetFrom();
-        EmailSubject := Sender.GetSubject();
-        EmailBody := Sender.GetBody();
-        if not SendEmail then
-            Error(DoNotSendEmailErr);
-    end;
-
     [Scope('OnPrem')]
     procedure OverrideJobQueueResult(JobWillBeSuccessful: Boolean)
     begin

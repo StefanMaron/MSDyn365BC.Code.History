@@ -47,21 +47,21 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
 
-        PreviousItemLedgEntry.FindLast;
+        PreviousItemLedgEntry.FindLast();
 
         // EXERCISE
         TurnOffExactCostReversing;
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
 
         // VERIFY: The correction must use Exact Cost reversing
-        LastItemLedgEntry.FindLast;
+        LastItemLedgEntry.FindLast();
         Assert.AreEqual(
           LastItemLedgEntry."Applies-to Entry", PreviousItemLedgEntry."Entry No.",
           'Return should be applied to initial entry');
@@ -88,7 +88,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vendor, 1, 1, PurchaseHeader, PurchaseLine);
 
@@ -104,7 +104,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
 
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderTmp);
@@ -125,7 +125,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, 0);
 
@@ -140,7 +140,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         InvtPeriod.Insert();
         Commit();
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderTmp);
@@ -178,7 +178,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
 
         PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
         PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, Vendor."No.");
         PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
@@ -216,14 +216,14 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PurchaseHeaderCorrection: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, 1);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, Item."No.", 1, '', 0D);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservEntry, PurchaseLine, '', 'LOT1', 1);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         PurchaseLine.Find;
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -252,7 +252,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PurchaseHeaderCorrection: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vendor, 1, 1, PurchaseHeader, PurchaseLine);
 
@@ -263,7 +263,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
         // CHECK IT IS POSSIBLE TO REVERT A JOBS RELATED INVOICE
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
 
         // VERIFY
@@ -285,11 +285,11 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PreviousItemLedgEntry: Record "Item Ledger Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vendor, 0, 1, PurchInvHeader);
 
-        PreviousItemLedgEntry.FindLast;
+        PreviousItemLedgEntry.FindLast();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
@@ -298,11 +298,11 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        LastItemLedgEntry.FindLast;
+        LastItemLedgEntry.FindLast();
         Assert.AreEqual(LastItemLedgEntry."Applies-to Entry", PreviousItemLedgEntry."Entry No.",
           'Return should be applied to initial entry');
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
 
         // VERIFY
@@ -323,14 +323,14 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     begin
         // [SCENARIO 168492] Corrective Credit Memo is generated when there are other credit memos applied and unapplied to invoice before cancellation
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
 
         // [GIVEN] Unapplied Credit Memo "B"
         PostApplyUnapplyCreditMemoToInvoice(PurchInvHeader);
         PurchCrMemoHdr.SetRange("Pay-to Vendor No.", PurchInvHeader."Pay-to Vendor No.");
-        PurchCrMemoHdr.FindLast;
+        PurchCrMemoHdr.FindLast();
         Commit();
         LibraryLowerPermissions.SetPurchDocsPost;
 
@@ -339,7 +339,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
 
         // [THEN] Corrective Credit Memo "C" is generated
         NewPurchCrMemoHdr.SetRange("Pay-to Vendor No.", PurchInvHeader."Pay-to Vendor No.");
-        NewPurchCrMemoHdr.FindLast;
+        NewPurchCrMemoHdr.FindLast();
 
         // [THEN] Cancelled Document is generated (Invoice = "A", "Credit Memo" = "C")
         CancelledDocument.Get(DATABASE::"Purch. Inv. Header", PurchInvHeader."No.");
@@ -364,7 +364,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [Invoice Rounding]
         // [SCENARIO 169199] No invoice rounding is assigned to new Invoice when correct original invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup" and On in Payables Setup
         SetInvoiceRounding;
 
@@ -400,7 +400,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [Invoice Rounding]
         // [SCENARIO 169199] Corrective Credit Memo is rounded according to "Inv. Rounding Precision" when cancel Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup" and On in Payables Setup
         SetInvoiceRounding;
 
@@ -439,7 +439,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Credit Memo" on page "Posted Purchase Invoice" open Corrective Credit Memo when called from canceled Purchase Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
 
@@ -474,7 +474,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Credit Memo" on page "Posted Purchase Invoices" open Corrective Credit Memo when called from canceled Purchase Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
 
@@ -509,7 +509,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Invoice" on page "Posted Purchase Credit Memo" open Canceled Invoice when called from Corrective Purchase Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
 
@@ -544,7 +544,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Invoice" on page "Posted Purchase Credit Memos" open Canceled Invoice when called from Corrective Purchase Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
 
@@ -576,7 +576,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     begin
         // [SCENARIO 171281] There is no blank line with description about copied-from document when correct Purchase Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Purchase Invoice "A"
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
 
@@ -598,7 +598,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [Invoice Rounding]
         // [SCENARIO 172718] Not possible to correct Posted Purchase Invoice with amount rounded to zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoice Rounding Precision is 1,00 in General Ledger Setup
         LibraryPurchase.SetInvoiceRounding(true);
@@ -632,7 +632,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [No. Series]
         // [SCENARIO 210983] Stan can select no. series for Corrective Credit Memo if no. series from "Credit Memo Nos." in Purchase Setup is not "Default Nos" and has relations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
@@ -673,7 +673,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [No. Series]
         // [SCENARIO 210983]  Corrective Credit Memo posts with default no. series from "Credit Memo Nos." in Purchase Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
@@ -703,7 +703,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [No. Series]
         // [SCENARIO 210983] Error message is thrown when create Corrective Credit Memo if no. series from "Credit Memo Nos." in Purchase Setup is not "Default Nos" and has no relations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
@@ -735,7 +735,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [No. Series]
         // [SCENARIO 210983] Error message is thrown when create Corrective Credit Memo if no. series from "Credit Memo Nos." in Purchase Setup is not "Default Nos" and has relations but No. Series is not selected from the list of series.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
@@ -770,7 +770,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [Item Tracking] [Exact Cost Reversing Mandatory]
         // [SCENARIO 210894] Negative Line of Posted Purchase Invoice with Lot Tracking copies to Corrective Credit Memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot Tracking
         ItemNo := CreateTrackedItem;
@@ -802,7 +802,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [FEATURE] [Item Tracking] [Exact Cost Reversing Mandatory]
         // [SCENARIO 210894] Negative Line of Posted Purchase Invoice with Lot Tracking copies to Credit Memo when "Exact Cost Reversing Mandatory" is set
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot Tracking
         ItemNo := CreateTrackedItem;
@@ -1141,7 +1141,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         exit(PurchInvLine."Amount Including VAT");
     end;
 
@@ -1265,7 +1265,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetRange(Type, PurchLine.Type::Item);
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
         PurchLine.TestField(Quantity, ExpectedQty);
         LibraryInventory.VerifyReservationEntryWithLotExists(
           DATABASE::"Purchase Line", PurchHeader."Document Type".AsInteger(), PurchHeader."No.",

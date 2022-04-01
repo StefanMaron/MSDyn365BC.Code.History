@@ -71,7 +71,7 @@ page 9656 "Report Layout Update Log"
                 begin
                     CustomReportLayout.SetFilter("Report ID", Format("Report ID"));
                     CustomReportLayout.SetFilter(Description, "Layout Description");
-                    if CustomReportLayout.FindFirst then
+                    if CustomReportLayout.FindFirst() then
                         PAGE.Run(PAGE::"Custom Report Layouts", CustomReportLayout);
                 end;
             }

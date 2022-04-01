@@ -121,7 +121,7 @@ page 970 "Time Sheet Allocation"
     begin
         Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
         Calendar.SetRange("Period Start", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
-        if Calendar.FindSet then
+        if Calendar.FindSet() then
             repeat
                 i += 1;
                 DateDescription[i] := TimeSheetMgt.FormatDate(Calendar."Period Start", 0);

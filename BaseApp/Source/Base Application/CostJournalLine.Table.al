@@ -287,7 +287,7 @@ table 1101 "Cost Journal Line"
         CostJournalBatch.Get("Journal Template Name", "Journal Batch Name");
         CostJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         CostJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if CostJournalLine.FindFirst then begin
+        if CostJournalLine.FindFirst() then begin
             "Posting Date" := LastCostJournalLine."Posting Date";
             "Document No." := LastCostJournalLine."Document No.";
         end else
@@ -340,7 +340,7 @@ table 1101 "Cost Journal Line"
             if TemplateFilter <> '' then
                 CostJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
             CostJournalBatch.SetFilter(Name, BatchFilter);
-            CostJournalBatch.FindFirst;
+            CostJournalBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));

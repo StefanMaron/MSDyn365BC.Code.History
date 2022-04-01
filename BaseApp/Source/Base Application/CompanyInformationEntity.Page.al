@@ -143,7 +143,7 @@ page 5473 "Company Information Entity"
         CurrencyCode := GeneralLedgerSetup."LCY Code";
 
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             FiscalYearStart := AccountingPeriod."Starting Date";
     end;
 

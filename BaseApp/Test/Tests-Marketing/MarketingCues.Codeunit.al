@@ -24,7 +24,7 @@ codeunit 136216 "Marketing Cues"
         I: Integer;
     begin
         // [SCENARIO 180152] User can easily review "company" contacts in the Sales & Relationship Manager role center
-        Initialize;
+        Initialize();
 
         // [GIVEN] Number of Contacts "Company" type
         for I := 1 to LibraryRandom.RandInt(5) do
@@ -43,7 +43,7 @@ codeunit 136216 "Marketing Cues"
         I: Integer;
     begin
         // [SCENARIO 180152] User can easily review "person" contacts in the Sales & Relationship Manager role center
-        Initialize;
+        Initialize();
 
         // [GIVEN] Number of Contacts "Person" type
         for I := 1 to LibraryRandom.RandInt(5) do
@@ -62,7 +62,7 @@ codeunit 136216 "Marketing Cues"
         I: Integer;
     begin
         // [SCENARIO 180152] User can easily review contacts duplicates in the Sales & Relationship Manager role center
-        Initialize;
+        Initialize();
 
         // [GIVEN] Number of contacts that are duplicates
         CreateDuplicateSearchStringSetup;
@@ -143,7 +143,7 @@ codeunit 136216 "Marketing Cues"
         DuplicateContact: Record Contact;
     begin
         MockContactCompany;
-        Contact.FindLast;
+        Contact.FindLast();
 
         MockContact(DuplicateContact);
         DuplicateContact.Name := Contact.Name;

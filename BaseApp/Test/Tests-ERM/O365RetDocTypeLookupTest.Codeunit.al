@@ -22,13 +22,13 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // [SCENARIO] Show Type field in OnPrem environment for Sales Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] An OnPrem environment
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [WHEN] Opening a new Sales Return Order
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
 
         // [THEN] The Type field is visible and the subtype field is not
         Assert.IsTrue(SalesReturnOrder.SalesLines.Type.Visible, 'Regular type field should be visible for OnPrem');
@@ -42,12 +42,12 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // [SCENARIO] Show the Subtype field in SaaS environment for Sales Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] A SaaS environment
 
         // [WHEN] Opening a new Sales Return Order
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
         asserterror SalesReturnOrder.SalesLines.Type.Activate;
@@ -64,10 +64,10 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // [SCENARIO] The lookup on Subtype contains the expected values for Sales Return Order and all values can be selected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Return Order
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         TempOptionLookupBuffer.FindSet();
@@ -90,10 +90,10 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // [SCENARIO] A partial Subtype is entered into the Subtype field triggers autocomplete for Sales Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Return Order
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
 
         // [WHEN] Setting the subtype on the Sales Line to ac
         SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(CopyStr(Format(SalesLine.Type::"G/L Account"), 1, 2));
@@ -119,10 +119,10 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // [SCENARIO] A blank Subtype is entered into the Subtype field stays blank for Sales Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Return Order
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
 
         // [WHEN] Setting the subtype on the Sales Line to ' '
         SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(' ');
@@ -143,11 +143,11 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // [SCENARIO] When invalid values are entered into Subtype, an Item Subtype is selected
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableSalesReturnOrderSetup;
 
         // [GIVEN] A Sales Return Order
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
 
         // [WHEN] Setting the subtype to Fixed Asset on the Sales Line
         SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::"Fixed Asset"));
@@ -160,7 +160,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
 
         // [WHEN] Setting the subtype to a random value on the Sales Line
-        SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID);
+        SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID());
         // [THEN] The Subtype is set to Item
         SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
     end;
@@ -172,13 +172,13 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // [SCENARIO] Show Type field in OnPrem environment for Purchase Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] An OnPrem environment
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [WHEN] Opening a new Purchase Return Order
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
 
         // [THEN] The Type field is visible and the subtype field is not
         Assert.IsTrue(PurchaseReturnOrder.PurchLines.Type.Visible, 'Regular type field should be visible for OnPrem');
@@ -192,12 +192,12 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // [SCENARIO] Show the Subtype field in SaaS environment for Purchase Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] A SaaS environment
 
         // [WHEN] Opening a new Purchase Return Order
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
         asserterror PurchaseReturnOrder.PurchLines.Type.Activate;
@@ -214,10 +214,10 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // [SCENARIO] The lookup on Subtype contains the expected values for Purchase Return Order and all values can be selected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Return Order
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         TempOptionLookupBuffer.FindSet();
@@ -240,10 +240,10 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // [SCENARIO] A partial Subtype is entered into the Subtype field triggers autocomplete for Purchase Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Return Order
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
 
         // [WHEN] Setting the subtype on the Purchase Line to ac
         PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(Format(PurchaseLine.Type::"G/L Account"), 1, 2));
@@ -269,10 +269,10 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // [SCENARIO] A blank Subtype is entered into the Subtype field stays blank for Purchase Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Purchase Return Order
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
 
         // [WHEN] Setting the subtype on the Purchase Line to ' '
         PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(' ');
@@ -293,11 +293,11 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // [SCENARIO] When invalid values are entered into Subtype, an Item is selected
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnablePurchaseReturnOrderSetup;
 
         // [GIVEN] A Purchase Return Order
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
 
         // [WHEN] Setting the subtype to Fixed Asset on the Purchase Line
         PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::"Fixed Asset"));
@@ -305,7 +305,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(Format(PurchaseLine.Type::Item));
 
         // [WHEN] Setting the subtype to a random value on the Purchase Line
-        PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID);
+        PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID());
         // [THEN] The Subtype is set to Item
         PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(Format(PurchaseLine.Type::Item));
     end;
@@ -330,7 +330,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Ret. Doc Type Lookup Test");
         LibraryApplicationArea.EnableReturnOrderSetup;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 }
 

@@ -57,7 +57,7 @@ table 306 "Fin. Charge Comment Line"
         FinChrgCommentLine.SetRange(Type, Type);
         FinChrgCommentLine.SetRange("No.", "No.");
         FinChrgCommentLine.SetRange(Date, WorkDate);
-        if not FinChrgCommentLine.FindFirst then
+        if not FinChrgCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, FinChrgCommentLine);
@@ -75,7 +75,7 @@ table 306 "Fin. Charge Comment Line"
 
         FinChrgCommentLine.SetRange(Type, FromType);
         FinChrgCommentLine.SetRange("No.", FromNumber);
-        if FinChrgCommentLine.FindSet then
+        if FinChrgCommentLine.FindSet() then
             repeat
                 FinChrgCommentLine2 := FinChrgCommentLine;
                 FinChrgCommentLine2.Type := ToType;
@@ -101,7 +101,7 @@ table 306 "Fin. Charge Comment Line"
         SetRange("Line No.", DocLineNo);
         Clear(FinChargeCommentSheet);
         FinChargeCommentSheet.SetTableView(Rec);
-        FinChargeCommentSheet.RunModal;
+        FinChargeCommentSheet.RunModal();
     end;
 
     [IntegrationEvent(false, false)]

@@ -752,7 +752,7 @@
                     Caption = 'Responsibility Center', Locked = true;
                 }
 #if not CLEAN19
-                field(crossReferenceNumber; "Cross-Reference No.")
+                field(crossReferenceNumber; "Item Reference No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Cross-Reference No.', Locked = true;
@@ -761,7 +761,7 @@
                     ObsoleteTag = '19.0';
                     Tooltip = 'Specifies cross reference number.';
                 }
-                field(unitOfMeasureCrossRef; "Unit of Measure (Cross Ref.)")
+                field(unitOfMeasureCrossRef; "Item Reference Unit of Measure")
                 {
                     ApplicationArea = All;
                     Caption = 'Unit of Measure (Cross Ref.)', Locked = true;
@@ -770,7 +770,7 @@
                     ObsoleteTag = '19.0';
                     Tooltip = 'Specifies cross reference unit of measure.';
                 }
-                field(crossReferenceType; "Cross-Reference Type")
+                field(crossReferenceType; "Item Reference Type")
                 {
                     ApplicationArea = All;
                     Caption = 'Cross-Reference Type', Locked = true;
@@ -779,7 +779,7 @@
                     ObsoleteTag = '19.0';
                     Tooltip = 'Specifies cross reference type.';
                 }
-                field(crossReferenceTypeNumber; "Cross-Reference Type No.")
+                field(crossReferenceTypeNumber; "Item Reference Type No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Cross-Reference Type No.', Locked = true;
@@ -817,7 +817,6 @@
                 {
                     ApplicationArea = All;
                     Caption = 'Item Category Code', Locked = true;
-                    Tooltip = 'Specifies item category code.';
                 }
                 field(nonstock; Nonstock)
                 {

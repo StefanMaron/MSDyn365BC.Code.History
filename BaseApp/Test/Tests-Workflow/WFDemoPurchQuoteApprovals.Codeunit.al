@@ -44,7 +44,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [THEN] The user will get an error that he cannot make an order of a purchase quote that is not approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
 
@@ -71,7 +71,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         PurchaseQuotes: TestPage "Purchase Quotes";
     begin
         // [SCENARIO 378153] The user cannot make an order of a purchase quote when the approval workflow is enabled and the purchase quote is not approved
-        Initialize;
+        Initialize();
 
         // [GIVEN] The approval workflow for puchase quote is enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
@@ -106,7 +106,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [THEN] The user will get an error that he cannot release a purchase quote that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
 
@@ -140,7 +140,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [THEN] The user will get an error that he cannot release the purchase quote that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -188,7 +188,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [THEN] The user will get an error that he cannot reopen the purchase quote.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -236,7 +236,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [WHEN] Interim and Final users approve the approval request.
         // [THEN] Purchase Quote is released.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -298,7 +298,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [WHEN] Final user rejects the approval request.
         // [THEN] Purchase Quote is reopened and approval entries are marked as rejected.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -361,7 +361,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [WHEN] Final user approves the approval requests.
         // [THEN] Purchase Quote is released.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -437,7 +437,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [WHEN] Sender cancels the approval request.
         // [THEN] Purchase Quote is opend and approval requests are marked as cancelled.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -477,7 +477,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Purchase Header approval disabled.
-        Initialize;
+        Initialize();
         CreateUserSetupsAndChainOfApprovers(CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
         // [WHEN] Purchase Header card is opened.
@@ -560,7 +560,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] PurchHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] PurchHeader card is opened.
         CreateUserSetupsAndChainOfApprovers(CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
@@ -632,7 +632,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [WHEN] Make order is invoker
         // [THEN] No approval entries remain for the quote.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -701,7 +701,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [WHEN] Purchaser approves the approval request.
         // [THEN] Purchase Quote is released.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchaseHeader);
 
@@ -757,7 +757,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchaseHeader);
 
@@ -833,10 +833,10 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         UserSetup: Record "User Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Purch Quote Approvals");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
@@ -849,7 +849,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.SetRecFilter;
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure CreatePurchaseQuote(var PurchaseHeader: Record "Purchase Header")

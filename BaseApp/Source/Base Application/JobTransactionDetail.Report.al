@@ -314,7 +314,7 @@ report 1007 "Job - Transaction Detail"
                 JobLedgEntry.SetCurrentKey("Job No.", "Entry Type");
                 JobLedgEntry.SetRange("Job No.", "No.");
                 JobLedgEntry.SetRange("Entry Type", JobLedgEntry."Entry Type"::Usage);
-                if not JobLedgEntry.FindFirst then
+                if not JobLedgEntry.FindFirst() then
                     CurrReport.Skip();
             end;
         }

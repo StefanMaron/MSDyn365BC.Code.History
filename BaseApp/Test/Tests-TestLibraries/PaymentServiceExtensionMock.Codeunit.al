@@ -31,7 +31,7 @@ codeunit 132472 "Payment Service Extension Mock"
     begin
         PaymentServiceSetup.SetFilter("Management Codeunit ID", '=%1', CODEUNIT::"Payment Service Extension Mock");
 
-        if not TempTemplatePaymentServiceSetup.FindSet then
+        if not TempTemplatePaymentServiceSetup.FindSet() then
             exit;
 
         CurrentNo := TestServiceTemplateKeyTok;
@@ -54,7 +54,7 @@ codeunit 132472 "Payment Service Extension Mock"
         TempAccountPaymentServiceSetup.Reset();
         LastNo := TestServiceTemplateKeyTok;
 
-        if TempAccountPaymentServiceSetup.FindLast then
+        if TempAccountPaymentServiceSetup.FindLast() then
             LastNo := TempAccountPaymentServiceSetup."No.";
         Clear(TempAccountPaymentServiceSetup);
 
@@ -73,7 +73,7 @@ codeunit 132472 "Payment Service Extension Mock"
         PaymentServiceSetup.SetFilter("Management Codeunit ID", '=%1', CODEUNIT::"Payment Service Extension Mock");
 
         TempAccountPaymentServiceSetup.Reset();
-        if not TempAccountPaymentServiceSetup.FindSet then
+        if not TempAccountPaymentServiceSetup.FindSet() then
             exit;
 
         repeat
@@ -85,7 +85,7 @@ codeunit 132472 "Payment Service Extension Mock"
     [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     local procedure MockRegisterServiceConnections(var ServiceConnection: Record "Service Connection")
     begin
-        if TempAccountPaymentServiceSetup.FindSet then
+        if TempAccountPaymentServiceSetup.FindSet() then
             repeat
                 if TempAccountPaymentServiceSetup.Enabled then
                     ServiceConnection.Status := ServiceConnection.Status::Enabled
@@ -127,7 +127,7 @@ codeunit 132472 "Payment Service Extension Mock"
     local procedure SetPaymentServiceTempTable(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary; var TempBufferPaymentServiceSetup: Record "Payment Service Setup" temporary)
     begin
         TempBufferPaymentServiceSetup.DeleteAll();
-        if not TempPaymentServiceSetup.FindSet then
+        if not TempPaymentServiceSetup.FindSet() then
             exit;
 
         repeat
@@ -135,7 +135,7 @@ codeunit 132472 "Payment Service Extension Mock"
             TempBufferPaymentServiceSetup.Insert(true);
         until TempPaymentServiceSetup.Next = 0;
 
-        TempPaymentServiceSetup.FindFirst;
+        TempPaymentServiceSetup.FindFirst();
     end;
 
     procedure EmptyTempPaymentServiceTables()

@@ -43,7 +43,7 @@ codeunit 134479 "ERM Dimension Combination"
 
         // [GIVEN] Create Dimension, Dimension Value, Customer with Default Dimension, Dimension Combination for Combination
         // Restriction Blocked and General Journal with Dimension.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(DefaultDimension);
         CreateDimensionCombination(DimensionCombination, DimensionValue, DefaultDimension."Dimension Code");
         UpdateCombinationRestriction(DimensionCombination, DimensionCombination."Combination Restriction"::Blocked);
@@ -74,7 +74,7 @@ codeunit 134479 "ERM Dimension Combination"
 
         // [GIVEN] Create Dimension, Dimension Value, Customer with Default Dimension, Dimension Combination for Combination
         // Restriction Limited and General Journal with Dimension.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(DefaultDimension);
         CreateDimensionCombination(DimensionCombination, DimensionValue, DefaultDimension."Dimension Code");
         UpdateCombinationRestriction(DimensionCombination, DimensionCombination."Combination Restriction"::Limited);
@@ -109,7 +109,7 @@ codeunit 134479 "ERM Dimension Combination"
 
         // [GIVEN] Create Dimension, Dimension Value, Customer with Default Dimension, Dimension Combination for Combination
         // Restriction Blocked and Create Sales Invoice with dimensions.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(DefaultDimension);
         CreateDimensionCombination(DimensionCombination, DimensionValue, DefaultDimension."Dimension Code");
         UpdateCombinationRestriction(DimensionCombination, DimensionCombination."Combination Restriction"::Blocked);
@@ -144,7 +144,7 @@ codeunit 134479 "ERM Dimension Combination"
         // [SCENARIO] Test error occurs on Posting Purchase Invoice with Blocked Dimensions on Line.
 
         // [GIVEN] Create Item, Vendor with Default Dimension, Dimension Combination for Combination Restriction Blocked and Create Purchase Invoice with dimensions on line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateVendorWithDimension(DefaultDimension);
         CreateDimensionCombination(DimensionCombination, DimensionValue, DefaultDimension."Dimension Code");
@@ -178,7 +178,7 @@ codeunit 134479 "ERM Dimension Combination"
         // [SCENARIO] Test error occurs on Posting Purchase Invoice with Blocked Dimensions on Header.
 
         // [GIVEN] Create Vendor with Default Dimension, Dimension Combination for Combination Restriction Blocked and Create Purchase Invoice with dimensions on header.
-        Initialize;
+        Initialize();
         CreateVendorWithDimension(DefaultDimension);
         CreateDimensionCombination(DimensionCombination, DimensionValue, DefaultDimension."Dimension Code");
         UpdateCombinationRestriction(DimensionCombination, DimensionCombination."Combination Restriction"::Blocked);
@@ -206,7 +206,7 @@ codeunit 134479 "ERM Dimension Combination"
         NewDimSetID: Integer;
     begin
         // [SCENARIO] Creating G/L Budget Entry with dimensions, witch included in blocked Dimension Combination. It should not be possible to enter blocked Dimension Combinations in G/L Budget Entry
-        Initialize;
+        Initialize();
         // [GIVEN] Create blocked Dimension Combination and Dimension Set
         NewDimSetID := CreateBlockedDimensionCombination(DimensionValue1, DimensionValue2);
         // [GIVEN] Create G/L Budget Entry with dimensions created below
@@ -229,7 +229,7 @@ codeunit 134479 "ERM Dimension Combination"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
     begin
         // [SCENARIO 379598] Gen Journal Line with blank PK fields throws dimension error without referencing to these fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blocked dimension combination
         CreateCustomerWithDimension(DefaultDimension);
@@ -259,7 +259,7 @@ codeunit 134479 "ERM Dimension Combination"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 380833] Gen. Journal Line cannot be posted with a blocked combination of dimension values when that restriction is set on the last (32-nd) column in Dimension Value Combination Matrix.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension "D" with 32 values "D1..D32".
         // [GIVEN] Customer with Default Dimension "C" and value "C1".
@@ -290,7 +290,7 @@ codeunit 134479 "ERM Dimension Combination"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 380833] The last column in Dimension Value Combination Matrix should become invisible when a set of dimension values in columns is shifted left by clicking "Next Column" button.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension "D" with 32 values "D1..D32".
         // [GIVEN] Dimension "C" with value "C1".
@@ -310,8 +310,8 @@ codeunit 134479 "ERM Dimension Combination"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Combination");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Combination");
@@ -379,7 +379,7 @@ codeunit 134479 "ERM Dimension Combination"
         UpdateCombinationRestriction(DimensionCombination, DimensionCombination."Combination Restriction"::Limited);
         LibraryVariableStorage.Enqueue(DefaultDimension."Dimension Value Code");
         MyDimValueCombinations.Load(DefaultDimension."Dimension Code", DimensionValue."Dimension Code", true);
-        MyDimValueCombinations.RunModal;
+        MyDimValueCombinations.RunModal();
     end;
 
     local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
@@ -511,7 +511,7 @@ codeunit 134479 "ERM Dimension Combination"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Dimension Set ID", DimensionSetID);
     end;
 

@@ -27,7 +27,7 @@ xmlport 12 "IC Outbox Imp/Exp"
 
                     trigger OnBeforePassVariable()
                     begin
-                        FromICPartnerCode := CompanyInfo."IC Partner Code";
+                        FromICPartnerCode := ICSetup."IC Partner Code";
                     end;
                 }
                 fieldattribute(SourceType; ICOutboxTrans."Source Type")
@@ -613,12 +613,12 @@ xmlport 12 "IC Outbox Imp/Exp"
 
     trigger OnPreXmlPort()
     begin
-        CompanyInfo.Get();
-        CompanyInfo.TestField("IC Partner Code");
+        ICSetup.Get();
+        ICSetup.TestField("IC Partner Code");
     end;
 
     var
-        CompanyInfo: Record "Company Information";
+        ICSetup: Record "IC Setup";
         ToICPartnerCode2: Code[20];
 
     procedure SetICOutboxTrans(var NewICOutboxTrans: Record "IC Outbox Transaction")

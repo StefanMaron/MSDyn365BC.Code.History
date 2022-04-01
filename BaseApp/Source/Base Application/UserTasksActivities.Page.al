@@ -24,7 +24,7 @@ page 9078 "User Tasks Activities"
                         UserTaskList: Page "User Task List";
                     begin
                         UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
+                        UserTaskList.Run();
                     end;
                 }
             }

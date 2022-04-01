@@ -31,13 +31,13 @@ codeunit 138961 "BC O365 Payment Tests"
         MarkedUnpaidMsg: Label 'Payment registration was removed.';
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler,MarkAsPaidHandler,NotificationHandler,O365PaymentMethodListHandler,O365PaymentMethodCardHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,MessageHandler,MarkAsPaidHandler,NotificationHandler,O365PaymentMethodListHandler,O365PaymentMethodCardHandler')]
     [Scope('OnPrem')]
     procedure RegisterPaymentRemembersLastPaymentRegistered()
     var
         PostedInvoiceNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -66,7 +66,7 @@ codeunit 138961 "BC O365 Payment Tests"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] A new payment term is created
@@ -86,7 +86,7 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
         CustomerName: Text;
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A customer
@@ -98,7 +98,7 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365Settings.Close;
 
         // [THEN] A new invoice for an existing customer uses the existing payment terms
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(CustomerName);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         Assert.AreEqual(DefaultPaymentTermsCode, BCO365SalesInvoice."Payment Terms Code".Value, '');
@@ -112,7 +112,7 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365Settings: TestPage "BC O365 Settings";
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] Default Payment terms is changed
@@ -121,7 +121,7 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365Settings.Close;
 
         // [THEN] A new invoice for a new customer uses the existing payment terms
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         Assert.AreEqual(DefaultPaymentTermsCode, BCO365SalesInvoice."Payment Terms Code".Value, '');
@@ -139,11 +139,11 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
         BCO365PaymentTermsCard: Page "BC O365 Payment Terms Card";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A new invoice for a new customer uses the existing payment terms
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         O365SalesInitialSetup.Get();
@@ -155,7 +155,7 @@ codeunit 138961 "BC O365 Payment Tests"
         // [WHEN] Default Payment terms code is changed
         PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code");
         BCO365PaymentTermsCard.SetPaymentTerms(PaymentTerms);
-        BCO365PaymentTermsCard.RunModal;
+        BCO365PaymentTermsCard.RunModal();
         Assert.AreNotEqual(DefaultPaymentTermsCode, PaymentTerms.Code, 'Payment terms code was not updated');
 
         // [THEN] The settings page is updated to reflect the new code
@@ -166,7 +166,7 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365Settings.Close;
 
         // [THEN] The invoice is updated to reflect the new code
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         BCO365SalesInvoice.OpenEdit;
         BCO365SalesInvoice.GotoRecord(SalesHeader);
         Assert.AreEqual(
@@ -184,18 +184,18 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
         BCO365PaymentTermsCard: Page "BC O365 Payment Terms Card";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Due date is changed for the default payment terms
         O365SalesInitialSetup.Get();
         PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code");
         BCO365PaymentTermsCard.SetPaymentTerms(PaymentTerms);
-        BCO365PaymentTermsCard.RunModal;
+        BCO365PaymentTermsCard.RunModal();
 
         // [WHEN] An invoice is created
         // [THEN] the new due date is used
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         Assert.AreEqual(
@@ -212,7 +212,7 @@ codeunit 138961 "BC O365 Payment Tests"
     end;
 
     [Test]
-    [HandlerFunctions('O365PaymentMethodCardHandler,O365PaymentTermsCardHandler,EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler,MarkAsPaidHandler,NotificationHandler,MarkAsUnpaidConfirmHandler')]
+    [HandlerFunctions('O365PaymentMethodCardHandler,O365PaymentTermsCardHandler,EmailDialogModalPageHandler,MessageHandler,MarkAsPaidHandler,NotificationHandler,MarkAsUnpaidConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenameDefaultAndPerformStandardScenario()
     var
@@ -231,7 +231,7 @@ codeunit 138961 "BC O365 Payment Tests"
         ExistingInvoiceNo: Code[20];
         ExistingPostedInvoiceNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         O365SalesInitialSetup.Get();
@@ -252,15 +252,15 @@ codeunit 138961 "BC O365 Payment Tests"
         // [WHEN] The default payment term and payment method is renamed through the card but not selected
         PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code");
         BCO365PaymentTermsCard.SetPaymentTerms(PaymentTerms);
-        BCO365PaymentTermsCard.RunModal;
+        BCO365PaymentTermsCard.RunModal();
         PaymentMethod.Get(O365SalesInitialSetup."Default Payment Method Code");
         BCO365PaymentMethodCard.SetPaymentMethod(PaymentMethod);
-        BCO365PaymentMethodCard.RunModal;
+        BCO365PaymentMethodCard.RunModal();
 
         // [THEN] The existing customer can be opened with no errors
         BCO365SalesCustomerCard.OpenEdit;
         Customer.SetRange(Name, ExistingCustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
         BCO365SalesCustomerCard.GotoRecord(Customer);
         BCO365SalesCustomerCard.Close;
 
@@ -281,12 +281,12 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice.Close;
 
         // [WHEN] An invoice for an existing customer can be send and paid with no errors
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(ExistingCustomerName);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         BCO365SalesInvoice.Lines."Unit Price".SetValue(100.59);
         BCO365SalesInvoice.Close;
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         AddPaymentForInvoice(LibraryInvoicingApp.SendInvoice(SalesHeader."No."));
 
         // [WHEN] An invoice for a new customer can be send and paid with no errors
@@ -297,7 +297,7 @@ codeunit 138961 "BC O365 Payment Tests"
     end;
 
     [Test]
-    [HandlerFunctions('O365PaymentMethodCardHandler,O365PaymentTermsCardHandler,EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler,MarkAsPaidHandler,NotificationHandler,MarkAsUnpaidConfirmHandler')]
+    [HandlerFunctions('O365PaymentMethodCardHandler,O365PaymentTermsCardHandler,EmailDialogModalPageHandler,MessageHandler,MarkAsPaidHandler,NotificationHandler,MarkAsUnpaidConfirmHandler')]
     [Scope('OnPrem')]
     procedure RenameNonDefaultAndPerformStandardScenario()
     var
@@ -319,7 +319,7 @@ codeunit 138961 "BC O365 Payment Tests"
         OldDefaultPaymentTermsCode: Code[10];
         ExpectedDefaultPaymentMethodCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         O365SalesInitialSetup.Get();
         PreviousPaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
@@ -345,20 +345,20 @@ codeunit 138961 "BC O365 Payment Tests"
         // First change the default before editing
         PaymentMethod.SetFilter(Code, '<>%1', OldDefaultPaymentMethodCode);
         PaymentMethod.SetRange("Use for Invoicing", true);
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
         O365SalesInitialSetup.UpdateDefaultPaymentMethod(PaymentMethod.Code);
         ExpectedDefaultPaymentMethodCode := PaymentMethod.Code;
         PaymentTerms.SetFilter(Code, '<>%1', OldDefaultPaymentTermsCode);
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         O365SalesInitialSetup.UpdateDefaultPaymentTerms(PaymentTerms.Code);
 
         // Next rename payment terms and methods
         PaymentTerms.Get(OldDefaultPaymentTermsCode);
         BCO365PaymentTermsCard.SetPaymentTerms(PaymentTerms);
-        BCO365PaymentTermsCard.RunModal;
+        BCO365PaymentTermsCard.RunModal();
         PaymentMethod.Get(OldDefaultPaymentMethodCode);
         BCO365PaymentMethodCard.SetPaymentMethod(PaymentMethod);
-        BCO365PaymentMethodCard.RunModal;
+        BCO365PaymentMethodCard.RunModal();
 
         // Set expected default payment method
         PreviousPaymentMethodCode := ExpectedDefaultPaymentMethodCode;
@@ -366,7 +366,7 @@ codeunit 138961 "BC O365 Payment Tests"
         // [THEN] The existing customer can be opened with no errors
         BCO365SalesCustomerCard.OpenEdit;
         Customer.SetRange(Name, ExistingCustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
         BCO365SalesCustomerCard.GotoRecord(Customer);
         BCO365SalesCustomerCard.Close;
 
@@ -387,12 +387,12 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice.Close;
 
         // [WHEN] An invoice for an existing customer can be send and paid with no errors
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(ExistingCustomerName);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         BCO365SalesInvoice.Lines."Unit Price".SetValue(100.59);
         BCO365SalesInvoice.Close;
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         AddPaymentForInvoice(LibraryInvoicingApp.SendInvoice(SalesHeader."No."));
 
         // [WHEN] An invoice for a new customer can be send and paid with no errors
@@ -403,14 +403,14 @@ codeunit 138961 "BC O365 Payment Tests"
     end;
 
     [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure CanSendInvoiceAfterDeletingPaymentTerms()
     var
         PaymentTerms: Record "Payment Terms";
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] All but the default payment term is deleted
@@ -430,7 +430,7 @@ codeunit 138961 "BC O365 Payment Tests"
         PaymentTerms: Record "Payment Terms";
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] Removing the default payment term
@@ -459,32 +459,30 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
         InvoiceNo: Code[20];
     begin
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomerWithEmail);
 
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         BCO365SalesInvoice.Lines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
 
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         InvoiceNo := SalesHeader."No.";
 
         BCO365SalesInvoice.Post.Invoke;
 
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", InvoiceNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         PostedInvoiceNo := SalesInvoiceHeader."No.";
     end;
 
     local procedure Initialize()
     var
-        SMTPMailSetup: Record "SMTP Mail Setup";
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
         BindActiveDirectoryMockEvents;
 
         LibraryVariableStorage.AssertEmpty;
-        SMTPMailSetup.DeleteAll();
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
         O365SalesInitialSetup.Get();
@@ -516,19 +514,6 @@ codeunit 138961 "BC O365 Payment Tests"
     procedure EmailDialogModalPageHandler(var O365SalesEmailDialog: TestPage "O365 Sales Email Dialog")
     begin
         O365SalesEmailDialog.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure BCEmailSetupPageHandler(var BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard")
-    begin
-        with BCO365EmailSetupWizard.EmailSettingsWizardPage do begin
-            "Email Provider".SetValue(EmailProvider::"Office 365");
-            FromAccount.SetValue('test@microsoft.com');
-            Password.SetValue('pass');
-        end;
-
-        BCO365EmailSetupWizard.OK.Invoke;
     end;
 
     [MessageHandler]
@@ -576,9 +561,9 @@ codeunit 138961 "BC O365 Payment Tests"
     [Scope('OnPrem')]
     procedure O365PaymentMethodCardHandler(var BCO365PaymentMethodCard: TestPage "BC O365 Payment Method Card")
     begin
-        PreviousPaymentMethodCode := LibraryUtility.GenerateGUID;
+        PreviousPaymentMethodCode := LibraryUtility.GenerateGUID();
         BCO365PaymentMethodCard.PaymentMethodCode.Value(PreviousPaymentMethodCode);
-        BCO365PaymentMethodCard.PaymentMethodDescription.Value(LibraryUtility.GenerateGUID);
+        BCO365PaymentMethodCard.PaymentMethodDescription.Value(LibraryUtility.GenerateGUID());
         BCO365PaymentMethodCard.OK.Invoke;
     end;
 
@@ -596,7 +581,7 @@ codeunit 138961 "BC O365 Payment Tests"
     [Scope('OnPrem')]
     procedure O365PaymentTermsCardHandler(var BCO365PaymentTermsCard: TestPage "BC O365 Payment Terms Card")
     begin
-        DefaultPaymentTermsCode := LibraryUtility.GenerateGUID;
+        DefaultPaymentTermsCode := LibraryUtility.GenerateGUID();
         PaymentTermsDays := LibraryRandom.RandInt(10);
         BCO365PaymentTermsCard.PaymentTermsCode.Value(DefaultPaymentTermsCode);
         BCO365PaymentTermsCard.Days.SetValue(PaymentTermsDays);

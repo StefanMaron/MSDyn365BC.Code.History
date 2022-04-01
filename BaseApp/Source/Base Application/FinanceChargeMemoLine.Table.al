@@ -126,7 +126,7 @@ table 303 "Finance Charge Memo Line"
                     if "Document Type" <> "Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Document Type");
                     CustLedgEntry.SetRange("Document No.", "Document No.");
-                    if CustLedgEntry.FindFirst then
+                    if CustLedgEntry.FindFirst() then
                         Validate("Entry No.", CustLedgEntry."Entry No.")
                     else
                         Error(Text004, Format(Type), FieldCaption("Document No."), "Document No.");
@@ -486,11 +486,11 @@ table 303 "Finance Charge Memo Line"
                     ReminderEntry.SetRange(Type, ReminderEntry.Type::"Finance Charge Memo");
                     ReminderEntry.SetRange(Canceled, false);
                     InterestCalcDate := CustLedgEntry."Due Date";
-                    if ReminderEntry.FindLast then
+                    if ReminderEntry.FindLast() then
                         InterestCalcDate := ReminderEntry."Document Date";
                     ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
                     ReminderEntry.SetRange("Interest Posted", true);
-                    if ReminderEntry.FindLast then
+                    if ReminderEntry.FindLast() then
                         if ReminderEntry."Document Date" > InterestCalcDate then
                             InterestCalcDate := ReminderEntry."Document Date";
                     CalcInterest := false;
@@ -729,7 +729,7 @@ table 303 "Finance Charge Memo Line"
           DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)");
         DetailedCustLedgEntry.SetRange("Posting Date", 0D, FinChrgMemoHeader."Document Date");
         CumAmount := 0;
-        if DetailedCustLedgEntry.FindSet then
+        if DetailedCustLedgEntry.FindSet() then
             repeat
                 if DetailedCustLedgEntry."Entry Type" = DetailedCustLedgEntry."Entry Type"::"Initial Entry" then
                     InterestStartDate := UseDueDate
@@ -768,7 +768,7 @@ table 303 "Finance Charge Memo Line"
             CustLedgEntry.SetRange("Document Type", "Document Type");
         if "Document No." <> '' then
             CustLedgEntry.SetRange("Document No.", "Document No.");
-        if CustLedgEntry.FindFirst then;
+        if CustLedgEntry.FindFirst() then;
         CustLedgEntry.SetRange("Document Type");
         CustLedgEntry.SetRange("Document No.");
         LookupCustLedgEntry;

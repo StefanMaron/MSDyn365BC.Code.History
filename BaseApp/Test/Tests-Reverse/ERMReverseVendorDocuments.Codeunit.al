@@ -25,7 +25,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Credit Amount LCY in Ledger Entries after Reversing Posted Invoice Entry for a Vendor.
-        Initialize;
+        Initialize();
         ReverseCreditDocument(GenJournalLine."Document Type"::Invoice);
     end;
 
@@ -37,7 +37,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Credit Amount LCY in Ledger Entries after Reversing Posted Finance Charge Memo Entry for a Vendor.
-        Initialize;
+        Initialize();
         ReverseCreditDocument(GenJournalLine."Document Type"::"Finance Charge Memo");
     end;
 
@@ -49,7 +49,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Credit Amount LCY in Ledger Entries after Reversing Posted Reminder Entry for a Vendor.
-        Initialize;
+        Initialize();
         ReverseCreditDocument(GenJournalLine."Document Type"::Reminder);
     end;
 
@@ -61,7 +61,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Credit Amount LCY in Ledger Entries after Reversing Posted Refund Entry for a Vendor.
-        Initialize;
+        Initialize();
         ReverseCreditDocument(GenJournalLine."Document Type"::Refund);
     end;
 
@@ -90,7 +90,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Debit Amount LCY in Ledger Entries after Reversing Posted Payment Entry for a Vendor.
-        Initialize;
+        Initialize();
         ReverseDebitDocument(GenJournalLine."Document Type"::Payment);
     end;
 
@@ -102,7 +102,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Debit Amount LCY in Ledger Entries after Reversing Posted Credit Memo Entry for a Vendor.
-        Initialize;
+        Initialize();
         ReverseDebitDocument(GenJournalLine."Document Type"::"Credit Memo");
     end;
 
@@ -132,7 +132,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse Vendor Documents");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -151,7 +151,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Reverse posted Transaction.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -188,7 +188,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
     begin
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
-        DetailedVendorLedgEntry.FindLast;
+        DetailedVendorLedgEntry.FindLast();
     end;
 
     [ConfirmHandler]

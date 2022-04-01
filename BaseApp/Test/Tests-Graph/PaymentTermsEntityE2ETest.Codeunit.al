@@ -37,7 +37,7 @@ codeunit 135504 "Payment Terms Entity E2E Test"
     begin
         // [SCENARIO] User can retrieve all Payment Terms records from the Payment Terms API.
         // [GIVEN] 2 payment terms in the Payment Terms Table
-        Initialize;
+        Initialize();
         for Count := 1 to 2 do
             PaymentTermCode[Count] := CreatePaymentTerm;
         Commit();

@@ -274,9 +274,9 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         PaymentExportData: Record "Payment Export Data";
     begin
         BankAccount.Init();
-        BankAccount."No." := LibraryUtility.GenerateGUID;
-        BankAccount.IBAN := LibraryUtility.GenerateGUID;
-        BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
+        BankAccount."No." := LibraryUtility.GenerateGUID();
+        BankAccount.IBAN := LibraryUtility.GenerateGUID();
+        BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
 
         with PaymentExportData do begin
             SetBankAsSenderBank(BankAccount);
@@ -296,10 +296,10 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         PaymentExportData: Record "Payment Export Data";
     begin
         BankAccount.Init();
-        BankAccount."No." := LibraryUtility.GenerateGUID;
-        BankAccount.IBAN := LibraryUtility.GenerateGUID;
-        BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
-        BankAccount."Creditor No." := LibraryUtility.GenerateGUID;
+        BankAccount."No." := LibraryUtility.GenerateGUID();
+        BankAccount.IBAN := LibraryUtility.GenerateGUID();
+        BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
+        BankAccount."Creditor No." := LibraryUtility.GenerateGUID();
 
         BadBankAccount := BankAccount;
         BadBankAccount.IBAN := '';
@@ -315,7 +315,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         PaymentExportData: Record "Payment Export Data";
     begin
         BankAccount.Init();
-        BankAccount."Creditor No." := LibraryUtility.GenerateGUID;
+        BankAccount."Creditor No." := LibraryUtility.GenerateGUID();
 
         with PaymentExportData do begin
             SetCreditorIdentifier(BankAccount);
@@ -380,7 +380,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         DirectDebitCollection: Record "Direct Debit Collection";
         LastNo: Integer;
     begin
-        if DirectDebitCollection.FindLast then;
+        if DirectDebitCollection.FindLast() then;
         LastNo := DirectDebitCollection."No.";
         DirectDebitCollection.CreateRecord('A', 'B', "Partner Type"::Company);
         Assert.AreEqual(LastNo + 1, DirectDebitCollection."No.", 'No. was not incremented correctly.');
@@ -459,10 +459,10 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
             Customer.Modify();
         end;
         PostCustInvJnl(Customer, '', LibraryERM.GetCurrencyCode('EUR'));
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
 
-        BankAccount.FindFirst;
-        NoSeries.FindFirst;
+        BankAccount.FindFirst();
+        NoSeries.FindFirst();
         BankAccount."Direct Debit Msg. Nos." := NoSeries.Code;
         BankAccount.Modify();
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Due Date");
@@ -494,7 +494,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        CustomerBankAccount.FindFirst;
+        CustomerBankAccount.FindFirst();
         CreateMandate('', SEPADirectDebitMandate);
 
         with SEPADirectDebitMandate do begin
@@ -550,10 +550,10 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
         SalesHeader.SetRange("Direct Debit Mandate ID", SEPADirectDebitMandate.ID);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField(Type, SalesLine.Type::"G/L Account");
     end;
 
@@ -579,7 +579,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CustomerBankAccount.Get(Customer."No.", Customer."Preferred Bank Account Code");
         SEPADDFillExportBuffer.FillExportBuffer(DirectDebitCollectionEntry, TempPaymentExportData);
         Assert.AreEqual(2, TempPaymentExportData.Count, 'Unexpected number of payment lines.');
-        TempPaymentExportData.FindLast;
+        TempPaymentExportData.FindLast();
         with TempPaymentExportData do begin
             TestField("Sender Bank Account Code", BankAccount."No.");
             TestField("Sender Bank Account No.", DelChr(BankAccount.IBAN, '<>='));
@@ -976,7 +976,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         XMLNode := XMLDocNode.FirstChild;  // CstmrDrctDbtInitn
         XMLNodes := XMLNode.ChildNodes;
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
-        DirectDebitCollectionEntry.FindLast;
+        DirectDebitCollectionEntry.FindLast();
         for i := 0 to XMLNodes.Count - 1 do begin
             XMLNode := XMLNodes.ItemOf(i);
             case XMLNode.Name of
@@ -1028,7 +1028,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
             UpdateUstrdText(UstrdText[i + 1], DirectDebitCollectionEntry);
         end;
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollectionEntry."Direct Debit Collection No.");
-        DirectDebitCollectionEntry.FindFirst;
+        DirectDebitCollectionEntry.FindFirst();
         TransferDate := DirectDebitCollectionEntry."Transfer Date";
 
         // [WHEN] Export Direct Debit Collection
@@ -1086,7 +1086,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::"File Created";
         DirectDebitCollectionEntry.Modify();
         DDAmount := DirectDebitCollectionEntry."Transfer Amount";
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         GenJnlBatch."No. Series" := NoSeries.Code;
@@ -1100,10 +1100,10 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         Assert.AreEqual(0, GenJnlLine.Count, 'Unexpected lines in journal.');
 
         Commit(); // To allow the report to run.
-        PostDirectDebitCollection.Run;
+        PostDirectDebitCollection.Run();
 
         Assert.AreEqual(1, GenJnlLine.Count, 'Wrong no. of journal lines were created.');
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         GenJnlLine.TestField("Account Type", GenJnlLine."Account Type"::Customer);
         GenJnlLine.TestField("Account No.", CustLedgEntry."Customer No.");
         GenJnlLine.TestField("Posting Date", CustLedgEntry."Due Date");
@@ -1145,7 +1145,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
             DirectDebitCollectionEntry.Modify();
             CustLedgEntryNo[i] := CustLedgEntry."Entry No.";
         end;
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         GenJnlBatch."No. Series" := NoSeries.Code;
@@ -1156,12 +1156,12 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastGLEntryNo := GLEntry."Entry No.";
 
         Commit(); // To allow the report to run.
-        PostDirectDebitCollection.Run;
-        GLEntry.FindLast;
+        PostDirectDebitCollection.Run();
+        GLEntry.FindLast();
 
         Assert.AreEqual(0, GenJnlLine.Count, 'Unexpected lines in journal.');
         Assert.IsTrue(GLEntry."Entry No." > LastGLEntryNo, 'No G/L Entry was posted.');
@@ -1334,7 +1334,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         GenJournalTemplate.Get(GenJournalBatch."Journal Template Name");
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
         GLEntry.SetRange("Source No.", DirectDebitCollectionEntry."Customer No.");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         GLEntry.TestField("Source Code", GenJournalTemplate."Source Code");
     end;
 
@@ -1631,7 +1631,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         NoSeries: Record "No. Series";
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if Initialized then
             exit;
 
@@ -1659,14 +1659,14 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         end;
 
         with BankAccount do begin
-            FindFirst;
+            FindFirst();
             "SEPA Direct Debit Exp. Format" := BankExportImportSetup.Code;
             "Direct Debit Msg. Nos." := NoSeries.Code;
             if IBAN = '' then
                 IBAN := 'MU17 BOMM 0101 1010 3030 0200 000M UR';
             if "SWIFT Code" = '' then
                 "SWIFT Code" := 'MUDABAABC';
-            "Creditor No." := LibraryUtility.GenerateGUID;
+            "Creditor No." := LibraryUtility.GenerateGUID();
             Modify;
         end;
         Initialized := true;
@@ -1705,7 +1705,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SEPADirectDebitMandate."Customer Bank Account Code" := CustomerBankAccount.Code;
         SEPADirectDebitMandate.Modify();
         PostCustInvJnl(Customer, SEPADirectDebitMandate.ID, CurrencyCode);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         CustLedgEntry.TestField("Customer No.", Customer."No.");
         CustLedgEntry.TestField("Direct Debit Mandate ID", SEPADirectDebitMandate.ID);
         CustLedgEntry.CalcFields("Remaining Amount");
@@ -1725,7 +1725,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         Customer.Get(SEPADirectDebitMandate."Customer No.");
         PostCustInvJnl(Customer, SEPADirectDebitMandate.ID, LibraryERM.GetCurrencyCode('EUR'));
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
 
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
         DirectDebitCollectionEntry.CreateNew(DirectDebitCollection."No.", CustLedgEntry);
@@ -1761,7 +1761,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         PaymentMethod: Record "Payment Method";
         i: Integer;
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod."Direct Debit" := true;
         PaymentMethod.Modify();
@@ -1819,7 +1819,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
     local procedure CreateMandate(CustNo: Code[20]; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
     begin
         with SEPADirectDebitMandate do begin
-            ID := LibraryUtility.GenerateGUID;
+            ID := LibraryUtility.GenerateGUID();
             "Customer No." := CustNo;
             "Type of Payment" := "Type of Payment"::Recurrent;
             "Expected Number of Debits" := 3;
@@ -1926,7 +1926,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         DirectDebitCollectionEntry.Modify();
 
         NoSeriesLine.SetRange("Series Code", LibraryERM.CreateNoSeriesCode);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
 
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         GenJournalBatch."No. Series" := NoSeriesLine."Series Code";
@@ -1941,7 +1941,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         PostDirectDebitCollection.SetCollectionEntry(DirectDebitCollectionNo);
         PostDirectDebitCollection.SetJnlBatch(GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
         PostDirectDebitCollection.SetCreateJnlOnly(CreateJournalOnly);
-        PostDirectDebitCollection.Run;
+        PostDirectDebitCollection.Run();
     end;
 
     local procedure UpdateCustomerBankAccountFields(CustomerNo: Code[20]; IBANCode: Code[50]; BankBranchNo: Text; BankAccountNo: Text): Code[20]
@@ -1950,7 +1950,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
     begin
         with CustomerBankAccount do begin
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             IBAN := IBANCode;
             "Bank Branch No." := CopyStr(BankBranchNo, 1, MaxStrLen("Bank Branch No."));
             "Bank Account No." := CopyStr(BankAccountNo, 1, MaxStrLen("Bank Account No."));

@@ -262,7 +262,7 @@ codeunit 5150 "Integration Management"
         TableId: Integer;
     begin
         CreateIntegrationPageList(TempNameValueBuffer);
-        TempNameValueBuffer.FindFirst;
+        TempNameValueBuffer.FindFirst();
         repeat
             Evaluate(TableId, TempNameValueBuffer.Value);
             InitializeIntegrationRecords(TableId);
@@ -495,7 +495,6 @@ codeunit 5150 "Integration Management"
 
     local procedure GetIntegrationActivated(): Boolean
     var
-        GraphSyncRunner: Codeunit "Graph Sync. Runner";
         IsSyncEnabled: Boolean;
         IsSyncDisabled: Boolean;
     begin
@@ -511,7 +510,7 @@ codeunit 5150 "Integration Management"
             if IsSyncEnabled then
                 IntegrationIsActivated := true
             else
-                IntegrationIsActivated := IsCRMConnectionEnabled or GraphSyncRunner.IsGraphSyncEnabled;
+                IntegrationIsActivated := IsCRMConnectionEnabled;
         end;
 
         exit(IntegrationIsActivated);
@@ -568,14 +567,14 @@ codeunit 5150 "Integration Management"
         PageId: Integer;
     begin
         CreateIntegrationPageList(TempNameValueBuffer);
-        TempNameValueBuffer.FindFirst;
+        TempNameValueBuffer.FindFirst();
 
         repeat
             Evaluate(PageId, TempNameValueBuffer.Name);
 
             Objects.SetRange("Object Type", Objects."Object Type"::Page);
             Objects.SetRange("Object ID", PageId);
-            if Objects.FindFirst then
+            if Objects.FindFirst() then
                 WebServiceManagement.CreateWebService(WebService."Object Type"::Page, Objects."Object ID",
                   StrSubstNo(PageServiceNameTok, Objects."Object Name"), true);
         until TempNameValueBuffer.Next() = 0;
@@ -589,7 +588,7 @@ codeunit 5150 "Integration Management"
         PageId: Integer;
     begin
         CreateIntegrationPageList(TempNameValueBuffer);
-        TempNameValueBuffer.FindFirst;
+        TempNameValueBuffer.FindFirst();
 
         WebService.SetRange("Object Type", WebService."Object Type"::Page);
         repeat
@@ -598,9 +597,9 @@ codeunit 5150 "Integration Management"
 
             Objects.SetRange("Object Type", WebService."Object Type"::Page);
             Objects.SetRange("Object ID", PageId);
-            if Objects.FindFirst then begin
+            if Objects.FindFirst() then begin
                 WebService.SetRange("Service Name", StrSubstNo(PageServiceNameTok, Objects."Object Name"));
-                if WebService.FindFirst then
+                if WebService.FindFirst() then
                     WebService.Delete();
             end;
         until TempNameValueBuffer.Next() = 0;

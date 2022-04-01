@@ -158,7 +158,7 @@ page 7399 "Internal Movement"
                         BinContent.SetRange("Location Code", "Location Code");
                         WhseGetBinContent.SetTableView(BinContent);
                         WhseGetBinContent.InitializeInternalMovement(Rec);
-                        WhseGetBinContent.Run;
+                        WhseGetBinContent.Run();
                     end;
                 }
                 action("Create Inventory Movement")

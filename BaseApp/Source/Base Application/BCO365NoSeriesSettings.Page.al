@@ -69,7 +69,7 @@ page 2339 "BC O365 No. Series Settings"
 
     trigger OnInit()
     begin
-        Initialize;
+        Initialize();
     end;
 
     var

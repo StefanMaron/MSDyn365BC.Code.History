@@ -3,6 +3,14 @@ table 9006 "Plan Permission Set"
     Caption = 'Plan Permission Set';
     DataPerCompany = false;
     ReplicateData = false;
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif 
+    ObsoleteReason = 'No longer used.';
 
     fields
     {
@@ -16,7 +24,7 @@ table 9006 "Plan Permission Set"
         }
         field(3; "Plan Name"; Text[50])
         {
-            CalcFormula = Lookup (Plan.Name WHERE("Plan ID" = FIELD("Plan ID")));
+            CalcFormula = Lookup(Plan.Name WHERE("Plan ID" = FIELD("Plan ID")));
             Caption = 'Plan Name';
             FieldClass = FlowField;
         }

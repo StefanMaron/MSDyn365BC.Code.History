@@ -36,7 +36,7 @@ codeunit 137909 "SCM Resource Usage Type"
         BOMComp: Record "BOM Component";
         resource: Record Resource;
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
         LibraryKitting.CreateBOMComponentLine(
@@ -53,7 +53,7 @@ codeunit 137909 "SCM Resource Usage Type"
         BOMComp: Record "BOM Component";
         resource: Record Resource;
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 10));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
         LibraryKitting.CreateBOMComponentLine(
@@ -70,7 +70,7 @@ codeunit 137909 "SCM Resource Usage Type"
         BOMComp: Record "BOM Component";
         resource: Record Resource;
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 10));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
         LibraryKitting.CreateBOMComponentLine(ParentItem, "BOM Component Type"::Resource, resource."No.", 5, resource."Base Unit of Measure", true);
@@ -86,7 +86,7 @@ codeunit 137909 "SCM Resource Usage Type"
         BOMComp: Record "BOM Component";
         resource: Record Resource;
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 10));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
         LibraryKitting.CreateBOMComponentLine(ParentItem, "BOM Component Type"::Resource, resource."No.", 5, resource."Base Unit of Measure", true);
@@ -106,7 +106,7 @@ codeunit 137909 "SCM Resource Usage Type"
         childItem: Record Item;
         resource: Record Resource;
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
         LibraryKitting.CreateBOMComponentLine(
@@ -129,7 +129,7 @@ codeunit 137909 "SCM Resource Usage Type"
         resource: Record Resource;
         auxId: Code[20];
     begin
-        Initialize;
+        Initialize();
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(0, 0, 10));
         ComponentItem.Get(LibraryKitting.CreateItemWithNewUOM(300, 400));
         LibraryKitting.CreateBOMComponentLine(

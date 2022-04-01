@@ -106,7 +106,7 @@ table 9062 "User Security Status"
         UserSecurityStatus: Record "User Security Status";
     begin
         User.SetRange(State, User.State::Disabled);
-        if not User.FindSet then
+        if not User.FindSet() then
             exit;
         repeat
             if UserSecurityStatus.Get(User."User Security ID") then

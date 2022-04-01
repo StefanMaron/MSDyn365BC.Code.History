@@ -96,7 +96,7 @@
         LineGLAccount: Record "G/L Account";
     begin
         // [GIVEN] Create a new Customer. Validate Prepayment % in Customer as per parameter passed.
-        Initialize;
+        Initialize();
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
 
         CreateCustomerNotPrepayment(Customer, LineGLAccount."Gen. Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
@@ -128,7 +128,7 @@
         // [SCENARIO] Setting up a Prepayment Due Date with Payment Terms having no Due Date Calculation on Customer.
 
         // [GIVEN] Create a new Payment Term without any Due Date Calculation.
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
 
@@ -168,7 +168,7 @@
         LineGLAccount: Record "G/L Account";
     begin
         // [GIVEN] Create a new Payment Term with Due Date Calculation as per parameter passed.
-        Initialize;
+        Initialize();
         CreatePaymentTermWithDueDate(PaymentTerms, DueDate);
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
 
@@ -210,7 +210,7 @@
     begin
         // [GIVEN] Create a new Payment Term Due Date Calculation as per parameter passed. Create Sales Order - Create Customer, Sales
         // Header, Sales Line with Item, G/L Account, Resource, Fixed Asset, Charge (Item).
-        Initialize;
+        Initialize();
         CreatePaymentTermWithDueDate(PaymentTerms, DueDate);
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
@@ -272,7 +272,7 @@
         SalesPrepaymentPct: Record "Sales Prepayment %";
     begin
         // [GIVEN] Create a new Customer and Item. Create Sales Prepayment and Validate Prepayment % as per parameter passed.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         CreatePrepayment(SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::Customer, Customer."No.", Item."No.", PrepaymentPercent);
@@ -302,7 +302,7 @@
 
         // [GIVEN] Create a new Customer and Item. Create Sales Prepayment and Validate Prepayment %
         // between 0 to 100 with 5 decimal places for Sales Type Customer Price Group.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         CustomerNo := CreateCustomerWithPriceGroup(CustomerPriceGroup.Code);
@@ -334,7 +334,7 @@
 
         // [GIVEN] Create new Customer and Item. Create Sales Prepayment and Validate Prepayment %
         // between 0 to 100 with 5 decimal places for Sales Type All Customer.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
 
@@ -367,7 +367,7 @@
 
         // [GIVEN] Create new Customer and Item. Create Sales Prepayment and Validate Prepayment %
         // between 0 to 100 with 5 decimal places and validate End date for Sales Type Customer.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
 
@@ -401,7 +401,7 @@
         // [SCENARIO] Setting up a Prepayment % for Not complete setup.
 
         // [GIVEN] Create new Customer and Item.
-        Initialize;
+        Initialize();
         CreateItem(Item);
 
         // [WHEN] Create Sales Prepayment without Sales Code for Sales Type Customer.
@@ -424,7 +424,7 @@
         // [SCENARIO] Setting up Sales Prepayment Account in a General Posting Setup.
 
         // [GIVEN] Find a GL Account.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
 
         // [WHEN] Setup Sales Prepayments Account in General Posting Setup.
@@ -451,7 +451,7 @@
         // [SCENARIO] Error on setting up Sales Prepayment Account in a General Posting Setup with unkown GL Account.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
 
         // [WHEN] Create a Code Randomly, Setup Sales Prepayments Account in General Posting Setup with wrong GL Account.
         RandomCodeGLAccount := CopyStr(
@@ -478,7 +478,7 @@
 
         // [GIVEN] Change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Sales and Receivable Setup, create Payment Terms,
         // create Sales Order with created payment terms.
-        Initialize;
+        Initialize();
         PrepmtInvNosInSetup(SalesReceivablesSetup);
         PrepmtCreditMemoInSetup(SalesReceivablesSetup);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
@@ -512,7 +512,7 @@
 
         // [GIVEN] Create No Series with No Sereis Line, change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in
         // Sales and Receivable Setup create Payment Terms, create Sales Order with created Payment Terms.
-        Initialize;
+        Initialize();
         PostedPrepmtInvNosInSetup(SalesReceivablesSetup, CreateNoSeriesWithLine);
         PostedPrepmtCrMemoNosInSetup(SalesReceivablesSetup, CreateNoSeriesWithLine);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
@@ -546,7 +546,7 @@
 
         // [GIVEN] Attach the Posted Prepmt Inv Nos as blank in Sales and Receivable Setup, create Payment Terms, create Sales Order
         // with created Payment Terms.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         PrepmtInvNosBlankInSetup('');
         LibraryERM.CreatePaymentTerms(PaymentTerms);
@@ -573,7 +573,7 @@
         // [SCENARIO] Not setting up a Prepayment % on Customer and Item and check the "Prepayment %" on created Sales Header and Sales Line.
 
         // [GIVEN] Create a new Customer and Item.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
 
@@ -624,7 +624,7 @@
     begin
         // [GIVEN] Create a new Customer and Item, Create Customer Price Group, modify Customer, create Sales "Prepayment %" of Sales
         // [GIVEN] Type Customer Price Group and validate the "Prepayment %" of Sales "Prepayment %" as parameter.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
@@ -679,7 +679,7 @@
     begin
         // [GIVEN] Create new Customer and Item. Create Sales Prepayment and Validate Prepayment %
         // [GIVEN] as parameter with 5 decimal places for Sales Type All Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
         CreatePrepayment(SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::"All Customers", '', Item."No.", PrepaymentPercent);
@@ -706,7 +706,7 @@
         // [SCENARIO 128389] Not setting up "Prepayment %" on Item and check "Prepayment %" on created Sales Header and Sales Line and Post the Prepayment Invoice.
 
         // [GIVEN] Create a new Customer and Item, modify Prepayment Percent in Customer.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
@@ -735,7 +735,7 @@
         // [SCENARIO] Setting up a Prepayment % as a decimal value with 5 decimal places in Customer and Boundary value zero for Item.
 
         // Using Random Number Generator for Prepayment Percent.
-        Initialize;
+        Initialize();
         SetupPrepaymentOnItemCustomer(LibraryRandom.RandDec(99, 5), 0);
     end;
 
@@ -749,7 +749,7 @@
         // [SCENARIO] Setting up a Prepayment % as a decimal value with 5 decimal places in Customer and one less than Customer "Prepayment %" for Item.
 
         // Using Random Number Generator for Prepayment Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         SetupPrepaymentOnItemCustomer(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
@@ -764,7 +764,7 @@
         // [SCENARIO] Setting up a Prepayment % as a decimal value with 5 decimal places in Customer and one more than Customer "Prepayment %" for Item.
 
         // Using Random Number Generator for Prepayment Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         SetupPrepaymentOnItemCustomer(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
@@ -800,7 +800,7 @@
         // [SCENARIO] Setting up a Prepayment % as a decimal value with 5 decimal places in Customer and zero "Prepayment %" for Item.
 
         // Using Random Number Generator for Prepayment Percent.
-        Initialize;
+        Initialize();
         PercentOnItemAndPriceGroup(LibraryRandom.RandDec(99, 5), 0);
     end;
 
@@ -814,7 +814,7 @@
         // [SCENARIO] Setting up a Prepayment % as a decimal value with 5 decimal places in Customer and "Prepayment %" for Item less than Customer.
 
         // Using Random Number Generator for Prepayment Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         PercentOnItemAndPriceGroup(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
@@ -829,7 +829,7 @@
         // [SCENARIO] Setting up a Prepayment % as a decimal value with 5 decimal places in Customer and "Prepayment %" for Item more than Customer.
 
         // Using Random Number Generator for Prepayment Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         PercentOnItemAndPriceGroup(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
@@ -870,7 +870,7 @@
         // [SCENARIO 128383] Setting up a Prepayment % as a decimal value with 5 decimal places in Customer and zero "Prepayment %" for Item (all Customers).
 
         // Using Random Number Generator for Prepayment Percent.
-        Initialize;
+        Initialize();
         PercentOnItemAndAllCustomer(LibraryRandom.RandDec(99, 5), 0);
     end;
 
@@ -884,7 +884,7 @@
         // [SCENARIO 128384] Setting up a Prepayment % as a decimal value with 5 decimal places in Customer and "Prepayment %" for Item less than all Customers.
 
         // Using Random Number Generator for Prepayment Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         PercentOnItemAndAllCustomer(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
@@ -899,7 +899,7 @@
         // [SCENARIO 128384] Setting up a Prepayment % as a decimal value with 5 decimal places in Customer and "Prepayment %" for Item more than all Customers.
 
         // Using Random Number Generator for Prepayment Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         PercentOnItemAndAllCustomer(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
@@ -937,7 +937,7 @@
         // [SCENARIO 128385] "Prepayment %" in Sales Header and Line with "Sales Prepayment %" more than "Prepayment %" of Sales Type Customer.
 
         // Using Random Number Generator for Prepaymnet Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         PercentPriceGroupAndCustomer(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
@@ -952,7 +952,7 @@
         // [SCENARIO 128385] "Prepayment %" in Sales Header and Line with "Sales Prepayment %" less than "Prepayment %" of Sales Type Customer.
 
         // Using Random Number Generator for Prepaymnet Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         PercentPriceGroupAndCustomer(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
@@ -1021,7 +1021,7 @@
     begin
         // [GIVEN] Create new Customer and Item, modify Prepayment Percent of Customer as the parameter, Create Sales Prepayment
         // for Sales Type Customer and All Customer, and validate Prepayment % as the parameter.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
 
@@ -1050,7 +1050,7 @@
         // [SCENARIO 128387] "Prepayment %" in Sales Header and Line with "Sales Prepayment %" of All Customer more than "Prepayment %" of Sales Type Customer Price Group
 
         // Using Random Number Generator for Prepaymnet Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         PercentageAllAndPriceGroup(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
@@ -1065,7 +1065,7 @@
         // [SCENARIO 128387] "Prepayment %" in Sales Header and Line with "Sales Prepayment %" of All Customer less than "Prepayment %" of Sales Type Customer Price Group
 
         // Using Random Number Generator for Prepaymnet Percent.
-        Initialize;
+        Initialize();
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
         PercentageAllAndPriceGroup(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
@@ -1119,7 +1119,7 @@
         // [SCENARIO 128390] Sales Prepayment Invoice using Item setup.
 
         // [GIVEN] Create a new Customer and Item. Create Sales Prepayment of Sales Type Customer with random Prepayment Percent.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
         CreatePrepayment(
@@ -1153,7 +1153,7 @@
 
         // [GIVEN] Create new Customer and Item, create Customer Price Group, modify Customer Price Group and Prepayment Percent
         // of Customer, create Sales Prepayment for Sales Type Customer Price Group and validate Prepayment.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         CustomerPrepaymentPriceGroup(Customer, CustomerPriceGroup.Code);
@@ -1196,7 +1196,7 @@
 
         // [GIVEN] Create new Customer and Item, modify Prepayment Percent of Customer, create Customer Price Group, modify the customer
         // Create Sales Prepayment for Sales Type Customer Price Group and All Customers and validate Prepayment Percent.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);  // Using Random Number Generator for Prepayment Percent.
         PrepaymentPercent2 := PrepaymentPercent - LibraryUtility.GenerateRandomFraction;
@@ -1235,7 +1235,7 @@
         // [SCENARIO 128393] Prepayment Invoice with three different sales GL Posting Account.
 
         // [GIVEN] Create Sales Order with 3 sales lines and create General Posting Setup.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine);
         FindSalesLine(SalesLine, SalesHeader);
 
@@ -1262,7 +1262,7 @@
         // [SCENARIO 128394] Prepayment Invoice with a currency code.
 
         // [GIVEN] Create Sales Order with 3 sales lines, attach a currency with Sales order and create General Posting Setup.
-        Initialize;
+        Initialize();
 
         CreateSalesDocument(SalesHeader, SalesLine);
         CurrencyInSalesHeader(SalesHeader);
@@ -1297,7 +1297,7 @@
 
         // [GIVEN] Create new Customer and Item, modify Customer Prepayment Percent, Create Sales Prepayment and Validate
         // Sales Prepayment Percent and "Prepayment %" for Sales Type Customer.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
@@ -1328,7 +1328,7 @@
 
         // [GIVEN] Change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Sales and Receivable Setup, create Payment Terms,
         // create Sales Order with created payment terms.
-        Initialize;
+        Initialize();
 
         PrepmtAccNo := CreateSalesDocument(SalesHeader, SalesLine);
         CompressPrepaymentInSalesOrder(SalesHeader);
@@ -1355,7 +1355,7 @@
         // [SCENARIO 409617] Int overfow by Prepayment Invoice with Compress Prepayment False in Sales Order with 655 lines.
 
         // [GIVEN] Change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Sales and Receivable Setup, create Payment Terms,
-        Initialize;
+        Initialize();
 
         // [GIVEN] create Sales Order of 655+ lines with created payment terms
         PrepmtAccNo := CreateSalesDocument(SalesHeader, SalesLine, 666);
@@ -1383,7 +1383,7 @@
         // [SCENARIO 409617] Int overfow by Prepayment Invoice with Compress Prepayment False in Purch Order with 655 lines.
 
         // [GIVEN] Change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Purch Setup, create Payment Terms,
-        Initialize;
+        Initialize();
 
         // [GIVEN] create Purchase Order of 655+ lines with created payment terms
         PrepmtAccNo := CreatePurchDocument(PurchHeader, PurchaseLine, 666);
@@ -1424,7 +1424,7 @@
         TempSalesLine: Record "Sales Line" temporary;
     begin
         // [GIVEN] Create a new Sales Order, change the Line Discount Percent in Sales Line,change the Prepayment Percent in Sales lines.
-        Initialize;
+        Initialize();
         CreateSalesDocumentItemSetup(SalesHeader, SalesLine);
         ChangeLineDiscPercentSalesLine(SalesLine, SalesHeader);
         CopySalesLine(TempSalesLine, SalesLine, SalesHeader);
@@ -1457,7 +1457,7 @@
 
         // [GIVEN] Create a Sales Order, create an Item, create a Customer with new posting setup, change the Prepayement Percent in Sales
         // Line, change the VAT Prod. Posting Group in Sales Line.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         CreateSalesDocumentPrepayment(
@@ -1495,7 +1495,7 @@
 
         // [GIVEN] Create a Sales Order with new General Posting Setup, modify the prepayment percent in Sales Header,
         // find the Sales Line.
-        Initialize;
+        Initialize();
 
         CreateSalesDocumentItemSetup(SalesHeader, SalesLine);
         PrepaymentPercent := PrepaymentPercentInSalesHeader(SalesHeader);
@@ -1526,7 +1526,7 @@
         // [SCENARIO 128408] "Prepayment %" on Sales Line after changing the Customer on Sales Header.
 
         // [GIVEN] Create a Sales Order with new General Posting Setup, modify the Customer in Sales Header, find the Sales Line.
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
 
@@ -1564,7 +1564,7 @@
 
         // [GIVEN] Create a Sales Order with new General Posting Setup, modify the customer in Sales Header, again modify the Customer in
         // Sales Header with old Customer, find the Sales Lines.
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         CreateSalesDocumentItemSetup(SalesHeader, SalesLine);
@@ -1598,7 +1598,7 @@
         // [SCENARIO 128413] An error while updating "Prepayment Line Amount" with smaller amount.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
 
         // [WHEN] Post a Prepayment Invoice and Update Prepayment Line Amount.
         PostCustomerPrepaymentInvoice(SalesHeader, SalesLine);
@@ -1629,7 +1629,7 @@
         // [SCENARIO 128413] Prepayment Line Amount updated correctly after posting more than one Prepayment Invoice.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
 
         // [WHEN] Post two Prepayment Invoices.
         PostTwoPrepaymentInvoices(SalesLine);
@@ -1652,7 +1652,7 @@
         // [SCENARIO 128415] An error while updating Prepayment Amount to Deduct after Order Post.
 
         // [WHEN] Check Application throws an error while updating Prepayment Amount to Deduct.
-        Initialize;
+        Initialize();
 
         PostFinalPrepaymentOrder(SalesLine);
         asserterror UpdatePrepaymentAmountToDeduct(SalesLine, SalesLine."Prepmt Amt to Deduct" + LibraryRandom.RandDec(1, 2));
@@ -1680,7 +1680,7 @@
         // [SCENARIO 128415] An error while updating Prepayment Amount to Deduct with Zero after Order Post.
 
         // [WHEN] Check Application throws an error while updating Prepayment Amount to Deduct with Zero.
-        Initialize;
+        Initialize();
 
         PostFinalPrepaymentOrder(SalesLine);
 
@@ -1701,7 +1701,7 @@
         GenJnlLineDocNo: Code[20];
     begin
         // [SCENARIO] Check Apply payment against Prepayment Sales Invoice with Unrealized VAT.
-        Initialize;
+        Initialize();
 
         LibraryERM.SetUnrealizedVAT(true);
 
@@ -1735,7 +1735,7 @@
         GenJnlLineDocNo: Code[20];
     begin
         // [SCENARIO] Check Apply payment against Prepayment Purchase Invoice with Unrealized VAT.
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
 
         // [GIVEN] Post Prepayment Purchase Invoice with unrealized VAT.
@@ -1772,7 +1772,7 @@
         // [SCENARIO 128419] Apply payment against Prepayment Invoice.
 
         // [GIVEN] Create and Post Prepayment Invoice.
-        Initialize;
+        Initialize();
         PostCustomerPrepaymentInvoice(SalesHeader, SalesLine);
 
         // [WHEN] Create General Journal Line, Apply Invoice and Post General Journal Line.
@@ -1802,7 +1802,7 @@
         // [SCENARIO 128419] Un-Apply payment to a Prepayment Invoice.
 
         // [GIVEN] Post Prepayment Invoice, Create General Journal Line, Apply Invoice and Post General Journal Line.
-        Initialize;
+        Initialize();
         PostCustomerPrepaymentInvoice(SalesHeader, SalesLine);
         PostedSaleInvoiceNo := FindSalesPrepmtInvoiceNo(SalesHeader."No.");
         CreateGeneralLine(SalesHeader, GenJournalLine);
@@ -1834,7 +1834,7 @@
         // [SCENARIO 128419] Copy Document functionality from Order.
 
         // [GIVEN] Create and Post Prepayment Invoice.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 
@@ -1868,7 +1868,7 @@
         // [SCENARIO 128419] Copy Document functionality from Posted Invoice.
 
         // [GIVEN] Create and Post Prepayment Invoice.
-        Initialize;
+        Initialize();
         PostCustomerPrepaymentInvoice(SalesHeader, SalesLine);
 
         // [WHEN] Copy Document.
@@ -2000,7 +2000,7 @@
         // [SCENARIO 305376] Sales Order throws an Error while updating Prepayment Line Amount more than Prepayment Amount.
 
         // [GIVEN] Create Item,Customer with Prepayment and Sales Document with Prepayment.
-        Initialize;
+        Initialize();
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
         CustomerNo := CreateCustomerWithPostingSetup(LineGLAccount);
         ItemNo := CreateItemWithPostingSetup(LineGLAccount);
@@ -2030,7 +2030,7 @@
         // [FEATURE] [Sales] [Item Charge]
         // [SCENARIO 327577] Item and Item Charge are partially shipped and invoiced with prepayment
         // [GIVEN] Create Customer Sales Order with Type Item and Charge Item with Prepayment Percent
-        Initialize;
+        Initialize();
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
         CustomerNo := CreateCustomerWithPostingSetup(LineGLAccount);
@@ -2065,7 +2065,7 @@
         // Check Credit warning does not appear after Prepayment Invoice posted with less than Credit Limit of Customer.
 
         // [GIVEN] Create and Post Sales Order Prepayment less than Credit Limit of the Customer.
-        Initialize;
+        Initialize();
         SetCreditWarningsCreditLimit;
 
         CreateCustomerWithCreditLimit(Customer, LineGLAccount, '');
@@ -2096,12 +2096,12 @@
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check Credit warning will appear after Prepayment Invoice posted with more than Credit Limit of Customer in LCY.
-        Initialize;
+        Initialize();
 
         CreateCustomerWithCreditLimit(Customer, LineGLAccount, '');
         CustomerNo := Customer."No.";
         SalesOrderWithGreaterThanCreditLimit(Customer, LineGLAccount);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         // Tear down
         TearDownVATPostingSetup(Customer."VAT Bus. Posting Group");
@@ -2118,14 +2118,14 @@
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check Credit warning will appear after Prepayment Invoice posted with more than Credit Limit of Customer In FCY.
-        Initialize;
+        Initialize();
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
 
         CreateCustomerWithCreditLimit(Customer, LineGLAccount, Currency.Code);
         CustomerNo := Customer."No.";
         SalesOrderWithGreaterThanCreditLimit(Customer, LineGLAccount);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         // Tear down
         TearDownVATPostingSetup(Customer."VAT Bus. Posting Group");
@@ -2143,7 +2143,7 @@
         LineGLAccount: Record "G/L Account";
     begin
         // [GIVEN] Create a new Customer with Prepayment %.
-        Initialize;
+        Initialize();
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
         CreateCustomerWithPrepmtPct(Customer, LineGLAccount);
 
@@ -2178,7 +2178,7 @@
         LineGLAccount: Record "G/L Account";
     begin
         // [GIVEN] Create a new Customer with Prepayment %.
-        Initialize;
+        Initialize();
         PurchaseAndPayablesSetup.Get();
         PurchaseAndPayablesSetup."Ext. Doc. No. Mandatory" := false;
         PurchaseAndPayablesSetup.Modify();
@@ -2215,7 +2215,7 @@
         // Verify the status Open error when one more purchase line added on Pending Preypayment Purchase Order.
 
         // [GIVEN] Create Purchase order with Prepayment %.
-        Initialize;
+        Initialize();
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
         ItemNo := CreateItemWithPostingSetup(LineGLAccount);
@@ -2249,7 +2249,7 @@
         // Verify the Open status error when one more sales line added on Pending Preypayment Sales Order.
 
         // Setup : Create sales order
-        Initialize;
+        Initialize();
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
         CreateSalesHeaderWithPrepaymentPercentage(SalesHeader, CreateCustomerWithPostingSetup(LineGLAccount));
@@ -2280,7 +2280,7 @@
         // [SCENARIO] The status Pending Prepayment after error when trying to post Purchase Order.
 
         // [GIVEN] Create Purchase order with Prepayment %.
-        Initialize;
+        Initialize();
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
 
         ItemNo := CreateItemWithPostingSetup(LineGLAccount);
@@ -2318,7 +2318,7 @@
         // [GIVEN] Ship two sales orders with single line and different values of "Prices Including VAT"
         // [GIVEN] Create sales invoice with Prices Including VAT
         // [GIVEN] Get shipment line with the sames "Prices Including VAT"
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         PostedDocNo[1] :=
@@ -2354,7 +2354,7 @@
         // [GIVEN] Receive two purchase orders with single line and different values of "Prices Including VAT"
         // [GIVEN] Create purchase invoice with Prices Including VAT
         // [GIVEN] Get receipt line with the sames "Prices Including VAT"
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         PostedDocNo[1] :=
           CreateAndReceivePurchOrderWithSpecificPricesInclVAT(PurchOrderHeader[1], Vendor."No.", true);
@@ -2691,7 +2691,7 @@
     begin
         // [FEATURE] [Sales] [Credit Memo] [Series No]
         // [SCENARIO 360624.1] Sales Prepmt. invoice's and credit memo's entries are posted with "Posted Prepmt. No. Series"
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Series Nos." for Posted Invoice and Credit Memo
         PostedPrepmtInvNosInSetup(SalesReceivablesSetup, CreateNoSeriesWithLine);
@@ -2718,7 +2718,7 @@
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Series No]
         // [SCENARIO 360624.2] Purchase Prepmt. invoice's and credit memo's entries are posted with "Posted Prepmt. No. Series"
-        Initialize;
+        Initialize();
 
         // [GIVEN] New "Series Nos." for Posted Invoice and Credit Memo
         PostedPrepmtInvNosInPurchSetup(PurchPayablesSetup, CreateNoSeriesWithLine);
@@ -2750,7 +2750,7 @@
     begin
         // [FEATURE] [Purchase] [Extended Text]
         // [SCENARIO 375445] Extended text exists in posted final invoice when prepayment G/L Account has extended text with automatic setting
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepayment Account with Extended Text and "Automatic Ext. Texts" = TRUE
         PrepmtGLAccountNo := LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
@@ -2783,7 +2783,7 @@
     begin
         // [FEATURE] [Sales] [Extended Text]
         // [SCENARIO 375445] Extended text exists in posted final invoice when prepayment G/L Account has extended text with automatic setting
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepayment Account with Extended Text and "Automatic Ext. Texts" = TRUE
         PrepmtGLAccountNo := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
@@ -2814,7 +2814,7 @@
     begin
         // [FEATURE] [Sales] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376012] Post Sales 100 % Prepayment Invoice and final Invoice with two prepayment accounts, six document lines and "Prices Including VAT"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order, Prices Including VAT = TRUE, Prepayment % = 100, VAT % = 20
         // [GIVEN] Two posting accounts "Acc1" and "Acc2" with different prepayment accounts "PAcc1" and "PAcc2" accordingly
@@ -2846,7 +2846,7 @@
     begin
         // [FEATURE] [Purchase] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376012] Post Purchase 100 % Prepayment Invoice and final Invoice with two prepayment accounts, six document lines and "Prices Including VAT"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order, Prices Including VAT = TRUE, Prepayment % = 100, VAT % = 20
         // [GIVEN] Two posting accounts "Acc1" and "Acc2" with different prepayment accounts "PAcc1" and "PAcc2" accordingly
@@ -2878,7 +2878,7 @@
     begin
         // [FEATURE] [Sales] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376012] Post Sales 100 % Prepayment Invoice and final Invoice with two prepayment accounts, six different document lines and "Prices Including VAT"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order, Prices Including VAT = TRUE, Prepayment % = 100, VAT % = 20
         // [GIVEN] Six posting accounts "Acc1".."Acc6" with different prepayment accounts "PAcc1" (for Acc 1,3,5) and "PAcc2" (for Acc 2,4,6)
@@ -2910,7 +2910,7 @@
     begin
         // [FEATURE] [Purchase] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376012] Post Purchase 100 % Prepayment Invoice and final Invoice with two prepayment accounts, six different document lines and "Prices Including VAT"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order, Prices Including VAT = TRUE, Prepayment % = 100, VAT % = 20
         // [GIVEN] Six posting accounts "Acc1".."Acc6" with different prepayment accounts "PAcc1" (for Acc 1,3,5) and "PAcc2"(for Acc 2,4,6)
@@ -2945,7 +2945,7 @@
         // [FEATURE] [Sales]
         // [SCENARIO 376557] Prepayment VAT Posting Setup should be validated in Sales Line during posting prepayment after update "Sales Prepayment Account" in General Posting Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Posting Setup with blank "Sales Prepayment Account"
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
@@ -2988,7 +2988,7 @@
         // [FEATURE] [Purchase]
         // [SCENARIO 376557] Prepayment VAT Posting Setup should be validated in Purchase Line during posting prepayment after update "Purchase Prepayment Account" in General Posting Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Posting Setup with blank "Purchase Prepayment Account"
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
@@ -3029,7 +3029,7 @@
         // [SCENARIO 377330] Posted Sales Prepayment should not be shown in "Posted Sales Document Lines" page when call "Get Posted Document Lines to Reverse"
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
 
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
@@ -3060,7 +3060,7 @@
         // [SCENARIO 377330] Posted Purchase Prepayment should not be shown in "Posted Purchase Document Lines" page when call "Get Posted Document Lines to Reverse"
 
         // [GIVEN] Purchase Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Purchase Prepayment Invoice "Y"
@@ -3090,7 +3090,7 @@
         // [SCENARIO 377805] Posted Sales Prepayment Cr. Memo should not be shown in "Posted Sales Document Lines" page when call "Get Posted Document Lines to Reverse"
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice
@@ -3123,14 +3123,14 @@
         // [SCENARIO 377330] Posted Purchase Prepayment Cr. Memo should not be shown in "Posted Purchase Document Lines" page when call "Get Posted Document Lines to Reverse"
 
         // [GIVEN] Purchase Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Purchase Prepayment Invoice
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchHeader);
 
         // [GIVEN] Posted Purchase Prepayment Credit Memo "Y"
-        PurchHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
         LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchHeader);
 
         // [GIVEN] Purchase Credit Memo with Customer "X"
@@ -3158,7 +3158,7 @@
         // [SCENARIO 378046] It shouldn't be possible to copy and show Purchase Prepayment Invoice
 
         // [GIVEN] Purchase Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Purchase Prepayment Invoice "Y"
@@ -3196,7 +3196,7 @@
         // [SCENARIO 378046] It shouldn't be possible to copy and show Purchase Prepayment Credit Memo
 
         // [GIVEN] Purchase Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
 
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
@@ -3204,7 +3204,7 @@
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchHeader);
 
         // [GIVEN] Posted Purchase Prepayment Credit Memo "Y"
-        PurchHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
         LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchHeader);
         PrepmtNo := FindPurchPrepmtCrMemoNo(PurchHeader."No.");
 
@@ -3239,7 +3239,7 @@
         // [SCENARIO 378046] It shouldn't be possible to copy and show Sales Prepayment Invoice
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
 
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
@@ -3278,7 +3278,7 @@
         // [SCENARIO 378046] It shouldn't be possible to copy and show Sales Prepayment Credit Memo
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice
@@ -3318,7 +3318,7 @@
         // [SCENARIO 378046] Prepayment Invoice should be shown when open prepayment invoices page from Purchase Order
 
         // [GIVEN] Purchase Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Purchase Prepayment Invoice "Y"
@@ -3348,14 +3348,14 @@
         // [SCENARIO 378046] Prepayment Credit Memo should be shown when open prepayment credit memos page from Purchase Order
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchHeader);
 
         // [GIVEN] Posted Sales Prepayment Credit Memo "Y"
-        PurchHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
         LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchHeader);
 
         PostedPurchCrMemos.Trap;
@@ -3382,7 +3382,7 @@
         // [SCENARIO 378046] Prepayment Invoice should be shown when open prepayment invoices page from Sales Order
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice "Y"
@@ -3412,7 +3412,7 @@
         // [SCENARIO 378046] Prepayment Credit Memo should be shown when open prepayment credit memos page from Sales Order
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
-        Initialize;
+        Initialize();
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice
@@ -3577,11 +3577,11 @@
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Prepayment");
         LibraryPurchase.SetInvoiceRounding(false);
         LibrarySales.SetInvoiceRounding(false);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateFAPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         IsInitialized := true;
         Commit();
@@ -3598,7 +3598,7 @@
         ItemNo: Code[20];
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
 
@@ -3623,7 +3623,7 @@
         ItemNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
 
@@ -3735,7 +3735,7 @@
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.SetParameters(DocType, DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
-        CopySalesDocument.Run;
+        CopySalesDocument.Run();
     end;
 
     local procedure CopySalesLine(var TempSalesLine: Record "Sales Line" temporary; var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -3850,7 +3850,7 @@
     begin
         with ItemCharge do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Gen. Prod. Posting Group" := LineGLAccount."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := LineGLAccount."VAT Prod. Posting Group";
             Insert(true);
@@ -3865,7 +3865,7 @@
     begin
         with FAPostingGroup do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             GLAccNo := CreateGLAccountforPostingSetup(LineGLAccount);
             case LineGLAccount."Gen. Posting Type" of
                 LineGLAccount."Gen. Posting Type"::Purchase:
@@ -3975,7 +3975,7 @@
         LineNo: Integer;
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
         LineNo := LibraryRandom.RandIntInRange(2, 100);
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
 
@@ -4235,7 +4235,7 @@
     begin
         // Setup
 
-        Initialize;
+        Initialize();
         LineNo := LibraryRandom.RandIntInRange(2, 100);
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
 
@@ -4578,7 +4578,7 @@
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindGLEntryByBusPostingGroup(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GenBusPostingGroup: Code[20])
@@ -4586,7 +4586,7 @@
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Gen. Bus. Posting Group", GenBusPostingGroup);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindGLEntryForGLAccount(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -4594,14 +4594,14 @@
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindSalesPrepmtInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; PrepaymentOrderNo: Code[20])
     begin
         SalesInvoiceHeader.SetRange("Prepayment Invoice", true);
         SalesInvoiceHeader.SetRange("Prepayment Order No.", PrepaymentOrderNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure FindSalesPrepmtInvoiceNo(PrepaymentOrderNo: Code[20]): Code[20]
@@ -4616,7 +4616,7 @@
     begin
         PurchInvHeader.SetRange("Prepayment Invoice", true);
         PurchInvHeader.SetRange("Prepayment Order No.", PrepaymentOrderNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
     end;
 
     local procedure FindPurchPrepmtInvoiceNo(PrepaymentOrderNo: Code[20]): Code[20]
@@ -4633,7 +4633,7 @@
     begin
         PurchCrMemoHdr.SetRange("Prepayment Credit Memo", true);
         PurchCrMemoHdr.SetRange("Prepayment Order No.", PrepaymentOrderNo);
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
         exit(PurchCrMemoHdr."No.");
     end;
 
@@ -4643,7 +4643,7 @@
     begin
         SalesCrMemoHeader.SetRange("Prepayment Credit Memo", true);
         SalesCrMemoHeader.SetRange("Prepayment Order No.", PrepaymentOrderNo);
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         exit(SalesCrMemoHeader."No.");
     end;
 
@@ -4666,7 +4666,7 @@
     begin
         with SalesShptLine do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("Line No.");
         end;
     end;
@@ -4677,7 +4677,7 @@
     begin
         with PurchRcptLine do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("Line No.");
         end;
     end;
@@ -4696,7 +4696,7 @@
         SalesGetShpt: Codeunit "Sales-Get Shipment";
     begin
         SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
         SalesGetShpt.SetSalesHeader(SalesHeader2);
         SalesGetShpt.CreateInvLines(SalesShipmentLine);
@@ -4709,7 +4709,7 @@
         PurchGetReceipt: Codeunit "Purch.-Get Receipt";
     begin
         PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
         PurchGetReceipt.SetPurchHeader(PurchaseHeader2);
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
@@ -5009,7 +5009,7 @@
         with CustLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
         end;
     end;
@@ -5021,7 +5021,7 @@
         with VendorLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
             LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
         end;
     end;
@@ -5064,8 +5064,8 @@
 
     local procedure UpdatePurchVendorInvoiceCrMemoNo(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -5111,7 +5111,7 @@
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchHeader);
         CopyPurchaseDocument.SetParameters(DocType, DocNo, true, false);
-        CopyPurchaseDocument.Run;
+        CopyPurchaseDocument.Run();
     end;
 
     local procedure CopySalesDocument(SalesHeader: Record "Sales Header"; DocNo: Code[20]; DocType: Enum "Sales Document Type From")
@@ -5120,7 +5120,7 @@
     begin
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.SetParameters(DocType, DocNo, true, false);
-        CopySalesDocument.Run;
+        CopySalesDocument.Run();
     end;
 
     local procedure TearDownVATPostingSetup(VATBusPostingGroup: Code[20])
@@ -5317,7 +5317,7 @@
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         CustLedgerEntry.TestField(Amount, PrepaymentAmount);
         CustLedgerEntry.TestField("Due Date", PrepaymentDueDate);
@@ -5329,7 +5329,7 @@
     begin
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Invoice);
         DetailedCustLedgEntry.SetRange("Document No.", FindSalesPrepmtInvoiceNo(OrderNo));
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField(Amount, Amount);
     end;
 
@@ -5339,7 +5339,7 @@
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", OrderNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Prepmt. Line Amount", PrepaymentLineAmount);
         SalesLine.TestField("Prepmt Amt to Deduct", PrepaymentLineAmount);
         SalesLine.TestField("Prepmt. Amt. Inv.", PrepaymentLineAmount);
@@ -5366,7 +5366,7 @@
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader.SetRange("Prepayment Order No.", PrepaymentOrderNo);
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.TestField("No.", GetLastNoUsed(PostedPrepmtCrMemoNos));
     end;
 
@@ -5392,11 +5392,11 @@
         NoSeriesLine.SetCurrentKey("Series Code", "Starting Date");
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
         NoSeriesLine.SetRange("Starting Date", 0D, WorkDate);
-        if NoSeriesLine.FindLast then begin
+        if NoSeriesLine.FindLast() then begin
             NoSeriesLine.SetRange("Starting Date", NoSeriesLine."Starting Date");
             NoSeriesLine.SetRange(Open, true);
         end;
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
     end;
 
     local procedure VerifyPrepaymentLineAmount(SalesLine: Record "Sales Line"; PrepaymentPercent: Decimal)
@@ -5415,7 +5415,7 @@
     begin
         SalesHeader.TestField("Prepayment %", 0);  // Prepayment percent must be zero.
         FindSalesLine(SalesLine, SalesHeader);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
 
         // Prepayment Percent must not be zero.
         Assert.AreNotEqual(0, SalesLine."Prepayment %", StrSubstNo(PrepaymentPercentErr, SalesLine."Prepayment %"));
@@ -5527,7 +5527,7 @@
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
             SetFilter("Unrealized Amount", '<>0');
-            FindFirst;
+            FindFirst();
             Assert.AreEqual("Unrealized Amount", "Remaining Unrealized Amount", RmngUnrealAmountErr);
         end;
     end;
@@ -5537,7 +5537,7 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.TestField("Remaining Amount", RemaningAmount);
     end;
@@ -5666,7 +5666,7 @@
     begin
         with SalesInvoiceHeader do begin
             SetRange("Prepayment Order No.", PrepaymentOrderNo);
-            FindFirst;
+            FindFirst();
             VerifyNoSeries("No.", PostedPrepmtNos, "No. Series", TableCaption);
         end;
     end;
@@ -5677,7 +5677,7 @@
     begin
         with SalesCrMemoHeader do begin
             SetRange("Prepayment Order No.", PrepaymentOrderNo);
-            FindFirst;
+            FindFirst();
             VerifyNoSeries("No.", PostedPrepmtNos, "No. Series", TableCaption);
         end;
     end;
@@ -5688,7 +5688,7 @@
     begin
         with PurchInvHeader do begin
             SetRange("Prepayment Order No.", PrepaymentOrderNo);
-            FindFirst;
+            FindFirst();
             VerifyNoSeries("No.", PostedPrepmtNos, "No. Series", TableCaption);
         end;
     end;
@@ -5699,7 +5699,7 @@
     begin
         with PurchCrMemoHdr do begin
             SetRange("Prepayment Order No.", PrepaymentOrderNo);
-            FindFirst;
+            FindFirst();
             VerifyNoSeries("No.", PostedPrepmtNos, "No. Series", TableCaption);
         end;
     end;

@@ -56,7 +56,7 @@ table 1051 "Sorting Table"
         FixedFee: Decimal;
     begin
         CurrencyFactor := 1;
-        BusChartBuf.Initialize;
+        BusChartBuf.Initialize();
         MeasureA := Format(ReminderLevel."Add. Fee Calculation Type"::Fixed);
         MeasureB := Format(ReminderLevel."Add. Fee Calculation Type"::"Single Dynamic");
         MeasureC := Format(ReminderLevel."Add. Fee Calculation Type"::"Accumulated Dynamic");
@@ -84,7 +84,7 @@ table 1051 "Sorting Table"
         NextEntryNo := 1;
 
         SetValuesAt(TempSortingTable, 0);
-        if AddFeeSetup.FindSet then begin
+        if AddFeeSetup.FindSet() then begin
             repeat
                 // Add points for maximum values and just before the range change
                 if AddFeeSetup."Threshold Remaining Amount" > 0 then begin
@@ -151,7 +151,7 @@ table 1051 "Sorting Table"
         // Add the points in order
         FixedFee := ReminderLevel.CalculateAdditionalFixedFee(Currency, ChargePerLine, Today);
         TempSortingTable.SetCurrentKey(Decimal);
-        if TempSortingTable.FindSet then
+        if TempSortingTable.FindSet() then
             repeat
                 BusChartBuf.AddColumn(TempSortingTable.Decimal * CurrencyFactor);
                 BusChartBuf.SetValue(MeasureA, XIndex, FixedFee);

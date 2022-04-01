@@ -58,12 +58,12 @@ codeunit 134928 "ERM MIR Reports"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO] Total sum should be correct in report Reminder - Test when parameter "Show MIR Detail" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateReminder(ReminderNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Reminder - Test" with "Show MIR Detail" = TRUE
         RunReminderTestReport(ReminderNo, true);
@@ -83,12 +83,12 @@ codeunit 134928 "ERM MIR Reports"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO] Total sum should be correct in report Reminder - Test when parameter "Show MIR Detail" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateReminder(ReminderNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Reminder - Test" with "Show MIR Detail" = FALSE
         RunReminderTestReport(ReminderNo, false);
@@ -108,12 +108,12 @@ codeunit 134928 "ERM MIR Reports"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO] Total sum should be correct in report Reminder when parameter "Show MIR Detail" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateIssuedReminder(ReminderNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Reminder" with "Show MIR Detail" = TRUE
         RunReminderReport(ReminderNo, true);
@@ -132,12 +132,12 @@ codeunit 134928 "ERM MIR Reports"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO] Total sum should be correct in report Reminder when parameter "Show MIR Detail" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateIssuedReminder(ReminderNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Reminder" with "Show MIR Detail" = FALSE
         RunReminderReport(ReminderNo, false);
@@ -158,12 +158,12 @@ codeunit 134928 "ERM MIR Reports"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO] Total sum should be correct in report Finance Charge Memo - Test when parameter "Show MIR Detail" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateFinanceChargeMemo(FinChargeMemoNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Finance Charge Memo" with "Show MIR Detail" = TRUE
         RunFinChargeMemoTestReport(FinChargeMemoNo, true);
@@ -183,12 +183,12 @@ codeunit 134928 "ERM MIR Reports"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO] Total sum should be correct in report Finance Charge Memo - Test when parameter "Show MIR Detail" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateFinanceChargeMemo(FinChargeMemoNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Finance Charge Memo" with "Show MIR Detail" = FALSE
         RunFinChargeMemoTestReport(FinChargeMemoNo, false);
@@ -209,12 +209,12 @@ codeunit 134928 "ERM MIR Reports"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO 377597] Total sum should be correct in report Finance Charge Memo when parameter "Show MIR Detail" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issued Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Issued Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateIssuedFinanceChargeMemo(FinChargeMemoNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Finance Charge Memo" with "Show MIR Detail" = TRUE
         RunFinChargeMemoReport(FinChargeMemoNo, true);
@@ -234,12 +234,12 @@ codeunit 134928 "ERM MIR Reports"
         AmountMIRLine: array[5] of Decimal;
     begin
         // [SCENARIO 377597] Total sum should be correct in report Finance Charge Memo when parameter "Show MIR Detail" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issued Finance Charge Memo Lines with "MIR Entry" = FALSE of amount = "X"
         // [GIVEN] Issued Finance Charge Memo Lines with "MIR Entry" = TRUE of amount = "Y"
         TotalAmount := CreateIssuedFinanceChargeMemo(FinChargeMemoNo, 5, AmountLine, AmountMIRLine);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Invoke report "Finance Charge Memo" with "Show MIR Detail" = FALSE
         RunFinChargeMemoReport(FinChargeMemoNo, false);
@@ -254,7 +254,7 @@ codeunit 134928 "ERM MIR Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM MIR Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportDataset);
         Clear(LibraryReportValidation);
 
@@ -262,9 +262,9 @@ codeunit 134928 "ERM MIR Reports"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM MIR Reports");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
 
         Commit();
@@ -459,7 +459,7 @@ codeunit 134928 "ERM MIR Reports"
         AmountLineDummy: array[5] of Decimal;
         AmountMIRLineDummy: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateIssuedFinanceChargeMemo(FinChargeMemoNo, LibraryRandom.RandIntInRange(2, 5), AmountLineDummy, AmountMIRLineDummy);
         RunFinChargeMemoReport(FinChargeMemoNo, ShowMIRDetail);

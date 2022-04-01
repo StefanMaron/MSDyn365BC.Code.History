@@ -284,7 +284,7 @@ page 841 "Cash Flow Worksheet"
                     trigger OnAction()
                     begin
                         DeleteErrors;
-                        SuggestWkshLines.RunModal;
+                        SuggestWkshLines.RunModal();
                         Clear(SuggestWkshLines);
                     end;
                 }
@@ -417,7 +417,7 @@ page 841 "Cash Flow Worksheet"
     begin
         if CashFlowSetup.Get then begin
             ErrorMessage.SetRange("Context Record ID", CashFlowSetup.RecordId);
-            if ErrorMessage.FindFirst then
+            if ErrorMessage.FindFirst() then
                 ErrorMessage.DeleteAll(true);
             Commit();
         end;

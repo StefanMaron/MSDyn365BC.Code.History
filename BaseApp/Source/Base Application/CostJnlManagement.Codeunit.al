@@ -36,7 +36,7 @@ codeunit 1106 CostJnlManagement
                     CostJnlTemplate.Insert(true);
                 end;
             1:
-                CostJnlTemplate.FindFirst;
+                CostJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, CostJnlTemplate) = ACTION::LookupOK;
         end;
@@ -105,23 +105,23 @@ codeunit 1106 CostJnlManagement
         end;
         CostJnlBatch.FilterGroup(0);
 
-        if not CostJnlBatch.FindFirst then begin
-            if not CostJnlTemplate.FindFirst then
+        if not CostJnlBatch.FindFirst() then begin
+            if not CostJnlTemplate.FindFirst() then
                 TemplateSelection(CostJnlLine, JnlSelected);
-            if CostJnlTemplate.FindFirst then
+            if CostJnlTemplate.FindFirst() then
                 CheckTemplateName(CostJnlTemplate.Name, CostJnlBatch.Name);
-            if not CostJnlTemplate.FindFirst then
+            if not CostJnlTemplate.FindFirst() then
                 TemplateSelection(CostJnlLine, JnlSelected);
-            if CostJnlTemplate.FindFirst then
+            if CostJnlTemplate.FindFirst() then
                 CheckTemplateName(CostJnlTemplate.Name, CostJnlBatch.Name);
         end;
-        CostJnlBatch.FindFirst;
+        CostJnlBatch.FindFirst();
         JnlSelected := true;
         if CostJnlBatch.GetFilter("Journal Template Name") <> '' then
             CostJnlTemplate.SetRange(Name, CostJnlBatch.GetFilter("Journal Template Name"));
         case CostJnlTemplate.Count of
             1:
-                CostJnlTemplate.FindFirst;
+                CostJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, CostJnlTemplate) = ACTION::LookupOK;
         end;
@@ -139,7 +139,7 @@ codeunit 1106 CostJnlManagement
     begin
         CostJnlBatch.SetRange("Journal Template Name", CostJnlTemplateName);
         if not CostJnlBatch.Get(CostJnlTemplateName, CostJnlBatchName) then begin
-            if not CostJnlBatch.FindFirst then begin
+            if not CostJnlBatch.FindFirst() then begin
                 CostJnlBatch.Init();
                 CostJnlBatch."Journal Template Name" := CostJnlTemplateName;
                 CostJnlBatch.Name := Text003;
@@ -163,7 +163,7 @@ codeunit 1106 CostJnlManagement
         CostJnlLine.FilterGroup := 2;
         CostJnlLine.SetRange("Journal Batch Name", CostJnlBatchName);
         CostJnlLine.FilterGroup := 0;
-        if CostJnlLine.FindFirst then;
+        if CostJnlLine.FindFirst() then;
     end;
 
     procedure LookupName(var CostJnlBatchName: Code[10]; var CostJnlLine: Record "Cost Journal Line")

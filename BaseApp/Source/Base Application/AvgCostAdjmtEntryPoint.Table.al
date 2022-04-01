@@ -217,9 +217,9 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
 
         FiscalYearAccPeriod.SetRange("New Fiscal Year", true);
         FiscalYearAccPeriod.SetRange("Starting Date", 0D, ValuationDate);
-        if not FiscalYearAccPeriod.FindLast then begin
+        if not FiscalYearAccPeriod.FindLast() then begin
             FiscalYearAccPeriod.SetRange("Starting Date");
-            FiscalYearAccPeriod.FindFirst;
+            FiscalYearAccPeriod.FindFirst();
         end;
     end;
 

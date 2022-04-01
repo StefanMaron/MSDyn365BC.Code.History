@@ -113,7 +113,7 @@ codeunit 1210 "Payment Export Mgt"
         then begin
             DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
             DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDefCode);
-            if not DataExchColumnDef.FindSet then
+            if not DataExchColumnDef.FindSet() then
                 Error(DataExchLineDefNotFoundErr, DataExchDef.Name, DataExchLineDefCode);
             repeat
                 DataExchField.InsertRec(

@@ -29,7 +29,7 @@ codeunit 137202 "SCM Analysis Line"
         AnalysisLineTemplateName: Code[10];
     begin
         // Setup: Create Item. Create Analysis Line template and partial Analysis Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         ItemNo := Item."No.";
         AnalysisLineTemplateName := CreatePartialAnalysisLine(AnalysisLine, AnalysisLine.Type::Item);
@@ -53,7 +53,7 @@ codeunit 137202 "SCM Analysis Line"
         AnalysisLineTemplateName: Code[10];
     begin
         // Setup: Select Dimension Code. Update Item group Dimension code. Create Analysis Line template and partial Analysis Line.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         DimensionCode := Dimension.Code;
         InventorySetup.Get();
@@ -82,7 +82,7 @@ codeunit 137202 "SCM Analysis Line"
         AnalysisLineTemplateName: Code[10];
     begin
         // Setup: Create Customer. Create Analysis Line template and partial Analysis Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CustomerNo := Customer."No.";
         AnalysisLineTemplateName := CreatePartialAnalysisLine(AnalysisLine, AnalysisLine.Type::Customer);
@@ -105,7 +105,7 @@ codeunit 137202 "SCM Analysis Line"
         AnalysisLineTemplateName: Code[10];
     begin
         // Setup: Select Customer Group Dimension Code. Create Analysis Line template and partial Analysis Line.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         DimensionCode := SalesReceivablesSetup."Customer Group Dimension Code";
         AnalysisLineTemplateName := CreatePartialAnalysisLine(AnalysisLine, AnalysisLine.Type::"Customer Group");
@@ -128,7 +128,7 @@ codeunit 137202 "SCM Analysis Line"
         AnalysisLineTemplateName: Code[10];
     begin
         // Setup: Select Salesperson Dimension Code. Create Analysis Line template and partial Analysis Line.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         DimensionCode := SalesReceivablesSetup."Salesperson Dimension Code";
         AnalysisLineTemplateName := CreatePartialAnalysisLine(AnalysisLine, AnalysisLine.Type::"Sales/Purchase person");
@@ -167,7 +167,7 @@ codeunit 137202 "SCM Analysis Line"
         with AnalysisLine do begin
             SetRange("Analysis Line Template Name", AnalysisLineTemplateName);
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             TestField("Row Ref. No.", ItemNo);
         end;
     end;
@@ -178,12 +178,12 @@ codeunit 137202 "SCM Analysis Line"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Analysis Line");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Analysis Line");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -222,7 +222,7 @@ codeunit 137202 "SCM Analysis Line"
         // Verify that Analysis line record for the particular Analysis line template is available.
         AnalysisLine.SetRange("Analysis Line Template Name", AnalysisLineTemplateName);
         AnalysisLine.SetRange(Type, Type);
-        AnalysisLine.FindFirst;
+        AnalysisLine.FindFirst();
     end;
 
     [ModalPageHandler]

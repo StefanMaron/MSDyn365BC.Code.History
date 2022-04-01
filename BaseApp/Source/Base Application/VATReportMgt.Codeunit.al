@@ -215,7 +215,7 @@ codeunit 737 "VAT Report Mgt."
         with JobQueueLogEntry do begin
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", VATReportSetup."Auto Receive Period CU ID");
-            if FindLast then
+            if FindLast() then
                 exit(Status = Status::Error);
         end;
 

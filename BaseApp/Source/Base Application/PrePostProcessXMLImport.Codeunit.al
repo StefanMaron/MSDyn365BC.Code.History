@@ -157,7 +157,7 @@ codeunit 1262 "Pre & Post Process XML Import"
         exit(DataExchFieldDetails.Read);
     end;
 
-    local procedure SetValueFromDataExchField(var DataExchFieldDetails: Query "Data Exch. Field Details"; DataExch: Record "Data Exch."; PathFilter: Text; NotFoundMessage: Text; RecRef: RecordRef; FieldNo: Integer): Boolean
+    procedure SetValueFromDataExchField(var DataExchFieldDetails: Query "Data Exch. Field Details"; DataExch: Record "Data Exch."; PathFilter: Text; NotFoundMessage: Text; RecRef: RecordRef; FieldNo: Integer): Boolean
     var
         DataExchField: Record "Data Exch. Field";
         TempFieldIdsToNegate: Record "Integer" temporary;

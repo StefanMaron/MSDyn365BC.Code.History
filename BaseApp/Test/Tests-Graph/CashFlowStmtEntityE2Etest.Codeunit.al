@@ -24,7 +24,7 @@ codeunit 135522 "CashFlow Stmt. Entity E2E test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can retrieve Cash Flow Statement Report information from the cashFlowStatement API.
-        Initialize;
+        Initialize();
 
         // [WHEN] A GET request is made to the cashFlowStatement API.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Cash Flow Statement Entity", ServiceNameTxt);
@@ -46,7 +46,7 @@ codeunit 135522 "CashFlow Stmt. Entity E2E test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a cashFlowStatement record through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a cashFlowStatement JSON object to send to the service.
         IncomeStatementEntityBufferJSON := IncomeStmtEntityE2ETest.GetIncomeStatementJSON(TempAccScheduleLineEntity);
@@ -64,7 +64,7 @@ codeunit 135522 "CashFlow Stmt. Entity E2E test"
         if IsInitialized then
             exit;
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         IsInitialized := true;
     end;
 }

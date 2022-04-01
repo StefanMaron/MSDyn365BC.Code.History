@@ -30,19 +30,19 @@ report 491 "Delete Invd Blnkt Purch Orders"
                 PurchLine.SetRange("Document Type", "Document Type");
                 PurchLine.SetRange("Document No.", "No.");
                 PurchLine.SetFilter("Quantity Invoiced", '<>0');
-                if PurchLine.FindFirst then begin
+                if PurchLine.FindFirst() then begin
                     PurchLine.SetRange("Quantity Invoiced");
                     PurchLine.SetFilter("Outstanding Quantity", '<>0');
                     OnAfterSetPurchLineFilters(PurchLine);
-                    if not PurchLine.FindFirst then begin
+                    if not PurchLine.FindFirst() then begin
                         PurchLine.SetRange("Outstanding Quantity");
                         PurchLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
-                        if not PurchLine.FindFirst then begin
+                        if not PurchLine.FindFirst() then begin
                             PurchLine.LockTable();
-                            if not PurchLine.FindFirst then begin
+                            if not PurchLine.FindFirst() then begin
                                 PurchLine.SetRange("Qty. Rcd. Not Invoiced");
                                 PurchLine2.SetRange("Blanket Order No.", "No.");
-                                if not PurchLine2.FindFirst then begin
+                                if not PurchLine2.FindFirst() then begin
                                     ArchiveManagement.AutoArchivePurchDocument("Purchase Header");
 
                                     OnBeforeDeletePurchLines(PurchLine);

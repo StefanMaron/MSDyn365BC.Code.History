@@ -26,7 +26,7 @@ codeunit 135520 "Balance Sheet Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can retrieve Balance Sheet Report information from the balanceSheet API.
-        Initialize;
+        Initialize();
 
         // [WHEN] A GET request is made to the balanceSheet API.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Balance Sheet Entity", ServiceNameTxt);
@@ -47,7 +47,7 @@ codeunit 135520 "Balance Sheet Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a balanceSheet record through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a balanceSheet JSON object to send to the service.
         BalanceSheetBufferJSON := GetBalanceSheetJSON(TempBalanceSheetBuffer);
@@ -65,7 +65,7 @@ codeunit 135520 "Balance Sheet Entity E2E Test"
         if IsInitialized then
             exit;
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         IsInitialized := true;
     end;
 
@@ -79,7 +79,7 @@ codeunit 135520 "Balance Sheet Entity E2E Test"
         if BalanceSheetBuffer."Line No." = 0 then
             BalanceSheetBuffer."Line No." := LibraryRandom.RandIntInRange(1, 10000);
         if BalanceSheetBuffer.Description = '' then
-            BalanceSheetBuffer.Description := LibraryUtility.GenerateGUID;
+            BalanceSheetBuffer.Description := LibraryUtility.GenerateGUID();
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'lineNumber', BalanceSheetBuffer."Line No.");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'display', BalanceSheetBuffer.Description);

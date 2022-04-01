@@ -74,13 +74,13 @@ page 1014 "Job Transfer Job Planning Line"
         JobJnlTemplate.SetRange(Recurring, false);
 
         if JobJnlTemplate.Count = 1 then begin
-            JobJnlTemplate.FindFirst;
+            JobJnlTemplate.FindFirst();
             JobJournalTemplateName := JobJnlTemplate.Name;
 
             JobJnlBatch.SetRange("Journal Template Name", JobJournalTemplateName);
 
             if JobJnlBatch.Count = 1 then begin
-                JobJnlBatch.FindFirst;
+                JobJnlBatch.FindFirst();
                 JobJournalBatchName := JobJnlBatch.Name;
             end;
         end;
@@ -100,7 +100,7 @@ page 1014 "Job Transfer Job Planning Line"
             JobJnlBatch.SetRange("Journal Template Name", JobJournalTemplateName);
 
             if JobJnlBatch.Count = 1 then begin
-                JobJnlBatch.FindFirst;
+                JobJnlBatch.FindFirst();
                 JobJournalBatchName := JobJnlBatch.Name;
             end else
                 JobJournalBatchName := '';

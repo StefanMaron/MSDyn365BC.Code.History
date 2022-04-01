@@ -20,7 +20,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
           CheckLedgerEntry."Entry Status"::Printed,
           CheckLedgerEntry."Entry Status"::Posted,
           CheckLedgerEntry."Entry Status"::"Test Print");
-        if CheckLedgerEntry.FindFirst then
+        if CheckLedgerEntry.FindFirst() then
             BankAccNo := CheckLedgerEntry."Bank Account No.";
         CheckLedgerEntry.ModifyAll("Positive Pay Exported", true, true);
 
@@ -34,7 +34,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
           CheckLedgerEntry."Entry Status"::"Test Print");
         // Only populate the BankAcct if there were no open checks found in case there are no voids
         if BankAccNo = '' then
-            if CheckLedgerEntry.FindFirst then
+            if CheckLedgerEntry.FindFirst() then
                 BankAccNo := CheckLedgerEntry."Bank Account No.";
         CheckLedgerEntry.ModifyAll("Positive Pay Exported", true, true);
 
@@ -61,7 +61,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
     begin
         // Retrieve the Last Updated Date and Time to set in the new record
         PositivePayEntry.SetRange("Bank Account No.", BankAccNo);
-        if PositivePayEntry.FindLast then
+        if PositivePayEntry.FindLast() then
             exit(PositivePayEntry."Upload Date-Time");
     end;
 
@@ -71,7 +71,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
         PositivePayDetail: Record "Positive Pay Detail";
     begin
         PositivePayDetail.SetRange("Data Exch. Entry No.", EntryNo);
-        if PositivePayDetail.FindSet then begin
+        if PositivePayDetail.FindSet() then begin
             repeat
                 PositivePayEntryDetail.Init();
                 PositivePayEntryDetail."Upload Date-Time" := PositivePayEntry."Upload Date-Time";

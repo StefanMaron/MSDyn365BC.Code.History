@@ -103,11 +103,11 @@ table 1251 "Text-to-Account Mapping"
     begin
         if RecordMatchMgt.Trim(GenJnlLine.Description) <> '' then begin
             TextToAccMapping.SetFilter("Mapping Text", '%1', '@' + RecordMatchMgt.Trim(GenJnlLine.Description));
-            if TextToAccMapping.FindFirst then
+            if TextToAccMapping.FindFirst() then
                 Copy(TextToAccMapping)
             else begin
                 TextToAccMapping.Reset();
-                if TextToAccMapping.FindLast then
+                if TextToAccMapping.FindLast() then
                     LastLineNo := TextToAccMapping."Line No.";
 
                 Init;
@@ -138,11 +138,11 @@ table 1251 "Text-to-Account Mapping"
     begin
         if RecordMatchMgt.Trim(BankAccReconciliationLine."Transaction Text") <> '' then begin
             TextToAccMapping.SetFilter("Mapping Text", '%1', '@' + RecordMatchMgt.Trim(BankAccReconciliationLine."Transaction Text"));
-            if TextToAccMapping.FindFirst then
+            if TextToAccMapping.FindFirst() then
                 Copy(TextToAccMapping)
             else begin
                 TextToAccMapping.Reset();
-                if TextToAccMapping.FindLast then
+                if TextToAccMapping.FindLast() then
                     LastLineNo := TextToAccMapping."Line No.";
 
                 Init;
@@ -254,7 +254,7 @@ table 1251 "Text-to-Account Mapping"
         with TextToAccMapping do begin
             SetFilter("Bal. Source Type", '%1|%2', "Bal. Source Type"::Vendor, "Bal. Source Type"::Customer);
             SetRange("Bal. Source No.", '');
-            if FindFirst then begin
+            if FindFirst() then begin
                 if DIALOG.Confirm(BalAccountNoQst, true, "Bal. Source Type", "Mapping Text")
                 then begin
                     DeleteAll(true);
@@ -266,7 +266,7 @@ table 1251 "Text-to-Account Mapping"
             SetRange("Bal. Source Type", "Bal. Source Type"::"G/L Account");
             SetRange("Debit Acc. No.", '');
             SetRange("Credit Acc. No.", '');
-            if FindFirst then begin
+            if FindFirst() then begin
                 if DIALOG.Confirm(GLAccountNoQst, true, "Bal. Source Type"::"G/L Account", "Mapping Text")
                 then begin
                     DeleteAll(true);
@@ -278,7 +278,7 @@ table 1251 "Text-to-Account Mapping"
             SetRange("Bal. Source Type", "Bal. Source Type"::"Bank Account");
             SetRange("Debit Acc. No.", '');
             SetRange("Credit Acc. No.", '');
-            if FindFirst then begin
+            if FindFirst() then begin
                 if DIALOG.Confirm(GLAccountNoQst, true, "Bal. Source Type"::"Bank Account", "Mapping Text")
                 then begin
                     DeleteAll(true);
@@ -303,7 +303,7 @@ table 1251 "Text-to-Account Mapping"
 
         TextToAccountMapping.Reset();
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
-        if not TextToAccountMapping.FindSet then
+        if not TextToAccountMapping.FindSet() then
             exit(ResultCount);
 
         repeat
@@ -326,7 +326,7 @@ table 1251 "Text-to-Account Mapping"
         if ResultCount <> 1 then
             exit(ResultCount);
 
-        TempTextToAccountMapping.FindFirst;
+        TempTextToAccountMapping.FindFirst();
         TextToAccountMapping.Copy(TempTextToAccountMapping);
         exit(ResultCount);
     end;

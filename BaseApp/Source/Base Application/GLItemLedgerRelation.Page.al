@@ -371,7 +371,7 @@ page 5823 "G/L - Item Ledger Relation"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -379,7 +379,7 @@ page 5823 "G/L - Item Ledger Relation"
                     Navigate: Page Navigate;
                 begin
                     Navigate.SetDoc(ValueEntry."Posting Date", ValueEntry."Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

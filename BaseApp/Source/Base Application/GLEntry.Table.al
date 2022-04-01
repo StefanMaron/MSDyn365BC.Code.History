@@ -273,6 +273,10 @@ table 17 "G/L Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(78; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -518,7 +522,7 @@ table 17 "G/L Entry"
         OnBeforeShowValueEntries(ValueEntry, GLItemLedgRelation);
 
         GLItemLedgRelation.SetRange("G/L Entry No.", "Entry No.");
-        if GLItemLedgRelation.FindSet then
+        if GLItemLedgRelation.FindSet() then
             repeat
                 ValueEntry.Get(GLItemLedgRelation."Value Entry No.");
                 TempValueEntry.Init();
@@ -594,6 +598,7 @@ table 17 "G/L Entry"
             "Source Type" := "Source Type"::" ";
         "Job No." := GenJnlLine."Job No.";
         Quantity := GenJnlLine.Quantity;
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "Reason Code" := GenJnlLine."Reason Code";
         "User ID" := UserId;

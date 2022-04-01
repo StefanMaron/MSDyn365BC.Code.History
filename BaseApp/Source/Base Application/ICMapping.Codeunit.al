@@ -23,7 +23,7 @@ codeunit 428 "IC Mapping"
         ICDimensionValue: Record "IC Dimension Value";
     begin
         Dimension.SetRange(Code, ICDimension.Code);
-        if Dimension.FindFirst then begin
+        if Dimension.FindFirst() then begin
             ICDimension."Map-to Dimension Code" := Dimension.Code;
             ICDimension.Modify();
             ICDimensionValue.SetRange("Dimension Code", ICDimension.Code);
@@ -52,7 +52,7 @@ codeunit 428 "IC Mapping"
         DimensionValue: Record "Dimension Value";
     begin
         ICDimension.SetRange(Code, Dimension.Code);
-        if ICDimension.FindFirst then begin
+        if ICDimension.FindFirst() then begin
             Dimension."Map-to IC Dimension Code" := ICDimension.Code;
             Dimension.Modify();
             DimensionValue.SetRange("Dimension Code", Dimension.Code);

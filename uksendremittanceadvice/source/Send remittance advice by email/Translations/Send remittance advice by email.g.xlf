@@ -33,6 +33,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendVendLedgerEntryRemitAdvice - Action SendRemittanceAdvice - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 1973192079 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>UK Send Remittance Advice - Objects</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UKSRA - Objects - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

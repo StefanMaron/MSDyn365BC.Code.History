@@ -66,13 +66,13 @@ page 9068 "Project Manager Activities"
             {
                 Caption = 'Invoicing';
                 Visible = SetupIsComplete;
-                field("Upcoming Invoices"; "Upcoming Invoices")
+                field("Upcoming Invoices"; Rec."Upcoming Invoices")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Job List";
                     ToolTip = 'Specifies the number of upcoming invoices that are displayed in the Job Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Invoices Due - Not Created"; "Invoices Due - Not Created")
+                field("Invoices Due - Not Created"; Rec."Invoices Due - Not Created")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Job List";
@@ -94,13 +94,13 @@ page 9068 "Project Manager Activities"
             {
                 Caption = 'Work in Process';
                 Visible = SetupIsComplete;
-                field("WIP Not Posted"; "WIP Not Posted")
+                field("WIP Not Posted"; Rec."WIP Not Posted")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Job List";
                     ToolTip = 'Specifies the amount of work in process that has not been posted that is displayed in the Service Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Completed - WIP Not Calculated"; "Completed - WIP Not Calculated")
+                field("Completed - WIP Not Calculated"; Rec."Completed - WIP Not Calculated")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Job List";
@@ -129,40 +129,13 @@ page 9068 "Project Manager Activities"
             {
                 Caption = 'Jobs to Budget';
                 Visible = SetupIsComplete;
-                field("Jobs Over Budget"; "Jobs Over Budget")
+                field("Jobs Over Budget"; Rec."Jobs Over Budget")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Over Budget';
                     DrillDownPageID = "Job List";
                     Editable = false;
                     ToolTip = 'Specifies the number of jobs where the usage cost exceeds the budgeted cost.';
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
                 }
             }
             cuegroup("Get started")
@@ -268,7 +241,7 @@ page 9068 "Project Manager Activities"
 
         MyCompName := CompanyName;
 
-        if JobsSetup.FindFirst then begin
+        if JobsSetup.FindFirst() then begin
             if MyCompName = MyCompanyTxt then
                 SetupIsComplete := JobsSetup."Default Job Posting Group" <> ''
             else
@@ -278,17 +251,17 @@ page 9068 "Project Manager Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetFilter("Date Filter", '>=%1', WorkDate);
-        SetFilter("Date Filter2", '<%1&<>%2', WorkDate, 0D);
-        SetRange("User ID Filter", UserId);
+        Rec.SetFilter("Date Filter", '>=%1', WorkDate());
+        Rec.SetFilter("Date Filter2", '<%1&<>%2', WorkDate(), 0D);
+        Rec.SetRange("User ID Filter", UserId());
 
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
+        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
     end;
 
     var
@@ -296,7 +269,6 @@ page 9068 "Project Manager Activities"
         O365GettingStartedMgt: Codeunit "O365 Getting Started Mgt.";
         ClientTypeManagement: Codeunit "Client Type Management";
         EnvironmentInfo: Codeunit "Environment Information";
-        UserTaskManagement: Codeunit "User Task Management";
         [RunOnClient]
         [WithEvents]
         UserTours: DotNet UserTours;

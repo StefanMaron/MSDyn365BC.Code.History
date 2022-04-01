@@ -50,7 +50,7 @@ page 1754 "Data Subject"
                 begin
                     if "Table Caption" <> '' then begin
                         DataPrivacyWizard.SetEntitityType(Rec, "Table Caption");
-                        DataPrivacyWizard.RUNMODAL;
+                        DataPrivacyWizard.RunModal();
                     end;
                 end;
             }

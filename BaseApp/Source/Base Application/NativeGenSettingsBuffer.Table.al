@@ -2,9 +2,14 @@ table 2840 "Native - Gen. Settings Buffer"
 {
     Caption = 'Native - Gen. Settings Buffer';
     ReplicateData = false;
+#if not CLEAN20    
     ObsoleteState = Pending;
-    ObsoleteReason = 'These objects will be removed';
     ObsoleteTag = '17.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
+    ObsoleteReason = 'These objects will be removed';
 
     fields
     {
@@ -127,10 +132,9 @@ table 2840 "Native - Gen. Settings Buffer"
     {
     }
 
+#if not CLEAN20
     var
         RecordMustBeTemporaryErr: Label 'General Settings Buffer must be used as a temporary record.';
-        CannotEnableCouponsSyncErr: Label 'Cannot enable coupons synchronization while Microsoft Graph synchronization is turned off.';
-        CannotSetWebhookSubscriptionUserErr: Label 'Cannot set the webhook subscription user.';
         CannotGetCompanyInformationErr: Label 'Cannot get the company information.';
         SyncOnlyAllowedInSaasErr: Label 'Microsoft Graph synchronization is only allowed in SaaS.';
         SyncNotAllowedInDemoCompanyErr: Label 'Microsoft Graph synchronization is not allowed in a demo company.';
@@ -139,10 +143,8 @@ table 2840 "Native - Gen. Settings Buffer"
     procedure LoadRecord()
     var
         CompanyInformation: Record "Company Information";
-        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
         TempNativeAPITaxSetup: Record "Native - API Tax Setup" temporary;
-        MarketingSetup: Record "Marketing Setup";
         PaypalAccountProxy: Codeunit "Paypal Account Proxy";
     begin
         if not IsTemporary then
@@ -169,21 +171,13 @@ table 2840 "Native - Gen. Settings Buffer"
 
         TempNativeAPITaxSetup.LoadSetupRecords;
         TempNativeAPITaxSetup.SetRange(Default, true);
-        if TempNativeAPITaxSetup.FindFirst then begin
+        if TempNativeAPITaxSetup.FindFirst() then begin
             "Default Tax ID" := TempNativeAPITaxSetup.Id;
             "Defauilt Tax Description" := TempNativeAPITaxSetup.Description;
         end;
 
         GetLanguageInfo;
         GetPaymentInfo;
-
-        if MarketingSetup.Get then begin
-            EnableSync := MarketingSetup."Sync with Microsoft Graph";
-            if EnableSync then begin
-                O365SalesInitialSetup.Get();
-                EnableSyncCoupons := O365SalesInitialSetup."Coupons Integration Enabled";
-            end;
-        end;
 
         Insert(true);
     end;
@@ -248,13 +242,8 @@ table 2840 "Native - Gen. Settings Buffer"
     end;
 
     local procedure UpdateSync()
-    var
-        MarketingSetup: Record "Marketing Setup";
     begin
         CheckSyncAllowed;
-
-        MarketingSetup.Get();
-        EnableSync := MarketingSetup."Sync with Microsoft Graph";
 
         if not EnableSync then
             EnableSyncCoupons := false;
@@ -262,17 +251,11 @@ table 2840 "Native - Gen. Settings Buffer"
 
     local procedure UpdateCouponsSync()
     var
-        MarketingSetup: Record "Marketing Setup";
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        if EnableSyncCoupons then begin
+        if EnableSyncCoupons then
             CheckSyncAllowed;
-            MarketingSetup.Get();
-            if not MarketingSetup."Sync with Microsoft Graph" then
-                Error(CannotEnableCouponsSyncErr);
-            if MarketingSetup.TrySetWebhookSubscriptionUser(UserSecurityId) then
-                Error(CannotSetWebhookSubscriptionUserErr);
-        end;
+
         O365SalesInitialSetup.Get();
         O365SalesInitialSetup."Coupons Integration Enabled" := EnableSyncCoupons;
         O365SalesInitialSetup.Modify(true);
@@ -372,5 +355,5 @@ table 2840 "Native - Gen. Settings Buffer"
 
         Error(SyncNotAllowedErr);
     end;
+#endif
 }
-

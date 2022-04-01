@@ -188,8 +188,11 @@ codeunit 423 "Change Log Management"
            DATABASE::"User Group Permission Set",
            9004, // Plan
            9005, // UserPlan
+#if not CLEAN20
            DATABASE::"Plan Permission Set",
+#endif
            DATABASE::"User Group Plan",
+           DATABASE::"Tenant Permission Set Rel.",
            DATABASE::"Tenant Permission Set",
            DATABASE::"Tenant Permission",
            Database::"Field Monitoring Setup"];
@@ -198,7 +201,7 @@ codeunit 423 "Change Log Management"
             OnAfterIsAlwaysLoggedTable(TableID, AlwaysLogTable);
     end;
 
-    local procedure InsertLogEntry(var FldRef: FieldRef; var xFldRef: FieldRef; var RecRef: RecordRef; TypeOfChange: Option Insertion,Modification,Deletion; IsReadable: Boolean)
+    local procedure InsertLogEntry(var FldRef: FieldRef; var xFldRef: FieldRef; var RecRef: RecordRef; TypeOfChange: Enum "Change Log Entry Type"; IsReadable: Boolean)
     var
         ChangeLogEntry: Record "Change Log Entry";
         KeyFldRef: FieldRef;
@@ -295,7 +298,7 @@ codeunit 423 "Change Log Management"
             if HasValue(FldRef) then
                 if IsNormalField(FldRef) then
                     if IsLogActive(RecRef.Number, FldRef.Number, 0) then
-                        InsertLogEntry(FldRef, FldRef, RecRef, 0, true);
+                        InsertLogEntry(FldRef, FldRef, RecRef, "Change Log Entry Type"::Insertion, true);
         end;
 
         OnAfterLogInsertion(RecRef);
@@ -331,7 +334,7 @@ codeunit 423 "Change Log Management"
             if IsNormalField(FldRef) then
                 if Format(FldRef.Value) <> Format(xFldRef.Value) then
                     if IsLogActive(RecRef.Number, FldRef.Number, 1) then
-                        InsertLogEntry(FldRef, xFldRef, RecRef, 1, IsReadable);
+                        InsertLogEntry(FldRef, xFldRef, RecRef, "Change Log Entry Type"::Modification, IsReadable);
         end;
 
         OnAfterLogModification(RecRef);
@@ -359,7 +362,7 @@ codeunit 423 "Change Log Management"
             if IsNormalField(FldRef) then
                 if Format(FldRef.Value) <> Format(xFldRef.Value) then
                     if IsLogActive(RecRef.Number, FldRef.Number, 1) then
-                        InsertLogEntry(FldRef, xFldRef, RecRef, 1, true);
+                        InsertLogEntry(FldRef, xFldRef, RecRef, "Change Log Entry Type"::Modification, true);
         end;
     end;
 
@@ -379,7 +382,7 @@ codeunit 423 "Change Log Management"
             if HasValue(FldRef) then
                 if IsNormalField(FldRef) then
                     if IsLogActive(RecRef.Number, FldRef.Number, 2) then
-                        InsertLogEntry(FldRef, FldRef, RecRef, 2, true);
+                        InsertLogEntry(FldRef, FldRef, RecRef, "Change Log Entry Type"::Deletion, true);
         end;
 
         OnAfterLogDeletion(RecRef);

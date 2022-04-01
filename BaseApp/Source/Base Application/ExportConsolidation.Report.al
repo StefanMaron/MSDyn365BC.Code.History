@@ -21,7 +21,7 @@ report 91 "Export Consolidation"
                     SetRange("Posting Date", "Posting Date");
                     OnBeforeGLEntryOnAfterGetRecord("G/L Entry", TempSelectedDim);
 
-                    if not TempSelectedDim.FindFirst then begin
+                    if not TempSelectedDim.FindFirst() then begin
                         CalcSums(
                           Amount, "Debit Amount", "Credit Amount",
                           "Add.-Currency Debit Amount", "Add.-Currency Credit Amount");
@@ -54,7 +54,7 @@ report 91 "Export Consolidation"
                             TempDimBufIn.DeleteAll();
                             DimSetEntry.Reset();
                             DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
-                            if DimSetEntry.FindSet then begin
+                            if DimSetEntry.FindSet() then begin
                                 repeat
                                     if TempSelectedDim.Get(UserId, 3, REPORT::"Export Consolidation", '', DimSetEntry."Dimension Code") then begin
                                         TempDimBufIn.Init();
@@ -82,7 +82,7 @@ report 91 "Export Consolidation"
                         until Next() = 0;
 
                         TempGLEntry.Reset();
-                        if TempGLEntry.FindSet then begin
+                        if TempGLEntry.FindSet() then begin
                             repeat
                                 TempDimBufOut.Reset();
                                 TempDimBufOut.DeleteAll();
@@ -176,7 +176,7 @@ report 91 "Export Consolidation"
                         TempSelectedDim.Init();
                         TempSelectedDim := SelectedDim;
                         TempDim.SetRange("Consolidation Code", SelectedDim."Dimension Code");
-                        if TempDim.FindFirst then
+                        if TempDim.FindFirst() then
                             TempSelectedDim."Dimension Code" := TempDim.Code;
                         TempSelectedDim.Insert();
                     until SelectedDim.Next() = 0;

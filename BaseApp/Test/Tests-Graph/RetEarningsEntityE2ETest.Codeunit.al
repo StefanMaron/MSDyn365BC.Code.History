@@ -24,7 +24,7 @@ codeunit 135526 "Ret. Earnings Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can retrieve Retained Earnings Statement Report information from the retainedEarningsStatement API.
-        Initialize;
+        Initialize();
 
         // [WHEN] A GET request is made to the retainedEarningsStatement API.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Retained Earnings Entity", ServiceNameTxt);
@@ -46,7 +46,7 @@ codeunit 135526 "Ret. Earnings Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a retainedEarningsStatement record through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a retainedEarningsStatement JSON object to send to the service.
         IncomeStatementEntityBufferJSON := IncomeStmtEntityE2ETest.GetIncomeStatementJSON(TempAccScheduleLineEntity);
@@ -64,7 +64,7 @@ codeunit 135526 "Ret. Earnings Entity E2E Test"
         if IsInitialized then
             exit;
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         IsInitialized := true;
     end;
 }

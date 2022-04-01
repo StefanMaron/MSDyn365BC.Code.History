@@ -64,6 +64,13 @@ page 126 "Cust. Ledg. Entries Preview"
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    Visible = false;
+                }
                 field("IC Partner Code"; "IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
@@ -413,7 +420,7 @@ page 126 "Cust. Ledg. Entries Preview"
 
     procedure Set(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var TempDetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry" temporary)
     begin
-        if TempCustLedgerEntry.FindSet then
+        if TempCustLedgerEntry.FindSet() then
             repeat
                 Rec := TempCustLedgerEntry;
                 Insert;
@@ -436,7 +443,7 @@ page 126 "Cust. Ledg. Entries Preview"
         OriginalAmountFCY := 0;
 
         TempDetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Entry No.");
-        if TempDetailedCustLedgEntry.FindSet then
+        if TempDetailedCustLedgEntry.FindSet() then
             repeat
                 if TempDetailedCustLedgEntry."Entry Type" = TempDetailedCustLedgEntry."Entry Type"::"Initial Entry" then begin
                     OriginalAmountFCY += TempDetailedCustLedgEntry.Amount;
@@ -467,7 +474,7 @@ page 126 "Cust. Ledg. Entries Preview"
                 TempDetailedCustLedgEntry.SetRange("Entry Type");
         end;
         DetCustLedgEntrPreview.Set(TempDetailedCustLedgEntry);
-        DetCustLedgEntrPreview.RunModal;
+        DetCustLedgEntrPreview.RunModal();
         Clear(DetCustLedgEntrPreview);
     end;
 }

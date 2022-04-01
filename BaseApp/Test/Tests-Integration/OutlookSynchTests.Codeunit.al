@@ -23,7 +23,7 @@ codeunit 139014 "Outlook Synch Tests"
     [Scope('OnPrem')]
     procedure ComputeHashEmptyInputTest()
     begin
-        Initialize;
+        Initialize();
 
         inputValue := '';
         hashValue := OsynchOutlookMgt.ComputeHash(inputValue);
@@ -34,7 +34,7 @@ codeunit 139014 "Outlook Synch Tests"
     [Scope('OnPrem')]
     procedure ComputeHashBase64InputTest()
     begin
-        Initialize;
+        Initialize();
 
         inputValue := 'MDAwMDAwMDAwQkQyRjNGNUQyNjA5MTQ3ODg2NjFCMzg2MEFEN0I0MjQ0MDEyMDAw';
         hashValue := OsynchOutlookMgt.ComputeHash(inputValue);
@@ -45,7 +45,7 @@ codeunit 139014 "Outlook Synch Tests"
     [Scope('OnPrem')]
     procedure ComputeHashXmlInputTest()
     begin
-        Initialize;
+        Initialize();
 
         inputValue := GetXmlString;
 
@@ -63,7 +63,7 @@ codeunit 139014 "Outlook Synch Tests"
         "count": Integer;
         ignoredRootLocalName: Text;
     begin
-        Initialize;
+        Initialize();
 
         inputValue := GetXmlString;
 
@@ -90,7 +90,7 @@ codeunit 139014 "Outlook Synch Tests"
         errorLogMessage: Text;
         dateTimeValue: DateTime;
     begin
-        Initialize;
+        Initialize();
 
         inputValue := GetXmlString;
         errorLogXMLWriter := errorLogXMLWriter.XmlTextWriter;
@@ -121,7 +121,7 @@ codeunit 139014 "Outlook Synch Tests"
         errorLogMessage: Text;
         dateTimeValue: DateTime;
     begin
-        Initialize;
+        Initialize();
 
         if not OsynchUserSetup.Get('TEST963') then begin
             OsynchUserSetup."User ID" := 'TEST963';
@@ -149,7 +149,7 @@ codeunit 139014 "Outlook Synch Tests"
         Assert.IsTrue(StrLen(errorLogMessage) > 26, 'Error is not the expected lenght : ' + Format(StrLen(errorLogMessage)));
         OsynchUserSetup."User ID" := 'TEST963';
         OsynchUserSetup."Synch. Entity Code" := 'CONT_SP';
-        if OsynchUserSetup.FindFirst then
+        if OsynchUserSetup.FindFirst() then
             OsynchUserSetup.Delete(true);
     end;
 
@@ -159,7 +159,7 @@ codeunit 139014 "Outlook Synch Tests"
     var
         OsynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
     begin
-        Initialize;
+        Initialize();
         Assert.IsFalse(OsynchNAVMgt.IsOSyncUser(''), 'The empty string is not a valid OSync user');
     end;
 
@@ -169,7 +169,7 @@ codeunit 139014 "Outlook Synch Tests"
     var
         OsynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
     begin
-        Initialize;
+        Initialize();
         Assert.IsFalse(OsynchNAVMgt.IsOSyncUser('UNCONFIGUREDUSER'), 'UNCONFIGUREDUSER is not a valid OSync user');
     end;
 
@@ -181,7 +181,7 @@ codeunit 139014 "Outlook Synch Tests"
         OsynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
         UserID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         UserID := 'CONFIGUREDUSER';
         OutlookSynchUserSetup.Init();
@@ -204,12 +204,12 @@ codeunit 139014 "Outlook Synch Tests"
         OutputText: Text;
     begin
         // [SCENARIO 267869] Option caption is formatted as text via PrepareFieldValueForXML codeunit Outlook Synch. Type Conv.
-        Initialize;
+        Initialize();
         Integer := LibraryRandom.RandIntInRange(0, GetNumberOfOptionsForFieldNo(Currency, Currency.FieldNo("Invoice Rounding Type")));
 
         // [GIVEN] Option field, having OptionString = 'Option1,Option2,Option3' and Option value is set equal to 'Option2'
         Currency.Init();
-        Currency.Code := LibraryUtility.GenerateGUID;
+        Currency.Code := LibraryUtility.GenerateGUID();
         Currency.Validate("Invoice Rounding Type", Integer);
         Currency.Insert(true);
 

@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="nl-BE" original="_Exclude_PlanConfiguration_">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 313345083 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Group Plan Assignment</source>
+          <target state="translated">Plantoewijzing van gebruikersgroep</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Custom User Group In Plan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 313345083 - Field 3997336476 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Name</source>
+          <target state="translated">Bedrijfsnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Custom User Group In Plan - Field Company Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 313345083 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Custom User Group In Plan - Field Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 313345083 - Field 2946131562 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Plan ID</source>
+          <target state="translated">Plan-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Custom User Group In Plan - Field Plan ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 313345083 - Field 43241205 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Group Code</source>
+          <target state="translated">Gebruikersgroepscode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Custom User Group In Plan - Field User Group Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 313345083 - Field 1341274843 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Group Name</source>
+          <target state="translated">Naam van gebruikersgroep</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Custom User Group In Plan - Field User Group Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 313345083 - NamedType 444996543" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The permission set %1 is contained in the user group %2. The line cannot be modified.</source>
+          <target state="translated">Gebruikersgroep %2 bevat machtigingenset %1. De regel kan niet worden gewijzigd.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = permssion set name like 'D365 READ'; %2 = list of user group names like 'D365 TEAM MEMBER'</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Custom User Group In Plan - NamedType PermissionSetInUserGroupErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3990268390 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Custom User Group In License</source>
+          <target state="translated">Aangepaste gebruikersgroep in licentie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Custom User Groups In Plan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3990268390 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company that the user group will have access to.</source>
+          <target state="translated">Hiermee wordt het bedrijf opgegeven waartoe de gebruikersgroep toegang heeft.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Custom User Groups In Plan - Control Company - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3990268390 - Control 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company</source>
+          <target state="translated">Bedrijf</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Custom User Groups In Plan - Control Company - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3990268390 - Control 4089890050 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID of the user group.</source>
+          <target state="translated">Hiermee wordt de id van de gebruikersgroep opgegeven.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Custom User Groups In Plan - Control User Group - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3990268390 - Control 4089890050 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <target state="translated">Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Custom User Groups In Plan - Control User Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3990268390 - Control 1341274843 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the user group.</source>
+          <target state="translated">Hiermee wordt de naam van de gebruikersgroep opgegeven.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Custom User Groups In Plan - Control User Group Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3990268390 - Control 1341274843 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Naam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Custom User Groups In Plan - Control User Group Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 819370542 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Default User Groups In Plan</source>
+          <target state="translated">Standaardgebruikersgroepen in plan</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Default User Groups In Plan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 819370542 - NamedType 3718791375" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>(first company sign-in)</source>
+          <target state="translated">(eerste bedrijfsaanmelding)</target>
+          <note from="Developer" annotates="general" priority="2">The brackets around should stay</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Default User Groups In Plan - NamedType FirstCompanyTok</note>
+        </trans-unit>
+        <trans-unit id="Page 819370542 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The user group will be assigned to the first company that a member of the user group signs in to.</source>
+          <target state="translated">De gebruikersgroep wordt toegewezen aan het eerste bedrijf waarbij een lid van de gebruikersgroep zich aanmeldt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Default User Groups In Plan - Control Company - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 819370542 - Control 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company</source>
+          <target state="translated">Bedrijf</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Default User Groups In Plan - Control Company - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 819370542 - Control 4089890050 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID of the user group.</source>
+          <target state="translated">Hiermee wordt de id van de gebruikersgroep opgegeven.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Default User Groups In Plan - Control User Group - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 819370542 - Control 4089890050 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Group</source>
+          <target state="translated">Gebruikersgroep</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Default User Groups In Plan - Control User Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 819370542 - Control 1341274843 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of the user group.</source>
+          <target state="translated">Hiermee wordt de beschrijving van de gebruikersgroep opgegeven.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Default User Groups In Plan - Control User Group Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 819370542 - Control 1341274843 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beschrijving</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Default User Groups In Plan - Control User Group Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 386858719 - Control 3479259577 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Default Permissions per License</source>
+          <target state="translated">Standaardmachtigingen per licentie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1267036282</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2551682546 - Control 2828533898 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Default User Groups</source>
+          <target state="translated">Standaardgebruikersgroepen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3152802593</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2551682546 - Control 436054703 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Custom User Groups</source>
+          <target state="translated">Aangepaste gebruikersgroepen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3152802593</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 821836542 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>License Configuration - Edit</source>
+          <target state="translated">Licentieconfiguratie - Bewerken</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Plan Configuration - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2483958804 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>License Configuration - Objects</source>
+          <target state="translated">Licentieconfiguratie - Objecten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Plan Configuration - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3329330328 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>License Configuration - Read</source>
+          <target state="translated">Licentieconfiguratie - Lezen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Plan Configuration - Read - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

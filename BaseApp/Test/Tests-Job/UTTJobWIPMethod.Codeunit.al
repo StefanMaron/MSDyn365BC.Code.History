@@ -88,7 +88,7 @@ codeunit 136354 "UT T Job WIP Method"
         with JobWIPMethod do begin
             // Verify that system defined entries can't be modified.
             SetRange("System Defined", true);
-            FindFirst;
+            FindFirst();
             asserterror Validate(Code, 'Test');
             asserterror Validate(Description, 'Test');
             asserterror Validate("WIP Cost", not "WIP Cost");
@@ -124,14 +124,14 @@ codeunit 136354 "UT T Job WIP Method"
             CreateUserDefinedEntry(JobWIPMethod);
             SetRange("System Defined", false);
             SetFilter("Recognized Costs", '<> %1', "Recognized Costs"::"Usage (Total Cost)");
-            if FindFirst then
+            if FindFirst() then
                 asserterror Validate("WIP Cost", false);
 
             // Verify that you can uncheck WIP Costs, if "Recognized Costs" is "Usage (Total Cost)"
             Reset;
             CreateUserDefinedEntry(JobWIPMethod);
             SetRange("System Defined", false);
-            FindFirst;
+            FindFirst();
             Validate("Recognized Costs", "Recognized Costs"::"Usage (Total Cost)");
             Validate("WIP Cost", false);
         end;
@@ -148,14 +148,14 @@ codeunit 136354 "UT T Job WIP Method"
             CreateUserDefinedEntry(JobWIPMethod);
             SetRange("System Defined", false);
             SetFilter("Recognized Sales", '<> %1', "Recognized Sales"::"Contract (Invoiced Price)");
-            if FindFirst then
+            if FindFirst() then
                 asserterror Validate("WIP Sales", false);
 
             // Verify that you can uncheck WIP Sales, if "Recognized Sales" is "Contract (Invoiced Price)"
             Reset;
             CreateUserDefinedEntry(JobWIPMethod);
             SetRange("System Defined", false);
-            FindFirst;
+            FindFirst();
             Validate("Recognized Sales", "Recognized Sales"::"Contract (Invoiced Price)");
             Validate("WIP Sales", false);
         end;

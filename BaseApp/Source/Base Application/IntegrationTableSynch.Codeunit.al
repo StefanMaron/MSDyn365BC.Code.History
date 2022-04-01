@@ -273,6 +273,38 @@ codeunit 5335 "Integration Table Synch."
     end;
 
     [Scope('OnPrem')]
+    procedure CoupleOption(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef): Boolean
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+        SynchAction: Option;
+    begin
+        EnsureState(JobState::Created);
+        Commit();
+
+        if JobState = JobState::Created then begin
+            JobState := JobState::"In Progress";
+            CurrentIntegrationSynchJob."Synch. Direction" := CurrentIntegrationTableMapping.Direction;
+            CurrentIntegrationSynchJob.Modify(true);
+            TempIntegrationFieldMapping.Reset();
+            TempIntegrationFieldMapping.DeleteAll();
+            Commit();
+        end else
+            if CurrentIntegrationTableMapping.Direction <> CurrentIntegrationSynchJob."Synch. Direction" then
+                Error(DirectionChangeIsNotSupportedErr);
+
+        SynchAction := SynchActionType::Couple;
+
+        if not CRMOptionMapping.InsertRecord(LocalRecordRef.RecordId, CRMOptionMapping.GetRecordRefOptionId(IntegrationRecordRef), CRMOptionMapping.GetRecordRefOptionValue(IntegrationRecordRef)) then begin
+            SynchAction := SynchActionType::Fail;
+            LogSynchError(LocalRecordRef, IntegrationRecordRef, GetLastErrorText());
+            exit(false);
+        end;
+
+        IncrementSynchJobCounters(SynchAction);
+        exit(true);
+    end;
+
+    [Scope('OnPrem')]
     procedure LogMatchBasedCouplingError(var LocalRecordRef: RecordRef; ErrorMessage: Text)
     var
         IntegrationRecordRef: RecordRef;
@@ -558,8 +590,72 @@ codeunit 5335 "Integration Table Synch."
         exit(IntegrationRecordManagement.IsIntegrationRecordSkipped(IntegrationTableConnectionType, RecRef, DirectionToIntTable));
     end;
 
+    procedure SynchronizeOption(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; ForceModify: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean): Boolean
+    var
+        IntOptionSynchInvoke: Codeunit "Int. Option Synch. Invoke";
+        SynchAction: Option;
+        IsHandled: Boolean;
+    begin
+        OnBeforeSynchronizeOption(SourceRecordRef, DestinationRecordRef, ForceModify, IgnoreSynchOnlyCoupledRecords, IsHandled);
+        if IsHandled then
+            exit(true);
+
+        EnsureState(JobState::Created);
+        // Ready to synch.
+        Commit();
+
+        // First synch. fixes direction
+        if JobState = JobState::Created then begin
+            JobState := JobState::"In Progress";
+            CurrentIntegrationSynchJob."Synch. Direction" := CurrentIntegrationTableMapping.Direction;
+            CurrentIntegrationSynchJob.Modify(true);
+            Commit();
+        end else
+            if CurrentIntegrationTableMapping.Direction <> CurrentIntegrationSynchJob."Synch. Direction" then
+                Error(DirectionChangeIsNotSupportedErr);
+
+        if ForceModify then
+            SynchAction := SynchActionType::ForceModify
+        else
+            SynchAction := SynchActionType::Skip;
+
+        if SourceRecordRef.Count <> 0 then begin
+            if IsOptionSkipped(SourceRecordRef, SourceRecordRef.Number() = CurrentIntegrationTableMapping."Table ID") then
+                SynchAction := SynchActionType::Skip
+            else begin
+                IntOptionSynchInvoke.SetContext(
+                  CurrentIntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, IgnoreSynchOnlyCoupledRecords, CurrentIntegrationSynchJob.ID);
+                if not IntOptionSynchInvoke.Run() then begin
+                    SynchAction := SynchActionType::Fail;
+                    LogSynchError(SourceRecordRef, DestinationRecordRef, GetLastErrorText(), false);
+                    IntOptionSynchInvoke.MarkOptionMappingAsFailed(
+                      CurrentIntegrationTableMapping, SourceRecordRef, CurrentIntegrationSynchJob.ID, SynchAction);
+                    IncrementSynchJobCounters(SynchAction);
+                    exit(false);
+                end;
+                IntOptionSynchInvoke.GetContext(
+                  CurrentIntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction);
+            end;
+            IncrementSynchJobCounters(SynchAction);
+        end;
+
+        exit(true);
+    end;
+
+    local procedure IsOptionSkipped(RecRef: RecordRef; DirectionToIntTable: Boolean): Boolean
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+    begin
+        exit(CRMOptionMapping.IsOptionMappingSkipped(RecRef, DirectionToIntTable));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSynchronize(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var ForceModify: Boolean; var IgnoreSynchOnlyCoupledRecords: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSynchronizeOption(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var ForceModify: Boolean; var IgnoreSynchOnlyCoupledRecords: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -101,6 +101,10 @@ table 339 "Item Application Entry"
         key(Key6; "Item Ledger Entry No.", "Output Completely Invd. Date")
         {
         }
+        key(Key9; "Inbound Item Entry No.", "Transferred-from Entry No.", "Item Ledger Entry No.")
+        {
+            IncludedFields = "Outbound Item Entry No.", "Posting Date", Quantity;
+        }
     }
 
     fieldgroups
@@ -245,7 +249,7 @@ table 339 "Item Application Entry"
         EntryNo: Integer;
     begin
         ItemApplnEntryHistory.SetCurrentKey("Primary Entry No.");
-        if not ItemApplnEntryHistory.FindLast then
+        if not ItemApplnEntryHistory.FindLast() then
             EntryNo := 1;
         EntryNo := ItemApplnEntryHistory."Primary Entry No.";
         ItemApplnEntryHistory.TransferFields(Rec, true);
@@ -307,7 +311,7 @@ table 339 "Item Application Entry"
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
         if MaxValuationDate <> 0D then
             ItemLedgEntry.SetRange("Posting Date", 0D, MaxValuationDate);
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 if TrackChain then
                     if not ItemLedgEntryInChainNo.Get(ItemLedgEntry."Entry No.") then begin
@@ -345,7 +349,7 @@ table 339 "Item Application Entry"
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Assembly Output");
         if MaxValuationDate <> 0D then
             ItemLedgEntry.SetRange("Posting Date", 0D, MaxValuationDate);
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 if TrackChain then
                     if not ItemLedgEntryInChainNo.Get(ItemLedgEntry."Entry No.") then begin
@@ -473,22 +477,15 @@ table 339 "Item Application Entry"
     var
         ToItemLedgEntry: Record "Item Ledger Entry";
         DummyItemLedgEntry: Record "Item Ledger Entry";
-        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
         ValueEntry: Record "Value Entry";
+        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
     begin
         MaxValuationDate := 0D;
         if WithinValuationDate then begin
             ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Valuation Date");
             ValueEntry.SetRange("Item Ledger Entry No.", FromItemLedgEntry."Entry No.");
-            ValueEntry.FindLast;
-            AvgCostAdjmtEntryPoint.SetRange("Item No.", FromItemLedgEntry."Item No.");
-            if not AvgCostAdjmtEntryPoint.IsAvgCostCalcTypeItem(ValueEntry."Valuation Date") then begin
-                AvgCostAdjmtEntryPoint.SetRange("Variant Code", FromItemLedgEntry."Variant Code");
-                AvgCostAdjmtEntryPoint.SetRange("Location Code", FromItemLedgEntry."Location Code");
-            end;
-            AvgCostAdjmtEntryPoint.SetRange("Valuation Date", ValueEntry."Valuation Date", DMY2Date(31, 12, 9999));
-            if AvgCostAdjmtEntryPoint.FindFirst then
-                MaxValuationDate := AvgCostAdjmtEntryPoint."Valuation Date"
+            ValueEntry.FindLast();
+            MaxValuationDate := AvgCostEntryPointHandler.GetMaxValuationDate(FromItemLedgEntry, ValueEntry);
         end;
 
         TrackChain := true;
@@ -497,7 +494,7 @@ table 339 "Item Application Entry"
         DummyItemLedgEntry.Init();
         DummyItemLedgEntry."Entry No." := -1;
         CheckIsCyclicalLoop(DummyItemLedgEntry, FromItemLedgEntry);
-        if ItemLedgEntryInChainNo.FindSet then
+        if ItemLedgEntryInChainNo.FindSet() then
             repeat
                 ToItemLedgEntry.Get(ItemLedgEntryInChainNo.Number);
                 ItemLedgEntryInChain := ToItemLedgEntry;
@@ -520,7 +517,7 @@ table 339 "Item Application Entry"
         Applications.SetRange("Outbound Item Entry No.", EntryNo);
         Applications.SetRange("Item Ledger Entry No.", EntryNo);
         Quantity := 0;
-        if Applications.FindSet then
+        if Applications.FindSet() then
             repeat
                 if ItemEntry.Get(Applications."Inbound Item Entry No.") then
                     if SameType then begin
@@ -549,7 +546,7 @@ table 339 "Item Application Entry"
         if OriginalEntry.Quantity < 0 then
             Applications.SetRange("Item Ledger Entry No.", EntryNo);
         Quantity := 0;
-        if Applications.FindSet then
+        if Applications.FindSet() then
             repeat
                 if ItemEntry.Get(Applications."Outbound Item Entry No.") then
                     if SameType then begin
@@ -611,7 +608,7 @@ table 339 "Item Application Entry"
         ItemApplnEntry.SetRange("Outbound Item Entry No.", ItemLedgEntry."Entry No.");
         if ItemLedgEntry."Completely Invoiced" then
             if ItemApplnEntry.Count = 1 then begin
-                ItemApplnEntry.FindFirst;
+                ItemApplnEntry.FindFirst();
                 ItemApplnEntry."Outbound Entry is Updated" := true;
                 ItemApplnEntry.Modify();
             end;
@@ -648,7 +645,7 @@ table 339 "Item Application Entry"
             exit(true);
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Valuation Date");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        ValueEntry.FindLast;
+        ValueEntry.FindLast();
         exit(ValueEntry."Valuation Date" <= MaxDate);
     end;
 

@@ -25,8 +25,7 @@ report 5899 "Calculate Inventory Value"
 
                 if (CalculatePer = CalculatePer::Item) and ("Costing Method" = "Costing Method"::Average) then begin
                     CalendarPeriod."Period Start" := PostingDate;
-                    AvgCostAdjmtPoint."Valuation Date" := PostingDate;
-                    AvgCostAdjmtPoint.GetValuationPeriod(CalendarPeriod);
+                    AvgCostEntryPointHandler.GetValuationPeriod(CalendarPeriod, PostingDate);
                     if PostingDate <> CalendarPeriod."Period End" then
                         Error(Text011, "No.", PostingDate, CalendarPeriod."Period End");
                 end;
@@ -161,7 +160,7 @@ report 5899 "Calculate Inventory Value"
                     if ItemJnlBatch."No. Series" <> '' then begin
                         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
                         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
-                        if not ItemJnlLine.FindFirst then
+                        if not ItemJnlLine.FindFirst() then
                             NextDocNo := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", PostingDate, false);
                         ItemJnlLine.Init();
                     end;
@@ -308,11 +307,11 @@ report 5899 "Calculate Inventory Value"
         SourceCodeSetup: Record "Source Code Setup";
         Location: Record Location;
         ItemVariant: Record "Item Variant";
-        AvgCostAdjmtPoint: Record "Avg. Cost Adjmt. Entry Point";
         CalendarPeriod: Record Date;
         CalcInvtValCheck: Codeunit "Calc. Inventory Value-Check";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         CalculateStdCost: Codeunit "Calculate Standard Cost";
+        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         Window: Dialog;
         CalculatePer: Option "Item Ledger Entry",Item;
         CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
@@ -562,7 +561,7 @@ report 5899 "Calculate Inventory Value"
                 LockTable();
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");
-                if FindLast then
+                if FindLast() then
                     NextLineNo := "Line No.";
             end;
 

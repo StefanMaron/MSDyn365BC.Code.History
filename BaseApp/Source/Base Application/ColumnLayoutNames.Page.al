@@ -62,7 +62,7 @@ page 488 "Column Layout Names"
                     ColumnLayout: Page "Column Layout";
                 begin
                     ColumnLayout.SetColumnLayoutName(Name);
-                    ColumnLayout.Run;
+                    ColumnLayout.Run();
                 end;
             }
         }

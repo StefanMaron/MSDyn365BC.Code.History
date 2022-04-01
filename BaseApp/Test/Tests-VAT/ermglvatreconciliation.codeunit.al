@@ -28,7 +28,7 @@ codeunit 134991 "ERM  G/L - VAT Reconciliation"
         GLAccountNo: array[4] of Code[20];
     begin
         // [SCENARIO] The SetGLAccountNo function correctly sets the G/L Account Number field for VAT Entries when it is called with the WithUI parameter set to false
-        Initialize;
+        Initialize();
 
         // [GIVEN] 4 G/L Entry - VAT Entry Links, where two of them refer to VAT Entries whose G/L Account Number field is blank
         CreateVATEntriesGLEntriesWithLink(GLAccountNo, TransactionNo);
@@ -49,7 +49,7 @@ codeunit 134991 "ERM  G/L - VAT Reconciliation"
         GLAccountNo: array[4] of Code[20];
     begin
         // [SCENARIO] The SetGLAccountNo function is called with the parameter WithUI set to true, but the action is declined in the confirm dialog
-        Initialize;
+        Initialize();
 
         // [GIVEN] 4 G/L Entry - VAT Entry Links, where two of them refer to VAT Entries whose G/L Account Number field is blank
         CreateVATEntriesGLEntriesWithLink(GLAccountNo, TransactionNo);
@@ -73,7 +73,7 @@ codeunit 134991 "ERM  G/L - VAT Reconciliation"
         GLAccountNo: array[4] of Code[20];
     begin
         // [SCENARIO] The SetGLAccountNo function is called with the parameter WithUI set to true and the action is confirmed in the confirm dialog
-        Initialize;
+        Initialize();
 
         // [GIVEN] 4 G/L Entry - VAT Entry Links, where two of them refer to VAT Entries whose G/L Account Number field is blank
         CreateVATEntriesGLEntriesWithLink(GLAccountNo, TransactionNo);
@@ -95,7 +95,7 @@ codeunit 134991 "ERM  G/L - VAT Reconciliation"
         GLAccountNo: array[4] of Code[20];
     begin
         // [SCENARIO] "Set G/L Account No." action is invoked from the "VAT Entries" page and the action is confirmed
-        Initialize;
+        Initialize();
 
         // [GIVEN] 4 G/L Entry - VAT Entry Links, where two of them refer to VAT Entries whose G/L Account Number field is blank
         CreateVATEntriesGLEntriesWithLink(GLAccountNo, TransactionNo);

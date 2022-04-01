@@ -30,6 +30,8 @@ codeunit 137082 "SCM Manufacturing - Routings"
         CannotDeleteWorkMachineCenterErr: Label 'You cannot delete %1 %2 because there is at least one %3 associated with it.';
         WorkMachineCenterNotExistErr: Label 'Operation no. %1 uses %2 no. %3 that no longer exists.', Comment = '%1 - Routing Line Operation No.; %2 - Work Center or Machine Center table caption; %3 - Work or Machine Center No.';
         BlockedMustBeNoErr: Label 'Blocked must be equal to ''No''  in %1: No.=%2';
+        ActionMustBeDisabledErr: Label 'Action must be disabled';
+        ActionMustBeEnabledErr: Label 'Action must be enabled';
 
     [Test]
     [Scope('OnPrem')]
@@ -43,7 +45,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Serial Routing]
         // [SCENARIO 221561] Certification of a serial routing should update sequence numbers on routing operations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a serial routing with 3 operations
         // [GIVEN] 1 -> 2 -> 3
@@ -88,7 +90,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 221561] Certification of a parallel routing should update sequence numbers on routing operations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a parallel routing with 3 operations
         // [GIVEN] 1 -> 2 -> 3
@@ -132,7 +134,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 221561] Two parallel operations should receive the same sequence no. on certifying a routing
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a parallel routing with 4 operations
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -186,7 +188,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 221561] Verify sequence numbers on two parallel executions paths having different number of operations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a parallel routing with 5 operations
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -247,7 +249,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 340158] Sequence numbers on two parallel execution paths of different lengths, long way points to short way.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a parallel routing with 5 operations
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -305,7 +307,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 340158] Sequence numbers on two parallel execution paths of different lengths, short way points to long way.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a parallel routing with 5 operations
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -363,7 +365,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 340158] Sequence numbers on multiple parallel execution paths of different lengths. "Next Operation No." contains filter 2..5
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a parallel routing with 5 operations
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -428,7 +430,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 221561] Verify sequence numbers on two parallel execution paths with cross-sections
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Parallel routing with the following structure
         // [GIVEN]    1
@@ -492,7 +494,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 221561] Certification of a parallel routing should fail if "Next Operation No." is not filled on operations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a parallel routing without filling the "Next Operation No." field
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -521,7 +523,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 221561] Certification of a parallel routing should fail with an error message if the routing setup contains circular reference
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a parallel routing with 3 operations
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -556,7 +558,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 221561] Certification of a parallel routing should fail if no starting operation is specified in the routing setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create parallel routing with two operations, set "Next Operation No." in both lines
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -566,8 +568,8 @@ codeunit 137082 "SCM Manufacturing - Routings"
         LibraryManufacturing.CreateRoutingLine(
           RoutingHeader, RoutingLine[2], '', LibraryUtility.GenerateGUID, RoutingLine[2].Type::"Work Center", WorkCenter."No.");
 
-        SetNextOperationNo(RoutingLine[1], LibraryUtility.GenerateGUID);
-        SetNextOperationNo(RoutingLine[2], LibraryUtility.GenerateGUID);
+        SetNextOperationNo(RoutingLine[1], LibraryUtility.GenerateGUID());
+        SetNextOperationNo(RoutingLine[2], LibraryUtility.GenerateGUID());
 
         // [WHEN] Certify the routing
         asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
@@ -588,7 +590,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 221561] Certification of a parallel routing should fail if the routing setup contains two starting operations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create parallel routing with 3 operations
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -623,7 +625,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 221561] Certification of a parallel routing should fail if the routing setup contains two terminal operations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create parallel routing with 3 operations
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
@@ -660,7 +662,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Performance] [Parallel Routing]
         // [SCENARIO 221561] Calculation of routing operations sequence should have linear performance
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Parallel routing with the following structure
         // [GIVEN]     1
@@ -723,7 +725,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing] [Capacity]
         // [SCENARIO 272988] Production order routing line is recalculated when the work center is changed for the parallel routing
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two work centers: "W1" with "Unit Cost" = 10, and "W2" with "Unit Cost" = 20 and "Overhead Rate" = 5
         CreateWorkCenterWithCost(WorkCenter[1], LibraryRandom.RandInt(10), 0);
@@ -744,7 +746,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(100));
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderRoutingLine.SetRange("Operation No.", '100');
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
 
         // [WHEN] Open the prod. order routing and change the work center from "W1" to "W2"
         ProdOrderRoutingLine.Validate("No.", WorkCenter[2]."No.");
@@ -773,7 +775,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [FEATURE] [Parallel Routing]
         // [SCENARIO 272988] Recalculation of the production order routing line is not triggered when a work center is selected in the new line for a parallel routing
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Parallel routing with two operations: "100" and "200"
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
@@ -791,7 +793,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [GIVEN] Create new prod. order routing line for the same production order. The line does not have operation sequence defined, and thus would cause an error on capacity calculation
         ProdOrderRoutingLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         ProdOrderRoutingLine.Init();
         ProdOrderRoutingLine.Validate("Operation No.", '150');
         ProdOrderRoutingLine.Insert(true);
@@ -812,7 +814,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         CaptionText: Text;
     begin
         // [SCENARIO 308562] Caption method throws OverflowError
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created "Routing Header" with MAXSTRLEN "No." and Description fields
         CreateRtngHeaderWithMaxStrlen(RoutingHeader);
@@ -844,7 +846,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         // [FEATURE] [Item Tracking] [Order] [Status]
         // [SCENARIO 320285] Change status for Production Order which has Lot Tracked Item with Routing having multiple Lines with Flushing Method Forward
-        Initialize;
+        Initialize();
 
         // [GIVEN] Certified Routing with two sequent Lines, each had Work Center with Flushing Method Forward
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
@@ -879,9 +881,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [GIVEN] Fully tracked Prod. Order Line (done in ItemTrackingLinesModalPageHandler)
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::SetLotNo);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(ProdOrderLine."Quantity (Base)");
         ProdOrderLine.OpenItemTrackingLines();
 
@@ -891,7 +893,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [THEN] Released Production Order for the Item is created
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", Item."No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         ProductionOrder.TestField(Status, ProductionOrder.Status::Released);
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -910,7 +912,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [GIVEN] Work Center "WKC"
         WorkCenter.Init();
-        WorkCenter."No." := LibraryUtility.GenerateGUID;
+        WorkCenter."No." := LibraryUtility.GenerateGUID();
         WorkCenter.Insert();
 
         // [GIVEN] Certified Routing "ROUT" with Routing Line for Work Center "WKC"
@@ -941,7 +943,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [GIVEN] Work Center "WKC"
         WorkCenter.Init();
-        WorkCenter."No." := LibraryUtility.GenerateGUID;
+        WorkCenter."No." := LibraryUtility.GenerateGUID();
         WorkCenter.Insert();
 
         // [GIVEN] Non-certified Routing "ROUT"
@@ -976,7 +978,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [GIVEN] Machine Center "MC"
         MachineCenter.Init();
-        MachineCenter."No." := LibraryUtility.GenerateGUID;
+        MachineCenter."No." := LibraryUtility.GenerateGUID();
         MachineCenter.Insert();
 
         // [GIVEN] Certified Routing "ROUT" with Routing Line for Machine Center "MC"
@@ -1007,7 +1009,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [GIVEN] Machine Center "MC"
         MachineCenter.Init();
-        MachineCenter."No." := LibraryUtility.GenerateGUID;
+        MachineCenter."No." := LibraryUtility.GenerateGUID();
         MachineCenter.Insert();
 
         // [GIVEN] Non-certified Routing "ROUT"
@@ -1386,6 +1388,124 @@ codeunit 137082 "SCM Manufacturing - Routings"
         CapacityLedgerEntry.TestField("Concurrent Capacity", ProdOrderRoutingLine."Concurrent Capacities");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoutingLineRelatedActionsEmptyOperationNo()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        RoutingPage: TestPage Routing;
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 418887] Routing line related actions are disabled for routing line with empty "Operation No." on Routing page
+        Initialize();
+
+        // [GIVEN] Create routing "R" 
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        // [GIVEN] Mock routing line with empty "Operation No."
+        MockRoutingLineOperationNo(RoutingLine, RoutingHeader."No.", '', '');
+
+        // [WHEN] Routing page is being opened for "R"
+        RoutingPage.OpenEdit();
+        RoutingPage.Filter.SetFilter("No.", RoutingHeader."No.");
+
+        // [THEN] Line related actions are disabled
+        Assert.IsFalse(RoutingPage.RoutingLine."Co&mments".Enabled(), ActionMustBeDisabledErr);
+        Assert.IsFalse(RoutingPage.RoutingLine."&Tools".Enabled(), ActionMustBeDisabledErr);
+        Assert.IsFalse(RoutingPage.RoutingLine."&Personnel".Enabled(), ActionMustBeDisabledErr);
+        Assert.IsFalse(RoutingPage.RoutingLine."&Quality Measures".Enabled(), ActionMustBeDisabledErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoutingLineRelatedActionsNotEmptyOperationNo()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        RoutingPage: TestPage Routing;
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 418887] Routing line related actions are enabled for routing line with not empty "Operation No." on Routing page
+        Initialize();
+
+        // [GIVEN] Create routing "R" 
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        // [GIVEN] Mock routing line with not empty "Operation No."
+        MockRoutingLineOperationNo(RoutingLine, RoutingHeader."No.", '', LibraryUtility.GenerateGUID());
+
+        // [WHEN] Routing page is being opened for "R"
+        RoutingPage.OpenEdit();
+        RoutingPage.Filter.SetFilter("No.", RoutingHeader."No.");
+
+        // [THEN] Line related actions are enabled
+        Assert.IsTrue(RoutingPage.RoutingLine."Co&mments".Enabled(), ActionMustBeEnabledErr);
+        Assert.IsTrue(RoutingPage.RoutingLine."&Tools".Enabled(), ActionMustBeEnabledErr);
+        Assert.IsTrue(RoutingPage.RoutingLine."&Personnel".Enabled(), ActionMustBeEnabledErr);
+        Assert.IsTrue(RoutingPage.RoutingLine."&Quality Measures".Enabled(), ActionMustBeEnabledErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoutingVersionLineRelatedActionsEmptyOperationNo()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingVersion: Record "Routing Version";
+        RoutingLine: Record "Routing Line";
+        RoutingVersionPage: TestPage "Routing Version";
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 418887] Routing line related actions are disabled for routing line with empty "Operation No." on Routing Version page
+        Initialize();
+
+        // [GIVEN] Create routing "R" 
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        // [GIVEN] Create routing version "RV" 
+        LibraryManufacturing.CreateRoutingVersion(RoutingVersion, RoutingHeader."No.", Format(LibraryRandom.RandInt(5)));
+        // [GIVEN] Mock routing line with empty "Operation No."
+        MockRoutingLineOperationNo(RoutingLine, RoutingHeader."No.", RoutingVersion."Version Code", '');
+
+        // [WHEN] Routing version page is being opened for "RV"
+        RoutingVersionPage.OpenEdit();
+        RoutingVersionPage.Filter.SetFilter("Routing No.", RoutingHeader."No.");
+
+        // [THEN] Line related actions are disabled
+        Assert.IsFalse(RoutingVersionPage.RoutingLine."Co&mments".Enabled(), ActionMustBeDisabledErr);
+        Assert.IsFalse(RoutingVersionPage.RoutingLine.Tools.Enabled(), ActionMustBeDisabledErr);
+        Assert.IsFalse(RoutingVersionPage.RoutingLine.Personnel.Enabled(), ActionMustBeDisabledErr);
+        Assert.IsFalse(RoutingVersionPage.RoutingLine."Quality Measures".Enabled(), ActionMustBeDisabledErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoutingVersionLineRelatedActionsNotEmptyOperationNo()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingVersion: Record "Routing Version";
+        RoutingLine: Record "Routing Line";
+        RoutingVersionPage: TestPage "Routing Version";
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 418887] Routing line related actions are enabled for routing line with not empty "Operation No." on Routing Version page
+        Initialize();
+
+        // [GIVEN] Create routing "R" 
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        // [GIVEN] Create routing version "RV" 
+        LibraryManufacturing.CreateRoutingVersion(RoutingVersion, RoutingHeader."No.", Format(LibraryRandom.RandInt(5)));
+        // [GIVEN] Mock routing line with not empty "Operation No."
+        MockRoutingLineOperationNo(RoutingLine, RoutingHeader."No.", RoutingVersion."Version Code", LibraryUtility.GenerateGUID());
+
+        // [WHEN] Routing version page is being opened for "RV"
+        RoutingVersionPage.OpenEdit();
+        RoutingVersionPage.Filter.SetFilter("Routing No.", RoutingHeader."No.");
+
+        // [THEN] Line related actions are enabled
+        Assert.IsTrue(RoutingVersionPage.RoutingLine."Co&mments".Enabled(), ActionMustBeEnabledErr);
+        Assert.IsTrue(RoutingVersionPage.RoutingLine.Tools.Enabled(), ActionMustBeEnabledErr);
+        Assert.IsTrue(RoutingVersionPage.RoutingLine.Personnel.Enabled(), ActionMustBeEnabledErr);
+        Assert.IsTrue(RoutingVersionPage.RoutingLine."Quality Measures".Enabled(), ActionMustBeEnabledErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing - Routings");
@@ -1513,7 +1633,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
             SetRange("Object ID", ObjectID);
             SetFilter("No. of Hits", '>%1', 0);
             SetFilter(Line, '@*' + CodeLine + '*');
-            if FindSet then
+            if FindSet() then
                 repeat
                     NoOfHits += "No. of Hits";
                 until Next = 0;
@@ -1523,7 +1643,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     local procedure MockRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
     begin
         RoutingHeader.Init();
-        RoutingHeader."No." := LibraryUtility.GenerateGUID;
+        RoutingHeader."No." := LibraryUtility.GenerateGUID();
         RoutingHeader.Status := Status;
         RoutingHeader.Insert();
     end;
@@ -1532,7 +1652,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         RoutingVersion.Init();
         RoutingVersion."Routing No." := RoutingNo;
-        RoutingVersion."Version Code" := LibraryUtility.GenerateGUID;
+        RoutingVersion."Version Code" := LibraryUtility.GenerateGUID();
         RoutingVersion.Status := Status;
         RoutingVersion.Insert();
     end;
@@ -1542,9 +1662,18 @@ codeunit 137082 "SCM Manufacturing - Routings"
         RoutingLine.Init();
         RoutingLine."Routing No." := RoutingNo;
         RoutingLine."Version Code" := VersionCode;
-        RoutingLine."Operation No." := LibraryUtility.GenerateGUID;
+        RoutingLine."Operation No." := LibraryUtility.GenerateGUID();
         RoutingLine.Type := Type;
         RoutingLine."No." := No;
+        RoutingLine.Insert();
+    end;
+
+    local procedure MockRoutingLineOperationNo(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; VersionCode: Code[20]; OperationNo: Code[10])
+    begin
+        RoutingLine.Init();
+        RoutingLine."Routing No." := RoutingNo;
+        RoutingLine."Version Code" := VersionCode;
+        RoutingLine."Operation No." := OperationNo;
         RoutingLine.Insert();
     end;
 

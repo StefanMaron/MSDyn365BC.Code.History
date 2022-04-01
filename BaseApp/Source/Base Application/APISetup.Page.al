@@ -198,6 +198,21 @@ page 5469 "API Setup"
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Document Shortcut Dim.");
                 end;
             }
+            action(FixItemCategoryCode)
+            {
+                ApplicationArea = All;
+                Caption = 'Fix Item Category Codes of Items';
+                Image = Setup;
+                Promoted = false;
+                ToolTip = 'Updates the item category codes of the item records';
+
+                trigger OnAction()
+                var
+                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+                begin
+                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Item Cat. Code");
+                end;
+            }
         }
     }
 

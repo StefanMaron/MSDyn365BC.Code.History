@@ -197,7 +197,7 @@ page 7118 "Purchase Analysis Report"
                             ExportAnalysisRepToExcel: Report "Export Analysis Rep. to Excel";
                         begin
                             ExportAnalysisRepToExcel.SetOptions(Rec, CurrentColumnTemplate, CurrentLineTemplate);
-                            ExportAnalysisRepToExcel.Run;
+                            ExportAnalysisRepToExcel.Run();
                         end;
                     }
                     action("Update Existing Document")
@@ -213,7 +213,7 @@ page 7118 "Purchase Analysis Report"
                         begin
                             ExportAnalysisRepToExcel.SetOptions(Rec, CurrentColumnTemplate, CurrentLineTemplate);
                             ExportAnalysisRepToExcel.SetUpdateExistingWorksheet(true);
-                            ExportAnalysisRepToExcel.Run;
+                            ExportAnalysisRepToExcel.Run();
                         end;
                     }
                 }
@@ -279,7 +279,7 @@ page 7118 "Purchase Analysis Report"
                     Clear(PurchAnalysisMatrix);
                     PurchAnalysisMatrix.Load(AnalysisColumn, MatrixColumnCaptions, FirstLineNo, LastLineNo);
                     PurchAnalysisMatrix.SetTableView(AnalysisLine);
-                    PurchAnalysisMatrix.RunModal;
+                    PurchAnalysisMatrix.Run();
                 end;
             }
             action("Previous Set")

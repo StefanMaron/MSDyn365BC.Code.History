@@ -61,7 +61,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         if ItemNo <> '' then begin
             SalesLine.SetRange("No.", ItemNo);
-            if SalesLine.FindFirst then
+            if SalesLine.FindFirst() then
                 Assert.AreEqual(ExpectedQty, SalesLine.Quantity, 'Wrong quantity on sales line.')
             else
                 Assert.AreEqual(ExpectedQty, 0, 'No sales line found.');
@@ -160,7 +160,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", Item2."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual('abc', SalesLine.Description, 'Description has changed');
     end;
 

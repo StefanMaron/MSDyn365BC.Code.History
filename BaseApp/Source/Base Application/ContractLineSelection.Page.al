@@ -173,7 +173,7 @@ page 6057 "Contract Line Selection"
         ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", ContractType);
         ServContractLine.SetRange("Contract No.", ContractNo);
-        if ServContractLine.FindLast then
+        if ServContractLine.FindLast() then
             exit(ServContractLine."Line No.");
 
         exit(0);
@@ -190,7 +190,7 @@ page 6057 "Contract Line Selection"
         ServContractLine.SetRange("Contract No.", ServContract."Contract No.");
         ServContractLine.SetRange("Contract Type", ServContract."Contract Type");
         ServContractLine.SetRange("Service Item No.", TempServItem."No.");
-        if ServContractLine.FindFirst then begin
+        if ServContractLine.FindFirst() then begin
             Message(Text000, TempServItem.TableCaption, TempServItem."No.");
             exit;
         end;
@@ -201,7 +201,7 @@ page 6057 "Contract Line Selection"
         ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
         ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
         ServContractLine.SetFilter("Contract No.", '<>%1', ServContract."Contract No.");
-        if ServContractLine.FindFirst then begin
+        if ServContractLine.FindFirst() then begin
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(Text001, TempServItem.TableCaption, TempServItem."No."), true)
             then
@@ -212,7 +212,7 @@ page 6057 "Contract Line Selection"
             ServContractLine.SetRange("Service Item No.", TempServItem."No.");
             ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Quote);
             ServContractLine.SetFilter("Contract No.", '<>%1', ServContract."Contract No.");
-            if ServContractLine.FindFirst then
+            if ServContractLine.FindFirst() then
                 if not ConfirmManagement.GetResponseOrDefault(
                      StrSubstNo(Text001, TempServItem.TableCaption, TempServItem."No."), true)
                 then

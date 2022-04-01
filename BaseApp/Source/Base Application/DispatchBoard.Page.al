@@ -372,7 +372,7 @@ page 6000 "Dispatch Board"
                     begin
                         DemandOverview.SetCalculationParameter(true);
                         DemandOverview.Initialize(0D, 4, '', '', '');
-                        DemandOverview.RunModal;
+                        DemandOverview.RunModal();
                     end;
                 }
             }

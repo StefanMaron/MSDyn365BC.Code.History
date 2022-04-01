@@ -36,7 +36,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
         Assert.RecordIsNotEmpty(AccScheduleLine);
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
         AccScheduleLine.SetCurrentKey("Line No.");
-        if not AccScheduleLine.FindFirst then
+        if not AccScheduleLine.FindFirst() then
             Assert.Fail('Account schedules cannot be found.');
 
         ValidateAccountScheduleAndCategory(GLAccountCategory."Account Category"::Assets, AccScheduleLine);
@@ -73,7 +73,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
         Assert.RecordIsNotEmpty(AccScheduleLine1);
         AccScheduleLine1.SetRange("Schedule Name", AccScheduleName.Name);
         AccScheduleLine1.SetCurrentKey("Line No.");
-        if not AccScheduleLine1.FindFirst then
+        if not AccScheduleLine1.FindFirst() then
             Assert.Fail('Account schedules cannot be found.');
 
         ValidateAccountScheduleAndCategory(GLAccountCategory."Account Category"::Income, AccScheduleLine1);
@@ -98,7 +98,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
         // [SCENARIO 257783] Existing Acc. Schedule Lines after "Company-Initialize" is called.
 
         // [GIVEN] Reporting Account Schedules Names has Acc Schedules with one line of Description "Descr"
-        AccScheduleLineDescription := LibraryUtility.GenerateGUID;
+        AccScheduleLineDescription := LibraryUtility.GenerateGUID();
         UpdateGLSetupAccSheduleReporting(AccScheduleLineDescription);
 
         // [GIVEN] Account Schedules Name with one line of Description "Descr" not assigned to any setting
@@ -125,7 +125,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
     begin
         // [SCENARIO 269236] "Acc. Sched. for Balance Sheet" is updated via InitializeStandardAccountSchedules if it is empty
         // [GIVEN] General Ledger Setup with Acc. Schedules filled in
-        UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID);
+        UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID());
         GeneralLedgerSetupOld.Get();
         GeneralLedgerSetup.Get();
         // [GIVEN] User clears "Acc. Sched. for Balance Sheet"
@@ -154,7 +154,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
     begin
         // [SCENARIO 269236] "Acc. Sched. for Income Stmt." is updated via InitializeStandardAccountSchedules if it is empty
         // [GIVEN] General Ledger Setup with Acc. Schedules filled in
-        UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID);
+        UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID());
         GeneralLedgerSetupOld.Get();
         GeneralLedgerSetup.Get();
         // [GIVEN] User clears "Acc. Sched. for Income Stmt."
@@ -183,7 +183,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
     begin
         // [SCENARIO 269236] "Acc. Sched. for Cash Flow Stmt" is updated via InitializeStandardAccountSchedules if it is empty
         // [GIVEN] General Ledger Setup with Acc. Schedules filled in
-        UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID);
+        UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID());
         GeneralLedgerSetupOld.Get();
         GeneralLedgerSetup.Get();
         // [GIVEN] User clears "Acc. Sched. for Cash Flow Stmt"
@@ -212,7 +212,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
     begin
         // [SCENARIO 269236] "Acc. Sched. for Retained Earn." is updated via InitializeStandardAccountSchedules if it is empty
         // [GIVEN] General Ledger Setup with Acc. Schedules filled in
-        UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID);
+        UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID());
         GeneralLedgerSetupOld.Get();
         GeneralLedgerSetup.Get();
         // [GIVEN] User clears "Acc. Sched. for Retained Earn."
@@ -366,7 +366,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
         GLAccountCategory.Init();
         GLAccountCategory.SetRange("Account Category", AccountCategory);
 
-        if GLAccountCategory.FindFirst then
+        if GLAccountCategory.FindFirst() then
             ValidateAccountSchedule(GLAccountCategory, AccScheduleLine);
     end;
 

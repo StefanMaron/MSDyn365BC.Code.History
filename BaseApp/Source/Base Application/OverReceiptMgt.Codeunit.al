@@ -9,14 +9,12 @@ codeunit 8510 "Over-Receipt Mgt."
         OverReceiptQuantityErr: Label 'You cannot enter more than %1 in the Over-Receipt Quantity field.';
         OverReceiptNotificationTxt: Label 'An over-receipt quantity is recorded on purchase order %1.', Comment = '%1 - document number';
 
-    [Scope('OnPrem')]
     procedure IsOverReceiptAllowed() OverReceiptAllowed: Boolean
     begin
         OverReceiptAllowed := true;
         OnIsOverReceiptAllowed(OverReceiptAllowed);
     end;
 
-    [Scope('OnPrem')]
     procedure IsQuantityUpdatedFromWarehouseOverReceipt(PurchaseLine: Record "Purchase Line"): Boolean
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -31,7 +29,6 @@ codeunit 8510 "Over-Receipt Mgt."
         exit(PurchaseLine.Quantity = WarehouseReceiptLine.Quantity);
     end;
 
-    [Scope('OnPrem')]
     procedure UpdatePurchaseLineOverReceiptQuantityFromWarehouseReceiptLine(WarehouseReceiptLine: Record "Warehouse Receipt Line")
     var
         PurchaseLine: Record "Purchase Line";
@@ -45,7 +42,6 @@ codeunit 8510 "Over-Receipt Mgt."
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure VerifyOverReceiptQuantity(PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     var
         OverReceiptCode: Record "Over-Receipt Code";
@@ -70,7 +66,6 @@ codeunit 8510 "Over-Receipt Mgt."
             Error(StrSubstNo(OverReceiptQuantityErr, MaxOverReceiptQtyAllowed));
     end;
 
-    [Scope('OnPrem')]
     procedure GetDefaultOverReceiptCode(PurchaseLine: Record "Purchase Line") DefaultOverReceiptCode: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
@@ -102,7 +97,6 @@ codeunit 8510 "Over-Receipt Mgt."
             DefaultOverReceiptCode := OverReceiptCode.Code;
     end;
 
-    [Scope('OnPrem')]
     procedure RecallOverReceiptNotification(PurchaseHeaderRecordId: RecordId)
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -121,7 +115,6 @@ codeunit 8510 "Over-Receipt Mgt."
         NotificationLifecycleMgt.SendNotification(OverReceiptNotification, PurchaseHeaderRecordId);
     end;
 
-    [Scope('OnPrem')]
     procedure ShowOverReceiptNotificationFromLine(DocumentNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -132,7 +125,6 @@ codeunit 8510 "Over-Receipt Mgt."
         ShowOverReceiptNotification(PurchaseHeader.RecordId(), StrSubstNo(OverReceiptNotificationTxt, PurchaseHeader."No."));
     end;
 
-    [Scope('OnPrem')]
     procedure ShowOverReceiptNotificationFromOrder(DocumentNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";

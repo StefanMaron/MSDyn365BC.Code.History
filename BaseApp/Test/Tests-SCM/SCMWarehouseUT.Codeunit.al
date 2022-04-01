@@ -37,8 +37,8 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotBW(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
-        Lot2Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
+        Lot2Code := LibraryUtility.GenerateGUID();
 
         // Inventory 10 of Lot1, Sell 2 (2 of Lot2)
         CreateInventoryForLot(BinContent, Lot1Code, 10, 0D);
@@ -68,7 +68,7 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotBW(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
 
         // Inventory 5 of Lot, Sell 5 (2 of Lot)
         CreateInventoryForLot(BinContent, Lot1Code, 5, 0D);
@@ -104,8 +104,8 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotBW(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
-        Lot2Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
+        Lot2Code := LibraryUtility.GenerateGUID();
 
         // Inventory 5 of Lot1, Sell 7 (3 of Lot2)
         CreateInventoryForLot(BinContent, Lot1Code, 5, 0D);
@@ -144,8 +144,8 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotBW(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
-        Lot2Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
+        Lot2Code := LibraryUtility.GenerateGUID();
 
         // Inventory 1 of Lot1 & 3 of Lot2, Sell 7 (3 of Lot1)
         CreateInventoryForLot(BinContent, Lot1Code, 1, 0D);
@@ -184,7 +184,7 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotBW(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
 
         // Inventory 4 of Lot, Sell 5 of Lot - 3 reserved against purchase)
         CreateInventoryForLot(BinContent, Lot1Code, 4, 0D);
@@ -220,7 +220,7 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotBW(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
 
         // Inventory 5 of Lot, Sell 9 (5 of Lot - 3 reserved against purchase))
         CreateInventoryForLot(BinContent, Lot1Code, 5, 0D);
@@ -256,7 +256,7 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotBW(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
 
         // Inventory 5 of Lot, Sell 9 (5 of Lot - 4 reserved against 2 purchases))
         CreateInventoryForLot(BinContent, Lot1Code, 5, 0D);
@@ -294,8 +294,8 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotBW(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
-        Lot2Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
+        Lot2Code := LibraryUtility.GenerateGUID();
 
         // Inventory (2 of Lot1, 3 of Lot2), Sell 9 (2 of Lot1 with 1 reserved, 3 of Lot2 with 1 reserved)
         CreateInventoryForLot(BinContent, Lot1Code, 2, 0D);
@@ -337,8 +337,8 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory, sales shipment
         CreateSetupForLotWMS(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
-        Lot2Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
+        Lot2Code := LibraryUtility.GenerateGUID();
 
         // Inventory 10 of Lot1, Sell 2 (2 of Lot2)
         CreateInventoryForLot(BinContent, Lot1Code, 10, 0D);
@@ -365,7 +365,7 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotWMS(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
 
         // Inventory 5 of Lot, Sell 5 (2 of Lot)
         CreateInventoryForLot(BinContent, Lot1Code, 5, 0D);
@@ -402,8 +402,8 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotWMS(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
-        Lot2Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
+        Lot2Code := LibraryUtility.GenerateGUID();
 
         // Inventory 5 of Lot1, Sell 7 (3 of Lot2)
         CreateInventoryForLot(BinContent, Lot1Code, 5, 0D);
@@ -443,8 +443,8 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotWMS(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
-        Lot2Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
+        Lot2Code := LibraryUtility.GenerateGUID();
 
         // Inventory 1 of Lot1 & 3 of Lot2, Sell 7 (3 of Lot1)
         CreateInventoryForLot(BinContent, Lot1Code, 1, 0D);
@@ -486,7 +486,7 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotWMS(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
 
         // Inventory 4 of Lot, Sell 5 of Lot - 3 reserved against purchase)
         CreateInventoryForLot(BinContent, Lot1Code, 4, 0D);
@@ -523,7 +523,7 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotWMS(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
 
         // Inventory 5 of Lot, Sell 9 (5 of Lot - 4 reserved against 2 purchases))
         CreateInventoryForLot(BinContent, Lot1Code, 5, 0D);
@@ -560,7 +560,7 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotWMS(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
 
         // Inventory 5 of Lot, Sell 9 (5 of Lot - 3 reserved against purchase))
         CreateInventoryForLot(BinContent, Lot1Code, 5, 0D);
@@ -599,8 +599,8 @@ codeunit 137831 "SCM - Warehouse UT"
         // SETUP : Create items, inventory and sales order
         CreateSetupForLotWMS(BinContent);
 
-        Lot1Code := LibraryUtility.GenerateGUID;
-        Lot2Code := LibraryUtility.GenerateGUID;
+        Lot1Code := LibraryUtility.GenerateGUID();
+        Lot2Code := LibraryUtility.GenerateGUID();
 
         // Inventory (2 of Lot1, 3 of Lot2), Sell 9 (2 of Lot1 with 1 reserved, 3 of Lot2 with 1 reserved))
         CreateInventoryForLot(BinContent, Lot1Code, 2, 0D);
@@ -652,8 +652,8 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
 
-        OlderLot := LibraryUtility.GenerateGUID;
-        NewerLot := LibraryUtility.GenerateGUID;
+        OlderLot := LibraryUtility.GenerateGUID();
+        NewerLot := LibraryUtility.GenerateGUID();
 
         // Inventory (20 of older, 10 of newer)
         CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate));
@@ -707,8 +707,8 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
 
-        OlderLot := LibraryUtility.GenerateGUID;
-        NewerLot := LibraryUtility.GenerateGUID;
+        OlderLot := LibraryUtility.GenerateGUID();
+        NewerLot := LibraryUtility.GenerateGUID();
 
         // Inventory (20 of older, 10 of newer)
         CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate));
@@ -764,8 +764,8 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
 
-        OlderLot := LibraryUtility.GenerateGUID;
-        NewerLot := LibraryUtility.GenerateGUID;
+        OlderLot := LibraryUtility.GenerateGUID();
+        NewerLot := LibraryUtility.GenerateGUID();
 
         // Inventory (20 of older, 10 of newer)
         CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate));
@@ -820,8 +820,8 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
 
-        OlderLot := LibraryUtility.GenerateGUID;
-        NewerLot := LibraryUtility.GenerateGUID;
+        OlderLot := LibraryUtility.GenerateGUID();
+        NewerLot := LibraryUtility.GenerateGUID();
 
         // Inventory (20 of older, 10 of newer)
         CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate));
@@ -872,7 +872,7 @@ codeunit 137831 "SCM - Warehouse UT"
         LibraryWarehouse.CreateLocation(Location2);
 
         Item.Init();
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
 
         LibraryWarehouse.CreateTransferRoute(TransferRoute, Location2.Code, Location1.Code);
@@ -1305,7 +1305,7 @@ codeunit 137831 "SCM - Warehouse UT"
         with ReservationEntry do begin
             SetRange("Source Type", DATABASE::"Item Journal Line");
             SetRange("Item No.", Item."No.");
-            FindFirst;
+            FindFirst();
             TestField("Quantity (Base)", -Qty);
         end;
     end;
@@ -1363,11 +1363,11 @@ codeunit 137831 "SCM - Warehouse UT"
         with WarehouseActivityLine1 do begin
             Init;
             "Activity Type" := "Activity Type"::Pick;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine1, FieldNo("Line No."));
             "Item No." := CreateItemWithSNWhseTracking;
-            "Serial No." := LibraryUtility.GenerateGUID;
-            "Variant Code" := LibraryUtility.GenerateGUID;
+            "Serial No." := LibraryUtility.GenerateGUID();
+            "Variant Code" := LibraryUtility.GenerateGUID();
             "Qty. (Base)" := LibraryRandom.RandInt(10);
             Insert;
         end;
@@ -1376,7 +1376,7 @@ codeunit 137831 "SCM - Warehouse UT"
         WarehouseActivityLine2 := WarehouseActivityLine1;
         with WarehouseActivityLine2 do begin
             "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine2, FieldNo("Line No."));
-            "Variant Code" := LibraryUtility.GenerateGUID;
+            "Variant Code" := LibraryUtility.GenerateGUID();
             Insert;
         end;
 
@@ -1542,13 +1542,13 @@ codeunit 137831 "SCM - Warehouse UT"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         ItemTrackingCode.Init();
-        ItemTrackingCode.Code := LibraryUtility.GenerateGUID;
+        ItemTrackingCode.Code := LibraryUtility.GenerateGUID();
         ItemTrackingCode."Lot Specific Tracking" := true;
         ItemTrackingCode."Lot Warehouse Tracking" := true;
         ItemTrackingCode.Insert();
 
         Clear(Item);
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item."Item Tracking Code" := ItemTrackingCode.Code;
         Item.Insert();
     end;
@@ -1582,7 +1582,7 @@ codeunit 137831 "SCM - Warehouse UT"
     local procedure CreateBasicLocation(var Location: Record Location)
     begin
         Clear(Location);
-        Location.Code := LibraryUtility.GenerateGUID;
+        Location.Code := LibraryUtility.GenerateGUID();
         Location."Bin Mandatory" := true;
     end;
 
@@ -1603,7 +1603,7 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         Clear(Bin);
         Bin."Location Code" := LocationCode;
-        Bin.Code := LibraryUtility.GenerateGUID;
+        Bin.Code := LibraryUtility.GenerateGUID();
         Bin.Insert();
     end;
 
@@ -1614,7 +1614,7 @@ codeunit 137831 "SCM - Warehouse UT"
         with Zone do begin
             Init;
             "Location Code" := LocationCode;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Insert;
             exit(Code);
         end;
@@ -1636,7 +1636,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ItemLedgerEntry2: Record "Item Ledger Entry";
     begin
-        WarehouseEntry2.FindLast;
+        WarehouseEntry2.FindLast();
         WarehouseEntry.Init();
         WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
         WarehouseEntry."Location Code" := BinContent."Location Code";
@@ -1648,7 +1648,7 @@ codeunit 137831 "SCM - Warehouse UT"
         WarehouseEntry."Expiration Date" := ExpirationDate;
         WarehouseEntry.Insert();
 
-        ItemLedgerEntry2.FindLast;
+        ItemLedgerEntry2.FindLast();
         ItemLedgerEntry.Init();
         ItemLedgerEntry."Entry No." := ItemLedgerEntry2."Entry No." + 1;
         ItemLedgerEntry."Item No." := BinContent."Item No.";
@@ -1667,7 +1667,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry: Record "Reservation Entry";
         ReservationEntry2: Record "Reservation Entry";
     begin
-        if ReservationEntry2.FindLast then;
+        if ReservationEntry2.FindLast() then;
         ReservationEntry.Init();
         ReservationEntry."Entry No." := ReservationEntry2."Entry No." + 1;
         ReservationEntry.Positive := false;
@@ -1692,7 +1692,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry: Record "Reservation Entry";
     begin
         CreateItemTrackingEntry(SalesLine, LotCode, LotQtyToShip);
-        ReservationEntry.FindLast;
+        ReservationEntry.FindLast();
         ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Reservation;
         ReservationEntry."Expected Receipt Date" := ReservationEntry."Shipment Date";
         ReservationEntry.Modify();
@@ -1717,7 +1717,7 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         SalesHeader.Insert();
 
         SalesLine."Document Type" := SalesHeader."Document Type";
@@ -1747,7 +1747,7 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure CreateSalesItemTracking(SalesNo: Code[20]; LotCode: Code[10]; QtyToTrack: Decimal)
@@ -1770,7 +1770,7 @@ codeunit 137831 "SCM - Warehouse UT"
             ReservationEntry.SetRange("Source Subtype", SalesLine."Document Type"::Order);
             ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
             ReservationEntry.SetRange("Lot No.", LotCode);
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
             Assert.IsTrue(Abs(ReservationEntry.Quantity) >= QtyToReserve, 'Enough quantity of the lot must be already tracked.');
             ReservationEntry."Quantity (Base)" += QtyToReserve;
             ReservationEntry.Quantity += QtyToReserve;
@@ -1803,7 +1803,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReduceOrDeleteQtyOnReservationEntry(SalesLine, QtyToReserve, LotCode);
 
         ItemLedgerEntry.SetRange("Lot No.", LotCode);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         CreateReservationEntry(SalesLine, LotCode, QtyToReserve,
           DATABASE::"Item Ledger Entry", 0, '', ItemLedgerEntry."Entry No.");
     end;
@@ -1817,7 +1817,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateSales(WarehouseRequest, ItemNo, LocationCode, QtyToShip);
 
         WarehouseShipmentHeader.Init();
-        WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID();
         WarehouseShipmentHeader."Location Code" := LocationCode;
         WarehouseShipmentHeader.Insert();
 
@@ -1877,7 +1877,7 @@ codeunit 137831 "SCM - Warehouse UT"
     local procedure MockLocation(var Location: Record Location)
     begin
         Location.Init();
-        Location.Code := LibraryUtility.GenerateGUID;
+        Location.Code := LibraryUtility.GenerateGUID();
         Location.Insert();
     end;
 
@@ -1925,7 +1925,7 @@ codeunit 137831 "SCM - Warehouse UT"
         with SalesLine do begin
             Init;
             "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Outstanding Quantity" := LibraryRandom.RandInt(10);
             "Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
             "Outstanding Qty. (Base)" := "Outstanding Quantity" * "Qty. per Unit of Measure";
@@ -1937,7 +1937,7 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         with WarehouseShipmentHeader do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Status := Status::Open;
             Insert;
         end;
@@ -1965,7 +1965,7 @@ codeunit 137831 "SCM - Warehouse UT"
         with WarehouseActivityLine do begin
             Init;
             "Activity Type" := ActivityType;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Action Type" := ActionType;
             "Location Code" := LocationCode;
             "Bin Code" := BinCode;
@@ -1977,7 +1977,7 @@ codeunit 137831 "SCM - Warehouse UT"
     local procedure MockItem(var Item: Record Item)
     begin
         with Item do begin
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -1986,10 +1986,10 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         with TransferLine do begin
             Init;
-            "Document No." := LibraryUtility.GenerateGUID;
-            "Transfer-from Code" := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
+            "Transfer-from Code" := LibraryUtility.GenerateGUID();
             "Item No." := ItemNo;
-            "Variant Code" := LibraryUtility.GenerateGUID;
+            "Variant Code" := LibraryUtility.GenerateGUID();
             Quantity := Qty;
             Insert;
         end;
@@ -2029,7 +2029,7 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         with WarehouseShipmentHeader do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Location Code" := LocationCode;
             Insert;
         end;
@@ -2041,7 +2041,7 @@ codeunit 137831 "SCM - Warehouse UT"
             "Source No." := SourceNo;
             "Item No." := ItemNo;
             "Variant Code" := VariantCode;
-            "Bin Code" := LibraryUtility.GenerateGUID;
+            "Bin Code" := LibraryUtility.GenerateGUID();
             Quantity := Qty;
             Insert;
         end;

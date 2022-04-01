@@ -100,7 +100,7 @@ codeunit 137033 "SCM Item Journal"
         // Update Stockout Warning to original value.
         UpdateSalesReceivableSetup(StockoutWarning);
         ItemJournalLines.Close;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1103,7 +1103,7 @@ codeunit 137033 "SCM Item Journal"
           ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 30);
         LibraryVariableStorage.Enqueue(3);
         for i := 1 to 3 do begin
-            LotNo[i] := LibraryUtility.GenerateGUID;
+            LotNo[i] := LibraryUtility.GenerateGUID();
             LibraryVariableStorage.Enqueue(LotNo[i]);
             LibraryVariableStorage.Enqueue(10);
         end;
@@ -1157,7 +1157,7 @@ codeunit 137033 "SCM Item Journal"
         Initialize();
 
         // [GIVEN] Two Items: Blocked and Non-Blocked
-        NonBlockedItemNo := LibraryInventory.CreateItemNo;
+        NonBlockedItemNo := LibraryInventory.CreateItemNo();
         LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', CreateBlockedItem, NonBlockedItemNo));
         LibraryVariableStorage.Enqueue(NonBlockedItemNo);
 
@@ -1446,7 +1446,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal - Rounding Precision]
         // [SCENARIO] Error is thrown when rounding precision causes the base quantity to be rounded to 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -1489,7 +1489,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -1533,7 +1533,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
@@ -1574,7 +1574,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -1620,7 +1620,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Standard Item Journal - Rounding Precision]
         // [SCENARIO] Error is thrown when rounding precision causes the base quantity to be rounded to 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -1670,7 +1670,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Standard Item Journal - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -1721,7 +1721,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Standard Item Journal - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
@@ -1772,7 +1772,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Standard Item Journal - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -2182,7 +2182,7 @@ codeunit 137033 "SCM Item Journal"
           SaveUnitAmount, SaveQuantity);
         SaveAsStandardItemJournal.Initialise(ItemJournalLine, ItemJournalBatch);
         SaveAsStandardItemJournal.UseRequestPage(false);
-        SaveAsStandardItemJournal.Run;
+        SaveAsStandardItemJournal.Run();
         ItemJournalLine.DeleteAll(true);
     end;
 
@@ -2205,7 +2205,7 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine.SetRange("Item No.", ItemJournalLine."Item No.");
         SaveAsStandardItemJournal.Initialise(ItemJournalLine, ItemJournalBatch);
         SaveAsStandardItemJournal.UseRequestPage(false);
-        SaveAsStandardItemJournal.Run;
+        SaveAsStandardItemJournal.Run();
     end;
 
     local procedure CreateItemJnlFromStdJournal(ItemJournalBatch: Record "Item Journal Batch"; StandardItemJournalCode: Code[10])
@@ -2220,7 +2220,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         StandardItemJournal.SetRange(Code, StandardItemJournalCode);
         StandardItemJournal.SetRange("Journal Template Name", JournalTemplateName);
-        StandardItemJournal.FindFirst;
+        StandardItemJournal.FindFirst();
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
@@ -2278,7 +2278,7 @@ codeunit 137033 "SCM Item Journal"
         ItemLedgerEntry."Entry Type" := ItemLedgerEntry."Entry Type"::"Negative Adjmt.";
         ItemLedgerEntry."Document Date" := WorkDate;
         ItemLedgerEntry."Posting Date" := WorkDate;
-        ItemLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        ItemLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         ItemLedgerEntry."Location Code" := LocationCode;
         ItemLedgerEntry."Item No." := ItemNo;
         ItemLedgerEntry.Quantity := Qty;
@@ -2324,7 +2324,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         StandardItemJournalLine.SetRange("Standard Journal Code", StandardItemJournalCode);
         StandardItemJournalLine.SetRange("Item No.", ItemNo);
-        StandardItemJournalLine.FindFirst;
+        StandardItemJournalLine.FindFirst();
     end;
 
     local procedure VerifyItemJournalAmount(var TempItemJournalLine: Record "Item Journal Line" temporary; ItemJournalBatch: Record "Item Journal Batch")
@@ -2346,7 +2346,7 @@ codeunit 137033 "SCM Item Journal"
         // Verify Standard Item Journal line record exists.
         StandardItemJournal.SetRange(Code, StandardItemJournalCode);
         StandardItemJournal.SetRange("Journal Template Name", JournalTemplateName);
-        StandardItemJournal.FindFirst;
+        StandardItemJournal.FindFirst();
     end;
 
     local procedure VerifyItemLedgerEntry(var TempItemJournalLine: Record "Item Journal Line" temporary)
@@ -2357,7 +2357,7 @@ codeunit 137033 "SCM Item Journal"
         repeat
             ItemLedgerEntry.SetRange("Item No.", TempItemJournalLine."Item No.");
             ItemLedgerEntry.SetRange("Entry Type", TempItemJournalLine."Entry Type");
-            ItemLedgerEntry.FindFirst;
+            ItemLedgerEntry.FindFirst();
             Assert.AreEqual(TempItemJournalLine.Quantity, Abs(ItemLedgerEntry.Quantity), QuantityErr);
         until TempItemJournalLine.Next = 0;
     end;
@@ -2368,7 +2368,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemJournalLine."Item No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemJournalLine."Entry Type");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField(Quantity, ItemJournalLine.Quantity);
         ItemLedgerEntry.TestField("Invoiced Quantity", ItemJournalLine."Invoiced Quantity");
         ItemLedgerEntry.TestField("Remaining Quantity", ItemJournalLine.Quantity);
@@ -2454,7 +2454,7 @@ codeunit 137033 "SCM Item Journal"
             "Bin Code" := OldBinCode;
             "New Bin Code" := NewBinCode;
             Validate(Quantity, Qty);
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             Modify(true);
         end;
 

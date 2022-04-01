@@ -18,7 +18,7 @@ report 5193 "Create Conts. from Bank Accs."
                 with ContBusRel do begin
                     SetRange("Link to Table", "Link to Table"::"Bank Account");
                     SetRange("No.", "Bank Account"."No.");
-                    if FindFirst then
+                    if FindFirst() then
                         CurrReport.Skip();
                 end;
 

@@ -78,7 +78,7 @@ codeunit 134380 "ERM Dimension"
         // Combination: Code mandatory + Specific account value posting
         // replace 140761,140764,140755,140758
 
-        Initialize;
+        Initialize();
         ValPosting_Setup(GLAccount, Customer, DefaultDimension, GenJnlLine, DefaultDimension."Value Posting"::"Code Mandatory");
         DimSetID := GenJnlLine."Dimension Set ID";
         ModifyJnlDimSetID(GenJnlLine, 0);
@@ -106,7 +106,7 @@ codeunit 134380 "ERM Dimension"
         // Parameters: Same Code + specific account value posting
         // replace 140762,140765,140756,140759
 
-        Initialize;
+        Initialize();
         ValPosting_Setup(GLAccount, Customer, DefaultDimension, GenJnlLine, DefaultDimension."Value Posting"::"Same Code");
         DimSetID := GenJnlLine."Dimension Set ID";
         NewDimSetID := LibraryDim.EditDimSet(DimSetID, TestDim, TestDimValue2);
@@ -134,7 +134,7 @@ codeunit 134380 "ERM Dimension"
         // Parameters: No Code + specific account value posting
         // replace 140763,140766,140758,140760
 
-        Initialize;
+        Initialize();
         ValPosting_Setup(GLAccount, Customer, DefaultDimension, GenJnlLine, DefaultDimension."Value Posting"::"No Code");
         DimSetID := LibraryDim.CreateDimSet(DimSetID, TestDim, TestDimValue);
         ModifyJnlDimSetID(GenJnlLine, DimSetID);
@@ -159,7 +159,7 @@ codeunit 134380 "ERM Dimension"
         // Test codeunit 408, function CheckDimValueposting.
         // Parameters: Blank + specific account value posting
 
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibrarySales.CreateCustomer(Customer);
         CreateDefaultDimCustomer(DefaultDimension, Customer."No.", TestDim, TestDimValue, DefaultDimension."Value Posting"::" ");
@@ -183,7 +183,7 @@ codeunit 134380 "ERM Dimension"
         NewDimSetID: Integer;
     begin
         // [SCENARIO] More specific default dimension overrides more generic default dimension.
-        Initialize;
+        Initialize();
         // [GIVEN] Default Dimension for all Customers with "Value Posting"::"Code Mandatory"
         LibraryDim.CreateAccTypeDefaultDimension(DefaultDimension, DATABASE::Customer, TestDim, TestDimValue,
           DefaultDimension."Value Posting"::"Code Mandatory");
@@ -209,7 +209,7 @@ codeunit 134380 "ERM Dimension"
         DefaultDimension.SetRange("Table ID", DATABASE::Customer);
         DefaultDimension.SetRange("No.", ' ');
         DefaultDimension.SetRange("Dimension Code", TestDim);
-        DefaultDimension.FindFirst;
+        DefaultDimension.FindFirst();
         DefaultDimension.Delete(true);
     end;
 
@@ -225,7 +225,7 @@ codeunit 134380 "ERM Dimension"
         // Test Post General Journal Line without dimension value posting error.
 
         // Setup: Create Account Type Default Dimension. Create Vendor and G/L Account.
-        Initialize;
+        Initialize();
         VendorNo := CreateInitialSetupForVendorAccountTypeDefaultDimension(DefaultDimension, GLAccountNo);
 
         // Exercise: Create and post General Journal Line.
@@ -256,7 +256,7 @@ codeunit 134380 "ERM Dimension"
         // Test Post General Journal Line with dimension value posting error.
 
         // Setup: Create Account Type Default Dimension. Create Vendor and G/L Account.
-        Initialize;
+        Initialize();
         VendorNo := CreateInitialSetupForVendorAccountTypeDefaultDimension(DefaultDimension, GLAccountNo);
 
         // Exercise: Create General Journal Line. Change Dimension Value Code and post General Journal Line.
@@ -289,7 +289,7 @@ codeunit 134380 "ERM Dimension"
         // Test setup dimensions on editable dimension set entry page and validate correct dimension data posting.
 
         // Setup: Create General Journal Line by General Journal Page.
-        Initialize;
+        Initialize();
         DocumentNo := CreateJournalLineByGeneralJournalPage;
 
         // Exercise: Set Journal Line Dimensions in EditDimensionSetEntriesPageHandler Function. Post General Journal.
@@ -328,7 +328,7 @@ codeunit 134380 "ERM Dimension"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 379473] TAB 482 "Reclas. Dimension Set Buffer" has correct text length for "Dimension Value Name", "New Dimension Value Name" fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension Code "DIM". Two Dimension Values for given dimension code:
         // [GIVEN] "DIMVAL1" with "Name" = "X" (50-chars length)
@@ -359,7 +359,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UT]
         // [SCENARIO 213513] Dimension Filter has no value selects when call LookUpDimFilter of table "Dimension Value" with blank Dimension Code
 
-        Initialize;
+        Initialize();
         LookupOk := DimensionValue.LookUpDimFilter('', LookupDimFilter);
         Assert.IsFalse(LookupOk, 'LookUpDimFilter returns True with blank dimension');
         Assert.AreEqual('', LookupDimFilter, 'LookUpDimFilter returns not blank Dimension Filter with blank dimension');
@@ -377,7 +377,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 213513] Dimension Filter has value when call LookUpDimFilter of table "Dimension Value" and select value on "Dimension Value List" page
 
-        Initialize;
+        Initialize();
         LibraryDim.CreateDimWithDimValue(DimensionValue);
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
         LookupOk := DimensionValue.LookUpDimFilter(DimensionValue."Dimension Code", LookupDimFilter);
@@ -397,7 +397,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 213513] Dimension Filter has no value when call LookUpDimFilter of table "Dimension Value" and cancel selection on "Dimension Value List" page
 
-        Initialize;
+        Initialize();
         LibraryDim.CreateDimWithDimValue(DimensionValue);
         LookupOk := DimensionValue.LookUpDimFilter(DimensionValue."Dimension Code", LookupDimFilter);
         Assert.IsFalse(LookupOk, 'LookUpDimFilter returns true');
@@ -416,7 +416,7 @@ codeunit 134380 "ERM Dimension"
     begin
         // [FEATURE] [UI] [SaaS] [Purchase]
         // [SCENARIO 215311] Action "Dimensions - Multiple" can be accessed on "Item List" page under SaaS
-        Initialize;
+        Initialize();
 
         // [GIVEN] It is SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -453,7 +453,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UI] [SaaS] [Sales]
         // [SCENARIO 215311] Action "Dimensions - Single" can be accessed on "Customer List" page under SaaS
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] It is SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -488,7 +488,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UI] [SaaS] [Sales]
         // [SCENARIO 215311] Action "Dimensions - Multiple" can be accessed on "Customer List" page under SaaS
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] It is SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -525,7 +525,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UI] [SaaS] [Purchase]
         // [SCENARIO 215311] Action "Dimensions - Single" can be accessed on "Vendor List" page under SaaS
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] It is SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -560,7 +560,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UI] [SaaS] [Purchase]
         // [SCENARIO 215311] Action "Dimensions - Multiple" can be accessed on "Vendor List" page under SaaS
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] It is SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -597,7 +597,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UI] [SaaS] [Purchase]
         // [SCENARIO 215311] Action "Dimensions - Single" can be accessed on "Item List" page under SaaS
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] It is SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -673,7 +673,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UT]
         // [SCENARIO 217862] "Shortcut Dimension 1 Code" and "Shortcut Dimension 2 Code" updates on "Dimension Set ID" validation in all application tables except ignored
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension Set ID with two global dimensions: "DEPARTMENT" = "ADM"; "PROJECT" = "TOYOTA"
         GeneralLedgerSetup.Get();
@@ -879,7 +879,7 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UT]
         // [SCENARIO 221094] Not possible to assign blocked dimension to "Shortcut Dimension Code" field
 
-        Initialize;
+        Initialize();
         LibraryDim.CreateDimension(Dimension);
         LibraryDim.BlockDimension(Dimension);
         LibraryDim.CreateDimensionValue(DimensionValue, Dimension.Code);
@@ -924,9 +924,9 @@ codeunit 134380 "ERM Dimension"
         // [FEATURE] [UT]
         // [SCENARIO 254098] PAGE 560 "Dimension Value List" caption must contain Dimension Code
 
-        Initialize;
+        Initialize();
 
-        DimensionValueList.OpenNew;
+        DimensionValueList.OpenNew();
 
         for I := 1 to 6 do begin
             DimensionValueList.FILTER.SetFilter("Global Dimension No.", Format(I));
@@ -944,7 +944,7 @@ codeunit 134380 "ERM Dimension"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 304714] Local subscribers to OnGetLocalTablesWithDimSetIDValidationIgnored don't overwrite value, but add to it
-        Initialize;
+        Initialize();
 
         Counter[1] := 0;
         Counter[2] := 1;
@@ -1002,7 +1002,7 @@ codeunit 134380 "ERM Dimension"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension");
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension");
@@ -1024,8 +1024,8 @@ codeunit 134380 "ERM Dimension"
         LibraryERM.ClearGenJournalLines(GenJnlBatch);
         JournalTemplate := GenJnlBatch."Journal Template Name";
         JournalBatch := GenJnlBatch.Name;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
 
@@ -1091,7 +1091,7 @@ codeunit 134380 "ERM Dimension"
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Validate(Amount, -LibraryRandom.RandDec(100, 2));  // Use Random Amount because value is not important.
         GenJournalLine.Modify(true);
     end;
@@ -1152,7 +1152,7 @@ codeunit 134380 "ERM Dimension"
         // Scenario verifies usage of shortcut 1 dimension, but it is valid for other shourtcuts
 
         // Setup
-        Initialize;
+        Initialize();
 
         Dimension.Get(LibraryERM.GetGlobalDimensionCode(1));
         LibraryDim.CreateDimensionValue(DimensionValue, Dimension.Code);
@@ -1171,7 +1171,7 @@ codeunit 134380 "ERM Dimension"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         exit(GLEntry."Dimension Set ID");
     end;
 
@@ -1239,7 +1239,7 @@ codeunit 134380 "ERM Dimension"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry.Validate("Dimension Value Code", TestDimValue2);
         DimensionSetEntry.Modify(true);
     end;
@@ -1257,7 +1257,7 @@ codeunit 134380 "ERM Dimension"
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
         DimensionSetEntry.SetRange("Dimension Value Code", DimensionValueCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
     end;
 
     local procedure VerifyReclasDimSetBufferDimNames(ReclasDimensionSetBuffer: Record "Reclas. Dimension Set Buffer"; ExpectedDimValueName: Text[50]; ExpectedNewDimValueName: Text[50])

@@ -43,12 +43,12 @@ codeunit 134662 "Export Framework Scenario Test"
         SecondCustomerNo: Code[20];
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         DefineExportFormat(DataExchMapping, DATABASE::Customer, Customer.FieldNo("No."));
 
         // Setup
-        FirstCustomerNo := LibrarySales.CreateCustomerNo;
-        SecondCustomerNo := LibrarySales.CreateCustomerNo;
+        FirstCustomerNo := LibrarySales.CreateCustomerNo();
+        SecondCustomerNo := LibrarySales.CreateCustomerNo();
         Customer.SetFilter("No.", '%1|%2', FirstCustomerNo, SecondCustomerNo);
 
         // Exercise
@@ -59,7 +59,7 @@ codeunit 134662 "Export Framework Scenario Test"
         // Pre-Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
         DataExch.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
-        DataExch.FindLast;
+        DataExch.FindLast();
 
         // Verify
         VerifyFileContent(DataExch, FirstCustomerNo, SecondCustomerNo);
@@ -78,12 +78,12 @@ codeunit 134662 "Export Framework Scenario Test"
         SecondVendorNo: Code[20];
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         DefineExportFormat(DataExchMapping, DATABASE::Vendor, Vendor.FieldNo("No."));
 
         // Setup
-        FirstVendorNo := LibraryPurchase.CreateVendorNo;
-        SecondVendorNo := LibraryPurchase.CreateVendorNo;
+        FirstVendorNo := LibraryPurchase.CreateVendorNo();
+        SecondVendorNo := LibraryPurchase.CreateVendorNo();
         Vendor.SetFilter("No.", '%1|%2', FirstVendorNo, SecondVendorNo);
 
         // Exercise
@@ -94,7 +94,7 @@ codeunit 134662 "Export Framework Scenario Test"
         // Pre-Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
         DataExch.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
-        DataExch.FindLast;
+        DataExch.FindLast();
 
         // Verify
         VerifyFileContent(DataExch, FirstVendorNo, SecondVendorNo);

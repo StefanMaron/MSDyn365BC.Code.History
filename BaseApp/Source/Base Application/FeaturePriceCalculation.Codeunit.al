@@ -259,6 +259,7 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
     begin
         IntegrationTableMapping.SetRange("Table ID", TableId);
         IntegrationTableMapping.SetRange("Integration Table ID", IntTableId);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         if IntegrationTableMapping.FindSet() then
             repeat
                 JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());

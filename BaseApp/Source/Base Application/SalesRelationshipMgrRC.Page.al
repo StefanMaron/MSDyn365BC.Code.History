@@ -783,6 +783,20 @@ page 9026 "Sales & Relationship Mgr. RC"
                     ToolTip = 'View or edit automated flows created with Power Automate.';
                 }
             }
+            separator(History)
+            {
+                Caption = 'History';
+                IsHeader = true;
+            }
+            action("Navi&gate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                RunObject = Page Navigate;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+            }
         }
     }
 }

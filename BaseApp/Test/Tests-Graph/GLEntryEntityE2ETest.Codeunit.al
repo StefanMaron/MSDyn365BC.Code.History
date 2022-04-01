@@ -22,14 +22,14 @@ codeunit 135539 "GLEntryEntity E2E Test"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateVATPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -49,7 +49,7 @@ codeunit 135539 "GLEntryEntity E2E Test"
     begin
         // [SCENARIO] Create entries and use a GET method to retrieve them
         // [GIVEN] 2 entries in the G/L Entry Table with positive balance
-        Initialize;
+        Initialize();
 
         // [WHEN] Create and Post a General Journal Line1
         LastGLEntryNo := GetLastGLEntryNumber;
@@ -126,7 +126,7 @@ codeunit 135539 "GLEntryEntity E2E Test"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Entry No.");
     end;
 

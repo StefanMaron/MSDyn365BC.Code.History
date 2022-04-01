@@ -44,7 +44,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] The user can log a simple Error Message without a link to a Record
-        Initialize;
+        Initialize();
 
         // [WHEN] A generic message without relation to a record is logged
         // [THEN] ID to a new entry is returned
@@ -62,7 +62,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] The user can log a simple Error Message without a link to a Record
-        Initialize;
+        Initialize();
 
         // [WHEN] A generic message without relation to a record is logged
         // [THEN] ID to a new entry is returned
@@ -82,7 +82,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] The user can log a simple Error Message without a link to a Record
-        Initialize;
+        Initialize();
 
         // [WHEN] A generic message without relation to a record is logged
         // [THEN] ID to a new entry is returned
@@ -103,7 +103,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] The user can log an Error Message with a link to a Record
-        Initialize;
+        Initialize();
 
         // [WHEN] A generic message is logged
         // [THEN] ID to a new entry is returned
@@ -124,7 +124,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] The user can log a detailed Error Message with a link to a Record
-        Initialize;
+        Initialize();
 
         // [WHEN] A generic detailed message is logged
         // [THEN] ID to a new entry is returned
@@ -146,7 +146,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] The user can add details to an existing Error Message
-        Initialize;
+        Initialize();
 
         // [GIVEN] The ID of an Error Message with no additional information nor support url
         ID := TempErrorMessage.LogMessage(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -170,7 +170,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] The user can add details to an existing detailed Error Message (details are overwritten)
-        Initialize;
+        Initialize();
 
         // [GIVEN] The ID of an Error Message with additional information and support url
         ID := TempErrorMessage.LogDetailedMessage(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -192,7 +192,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage: Record "Error Message" temporary;
     begin
         // [SCENARIO] The user cannot add details to a non-existing Error Message (ID <> 0 is provided)
-        Initialize;
+        Initialize();
 
         // [WHEN] Message Details are added to a non-existing message ID
         // [THEN] An error is thrown
@@ -214,7 +214,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfIsEmpty function, if the provided field is empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an empty field
         DataTypeBuffer.Init();
@@ -246,7 +246,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfIsEmpty function, if the provided field is not empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a non-empty field
         // [GIVEN] Field is of type [Option, Boolean,Text,Code,Date,Decimal,Integer,BigInteger,Time,DateTime,Duration,GUID,DateFormula].
@@ -276,7 +276,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfLengthExceeded function, if the provided field is Text and exceeds the maximum length
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a text field with 6 characters
         DataTypeBuffer.Init();
@@ -305,7 +305,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfLengthExceeded function, if the provided field is Code and exceeds the maximum length
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a code field with 6 characters
         DataTypeBuffer.Init();
@@ -334,7 +334,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfLengthExceeded function, if the provided field is Integer and exceeds the maximum length
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a integer field with 6 numbers
         DataTypeBuffer.Init();
@@ -363,7 +363,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfLengthExceeded function, if the provided field is Decimal and exceeds the maximum length
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a decimal field with 6 numbers(including comma)
         DataTypeBuffer.Init();
@@ -391,7 +391,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfLengthExceeded function, if the provided field is Text and is within maximum length
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a text field with 5 characters
         DataTypeBuffer.Init();
@@ -417,7 +417,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfLengthExceeded function, if the provided field is Code and is within maximum length
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a code field with 5 characters
         DataTypeBuffer.Init();
@@ -443,7 +443,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfLengthExceeded function, if the provided field is Integer and is within maximum length
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer field with 5 characters
         DataTypeBuffer.Init();
@@ -469,7 +469,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfLengthExceeded function, if the provided field is Decimal and is within maximum length
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a decimal field with 5 characters
         DataTypeBuffer.Init();
@@ -496,7 +496,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfInvalidCharacters function, if the provided field contains invalid characters
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a text field containing Copenhagen1
         DataTypeBuffer.Init();
@@ -525,7 +525,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfInvalidCharacters function, if the provided field does not contain invalid characters
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with a text field containing Copenhagen
         DataTypeBuffer.Init();
@@ -553,7 +553,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfOutsideRange function, if the provided field is outside the supplied range
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -581,7 +581,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfOutsideRange function, if the provided field is within the supplied range
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 4
         DataTypeBuffer.Init();
@@ -608,7 +608,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfGreaterThan function, if the provided field is greater than the maximum value
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -636,7 +636,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfGreaterThan function, if the provided field is equal to or less than the maximum value
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -663,7 +663,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfLessThan function, if the provided field is less than the minimum value
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -691,7 +691,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfLessThan function, if the provided field is equal to or greater than the minimum value
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -718,7 +718,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfEqualTo function, if the provided field is equal to the invalid value
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -747,7 +747,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfEqualTo function, if the provided field is equal to the invalid value (containing filter string characters)
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -775,7 +775,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfEqualTo function, if the provided field is different from the invalid value
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -802,7 +802,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is added when using LogIfNotEqualTo function, if the provided field is equal to the valid value
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -830,7 +830,7 @@ codeunit 135000 "Error Message Tests"
         ID: Integer;
     begin
         // [SCENARIO] An Error Message is not added when using LogIfNotEqualTo function, if the provided field is different from the valid value
-        Initialize;
+        Initialize();
 
         // [GIVEN] A record with an integer value = 5
         DataTypeBuffer.Init();
@@ -854,7 +854,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage: Record "Error Message" temporary;
     begin
         // [SCENARIO] All Error Messages are cleared when using ClearLog function, regardless of the current filter
-        Initialize;
+        Initialize();
 
         with TempErrorMessage do begin
             // [GIVEN] A record in the error message table
@@ -880,7 +880,7 @@ codeunit 135000 "Error Message Tests"
         ErrorMessage: Record "Error Message";
     begin
         // [SCENARIO] All Error Messages are cleared when using ClearLog function, regardless of the current filter
-        Initialize;
+        Initialize();
 
         // Exercise
         TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
@@ -909,7 +909,7 @@ codeunit 135000 "Error Message Tests"
         Customer: Record Customer;
     begin
         // [SCENARIO] The HasErrorMessagesRelatedTo function returns TRUE if a message has been logged for the supplied record.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An error has been logged for a record
         LibrarySales.CreateCustomer(Customer);
@@ -930,7 +930,7 @@ codeunit 135000 "Error Message Tests"
         Customer: Record Customer;
     begin
         // [SCENARIO] The HasErrorMessagesRelatedTo function returns FALSE if no messages have been logged for the supplied record.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An error has been logged for a record
         Customer.Find('-');
@@ -951,7 +951,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage: Record "Error Message" temporary;
     begin
         // [SCENARIO] The ErrorMessageCount function returns the number of messages that have been logged with the provided Lowest Severity Message Type
-        Initialize;
+        Initialize();
 
         with TempErrorMessage do begin
             // [GIVEN] An error has been logged for each message type, error, warning and message
@@ -972,7 +972,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage: Record "Error Message" temporary;
     begin
         // [SCENARIO] The ErrorMessageCount function returns the number of messages that have been logged with the provided Lowest Severity Message Type
-        Initialize;
+        Initialize();
 
         with TempErrorMessage do begin
             // [GIVEN] An error has been logged for each message type, error, warning and message
@@ -1000,7 +1000,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage: Record "Error Message" temporary;
     begin
         // [SCENARIO] The HasErrors function reports returns TRUE and shows a message if an error has been logged and ShowMessage = TRUE
-        Initialize;
+        Initialize();
 
         with TempErrorMessage do begin
             // [GIVEN] An error and a warning message type has been logged
@@ -1021,7 +1021,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage: Record "Error Message" temporary;
     begin
         // [SCENARIO] The HasErrors function reports returns TRUE and does not show a message if an error has been logged and ShowMessage = FALSE
-        Initialize;
+        Initialize();
 
         with TempErrorMessage do begin
             // [GIVEN] An error and a warning message type has been logged
@@ -1042,7 +1042,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage: Record "Error Message" temporary;
     begin
         // [SCENARIO] The HasErrors function reports returns FALSE and does not show a message if no error has been logged and ShowMessage = TRUE
-        Initialize;
+        Initialize();
 
         with TempErrorMessage do begin
             // [GIVEN] A Message and a warning message type has been logged
@@ -1064,7 +1064,7 @@ codeunit 135000 "Error Message Tests"
         ErrorMessage: Text;
     begin
         // [SCENARIO] The ToString function returns a Text representation of the current errors, with Message Type and Description
-        Initialize;
+        Initialize();
 
         with TempErrorMessage do begin
             // [GIVEN] An error and a warning message type has been logged
@@ -1086,7 +1086,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage: Record "Error Message" temporary;
     begin
         // [SCENARIO] The function ThrowError will throw an error if a message has been logged with "Message Type" = Error
-        Initialize;
+        Initialize();
 
         with TempErrorMessage do begin
             // [GIVEN] An error message has been logged
@@ -1108,7 +1108,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage: Record "Error Message" temporary;
     begin
         // [SCENARIO] The function ThrowError will not throw an error if no messages has been logged with "Message Type" = Error
-        Initialize;
+        Initialize();
 
         with TempErrorMessage do begin
             // [GIVEN] Only a warning message has been logged
@@ -1129,7 +1129,7 @@ codeunit 135000 "Error Message Tests"
         ErrorMessages: TestPage "Error Messages";
     begin
         // [SCENARIO] The function ThrowError will not throw an error if no messages has been logged with "Message Type" = Error
-        Initialize;
+        Initialize();
 
         with ErrorMessage do begin
             // [GIVEN] Only a warning message has been logged
@@ -1158,7 +1158,7 @@ codeunit 135000 "Error Message Tests"
         ErrorMessage: Record "Error Message";
     begin
         // [SCENARIO] GetLastID returns the last ID regardless of "Message Type" and keeps Context unchanged.
-        Initialize;
+        Initialize();
         ErrorMessage.SetContext(GLBCustomerContext);
         ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Information, GenericErrorDescriptionTxt);
 
@@ -1177,7 +1177,7 @@ codeunit 135000 "Error Message Tests"
         ErrorMessage: Record "Error Message";
     begin
         // [SCENARIO] LogContextFieldError adds Error record not checking for uniqueness.
-        Initialize;
+        Initialize();
         // [WHEN] Add two identical error messages with Context as Customer 'A' for field number 90,
         // [WHEN] Source as Vendor 'B' for field number 86; "Support URL" is 'Link'
         ErrorMessage.SetContext(GLBCustomerContext);
@@ -1212,7 +1212,7 @@ codeunit 135000 "Error Message Tests"
         DummyRecID: RecordID;
     begin
         // [SCENARIO] LogContextFieldError accepts a table number instead of Record ID as the source.
-        Initialize;
+        Initialize();
         // [WHEN] Add two identical error messages with Context as Customer 'A' for field number 90,
         // [WHEN] Source as Table 'Vendor' for field number 86
         ErrorMessage.SetContext(GLBCustomerContext);
@@ -1235,7 +1235,7 @@ codeunit 135000 "Error Message Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] "Field Name" shows context field caption if "Context Feild Number" is defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] Error context is set
         TempErrorMessage.SetContext(GLBCustomerContext);
@@ -1267,7 +1267,7 @@ codeunit 135000 "Error Message Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] "Field Name" shows source field caption if "Context Feild Number" is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Error context is not set
         // [GIVEN] LogContextFieldError, where Context Field is 'GLN', Source Field is 'VAT Registration No.'
@@ -1296,7 +1296,7 @@ codeunit 135000 "Error Message Tests"
     begin
         // [FEATURE] [Job Queue]
         // [SCENARIO 361491] "Error Call Stack" should be filled in while posting a document via job queue and the error is outside of the error processing feature
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup to post sales document via job queue
         LibrarySales.SetPostWithJobQueue(true);
@@ -1333,7 +1333,7 @@ codeunit 135000 "Error Message Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 391579] LogTestField for option field without value parameter logs error 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Activate error handling
         ErrorMessageMgt.Activate(ErrorMessageHandler);
@@ -1363,7 +1363,7 @@ codeunit 135000 "Error Message Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 391579] LogTestField for option field without value parameter logs error with Context Field No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Activate error handling with Gen. Journal Line context 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
@@ -1393,7 +1393,7 @@ codeunit 135000 "Error Message Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 391579] LogTestField for option field with value parameter logs error with Context Field No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Activate error handling with Gen. Journal Line context 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
@@ -1423,7 +1423,7 @@ codeunit 135000 "Error Message Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 391579] LogFieldError for option field logs error with Context Field No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Activate error handling with Gen. Journal Line context 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
@@ -1453,7 +1453,7 @@ codeunit 135000 "Error Message Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 391579] Function GetFieldNo of LibraryErrorMessage codeunit uses field caption to find a field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Activate error handling 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
@@ -1487,8 +1487,8 @@ codeunit 135000 "Error Message Tests"
         DataTypeBuffer.DeleteAll();
         ErrorMessage.DeleteAll();
 
-        GLBCustomerContext.FindFirst;
-        GLBVendorContext.FindFirst;
+        GLBCustomerContext.FindFirst();
+        GLBVendorContext.FindFirst();
     end;
 
     local procedure VerifyErrorMessage(var TempErrorMessage: Record "Error Message" temporary; ID: Integer; FieldNumber: Integer; ErrorType: Option; Description: Text)
@@ -1521,7 +1521,7 @@ codeunit 135000 "Error Message Tests"
         OutStream: OutStream;
     begin
         CurrencyRecordRef.Open(DATABASE::Currency);
-        CurrencyRecordRef.FindFirst;
+        CurrencyRecordRef.FindFirst();
         with DataTypeBuffer do begin
             Init;
             ID := LibraryRandom.RandIntInRange(1, 100);

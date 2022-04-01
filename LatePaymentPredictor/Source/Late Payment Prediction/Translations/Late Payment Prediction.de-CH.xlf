@@ -914,6 +914,24 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">TableExtension 3795713173</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 574733425 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LatePaymentPredictor - Edit</source>
+          <target state="translated">LatePaymentPredictor – Bearbeiten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet LatePayment - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1102078223 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LatePaymentPredictor - Objects</source>
+          <target state="translated">LatePaymentPredictor – Objekte</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet LatePayment - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3395074579 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LatePaymentPredictor - Read</source>
+          <target state="translated">LatePaymentPredictor – Lesen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet LatePayment - Read - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

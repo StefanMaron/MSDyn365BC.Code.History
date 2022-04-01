@@ -6,11 +6,9 @@ table 299 "Reminder Comment Line"
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Reminder Comment Line Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Reminder,Issued Reminder';
-            OptionMembers = Reminder,"Issued Reminder";
         }
         field(2; "No."; Code[20])
         {
@@ -57,7 +55,7 @@ table 299 "Reminder Comment Line"
         ReminderCommentLine.SetRange(Type, Type);
         ReminderCommentLine.SetRange("No.", "No.");
         ReminderCommentLine.SetRange(Date, WorkDate);
-        if not ReminderCommentLine.FindFirst then
+        if not ReminderCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, ReminderCommentLine);
@@ -75,10 +73,10 @@ table 299 "Reminder Comment Line"
 
         ReminderCommentLine.SetRange(Type, FromType);
         ReminderCommentLine.SetRange("No.", FromNumber);
-        if ReminderCommentLine.FindSet then
+        if ReminderCommentLine.FindSet() then
             repeat
                 ReminderCommentLine2 := ReminderCommentLine;
-                ReminderCommentLine2.Type := ToType;
+                ReminderCommentLine2.Type := "Reminder Comment Line Type".FromInteger(ToType);
                 ReminderCommentLine2."No." := ToNumber;
                 ReminderCommentLine2.Insert();
             until ReminderCommentLine.Next() = 0;
@@ -101,7 +99,7 @@ table 299 "Reminder Comment Line"
         SetRange("Line No.", DocLineNo);
         Clear(ReminderCommentSheet);
         ReminderCommentSheet.SetTableView(Rec);
-        ReminderCommentSheet.RunModal;
+        ReminderCommentSheet.RunModal();
     end;
 
     [IntegrationEvent(false, false)]

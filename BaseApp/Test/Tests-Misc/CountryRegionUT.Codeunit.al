@@ -71,7 +71,7 @@ codeunit 134277 "Country/Region UT"
     begin
         // [FEATURE] [ISO Code] [UI]
         // [SCENARIO] "ISO Code" and "ISO Numeric Code" are editable on the Countries\Regions page
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Country 'XX', where "ISO Code" is 'YY', "ISO Numeric Code" is '001'
         CountryRegion.Init();
         CountryRegion.Code := 'XX';

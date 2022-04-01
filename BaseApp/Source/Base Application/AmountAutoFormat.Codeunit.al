@@ -55,7 +55,7 @@ codeunit 347 "Amount Auto Format"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Auto Format", 'OnReadRounding', '', false, false)]
     local procedure ReadRounding(var AmountRoundingPrecision: Decimal)
     begin
-        GetGLSetup;
+        GetGLSetup();
         AmountRoundingPrecision := GLSetup."Amount Rounding Precision";
     end;
 

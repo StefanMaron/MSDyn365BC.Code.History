@@ -6,7 +6,7 @@ page 99000773 "Capacity Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Capacity';
+    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Capacity,Page';
     SaveValues = true;
     SourceTable = "Item Journal Line";
     UsageCategory = Tasks;
@@ -26,6 +26,7 @@ page 99000773 "Capacity Journal"
                 begin
                     CurrPage.SaveRecord();
                     ItemJnlMgt.LookupName(CurrentJnlBatchName, Rec);
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
@@ -302,6 +303,15 @@ page 99000773 "Capacity Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Item Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -347,7 +357,7 @@ page 99000773 "Capacity Journal"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -461,6 +471,49 @@ page 99000773 "Capacity Journal"
                     end;
                 }
             }
+            group("Page")
+            {
+                Caption = 'Page';
+                group(Errors)
+                {
+                    Caption = 'Issues';
+                    Image = ErrorLog;
+                    Visible = BackgroundErrorCheck;
+                    action(ShowLinesWithErrors)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show Lines with Issues';
+                        Image = Error;
+                        Promoted = true;
+                        PromotedCategory = Category7;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = not ShowAllLinesEnabled;
+                        ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                    action(ShowAllLines)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show All Lines';
+                        Image = ExpandAll;
+                        Promoted = true;
+                        PromotedCategory = Category7;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = ShowAllLinesEnabled;
+                        ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+
+                }
+            }
         }
     }
 
@@ -490,19 +543,24 @@ page 99000773 "Capacity Journal"
         if Rec.IsOpenedFromBatch then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
             exit;
         end;
         ItemJnlMgt.TemplateSelection(PAGE::"Capacity Journal", 6, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
     end;
 
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
+        ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         CapDescription: Text[30];
         CurrentJnlBatchName: Code[10];
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -519,7 +577,22 @@ page 99000773 "Capacity Journal"
     begin
         CurrPage.SaveRecord();
         ItemJnlMgt.SetName(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
+    end;
+
+    local procedure SetControlAppearanceFromBatch()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+    begin
+        if not ItemJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
+
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        ItemJournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     procedure ItemNoOnAfterValidate()

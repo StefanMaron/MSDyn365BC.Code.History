@@ -212,7 +212,7 @@ codeunit 134996 "UT Period Form Mgt"
         // [SCENARIO 312912] Function FindDate returns Calendar."Period End" = 31.12.9999 in case Calendar."Period Start" is equal to Starting Date of the last Accounting Period.
 
         // [GIVEN] Set Calendar."Period Start" = AccountingPeriod."Starting Date" of the last Accounting Period.
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         Calendar."Period Start" := AccountingPeriod."Starting Date";
 
         // [WHEN] Run FindDate function on this Calendar record with SearchString ">=" and Period Type "Accounting Period".

@@ -3,6 +3,7 @@ table 888 "SmartList Designer Setup"
     Access = Internal;
     DataPerCompany = false;
     Extensible = false;
+    ReplicateData = false;
     DataClassification = OrganizationIdentifiableInformation;
 #if not CLEAN19
     ObsoleteState = Pending;
