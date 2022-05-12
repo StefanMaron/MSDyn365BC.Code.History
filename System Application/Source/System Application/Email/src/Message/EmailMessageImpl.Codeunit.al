@@ -73,9 +73,9 @@ codeunit 8905 "Email Message Impl."
 
     procedure UpdateMessage(ToRecipients: List of [Text]; Subject: Text; Body: Text; HtmlFormatted: Boolean; CCRecipients: List of [Text]; BCCRecipients: List of [Text])
     begin
-        SetBody(Body);
-        SetSubject(Subject);
-        SetBodyHTMLFormatted(HtmlFormatted);
+        SetBodyValue(Body);
+        SetSubjectValue(Subject);
+        SetBodyHTMLFormattedValue(HtmlFormatted);
         Modify();
 
         SetRecipients(Enum::"Email Recipient Type"::"To", ToRecipients);
@@ -97,7 +97,7 @@ codeunit 8905 "Email Message Impl."
         BodyInStream.Read(BodyText);
     end;
 
-    procedure SetBody(BodyText: Text)
+    local procedure SetBodyValue(BodyText: Text)
     var
         BodyOutStream: OutStream;
     begin
@@ -111,14 +111,37 @@ codeunit 8905 "Email Message Impl."
         BodyOutStream.Write(BodyText);
     end;
 
+    procedure SetBody(BodyText: Text)
+    begin
+        SetBodyValue(BodyText);
+        Modify();
+    end;
+
+    procedure AppendToBody(BodyText: Text)
+    var
+        ExistingBodyText: Text;
+    begin
+        if BodyText = '' then
+            exit;
+
+        ExistingBodyText := GetBody();
+        SetBody(ExistingBodyText + BodyText);
+    end;
+
     procedure GetSubject(): Text[2048]
     begin
         exit(EmailMessageRec.Subject);
     end;
 
-    procedure SetSubject(Subject: Text)
+    local procedure SetSubjectValue(Subject: Text)
     begin
         EmailMessageRec.Subject := CopyStr(Subject, 1, MaxStrLen(EmailMessageRec.Subject));
+    end;
+
+    procedure SetSubject(Subject: Text)
+    begin
+        SetSubjectValue(Subject);
+        Modify();
     end;
 
     procedure IsBodyHTMLFormatted(): Boolean
@@ -126,9 +149,15 @@ codeunit 8905 "Email Message Impl."
         exit(EmailMessageRec."HTML Formatted Body");
     end;
 
-    procedure SetBodyHTMLFormatted(Value: Boolean)
+    local procedure SetBodyHTMLFormattedValue(Value: Boolean)
     begin
         EmailMessageRec."HTML Formatted Body" := Value;
+    end;
+
+    procedure SetBodyHTMLFormatted(Value: Boolean)
+    begin
+        SetBodyHTMLFormattedValue(Value);
+        Modify();
     end;
 
     procedure IsRead(): Boolean
@@ -322,6 +351,26 @@ codeunit 8905 "Email Message Impl."
                     EmailRecipientRecord.Insert();
                 end;
         end;
+    end;
+
+    procedure AddRecipient(RecipientType: Enum "Email Recipient Type"; Recipient: Text)
+    var
+        Recipients: List of [Text];
+    begin
+        Recipient := DelChr(Recipient, '<>'); // trim the whitespaces around
+
+        if Recipient = '' then
+            exit;
+
+        Recipient := Recipient.ToLower();
+
+        Recipients := GetRecipients(RecipientType);
+
+        if Recipients.Contains(Recipient) then
+            exit;
+
+        Recipients.Add(Recipient);
+        SetRecipients(RecipientType, Recipients);
     end;
 
     procedure Attachments_DeleteContent(): Boolean

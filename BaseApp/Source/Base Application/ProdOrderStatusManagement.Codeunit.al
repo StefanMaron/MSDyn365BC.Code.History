@@ -78,6 +78,7 @@ codeunit 5407 "Prod. Order Status Management"
             WhseProdRelease.FinishedDelete(ProdOrder);
             WhseOutputProdRelease.FinishedDelete(ProdOrder);
         end else begin
+            OnChangeProdOrderStatusOnBeforeTransProdOrder(ProdOrder, NewStatus);
             TransProdOrder(ProdOrder);
             FlushProdOrder(ProdOrder, NewStatus, NewPostingDate);
             WhseProdRelease.Release(ProdOrder);
@@ -174,6 +175,7 @@ codeunit 5407 "Prod. Order Status Management"
         ToProdOrderLine: Record "Prod. Order Line";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         NewStatusOption: Option;
+        IsHandled: Boolean;
     begin
         with FromProdOrderLine do begin
             SetRange(Status, FromProdOrder.Status);
@@ -182,45 +184,48 @@ codeunit 5407 "Prod. Order Status Management"
             if FindSet() then begin
                 OnTransProdOrderLineOnAfterFromProdOrderLineFindSet(FromProdOrderLine, ToProdOrderLine, NewStatus);
                 repeat
-                    OnTransProdOrderLineOnBeforeFromProdOrderLineLoop(FromProdOrderLine, ToProdOrderLine, NewStatus);
-                    ToProdOrderLine := FromProdOrderLine;
-                    ToProdOrderLine.Status := ToProdOrder.Status;
-                    ToProdOrderLine."Prod. Order No." := ToProdOrder."No.";
-                    InsertProdOrderLine(ToProdOrderLine, FromProdOrderLine);
-                    if NewStatus = NewStatus::Finished then begin
-                        if InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, "Prod. Order No.", "Line No.") then begin
-                            InvtAdjmtEntryOrder."Routing No." := ToProdOrderLine."Routing No.";
+                    IsHandled := false;
+                    OnTransProdOrderLineOnBeforeFromProdOrderLineLoop(FromProdOrderLine, ToProdOrderLine, NewStatus, IsHandled);
+                    if not IsHandled then begin
+                        ToProdOrderLine := FromProdOrderLine;
+                        ToProdOrderLine.Status := ToProdOrder.Status;
+                        ToProdOrderLine."Prod. Order No." := ToProdOrder."No.";
+                        InsertProdOrderLine(ToProdOrderLine, FromProdOrderLine);
+                        if NewStatus = NewStatus::Finished then begin
+                            if InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, "Prod. Order No.", "Line No.") then begin
+                                InvtAdjmtEntryOrder."Routing No." := ToProdOrderLine."Routing No.";
+                                InvtAdjmtEntryOrder.Modify();
+                            end else
+                                InvtAdjmtEntryOrder.SetProdOrderLine(FromProdOrderLine);
+                            InvtAdjmtEntryOrder."Cost is Adjusted" := false;
+                            InvtAdjmtEntryOrder."Is Finished" := true;
                             InvtAdjmtEntryOrder.Modify();
-                        end else
-                            InvtAdjmtEntryOrder.SetProdOrderLine(FromProdOrderLine);
-                        InvtAdjmtEntryOrder."Cost is Adjusted" := false;
-                        InvtAdjmtEntryOrder."Is Finished" := true;
-                        InvtAdjmtEntryOrder.Modify();
 
-                        if NewUpdateUnitCost then
-                            UpdateProdOrderCost.UpdateUnitCostOnProdOrder(FromProdOrderLine, true, true);
-                        ToProdOrderLine."Unit Cost (ACY)" :=
-                          ACYMgt.CalcACYAmt(ToProdOrderLine."Unit Cost", NewPostingDate, true);
-                        ToProdOrderLine."Cost Amount (ACY)" :=
-                          ACYMgt.CalcACYAmt(ToProdOrderLine."Cost Amount", NewPostingDate, false);
-                        ReservMgt.SetReservSource(FromProdOrderLine);
-                        ReservMgt.DeleteReservEntries(true, 0);
-                        OnTransProdOrderLineOnAfterDeleteReservEntries(FromProdOrderLine, ToProdOrderLine, NewStatus);
-                    end else begin
-                        if Item.Get("Item No.") then begin
-                            if (Item."Costing Method" <> Item."Costing Method"::Standard) and NewUpdateUnitCost then
-                                UpdateProdOrderCost.UpdateUnitCostOnProdOrder(FromProdOrderLine, false, true);
+                            if NewUpdateUnitCost then
+                                UpdateProdOrderCost.UpdateUnitCostOnProdOrder(FromProdOrderLine, true, true);
+                            ToProdOrderLine."Unit Cost (ACY)" :=
+                              ACYMgt.CalcACYAmt(ToProdOrderLine."Unit Cost", NewPostingDate, true);
+                            ToProdOrderLine."Cost Amount (ACY)" :=
+                              ACYMgt.CalcACYAmt(ToProdOrderLine."Cost Amount", NewPostingDate, false);
+                            ReservMgt.SetReservSource(FromProdOrderLine);
+                            ReservMgt.DeleteReservEntries(true, 0);
+                            OnTransProdOrderLineOnAfterDeleteReservEntries(FromProdOrderLine, ToProdOrderLine, NewStatus);
+                        end else begin
+                            if Item.Get("Item No.") then begin
+                                if (Item."Costing Method" <> Item."Costing Method"::Standard) and NewUpdateUnitCost then
+                                    UpdateProdOrderCost.UpdateUnitCostOnProdOrder(FromProdOrderLine, false, true);
+                            end;
+                            ToProdOrderLine.BlockDynamicTracking(true);
+                            ToProdOrderLine.Validate(Quantity);
+                            ProdOrderLineReserve.TransferPOLineToPOLine(FromProdOrderLine, ToProdOrderLine, 0, true);
                         end;
-                        ToProdOrderLine.BlockDynamicTracking(true);
-                        ToProdOrderLine.Validate(Quantity);
-                        ProdOrderLineReserve.TransferPOLineToPOLine(FromProdOrderLine, ToProdOrderLine, 0, true);
+                        ToProdOrderLine.Validate("Unit Cost", "Unit Cost");
+                        OnCopyFromProdOrderLine(ToProdOrderLine, FromProdOrderLine);
+                        ToProdOrderLine.Modify();
+                        NewStatusOption := NewStatus.AsInteger();
+                        OnAfterToProdOrderLineModify(ToProdOrderLine, FromProdOrderLine, NewStatusOption);
+                        NewStatus := "Production Order Status".FromInteger(NewStatusOption);
                     end;
-                    ToProdOrderLine.Validate("Unit Cost", "Unit Cost");
-                    OnCopyFromProdOrderLine(ToProdOrderLine, FromProdOrderLine);
-                    ToProdOrderLine.Modify();
-                    NewStatusOption := NewStatus.AsInteger();
-                    OnAfterToProdOrderLineModify(ToProdOrderLine, FromProdOrderLine, NewStatusOption);
-                    NewStatus := "Production Order Status".FromInteger(NewStatusOption);
                 until Next() = 0;
                 OnAfterTransProdOrderLines(FromProdOrder, ToProdOrder);
                 DeleteAll();
@@ -765,7 +770,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Type, Type::Item);
             SetRange("Prod. Order No.", ProdOrder."No.");
             SetFilter("Outstanding Quantity", '<>%1', 0);
-            OnCheckBeforeFinishProdOrderOnAfterSetProdOrderCompFilters(ProdOrderComp);
+            OnCheckBeforeFinishProdOrderOnAfterSetProdOrderCompFilters(ProdOrderComp, ProdOrder, PurchLine);
             if FindFirst() then
                 Error(Text008, ProdOrder.TableCaption, ProdOrder."No.", "Document No.");
         end;
@@ -1149,6 +1154,11 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnChangeProdOrderStatusOnBeforeTransProdOrder(var ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckMissingConsumption(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ShowWarning: Boolean)
     begin
     end;
@@ -1159,7 +1169,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckBeforeFinishProdOrderOnAfterSetProdOrderCompFilters(var ProdOrderComp: Record "Prod. Order Component");
+    local procedure OnCheckBeforeFinishProdOrderOnAfterSetProdOrderCompFilters(var ProdOrderComp: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"; var PurchaseLine: Record "Purchase Line");
     begin
     end;
 
@@ -1289,7 +1299,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransProdOrderLineOnBeforeFromProdOrderLineLoop(FromProdOrderLine: Record "Prod. Order Line"; var ToProdOrderLine: Record "Prod. Order Line"; NewStatus: Enum "Production Order Status")
+    local procedure OnTransProdOrderLineOnBeforeFromProdOrderLineLoop(FromProdOrderLine: Record "Prod. Order Line"; var ToProdOrderLine: Record "Prod. Order Line"; NewStatus: Enum "Production Order Status"; var IsHandled: Boolean)
     begin
     end;
 

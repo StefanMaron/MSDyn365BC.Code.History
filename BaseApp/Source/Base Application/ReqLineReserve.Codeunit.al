@@ -21,6 +21,7 @@ codeunit 99000833 "Req. Line-Reserve"
     procedure CreateReservation(var ReqLine: Record "Requisition Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
+        IsHandled: Boolean;
     begin
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text005);
@@ -47,16 +48,22 @@ codeunit 99000833 "Req. Line-Reserve"
         if ReqLine."Planning Flexibility" <> ReqLine."Planning Flexibility"::Unlimited then
             CreateReservEntry.SetPlanningFlexibility(ReqLine."Planning Flexibility");
 
-        CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Requisition Line", 0,
-          ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name", 0, ReqLine."Line No.",
-          ReqLine."Qty. per Unit of Measure", Quantity, QuantityBase, ForReservEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(ReqLine, Quantity, QuantityBase, ForReservEntry, IsHandled);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+            DATABASE::"Requisition Line", 0,
+            ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name", 0, ReqLine."Line No.",
+            ReqLine."Qty. per Unit of Measure", Quantity, QuantityBase, ForReservEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
           ReqLine."No.", ReqLine."Variant Code", ReqLine."Location Code",
           Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
+
+        OnAfterCreateReservation(ReqLine);
     end;
 
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
@@ -743,6 +750,16 @@ codeunit 99000833 "Req. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyChange(var NewReqLine: Record "Requisition Line"; var OldReqLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ReqLine: Record "Requisition Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateReservation(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

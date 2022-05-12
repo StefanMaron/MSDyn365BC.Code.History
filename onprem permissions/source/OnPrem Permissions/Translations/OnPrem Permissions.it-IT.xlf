@@ -107,7 +107,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2844503161 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in ins. jnls.</source>
-          <target state="translated">Crea movim. in registr. ass.</target>
+          <target state="translated">Crea mov. in reg assicurazioni</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FA-INS JOURNAL - Property Caption</note>
         </trans-unit>
@@ -125,7 +125,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 755073828 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read insurances and entries</source>
-          <target state="translated">Leggi assic. e movim.</target>
+          <target state="translated">Leggi assicurazioni, movimenti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FA-INSURANCE - Property Caption</note>
         </trans-unit>
@@ -137,7 +137,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2185341261 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in FA journals</source>
-          <target state="translated">Crea mov. in registrazioni CSP</target>
+          <target state="translated">Crea movimenti in reg. cespiti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FA-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -197,7 +197,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3231919786 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read bank accounts and entries</source>
-          <target state="translated">Leggi conti corr. banc. e mov.</target>
+          <target state="translated">Leggi conti bancari, movimenti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet G/L-BANK ACC - Property Caption</note>
         </trans-unit>
@@ -275,7 +275,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1824228431 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create and edit confidential</source>
-          <target state="translated">Crea e mod. inf. riservate</target>
+          <target state="translated">Crea e modifica dati riservati</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet HR-CONFIDENTIAL - Property Caption</note>
         </trans-unit>
@@ -341,7 +341,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2386896655 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in item jnls.</source>
-          <target state="translated">Crea mov. in registr. magazz.</target>
+          <target state="translated">Crea mov. in reg. articoli</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-ITEM JNL - Property Caption</note>
         </trans-unit>
@@ -377,7 +377,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2425111757 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Taking a physical inventory</source>
-          <target state="translated">Esec. di un inventario fisico</target>
+          <target state="translated">Esecuzione inventario fisico</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-PHYS INV JNL - Property Caption</note>
         </trans-unit>
@@ -569,7 +569,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1994146690 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Setup MS Dataverse Int.</source>
-          <target state="translated">Setup integr. MS dataverse</target>
+          <target state="translated">Setup integraz. MS Dataverse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MS DATAVERSE SETUP - Property Caption</note>
         </trans-unit>
@@ -593,13 +593,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 4181873227 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Outlook Synch. power user</source>
-          <target state="translated">Power user Sincroniz. Outlook</target>
+          <target state="translated">Utente esp. sincroniz. Outlook</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet OSYNCHPUSER - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 3464226675 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Outlook Synch. common user</source>
-          <target state="translated">Utente com. Sincroniz. Outlook</target>
+          <target state="translated">Utente com. sincroniz. Outlook</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet OSYNCHUSER - Property Caption</note>
         </trans-unit>
@@ -761,7 +761,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1930651864 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read contacts, entries, etc.</source>
-          <target state="translated">Leggi contatti, movim., ecc.</target>
+          <target state="translated">Leggi contatti, movimenti ecc.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RM-CONT - Property Caption</note>
         </trans-unit>
@@ -959,7 +959,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2032439741 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Delete VAT Rate Change Log</source>
-          <target state="translated">Elimina log modif aliquota IVA</target>
+          <target state="translated">Elimina log mod. aliquota IVA</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VAT-RC-LOG, DELETE - Property Caption</note>
         </trans-unit>
@@ -995,7 +995,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 187964102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post receipt, put away,etc.</source>
-          <target state="translated">Reg. carico, stoccaggio, ecc.</target>
+          <target state="translated">Registra carico, stoccaggio</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-R/PA/A/P/S, POST - Property Caption</note>
         </trans-unit>

@@ -16,7 +16,6 @@ codeunit 134605 "Test Report Layout Selection"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySmtpMailHandler: Codeunit "Library - SMTP Mail Handler";
         OneRecordWillBeSentQst: Label 'Only the first of the selected documents can be scheduled in the job queue.\\Do you want to continue?';
-        DefaultLbl: Label '(Default)';
 
     [Test]
     [HandlerFunctions('NotificationHandler')]
@@ -155,6 +154,7 @@ codeunit 134605 "Test Report Layout Selection"
         CustomReportLayout: Record "Custom Report Layout";
         ReportLayoutSelection: Record "Report Layout Selection";
         ReportLayoutSelectionPage: TestPage "Report Layout Selection";
+        ReportMetadata: Record "Report Metadata";
     begin
         // Combined tests due to expensive initialization (>5 sec.)
         ReportLayoutSelectionPage.OpenView;
@@ -170,7 +170,8 @@ codeunit 134605 "Test Report Layout Selection"
 
         // Execute. Opens modal pages.
         ReportLayoutSelectionPage.Type.SetValue(Format(ReportLayoutSelection.Type::"Custom Layout")); // Opens lookup
-        Assert.AreEqual(DefaultLbl, ReportLayoutSelectionPage.CustomLayoutDescription.Value, '');
+        ReportMetadata.Get(134600);
+        Assert.AreEqual(ReportMetadata.DefaultLayoutName, ReportLayoutSelectionPage.CustomLayoutDescription.Value, '');
     end;
 
     [Test]
@@ -180,6 +181,7 @@ codeunit 134605 "Test Report Layout Selection"
         ReportLayoutSelection: Record "Report Layout Selection";
         ReportLayoutSelectionPage: TestPage "Report Layout Selection";
         ReportLayoutList: Record "Report Layout List";
+        ReportMetadata: Record "Report Metadata";
         ReportId: Integer;
         TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
         PublishedApplication: Record "Published Application";
@@ -216,8 +218,10 @@ codeunit 134605 "Test Report Layout Selection"
         // [WHEN] The report layout description is cleared
         ReportLayoutSelectionPage.CustomLayoutDescription.SetValue('');
 
+        Assert.IsTrue(ReportMetadata.Get(134600), 'Report should exist');
+
         // [THEN] The layout goes back to default
-        Assert.AreEqual(DefaultLbl, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'Correct layout should be set');
+        Assert.AreEqual(ReportMetadata.DefaultLayoutName, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'Correct layout should be set');
         // [THEN] The tenant layout selection is deleted
         Assert.RecordIsEmpty(TenantReportLayoutSelection);
     end;
@@ -229,6 +233,7 @@ codeunit 134605 "Test Report Layout Selection"
         ReportLayoutSelection: Record "Report Layout Selection";
         ReportLayoutSelectionPage: TestPage "Report Layout Selection";
         ReportLayoutList: Record "Report Layout List";
+        ReportMetadata: Record "Report Metadata";
         ReportId: Integer;
         TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
         PublishedApplication: Record "Published Application";
@@ -265,8 +270,9 @@ codeunit 134605 "Test Report Layout Selection"
         // [WHEN] The report layout description is cleared
         ReportLayoutSelectionPage.CustomLayoutDescription.SetValue('');
 
+        ReportMetadata.Get(134600);
         // [THEN] The layout goes back to default
-        Assert.AreEqual(DefaultLbl, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'Correct layout should be set');
+        Assert.AreEqual(ReportMetadata.DefaultLayoutName, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'Correct layout should be set');
         // [THEN] The tenant layout selection is deleted
         Assert.RecordIsEmpty(TenantReportLayoutSelection);
     end;
@@ -301,6 +307,7 @@ codeunit 134605 "Test Report Layout Selection"
         ReportLayoutSelection: Record "Report Layout Selection";
         ReportLayoutSelectionPage: TestPage "Report Layout Selection";
         ReportLayoutList: Record "Report Layout List";
+        ReportMetadata: Record "Report Metadata";
         ReportId: Integer;
         TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
         PublishedApplication: Record "Published Application";
@@ -330,8 +337,9 @@ codeunit 134605 "Test Report Layout Selection"
 
         ReportLayoutSelectionPage.RestoreDefaultLayout.Invoke();
 
+        Assert.IsTrue(ReportMetadata.Get(134600), 'Report should exist.');
         // [THEN] The layout selection should be set to default
-        Assert.AreEqual(DefaultLbl, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'The default layout should have been restored.');
+        Assert.AreEqual(ReportMetadata.DefaultLayoutName, ReportLayoutSelectionPage.CustomLayoutDescription.Value, 'The default layout should have been restored.');
     end;
 
     [Test]

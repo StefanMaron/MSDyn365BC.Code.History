@@ -288,7 +288,7 @@ report 1320 "Notification Email"
                     Field2Value := Format(FieldRef.Value);
                 end;
             else
-                OnSetReportFieldPlaceholders(RecRef, Field1Label, Field1Value, Field2Label, Field2Value, Field3Label, Field3Value);
+                OnSetReportFieldPlaceholders(RecRef, Field1Label, Field1Value, Field2Label, Field2Value, Field3Label, Field3Value, DetailsLabel, DetailsValue);
         end;
 
         case "Notification Entry".Type of
@@ -309,7 +309,7 @@ report 1320 "Notification Email"
                 end;
         end;
 
-        OnSetReportFieldPlaceholdersOnBeforeGetWebUrl(RecRef, Field1Label, Field1Value, Field2Label, Field2Value, Field3Label, Field3Value, SourceRecRef);
+        OnSetReportFieldPlaceholdersOnBeforeGetWebUrl(RecRef, Field1Label, Field1Value, Field2Label, Field2Value, Field3Label, Field3Value, SourceRecRef, DetailsLabel, DetailsValue, "Notification Entry");
         DocumentURL := PageManagement.GetWebUrl(RecRef, "Notification Entry"."Link Target Page");
         OnSetReportFieldPlaceholdersOnAfterGetDocumentURL(DocumentURL, "Notification Entry");
     end;
@@ -328,7 +328,7 @@ report 1320 "Notification Email"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetTargetRecRef(RecRef, TargetRecRefOut, IsHandled);
+        OnBeforeGetTargetRecRef(RecRef, TargetRecRefOut, IsHandled, "Notification Entry");
         if IsHandled then
             exit;
 
@@ -482,12 +482,12 @@ report 1320 "Notification Email"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetTargetRecRef(RecRef: RecordRef; var TargetRecRefOut: RecordRef; var IsHandled: Boolean)
+    local procedure OnBeforeGetTargetRecRef(RecRef: RecordRef; var TargetRecRefOut: RecordRef; var IsHandled: Boolean; NotificationEntry: Record "Notification Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetReportFieldPlaceholders(RecRef: RecordRef; var Field1Label: Text; var Field1Value: Text; var Field2Label: Text; var Field2Value: Text; var Field3Label: Text; var Field3Value: Text)
+    local procedure OnSetReportFieldPlaceholders(RecRef: RecordRef; var Field1Label: Text; var Field1Value: Text; var Field2Label: Text; var Field2Value: Text; var Field3Label: Text; var Field3Value: Text; var DetailsLabel: Text; var DetailsValue: Text)
     begin
     end;
 
@@ -497,7 +497,7 @@ report 1320 "Notification Email"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetReportFieldPlaceholdersOnBeforeGetWebUrl(RecRef: RecordRef; var Field1Label: Text; var Field1Value: Text; var Field2Label: Text; var Field2Value: Text; var Field3Label: Text; var Field3Value: Text; var SourceRecRef: RecordRef)
+    local procedure OnSetReportFieldPlaceholdersOnBeforeGetWebUrl(RecRef: RecordRef; var Field1Label: Text; var Field1Value: Text; var Field2Label: Text; var Field2Value: Text; var Field3Label: Text; var Field3Value: Text; var SourceRecRef: RecordRef; var DetailsLabel: Text; var DetailsValue: Text; NotificationEntry: Record "Notification Entry")
     begin
     end;
 }

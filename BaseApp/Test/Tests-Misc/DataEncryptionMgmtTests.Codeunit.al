@@ -464,12 +464,6 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
         // [FEATURE] [Hash]
         // [SCENARIO 228632] Test hash generation with empty input parameters
 
-        // [WHEN] Input string is empty for hash generation function
-        // [THEN] Result is empty string
-        Assert.AreEqual(
-          '',
-          CryptographyManagement.GenerateHash('', HashAlgorithmType::MD5), WrongHashErr);
-
         // [WHEN] Input string is empty for hash with key generation function
         // [THEN] Result is empty string
         Assert.AreEqual(
@@ -487,6 +481,28 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
         Assert.AreEqual(
           '',
           CryptographyManagement.GenerateHash('', '', KeyedHashAlgorithmType::HMACMD5), WrongHashErr);
+    end;
+
+    [Test]
+    procedure GenerateEmptyStringHash()
+    var
+        MD5: Text;
+        SHA1: Text;
+        SHA256: Text;
+        SHA384: Text;
+        SHA512: Text;
+    begin
+        MD5 := CryptographyManagement.GenerateHash('', HashAlgorithmType::MD5);
+        SHA1 := CryptographyManagement.GenerateHash('', HashAlgorithmType::SHA1);
+        SHA256 := CryptographyManagement.GenerateHash('', HashAlgorithmType::SHA256);
+        SHA384 := CryptographyManagement.GenerateHash('', HashAlgorithmType::SHA384);
+        SHA512 := CryptographyManagement.GenerateHash('', HashAlgorithmType::SHA512);
+
+        Assert.AreEqual('d41d8cd98f00b204e9800998ecf8427e', MD5.ToLower(), 'MD5 hashes do not match');
+        Assert.AreEqual('da39a3ee5e6b4b0d3255bfef95601890afd80709', SHA1.ToLower(), 'SHA1 hashes do not match');
+        Assert.AreEqual('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', SHA256.ToLower(), 'SHA256 hashes do not match');
+        Assert.AreEqual('38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b', SHA384.ToLower(), 'SHA384 hashes do not match');
+        Assert.AreEqual('cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e', SHA512.ToLower(), 'SHA512 hashes do not match');
     end;
 
     [Test]

@@ -1,4 +1,4 @@
-table 5093 "Opportunity Entry"
+﻿table 5093 "Opportunity Entry"
 {
     Caption = 'Opportunity Entry';
     DrillDownPageID = "Opportunity Entries";
@@ -367,6 +367,8 @@ table 5093 "Opportunity Entry"
                     "Probability %" := 0;
                 end;
         end;
+
+        OnUpdateEstimatesOnBeforeModifyOpportunityEntry(Rec, SalesHeader);
         Modify;
     end;
 
@@ -953,6 +955,11 @@ table 5093 "Opportunity Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinishWizard2OnAfterInsertEntry(OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEstimatesOnBeforeModifyOpportunityEntry(var OpportunityEntry: Record "Opportunity Entry"; SalesHeader: Record "Sales Header")
     begin
     end;
 

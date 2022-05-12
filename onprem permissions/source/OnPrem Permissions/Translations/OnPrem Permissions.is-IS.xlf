@@ -419,7 +419,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2847602877 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in job journals</source>
-          <target state="translated">Stofna færslur í verkbækur</target>
+          <target state="translated">Stofna færslur í verkbókum</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet JOB-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -689,7 +689,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2477744452 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in res. jnls.</source>
-          <target state="translated">Stofna færslur í forðabækur</target>
+          <target state="translated">Stofna færslur í forðabókum</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RES-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -959,7 +959,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2032439741 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Delete VAT Rate Change Log</source>
-          <target state="translated">Eyða breytingaskrá VSK-hlutf.</target>
+          <target state="translated">Eyða VSK-breytingaskrá</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VAT-RC-LOG, DELETE - Property Caption</note>
         </trans-unit>
@@ -983,7 +983,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1486052532 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read posted put away, etc.</source>
-          <target state="translated">Lesa bókaða fráganga, o.s.frv.</target>
+          <target state="translated">Lesa bókaðan frágang, o.s.frv.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-POSTED PA/P - Property Caption</note>
         </trans-unit>

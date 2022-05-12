@@ -3,15 +3,21 @@
   <file datatype="xml" source-language="en-US" target-language="nl-NL" original="_Exclude_ReportLayouts">
     <body>
       <group id="body">
+        <trans-unit id="Codeunit 405457715 - NamedType 3150583444" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You are about to delete the currently selected default layout "%1", for report "%2". Do you want to continue? A new default layout must be selected manually from the Report Layout Selection page.</source>
+          <target state="translated">U staat op het punt om de momenteel geselecteerde standaardlay-out "%1" voor rapport "%2" te verwijderen. Wilt u doorgaan? Een nieuwe standaardlay-out moet handmatig worden geselecteerd op de pagina Selectie rapportlay-out.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Layout Name, %2 = Report Name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType DefaultLayoutDeleteTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 405457715 - NamedType 3964024005" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>"%1" has been set as the default layout for Report "%2"</source>
-          <target state="translated">%1 is ingesteld als de standaardindeling voor het rapport %2</target>
+          <target state="translated">%1 is ingesteld als de standaardlay-out voor het rapport %2</target>
           <note from="Developer" annotates="general" priority="2">%1 = Layout Name, %2 = Report Name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType DefaultLayoutSetTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 405457715 - NamedType 1845875908" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A layout name must be specified.</source>
-          <target state="translated">Er moet een indelingsnaam worden opgegeven.</target>
+          <target state="translated">Er moet een lay-outnaam worden opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType EmptyLayoutNameTxt</note>
         </trans-unit>
@@ -41,55 +47,60 @@
         </trans-unit>
         <trans-unit id="Codeunit 405457715 - NamedType 4176075102" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose Excel layout file</source>
-          <target state="translated">Excel-indelingsbestand kiezen</target>
+          <target state="translated">Excel-bestand voor lay-out kiezen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType ImportExcelTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 405457715 - NamedType 1296086732" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose External layout file</source>
-          <target state="translated">Extern indelingsbestand kiezen</target>
+          <target state="translated">Extern lay-outbestand kiezen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType ImportExternalTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 405457715 - NamedType 760330504" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose RDLC layout file</source>
-          <target state="translated">RDLC-indelingsbestand kiezen</target>
+          <target state="translated">RDLC-bestand voor lay-out kiezen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType ImportRdlcTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 405457715 - NamedType 1620858005" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose Word layout file</source>
-          <target state="translated">Word-indelingsbestand kiezen</target>
+          <target state="translated">Word-bestand voor lay-out kiezen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType ImportWordTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 405457715 - NamedType 2156439579" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A layout named "%1" already exists.</source>
-          <target state="translated">Er bestaat al een indeling met de naam %1.</target>
+          <target state="translated">Er bestaat al een lay-out met de naam %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 = Layout Name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType LayoutAlreadyExistsErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 405457715 - Method 2514614780 - NamedType 3534996316" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - Method EditReportLayout - NamedType AllCompaniesTxt</note>
+        </trans-unit>
         <trans-unit id="Page 3127504812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Edit Report Layout</source>
-          <target state="translated">Rapportindeling bewerken</target>
+          <target state="translated">Rapportlay-out bewerken</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3127504812 - NamedType 2156439579" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A layout named %1 already exists.</source>
-          <target state="translated">Er bestaat al een indeling met de naam %1.</target>
+          <target state="translated">Er bestaat al een lay-out met de naam %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 = Layout Name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - NamedType LayoutAlreadyExistsErr</note>
         </trans-unit>
         <trans-unit id="Page 3127504812 - NamedType 2837816615" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The layout name cannot be an empty value.</source>
-          <target state="translated">De indelingsnaam kan niet leeg zijn.</target>
+          <target state="translated">De lay-outnaam kan niet leeg zijn.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - NamedType LayoutNameEmptyErr</note>
         </trans-unit>
         <trans-unit id="Page 3127504812 - Control 1787817219 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create a copy of the selected layout with the specified changes.</source>
-          <target state="translated">Een kopie van de geselecteerde indeling maken met de opgegeven wijzigingen.</target>
+          <target state="translated">Een kopie van de geselecteerde lay-out maken met de opgegeven wijzigingen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - Control CreateCopy - Property ToolTip</note>
         </trans-unit>
@@ -101,7 +112,7 @@
         </trans-unit>
         <trans-unit id="Page 3127504812 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a description for the layout.</source>
-          <target state="translated">Hiermee wordt een beschrijving van de indeling opgegeven.</target>
+          <target state="translated">Hiermee wordt een beschrijving van de lay-out opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - Control Description - Property ToolTip</note>
         </trans-unit>
@@ -113,13 +124,13 @@
         </trans-unit>
         <trans-unit id="Page 3127504812 - Control 1452384823 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the layout.</source>
-          <target state="translated">Hiermee wordt de naam van de indeling opgegeven.</target>
+          <target state="translated">Hiermee wordt de naam van de lay-out opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - Control LayoutName - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3127504812 - Control 1452384823 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Layout Name</source>
-          <target state="translated">Indelingsnaam</target>
+          <target state="translated">Lay-outnaam</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - Control LayoutName - Property Caption</note>
         </trans-unit>
@@ -149,19 +160,19 @@
         </trans-unit>
         <trans-unit id="Page 3477173036 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add New Layout for a Report</source>
-          <target state="translated">Nieuwe indeling voor een rapport toevoegen</target>
+          <target state="translated">Nieuwe lay-out voor een rapport toevoegen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3477173036 - NamedType 2156439579" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A layout named "%1" already exists.</source>
-          <target state="translated">Er bestaat al een indeling met de naam %1.</target>
+          <target state="translated">Er bestaat al een lay-out met de naam %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 = LayoutName</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - NamedType LayoutAlreadyExistsErr</note>
         </trans-unit>
         <trans-unit id="Page 3477173036 - NamedType 2837816615" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The layout name cannot be an empty value.</source>
-          <target state="translated">De indelingsnaam kan niet leeg zijn.</target>
+          <target state="translated">De lay-outnaam kan niet leeg zijn.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - NamedType LayoutNameEmptyErr</note>
         </trans-unit>
@@ -171,9 +182,21 @@
           <note from="Developer" annotates="general" priority="2">%1 = ReportID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - NamedType ReportNotFoundErr</note>
         </trans-unit>
+        <trans-unit id="Page 3477173036 - Control 2254898066 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the layout should be available in all companies or just the current company.</source>
+          <target state="translated">Hiermee wordt opgegeven of de lay-out beschikbaar moet zijn in alle bedrijven of alleen in het huidige bedrijf.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control AvailableInAllCompanies - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3477173036 - Control 2254898066 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Available in All Companies</source>
+          <target state="translated">Beschikbaar in alle bedrijven</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control AvailableInAllCompanies - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3477173036 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a description for the layout.</source>
-          <target state="translated">Hiermee wordt een beschrijving van de indeling opgegeven.</target>
+          <target state="translated">Hiermee wordt een beschrijving van de lay-out opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control Description - Property ToolTip</note>
         </trans-unit>
@@ -184,10 +207,16 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control Description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3477173036 - Control 2623053165 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specified the format of the layout.</source>
-          <target state="translated">De opmaak van de indeling opgegeven.</target>
+          <source>Specifies the format of the layout.</source>
+          <target state="translated">Hiermee wordt de opmaak van de lay-out opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control Format Options - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3477173036 - Control 2623053165 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Format Options</source>
+          <target state="translated">Opmaakopties</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control Format Options - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3477173036 - Control 2623053165 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>RDLC,Word,Excel,External</source>
@@ -197,13 +226,13 @@
         </trans-unit>
         <trans-unit id="Page 3477173036 - Control 1452384823 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the layout.</source>
-          <target state="translated">Hiermee wordt de naam van de indeling opgegeven.</target>
+          <target state="translated">Hiermee wordt de naam van de lay-out opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control LayoutName - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3477173036 - Control 1452384823 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Layout Name</source>
-          <target state="translated">Indelingsnaam</target>
+          <target state="translated">Lay-outnaam</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control LayoutName - Property Caption</note>
         </trans-unit>
@@ -239,13 +268,13 @@
         </trans-unit>
         <trans-unit id="Page 2855939321 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Report Layouts</source>
-          <target state="translated">Rapportindelingen</target>
+          <target state="translated">Rapportlay-outs</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Custom Report Layouts, Report Layout Selection</source>
-          <target state="translated">Aangepaste rapportindelingen, Selectie van rapportindeling</target>
+          <target state="translated">Aangepaste rapportlay-outs, Selectie van rapportlay-out</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Property AdditionalSearchTerms</note>
         </trans-unit>
@@ -257,19 +286,19 @@
         </trans-unit>
         <trans-unit id="Page 2855939321 - NamedType 574537387" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Only user-defined layouts can be modified or removed.</source>
-          <target state="translated">Alleen door de gebruiker gedefinieerde indelingen kunnen worden gewijzigd of verwijderd.</target>
+          <target state="translated">Alleen door de gebruiker gedefinieerde lay-outs kunnen worden gewijzigd of verwijderd.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - NamedType ModifyNonUserLayoutErr</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - NamedType 3586617133" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This action will replace the layout file of the currently selected layout "%1". Do you want to continue ?</source>
-          <target state="translated">Met deze actie wordt het indelingsbestand van de momenteel geselecteerde indeling "%1" vervangen. Wilt u doorgaan?</target>
+          <target state="translated">Met deze actie wordt het lay-outbestand van de momenteel geselecteerde lay-out "%1" vervangen. Wilt u doorgaan?</target>
           <note from="Developer" annotates="general" priority="2">%1 = LayoutName</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - NamedType ReplaceConfirmationTxt</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a description of the report layout.</source>
-          <target state="translated">Hiermee wordt een beschrijving van de rapportindeling opgegeven.</target>
+          <target state="translated">Hiermee wordt een omschrijving van de rapportlay-out opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Control Description - Property ToolTip</note>
         </trans-unit>
@@ -281,7 +310,7 @@
         </trans-unit>
         <trans-unit id="Page 2855939321 - Control 4190768627 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the format of the report layout.</source>
-          <target state="translated">Hiermee wordt de opmaak van de rapportindeling opgegeven.</target>
+          <target state="translated">Hiermee wordt de lay-out opgegeven van de rapportlay-out.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Control Layout Format - Property ToolTip</note>
         </trans-unit>
@@ -299,19 +328,19 @@
         </trans-unit>
         <trans-unit id="Page 2855939321 - Control 4031873679 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the unique name of the layout.</source>
-          <target state="translated">Hiermee wordt de unieke naam van de indeling opgegeven.</target>
+          <target state="translated">Hiermee wordt de unieke naam van de lay-out opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Control Layout Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Control 4031873679 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Layout Name</source>
-          <target state="translated">Indelingsnaam</target>
+          <target state="translated">Lay-outnaam</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Control Layout Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Control 2205143848 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name and publisher of the extension that the layout belongs to. If this field is empty, it means that layout is user-defined and does not belong to an extension.</source>
-          <target state="translated">Hiermee worden de naam en de uitgever opgegeven van de extensie waartoe de indeling behoort. Als dit veld leeg is, betekent dit dat de indeling door de gebruiker is gedefinieerd en niet tot een extensie behoort.</target>
+          <target state="translated">Hiermee worden de naam en de uitgever opgegeven van de extensie waartoe de lay-out behoort. Als dit veld leeg is, betekent dit dat de lay-out door de gebruiker is gedefinieerd en niet tot een extensie behoort.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Control Layout Publisher - Property ToolTip</note>
         </trans-unit>
@@ -341,13 +370,13 @@
         </trans-unit>
         <trans-unit id="Page 2855939321 - Control 2341156892 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether the layout was created by a user.</source>
-          <target state="translated">Hiermee wordt opgegeven of de indeling is gemaakt door een gebruiker.</target>
+          <target state="translated">Hiermee wordt opgegeven of de lay-out is gemaakt door een gebruiker.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Control User Defined - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Action 1732507335 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set the current layout as the default layout for the specified report.</source>
-          <target state="translated">De huidige indeling instellen als de standaardindeling voor het opgegeven rapport.</target>
+          <target state="translated">De huidige lay-out instellen als de standaardlay-out voor het opgegeven rapport.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Action DefaulLayoutSelection - Property ToolTip</note>
         </trans-unit>
@@ -359,7 +388,7 @@
         </trans-unit>
         <trans-unit id="Page 2855939321 - Action 2190626546 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Edit layout information.</source>
-          <target state="translated">Indelingsinformatie bewerken.</target>
+          <target state="translated">Lay-outinformatie bewerken.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Action EditLayout - Property ToolTip</note>
         </trans-unit>
@@ -371,43 +400,43 @@
         </trans-unit>
         <trans-unit id="Page 2855939321 - Action 2193903826 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Export the selected layout file.</source>
-          <target state="translated">Het geselecteerde indelingsbestand exporteren.</target>
+          <target state="translated">Het geselecteerde lay-outbestand exporteren.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Action ExportLayout - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Action 2193903826 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Export Layout</source>
-          <target state="translated">Indeling exporteren</target>
+          <target state="translated">Lay-out exporteren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Action ExportLayout - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Action 3046030738 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create a new layout.</source>
-          <target state="translated">Een nieuwe indeling maken.</target>
+          <target state="translated">Een nieuwe lay-out maken.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Action NewLayout - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Action 3046030738 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New Layout</source>
-          <target state="translated">Nieuwe indeling</target>
+          <target state="translated">Nieuwe lay-out</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Action NewLayout - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Action 2650137722 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Replace the existing layout file.</source>
-          <target state="translated">Het bestaande indelingsbestand vervangen.</target>
+          <target state="translated">Het bestaande lay-outbestand vervangen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Action ReplaceLayout - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Action 2650137722 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Replace Layout</source>
-          <target state="translated">Indeling vervangen</target>
+          <target state="translated">Lay-out vervangen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Action ReplaceLayout - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - Action 2746247081 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Run the report using the selected layout.</source>
-          <target state="translated">Het rapport uitvoeren met de geselecteerde indeling.</target>
+          <target state="translated">Het rapport uitvoeren met de geselecteerde lay-out.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Action RunReport - Property ToolTip</note>
         </trans-unit>

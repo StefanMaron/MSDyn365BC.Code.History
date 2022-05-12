@@ -419,7 +419,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2847602877 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in job journals</source>
-          <target state="translated">Posten in projectdagb. maken</target>
+          <target state="translated">Posten maken in projectdagb.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet JOB-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -605,7 +605,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1101186750 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in jnls. (P&amp;P)</source>
-          <target state="translated">Posten in dagb. maken (inkoop)</target>
+          <target state="translated">Posten maken in dagb. (inkoop)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet P&amp;P-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -623,13 +623,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3427026111 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create purchase orders, etc.</source>
-          <target state="translated">Inkooporders maken, enz.</target>
+          <target state="translated">Inkooporders, enz. maken</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet P&amp;P-Q/O/I/R/C - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 2230177419 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post purchase orders, etc.</source>
-          <target state="translated">Inkooporders boeken, enz.</target>
+          <target state="translated">Inkooporders, enz. boeken</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet P&amp;P-Q/O/I/R/C, POST - Property Caption</note>
         </trans-unit>
@@ -689,7 +689,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2477744452 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in res. jnls.</source>
-          <target state="translated">Posten in resourcedagb. maken</target>
+          <target state="translated">Posten maken in resourcedagb.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RES-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -761,7 +761,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1930651864 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read contacts, entries, etc.</source>
-          <target state="translated">Contactp., posten, enz. lezen</target>
+          <target state="translated">Contacten, posten, enz. lezen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RM-CONT - Property Caption</note>
         </trans-unit>
@@ -827,7 +827,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2343558645 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in jnls. (S&amp;R)</source>
-          <target state="translated">Posten in dagb. maken (verk.)</target>
+          <target state="translated">Posten maken in dagb. (verk.)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet S&amp;R-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -851,13 +851,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1461442152 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create sales orders etc.</source>
-          <target state="translated">Verkooporders maken, enz.</target>
+          <target state="translated">Verkooporders, enz. maken</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet S&amp;R-Q/O/I/R/C - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 2812832420 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post sales orders, etc.</source>
-          <target state="translated">Verkooporders boeken, enz.</target>
+          <target state="translated">Verkooporders, enz. boeken</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet S&amp;R-Q/O/I/R/C, POST - Property Caption</note>
         </trans-unit>
@@ -917,7 +917,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1900107136 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post service orders etc.</source>
-          <target state="translated">Serviceorders boeken, enz.</target>
+          <target state="translated">Serviceorders, enz. boeken</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SM-Q/O/I/C,POST - Property Caption</note>
         </trans-unit>
@@ -983,19 +983,19 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1486052532 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read posted put away, etc.</source>
-          <target state="translated">Geb. opslag lezen, enz.</target>
+          <target state="translated">Geb. opslag, enz. lezen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-POSTED PA/P - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 2141954922 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create receipt, put away, etc.</source>
-          <target state="translated">Ontvangst, opslag maken, enz.</target>
+          <target state="translated">Ontvangst, opslag, enz. maken</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-R/PA/A/P/S - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 187964102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post receipt, put away,etc.</source>
-          <target state="translated">Ontvangst, opslag boeken, enz.</target>
+          <target state="translated">Ontvangst, opslag, enz. boeken</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-R/PA/A/P/S, POST - Property Caption</note>
         </trans-unit>

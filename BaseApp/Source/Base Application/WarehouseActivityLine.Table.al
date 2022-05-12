@@ -266,7 +266,11 @@
                         UOMMgt.RoundAndValidateQty("Qty. to Handle", "Qty. Rounding Precision", FieldCaption("Qty. to Handle"));
                     "Qty. to Handle (Base)" :=
                         CalcBaseQty("Qty. to Handle", FieldCaption("Qty. to Handle"), FieldCaption("Qty. to Handle (Base)"));
-                    if "Qty. to Handle (Base)" > "Qty. Outstanding (Base)" then begin // rounding error- qty same, not base qty
+
+                    if (("Qty. to Handle" = "Qty. Outstanding") and ("Qty. to Handle (Base)" < "Qty. Outstanding (Base)")) then // Rounding fix (Round Down)- Qty same, not Base Qty
+                        "Qty. to Handle (Base)" := "Qty. Outstanding (Base)";
+
+                    if "Qty. to Handle (Base)" > "Qty. Outstanding (Base)" then begin // Rounding fix (Round Up)- Qty same, not Base Qty
                         QtyToHandleBase := "Qty. Outstanding (Base)";
                         OnValidateQtyToHandleOnAfterCalcQtyToHandleBase(Rec, "Qty. To Handle (Base)", QtyToHandleBase);
                         "Qty. to Handle (Base)" := QtyToHandleBase;

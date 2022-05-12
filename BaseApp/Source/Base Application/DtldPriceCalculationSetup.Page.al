@@ -39,7 +39,14 @@ page 7008 "Dtld. Price Calculation Setup"
                 }
                 field(AssetNo; Rec."Asset No.")
                 {
-                    Visible = IsAssetNoEditable;
+                    Visible = IsAssetNoEditable and UseCustomLookup;
+                    Editable = IsAssetNoEditable;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a product number.';
+                }
+                field(ProductNo; Rec."Product No.")
+                {
+                    Visible = IsAssetNoEditable and not UseCustomLookup;
                     Editable = IsAssetNoEditable;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a product number.';
@@ -51,6 +58,13 @@ page 7008 "Dtld. Price Calculation Setup"
                 }
                 field(SourceNo; Rec."Source No.")
                 {
+                    Visible = UseCustomLookup;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                }
+                field(AssignToNo; Rec."Assign-to No.")
+                {
+                    Visible = not UseCustomLookup;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
                 }
@@ -76,7 +90,10 @@ page 7008 "Dtld. Price Calculation Setup"
     }
 
     trigger OnOpenPage()
+    var
+        PriceListLine: Record "Price List Line";
     begin
+        UseCustomLookup := PriceListLine.UseCustomizedLookup();
         PriceUXManagement.TestAlternateImplementation(CurrPriceCalculationSetup);
         Rec.FilterGroup(2);
         Rec.SetRange("Group Id", CurrPriceCalculationSetup."Group Id");
@@ -97,8 +114,12 @@ page 7008 "Dtld. Price Calculation Setup"
     var
         CurrPriceCalculationSetup: Record "Price Calculation Setup";
         PriceUXManagement: Codeunit "Price UX Management";
+        [InDataSet]
         IsSetupCodeVisible: Boolean;
+        [InDataSet]
         IsAssetNoEditable: Boolean;
+        [InDataSet]
+        UseCustomLookup: Boolean;
         Heading: text;
 
     procedure Set(PriceCalculationSetup: Record "Price Calculation Setup")

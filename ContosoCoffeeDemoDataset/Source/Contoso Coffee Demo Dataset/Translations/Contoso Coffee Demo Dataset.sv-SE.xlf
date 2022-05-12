@@ -1377,6 +1377,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 53112230 - NamedType 2664013840" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Contoso Coffee demo data is now available in the current company.</source>
+          <target state="translated">Det finns nu demonstrationsdata för Contoso Coffee i det aktuella företaget.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - NamedType DemoDataInsertedMsg</note>
+        </trans-unit>
         <trans-unit id="Page 53112230 - Control 332174833 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the company type.</source>
           <target state="translated">Anger företagstypen.</target>

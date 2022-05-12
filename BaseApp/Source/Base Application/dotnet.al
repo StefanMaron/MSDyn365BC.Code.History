@@ -102,6 +102,10 @@ dotnet
         type("Microsoft.Dynamics.Nav.Runtime.DesignedQuery.AL.DqExporter"; "DqExporter")
         {
         }
+        
+        type("Microsoft.Dynamics.Nav.Runtime.AL.ALCloudMigration"; "ALCloudMigration")
+        {
+        }
 
         type("Microsoft.Dynamics.Nav.Runtime.LastError"; "LastError")
         {

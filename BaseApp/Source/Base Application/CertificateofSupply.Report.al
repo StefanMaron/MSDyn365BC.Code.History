@@ -214,6 +214,7 @@ report 780 "Certificate of Supply"
                         "Document Type"::"Sales Shipment":
                             begin
                                 CopyFilter("Document No.", SalesShipmentHeader."No.");
+                                OnCertificateOfSupplyOnPreDataItemOnAfterFilterForSalesShipmentHeader(CertificateOfSupply, SalesShipmentHeader);
                                 if SalesShipmentHeader.FindSet() then
                                     repeat
                                         CertificateOfSupply2.InitFromSales(SalesShipmentHeader);
@@ -223,6 +224,7 @@ report 780 "Certificate of Supply"
                         "Document Type"::"Service Shipment":
                             begin
                                 CopyFilter("Document No.", ServiceShipmentHeader."No.");
+                                OnCertificateOfSupplyOnPreDataItemOnAfterFilterForServiceShipmentHeader(CertificateOfSupply, ServiceShipmentHeader);
                                 if ServiceShipmentHeader.FindSet() then
                                     repeat
                                         CertificateOfSupply2.InitFromService(ServiceShipmentHeader);
@@ -232,6 +234,7 @@ report 780 "Certificate of Supply"
                         "Document Type"::"Return Shipment":
                             begin
                                 CopyFilter("Document No.", ReturnShipmentHeader."No.");
+                                OnCertificateOfSupplyOnPreDataItemOnAfterFilterForReturnShipmentHeader(CertificateOfSupply, ReturnShipmentHeader);
                                 if ReturnShipmentHeader.FindFirst() then
                                     repeat
                                         CertificateOfSupply2.InitFromPurchase(ReturnShipmentHeader);
@@ -485,6 +488,21 @@ report 780 "Certificate of Supply"
                     exit(ReturnShipmentHeader."Language Code");
                 end;
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCertificateOfSupplyOnPreDataItemOnAfterFilterForSalesShipmentHeader(var CertificateOfSupply: Record "Certificate of Supply"; var SalesShipmentHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCertificateOfSupplyOnPreDataItemOnAfterFilterForServiceShipmentHeader(var CertificateOfSupply: Record "Certificate of Supply"; var ServiceShipmentHeader: Record "Service Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCertificateOfSupplyOnPreDataItemOnAfterFilterForReturnShipmentHeader(var CertificateOfSupply: Record "Certificate of Supply"; var ReturnShipmentHeader: Record "Return Shipment Header")
+    begin
     end;
 }
 

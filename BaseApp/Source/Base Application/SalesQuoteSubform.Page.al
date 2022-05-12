@@ -80,6 +80,7 @@
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
 #if not CLEAN20                        
                         OnCrossReferenceNoOnLookup(Rec);
 #endif                       
@@ -218,6 +219,8 @@
                     begin
                         CurrPage.SaveRecord();
                         QuantityOnAfterValidate();
+                        if SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Qty. to Assemble to Order"; "Qty. to Assemble to Order")
@@ -836,7 +839,7 @@
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     Enabled = Type = Type::Item;
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -906,7 +909,8 @@
 
                         trigger OnAction()
                         begin
-                            RollupAsmPrice;
+                            RollupAsmPrice();
+                            CalculateTotals();
                         end;
                     }
                     action("Roll Up &Cost")
@@ -919,7 +923,8 @@
 
                         trigger OnAction()
                         begin
-                            RollUpAsmCost;
+                            RollUpAsmCost();
+                            CalculateTotals();
                         end;
                     }
                 }
@@ -1218,6 +1223,8 @@
     local procedure ShowNonstockItems()
     begin
         ShowNonstock;
+
+        OnAfterShowNonstockItems(Rec);
     end;
 
     local procedure ItemChargeAssgnt()
@@ -1232,6 +1239,8 @@
 
     procedure NoOnAfterValidate()
     begin
+        OnBeforeNoOnAfterValidate(Rec, xRec);
+
         InsertExtendedText(false);
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
            (xRec."No." <> '')
@@ -1259,6 +1268,8 @@
             CurrPage.SaveRecord();
             AutoReserve();
         end;
+
+        OnQuantityOnAfterValidateOnBeforeDeltaUpdateTotals(Rec, xRec);
         DeltaUpdateTotals();
 
         OnAfterQuantityOnAfterValidate(Rec, xRec);
@@ -1454,6 +1465,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateTypeText(var SalesLine: Record "Sales Line")
     begin
     end;
@@ -1470,8 +1486,13 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnDeleteRecordOnBeforeSalesLineReserveDeleteLine(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnQuantityOnAfterValidateOnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -1497,6 +1518,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetDimensionsVisibility();
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowNonstockItems(var SalesLine: Record "Sales Line")
     begin
     end;
 }

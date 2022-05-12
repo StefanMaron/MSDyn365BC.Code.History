@@ -404,6 +404,7 @@ report 7151 "Item Dimensions - Total"
 
             trigger OnPreDataItem()
             begin
+                Commit();
                 SetRange("Analysis Area", AnalysisArea);
                 SetRange(Code, ItemAnalysisViewCode);
             end;

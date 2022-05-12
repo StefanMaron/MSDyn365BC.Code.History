@@ -55,6 +55,8 @@ codeunit 571 "Categ. Generate Acc. Schedules"
           StrSubstNo(Totaling2Txt, GLAccountCategory."Account Category"::Liabilities, GLAccountCategory."Account Category"::Equity),
           StrSubstNo('%1+%2', LiabilitiesRowNo, EquityRowNo),
           true, true, true, 0);
+
+        OnAfterCreateBalanceSheet(AccScheduleName, LiabilitiesRowNo, EquityRowNo);
     end;
 
     [Scope('OnPrem')]
@@ -427,6 +429,11 @@ codeunit 571 "Categ. Generate Acc. Schedules"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddParentAccSchedLine(var AccScheduleLine: Record "Acc. Schedule Line"; ParentGLAccountCategory: Record "G/L Account Category")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateBalanceSheet(AccScheduleName: Record "Acc. Schedule Name"; LiabilitiesRowNo: Code[10]; EquityRowNo: Code[10])
     begin
     end;
 

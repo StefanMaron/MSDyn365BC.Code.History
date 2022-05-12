@@ -281,7 +281,7 @@
         </trans-unit>
         <trans-unit id="Page 3508446305 - Control 2259985461 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether the paper is in Landscape orientation.</source>
-          <target state="translated">Hiermee wordt opgegeven of het papier liggend is.</target>
+          <target state="translated">Hiermee wordt opgegeven of het papier een liggende afdrukstand heeft.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control Landscape - Property ToolTip</note>
         </trans-unit>

@@ -317,13 +317,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 846258726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read S&amp;R/P&amp;P/Inv. Analys. Rep.</source>
-          <target state="translated">Les rapp., S/&amp;K/lag.analyse</target>
+          <target state="translated">Les rapp., S/K/lag.analyse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-ANALYSIS - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 3592196470 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Edit S&amp;R/P&amp;P/Inv. Analys. Rep.</source>
-          <target state="translated">Red. rap., S/&amp;K/lag.analyse</target>
+          <target state="translated">Red. rap., S/K/lag.analyse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-ANALYSIS, EDIT - Property Caption</note>
         </trans-unit>
@@ -977,7 +977,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1879401324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Whse. Mgt. periodic activities</source>
-          <target state="translated">Periodiske akt. – Lagerstying</target>
+          <target state="translated">Periodiske akt. – Lagerstyring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-PERIODIC - Property Caption</note>
         </trans-unit>

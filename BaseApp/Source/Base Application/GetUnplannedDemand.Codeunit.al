@@ -162,11 +162,14 @@ codeunit 5520 "Get Unplanned Demand"
                             not ((ProdOrderComp.Status.AsInteger() = "Demand SubType") and
                             (ProdOrderComp."Prod. Order No." = "Demand Order No."));
                         OnGetUnplannedProdOrderCompOnAfterCalcNeedInsertUnplannedDemand(UnplannedDemand, ProdOrderComp, NeedInsertUnplannedDemand);
-                        if NeedInsertUnplannedDemand then
+                        if NeedInsertUnplannedDemand then begin
                             InsertUnplannedDemand(
                                 UnplannedDemand, "Demand Type"::Production,
                                 ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp.Status.AsInteger());
+                            OnGetUnplannedProdOrderCompOnAfterInsertUnplannedDemand(UnplannedDemand, ProdOrderComp);
+                        end;
                         InsertProdOrderCompLine(UnplannedDemand);
+                        OnGetUnplannedProdOrderCompOnAfterInsertProdOrderCompLine(UnplannedDemand, ProdOrderComp);
                     end;
                 until ProdOrderComp.Next() = 0;
     end;
@@ -646,6 +649,16 @@ codeunit 5520 "Get Unplanned Demand"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetUnplannedProdOrderCompOnAfterCalcNeedInsertUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand"; var ProdOrderComp: Record "Prod. Order Component"; var NeedInsertUnplannedDemand: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUnplannedProdOrderCompOnAfterInsertUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand"; var ProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUnplannedProdOrderCompOnAfterInsertProdOrderCompLine(var UnplannedDemand: Record "Unplanned Demand"; var ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 

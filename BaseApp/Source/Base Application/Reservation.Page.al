@@ -543,7 +543,13 @@ page 498 Reservation
     var
         ReservEntry3: Record "Reservation Entry";
         TrackingMatch: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDrillDownReservedThisLine(Rec, ReservEntry, ReservEntry2, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(ReservEntry2);
 
         ReservEntry2.SetCurrentKey(
@@ -574,7 +580,13 @@ page 498 Reservation
     procedure ReservedThisLine(ReservSummEntry2: Record "Entry Summary" temporary) ReservedQuantity: Decimal
     var
         ReservEntry3: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReservedThisLine(Rec, ReservEntry, ReservEntry2, ReservSummEntry2, ReservedQuantity, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(ReservEntry2);
 
         ReservEntry2.SetCurrentKey(
@@ -800,6 +812,16 @@ page 498 Reservation
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnUpdateReservMgt(var ReservationEntry: Record "Reservation Entry"; var ReservationManagement: Codeunit "Reservation Management")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDrillDownReservedThisLine(var EntrySummary: Record "Entry Summary"; var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeReservedThisLine(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry"; ReservEntry2: Record "Reservation Entry"; TempReservSummEntry2: Record "Entry Summary" temporary; var ReservedQuantity: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

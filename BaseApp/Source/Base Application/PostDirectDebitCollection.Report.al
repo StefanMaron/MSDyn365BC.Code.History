@@ -239,7 +239,6 @@ report 1201 "Post Direct Debit Collection"
         CustLedgEntry: Record "Cust. Ledger Entry";
         GenJournalTemplate: Record "Gen. Journal Template";
         NoSeriesMgt: Codeunit NoSeriesManagement;
-        DimensionSetIDArr: array[10] of Integer;
     begin
         CustLedgEntry.Get(DirectDebitCollectionEntry."Applies-to Entry No.");
         CustLedgEntry.CalcFields("Remaining Amount");
@@ -265,11 +264,7 @@ report 1201 "Post Direct Debit Collection"
         GenJnlLine.Validate("Account No.", DirectDebitCollectionEntry."Customer No.");
         GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
         GenJnlLine.Validate("Bal. Account No.", DirectDebitCollection."To Bank Account No.");
-        DimensionSetIDArr[1] := GenJnlLine."Dimension Set ID";
-        DimensionSetIDArr[2] := CustLedgEntry."Dimension Set ID";
-        GenJnlLine."Dimension Set ID" :=
-          DimMgt.GetCombinedDimensionSetID(
-            DimensionSetIDArr, GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code");
+        SetGenJnlLineDim(CustLedgEntry);
 
         GenJnlLine.Validate("Posting Date", DirectDebitCollectionEntry."Transfer Date");
         GenJnlLine.Description :=
@@ -291,8 +286,26 @@ report 1201 "Post Direct Debit Collection"
         exit(true);
     end;
 
+    local procedure SetGenJnlLineDim(CustLedgEntry: Record "Cust. Ledger Entry")
+    var
+        DimensionSetIDArr: array[10] of Integer;
+    begin
+        DimensionSetIDArr[1] := GenJnlLine."Dimension Set ID";
+        DimensionSetIDArr[2] := CustLedgEntry."Dimension Set ID";
+        GenJnlLine."Dimension Set ID" :=
+          DimMgt.GetCombinedDimensionSetID(
+            DimensionSetIDArr, GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code");
+
+        OnAfterSetGenJnlLineDim(GenJnlLine, CustLedgEntry);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetGenJnlLineDim(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

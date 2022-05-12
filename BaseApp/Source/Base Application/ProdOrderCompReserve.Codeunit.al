@@ -297,8 +297,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
                 if not EndLoop then
                     if ReservEngineMgt.NEXTRecord(OldReservEntry) = 0 then
                         if ItemTrackingFilterIsSet then begin
-                            OldReservEntry.SetRange("Serial No.");
-                            OldReservEntry.SetRange("Lot No.");
+                            OldReservEntry.ClearTrackingFilter();
                             ItemTrackingFilterIsSet := false;
                             EndLoop := not ReservEngineMgt.InitRecordSet(OldReservEntry);
                         end else

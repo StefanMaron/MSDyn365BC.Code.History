@@ -1985,7 +1985,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLinePriceExistsProcedure(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean; TempSalesPrice: Record "Sales Price" temporary; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSalesLinePriceExistsProcedure(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean; var TempSalesPrice: Record "Sales Price" temporary; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

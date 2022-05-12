@@ -689,7 +689,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2477744452 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in res. jnls.</source>
-          <target state="translated">Opret post i ressourcekladder</target>
+          <target state="translated">Opret poster i ressourcekladder</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RES-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -977,7 +977,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1879401324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Whse. Mgt. periodic activities</source>
-          <target state="translated">Per. aktiviteter for lagersted</target>
+          <target state="translated">Lagerstyring, Periodiske akt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-PERIODIC - Property Caption</note>
         </trans-unit>

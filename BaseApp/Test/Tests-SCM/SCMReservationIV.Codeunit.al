@@ -46,6 +46,7 @@ codeunit 137271 "SCM Reservation IV"
         ReservationOption: Option ReserveFromCurrentLine,VerifyQuantity;
         ItemsPickedMsg: Label 'The items have been picked';
         LotReservedForAnotherDocErr: Label 'Lot No. %1 is not available on inventory or it has already been reserved for another document.', Comment = 'Field("Lot No.")';
+        ReserveMustNotBeNeverErr: Label 'Reserve must not be Never';
 
     [Test]
     [HandlerFunctions('ReservationPageHandler')]
@@ -2923,6 +2924,35 @@ codeunit 137271 "SCM Reservation IV"
         SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure CannotReserveProdOrderComponentForNonInventoryItem()
+    var
+        NonInventoryItem: Record Item;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Prod. Order Component]
+        // [SCENARIO 426438] Non-inventory item cannot be reserved as prod. order component.
+        Initialize(false);
+
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        CreateAndPostPurchaseOrder(PurchaseLine, NonInventoryItem."No.", '');
+
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, PurchaseLine."No.", PurchaseLine."Unit of Measure Code", 1);
+        Item.Get(CreateItem(Item."Replenishment System"::"Prod. Order"));
+        UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
+
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", PurchaseLine.Quantity, '');
+
+        asserterror ReservationFromProductionOrderComponents(PurchaseLine."No.");
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(ReserveMustNotBeNeverErr);
     end;
 
     local procedure Initialize(Enable: Boolean)

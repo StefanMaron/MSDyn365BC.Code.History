@@ -31,7 +31,6 @@ codeunit 40 LogInManagement
     [Scope('OnPrem')]
     procedure CompanyOpen()
     var
-        SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
         ClientTypeManagement: Codeunit "Client Type Management";
         AzureADPlan: Codeunit "Azure AD Plan";
         CurrentDate: Date;
@@ -48,8 +47,6 @@ codeunit 40 LogInManagement
         if ClientTypeManagement.GetCurrentClientType() in [ClientType::Api, ClientType::ODataV4] then
             if GetCurrentDateInUserTimeZone(CurrentDate) then
                 WorkDate := CurrentDate;
-
-        SatisfactionSurveyMgt.ActivateSurvey;
 
         AzureADPlan.CheckMixedPlans();
 

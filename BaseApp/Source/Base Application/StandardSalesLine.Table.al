@@ -106,6 +106,7 @@ table 171 "Standard Sales Line"
                             Description := ItemCharge.Description;
                         end;
                 end;
+                OnAfterValidateNo(Rec, GLAcc);
             end;
         }
         field(5; Description; Text[100])
@@ -314,6 +315,11 @@ table 171 "Standard Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var StandardSalesLine: Record "Standard Sales Line"; xStandardSalesLine: Record "Standard Sales Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateNo(var StandardSalesLine: Record "Standard Sales Line"; GLAccount: Record "G/L Account")
     begin
     end;
 

@@ -25,6 +25,7 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
+        ItemTrackingMode: Option "Assign Lot","Verify Lot";
         IsInitialized: Boolean;
         CancelledDocExistsErr: Label 'Cancelled document exists.';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
@@ -950,6 +951,76 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SetOrVerifyLotItemTrackingLinesModalPageHandler')]
+    procedure CancelInvoiceOneLotFullyShippedPartiallyInvoiced()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        LotNo: Code[50];
+        Qty: Decimal;
+        QtyToInvoice: Decimal;
+    begin
+        // [FEATURE] [Item Tracking]
+        // [SCENARIO 432890] Reverting item tracking when cancelling a partial invoice for sales order line.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandIntInRange(11, 20);
+        QtyToInvoice := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked item.
+        // [GIVEN] Post inventory adjustment for 6 pcs of lot "L".
+        Item.Get(CreateTrackedItem());
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, '', LotNo, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for 6 pcs, select lot "L".
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, '');
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, Item."No.", LibraryRandom.RandDec(10, 2), Qty);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot");
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryVariableStorage.Enqueue(Qty);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post the sales order as "Ship".
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Set "Qty. to Invoice" = 5.
+        // [GIVEN] Post the sales order as "Invoice".
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
+        SalesLine.Modify(true);
+        SalesHeader.Find();
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [WHEN] Cancel the posted sales invoice.
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [THEN] Check the item tracking for the sales order:
+        // [THEN] Quantity = 6, "Qty. to Handle" = 5 (6 shipped and 5 reverted), "Qty. to Invoice" = 6 (6 invoiced and cancelled)
+        SalesLine.Find();
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Verify Lot");
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryVariableStorage.Enqueue(QtyToInvoice);
+        LibraryVariableStorage.Enqueue(Qty);
+        SalesLine.OpenItemTrackingLines();
+
+        // [THEN] The sales order can be shipped and invoiced again.
+        SalesHeader.Find();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1264,5 +1335,26 @@ codeunit 137019 "SCM Correct Invoice"
         ItemTrackingLines.OK.Invoke;
     end;
 
+    [ModalPageHandler]
+    procedure SetOrVerifyLotItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            ItemTrackingMode::"Assign Lot":
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines."Qty. to Invoice (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+            ItemTrackingMode::"Verify Lot":
+                begin
+                    ItemTrackingLines.Filter.SetFilter("Lot No.", LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines."Qty. to Handle (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines."Qty. to Invoice (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+                end;
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
 }
 

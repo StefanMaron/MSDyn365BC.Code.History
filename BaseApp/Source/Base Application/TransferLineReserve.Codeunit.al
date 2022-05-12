@@ -24,6 +24,7 @@ codeunit 99000836 "Transfer Line-Reserve"
     procedure CreateReservation(var TransLine: Record "Transfer Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     var
         ShipmentDate: Date;
+        IsHandled: Boolean;
     begin
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text000);
@@ -60,11 +61,16 @@ codeunit 99000836 "Transfer Line-Reserve"
                     ShipmentDate := GetInboundReservEntryShipmentDate;
                 end;
         end;
-        CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", '',
-          TransLine."Derived From Line No.", TransLine."Line No.", TransLine."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForReservEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(TransLine, Quantity, QuantityBase, ForReservEntry, Direction, IsHandled);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+                DATABASE::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", '',
+                TransLine."Derived From Line No.", TransLine."Line No.", TransLine."Qty. per Unit of Measure",
+                Quantity, QuantityBase, ForReservEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
           TransLine."Item No.", TransLine."Variant Code", FromTrackingSpecification."Location Code",
           Description, ExpectedReceiptDate, ShipmentDate, 0);
@@ -371,6 +377,7 @@ codeunit 99000836 "Transfer Line-Reserve"
                 WarehouseEntry.SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup);
                 WarehouseEntry.CalcSums("Qty. (Base)");
                 QtyToHandleBase := -WarehouseEntry."Qty. (Base)";
+                OnTransferWhseShipmentToItemJnlLineOnAfterCalcWarehouseQtyBase(WhseShptHeader, WhseShptLine, OldReservEntry, WhseItemTrackingSetup, QtyToHandleBase);
                 if Abs(QtyToHandleBase) > Abs(OldReservEntry."Qty. to Handle (Base)") then
                     QtyToHandleBase := OldReservEntry."Qty. to Handle (Base)";
 
@@ -916,6 +923,16 @@ codeunit 99000836 "Transfer Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var TransLine: REcord "Transfer Line"; var ItemTrackingLines: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var TransLine: Record "Transfer Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var Direction: Enum "Transfer Direction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferWhseShipmentToItemJnlLineOnAfterCalcWarehouseQtyBase(var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseShptLine: Record "Warehouse Shipment Line"; var OldReservEntry: Record "Reservation Entry"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyToHandleBase: Decimal)
     begin
     end;
 }

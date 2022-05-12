@@ -154,6 +154,11 @@ table 7021 "Price Line Filters"
             Caption = 'Update Multiple Price Lists';
             DataClassification = SystemMetadata;
         }
+        field(22; "Force Defaults"; Boolean)
+        {
+            Caption = 'Use defaults from target';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -171,6 +176,7 @@ table 7021 "Price Line Filters"
         "Price Type" := PriceListHeader."Price Type";
         "Source Group" := PriceListHeader."Source Group";
         "To Price List Code" := PriceListHeader.Code;
+        "Force Defaults" := not CopyLines or not PriceListHeader."Allow Updating Defaults";
         Validate("To Currency Code", PriceListHeader."Currency Code");
         "Exchange Rate Date" := WorkDate();
 
@@ -211,11 +217,12 @@ table 7021 "Price Line Filters"
         FilterPageBuilder.AddFieldNo(TableCaptionValue, PriceListLine.FieldNo("Amount Type"));
         if "Price Line Filter" <> '' then
             FilterPageBuilder.SetView(TableCaptionValue, "Price Line Filter");
-        if FilterPageBuilder.RunModal() then
+        if FilterPageBuilder.RunModal() then begin
+            PriceListLine.SetView(FilterPageBuilder.GetView(TableCaptionValue, false));
             "Price Line Filter" :=
-                CopyStr(FilterPageBuilder.GetView(TableCaptionValue, false), 1, MaxStrLen("Price Line Filter"));
+                CopyStr(PriceListLine.GetView(), 1, MaxStrLen("Price Line Filter"));
+        end;
     end;
-
 
     local procedure GetCurrencyCode(PriceListCode: Code[20]): Code[10];
     var

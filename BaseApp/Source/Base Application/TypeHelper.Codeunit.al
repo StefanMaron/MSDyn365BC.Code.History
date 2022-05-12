@@ -325,18 +325,23 @@ codeunit 10 "Type Helper"
         exit(Regex.IsMatch(Input, '^[\(\)\-\+0-9 ]*$'));
     end;
 
-    [TryFunction]
-    procedure GetUserTimezoneOffset(var Duration: Duration)
+    procedure GetUserTimezoneOffset(var Duration: Duration): Boolean
     var
         UserPersonalization: Record "User Personalization";
         TimeZoneInfo: DotNet TimeZoneInfo;
         TimeZone: Text;
     begin
-        UserPersonalization.Get(UserSecurityId);
+        if not UserPersonalization.Get(UserSecurityId) then
+            exit(false);
+            
         TimeZone := UserPersonalization."Time Zone";
-        TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZone);
 
+        if TimeZone = '' then
+            exit(false);
+
+        TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZone);
         Duration := TimeZoneInfo.BaseUtcOffset;
+        exit(true);
     end;
 
     procedure GetUserClientTypeOffset(var Duration: Duration)
@@ -879,6 +884,16 @@ codeunit 10 "Type Helper"
         else
             if RecordVariant.IsRecordRef() then
                 RecRef := RecordVariant;
+    end;
+
+    procedure IsDigit(ch: Char): Boolean
+    begin
+        exit((ch >= '0') AND (ch <= '9'));
+    end;
+
+    procedure IsUpper(ch: Char): Boolean
+    begin
+        exit((ch >= 'A') AND (ch <= 'Z'));
     end;
 
     [TryFunction]

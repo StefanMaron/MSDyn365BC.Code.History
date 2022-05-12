@@ -278,7 +278,7 @@
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 2187849051 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Define the bank statement file layout yourself</source>
-          <target state="translated">Zelf de indeling van het bankafschriftbestand definiëren</target>
+          <target state="translated">Zelf de lay-out van het bankafschriftbestand definiëren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Skip Step2 - Property Caption</note>
         </trans-unit>

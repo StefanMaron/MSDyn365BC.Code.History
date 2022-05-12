@@ -95,7 +95,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 530029408 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read fixed assets and entries</source>
-          <target state="translated">Lese Anlagen und Posten</target>
+          <target state="translated">Anlagen und Posten lesen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FA-FIXED ASSET - Property Caption</note>
         </trans-unit>
@@ -137,7 +137,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2185341261 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in FA journals</source>
-          <target state="translated">Posten in Anl. Buch.-Bl. erst.</target>
+          <target state="translated">Posten in Anl.-Buch.-Bl. erst.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FA-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -221,7 +221,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3672813476 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in G/L journals</source>
-          <target state="translated">Posten in Fibu Buch.-Bl. erst.</target>
+          <target state="translated">Posten in Fibu-Buch.-Bl. erst.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet G/L-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -269,7 +269,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2823959846 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create and edit absence</source>
-          <target state="translated">Abwesenheiten erst. und bearb.</target>
+          <target state="translated">Abwesenheit erst. und bearb.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet HR-ABSENCE - Property Caption</note>
         </trans-unit>
@@ -341,7 +341,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2386896655 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in item jnls.</source>
-          <target state="translated">Artikel Buch.-Blätter erst.</target>
+          <target state="translated">Posten in Art.-Buch.-Bl. erst.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-ITEM JNL - Property Caption</note>
         </trans-unit>
@@ -407,7 +407,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 4017942298 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read jobs and entries</source>
-          <target state="translated">Projektbudgets u. Posten lesen</target>
+          <target state="translated">Projekte und Posten lesen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet JOB-JOBS - Property Caption</note>
         </trans-unit>
@@ -419,7 +419,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2847602877 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in job journals</source>
-          <target state="translated">Proj.-Erf.-Journale erstellen</target>
+          <target state="translated">Proj. Erf.journale erstellen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet JOB-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -563,13 +563,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 449963620 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Manage MS Dataverse Int.</source>
-          <target state="translated">MS Dataverse Int. verwalten</target>
+          <target state="translated">MS Dataverse-Int. verwalten</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MS DATAVERSE MANAGE - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1994146690 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Setup MS Dataverse Int.</source>
-          <target state="translated">MS Dataverse Int. einrichten</target>
+          <target state="translated">MS Dataverse-Int. einrichten</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MS DATAVERSE SETUP - Property Caption</note>
         </trans-unit>
@@ -593,13 +593,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 4181873227 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Outlook Synch. power user</source>
-          <target state="translated">Outlook Synch.-Hauptbenutzer</target>
+          <target state="translated">Outlook-Synch.-Hauptbenutzer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet OSYNCHPUSER - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 3464226675 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Outlook Synch. common user</source>
-          <target state="translated">Outlook Synch. allg. Benutzer</target>
+          <target state="translated">Outlook-Synch. allg. Benutzer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet OSYNCHUSER - Property Caption</note>
         </trans-unit>
@@ -635,7 +635,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1311962126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read G/L registers (P&amp;P)</source>
-          <target state="translated">Fibujournale lesen (P&amp;P)</target>
+          <target state="translated">Fibujournale lesen (E&amp;K)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet P&amp;P-REGISTER - Property Caption</note>
         </trans-unit>
@@ -863,7 +863,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 864345981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read G/L registers (S&amp;R)</source>
-          <target state="translated">Fibujournale lesen (S&amp;R)</target>
+          <target state="translated">Fibujournale lesen (V&amp;K)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet S&amp;R-REGISTER - Property Caption</note>
         </trans-unit>

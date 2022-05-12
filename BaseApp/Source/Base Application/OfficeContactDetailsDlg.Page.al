@@ -12,12 +12,12 @@ page 1630 "Office Contact Details Dlg"
             group(Control7)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the contact. If the contact is a person, you can click the field to see the Name Details window.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = false;
@@ -30,11 +30,11 @@ page 1630 "Office Contact Details Dlg"
 
                     trigger OnValidate()
                     begin
-                        AssociateToCompany := Type = Type::Person;
-                        AssociateEnabled := Type = Type::Person;
-                        if Type = Type::Company then begin
-                            Clear("Company No.");
-                            Clear("Company Name");
+                        AssociateToCompany := Rec.Type = Rec.Type::Person;
+                        AssociateEnabled := Rec.Type = Rec.Type::Person;
+                        if Rec.Type = Rec.Type::Company then begin
+                            Clear(Rec."Company No.");
+                            Clear(Rec."Company Name");
                         end;
                     end;
                 }
@@ -48,12 +48,12 @@ page 1630 "Office Contact Details Dlg"
                     trigger OnValidate()
                     begin
                         if not AssociateToCompany then begin
-                            Clear("Company No.");
-                            Clear("Company Name");
+                            Clear(Rec."Company No.");
+                            Clear(Rec."Company Name");
                         end;
                     end;
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = Basic, Suite;
                     AssistEdit = true;
@@ -63,7 +63,7 @@ page 1630 "Office Contact Details Dlg"
 
                     trigger OnAssistEdit()
                     begin
-                        LookupCompany;
+                        Rec.LookupCompany();
                     end;
                 }
             }
@@ -76,12 +76,21 @@ page 1630 "Office Contact Details Dlg"
 
     trigger OnInit()
     begin
-        AssociateToCompany := Type = Type::Person;
+        AssociateToCompany := Rec.Type = Rec.Type::Person;
         AssociateEnabled := AssociateToCompany;
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if CloseAction in [ACTION::OK, ACTION::LookupOK] then
+            if AssociateToCompany and (Rec."Company Name" = '') then
+                Error(MustSpecifyCompanyErr);
     end;
 
     var
         AssociateEnabled: Boolean;
         AssociateToCompany: Boolean;
+        MustSpecifyCompanyErr: Label 'You must specify the name of the company because the contact is a person and associated with a company.';
+
 }
 

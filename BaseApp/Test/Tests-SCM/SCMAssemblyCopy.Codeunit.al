@@ -15,6 +15,8 @@ codeunit 137927 "SCM Assembly Copy"
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryResource: Codeunit "Library - Resource";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -718,6 +720,62 @@ codeunit 137927 "SCM Assembly Copy"
         BlanketAssemblyOrder.Lines."ShortcutDimCode[3]".AssertEquals(DimValue);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CopyAssemblyToOrderWithFixedUsageResource()
+    var
+        AsmItem: Record Item;
+        Resource: Record Resource;
+        BOMComponent: Record "BOM Component";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        NewSalesHeader: Record "Sales Header";
+        NewSalesLine: Record "Sales Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+        QtyPer: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Assemble-to-Order] [Resource]
+        // [SCENARIO 424568] Copying sales order with linked assembly-to-order does not change quantity of component of Type = "Resource" and Resource Usage Type = "Fixed".
+        Initialize();
+        QtyPer := LibraryRandom.RandInt(10);
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Assemble-to-order item "I".
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
+        AsmItem.Modify(true);
+
+        // [GIVEN] Create resource "R" and set it as BOM component for item "I".
+        // [GIVEN] Set "Resource Usage Type" = "Fixed" and "Quantity Per" = 5.
+        LibraryResource.CreateResourceNew(Resource);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Resource, Resource."No.", QtyPer, Resource."Base Unit of Measure");
+        BOMComponent.Validate("Resource Usage Type", BOMComponent."Resource Usage Type"::Fixed);
+        BOMComponent.Modify(true);
+
+        // [GIVEN] Sales order "SO1" for 20 pcs of item "I". A linked assembly-to-order has been created in background.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', AsmItem."No.", Qty, '', WorkDate());
+
+        // [WHEN] Copy the sales order "SO1" to a new sales order "SO2".
+        LibrarySales.CreateSalesHeader(NewSalesHeader, NewSalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::Order, SalesHeader."No.", NewSalesHeader);
+
+        // [THEN] Go to a linked assembly for the sales order "SO2" and find the resource component "R".
+        // [THEN] Quantity of the resource component = 5, which is equal to "Quantity Per" in BOM component.
+        FindSalesLineBySalesHeader(NewSalesLine, NewSalesHeader);
+        LibraryAssembly.FindLinkedAssemblyOrder(
+          AssemblyHeader, NewSalesLine."Document Type", NewSalesLine."Document No.", NewSalesLine."Line No.");
+        AssemblyLine.SetRange(Type, AssemblyLine.Type::Resource);
+        AssemblyLine.SetRange("No.", Resource."No.");
+        FindAsmLineByAsmHeader(AssemblyLine, AssemblyHeader);
+        AssemblyLine.TestField(Quantity, QtyPer);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -927,7 +985,6 @@ codeunit 137927 "SCM Assembly Copy"
     local procedure GetResource()
     var
         Resource: Record Resource;
-        LibraryResource: Codeunit "Library - Resource";
     begin
         LibraryResource.CreateResourceNew(Resource);
         ResourceNo := Resource."No.";

@@ -1,4 +1,4 @@
-codeunit 1248 "Process Bank Acc. Rec Lines"
+﻿codeunit 1248 "Process Bank Acc. Rec Lines"
 {
     Permissions = TableData "Data Exch." = rimd;
     TableNo = "Bank Acc. Reconciliation Line";
@@ -21,7 +21,6 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
 
     procedure ImportBankStatement(BankAccRecon: Record "Bank Acc. Reconciliation"; DataExch: Record "Data Exch."): Boolean
     var
-        BankAcc: Record "Bank Account";
         DataExchDef: Record "Data Exch. Def";
         DataExchMapping: Record "Data Exch. Mapping";
         DataExchLineDef: Record "Data Exch. Line Def";
@@ -31,11 +30,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         StartDateTime: DateTime;
         FinishDateTime: DateTime;
     begin
-        BankAcc.Get(BankAccRecon."Bank Account No.");
-        BankAcc.GetDataExchDef(DataExchDef);
-
-        DataExch."Related Record" := BankAcc.RecordId;
-        DataExch."Data Exch. Def Code" := DataExchDef.Code;
+        PrepareDataExch(BankAccRecon, DataExch, DataExchDef);
 
         if not DataExch.ImportToDataExch(DataExchDef) then
             exit(false);
@@ -66,6 +61,23 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         LogTelemetryOnBankAccRecOnAfterImportBankStatement(NumberOfLinesImported, StartDateTime, FinishDateTime);
         OnAfterImportBankStatement(TempBankAccReconLine, DataExch);
         exit(true);
+    end;
+
+    local procedure PrepareDataExch(BankAccRecon: Record "Bank Acc. Reconciliation"; var DataExch: Record "Data Exch."; var DataExchDef: Record "Data Exch. Def")
+    var
+        BankAcc: Record "Bank Account";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrepareDataExch(BankAccRecon, DataExch, DataExchDef, IsHandled);
+        if IsHandled then
+            exit;
+
+        BankAcc.Get(BankAccRecon."Bank Account No.");
+        BankAcc.GetDataExchDef(DataExchDef);
+
+        DataExch."Related Record" := BankAcc.RecordId;
+        DataExch."Data Exch. Def Code" := DataExchDef.Code;
     end;
 
     procedure CreateBankAccRecLineTemplate(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; BankAccRecon: Record "Bank Acc. Reconciliation"; DataExch: Record "Data Exch.")
@@ -127,6 +139,11 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterImportBankStatement(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DataExch: Record "Data Exch.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepareDataExch(BankAccRecon: Record "Bank Acc. Reconciliation"; var DataExch: Record "Data Exch."; var DataExchDef: Record "Data Exch. Def"; var IsHandled: Boolean)
     begin
     end;
 }

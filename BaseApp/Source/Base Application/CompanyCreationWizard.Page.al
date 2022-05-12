@@ -140,11 +140,6 @@ page 9192 "Company Creation Wizard"
                             ApplicationArea = All;
                             ToolTip = 'Install the Contoso Demo Data app on top of the default sample data.';
                             Caption = 'Install the Contoso Demo Data app on top of the default sample data.';
-
-                            trigger OnDrillDown()
-                            begin
-                                InstallAdditionalDemoData := not InstallAdditionalDemoData;
-                            end;
                         }
                     }
                 }

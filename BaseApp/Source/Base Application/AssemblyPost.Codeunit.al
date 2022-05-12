@@ -159,7 +159,7 @@ codeunit 900 "Assembly-Post"
             PostHeader(AssemblyHeader, PostedAssemblyHeader, ItemJnlPostLine, WhseJnlRegisterLine, NeedUpdateUnitCost);
         end;
 
-        OnAfterPost(AssemblyHeader);
+        OnAfterPost(AssemblyHeader, AssemblyLine, PostedAssemblyHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine);
     end;
 
     local procedure FinalizePost(AssemblyHeader: Record "Assembly Header")
@@ -182,34 +182,37 @@ codeunit 900 "Assembly-Post"
     begin
         IsHandled := false;
         OnBeforeDeleteAssemblyDocument(AssemblyHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        with AssemblyHeader do begin
-            // Delete header and lines
-            AssemblyLine.Reset();
-            AssemblyLine.SetRange("Document Type", "Document Type");
-            AssemblyLine.SetRange("Document No.", "No.");
-            if "Remaining Quantity (Base)" = 0 then begin
-                if HasLinks then
-                    DeleteLinks();
-                DeleteWhseRequest(AssemblyHeader);
-                Delete;
-                if AssemblyLine.Find('-') then
-                    repeat
-                        if AssemblyLine.HasLinks then
-                            DeleteLinks();
-                        AssemblyLineReserve.SetDeleteItemTracking(true);
-                        AssemblyLineReserve.DeleteLine(AssemblyLine);
-                    until AssemblyLine.Next() = 0;
-                AssemblyLine.DeleteAll();
-                AssemblyCommentLine.SetCurrentKey("Document Type", "Document No.");
-                AssemblyCommentLine.SetRange("Document Type", "Document Type");
-                AssemblyCommentLine.SetRange("Document No.", "No.");
-                if not AssemblyCommentLine.IsEmpty() then
-                    AssemblyCommentLine.DeleteAll();
+        if not IsHandled then
+            with AssemblyHeader do begin
+                // Delete header and lines
+                AssemblyLine.Reset();
+                AssemblyLine.SetRange("Document Type", "Document Type");
+                AssemblyLine.SetRange("Document No.", "No.");
+                if "Remaining Quantity (Base)" = 0 then begin
+                    if HasLinks then
+                        DeleteLinks();
+                    DeleteWhseRequest(AssemblyHeader);
+                    OnDeleteAssemblyDocumentOnBeforeDeleteAssemblyHeader(AssemblyHeader, AssemblyLine);
+                    Delete;
+                    OnDeleteAssemblyDocumentOnAfterDeleteAssemblyHeader(AssemblyHeader, AssemblyLine);
+                    if AssemblyLine.Find('-') then
+                        repeat
+                            if AssemblyLine.HasLinks then
+                                DeleteLinks();
+                            AssemblyLineReserve.SetDeleteItemTracking(true);
+                            AssemblyLineReserve.DeleteLine(AssemblyLine);
+                        until AssemblyLine.Next() = 0;
+                    OnDeleteAssemblyDocumentOnBeforeDeleteAssemblyLines(AssemblyHeader, AssemblyLine);
+                    AssemblyLine.DeleteAll();
+                    AssemblyCommentLine.SetCurrentKey("Document Type", "Document No.");
+                    AssemblyCommentLine.SetRange("Document Type", "Document Type");
+                    AssemblyCommentLine.SetRange("Document No.", "No.");
+                    if not AssemblyCommentLine.IsEmpty() then
+                        AssemblyCommentLine.DeleteAll();
+                end;
             end;
-        end;
+
+        OnAfterDeleteAssemblyDocument(AssemblyHeader);
     end;
 
     local procedure OpenWindow(DocType: Enum "Assembly Document Type")
@@ -583,6 +586,7 @@ codeunit 900 "Assembly-Post"
         else begin
             AssemblyLineReserve.TransferAsmLineToItemJnlLine(AssemblyLine, ItemJnlLine, ItemJnlLine."Quantity (Base)", false);
             PostItemJnlLine(ItemJnlLine, ItemJnlPostLine);
+            OnPostItemConsumptionOnAfterPostItemJnlLine(ItemJnlPostLine, AssemblyLine);
             AssemblyLineReserve.UpdateItemTrackingAfterPosting(AssemblyLine);
             PostWhseJnlLine(AssemblyHeader, ItemJnlLine, ItemJnlPostLine, WhseJnlRegisterLine);
         end;
@@ -961,6 +965,7 @@ codeunit 900 "Assembly-Post"
                     ItemEntryRelation := TempItemEntryRelation;
                     ItemEntryRelation.TransferFieldsPostedAsmHeader(PostedAssemblyHeader);
                     ItemEntryRelation.Insert();
+                    OnInsertHeaderItemEntryRelationOnAfterInsertItemEntryRelation(ItemEntryRelation, PostedAssemblyHeader);
                 until TempItemEntryRelation.Next() = 0;
         end else
             PostedAssemblyHeader."Item Rcpt. Entry No." := ItemLedgEntryNo;
@@ -1513,6 +1518,11 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteAssemblyDocument(var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFinalizePost(var AssemblyHeader: Record "Assembly Header")
     begin
     end;
@@ -1528,7 +1538,7 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPost(var AssemblyHeader: Record "Assembly Header")
+    local procedure OnAfterPost(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; PostedAssemblyHeader: Record "Posted Assembly Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var ResJnlPostLine: Codeunit "Res. Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
     begin
     end;
 
@@ -1638,12 +1648,37 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDeleteAssemblyDocumentOnBeforeDeleteAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteAssemblyDocumentOnAfterDeleteAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteAssemblyDocumentOnBeforeDeleteAssemblyLines(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertHeaderItemEntryRelationOnAfterInsertItemEntryRelation(var ItemEntryRelation: Record "Item Entry Relation"; var PostedAssemblyHeader: Record "Posted Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostHeaderOnAfterPostItemOutput(var AssemblyHeader: Record "Assembly Header"; var HeaderQty: Decimal; var HeaderQtyBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostHeaderOnBeforePostItemOutput(var AssemblyHeader: Record "Assembly Header"; var HeaderQty: Decimal; var HeaderQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemConsumptionOnAfterPostItemJnlLine(var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var AssemblyLine: Record "Assembly Line")
     begin
     end;
 

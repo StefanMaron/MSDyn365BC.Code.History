@@ -1,6 +1,6 @@
 enum 5526 "Planning Create Prod. Order"
 {
-    Extensible = false;
+    Extensible = true;
     AssignmentCompatibility = true;
 
     value(0; " ") { Caption = ' '; }

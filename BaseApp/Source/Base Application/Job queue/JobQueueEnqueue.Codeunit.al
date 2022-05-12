@@ -14,27 +14,27 @@ codeunit 453 "Job Queue - Enqueue"
     begin
         OnBeforeEnqueueJobQueueEntry(JobQueueEntry);
 
-        with JobQueueEntry do begin
-            SavedStatus := Status;
-            InitEntryForSchedulerWithDelayInSec(JobQueueEntry, 1);
-            if IsNullGuid(ID) then
-                Insert(true)
-            else begin
-                if CanScheduleTask(JobQueueEntry) then
-                    CancelTask; // clears "System Task ID"
-                Modify;
-            end;
+        JobQueueEntry.CheckRequiredPermissions();
 
-            if CanScheduleTask(JobQueueEntry) and not UpdateStatusOnHoldWithInactivityTimeout(JobQueueEntry, SavedStatus) then
-                "System Task ID" := ScheduleTask;
+        SavedStatus := JobQueueEntry.Status;
+        InitEntryForSchedulerWithDelayInSec(JobQueueEntry, 1);
+        if IsNullGuid(JobQueueEntry.ID) then
+            JobQueueEntry.Insert(true)
+        else begin
+            if CanScheduleTask(JobQueueEntry) then
+                JobQueueEntry.CancelTask(); // clears "System Task ID"
+            JobQueueEntry.Modify();
+        end;
 
-            if not IsNullGuid("System Task ID") then begin
-                if SavedStatus = Status::"On Hold with Inactivity Timeout" then
-                    Status := SavedStatus
-                else
-                    Status := Status::Ready;
-                Modify;
-            end;
+        if CanScheduleTask(JobQueueEntry) and not UpdateStatusOnHoldWithInactivityTimeout(JobQueueEntry, SavedStatus) then
+            JobQueueEntry."System Task ID" := JobQueueEntry.ScheduleTask();
+
+        if not IsNullGuid(JobQueueEntry."System Task ID") then begin
+            if SavedStatus = JobQueueEntry.Status::"On Hold with Inactivity Timeout" then
+                JobQueueEntry.Status := SavedStatus
+            else
+                JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+            JobQueueEntry.Modify();
         end;
 
         OnAfterEnqueueJobQueueEntry(JobQueueEntry);
@@ -42,24 +42,21 @@ codeunit 453 "Job Queue - Enqueue"
 
     local procedure InitEntryForSchedulerWithDelayInSec(var JobQueueEntry: Record "Job Queue Entry"; DelayInSec: Integer)
     begin
-        with JobQueueEntry do begin
-            Status := Status::"On Hold";
-            "User Session Started" := 0DT;
-            if "Earliest Start Date/Time" < (CurrentDateTime + 1000) then
-                "Earliest Start Date/Time" := CurrentDateTime + DelayInSec * 1000;
-        end;
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+        JobQueueEntry."User Session Started" := 0DT;
+        if JobQueueEntry."Earliest Start Date/Time" < (CurrentDateTime + 1000) then
+            JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime + DelayInSec * 1000;
     end;
 
     local procedure UpdateStatusOnHoldWithInactivityTimeout(var JobQueueEntry: Record "Job Queue Entry"; SavedStatus: Integer): Boolean
     begin
-        with JobQueueEntry do
-            if (SavedStatus = Status::"On Hold with Inactivity Timeout") and ("Inactivity Timeout Period" = 0) then begin
-                if Status <> Status::"On Hold with Inactivity Timeout" then begin
-                    Status := Status::"On Hold with Inactivity Timeout";
-                    Modify;
-                end;
-                exit(true);
+        if (SavedStatus = JobQueueEntry.Status::"On Hold with Inactivity Timeout") and (JobQueueEntry."Inactivity Timeout Period" = 0) then begin
+            if JobQueueEntry.Status <> JobQueueEntry.Status::"On Hold with Inactivity Timeout" then begin
+                JobQueueEntry.Status := JobQueueEntry.Status::"On Hold with Inactivity Timeout";
+                JobQueueEntry.Modify();
             end;
+            exit(true);
+        end;
 
         exit(false);
     end;

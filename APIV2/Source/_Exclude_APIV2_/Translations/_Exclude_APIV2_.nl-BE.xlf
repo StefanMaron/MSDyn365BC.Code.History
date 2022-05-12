@@ -1655,13 +1655,13 @@
         </trans-unit>
         <trans-unit id="Page 79567422 - NamedType 4261500932" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The blank "displayName" is not allowed.</source>
-          <target state="translated">De lege 'displayName' is niet toegestaan.</target>
+          <target state="translated">De lege "displayName" is niet toegestaan.</target>
           <note from="Developer" annotates="general" priority="2">displayName is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - NamedType BlankContactNameErr</note>
         </trans-unit>
         <trans-unit id="Page 79567422 - NamedType 2753446044" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "displayName" must be provided.</source>
-          <target state="translated">Er moet een 'displayName' worden opgegeven.</target>
+          <target state="translated">Er moet een "displayName" worden opgegeven.</target>
           <note from="Developer" annotates="general" priority="2">displayName is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - NamedType NotProvidedContactNameErr</note>
         </trans-unit>
@@ -1733,7 +1733,7 @@
         </trans-unit>
         <trans-unit id="Page 79567422 - Control 2348551448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Date of Last Interaction</source>
-          <target state="translated">Datum van laatste interactie</target>
+          <target state="translated">Datum laatste interactie</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control lastInteractionDate - Property Caption</note>
         </trans-unit>
@@ -4847,7 +4847,7 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 2178917581" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The pay-to vendor cannot be found.</source>
-          <target state="translated">De betalingsleverancier kan niet worden gevonden.</target>
+          <target state="translated">De factuurleverancier kan niet worden gevonden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - NamedType CouldNotFindPayToVendorErr</note>
         </trans-unit>
@@ -5021,7 +5021,7 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2898359933 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Pay To Country/Region Code</source>
-          <target state="translated">Land/regio-code van betaling</target>
+          <target state="translated">Code van betalingsland/-regio</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control payToCountry - Property Caption</note>
         </trans-unit>
@@ -5207,7 +5207,7 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - NamedType 1048593969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Account does not exist.</source>
-          <target state="translated">Account bestaat niet.</target>
+          <target state="translated">Rekening bestaat niet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType AccountDoesNotExistErr</note>
         </trans-unit>
@@ -5219,7 +5219,7 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - NamedType 2697791227" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "documentId" cannot be modified.</source>
-          <target state="translated">De waarde van 'documentId' kan niet worden gewijzigd.</target>
+          <target state="translated">De waarde van "documentId" kan niet worden gewijzigd.</target>
           <note from="Developer" annotates="general" priority="2">documentId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType CannotChangeDocumentIdNoErr</note>
         </trans-unit>
@@ -5231,7 +5231,7 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - NamedType 91023212" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "lineObjectNumber" cannot be modified.</source>
-          <target state="translated">De waarde van 'lineObjectNumber' kan niet worden gewijzigd.</target>
+          <target state="translated">De waarde van "lineObjectNumber" kan niet worden gewijzigd.</target>
           <note from="Developer" annotates="general" priority="2">lineObjectNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType CannotChangeLineObjectNoErr</note>
         </trans-unit>
@@ -5477,7 +5477,7 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <target state="translated">De 'id' kan niet worden gewijzigd.</target>
+          <target state="translated">De "Id" kan niet worden gewijzigd.</target>
           <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CannotChangeIDErr</note>
         </trans-unit>
@@ -5507,13 +5507,13 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 1805429782" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyCode" does not match to a Currency.</source>
-          <target state="translated">De 'currencyCode' komt niet overeen met een valuta.</target>
+          <target state="translated">De "currencyCode" komt niet overeen met een valuta.</target>
           <note from="Developer" annotates="general" priority="2">currencyCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CurrencyCodeDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 3939449910" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyId" does not match to a Currency.</source>
-          <target state="translated">De 'currencyId' komt niet overeen met een valuta.</target>
+          <target state="translated">De "currencyId" komt niet overeen met een valuta.</target>
           <note from="Developer" annotates="general" priority="2">currencyId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CurrencyIdDoesNotMatchACurrencyErr</note>
         </trans-unit>
@@ -5525,7 +5525,7 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 2002735526" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "paymentTermsId" does not match to a Payment Terms.</source>
-          <target state="translated">De 'paymentTermsId' komt niet overeen met een betalingsvoorwaarde.</target>
+          <target state="translated">De "paymentTermsId" komt niet overeen met een betalingsvoorwaarde.</target>
           <note from="Developer" annotates="general" priority="2">paymentTermsId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType PaymentTermsIdDoesNotMatchAPaymentTermsErr</note>
         </trans-unit>
@@ -5543,7 +5543,7 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 2619345254" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "shipmentMethodId" does not match to a Shipment Method.</source>
-          <target state="translated">De 'shipmentMethodId' komt niet overeen met een verzendwijze.</target>
+          <target state="translated">De "shipmentMethodId" komt niet overeen met een verzendwijze.</target>
           <note from="Developer" annotates="general" priority="2">shipmentMethodId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType ShipmentMethodIdDoesNotMatchAShipmentMethodErr</note>
         </trans-unit>

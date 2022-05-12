@@ -11,7 +11,14 @@ codeunit 5056 "CustCont-Update"
         CustContactUpdateTelemetryMsg: Label 'Contact does not exist. The contact business relation which points to it has been deleted', Locked = true;
 
     procedure OnInsert(var Cust: Record Customer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Cust, IsHandled);
+        if IsHandled then
+            exit;
+
         RMSetup.Get();
         if RMSetup."Bus. Rel. Code for Customers" = '' then
             exit;
@@ -128,6 +135,7 @@ codeunit 5056 "CustCont-Update"
             "Business Relation Code" := RMSetup."Bus. Rel. Code for Customers";
             "Link to Table" := "Link to Table"::Customer;
             "No." := Cust."No.";
+            OnInsertNewContactOnBeforeContBusRelInsert(ContBusRel, Cont, Cust);
             Insert(true);
         end;
     end;
@@ -224,6 +232,11 @@ codeunit 5056 "CustCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOnModify(Customer: Record Customer; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
@@ -235,6 +248,11 @@ codeunit 5056 "CustCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertNewContactPersonOnBeforeContactModify(var Contact: Record Contact; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertNewContactOnBeforeContBusRelInsert(var ContactBusinessRelation: Record "Contact Business Relation"; Contact: Record Contact; Customer: Record Customer)
     begin
     end;
 

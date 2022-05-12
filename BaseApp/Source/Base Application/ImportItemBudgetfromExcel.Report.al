@@ -151,7 +151,8 @@ report 7131 "Import Item Budget from Excel"
             FileMgt: Codeunit "File Management";
         begin
             if CloseAction = ACTION::OK then begin
-                ServerFileName := FileMgt.UploadFile(Text006, ExcelExtensionTok);
+                if ServerFileName = '' then
+                    ServerFileName := FileMgt.UploadFile(Text006, ExcelExtensionTok);
                 if ServerFileName = '' then
                     exit(false);
 
@@ -546,8 +547,8 @@ report 7131 "Import Item Budget from Excel"
     begin
         if ItemFilter <> '' then begin
             Item.SetFilter("No.", ItemFilter);
-            ItemFilter := Item.GetRangeMin("No.");
-            Item.Get(ItemFilter);
+            Item.FindFirst();
+            ItemFilter := Item."No.";
         end;
 
         if DateFilter <> '' then begin

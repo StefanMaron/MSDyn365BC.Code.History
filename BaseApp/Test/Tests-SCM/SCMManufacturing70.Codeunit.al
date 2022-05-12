@@ -1421,7 +1421,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
         AvailabilityManagement.CalcAvailableToPromise(TempOrderPromisingLine);
 
         // Verify: Verify Earliest Shipment Dates on Order Promising Lines.
-        VerifyOrderPromisingLines(TempOrderPromisingLine);
+        // "Earliest Shipment Date" = "Original Shipment Date" on the order promising line for the reserved sales line.
+        TempOrderPromisingLine.FindSet();
+        VerifyEarliestShipmentDate(0D, TempOrderPromisingLine);
+        TempOrderPromisingLine.Next();
+        VerifyEarliestShipmentDate(CalcDate(LeadDatesFormula, WorkDate()), TempOrderPromisingLine);
     end;
 
     [Normal]
@@ -4046,10 +4050,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
     local procedure CreatePostItemJournal(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20])
     var
-        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        Item: Record Item;
         ItemJournal: TestPage "Item Journal";
     begin
-        GenProductPostingGroup.FindFirst();
+        Item.Get(ItemNo);
         ItemJournalBatch.FindFirst();
         ItemJournalBatch.Validate("No. Series", '');
         ItemJournalBatch.Modify(true);
@@ -4058,7 +4062,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, 1);
 
-        ItemJournalLine.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
+        ItemJournalLine.Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
         ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::"Positive Adjmt.");
         ItemJournalLine.Validate("Item No.", ItemNo);
         ItemJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(5, 10));
@@ -4617,14 +4621,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PurchaseLine.FindLast();
         PurchaseLine.TestField("No.", No);
         PurchaseLine.TestField(Quantity, Quantity);
-    end;
-
-    local procedure VerifyOrderPromisingLines(var TempOrderPromisingLine: Record "Order Promising Line" temporary)
-    begin
-        TempOrderPromisingLine.FindSet();
-        VerifyEarliestShipmentDate(0D, TempOrderPromisingLine);
-        TempOrderPromisingLine.Next;
-        VerifyEarliestShipmentDate(0D, TempOrderPromisingLine);
     end;
 
     local procedure VerifyEarliestShipmentDate(ExpectedDate: Date; TempOrderPromisingLine: Record "Order Promising Line" temporary)

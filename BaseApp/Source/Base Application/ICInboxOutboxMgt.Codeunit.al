@@ -649,77 +649,81 @@
         TempInOutBoxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim." temporary;
         HandledInboxJnlLine: Record "Handled IC Inbox Jnl. Line";
         DimMgt: Codeunit DimensionManagement;
+        IsHandled: Boolean;
     begin
-        GetGLSetup();
-        with GenJnlLine2 do
-            if InboxTransaction."Transaction Source" = InboxTransaction."Transaction Source"::"Created by Partner" then begin
-                Init;
-                "Journal Template Name" := TempGenJnlLine."Journal Template Name";
-                "Journal Batch Name" := TempGenJnlLine."Journal Batch Name";
-                if TempGenJnlLine."Posting Date" <> 0D then
-                    "Posting Date" := TempGenJnlLine."Posting Date"
-                else
-                    "Posting Date" := InboxTransaction."Posting Date";
-                "Document Type" := InboxTransaction."Document Type";
-                "Document No." := TempGenJnlLine."Document No.";
-                "Source Code" := GenJnlTemplate."Source Code";
-                "Line No." := TempGenJnlLine."Line No." + 10000;
-                case InboxJnlLine."Account Type" of
-                    InboxJnlLine."Account Type"::"G/L Account":
-                        begin
-                            "Account Type" := "Account Type"::"G/L Account";
-                            Validate("Account No.", TranslateICGLAccount(InboxJnlLine."Account No."));
-                        end;
-                    InboxJnlLine."Account Type"::Customer:
-                        begin
-                            "Account Type" := "Account Type"::Customer;
-                            Validate("Account No.", TranslateICPartnerToCustomer(InboxJnlLine."IC Partner Code"));
-                        end;
-                    InboxJnlLine."Account Type"::Vendor:
-                        begin
-                            "Account Type" := "Account Type"::Vendor;
-                            Validate("Account No.", TranslateICPartnerToVendor(InboxJnlLine."IC Partner Code"));
-                        end;
-                    InboxJnlLine."Account Type"::"IC Partner":
-                        begin
-                            "Account Type" := "Account Type"::"IC Partner";
-                            Validate("Account No.", InboxJnlLine."IC Partner Code");
-                        end;
+        IsHandled := false;
+        OnBeforeCreateJournalLines(InboxTransaction, InboxJnlLine, TempGenJnlLine, GenJnlTemplate, IsHandled);
+        if not IsHandled then begin
+            GetGLSetup();
+            with GenJnlLine2 do
+                if InboxTransaction."Transaction Source" = InboxTransaction."Transaction Source"::"Created by Partner" then begin
+                    Init;
+                    "Journal Template Name" := TempGenJnlLine."Journal Template Name";
+                    "Journal Batch Name" := TempGenJnlLine."Journal Batch Name";
+                    if TempGenJnlLine."Posting Date" <> 0D then
+                        "Posting Date" := TempGenJnlLine."Posting Date"
+                    else
+                        "Posting Date" := InboxTransaction."Posting Date";
+                    "Document Type" := InboxTransaction."Document Type";
+                    "Document No." := TempGenJnlLine."Document No.";
+                    "Source Code" := GenJnlTemplate."Source Code";
+                    "Line No." := TempGenJnlLine."Line No." + 10000;
+                    case InboxJnlLine."Account Type" of
+                        InboxJnlLine."Account Type"::"G/L Account":
+                            begin
+                                "Account Type" := "Account Type"::"G/L Account";
+                                Validate("Account No.", TranslateICGLAccount(InboxJnlLine."Account No."));
+                            end;
+                        InboxJnlLine."Account Type"::Customer:
+                            begin
+                                "Account Type" := "Account Type"::Customer;
+                                Validate("Account No.", TranslateICPartnerToCustomer(InboxJnlLine."IC Partner Code"));
+                            end;
+                        InboxJnlLine."Account Type"::Vendor:
+                            begin
+                                "Account Type" := "Account Type"::Vendor;
+                                Validate("Account No.", TranslateICPartnerToVendor(InboxJnlLine."IC Partner Code"));
+                            end;
+                        InboxJnlLine."Account Type"::"IC Partner":
+                            begin
+                                "Account Type" := "Account Type"::"IC Partner";
+                                Validate("Account No.", InboxJnlLine."IC Partner Code");
+                            end;
+                    end;
+                    if InboxJnlLine.Description <> '' then
+                        Description := InboxJnlLine.Description;
+                    if InboxJnlLine."Currency Code" = GLSetup."LCY Code" then
+                        InboxJnlLine."Currency Code" := '';
+                    Validate("Currency Code", InboxJnlLine."Currency Code");
+                    Validate(Amount, InboxJnlLine.Amount);
+                    if ("VAT Amount" <> InboxJnlLine."VAT Amount") and
+                       ("VAT Amount" <> 0) and (InboxJnlLine."VAT Amount" <> 0)
+                    then
+                        Validate("VAT Amount", InboxJnlLine."VAT Amount");
+                    "Due Date" := InboxJnlLine."Due Date";
+                    Validate("Payment Discount %", InboxJnlLine."Payment Discount %");
+                    Validate("Pmt. Discount Date", InboxJnlLine."Payment Discount Date");
+                    Quantity := InboxJnlLine.Quantity;
+                    "IC Direction" := TempGenJnlLine."IC Direction"::Incoming;
+                    "IC Partner Transaction No." := InboxJnlLine."Transaction No.";
+                    "External Document No." := InboxJnlLine."Document No.";
+                    OnBeforeInsertGenJnlLine(GenJnlLine2, InboxJnlLine);
+                    Insert;
+                    InOutBoxJnlLineDim.SetRange("Table ID", DATABASE::"IC Inbox Jnl. Line");
+                    InOutBoxJnlLineDim.SetRange("Transaction No.", InboxTransaction."Transaction No.");
+                    InOutBoxJnlLineDim.SetRange("Line No.", InboxJnlLine."Line No.");
+                    InOutBoxJnlLineDim.SetRange("IC Partner Code", InboxTransaction."IC Partner Code");
+                    TempInOutBoxJnlLineDim.DeleteAll();
+                    DimMgt.CopyICJnlDimToICJnlDim(InOutBoxJnlLineDim, TempInOutBoxJnlLineDim);
+                    "Dimension Set ID" := DimMgt.CreateDimSetIDFromICJnlLineDim(TempInOutBoxJnlLineDim);
+                    DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
+                      "Shortcut Dimension 2 Code");
+                    Modify;
+                    HandledInboxJnlLine.TransferFields(InboxJnlLine);
+                    HandledInboxJnlLine.Insert();
+                    TempGenJnlLine."Line No." := "Line No.";
                 end;
-                if InboxJnlLine.Description <> '' then
-                    Description := InboxJnlLine.Description;
-                if InboxJnlLine."Currency Code" = GLSetup."LCY Code" then
-                    InboxJnlLine."Currency Code" := '';
-                Validate("Currency Code", InboxJnlLine."Currency Code");
-                Validate(Amount, InboxJnlLine.Amount);
-                if ("VAT Amount" <> InboxJnlLine."VAT Amount") and
-                   ("VAT Amount" <> 0) and (InboxJnlLine."VAT Amount" <> 0)
-                then
-                    Validate("VAT Amount", InboxJnlLine."VAT Amount");
-                "Due Date" := InboxJnlLine."Due Date";
-                Validate("Payment Discount %", InboxJnlLine."Payment Discount %");
-                Validate("Pmt. Discount Date", InboxJnlLine."Payment Discount Date");
-                Quantity := InboxJnlLine.Quantity;
-                "IC Direction" := TempGenJnlLine."IC Direction"::Incoming;
-                "IC Partner Transaction No." := InboxJnlLine."Transaction No.";
-                "External Document No." := InboxJnlLine."Document No.";
-                OnBeforeInsertGenJnlLine(GenJnlLine2, InboxJnlLine);
-                Insert;
-                InOutBoxJnlLineDim.SetRange("Table ID", DATABASE::"IC Inbox Jnl. Line");
-                InOutBoxJnlLineDim.SetRange("Transaction No.", InboxTransaction."Transaction No.");
-                InOutBoxJnlLineDim.SetRange("Line No.", InboxJnlLine."Line No.");
-                InOutBoxJnlLineDim.SetRange("IC Partner Code", InboxTransaction."IC Partner Code");
-                TempInOutBoxJnlLineDim.DeleteAll();
-                DimMgt.CopyICJnlDimToICJnlDim(InOutBoxJnlLineDim, TempInOutBoxJnlLineDim);
-                "Dimension Set ID" := DimMgt.CreateDimSetIDFromICJnlLineDim(TempInOutBoxJnlLineDim);
-                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
-                  "Shortcut Dimension 2 Code");
-                Modify;
-                HandledInboxJnlLine.TransferFields(InboxJnlLine);
-                HandledInboxJnlLine.Insert();
-                TempGenJnlLine."Line No." := "Line No.";
-            end;
-
+        end;
         OnAfterCreateJournalLines(GenJnlLine2);
     end;
 
@@ -786,7 +790,7 @@
                 DimensionSetIDArr, SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
             DimMgt.UpdateGlobalDimFromDimSetID(
                 SalesHeader."Dimension Set ID", SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
-            OnCreateSalesDocumentOnBeforeSalesHeaderModify(SalesHeader, ICInboxSalesHeader);
+            OnCreateSalesDocumentOnBeforeSalesHeaderModify(SalesHeader, ICInboxSalesHeader, ICDocDim);
             SalesHeader.Modify();
 
             HandledICInboxSalesHeader.TransferFields(ICInboxSalesHeader);
@@ -2746,6 +2750,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateJournalLines(InboxTransaction: Record "IC Inbox Transaction"; InboxJnlLine: Record "IC Inbox Jnl. Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; GenJnlTemplate: Record "Gen. Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; ICInboxJnlLine: Record "IC Inbox Jnl. Line")
     begin
     end;
@@ -3039,7 +3048,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateSalesDocumentOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; ICInboxSalesHeader: Record "IC Inbox Sales Header")
+    local procedure OnCreateSalesDocumentOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; ICInboxSalesHeader: Record "IC Inbox Sales Header"; var ICDocDim: Record "IC Document Dimension")
     begin
     end;
 

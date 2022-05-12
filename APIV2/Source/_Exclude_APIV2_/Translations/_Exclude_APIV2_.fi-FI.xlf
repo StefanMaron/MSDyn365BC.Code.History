@@ -4829,7 +4829,7 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <target state="translated">Tunnusta ei voi muuttaa.</target>
+          <target state="translated">Id-arvoa ei voi muuttaa.</target>
           <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - NamedType CannotChangeIDErr</note>
         </trans-unit>
@@ -6419,7 +6419,7 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <target state="translated">Tunnusta ei voi muuttaa.</target>
+          <target state="translated">Id-arvoa ei voi muuttaa.</target>
           <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CannotChangeIDErr</note>
         </trans-unit>
@@ -7811,7 +7811,7 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <target state="translated">Tunnusta ei voi muuttaa.</target>
+          <target state="translated">Id-arvoa ei voi muuttaa.</target>
           <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - NamedType CannotChangeIDErr</note>
         </trans-unit>
@@ -8459,7 +8459,7 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <target state="translated">Tunnusta ei voi muuttaa.</target>
+          <target state="translated">Id-arvoa ei voi muuttaa.</target>
           <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - NamedType CannotChangeIDErr</note>
         </trans-unit>

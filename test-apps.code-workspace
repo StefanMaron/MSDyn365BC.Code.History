@@ -159,6 +159,9 @@
                         "path":  ".\\recommendedapps\\test\\Recommended Apps Tests"
                     },
                     {
+                        "path":  ".\\ReportLayouts\\test\\Report Layouts Tests"
+                    },
+                    {
                         "path":  ".\\salesandinventoryforecast\\test\\Sales and Inventory Forecast Tests"
                     },
                     {

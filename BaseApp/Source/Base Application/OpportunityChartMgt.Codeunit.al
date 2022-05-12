@@ -1,4 +1,4 @@
-codeunit 782 "Opportunity Chart Mgt."
+﻿codeunit 782 "Opportunity Chart Mgt."
 {
 
     trigger OnRun()
@@ -26,10 +26,11 @@ codeunit 782 "Opportunity Chart Mgt."
           Opportunity.Status::Lost:
                 Opportunity.SetRange("Date Closed", Period."Period Start", Period."Period End");
         end;
+        OnDrillDownOnBeforeRunPage(Opportunity);
         PAGE.Run(PAGE::"Opportunity List", Opportunity);
     end;
 
-    local procedure GetOppCount(Period: Record Date; SalesPersonCode: Code[20]; OpportunityStatus: Option): Integer
+    local procedure GetOppCount(Period: Record Date; SalesPersonCode: Code[20]; OpportunityStatus: Option) NumberOfOpp: Integer
     var
         Opportunity: Record Opportunity;
     begin
@@ -44,7 +45,8 @@ codeunit 782 "Opportunity Chart Mgt."
           Opportunity.Status::Lost:
                 Opportunity.SetRange("Date Closed", Period."Period Start", Period."Period End");
         end;
-        exit(Opportunity.Count);
+        NumberOfOpp := Opportunity.Count;
+        OnAfterGetOppCount(Opportunity, NumberOfOpp);
     end;
 
     procedure SetDefaultOppStatus(var Opportunity: Record Opportunity)
@@ -145,6 +147,16 @@ codeunit 782 "Opportunity Chart Mgt."
                     end;
                 until SalespersonPurchaser.Next() = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetOppCount(var Opportunity: Record "Opportunity"; var NumberOfOpp: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownOnBeforeRunPage(var Opportunity: Record "Opportunity")
+    begin
     end;
 }
 

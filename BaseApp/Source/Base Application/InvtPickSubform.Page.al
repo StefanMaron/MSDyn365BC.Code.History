@@ -422,7 +422,7 @@ page 7378 "Invt. Pick Subform"
         WhseActivLine: Record "Warehouse Activity Line";
     begin
         WhseActivLine.Copy(Rec);
-        OnPostPickYesNoOnBeforeRunWhseActivPostYesNo(WhseActivLine);
+        OnPostPickYesNoOnBeforeRunWhseActivPostYesNo(WhseActivLine, Rec);
         CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Post (Yes/No)", WhseActivLine);
         CurrPage.Update(false);
     end;
@@ -434,7 +434,7 @@ page 7378 "Invt. Pick Subform"
     begin
         WhseActivLine.Copy(Rec);
         WhseActivPostYesNo.PrintDocument(true);
-        OnPostAndPrintOnBeforeRunWhseActivPostYesNo(WhseActivLine);
+        OnPostAndPrintOnBeforeRunWhseActivPostYesNo(WhseActivLine, Rec);
         WhseActivPostYesNo.Run(WhseActivLine);
         CurrPage.Update(false);
     end;
@@ -488,12 +488,12 @@ page 7378 "Invt. Pick Subform"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostPickYesNoOnBeforeRunWhseActivPostYesNo(var WhseActivLine: Record "Warehouse Activity Line")
+    local procedure OnPostPickYesNoOnBeforeRunWhseActivPostYesNo(var WhseActivLine: Record "Warehouse Activity Line"; var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostAndPrintOnBeforeRunWhseActivPostYesNo(var WhseActivLine: Record "Warehouse Activity Line")
+    local procedure OnPostAndPrintOnBeforeRunWhseActivPostYesNo(var WhseActivLine: Record "Warehouse Activity Line"; var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }

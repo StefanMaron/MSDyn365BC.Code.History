@@ -71,7 +71,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1469691438 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Purchase Orders Style</source>
-          <target state="translated">Genehmigte Einkaufsbestellungen – Format</target>
+          <target state="translated">Genehmigte Bestellungen – Format</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Approved Purchase Orders Style - Property Caption</note>
         </trans-unit>
@@ -749,7 +749,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1469691438 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Purchase Orders Style</source>
-          <target state="translated">Genehmigte Einkaufsbestellungen – Format</target>
+          <target state="translated">Genehmigte Bestellungen – Format</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Approved Purchase Orders Style - Property Caption</note>
         </trans-unit>

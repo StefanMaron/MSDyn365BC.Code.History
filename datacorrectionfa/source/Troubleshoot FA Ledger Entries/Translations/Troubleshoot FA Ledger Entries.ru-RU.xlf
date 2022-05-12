@@ -107,7 +107,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry amount in currency.</source>
-          <target state="translated">Определяет сумму записи в валюте.</target>
+          <target state="translated">Определяет сумму операции в валюте.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Amount - Property ToolTip</note>
         </trans-unit>
@@ -131,7 +131,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 2363328873 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry document type.</source>
-          <target state="translated">Определяет тип документа по операции.</target>
+          <target state="translated">Определяет тип документа операции.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Document Type - Property ToolTip</note>
         </trans-unit>
@@ -155,7 +155,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 1877866625 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the posting type, if Account Type field contains Fixed Asset.</source>
-          <target state="translated">Определяет тип учета, если в поле "Тип счета" содержится "Основное средство".</target>
+          <target state="translated">Определяет тип учета, если поле "Тип счета" содержит значение "Основное средство".</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA Posting Type - Property ToolTip</note>
         </trans-unit>
@@ -167,7 +167,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 798748183 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry amount in currency.</source>
-          <target state="translated">Определяет сумму записи в валюте.</target>
+          <target state="translated">Определяет сумму операции в валюте.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control OriginalAmount - Property ToolTip</note>
         </trans-unit>

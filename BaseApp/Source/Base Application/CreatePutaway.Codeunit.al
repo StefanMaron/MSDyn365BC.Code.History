@@ -548,7 +548,7 @@ codeunit 7313 "Create Put-away"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcAvailCubageAndWeight(Bin, PostedWhseRcptLine, PutAwayItemUOM, QtyToPutAwayBase, IsHandled);
+        OnBeforeCalcAvailCubageAndWeight(Bin, PostedWhseRcptLine, PutAwayItemUOM, QtyToPutAwayBase, IsHandled, PutAwayTemplLine);
         if IsHandled then
             exit;
 
@@ -1033,7 +1033,7 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcAvailCubageAndWeight(var Bin: Record Bin; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; PutAwayItemUOM: Record "Item Unit of Measure"; var QtyToPutAwayBase: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalcAvailCubageAndWeight(var Bin: Record Bin; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; PutAwayItemUOM: Record "Item Unit of Measure"; var QtyToPutAwayBase: Decimal; var IsHandled: Boolean; PutAwayTemplLine: Record "Put-away Template Line")
     begin
     end;
 

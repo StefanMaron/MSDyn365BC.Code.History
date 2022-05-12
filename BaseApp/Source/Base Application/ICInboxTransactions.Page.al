@@ -5,7 +5,7 @@ page 615 "IC Inbox Transactions"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Functions,Inbox Transaction';
+    PromotedActionCategories = 'New,Process,Report,Functions,Inbox Transaction,Actions';
     SourceTable = "IC Inbox Transaction";
     UsageCategory = Tasks;
 
@@ -195,103 +195,7 @@ page 615 "IC Inbox Transactions"
                 {
                     Caption = 'Set Line Action';
                     Image = SelectLineToApply;
-                    action("No Action")
-                    {
-                        ApplicationArea = Intercompany;
-                        Caption = 'No Action';
-                        Image = Cancel;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to No Action, to indicate that the transaction will remain in the inbox.';
-
-                        trigger OnAction()
-                        begin
-                            CurrPage.SetSelectionFilter(ICInboxTransaction);
-                            if ICInboxTransaction.Find('-') then
-                                repeat
-                                    ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"No Action";
-                                    ICInboxTransaction.Modify();
-                                until ICInboxTransaction.Next() = 0;
-                        end;
-                    }
-                    action(Accept)
-                    {
-                        ApplicationArea = Intercompany;
-                        Caption = 'Accept';
-                        Image = Approve;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedOnly = true;
-                        ToolTip = 'Set line action to Accept. If the field contains Accept, the transaction will be transferred to a document or journal (the program will ask you to specify the journal batch and template).';
-
-                        trigger OnAction()
-                        var
-                            ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-                        begin
-                            CurrPage.SetSelectionFilter(ICInboxTransaction);
-                            if ICInboxTransaction.Find('-') then
-                                repeat
-                                    TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Created by Partner");
-                                    ICInboxTransaction.Validate("Line Action", ICInboxTransaction."Line Action"::Accept);
-                                    ICInboxTransaction.Modify();
-                                until ICInboxTransaction.Next() = 0;
-
-                            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                RunInboxTransactions(ICInboxTransaction);
-                        end;
-                    }
-                    action("Return to IC Partner")
-                    {
-                        ApplicationArea = Intercompany;
-                        Caption = 'Return to IC Partner';
-                        Image = Return;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedOnly = true;
-                        ToolTip = 'Set line action to Return to IC Partner. If the field contains Return to IC Partner, the transaction will be moved to the outbox.';
-
-                        trigger OnAction()
-                        var
-                            ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-                        begin
-                            CurrPage.SetSelectionFilter(ICInboxTransaction);
-                            if ICInboxTransaction.Find('-') then
-                                repeat
-                                    TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Created by Partner");
-                                    ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"Return to IC Partner";
-                                    ICInboxTransaction.Modify();
-                                until ICInboxTransaction.Next() = 0;
-
-                            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                RunInboxTransactions(ICInboxTransaction);
-                        end;
-                    }
-                    action(Cancel)
-                    {
-                        ApplicationArea = Intercompany;
-                        Caption = 'Cancel';
-                        Image = Cancel;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to Cancel, to indicate that the transaction will deleted from the inbox.';
-
-                        trigger OnAction()
-                        var
-                            ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-                        begin
-                            CurrPage.SetSelectionFilter(ICInboxTransaction);
-                            if ICInboxTransaction.Find('-') then
-                                repeat
-                                    ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::Cancel;
-                                    ICInboxTransaction.Modify();
-                                until ICInboxTransaction.Next() = 0;
-
-                            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                RunInboxTransactions(ICInboxTransaction);
-                        end;
-                    }
+                    Visible = false;
                 }
                 separator(Action38)
                 {
@@ -299,7 +203,7 @@ page 615 "IC Inbox Transactions"
                 action("Complete Line Actions")
                 {
                     ApplicationArea = Intercompany;
-                    Caption = 'Complete Line Actions';
+                    Caption = 'Carry out Line Actions';
                     Ellipsis = true;
                     Image = CompleteLine;
                     Promoted = true;
@@ -326,6 +230,111 @@ page 615 "IC Inbox Transactions"
                     RunObject = Codeunit "IC Inbox Import";
                     RunPageOnRec = true;
                     ToolTip = 'Import a file to create the transaction with.';
+                }
+            }
+            group(LineActions)
+            {
+                Caption = 'Actions';
+                action("No Action")
+                {
+                    ApplicationArea = Intercompany;
+                    Caption = 'No Action';
+                    Image = Cancel;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
+                    Scope = Repeater;
+                    ToolTip = 'Sets the Line Action to No action so that the selected entries stay in the inbox.';
+
+                    trigger OnAction()
+                    begin
+                        CurrPage.SetSelectionFilter(ICInboxTransaction);
+                        if ICInboxTransaction.FindSet() then
+                            repeat
+                                ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"No Action";
+                                ICInboxTransaction.Modify();
+                            until ICInboxTransaction.Next() = 0;
+                    end;
+                }
+                action(Accept)
+                {
+                    ApplicationArea = Intercompany;
+                    Caption = 'Accept';
+                    Image = Approve;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
+                    Scope = Repeater;
+                    ToolTip = 'Will accept the selected entries and create corresponding documents or journal lines.';
+
+                    trigger OnAction()
+                    var
+                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+                    begin
+                        CurrPage.SetSelectionFilter(ICInboxTransaction);
+                        if ICInboxTransaction.FindSet() then
+                            repeat
+                                TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Created by Partner");
+                                ICInboxTransaction.Validate("Line Action", ICInboxTransaction."Line Action"::Accept);
+                                ICInboxTransaction.Modify();
+                            until ICInboxTransaction.Next() = 0;
+
+                        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
+                            RunInboxTransactions(ICInboxTransaction);
+                    end;
+                }
+                action("Return to IC Partner")
+                {
+                    ApplicationArea = Intercompany;
+                    Caption = 'Return to IC Partner';
+                    Image = Return;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
+                    Scope = Repeater;
+                    ToolTip = 'Will move the selected to the outbox so you can send them back to IC partner.';
+
+                    trigger OnAction()
+                    var
+                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+                    begin
+                        CurrPage.SetSelectionFilter(ICInboxTransaction);
+                        if ICInboxTransaction.FindSet() then
+                            repeat
+                                TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Created by Partner");
+                                ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"Return to IC Partner";
+                                ICInboxTransaction.Modify();
+                            until ICInboxTransaction.Next() = 0;
+
+                        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
+                            RunInboxTransactions(ICInboxTransaction);
+                    end;
+                }
+                action(Cancel)
+                {
+                    ApplicationArea = Intercompany;
+                    Caption = 'Cancel';
+                    Image = Cancel;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
+                    Scope = Repeater;
+                    ToolTip = 'Will delete the selected entries from the outbox.';
+
+                    trigger OnAction()
+                    var
+                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+                    begin
+                        CurrPage.SetSelectionFilter(ICInboxTransaction);
+                        if ICInboxTransaction.FindSet() then
+                            repeat
+                                ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::Cancel;
+                                ICInboxTransaction.Modify();
+                            until ICInboxTransaction.Next() = 0;
+
+                        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
+                            RunInboxTransactions(ICInboxTransaction);
+                    end;
                 }
             }
         }

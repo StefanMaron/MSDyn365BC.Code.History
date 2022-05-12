@@ -247,7 +247,14 @@ table 99000757 "Calendar Entry"
         CalendarMgt: Codeunit "Shop Calendar Management";
 
     local procedure CheckRedundancy()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckRedundancy(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Starting Time" = 0T) and ("Ending Time" = 0T) then
             exit;
 
@@ -334,6 +341,11 @@ table 99000757 "Calendar Entry"
         SetCurrentKey("Capacity Type", "No.", "Starting Date-Time", "Ending Date-Time");
         SetRange("Capacity Type", CapType);
         SetRange("No.", CapNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRedundancy(var CalendarEntry: Record "Calendar Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

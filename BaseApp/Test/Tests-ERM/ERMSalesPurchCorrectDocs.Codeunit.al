@@ -259,7 +259,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         Assert.ExpectedError(
             LibraryErrorMessage.GetMissingAccountErrorMessage(
                 GeneralPostingSetup.FieldCaption("COGS Account"),
-                GeneralPostingSetup.TableCaption()));
+                GeneralPostingSetup));
 
         RestoreGenPostingSetup(GeneralPostingSetup);
     end;

@@ -263,7 +263,13 @@ codeunit 1001 "Job Post-Line"
         JobTask: Record "Job Task";
         SourceCodeSetup: Record "Source Code Setup";
         JobTransferLine: Codeunit "Job Transfer Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostGenJnlLine(JobJnlLine, GenJnlLine, GLEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJnlLine."System-Created Entry" then
             exit;
         if GenJnlLine."Job No." = '' then
@@ -316,6 +322,7 @@ codeunit 1001 "Job Post-Line"
         JobTask.Get(PurchLine."Job No.", PurchLine."Job Task No.");
         JobTransferLine.FromPurchaseLineToJnlLine(
           PurchHeader, PurchInvHeader, PurchCrMemoHdr, PurchLine, Sourcecode, JobJnlLine);
+        OnPostJobOnPurchaseLineOnAfterJobTransferLineFromPurchaseLineToJnlLine(PurchHeader, PurchInvHeader, PurchCrMemoHdr, PurchLine, JobJnlLine);
         JobJnlLine."Job Posting Only" := true;
 
         if PurchLine.Type = PurchLine.Type::"G/L Account" then begin
@@ -604,6 +611,11 @@ codeunit 1001 "Job Post-Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostGenJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPlLineFromLedgEntry(var JobLedgerEntry: Record "Job Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
@@ -687,6 +699,11 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostJobOnPurchaseLineOnAfterCalcShouldSkipLine(PurchaseLine: Record "Purchase Line"; var ShouldSkipLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostJobOnPurchaseLineOnAfterJobTransferLineFromPurchaseLineToJnlLine(var PurchHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line"; var JobJnlLine: Record "Job Journal Line")
     begin
     end;
 

@@ -125,7 +125,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 486908828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the document number on the entry.</source>
-          <target state="translated">Anger dokumentnumret för momstransaktionen.</target>
+          <target state="translated">Anger dokumentnumret för transaktionen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Document No. - Property ToolTip</note>
         </trans-unit>

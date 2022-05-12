@@ -233,7 +233,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - NamedType 757360088" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more about how the data is handled.</source>
-          <target state="translated">Подробнее о том, как обрабатываются данные.</target>
+          <target state="translated">Подробнее о том, как обрабатываются данные</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType PrivacyLbl</note>
         </trans-unit>
@@ -405,7 +405,7 @@
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 4068484546 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose Next to get started.</source>
-          <target state="translated">Нажмите "Далее", чтобы начать работу.</target>
+          <target state="translated">Чтобы начать, нажмите "Далее".</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.2 - Property InstructionalText</note>
         </trans-unit>

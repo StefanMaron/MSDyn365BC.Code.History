@@ -121,7 +121,7 @@ page 7200 "CDS Connection Setup"
                 field("Is Enabled"; "Is Enabled")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Enable Synchronization', Comment = 'Name of the check box that shows whether data synchronization with the Dataverse environment is enabled.';
+                    Caption = 'Enable Data Synchronization', Comment = 'Name of the check box that shows whether data synchronization with the Dataverse environment is enabled.';
                     ToolTip = 'Specifies whether data synchronization with the Dataverse environment is enabled. When you select this check box, you will be prompted to sign-in with an administrator user account and give consent to the app registration that will be used to connect to Dataverse. The account will be used one time to install and configure components that the integration requires.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
@@ -151,8 +151,8 @@ page 7200 "CDS Connection Setup"
                 {
                     ApplicationArea = Suite;
                     Enabled = BusinessEventsSupported;
-                    Caption = 'Enable Business Events', Comment = 'Name of the check box that shows whether business events that Business Central sends to the Dataverse environment are enabled.';
-                    ToolTip = 'Specifies whether Business Central sends business events to a Dataverse environment. If you enable business events, you might be prompted to sign-in with an administrator user account and give consent to the app registration that will be used to connect to Dataverse. The account will be used one time to set up the connection from Dataverse to Business Central.', Comment = 'Business Central and Dataverse are the names of Microsoft Services and should not be translated.';
+                    Caption = 'Enable Virtual Tables and Events', Comment = 'Name of the check box that shows whether virtual tables in Dataverse and business events that Business Central sends to the Dataverse environment are enabled.';
+                    ToolTip = 'Specifies whether Business Central and Dataverse can synchronize data through virtual tables and events. If you enable virtual tables, you must sign-in with an administrator user account and give consent to the app registration that will be used to connect to Dataverse. The account will be used one time to set up the connection between Dataverse to Business Central.', Comment = 'Business Central and Dataverse are names of Microsoft Services and should not be translated.';
 
                     trigger OnValidate()
                     begin

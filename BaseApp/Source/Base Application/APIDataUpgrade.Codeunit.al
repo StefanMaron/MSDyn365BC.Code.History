@@ -3,52 +3,123 @@ codeunit 9994 "API Data Upgrade"
     trigger OnRun()
     var
         APIDataUpgrade: Record "API Data Upgrade";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        GraphCollectionMgtItem: Codeunit "Graph Collection Mgt - Item";
+        GraphMgtCustomer: Codeunit "Graph Mgt - Customer";
+        GraphMgtCustomerPayments: Codeunit "Graph Mgt - Customer Payments";
+        GraphMgtJournalLines: Codeunit "Graph Mgt - Journal Lines";
+        PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
+        GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
+        GraphMgtSalesHeader: Codeunit "Graph Mgt - Sales Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        GraphMgtSalesOrderBuffer: Codeunit "Graph Mgt - Sales Order Buffer";
+        GraphMgtSalesQuoteBuffer: Codeunit "Graph Mgt - Sales Quote Buffer";
+        GraphMgtVendor: Codeunit "Graph Mgt - Vendor";
+        GraphMgtVendorPayments: Codeunit "Graph Mgt - Vendor Payments";
+        GraphMgtPurchOrderBuffer: Codeunit "Graph Mgt - Purch Order Buffer";
     begin
         APIDataUpgrade.SetRange(Status, APIDataUpgrade.Status::Scheduled);
         if APIDataUpgrade.FindSet() then
             repeat
                 case APIDataUpgrade."Upgrade Tag" of
-                    UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag():
+                    'ITEMS':
                         begin
-                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::"In Progress");
-                            UpgradeSalesCreditMemoReasonCode(false);
+                            GraphCollectionMgtItem.UpdateIds(true);
+                            UpgradeItemPostingGroups(false);
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
-                    UpgradeTagDefinitions.GetSalesInvoiceShortcutDimensionsUpgradeTag():
+                    'CUSTOMERS':
                         begin
-                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::"In Progress");
-                            UpgradeSalesInvoiceShortcutDimension(false);
+                            GraphMgtCustomer.UpdateIds(true);
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
-                    UpgradeTagDefinitions.GetPurchInvoiceShortcutDimensionsUpgradeTag():
+                    'CUSTOMER PAYMENTS':
                         begin
-                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::"In Progress");
+                            GraphMgtCustomerPayments.UpdateIds(true);
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'JOURNALS':
+                        begin
+                            GraphMgtJournalLines.UpdateIds(true);
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'PURCHASE INVOICES':
+                        begin
+                            PurchInvAggregator.UpdateAggregateTableRecords();
+                            PurchInvAggregator.FixInvoicesCreatedFromOrders();
                             UpgradePurchInvoiceShortcutDimension(false);
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
-                    UpgradeTagDefinitions.GetPurchaseOrderShortcutDimensionsUpgradeTag():
+                    'SALES CREDIT MEMOS':
                         begin
-                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::"In Progress");
-                            UpgradePurchaseOrderShortcutDimension(false);
+                            GraphMgtSalCrMemoBuf.UpdateBufferTableRecords();
+                            UpgradeSalesCrMemoShortcutDimension(false);
+                            UpgradeSalesCreditMemoReasonCode(false);
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
-                    UpgradeTagDefinitions.GetSalesOrderShortcutDimensionsUpgradeTag():
+                    'SALES INVOICES':
                         begin
-                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::"In Progress");
+                            SalesInvoiceAggregator.UpdateAggregateTableRecords();
+                            GraphMgtSalesHeader.UpdateIds(true);
+                            SalesInvoiceAggregator.FixInvoicesCreatedFromOrders();
+                            UpgradeSalesInvoiceShortcutDimension(false);
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'SALES ORDERS':
+                        begin
+                            GraphMgtSalesOrderBuffer.UpdateBufferTableRecords();
                             UpgradeSalesOrderShortcutDimension(false);
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
-                    UpgradeTagDefinitions.GetSalesQuoteShortcutDimensionsUpgradeTag():
+                    'SALES QUOTES':
                         begin
-                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                            GraphMgtSalesQuoteBuffer.UpdateBufferTableRecords();
                             UpgradeSalesQuoteShortcutDimension(false);
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
-                    UpgradeTagDefinitions.GetSalesCrMemoShortcutDimensionsUpgradeTag():
+                    'VENDORS':
                         begin
-                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::"In Progress");
-                            UpgradeSalesCrMemoShortcutDimension(false);
+                            GraphMgtVendor.UpdateIds(true);
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'VENDOR PAYMENTS':
+                        begin
+                            GraphMgtVendorPayments.UpdateIds(true);
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'SALES SHIPMENTS':
+                        begin
+                            UpgradeSalesShipmentLineDocumentId(false);
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'PURCHASE ORDERS':
+                        begin
+                            GraphMgtPurchOrderBuffer.UpdateBufferTableRecords();
+                            UpgradePurchaseOrderShortcutDimension(false);
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'ITEM VARIANTS':
+                        begin
+                            UpdateItemVariants();
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'DEFAULT DIMENSIONS':
+                        begin
+                            UpgradeDefaultDimensions();
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'DIMENSION VALUES':
+                        begin
+                            UpgradeDimensionValues();
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'ACCOUNTS':
+                        begin
+                            UpgradeGLAccountAPIType();
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
+                    'PURCHASE RECEIPTS':
+                        begin
+                            UpgradePurchRcptLineDocumentId(false);
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
                     else
@@ -66,32 +137,33 @@ codeunit 9994 "API Data Upgrade"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesHeader: Record "Sales Header";
         EnvironmentInformation: Codeunit "Environment Information";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
+        RecordCount: Integer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag()) then
-            exit;
-
         if CheckRecordCount then
             if EnvironmentInformation.IsSaaS() then
                 if SalesCrMemoEntityBuffer.Count() > GetSafeRecordCountForSaaSUpgrade() then
                     exit;
 
         SalesCrMemoEntityBuffer.SetLoadFields(SalesCrMemoEntityBuffer.Id);
-        if SalesCrMemoEntityBuffer.FindSet(true, false) then
+        if SalesCrMemoEntityBuffer.FindSet(true, false) then begin
             repeat
                 if SalesCrMemoEntityBuffer.Posted then begin
                     SalesCrMemoHeader.SetLoadFields(SalesCrMemoHeader."Reason Code");
-                    if SalesCrMemoHeader.GetBySystemId(SalesCrMemoEntityBuffer.Id) then
+                    if SalesCrMemoHeader.GetBySystemId(SalesCrMemoEntityBuffer.Id) then begin
                         UpdateSalesCreditMemoReasonCodeFields(SalesCrMemoHeader."Reason Code", SalesCrMemoEntityBuffer);
+                        CountRecordsAndCommit(RecordCount);
+                    end;
                 end else begin
                     SalesHeader.SetLoadFields(SalesHeader."Reason Code");
-                    if SalesHeader.GetBySystemId(SalesCrMemoEntityBuffer.Id) then
+                    if SalesHeader.GetBySystemId(SalesCrMemoEntityBuffer.Id) then begin
                         UpdateSalesCreditMemoReasonCodeFields(SalesHeader."Reason Code", SalesCrMemoEntityBuffer);
+                        CountRecordsAndCommit(RecordCount);
+                    end;
                 end;
             until SalesCrMemoEntityBuffer.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag());
+            Commit();
+        end;
     end;
 
     procedure UpgradeSalesInvoiceShortcutDimension(CheckRecordCount: Boolean)
@@ -99,14 +171,10 @@ codeunit 9994 "API Data Upgrade"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
         EnvironmentInformation: Codeunit "Environment Information";
         Modified: Boolean;
+        RecordCount: Integer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesInvoiceShortcutDimensionsUpgradeTag()) then
-            exit;
-
         SalesInvoiceEntityAggregate.SetLoadFields(Id, "No.", Posted, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if SalesInvoiceEntityAggregate.FindSet(true, false) then begin
             if CheckRecordCount then
@@ -130,8 +198,10 @@ codeunit 9994 "API Data Upgrade"
                                 SalesInvoiceEntityAggregate."Shortcut Dimension 2 Code" := SalesInvoiceHeader."Shortcut Dimension 2 Code";
                                 Modified := true;
                             end;
-                        if Modified then
+                        if Modified then begin
                             SalesInvoiceEntityAggregate.Modify();
+                            CountRecordsAndCommit(RecordCount);
+                        end;
                     end;
                 end else begin
                     SalesHeader.SetLoadFields("No.", "Document Type", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -146,14 +216,16 @@ codeunit 9994 "API Data Upgrade"
                                 SalesInvoiceEntityAggregate."Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
                                 Modified := true;
                             end;
-                        if Modified then
+                        if Modified then begin
                             SalesInvoiceEntityAggregate.Modify();
+                            CountRecordsAndCommit(RecordCount);
+                        end;
                     end;
                 end;
             until SalesInvoiceEntityAggregate.Next() = 0;
-        end;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesInvoiceShortcutDimensionsUpgradeTag());
+            Commit();
+        end;
     end;
 
     procedure UpgradePurchInvoiceShortcutDimension(CheckRecordCount: Boolean)
@@ -161,14 +233,10 @@ codeunit 9994 "API Data Upgrade"
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
         EnvironmentInformation: Codeunit "Environment Information";
         Modified: Boolean;
+        RecordCount: Integer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchInvoiceShortcutDimensionsUpgradeTag()) then
-            exit;
-
         PurchInvEntityAggregate.SetLoadFields(Id, "No.", Posted, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if PurchInvEntityAggregate.FindSet(true, false) then begin
             if CheckRecordCount then
@@ -192,8 +260,10 @@ codeunit 9994 "API Data Upgrade"
                                 PurchInvEntityAggregate."Shortcut Dimension 2 Code" := PurchInvHeader."Shortcut Dimension 2 Code";
                                 Modified := true;
                             end;
-                        if Modified then
+                        if Modified then begin
                             PurchInvEntityAggregate.Modify();
+                            CountRecordsAndCommit(RecordCount);
+                        end;
                     end;
                 end else begin
                     PurchaseHeader.SetLoadFields("No.", "Document Type", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -208,28 +278,26 @@ codeunit 9994 "API Data Upgrade"
                                 PurchInvEntityAggregate."Shortcut Dimension 2 Code" := PurchaseHeader."Shortcut Dimension 2 Code";
                                 Modified := true;
                             end;
-                        if Modified then
+                        if Modified then begin
                             PurchInvEntityAggregate.Modify();
+                            CountRecordsAndCommit(RecordCount);
+                        end;
                     end;
                 end;
             until PurchInvEntityAggregate.Next() = 0;
-        end;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchInvoiceShortcutDimensionsUpgradeTag());
+            Commit();
+        end;
     end;
 
     procedure UpgradePurchaseOrderShortcutDimension(CheckRecordCount: Boolean)
     var
         PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer";
         PurchaseHeader: Record "Purchase Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
         EnvironmentInformation: Codeunit "Environment Information";
         Modified: Boolean;
+        RecordCount: Integer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseOrderShortcutDimensionsUpgradeTag()) then
-            exit;
-
         PurchaseOrderEntityBuffer.SetLoadFields(Id, "No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if PurchaseOrderEntityBuffer.FindSet(true, false) then begin
             if CheckRecordCount then
@@ -252,27 +320,25 @@ codeunit 9994 "API Data Upgrade"
                             PurchaseOrderEntityBuffer."Shortcut Dimension 2 Code" := PurchaseHeader."Shortcut Dimension 2 Code";
                             Modified := true;
                         end;
-                    if Modified then
+                    if Modified then begin
                         PurchaseOrderEntityBuffer.Modify();
+                        CountRecordsAndCommit(RecordCount);
+                    end;
                 end;
             until PurchaseOrderEntityBuffer.Next() = 0;
-        end;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseOrderShortcutDimensionsUpgradeTag());
+            Commit();
+        end;
     end;
 
     procedure UpgradeSalesOrderShortcutDimension(CheckRecordCount: Boolean)
     var
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         SalesHeader: Record "Sales Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
         EnvironmentInformation: Codeunit "Environment Information";
         Modified: Boolean;
+        RecordCount: Integer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesOrderShortcutDimensionsUpgradeTag()) then
-            exit;
-
         SalesOrderEntityBuffer.SetLoadFields(Id, "No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if SalesOrderEntityBuffer.FindSet(true, false) then begin
             if CheckRecordCount then
@@ -295,27 +361,25 @@ codeunit 9994 "API Data Upgrade"
                             SalesOrderEntityBuffer."Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
                             Modified := true;
                         end;
-                    if Modified then
+                    if Modified then begin
                         SalesOrderEntityBuffer.Modify();
+                        CountRecordsAndCommit(RecordCount);
+                    end;
                 end;
             until SalesOrderEntityBuffer.Next() = 0;
-        end;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesOrderShortcutDimensionsUpgradeTag());
+            Commit();
+        end;
     end;
 
     procedure UpgradeSalesQuoteShortcutDimension(CheckRecordCount: Boolean)
     var
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
         SalesHeader: Record "Sales Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
         EnvironmentInformation: Codeunit "Environment Information";
         Modified: Boolean;
+        RecordCount: Integer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesQuoteShortcutDimensionsUpgradeTag()) then
-            exit;
-
         SalesQuoteEntityBuffer.SetLoadFields(Id, "No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if SalesQuoteEntityBuffer.FindSet(true, false) then begin
             if CheckRecordCount then
@@ -338,13 +402,15 @@ codeunit 9994 "API Data Upgrade"
                             SalesQuoteEntityBuffer."Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
                             Modified := true;
                         end;
-                    if Modified then
+                    if Modified then begin
                         SalesQuoteEntityBuffer.Modify();
+                        CountRecordsAndCommit(RecordCount);
+                    end;
                 end;
             until SalesQuoteEntityBuffer.Next() = 0;
-        end;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesQuoteShortcutDimensionsUpgradeTag());
+            Commit();
+        end;
     end;
 
     procedure UpgradeSalesCrMemoShortcutDimension(CheckRecordCount: Boolean)
@@ -352,14 +418,10 @@ codeunit 9994 "API Data Upgrade"
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
         EnvironmentInformation: Codeunit "Environment Information";
         Modified: Boolean;
+        RecordCount: Integer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShortcutDimensionsUpgradeTag()) then
-            exit;
-
         SalesCrMemoEntityBuffer.SetLoadFields(Id, "No.", Posted, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if SalesCrMemoEntityBuffer.FindSet(true, false) then begin
             if CheckRecordCount then
@@ -383,8 +445,10 @@ codeunit 9994 "API Data Upgrade"
                                 SalesCrMemoEntityBuffer."Shortcut Dimension 2 Code" := SalesCrMemoHeader."Shortcut Dimension 2 Code";
                                 Modified := true;
                             end;
-                        if Modified then
+                        if Modified then begin
                             SalesCrMemoEntityBuffer.Modify();
+                            CountRecordsAndCommit(RecordCount);
+                        end;
                     end;
                 end else begin
                     SalesHeader.SetLoadFields("No.", "Document Type", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -399,19 +463,56 @@ codeunit 9994 "API Data Upgrade"
                                 SalesCrMemoEntityBuffer."Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
                                 Modified := true;
                             end;
-                        if Modified then
+                        if Modified then begin
                             SalesCrMemoEntityBuffer.Modify();
+                            CountRecordsAndCommit(RecordCount);
+                        end;
                     end;
                 end;
             until SalesCrMemoEntityBuffer.Next() = 0;
-        end;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShortcutDimensionsUpgradeTag());
+            Commit();
+        end;
     end;
 
-    local procedure GetSafeRecordCountForSaaSUpgrade(): Integer
+    procedure UpgradeItemPostingGroups(CheckRecordCount: Boolean)
+    var
+        Item: Record "Item";
+        GenProdPostingGroup: Record "Gen. Product Posting Group";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        EnvironmentInformation: Codeunit "Environment Information";
+        ItemModified: Boolean;
+        RecordCount: Integer;
     begin
-        exit(300000);
+        Item.SetLoadFields("Gen. Prod. Posting Group", "Inventory Posting Group");
+        if Item.FindSet() then begin
+            if CheckRecordCount then
+                if EnvironmentInformation.IsSaaS() then
+                    if Item.Count() > GetSafeRecordCountForSaaSUpgrade() then begin
+                        Session.LogMessage('0000GWC', StrSubstNo(UpgradeSkippedDueToManyRecordsLbl, 'GenItemPostingGroups', Item.TableName(), Item.Count()), Verbosity::Warning,
+                        DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
+                        exit;
+                    end;
+            repeat
+                ItemModified := false;
+                if Item."Gen. Prod. Posting Group" <> '' then
+                    if GenProdPostingGroup.Get(Item."Gen. Prod. Posting Group") then begin
+                        Item."Gen. Prod. Posting Group Id" := GenProdPostingGroup.SystemId;
+                        ItemModified := true;
+                    end;
+                if Item."Inventory Posting Group" <> '' then
+                    if InventoryPostingGroup.Get(Item."Inventory Posting Group") then begin
+                        Item."Inventory Posting Group Id" := InventoryPostingGroup.SystemId;
+                        ItemModified := true;
+                    end;
+                if ItemModified then begin
+                    Item.Modify(false);
+                    CountRecordsAndCommit(RecordCount);
+                end;
+            until Item.Next() = 0;
+
+            Commit();
+        end;
     end;
 
     local procedure UpdateSalesCreditMemoReasonCodeFields(SourceReasonCode: Code[10]; var SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer"): Boolean
@@ -443,6 +544,151 @@ codeunit 9994 "API Data Upgrade"
             exit(SalesCrMemoEntityBuffer.Modify());
     end;
 
+    procedure UpgradeSalesShipmentLineDocumentId(CheckRecordCount: Boolean)
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        EnvironmentInformation: codeunit "Environment Information";
+        RecordCount: Integer;
+    begin
+        if CheckRecordCount then
+            if EnvironmentInformation.IsSaaS() then
+                if SalesShipmentLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
+                    exit;
+
+        SalesShipmentHeader.SetLoadFields(SalesShipmentHeader."No.", SalesShipmentHeader.SystemId);
+        if SalesShipmentHeader.FindSet() then begin
+            repeat
+                SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+                SalesShipmentLine.ModifyAll("Document Id", SalesShipmentHeader.SystemId);
+                CountRecordsAndCommit(RecordCount);
+            until SalesShipmentHeader.Next() = 0;
+
+            Commit();
+        end;
+    end;
+
+    procedure UpdateItemVariants()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+        RecordCount: Integer;
+    begin
+        if ItemVariant.FindSet() then begin
+            repeat
+                if Item.Get(ItemVariant."Item No.") then
+                    if ItemVariant."Item Id" <> Item.SystemId then begin
+                        ItemVariant2 := ItemVariant;
+                        ItemVariant2."Item Id" := Item.SystemId;
+                        ItemVariant2.Modify();
+                        CountRecordsAndCommit(RecordCount);
+                    end;
+            until ItemVariant.Next() = 0;
+
+            Commit();
+        end;
+    end;
+
+    procedure UpgradeDefaultDimensions()
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        DefaultDimension.SetRange("Table ID", Database::Item);
+        DefaultDimension.ModifyAll("Parent Type", DefaultDimension."Parent Type"::Item);
+
+        DefaultDimension.Reset();
+        DefaultDimension.SetRange("Table ID", Database::Customer);
+        DefaultDimension.ModifyAll("Parent Type", DefaultDimension."Parent Type"::Customer);
+
+        DefaultDimension.Reset();
+        DefaultDimension.SetRange("Table ID", Database::Vendor);
+        DefaultDimension.ModifyAll("Parent Type", DefaultDimension."Parent Type"::Vendor);
+
+        DefaultDimension.Reset();
+        DefaultDimension.SetRange("Table ID", Database::Employee);
+        DefaultDimension.ModifyAll("Parent Type", DefaultDimension."Parent Type"::Employee);
+
+        Commit();
+    end;
+
+    procedure UpgradeDimensionValues()
+    var
+        Dimension: Record "Dimension";
+        DimensionValue: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+        RecordCount: Integer;
+    begin
+        if DimensionValue.FindSet() then begin
+            repeat
+                if Dimension.Get(DimensionValue."Dimension Code") then
+                    if DimensionValue."Dimension Id" <> Dimension.SystemId then begin
+                        DimensionValue2 := DimensionValue;
+                        DimensionValue2."Dimension Id" := Dimension.SystemId;
+                        DimensionValue2.Modify();
+                        CountRecordsAndCommit(RecordCount);
+                    end;
+            until DimensionValue.Next() = 0;
+
+            Commit();
+        end;
+    end;
+
+    procedure UpgradeGLAccountAPIType()
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::Posting);
+
+        GLAccount.Reset();
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Heading);
+        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::Heading);
+
+        GLAccount.Reset();
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Total);
+        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::Total);
+
+        GLAccount.Reset();
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::"Begin-Total");
+        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::"Begin-Total");
+
+        GLAccount.Reset();
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::"End-Total");
+        GLAccount.ModifyAll("API Account Type", GLAccount."API Account Type"::"End-Total");
+
+        Commit();
+    end;
+
+    procedure UpgradePurchRcptLineDocumentId(CheckRecordCount: Boolean)
+    var
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        EnvironmentInformation: codeunit "Environment Information";
+        RecordCount: Integer;
+    begin
+        if CheckRecordCount then
+            if EnvironmentInformation.IsSaaS() then
+                if PurchRcptLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
+                    exit;
+
+        PurchRcptHeader.SetLoadFields(PurchRcptHeader."No.", PurchRcptHeader.SystemId);
+        if PurchRcptHeader.FindSet() then begin
+            repeat
+                PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+                PurchRcptLine.ModifyAll("Document Id", PurchRcptHeader.SystemId);
+                CountRecordsAndCommit(RecordCount);
+            until PurchRcptHeader.Next() = 0;
+
+            Commit();
+        end;
+    end;
+
+    local procedure GetSafeRecordCountForSaaSUpgrade(): Integer
+    begin
+        exit(300000);
+    end;
+
     procedure GetAPIUpgradeTags(var APIUpgradeTags: Dictionary of [Code[250], Text[250]])
     begin
         OnGetAPIUpgradeTags(APIUpgradeTags);
@@ -454,8 +700,46 @@ codeunit 9994 "API Data Upgrade"
         APIDataUpgrade.Modify();
     end;
 
+    procedure GetAPIDataUpgradeEntities(var APIDataUpgradeEntities: Dictionary of [Code[250], Text[250]])
+    begin
+        APIDataUpgradeEntities.Add('Items', 'items');
+        APIDataUpgradeEntities.Add('Customers', 'customers');
+        APIDataUpgradeEntities.Add('Customer Payments', 'customerPayments');
+        APIDataUpgradeEntities.Add('Journals', 'journals, journalLines');
+        APIDataUpgradeEntities.Add('Purchase Invoices', 'purchaseInvoices, purchaseInvoiceLines');
+        APIDataUpgradeEntities.Add('Sales Credit Memos', 'salesCreditMemos, salesCreditMemoLines');
+        APIDataUpgradeEntities.Add('Sales Invoices', 'salesInvoices, salesInvoiceLines');
+        APIDataUpgradeEntities.Add('Sales Orders', 'salesOrders, salesOrderLines');
+        APIDataUpgradeEntities.Add('Sales Quotes', 'salesQuotes, salesQuoteLines');
+        APIDataUpgradeEntities.Add('Vendors', 'vendors');
+        APIDataUpgradeEntities.Add('Vendor Payments', 'vendorPayments');
+        APIDataUpgradeEntities.Add('Sales Shipments', 'salesShipments');
+        APIDataUpgradeEntities.Add('Purchase Orders', 'purchaseOrders');
+        APIDataUpgradeEntities.Add('Item Variants', 'itemVariants');
+        APIDataUpgradeEntities.Add('Default Dimensions', 'defaultDimensions');
+        APIDataUpgradeEntities.Add('Dimension Values', 'dimensionValues');
+        APIDataUpgradeEntities.Add('Accounts', 'accounts');
+        APIDataUpgradeEntities.Add('Purchase Receipts', 'purchaseReceipts');
+
+        OnGetAPIDataUpgradeEntities(APIDataUpgradeEntities)
+    end;
+
+    procedure CountRecordsAndCommit(var RecordCount: Integer)
+    begin
+        RecordCount += 1;
+        if RecordCount = 500 then begin
+            Commit();
+            RecordCount := 0;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnGetAPIUpgradeTags(var APIUpgradeTags: Dictionary of [Code[250], Text[250]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAPIDataUpgradeEntities(var APIDataUpgradeEntities: Dictionary of [Code[250], Text[250]])
     begin
     end;
 

@@ -111,7 +111,13 @@ table 914 "Posted Assemble-to-Order Link"
     procedure ShowSalesShpt(PostedAsmHeader: Record "Posted Assembly Header")
     var
         SalesShptHeader: Record "Sales Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowSalesShpt(Rec, PostedAsmHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if Get("Assembly Document Type"::Assembly, PostedAsmHeader."No.") then
             if "Document Type" = "Document Type"::"Sales Shipment" then begin
                 SalesShptHeader.Get("Document No.");
@@ -146,6 +152,11 @@ table 914 "Posted Assemble-to-Order Link"
                 SalesLine.FieldError("Document Type");
         end;
         exit(FindSet);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSalesShpt(var PostedAssembletoOrderLink: Record "Posted Assemble-to-Order Link"; PostedAsmHeader: Record "Posted Assembly Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

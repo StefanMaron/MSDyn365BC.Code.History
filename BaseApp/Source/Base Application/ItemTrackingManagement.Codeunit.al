@@ -326,7 +326,7 @@ codeunit 6500 "Item Tracking Management"
             ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Prospect);
             if not ReservEntry.IsEmpty() then
                 ReservEntry.DeleteAll();
-            OnRetrieveSubcontrItemTrackingOnAfterDeleteReservEntries(TempHandlingSpecification);
+            OnRetrieveSubcontrItemTrackingOnAfterDeleteReservEntries(TempHandlingSpecification, ReservEntry);
             exit(true);
         end;
         exit(false);
@@ -1051,7 +1051,13 @@ codeunit 6500 "Item Tracking Management"
     var
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         LineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSplitInternalPutAwayLine(PostedWhseRcptLine, TempPostedWhseRcptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempPostedWhseRcptLine.DeleteAll();
 
         if not GetWhseItemTrkgSetup(PostedWhseRcptLine."Item No.") then begin
@@ -3833,6 +3839,11 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSplitInternalPutAwayLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRetrieveItemTrackingFromReservEntryFilter(var ReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -3843,7 +3854,7 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRetrieveSubcontrItemTrackingOnAfterDeleteReservEntries(var TempHandlingSpecification: Record "Tracking Specification" temporary)
+    local procedure OnRetrieveSubcontrItemTrackingOnAfterDeleteReservEntries(var TempHandlingSpecification: Record "Tracking Specification" temporary; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 

@@ -33,9 +33,12 @@ codeunit 1368 "Monitored Field Notification"
             EmailMessage.Create(SendToList, GetEmailSubject(RecRef, ChangeLogEntry."Field No."), GetEmailBody(RecRef, ChangeLogEntry."Field No.",
             ChangeLogEntry.GetLocalOldValue(), ChangeLogEntry.GetLocalNewValue()), true);
 
-            Email.Enqueue(EmailMessage, FieldMonitoringSetup."Email Account Id", FieldMonitoringSetup."Email Connector");
-            ChangeLogEntry."Notification Message Id" := EmailMessage.GetId();
-            exit(true);
+            if TaskScheduler.CanCreateTask() then begin
+                Email.Enqueue(EmailMessage, FieldMonitoringSetup."Email Account Id", FieldMonitoringSetup."Email Connector");
+                ChangeLogEntry."Notification Message Id" := EmailMessage.GetId();
+                exit(true);
+            end else
+                exit(false);
         end;
     end;
 

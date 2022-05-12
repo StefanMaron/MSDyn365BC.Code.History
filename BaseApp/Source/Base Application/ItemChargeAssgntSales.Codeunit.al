@@ -230,7 +230,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssignItemCharges(SalesLine, TotalQtyToAssign, TotalAmtToAssign, IsHandled);
+        OnBeforeAssignItemCharges(SalesLine, TotalQtyToAssign, TotalAmtToAssign, IsHandled, SelectionTxt);
         if IsHandled then
             exit;
 
@@ -669,7 +669,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssignItemCharges(var SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeAssignItemCharges(var SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean; SelectionTxt: Text)
     begin
     end;
 

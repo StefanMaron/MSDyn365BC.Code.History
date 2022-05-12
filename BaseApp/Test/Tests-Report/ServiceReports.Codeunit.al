@@ -825,6 +825,66 @@ codeunit 136900 "Service Reports"
     [Test]
     [HandlerFunctions('ServiceInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
+    procedure ServiceInvoiceReportLineSorting()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: array[2] of Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: array[2] of Record "Service Item Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PostedServiceInvoice: TestPage "Posted Service Invoice";
+        ServiceInvoice: Report "Service - Invoice";
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 428385] Service Lines are shown in groups per Service Item Line.
+        // [GIVEN] Service Order shipped and invoiced.
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryService.CreateServiceHeader(
+          ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine[1], ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine[2], ServiceHeader, ServiceItem."No.");
+        // [GIVEN] Service Line #2 linked to ServiceItemLine #2 and has "Line No." 10000
+        LibraryService.CreateServiceLine(
+          ServiceLine[2], ServiceHeader, ServiceLine[2].Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
+        ServiceLine[2].Validate("Service Item Line No.", ServiceItemLine[2]."Line No.");
+        UpdateQuantityServiceLine(ServiceLine[2]);
+        // [GIVEN] Service Line #1 linked to ServiceItemLine #1 and has "Line No." 20000
+        LibraryService.CreateServiceLine(
+          ServiceLine[1], ServiceHeader, ServiceLine[1].Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
+        ServiceLine[1].Validate("Service Item Line No.", ServiceItemLine[1]."Line No.");
+        UpdateQuantityServiceLine(ServiceLine[1]);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [WHEN] Run report "Service - Invoice".
+        ServiceInvoiceHeader.Get(ServiceHeader."Last Posting No.");
+        ServiceInvoiceHeader.SetRecFilter();
+        Clear(ServiceInvoice);
+        ServiceInvoice.SetTableView(ServiceInvoiceHeader);
+        ServiceInvoice.Run();
+
+        // [THEN] Posted Service Invoice Lines are sorted so first is Service Line #1, second is Service Line #2
+        PostedServiceInvoice.OpenView();
+        PostedServiceInvoice.Filter.SetFilter("No.", ServiceInvoiceHeader."No.");
+        PostedServiceInvoice.ServInvLines.First();
+        PostedServiceInvoice.ServInvLines."No.".AssertEquals(ServiceLine[1]."No.");
+        PostedServiceInvoice.ServInvLines.Next();
+        PostedServiceInvoice.ServInvLines."No.".AssertEquals(ServiceLine[2]."No.");
+        // [THEN] ServiceInvoice report prints service line 1 and then service line 2, regardless of their "Line No."
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('No_ServiceInvHeader', ServiceInvoiceHeader."No.");
+        LibraryReportDataset.SetRange('TypeInt', 1);
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'No first line with Item');
+        LibraryReportDataset.AssertCurrentRowValueEquals('No_ServInvLine', ServiceLine[1]."No.");
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'No second line with Item');
+        LibraryReportDataset.AssertCurrentRowValueEquals('No_ServInvLine', ServiceLine[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
     procedure ServiceInvoiceReportCustomCaption()
     var
         ServiceHeader: Record "Service Header";
@@ -2027,6 +2087,46 @@ codeunit 136900 "Service Reports"
 
         // [WHEN] Run report "Service - Invoice" for Service Invoice, save report output to Excel file.
         ServiceInvoiceHeader.SetRecFilter();
+        Report.Run(Report::"Service - Invoice", true, false, ServiceInvoiceHeader);
+
+        // [THEN] "Serial No." "SN" is printed in column "Serial No." for Service Invoice Line with "No." = "SI".
+        VerifySerialNoInServiceInvoiceReport(SerialNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceInvoiceToExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceReportServiceItemSerialNo()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceLine: Record "Service Line";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        SerialNo: Code[50];
+    begin
+        // [FEATURE] [Service Contract]
+        // [SCENARIO 428308] "Service Item Serial No." printed for posted service invoice
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Service Order with Service Item "SI", that has "Serial No." = "SN".
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeader, "Service Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        ServiceItem.Validate("Serial No.", SerialNo);
+        ServiceItem.Modify();
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
+        ServiceLine.TestField("Service Item Serial No.", SerialNo);
+
+        // [GIVEN] Post Service Order
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [WHEN] Run report "Service - Invoice" for Service Invoice, save report output to Excel file.
+        ServiceInvoiceHeader.SetRange("Customer No.", Customer."No.");
         Report.Run(Report::"Service - Invoice", true, false, ServiceInvoiceHeader);
 
         // [THEN] "Serial No." "SN" is printed in column "Serial No." for Service Invoice Line with "No." = "SI".

@@ -3773,30 +3773,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DialogTitleTxt</note>
         </trans-unit>
-        <trans-unit id="Page 367479046 - NamedType 3405983715" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Disclaimer</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DisclaimerLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 367479046 - NamedType 1978894270" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The creator of this customized extension is responsible for its licensing. The customized extension is subject to the terms and conditions, privacy policy, support and billing offered by the creator, as applicable, and does not create any liability or obligation for Microsoft.\\The publisher of the customized extension must maintain compatibility with new releases of Dynamics 365 Business Central. An extension that is not compatible with a new release within 90 days of the release will be removed and the tenant upgraded.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DisclaimerMsg</note>
-        </trans-unit>
         <trans-unit id="Page 367479046 - NamedType 118939017" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please upload an extension file before clicking "Deploy" button.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType ExtensionNotUploadedMsg</note>
-        </trans-unit>
-        <trans-unit id="Page 367479046 - Control 346708723 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies that you accept Disclaimer.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control Accepted - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 367479046 - Control 346708723 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Accept</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control Accepted - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 367479046 - Control 2758598086 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Deploy Extension</source>

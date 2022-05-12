@@ -3,6 +3,7 @@ report 88 "VAT- VIES Declaration Disk"
     Caption = 'VAT- VIES Declaration Disk';
     Permissions = TableData "VAT Entry" = imd;
     ProcessingOnly = true;
+    UsageCategory = ReportsAndAnalysis;
 
     dataset
     {

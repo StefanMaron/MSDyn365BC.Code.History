@@ -219,6 +219,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Posted Bank Deposit Header - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4207681100 - NamedType 3070434028" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find a G/L Register for the selected posted bank deposit.</source>
+          <target state="translated">Det finns ingen bokförd redovisningsjournal för den valda bokförda bankinsättningen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Posted Bank Deposit Header - NamedType UnableToFindGLRegisterErr</note>
+        </trans-unit>
         <trans-unit id="Table 4207681100 - Field 2850626594 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Acc. Posting Group</source>
           <target state="translated">Bokföringsmall för bankkonto</target>
@@ -441,6 +447,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Posted Bank Deposit Line - Field Shortcut Dimension 2 Code - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2857945177 - NamedType 640825212" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must either post or delete all bank deposits and bank account reconcililations before disabling Bank Deposits feature.</source>
+          <target state="translated">Du måste antingen bokföra eller ta bort alla bankinsättningar och bankkontoavstämningar innan du inaktiverar funktionen Bankinsättningar.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Deposit Subscribers - NamedType EnableFeatureErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3915934517 - NamedType 483457420" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Deposit Line  #2########\</source>
           <target state="translated">Bankinsättningsrad  #2########\</target>
@@ -519,12 +531,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Bank Deposits - NamedType FeatureDisabledErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3514750067 - NamedType 33316069" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Reopen this page once you have switched on this capability in the Feature Management page: Standardized bank reconciliation and deposits.</source>
-          <target state="translated">Öppna den här sidan igen när du har växlat till den här funktionen på sidan Funktionshantering: Standardiserad bankavstämning och insättning.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Bank Deposits - NamedType ReopenAfterEnabledMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2005374712 - NamedType 2681845503" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Deposit Journal</source>
           <target state="translated">Bankinsättningsjournal</target>
@@ -575,7 +581,7 @@
         </trans-unit>
         <trans-unit id="Page 3862650212 - Control 3192175264 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the date the comment was created.</source>
-          <target state="translated">Anger datumet som kommentaren skapades.</target>
+          <target state="translated">Anger det datum då kommentaren skapades.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Acc. Comment List - Control Date - Property ToolTip</note>
         </trans-unit>
@@ -605,7 +611,7 @@
         </trans-unit>
         <trans-unit id="Page 1313128471 - Control 3192175264 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the date the comment was created.</source>
-          <target state="translated">Anger datumet som kommentaren skapades.</target>
+          <target state="translated">Anger det datum då kommentaren skapades.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Acc. Comment Sheet - Control Date - Property ToolTip</note>
         </trans-unit>
@@ -785,7 +791,7 @@
         </trans-unit>
         <trans-unit id="Page 3073362426 - Action 3150094508 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View a test report so that you can find and correct any errors before you perform the actual posting of the journal or document.</source>
-          <target state="translated">Visa en testrapport så att du kan hitta och korrigera eventuella fel innan du bokför journalen eller dokumentet.</target>
+          <target state="translated">Visa en testrapport så att du kan hitta och rätta till eventuella fel innan du bokför journalen eller dokumentet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposit - Action Test Report - Property ToolTip</note>
         </trans-unit>
@@ -1055,7 +1061,7 @@
         </trans-unit>
         <trans-unit id="Page 1890430176 - Action 3302314122 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Select one or more ledger entries that you want to apply this record to so that the related posted documents are closed as paid or refunded. </source>
-          <target state="translated">Välj en eller flera transaktioner som du vill koppla den här posten till så att de relaterade bokförda dokumenten stängs som betalda eller återbetalade. </target>
+          <target state="translated">Välj en eller flera transaktioner som du vill tillämpa den här posten på så att relaterade bokförda dokument anges vara betalda eller återbetalda. </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposit Subform - Action ApplyEntries - Property ToolTip</note>
         </trans-unit>
@@ -1175,7 +1181,7 @@
         </trans-unit>
         <trans-unit id="Page 2880731335 - Action 913412068 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View a test report so that you can find and correct any errors before you perform the actual posting of the journal or document.</source>
-          <target state="translated">Visa en testrapport så att du kan hitta och korrigera eventuella fel innan du bokför journalen eller dokumentet.</target>
+          <target state="translated">Visa en testrapport så att du kan hitta och rätta till eventuella fel innan du bokför journalen eller dokumentet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposits - Action TestReport - Property ToolTip</note>
         </trans-unit>
@@ -1197,11 +1203,35 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1816704201 - NamedType 1049272403" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To undo the posting of a bank deposit, you must sign in to Business Central from a web browser.</source>
+          <target state="translated">Om du vill ångra bokföringen av en bankinsättning måste du logga in på Business Central från en webbläsare.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - NamedType BankDepositNonGUISessionErr</note>
+        </trans-unit>
         <trans-unit id="Page 1816704201 - NamedType 3246919479" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank deposit report has not been set up.</source>
           <target state="translated">Bankinsättningsrapporten har inte konfigurerats.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - NamedType BankDepositReportSelectionErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1816704201 - NamedType 3956748531" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No</source>
+          <target state="translated">Nej</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - NamedType NoTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 1816704201 - NamedType 1451419922" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will reverse all ledger entries that are related to the lines of the bank deposit. Do you want to continue?</source>
+          <target state="translated">Detta återför alla transaktioner som berör raderna i bankinsättningen. Vill du fortsätta?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - NamedType UndoPostingQst</note>
+        </trans-unit>
+        <trans-unit id="Page 1816704201 - NamedType 2643354537" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Yes</source>
+          <target state="translated">Ja</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - NamedType YesTxt</note>
         </trans-unit>
         <trans-unit id="Page 1816704201 - Control 2445482498 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General</source>
@@ -1250,6 +1280,18 @@
           <target state="translated">Anger datumet som insättningen bokfördes.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Control Posting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1816704201 - Control 3744289816 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if transactions from the corresponding G/L Register have been reversed.</source>
+          <target state="translated">Anger om transaktioner från motsvarande bokförda redovisningsjournal har återförts.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Control Reversed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1816704201 - Control 3744289816 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reversed</source>
+          <target state="translated">Återförd</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Control Reversed - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1816704201 - Control 1577567912 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the value assigned to this dimension for this deposit.</source>
@@ -1313,7 +1355,7 @@
         </trans-unit>
         <trans-unit id="Page 1816704201 - Action 1002420131 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.</source>
-          <target state="translated">Förbered utskrift av dokumentet. Ett fönster för rapportbegäran för dokumentet öppnas där du kan ange vad du vill ha med på utskriften.</target>
+          <target state="translated">Förbered utskrift av dokumentet. Ett rapportfönster om dokumentet öppnas där det går att ange vad du vill inkludera på utskriften.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Action Print - Property ToolTip</note>
         </trans-unit>
@@ -1322,6 +1364,18 @@
           <target state="translated">&amp;Skriv ut</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Action Print - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1816704201 - Action 2049212732 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Undo the posting of the bank deposit by reversing all related ledger entries.</source>
+          <target state="translated">Ångra bokföringen av bankinsättningen genom att återföra alla relaterade transaktioner.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Action Undo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1816704201 - Action 2049212732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>&amp;Undo Posting</source>
+          <target state="translated">&amp;Ångra bokföring</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Action Undo - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3875541982 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Posted Bank Deposit Lines</source>
@@ -1455,11 +1509,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 641808831 - NamedType 1049272403" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To undo the posting of a bank deposit, you must sign in to Business Central from a web browser.</source>
+          <target state="translated">Om du vill ångra bokföringen av en bankinsättning måste du logga in på Business Central från en webbläsare.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - NamedType BankDepositNonGUISessionErr</note>
+        </trans-unit>
         <trans-unit id="Page 641808831 - NamedType 3246919479" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank deposit report has not been set up.</source>
           <target state="translated">Bankinsättningsrapporten har inte konfigurerats.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - NamedType BankDepositReportSelectionErr</note>
+        </trans-unit>
+        <trans-unit id="Page 641808831 - NamedType 1451419922" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will reverse all ledger entries that are related to the lines of the bank deposit. Do you want to continue?</source>
+          <target state="translated">Detta återför alla transaktioner som berör raderna i bankinsättningen. Vill du fortsätta?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - NamedType UndoPostingQst</note>
         </trans-unit>
         <trans-unit id="Page 641808831 - Control 4248640148 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of the bank account to which the deposit was made.</source>
@@ -1502,6 +1568,18 @@
           <target state="translated">Anger en bokföringsbeskrivning av insättningen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - Control Posting Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 641808831 - Control 3744289816 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if transactions from the corresponding G/L Register have been reversed.</source>
+          <target state="translated">Anger om transaktioner från motsvarande bokförda redovisningsjournal har återförts.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - Control Reversed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 641808831 - Control 3744289816 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reversed</source>
+          <target state="translated">Återförd</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - Control Reversed - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 641808831 - Control 1577567912 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the value assigned to this dimension for this deposit.</source>
@@ -1550,6 +1628,18 @@
           <target state="translated">Dimensioner</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - Action Dimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 641808831 - Action 2049212732 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Undo the posting of the bank deposit by reversing all related ledger entries.</source>
+          <target state="translated">Ångra bokföringen av bankinsättningen genom att återföra alla relaterade transaktioner.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - Action Undo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 641808831 - Action 2049212732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>&amp;Undo Posting</source>
+          <target state="translated">&amp;Ångra bokföring</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - Action Undo - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 641808831 - Action 669369698 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.</source>
@@ -2045,7 +2135,7 @@
         </trans-unit>
         <trans-unit id="Report 2614277098 - NamedType 3266737730" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 is not within your allowed range of posting dates.</source>
-          <target state="translated">%1 ligger inte inom det tillåtna intervallet för bokföringsdatum.</target>
+          <target state="translated">%1 är inte i det tillåtna intervallet för bokföringsdatum.</target>
           <note from="Developer" annotates="general" priority="2">%1 - field caption, either Posting Date or Document Date</note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Bank Deposit Test Report - NamedType DateNotWithinRangeErr</note>
         </trans-unit>
@@ -2129,7 +2219,7 @@
         </trans-unit>
         <trans-unit id="Report 2614277098 - NamedType 401985742" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 must not be a closing date.</source>
-          <target state="translated">%1 får inte vara ett stängningsdatum.</target>
+          <target state="translated">%1 får inte vara ett avslutsdatum.</target>
           <note from="Developer" annotates="general" priority="2">%1 - field caption, either Posting Date or Document Date</note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Bank Deposit Test Report - NamedType MustBeClosingDateErr</note>
         </trans-unit>
@@ -2355,8 +2445,8 @@
           <note from="ObjectTarget" annotates="general" priority="5">Page 1507776490</note>
         </trans-unit>
         <trans-unit id="PageExtension 2647506971 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sales &amp; Receivales Setup</source>
-          <target state="translated">Försäljning &amp; Försäljningsinställningar</target>
+          <source>Sales &amp; Receivables Setup</source>
+          <target state="translated">Försäljningsinställningar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 4145206282</note>

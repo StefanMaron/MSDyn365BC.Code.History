@@ -35,6 +35,7 @@ codeunit 1006 "Copy Job"
     var
         TargetJob: Record Job;
     begin
+        TargetJob.SetHideValidationDialog(true);
         TargetJob."No." := TargetJobNo;
         TargetJob.TransferFields(SourceJob, false);
         TargetJob.Insert(true);

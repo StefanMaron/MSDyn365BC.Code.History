@@ -125,13 +125,13 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 486908828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the document number on the entry.</source>
-          <target state="translated">Especifica el número de documento en el movimiento.</target>
+          <target state="translated">Especifica el número de documento del movimiento.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Document No. - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 2363328873 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry document type.</source>
-          <target state="translated">Especifica el tipo de documento de movimiento.</target>
+          <target state="translated">Especifica el tipo de documento del movimiento.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Document Type - Property ToolTip</note>
         </trans-unit>
@@ -143,7 +143,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 1991001892 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of the related fixed asset. </source>
-          <target state="translated">Especifica el número del activo fijo relacionado.</target>
+          <target state="translated">Especifica el número de activo fijo relacionado.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA No. - Property ToolTip</note>
         </trans-unit>
@@ -155,7 +155,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 1877866625 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the posting type, if Account Type field contains Fixed Asset.</source>
-          <target state="translated">Especifica el tipo de registro, si el campo Tipo de cuenta contiene Activo fijo.</target>
+          <target state="translated">Especifica el tipo de registro si el campo Tipo de cuenta contiene Activo fijo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA Posting Type - Property ToolTip</note>
         </trans-unit>

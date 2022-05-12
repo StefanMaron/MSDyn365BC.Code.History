@@ -1,4 +1,4 @@
-codeunit 5944 SignServContractDoc
+﻿codeunit 5944 SignServContractDoc
 {
     Permissions = TableData "Filed Service Contract Header" = rimd;
     TableNo = "Service Contract Header";
@@ -186,8 +186,12 @@ codeunit 5944 SignServContractDoc
         ServContractHeader: Record "Service Contract Header";
         LockOpenServContract: Codeunit "Lock-OpenServContract";
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
-        OnBeforeSignContract(FromServContractHeader, HideDialog);
+        IsHandled := false;
+        OnBeforeSignContract(FromServContractHeader, HideDialog, IsHandled);
+        if IsHandled then
+            exit;
 
         if not HideDialog then
             ClearAll;
@@ -296,6 +300,7 @@ codeunit 5944 SignServContractDoc
         NonExpiredContractLineExists: Boolean;
         NoOfMonthsAndMParts: Decimal;
         CreateInvoiceConfirmed: Boolean;
+        ShouldCreateServHeader: Boolean;
     begin
         OnBeforeAddendumToContract(ServContractHeader);
 
@@ -331,6 +336,7 @@ codeunit 5944 SignServContractDoc
                 then
                     ServContractLine."Next Planned Service Date" := StartingDate;
                 ServContractLine.Modify();
+                OnAddendumToContractOnAfterServContractLineLoop(ServContractLine, StartingDate);
             until ServContractLine.Next() = 0;
 
         if not HideDialog then begin
@@ -432,6 +438,7 @@ codeunit 5944 SignServContractDoc
 
         if InvoiceNow then begin
             PostingDate := InvoiceFrom;
+            OnAddendumToContractOnAfterAssignPostingDate(PostingDate, InvoiceFrom);
             ServContractLine.Reset();
             ServContractLine.SetCurrentKey("Contract Type", "Contract No.", Credited, "New Line");
             ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
@@ -467,9 +474,10 @@ codeunit 5944 SignServContractDoc
 
         if InvoicePrepaid and FromServContractHeader.Prepaid then begin
             ServContractMgt.InitCodeUnit;
-            if ServHeaderNo = '' then
-                ServHeaderNo :=
-                  ServContractMgt.CreateServHeader(FromServContractHeader, PostingDate, false);
+            ShouldCreateServHeader := ServHeaderNo = '';
+            OnAddendumToContractOnAfterCalcShouldCreateServHeader(ServHeaderNo, ServContractMgt, FromServContractHeader, PostingDate, ShouldCreateServHeader);
+            if ShouldCreateServHeader then
+                ServHeaderNo := ServContractMgt.CreateServHeader(FromServContractHeader, PostingDate, false);
 
             RemainingAmt := 0;
             ServContractLine.Reset();
@@ -1037,6 +1045,16 @@ codeunit 5944 SignServContractDoc
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAddendumToContractOnAfterServContractLineLoop(var ServContractLine: Record "Service Contract Line"; var StartingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddendumToContractOnAfterAssignPostingDate(var PostingDate: Date; var InvoiceFrom: Date);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAddendumToContractOnAfterSetStartingDate(FromServContractHeader: Record "Service Contract Header"; var StartingDate: Date)
     begin
     end;
@@ -1048,6 +1066,11 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnAddendumToContractOnAfterCalcCreateInvoiceConfirmed(ServContractHeader: Record "Service Contract Header"; var CreateInvoiceConfirmed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddendumToContractOnAfterCalcShouldCreateServHeader(var ServiceHeaderNo: Code[20]; var ServContractManagement: Codeunit ServContractManagement; FromServiceContractHeader: Record "Service Contract Header"; PostingDate: Date; var ShouldCreateServHeader: Boolean)
     begin
     end;
 
@@ -1112,7 +1135,7 @@ codeunit 5944 SignServContractDoc
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeSignContract(var ServiceContractHeader: Record "Service Contract Header"; var HideDialog: Boolean)
+    local procedure OnBeforeSignContract(var ServiceContractHeader: Record "Service Contract Header"; var HideDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

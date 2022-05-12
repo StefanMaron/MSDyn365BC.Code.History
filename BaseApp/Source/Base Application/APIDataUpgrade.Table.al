@@ -7,6 +7,7 @@ table 9994 "API Data Upgrade"
         field(1; "Upgrade Tag"; Text[250])
         {
             DataClassification = SystemMetadata;
+            // This will be used for entity name
         }
         field(2; Description; Text[250])
         {
@@ -31,26 +32,29 @@ table 9994 "API Data Upgrade"
     procedure Load(): Boolean
     var
         APIDataUpgrade: Codeunit "API Data Upgrade";
-        UpgradeTag: Codeunit "Upgrade Tag";
         APIUpgradeTags: Dictionary of [Code[250], Text[250]];
+        APIDataUpgradeEntities: Dictionary of [Code[250], Text[250]];
         APIUpgradeTag: Code[250];
         APIUpgradeDescription: Text[250];
+        APIDataUpgradeEntity: Code[250];
     begin
         APIDataUpgrade.GetAPIUpgradeTags(APIUpgradeTags);
-        foreach APIUpgradeTag in APIUpgradeTags.Keys() do begin
-            APIUpgradeDescription := APIUpgradeTags.Get(APIUpgradeTag);
-            if Rec.Get(APIUpgradeTag) then begin
+        foreach APIUpgradeTag in APIUpgradeTags.Keys() do
+            if Rec.Get(APIUpgradeTag) then
+                Rec.Delete();
+
+        APIDataUpgrade.GetAPIDataUpgradeEntities(APIDataUpgradeEntities);
+        foreach APIDataUpgradeEntity in APIDataUpgradeEntities.Keys() do begin
+            APIUpgradeDescription := APIDataUpgradeEntities.Get(APIDataUpgradeEntity);
+            if Rec.Get(APIDataUpgradeEntity) then begin
                 if Rec.Description <> APIUpgradeDescription then begin
                     Rec.Description := APIUpgradeDescription;
                     Rec.Modify();
                 end;
             end else begin
                 Clear(Rec);
-                Rec."Upgrade Tag" := APIUpgradeTag;
-
-                if UpgradeTag.HasUpgradeTag(APIUpgradeTag) then
-                    Rec.Status := Rec.Status::Completed;
-
+                Rec."Upgrade Tag" := APIDataUpgradeEntity;
+                Rec.Status := Rec.Status::Completed;
                 Rec.Description := APIUpgradeDescription;
                 Rec.Insert();
             end;

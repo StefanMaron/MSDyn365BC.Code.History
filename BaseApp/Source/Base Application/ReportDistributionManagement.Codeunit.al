@@ -240,7 +240,13 @@ codeunit 452 "Report Distribution Management"
     var
         AllObjWithCaption: Record AllObjWithCaption;
         TranslationHelper: Codeunit "Translation Helper";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetReportCaption(ReportID, LanguageCode, ReportCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         TranslationHelper.SetGlobalLanguageByCode(LanguageCode);
 
         if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, ReportID) then
@@ -578,6 +584,11 @@ codeunit 452 "Report Distribution Management"
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunDefaultCheckSalesElectronicDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetReportCaption(ReportID: Integer; LanguageCode: Code[10]; var ReportCaption: Text[250]; var IsHandled: Boolean)
     begin
     end;
 

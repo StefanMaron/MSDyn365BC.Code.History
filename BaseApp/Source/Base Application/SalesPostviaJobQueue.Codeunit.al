@@ -48,6 +48,7 @@ codeunit 88 "Sales Post via Job Queue"
 
     local procedure SetJobQueueStatus(var SalesHeader: Record "Sales Header"; NewStatus: Option)
     begin
+        OnBeforeSetJobQueueStatus(SalesHeader, NewStatus);
         SalesHeader.LockTable();
         if SalesHeader.Find then begin
             SalesHeader."Job Queue Status" := NewStatus;
@@ -201,6 +202,11 @@ codeunit 88 "Sales Post via Job Queue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetJobQueueStatus(SalesHeader: Record "Sales Header"; NewJobQueueStatus: Option " ","Scheduled for Posting",Error,Posting)
     begin
     end;
 

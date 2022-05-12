@@ -359,7 +359,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 68986151 - NamedType 3790473597" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
           <source>AutoDripLite - White</source>
-          <target state="translated">AutoDripLite – weiß</target>
+          <target state="translated">AutoDripLite – weiss</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAutoDripLiteWhiteTok</note>
         </trans-unit>
@@ -509,7 +509,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 68986151 - NamedType 1031980631" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
           <source>Paint, white</source>
-          <target state="translated">Farbe, weiß</target>
+          <target state="translated">Farbe, weiss</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XPaintWhiteTok</note>
         </trans-unit>
@@ -773,7 +773,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3528194800 - NamedType 3790473597" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
           <source>AutoDripLite - White</source>
-          <target state="translated">AutoDripLite – weiß</target>
+          <target state="translated">AutoDripLite – weiss</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Prod. BOMs - NamedType XAutoDripLiteWhiteTok</note>
         </trans-unit>
@@ -1376,6 +1376,12 @@
           <target state="translated">Demodaten für Contoso Coffee</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 53112230 - NamedType 2664013840" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Contoso Coffee demo data is now available in the current company.</source>
+          <target state="translated">Die Contoso Coffee-Demodaten sind jetzt im aktuellen Mandanten verfügbar.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - NamedType DemoDataInsertedMsg</note>
         </trans-unit>
         <trans-unit id="Page 53112230 - Control 332174833 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the company type.</source>

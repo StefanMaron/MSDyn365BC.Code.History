@@ -132,9 +132,7 @@ codeunit 136301 "Job Consumption Service"
 
         GetServiceLines(ServiceHeader, ServiceLine);
 
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", ServiceLine."Bill-to Customer No.");
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, ServiceLine."Bill-to Customer No.");
 
         // 2. Exercise: Change Job No. field.
         asserterror ServiceLine.Validate("Job No.", Job."No.");
@@ -241,9 +239,7 @@ codeunit 136301 "Job Consumption Service"
         Initialize();
         CreateServiceOrderWithJob(ServiceHeader, 1);
 
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, ServiceHeader."Bill-to Customer No.");
 
         // 2. Exercise: Change the Job No. on Service Lines as No. of new job created.
         ModifyJobNoOnServiceLines(ServiceHeader, Job."No.");
@@ -309,13 +305,11 @@ codeunit 136301 "Job Consumption Service"
         // Create a new Job, Service Order - Service Header, Service Item Line and Service Lines of Job Line Type as blank,
         // Budget, Billable, Both Budget and Billable and Type as Item and Resource.
 
-        LibraryJob.CreateJob(Job);
 
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Shipping Advice", Customer."Shipping Advice"::Partial);
         Customer.Modify(true);
-        Job.Validate("Bill-to Customer No.", Customer."No.");
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, Customer."No.");
 
         LibraryJob.CreateJobTask(Job, JobTask);
 

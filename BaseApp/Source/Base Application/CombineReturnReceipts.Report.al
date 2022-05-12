@@ -26,7 +26,13 @@ report 6653 "Combine Return Receipts"
                     trigger OnAfterGetRecord()
                     var
                         SalesGetReturnReceipts: Codeunit "Sales-Get Return Receipts";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeReturnReceiptLineOnAfterGetRecord("Return Receipt Line", IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip();
+
                         if "Return Qty. Rcd. Not Invd." <> 0 then begin
                             if "Bill-to Customer No." <> Cust."No." then
                                 Cust.Get("Bill-to Customer No.");
@@ -68,15 +74,7 @@ report 6653 "Combine Return Receipts"
             begin
                 CurrReport.Language := GlobalLanguage;
                 Window.Close;
-                if SalesHeader."No." <> '' then begin // Not the first time
-                    FinalizeSalesInvHeader;
-                    OnReturnReceiptHeaderOnAfterFinalizeSalesInvHeader(SalesHeader, NoOfSalesInvErrors, PostInv);
-                    if NoOfSalesInvErrors = 0 then
-                        Message(Text010, NoOfSalesInv)
-                    else
-                        Message(Text007, NoOfSalesInvErrors)
-                end else
-                    Message(Text008);
+                ShowResult();
             end;
 
             trigger OnPreDataItem()
@@ -212,32 +210,49 @@ report 6653 "Combine Return Receipts"
     end;
 
     local procedure InsertSalesInvHeader()
+    var
+        IsHandled: Boolean;
     begin
-        with SalesHeader do begin
-            Init;
-            "Document Type" := "Document Type"::"Credit Memo";
-            "No." := '';
+        IsHandled := false;
+        OnBeforeInsertSalesInvHeader(SalesHeader, SalesOrderHeader, "Return Receipt Header", "Return Receipt Line", NoOfSalesInv, IsHandled);
+        if not IsHandled then
+            with SalesHeader do begin
+                Init;
+                "Document Type" := "Document Type"::"Credit Memo";
+                "No." := '';
 
-            OnBeforeSalesCrMemoHeaderInsert(SalesHeader, SalesOrderHeader);
+                OnBeforeSalesCrMemoHeaderInsert(SalesHeader, SalesOrderHeader);
 
-            Insert(true);
-            Validate("Sell-to Customer No.", SalesOrderHeader."Bill-to Customer No.");
-            if "Bill-to Customer No." <> "Sell-to Customer No." then
-                Validate("Bill-to Customer No.", SalesOrderHeader."Bill-to Customer No.");
-            Validate("Currency Code", SalesOrderHeader."Currency Code");
-            Validate("Posting Date", PostingDateReq);
-            Validate("Document Date", DocDateReq);
+                Insert(true);
+                ValidateCustomerNoFromOrder(SalesHeader, SalesOrderHeader);
+                Validate("Currency Code", SalesOrderHeader."Currency Code");
+                Validate("Posting Date", PostingDateReq);
+                Validate("Document Date", DocDateReq);
 
-            "Shortcut Dimension 1 Code" := SalesOrderHeader."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
-            OnBeforeSalesCrMemoHeaderModify(SalesHeader, SalesOrderHeader);
+                "Shortcut Dimension 1 Code" := SalesOrderHeader."Shortcut Dimension 1 Code";
+                "Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
+                "Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
+                OnBeforeSalesCrMemoHeaderModify(SalesHeader, SalesOrderHeader);
 
-            Modify;
-            Commit();
-        end;
+                Modify;
+                Commit();
+            end;
 
         OnAfterInsertSalesInvHeader(SalesHeader, "Return Receipt Header");
+    end;
+
+    local procedure ValidateCustomerNoFromOrder(var ToSalesHeader: Record "Sales Header"; FromSalesOrderHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateCustomerNoFromOrder(ToSalesHeader, FromSalesOrderHeader, "Return Receipt Header", "Return Receipt Line", IsHandled);
+        if IsHandled then
+            exit;
+
+        ToSalesHeader.Validate("Sell-to Customer No.", FromSalesOrderHeader."Bill-to Customer No.");
+        if ToSalesHeader."Bill-to Customer No." <> ToSalesHeader."Sell-to Customer No." then
+            ToSalesHeader.Validate("Bill-to Customer No.", FromSalesOrderHeader."Bill-to Customer No.");
     end;
 
     procedure InitializeRequest(NewPostingDate: Date; NewDocumentDate: Date; NewCalcInvDisc: Boolean; NewPostCreditMemo: Boolean)
@@ -246,6 +261,21 @@ report 6653 "Combine Return Receipts"
         DocDateReq := NewDocumentDate;
         CalcInvDisc := NewCalcInvDisc;
         PostInv := NewPostCreditMemo;
+    end;
+
+    local procedure ShowResult()
+    begin
+        OnBeforeShowResult(SalesHeader, NoOfSalesInvErrors, PostInv);
+
+        if SalesHeader."No." <> '' then begin // Not the first time
+            FinalizeSalesInvHeader();
+            OnReturnReceiptHeaderOnAfterFinalizeSalesInvHeader(SalesHeader, NoOfSalesInvErrors, PostInv);
+            if NoOfSalesInvErrors = 0 then
+                Message(Text010, NoOfSalesInv)
+            else
+                Message(Text007, NoOfSalesInvErrors)
+        end else
+            Message(Text008);
     end;
 
     local procedure ShouldFinalizeSalesInvHeader(SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; ReturnReceiptLine: Record "Return Receipt Line") Finalize: Boolean
@@ -280,12 +310,32 @@ report 6653 "Combine Return Receipts"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertSalesInvHeader(var SalesHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header"; ReturnReceiptHeader: Record "Return Receipt Header"; ReturnReceiptLine: Record "Return Receipt Line"; var NoOfSalesInv: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReturnReceiptLineOnAfterGetRecord(var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesCrMemoHeaderInsert(var SalesHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesCrMemoHeaderModify(var SalesHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowResult(var SalesHeader: Record "Sales Header"; var NoOfSalesInvErrors: Integer; PostInv: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCustomerNoFromOrder(var SalesHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header"; ReturnReceiptHeader: Record "Return Receipt Header"; ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 

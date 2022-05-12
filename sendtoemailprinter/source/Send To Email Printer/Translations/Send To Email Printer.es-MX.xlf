@@ -245,7 +245,7 @@
         </trans-unit>
         <trans-unit id="Page 3508446305 - Control 2984523798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up email account</source>
-          <target state="translated">Configurar la cuenta de correo electrónico</target>
+          <target state="translated">Configurar cuenta de correo electrónico</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupEmailAccount - Property Caption</note>
         </trans-unit>

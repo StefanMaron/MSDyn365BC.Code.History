@@ -1,10 +1,11 @@
 page 742 "VAT Report Statement Subform"
 {
     Caption = 'VAT Report Statement Subform';
-    Editable = false;
     PageType = ListPart;
     ShowFilter = false;
     SourceTable = "VAT Statement Report Line";
+    InsertAllowed = false;
+    DeleteAllowed = false;
 
     layout
     {
@@ -16,27 +17,38 @@ page 742 "VAT Report Statement Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
+                    Editable = false;
                 }
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT report statement.';
+                    Editable = false;
                 }
                 field("Box No."; "Box No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number on the box that the VAT statement applies to.';
+                    Editable = false;
+                }
+                field(Note; Note)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies any text that you want to add to the specific line.';
+                    Visible = ShowVATNote;
                 }
                 field(Base; Base)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the VAT amount in the amount is calculated from.';
                     Visible = ShowBase;
+                    Editable = false;
                 }
                 field(Amount; Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the entry in the report statement.';
+                    Editable = false;
                 }
             }
         }
@@ -48,6 +60,7 @@ page 742 "VAT Report Statement Subform"
 
     var
         ShowBase: Boolean;
+        ShowVATNote: Boolean;
 
     trigger OnOpenPage()
     var
@@ -55,6 +68,7 @@ page 742 "VAT Report Statement Subform"
     begin
         VATReportSetup.Get();
         ShowBase := VATReportSetup."Report VAT Base";
+        ShowVATNote := VATReportSetup."Report VAT Note";
     end;
 
     procedure SelectFirst()

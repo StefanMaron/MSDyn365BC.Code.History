@@ -464,8 +464,15 @@ codeunit 5470 "Graph Collection Mgt - Item"
     end;
 
     procedure UpdateIds()
+    begin
+        UpdateIds(false);
+    end;
+
+    procedure UpdateIds(WithCommit: Boolean)
     var
         Item: Record Item;
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         if not Item.FindSet(true, false) then
             exit;
@@ -473,7 +480,12 @@ codeunit 5470 "Graph Collection Mgt - Item"
         repeat
             Item.UpdateReferencedIds;
             Item.Modify(false);
+            if WithCommit then
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
         until Item.Next() = 0;
+
+        if WithCommit then
+            Commit();
     end;
 }
 

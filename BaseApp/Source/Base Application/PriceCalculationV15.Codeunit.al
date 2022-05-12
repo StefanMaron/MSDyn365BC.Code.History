@@ -448,12 +448,16 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
             Database::"Sales Line":
                 begin
                     SalesLine := Line;
+                    if SalesLine.Type <> SalesLine.Type::Resource then
+                        exit;
                     PurchPriceCalcMgt.FindResUnitCost(SalesLine);
                     CurrLineWithPrice.SetLine(PriceType::Purchase, SalesLine);
                 end;
             Database::"Service Line":
                 begin
                     ServiceLine := Line;
+                    if ServiceLine.Type <> ServiceLine.Type::Resource then
+                        exit;
                     PurchPriceCalcMgt.FindResUnitCost(ServiceLine);
                     CurrLineWithPrice.SetLine(PriceType::Purchase, ServiceLine);
                 end;
@@ -483,6 +487,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                             ResourceCost.Init();
                             ResourceCost.Code := PriceListLine."Asset No.";
                             ResourceCost."Work Type Code" := '';
+                            OnFindPriceListLineOnBeforeRunResourceFindCost(ResourceCost, PriceListLine);
                             CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResourceCost);
                             PriceListLine."Unit Cost" := ResourceCost."Unit Cost";
                             PriceListLine."Direct Unit Cost" := ResourceCost."Direct Unit Cost";
@@ -522,6 +527,11 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyPriceSalesHandler(var CurrLineWithPrice: Interface "Line With Price"; Header: Variant; Line: Variant; CalledByFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindPriceListLineOnBeforeRunResourceFindCost(var ResourceCost: Record "Resource Cost"; PriceListLine: Record "Price List Line")
     begin
     end;
 

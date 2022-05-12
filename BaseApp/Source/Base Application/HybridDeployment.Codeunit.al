@@ -134,7 +134,7 @@ codeunit 6060 "Hybrid Deployment"
         RetryGetStatus(InstanceId, FailedEnableReplicationErr, Output);
 
         EnableIntelligentCloud(true);
-        PermissionManager.ResetUsersToIntelligentCloudUserGroup;
+        PermissionManager.ResetUsersToIntelligentCloudUserGroup();
     end;
 
     [Scope('OnPrem')]
@@ -177,7 +177,7 @@ codeunit 6060 "Hybrid Deployment"
         JSONManagement.InitializeCollection(Errors);
 
         Errors := '';
-        for i := 0 to JSONManagement.GetCollectionCount - 1 do begin
+        for i := 0 to JSONManagement.GetCollectionCount() - 1 do begin
             JSONManagement.GetObjectFromCollectionByIndex(TempError, i);
 
             // Check if the error contains an error code and fetch the message
@@ -232,7 +232,7 @@ codeunit 6060 "Hybrid Deployment"
     [Scope('OnPrem')]
     procedure PrepareTablesForReplication()
     begin
-        if not TryPrepareTablesForReplication then
+        if not TryPrepareTablesForReplication() then
             Error(FailedPreparingTablesErr);
     end;
 
@@ -302,6 +302,38 @@ codeunit 6060 "Hybrid Deployment"
         RetryGetStatus(InstanceId, FailedSetRepScheduleErr, Output);
     end;
 
+    procedure SanitizeCompanyBeforeUpgrade()
+    var
+        IntelligentCloud: Record "Intelligent Cloud";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.SanitizeCloudMigratedDataUpgradeTag()) then
+            exit;
+
+        if IntelligentCloud.Get() then
+            SanitizeFields(CompanyName(), 0);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.SanitizeCloudMigratedDataUpgradeTag());
+    end;
+
+    procedure SanitizeFields(NameOfCompany: Text; TableID: Integer)
+    var
+        ALCloudMigration: DotNet ALCloudMigration;
+    begin
+        if NameOfCompany = '' then begin
+            ALCloudMigration.SanitizeFields(true);
+            exit;
+        end;
+
+        if TableID = 0 then begin
+            ALCloudMigration.SanitizeFields(true, NameOfCompany);
+            exit;
+        end;
+
+        ALCloudMigration.SanitizeFields(true, NameOfCompany, TableID);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure HandleCompanyInit()
     var
@@ -318,7 +350,7 @@ codeunit 6060 "Hybrid Deployment"
     var
         IntelligentCloud: Record "Intelligent Cloud";
     begin
-        if not IntelligentCloud.Get then begin
+        if not IntelligentCloud.Get() then begin
             IntelligentCloud.Init();
             IntelligentCloud.Enabled := Enabled;
             IntelligentCloud.Insert();
@@ -507,7 +539,7 @@ codeunit 6060 "Hybrid Deployment"
     [TryFunction]
     local procedure TryPrepareTablesForReplication()
     begin
-        OnPrepareTablesForReplication;
+        OnPrepareTablesForReplication();
     end;
 
     [TryFunction]

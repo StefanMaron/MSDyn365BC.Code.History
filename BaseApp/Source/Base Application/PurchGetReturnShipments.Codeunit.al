@@ -66,6 +66,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
                         if Type = Type::"Charge (Item)" then
                             GetItemChargeAssgnt(ReturnShptLine2, PurchLine."Qty. to Invoice");
                     end;
+                    OnCreateInvLinesOnAfterLoopIteration(ReturnShptHeader, ReturnShptLine2, PurchHeader, PurchLine, ShouldInsertReturnRcptLine);
                 until Next() = 0;
             end;
         end;
@@ -208,6 +209,11 @@ codeunit 6648 "Purch.-Get Return Shipments"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvLinesOnAfterReturnShptLine2SetFilters(var ReturnShipmentLine: Record "Return Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnAfterLoopIteration(ReturnShipmentHeader: Record "Return Shipment Header"; ReturnShipmentLine2: Record "Return Shipment Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; ShouldInsertReturnRcptLine: Boolean)
     begin
     end;
 

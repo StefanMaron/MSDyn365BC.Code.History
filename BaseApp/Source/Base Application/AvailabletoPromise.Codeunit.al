@@ -588,7 +588,13 @@ codeunit 5790 "Available to Promise"
     local procedure UpdatePurchOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
     var
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePurchOrderAvail(AvailabilityAtDate, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLine do begin
             if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
                 repeat
@@ -839,6 +845,11 @@ codeunit 5790 "Available to Promise"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyAvailableToPromise(var Item: Record Item; var AvailabilityDate: Date; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; PeriodType: Enum "Analysis Period Type"; LookaheadDateFormula: DateFormula; var AvailableToPromise: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePurchOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

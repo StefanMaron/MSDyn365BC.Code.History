@@ -196,10 +196,11 @@ codeunit 5051 SegManagement
             InteractLogEntry."Entry No." := NextInteractLogEntryNo;
             InteractLogEntry.CopyFromSegment(SegmentLine);
             InteractLogEntry.Postponed := Postponed;
-            OnLogInteractionOnBeforeInteractionLogEntryInsert(InteractLogEntry);
+            OnLogInteractionOnBeforeInteractionLogEntryInsert(InteractLogEntry, Attachment, SegmentLine);
             InteractLogEntry.Insert();
         end else begin
             InteractLogEntry.Get(SegmentLine."Line No.");
+            OnLogInteractionOnAfterGetInteractLogEntryFromSegmentLine(InteractLogEntry, SegmentLine, Postponed);
             InteractLogEntry.CopyFromSegment(SegmentLine);
             InteractLogEntry.Postponed := Postponed;
             OnLogInteractionOnBeforeInteractionLogEntryModify(InteractLogEntry);
@@ -762,12 +763,17 @@ codeunit 5051 SegManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLogInteractionOnBeforeInteractionLogEntryInsert(var InteractionLogEntry: Record "Interaction Log Entry")
+    local procedure OnLogInteractionOnBeforeInteractionLogEntryInsert(var InteractionLogEntry: Record "Interaction Log Entry"; Attachment: Record Attachment; SegmentLine: Record "Segment Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnLogInteractionOnBeforeInteractionLogEntryModify(var InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogInteractionOnAfterGetInteractLogEntryFromSegmentLine(var InteractionLogEntry: Record "Interaction Log Entry"; SegmentLine: Record "Segment Line"; Postponed: Boolean)
     begin
     end;
 

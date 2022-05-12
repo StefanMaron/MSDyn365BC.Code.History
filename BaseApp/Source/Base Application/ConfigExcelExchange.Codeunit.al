@@ -60,6 +60,7 @@ codeunit 8618 "Config. Excel Exchange"
                     ConfigPackageTable.InitDimensionFields;
             until ConfigPackageTable.Next() = 0;
         ConfigPackageTable.SetRange("Dimensions as Columns");
+        OnExportExcelFromConfigOnBeforeExportExcel(ConfigLine, ConfigPackageTable);
         ExportExcel(FileName, ConfigPackageTable, true, false);
         exit(FileName);
     end;
@@ -563,6 +564,8 @@ codeunit 8618 "Config. Excel Exchange"
         TableColumnName: Text;
         ColumnID: Integer;
         IsHandled: Boolean;
+        ShouldRunIteration: Boolean;
+        ShouldSetCellComment: Boolean;
     begin
         IsHandled := false;
         OnBeforeCreateTableColumnNames(ConfigPackageField, ConfigPackageTable, TypeHelper, ConfigXMLExchange, OpenXMLManagement, IsHandled);
@@ -574,16 +577,10 @@ codeunit 8618 "Config. Excel Exchange"
         if ConfigPackageField.FindSet() then begin
             ColumnID := 1;
             repeat
-                if TypeHelper.GetField(ConfigPackageField."Table ID", ConfigPackageField."Field ID", Field) or
-                   ConfigPackageField.Dimension
-                then begin
-                    if ConfigPackageField.Dimension then
-                        TableColumnName := ConfigPackageField."Field Caption" + ' ' + StrSubstNo('(%1)', Dimension.TableCaption)
-                    else
-                        TableColumnName := ConfigPackageField."Field Caption";
-
-                    if TableColumnName = '' then
-                        TableColumnName := ConfigPackageField."Field Name";
+                ShouldRunIteration := TypeHelper.GetField(ConfigPackageField."Table ID", ConfigPackageField."Field ID", Field) or ConfigPackageField.Dimension;
+                OnCreateTableColumnNamesOnAfterCalcShouldRunIteration(ConfigPackageField, ShouldRunIteration);
+                if ShouldRunIteration then begin
+                    TableColumnName := GetTableColumnName(ConfigPackageField, Dimension);
 
                     XmlColumnProperties := WrkShtWriter2.CreateXmlColumnProperties(
                         1,
@@ -600,7 +597,9 @@ codeunit 8618 "Config. Excel Exchange"
                     WrkShtHelper.AppendElementToOpenXmlElement(TableColumns, TableColumn);
                     WrkShtWriter.SetCellValueText(
                       3, OpenXMLManagement.GetXLColumnID(ColumnID), TableColumnName, WrkShtWriter.DefaultCellDecorator);
-                    if not ConfigPackageField.Dimension then begin
+                    ShouldSetCellComment := not ConfigPackageField.Dimension;
+                    OnCreateTableColumnNamesOnAfterCalcShouldSetCellComment(ConfigPackageField, ConfigPackageTable, ShouldSetCellComment);
+                    if ShouldSetCellComment then begin
                         FieldRef := RecRef.Field(ConfigPackageField."Field ID");
                         OpenXMLManagement.SetCellComment(
                           WrkShtWriter, OpenXMLManagement.GetXLColumnID(ColumnID) + '3', ConfigValidateMgt.AddComment(FieldRef));
@@ -611,6 +610,24 @@ codeunit 8618 "Config. Excel Exchange"
             until ConfigPackageField.Next() = 0;
         end;
         RecRef.Close;
+    end;
+
+    local procedure GetTableColumnName(ConfigPackageField: Record "Config. Package Field"; Dimension: Record Dimension) TableColumnName: Text
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetTableColumnName(ConfigPackageField, Dimension, TableColumnName, IsHandled);
+        if IsHandled then
+            exit(TableColumnName);
+
+        if ConfigPackageField.Dimension then
+            TableColumnName := ConfigPackageField."Field Caption" + ' ' + StrSubstNo('(%1)', Dimension.TableCaption())
+        else
+            TableColumnName := ConfigPackageField."Field Caption";
+
+        if TableColumnName = '' then
+            TableColumnName := ConfigPackageField."Field Name";
     end;
 
     local procedure AddPackageAndTableInformation(var ConfigPackageTable: Record "Config. Package Table"; var SingleXMLCells: DotNet SingleXmlCells)
@@ -801,6 +818,26 @@ codeunit 8618 "Config. Excel Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExportExcelTemplateFromTables(var ConfigPackageTable: Record "Config. Package Table"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTableColumnName(ConfigPackageField: Record "Config. Package Field"; Dimension: Record Dimension; var TableColumnName: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTableColumnNamesOnAfterCalcShouldRunIteration(var ConfigPackageField: Record "Config. Package Field"; var ShouldRunIteration: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTableColumnNamesOnAfterCalcShouldSetCellComment(var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageTable: Record "Config. Package Table"; var ShouldSetCellComment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportExcelFromConfigOnBeforeExportExcel(var ConfigLine: Record "Config. Line"; var ConfigPackageTable: Record "Config. Package Table")
     begin
     end;
 

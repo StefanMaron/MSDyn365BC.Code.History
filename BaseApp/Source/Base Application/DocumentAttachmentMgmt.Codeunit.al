@@ -1,4 +1,4 @@
-codeunit 1173 "Document Attachment Mgmt"
+﻿codeunit 1173 "Document Attachment Mgmt"
 {
     // // Code unit to manage document attachment to records.
 
@@ -29,7 +29,14 @@ codeunit 1173 "Document Attachment Mgmt"
     end;
 
     local procedure DeleteAttachedDocumentsWithConfirm(RecRef: RecordRef)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteAttachedDocumentsWithConfirm(RecRef, IsHandled);
+        if IsHandled then
+            exit;
+
         if AttachedDocumentsExist(RecRef) then
             if ConfirmManagement.GetResponseOrDefault(DeleteAttachmentsConfirmQst, true) then
                 DeleteAttachedDocuments(RecRef);
@@ -109,6 +116,8 @@ codeunit 1173 "Document Attachment Mgmt"
                     DocumentAttachment.SetRange("No.", RecNo);
                 end;
         end;
+
+        OnAfterSetDocumentAttachmentFiltersForRecRef(DocumentAttachment, RecRef);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterDeleteEvent', '', false, false)]
@@ -1240,7 +1249,17 @@ codeunit 1173 "Document Attachment Mgmt"
     END;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDocumentAttachmentFiltersForRecRef(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyAttachmentsForPostedDocsLines(var FromRecRef: RecordRef; var ToRecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteAttachedDocumentsWithConfirm(RecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 

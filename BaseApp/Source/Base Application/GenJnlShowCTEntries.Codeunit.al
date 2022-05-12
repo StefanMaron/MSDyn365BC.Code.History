@@ -3,7 +3,14 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ("Document Type" in ["Document Type"::Payment, "Document Type"::Refund, "Document Type"::" "]) then
             exit;
         if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee]) then
@@ -82,6 +89,8 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
                             end;
                         end;
                     end;
+                else
+                    OnSetFiltersOnCreditTransferEntryOnCaseElse(GenJournalLine, CreditTransferEntry, FoundCorrespondingLedgerEntry);
             end;
             CreditTransferEntry.SetRange("Account No.", "Account No.");
             if not FoundCorrespondingLedgerEntry then
@@ -91,6 +100,16 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
               "Currency Code", '''%1''|''%2''', "Currency Code", GeneralLedgerSetup.GetCurrencyCode("Currency Code"));
             CreditTransferEntry.SetRange(Canceled, false);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFiltersOnCreditTransferEntryOnCaseElse(var GenJournalLine: Record "Gen. Journal Line"; var CreditTransferEntry: Record "Credit Transfer Entry"; var FoundCorrespondingLedgerEntry: Boolean)
+    begin
     end;
 }
 

@@ -589,7 +589,13 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         Window: Dialog;
         ZeroQty: Boolean;
         CalcQtyExpected: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreatePhysInvtOrderLines(TempPhysInvtItemSelection, PhysInvtOrderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcPhysInvtOrderCountRep.RunModal();
         if not CalcPhysInvtOrderCountRep.GetRequest(ZeroQty, CalcQtyExpected) then
             exit;
@@ -654,6 +660,11 @@ codeunit 7380 "Phys. Invt. Count.-Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePhysInvtItemJnl(var ItemJournalLine: Record "Item Journal Line"; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePhysInvtOrderLines(TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean);
     begin
     end;
 

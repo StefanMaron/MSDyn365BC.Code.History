@@ -16,6 +16,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         BlockedTestFieldErr: Label 'Blocked must be equal to ''No''';
@@ -410,14 +411,20 @@ codeunit 134195 "ERM Multiple Posting Groups"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Multiple Posting Groups");
+
         // Lazy Setup.
         LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Multiple Posting Groups");
+
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
         Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Multiple Posting Groups");
     end;
 
     local procedure SetSalesAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)

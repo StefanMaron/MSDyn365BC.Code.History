@@ -21,6 +21,22 @@ codeunit 790 "IC Inbox Outbox Subscribers"
         exit(TransactionSource = ICInboxTransaction."Transaction Source"::"Returned by Partner");
     end;
 
+    local procedure EnqueueAutoAcceptJobQueueEntry(ICInboxTransactionRecordId: RecordId; PartnerCompanyName: Text)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.ChangeCompany(PartnerCompanyName);
+
+        JobQueueEntry.Init();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := Codeunit::"IC Inbox Outbox Subs. Runner";
+        JobQueueEntry."Record ID to Process" := ICInboxTransactionRecordId;
+        JobQueueEntry."Job Queue Category Code" := 'ICAUTOACC';
+        JobQueueEntry.Insert(true);
+
+        TaskScheduler.CreateTask(Codeunit::"Job Queue Dispatcher", 0, true, PartnerCompanyName, 0DT, JobQueueEntry.RecordId);
+    end;
+
     [EventSubscriber(ObjectType::Report, Report::"Move IC Trans. to Partner Comp", 'OnICInboxTransactionCreated', '', false, false)]
     local procedure AcceptOnAfterInsertICInboxTransaction(var Sender: Report "Move IC Trans. to Partner Comp"; var ICInboxTransaction: Record "IC Inbox Transaction"; PartnerCompanyName: Text)
     var
@@ -35,8 +51,7 @@ codeunit 790 "IC Inbox Outbox Subscribers"
 
         if ICPartner."Auto. Accept Transactions" then
             if not IsICInboxTransactionReturnedByPartner(ICInboxTransaction."Transaction Source") then
-                TaskScheduler.CreateTask(Codeunit::"IC Inbox Outbox Subscribers", 0,
-                    true, PartnerCompanyName, 0DT, ICInboxTransaction.RecordId);
+                EnqueueAutoAcceptJobQueueEntry(ICInboxTransaction.RecordId, PartnerCompanyName);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"ICInboxOutboxMgt", 'OnInsertICOutboxPurchDocTransaction', '', false, false)]

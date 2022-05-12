@@ -71,6 +71,6 @@ codeunit 8930 "Email View Policy"
 
     procedure GetDefaultUserId(): Text
     begin
-        exit('');
+        exit('_');
     end;
 }

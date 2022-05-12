@@ -149,7 +149,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 3942279885 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the posting date of the related fixed asset transaction, such as a depreciation.</source>
-          <target state="translated">Gibt das Buchungsdatum der zugehörigen Anlagentransaktion an, z. B. eine Abschreibung.</target>
+          <target state="translated">Gibt das Buchungsdatum der zugehörigen Anlagentransaktion an, beispielsweise eine Abschreibung.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA Posting Date - Property ToolTip</note>
         </trans-unit>

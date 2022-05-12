@@ -77,7 +77,7 @@
         </trans-unit>
         <trans-unit id="Table 3497260583 - Field 3199380963 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Group Submission ID</source>
-          <target state="translated">ID inoltro gruppo IVA</target>
+          <target state="translated">ID invio gruppo IVA</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Field VAT Group Submission ID - Property Caption</note>
         </trans-unit>
@@ -197,7 +197,7 @@
         </trans-unit>
         <trans-unit id="Table 3252717750 - Field 3199380963 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Group Submission ID</source>
-          <target state="translated">ID inoltro gruppo IVA</target>
+          <target state="translated">ID invio gruppo IVA</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field VAT Group Submission ID - Property Caption</note>
         </trans-unit>

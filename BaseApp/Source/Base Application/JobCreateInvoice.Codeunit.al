@@ -270,6 +270,7 @@ codeunit 1002 "Job Create-Invoice"
                     JobPlanningLineInvoice."Line No." := SalesLine."Line No.";
                     JobPlanningLineInvoice."Quantity Transferred" := JobPlanningLine."Qty. to Transfer to Invoice";
                     JobPlanningLineInvoice."Transferred Date" := PostingDate;
+                    OnCreateSalesInvoiceJobTaskOnBeforeJobPlanningLineInvoiceInsert(JobPlanningLineInvoice);
                     JobPlanningLineInvoice.Insert();
 
                     JobPlanningLine.UpdateQtyToTransfer;
@@ -891,26 +892,27 @@ codeunit 1002 "Job Create-Invoice"
         SourceCodeSetup: Record "Source Code Setup";
         DimMgt: Codeunit DimensionManagement;
         DimSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
     begin
-        SourceCodeSetup.Get();
-        DimSetIDArr[1] := SalesLine."Dimension Set ID";
-        DimSetIDArr[2] :=
-            DimMgt.CreateDimSetFromJobTaskDim(
-            SalesLine."Job No.", SalesLine."Job Task No.", SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
-        DimSetIDArr[3] := GetLedgEntryDimSetID(JobPlanningLine);
-        DimSetIDArr[4] := GetJobLedgEntryDimSetID(JobPlanningLine);
-        DimMgt.CreateDimForSalesLineWithHigherPriorities(
-            SalesLine,
-            0,
-            DimSetIDArr[5],
-            SalesLine."Shortcut Dimension 1 Code",
-            SalesLine."Shortcut Dimension 2 Code",
-            SourceCodeSetup.Sales,
-            DATABASE::Job);
-        SalesLine."Dimension Set ID" :=
-            DimMgt.GetCombinedDimensionSetID(
-            DimSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
-        Salesline.Modify();
+        IsHandled := false;
+        OnBeforeUpdateSalesLineDimension(SalesLine, JobPlanningLine, IsHandled);
+        if not IsHandled then begin
+            SourceCodeSetup.Get();
+            DimSetIDArr[1] := SalesLine."Dimension Set ID";
+            DimSetIDArr[2] :=
+                DimMgt.CreateDimSetFromJobTaskDim(
+                SalesLine."Job No.", SalesLine."Job Task No.", SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
+            DimSetIDArr[3] := GetLedgEntryDimSetID(JobPlanningLine);
+            DimSetIDArr[4] := GetJobLedgEntryDimSetID(JobPlanningLine);
+            DimMgt.CreateDimForSalesLineWithHigherPriorities(
+                SalesLine, 0, DimSetIDArr[5],
+                SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code",
+                SourceCodeSetup.Sales, DATABASE::Job);
+            SalesLine."Dimension Set ID" :=
+                DimMgt.GetCombinedDimensionSetID(
+                DimSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
+            Salesline.Modify();
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -919,7 +921,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesHeader(Job: Record Job; PostingDate: Date; var SalesHeader2: Record "Sales Header"; JobPlanningLine: Record "Job Planning Line")
+    local procedure OnBeforeCreateSalesHeader(Job: Record Job; PostingDate: Date; var SalesHeader2: Record "Sales Header"; var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
@@ -989,7 +991,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestSalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job; var IsHandled: Boolean; JobPlanningLine: Record "Job Planning Line")
+    local procedure OnBeforeTestSalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job; var IsHandled: Boolean; var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
@@ -1099,6 +1101,11 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceJobTaskOnBeforeJobPlanningLineInvoiceInsert(var JobPlanningLineInvoice: Record "Job Planning Line Invoice")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceOnBeforeRunReport(var JobPlanningLine: Record "Job Planning Line"; var Done: Boolean; var NewInvoice: Boolean; var PostingDate: Date; var InvoiceNo: Code[20]; var IsHandled: Boolean; CrMemo: Boolean)
     begin
     end;
@@ -1120,6 +1127,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnBeforeJobPlanningLineCopy(Job: Record Job; var JobPlanningLineSource: Record "Job Planning Line"; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesLineDimension(var SalesLine: Record "Sales Line"; JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -568,7 +568,7 @@ page 6711 "OData Setup Wizard"
             TempTenantWebServiceFilter.SetRange("Data Item", keyValuePair.Key);
 
             if TempTenantWebServiceFilter.Find('-') then
-                FilterTextTemp := WebServiceManagement.GetTenantWebServiceFilter(TempTenantWebServiceFilter);
+                FilterTextTemp := WebServiceManagement.RetrieveTenantWebServiceFilter(TempTenantWebServiceFilter);
 
             if (ActionType = ActionType::"Create a copy of an existing data set") or
                (ActionType = ActionType::"Edit an existing data set")
@@ -591,7 +591,7 @@ page 6711 "OData Setup Wizard"
                     TempTenantWebServiceFilter.SetRange("Data Item", TempTenantWebServiceColumns."Data Item");
 
                     if TempTenantWebServiceFilter.Find('-') then
-                        FilterTextTemp := WebServiceManagement.GetTenantWebServiceFilter(TempTenantWebServiceFilter);
+                        FilterTextTemp := WebServiceManagement.RetrieveTenantWebServiceFilter(TempTenantWebServiceFilter);
 
                     if (ActionType = ActionType::"Create a copy of an existing data set") or
                        (ActionType = ActionType::"Edit an existing data set")
@@ -796,7 +796,7 @@ page 6711 "OData Setup Wizard"
             TenantWebServiceFilter.SetRange(TenantWebServiceID, TenantWebService.RecordId);
             TenantWebServiceFilter.SetRange("Data Item", DataItem);
             if TenantWebServiceFilter.FindFirst() then
-                FilterTextParam := WebServiceManagement.GetTenantWebServiceFilter(TenantWebServiceFilter);
+                FilterTextParam := WebServiceManagement.RetrieveTenantWebServiceFilter(TenantWebServiceFilter);
         end;
     end;
 

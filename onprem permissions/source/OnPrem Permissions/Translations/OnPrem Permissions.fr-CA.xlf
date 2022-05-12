@@ -317,7 +317,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 846258726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read S&amp;R/P&amp;P/Inv. Analys. Rep.</source>
-          <target state="translated">Lire rapp analyse ven/&amp;ach/stk</target>
+          <target state="translated">Lire état analyse ven/&amp;ach/stk</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-ANALYSIS - Property Caption</note>
         </trans-unit>

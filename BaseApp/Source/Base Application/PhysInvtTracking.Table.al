@@ -41,6 +41,11 @@ table 5885 "Phys. Invt. Tracking"
             Caption = 'Open';
             DataClassification = SystemMetadata;
         }
+        field(23; "Line No."; Integer)
+        {
+            Caption = 'Line No.';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

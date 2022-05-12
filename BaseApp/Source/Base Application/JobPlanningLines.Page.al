@@ -153,11 +153,11 @@ page 1007 "Job Planning Lines"
                         LocationCodeOnAfterValidate();
                     end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = BinCodeEditable;
-                    ToolTip = 'Specifies a bin code for an item.';
+                    ToolTip = 'Specifies the bin where the selected item will be put away or picked in warehouse and inventory processes. If you specify a bin code in the To-Job Bin Code field on the Location page, that bin will be suggested when you choose the location.';
                     Visible = false;
 
                     trigger OnValidate()

@@ -419,6 +419,7 @@ report 120 "Aged Accounts Receivable"
 
                             CustLedgEntryEndingDate := TempCustLedgEntry;
                             DetailedCustomerLedgerEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntryEndingDate."Entry No.");
+                            OnTempCustLedgEntryGetRecordOnAfterSetDetailedEntryFilters(DetailedCustomerLedgerEntry);
                             if DetailedCustomerLedgerEntry.FindSet(false, false) then
                                 repeat
                                     if (DetailedCustomerLedgerEntry."Entry Type" =
@@ -953,6 +954,11 @@ report 120 "Aged Accounts Receivable"
         Dimensions.Add('ReportDuration', Format(ReportDuration));
         Dimensions.Add('NumberOfLines', Format(NumberOfLines));
         Session.LogMessage('0000FJM', AgedARReportGeneratedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTempCustLedgEntryGetRecordOnAfterSetDetailedEntryFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
     end;
 }
 

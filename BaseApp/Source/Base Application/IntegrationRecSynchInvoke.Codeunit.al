@@ -209,6 +209,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         if SynchAction <> SynchActionType::Fail then begin
             UpdateIntegrationRecordCoupling(
               IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType);
+            Commit();
             OnAfterInsertRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
             if DestinationRecordRef.Number() = IntegrationTableMapping."Table ID" then
                 // refetch the local record as subscribers to the OnAfterInsertRecord above could update it

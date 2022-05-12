@@ -49,7 +49,7 @@ page 7201 "CDS Connection Setup Wizard"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Enable data synchronization';
-                        ToolTip = 'Enable data synchronization.';
+                        ToolTip = 'Enable Business Central to synchronize data with Dataverse.';
 
                         trigger OnValidate()
                         begin
@@ -71,7 +71,7 @@ page 7201 "CDS Connection Setup Wizard"
                     {
                         ApplicationArea = Basic, Suite;
                         Enabled = BusinessEventsSupported;
-                        Caption = 'Enable business events';
+                        Caption = 'Enable virtual tables and events';
                         ToolTip = 'Set up virtual tables and enable business events.';
                         trigger OnValidate()
                         begin
@@ -1173,6 +1173,7 @@ page 7201 "CDS Connection Setup Wizard"
         InfoStepVisible := false;
         ApplicationStepVisible := false;
         AdminStepVisible := false;
+        BusinessEventsStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
         OwnershipModelStepVisible := false;

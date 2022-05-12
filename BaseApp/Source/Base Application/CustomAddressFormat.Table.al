@@ -36,8 +36,11 @@ table 725 "Custom Address Format"
             var
                 "Field": Record "Field";
             begin
-                if "Field ID" <> xRec."Field ID" then
-                    UpdateRelatedCustomerAddressFormatLines;
+                if "Field ID" <> xRec."Field ID" then begin
+                    if "Field ID" = 0 then
+                        CheckOtherCompositeParts();
+                    UpdateRelatedCustomerAddressFormatLines();
+                end;
 
                 if Field.Get(DATABASE::"Company Information", "Field ID") then
                     "Line Format" := StrSubstNo('[%1]', Field.FieldName)
@@ -71,6 +74,9 @@ table 725 "Custom Address Format"
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
         CustomAddressFormatLine.DeleteAll();
     end;
+
+    var
+        MultyCompositePartsErr: Label 'Only one composite custom address line format can be used.';
 
     procedure BuildAddressFormat()
     var
@@ -123,6 +129,17 @@ table 725 "Custom Address Format"
         CustomAddressFormatLines.RunModal();
 
         BuildAddressFormat;
+    end;
+
+    local procedure CheckOtherCompositeParts()
+    var
+        CustomAddressFormat: Record "Custom Address Format";
+    begin
+        CustomAddressFormat.SetRange("Country/Region Code", "Country/Region Code");
+        CustomAddressFormat.SetFilter("Line No.", '<>%1', "Line No.");
+        CustomAddressFormat.SetRange("Field ID", 0);
+        if not CustomAddressFormat.IsEmpty() then
+            Error(MultyCompositePartsErr);
     end;
 
     local procedure UpdateRelatedCustomerAddressFormatLines()

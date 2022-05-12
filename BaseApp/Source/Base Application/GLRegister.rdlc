@@ -1953,7 +1953,7 @@
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
-                                    <Format>=Fields!G_L_Entry_AmountFormat.Value</Format>
+                                    <Format>=iif(isnothing(Fields!Purch__Inv__Line_No_.Value),Fields!G_L_Entry_AmountFormat.Value,Fields!Purch__Inv__Line_AmountFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

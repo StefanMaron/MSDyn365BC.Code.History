@@ -29,7 +29,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1587295650 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Delete Change Log Entries</source>
-          <target state="translated">Удаление протокола изменений</target>
+          <target state="translated">Удал. операций жур. изменений</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet CHANGELOG-DELETE - Property Caption</note>
         </trans-unit>
@@ -41,7 +41,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3862289486 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View Change Log Entries</source>
-          <target state="translated">Просмотр протокола изменений</target>
+          <target state="translated">Просмотр операций жур. измен.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet CHANGELOG-VIEW - Property Caption</note>
         </trans-unit>
@@ -77,13 +77,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2192584701 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Manage Dynamics CRM Int.</source>
-          <target state="translated">Управление взаим. Dynamics CRM</target>
+          <target state="translated">Управление инт. с Dynamics CRM</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet DYNAMICS CRM MANAGE - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 3482299295 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Setup Dynamics CRM Int.</source>
-          <target state="translated">Настройка взаим. Dynamics CRM</target>
+          <target state="translated">Настройка инт. с Dynamics CRM</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet DYNAMICS CRM SETUP - Property Caption</note>
         </trans-unit>
@@ -95,7 +95,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 530029408 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read fixed assets and entries</source>
-          <target state="translated">Чтение карточки ОС и операций</target>
+          <target state="translated">Чтение ОС и операций</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FA-FIXED ASSET - Property Caption</note>
         </trans-unit>
@@ -125,7 +125,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 755073828 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read insurances and entries</source>
-          <target state="translated">Чтение карт. страхов. и опер.</target>
+          <target state="translated">Чтение страхования и операций</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet FA-INSURANCE - Property Caption</note>
         </trans-unit>
@@ -197,7 +197,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3231919786 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read bank accounts and entries</source>
-          <target state="translated">Чтение карт. банк. сч. и опер.</target>
+          <target state="translated">Чтение банк. счетов и операций</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet G/L-BANK ACC - Property Caption</note>
         </trans-unit>
@@ -257,7 +257,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1242981639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create, edit XBRL Taxonomies</source>
-          <target state="translated">Созд., редакт. XBRL Taxonomies</target>
+          <target state="translated">Созд., изм. таксономий XBRL</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet G/L-XBRL, EDIT - Property Caption</note>
         </trans-unit>
@@ -269,13 +269,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2823959846 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create and edit absence</source>
-          <target state="translated">Созд. и редакт. отсут. сотр.</target>
+          <target state="translated">Созд. и изм. отсут. сотр.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet HR-ABSENCE - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1824228431 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create and edit confidential</source>
-          <target state="translated">Созд. и редакт. конфид. инф.</target>
+          <target state="translated">Созд. и изм. конфид. инф.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet HR-CONFIDENTIAL - Property Caption</note>
         </trans-unit>
@@ -317,13 +317,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 846258726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read S&amp;R/P&amp;P/Inv. Analys. Rep.</source>
-          <target state="translated">Чтение Пр./&amp;Пок./Отч. ан. зап.</target>
+          <target state="translated">Чтение отч. ан.зап. пок./прод.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-ANALYSIS - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 3592196470 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Edit S&amp;R/P&amp;P/Inv. Analys. Rep.</source>
-          <target state="translated">Изм. Пр./&amp;Пок./Отч. aн. зап.</target>
+          <target state="translated">Изм. отч. ан. зап. пок./прод.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-ANALYSIS, EDIT - Property Caption</note>
         </trans-unit>
@@ -341,7 +341,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2386896655 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in item jnls.</source>
-          <target state="translated">Созд. записей в товарных журн.</target>
+          <target state="translated">Созд. операций в жур. товаров</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-ITEM JNL - Property Caption</note>
         </trans-unit>
@@ -377,7 +377,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2425111757 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Taking a physical inventory</source>
-          <target state="translated">Выбор журнала инвентаризации</target>
+          <target state="translated">Проведение инвентаризации</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-PHYS INV JNL - Property Caption</note>
         </trans-unit>
@@ -467,7 +467,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 182847615 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in Cap. Jnl.</source>
-          <target state="translated">Созд. записей в журн. п/мощн.</target>
+          <target state="translated">Созд. операций в жур. п/мощн.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MFG-CAP. JNL - Property Caption</note>
         </trans-unit>
@@ -479,7 +479,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2004794658 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in Cons. Jnl.</source>
-          <target state="translated">Созд. записей в журн. потреб.</target>
+          <target state="translated">Созд. операций в жур. потреб.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MFG-CONS. JNL - Property Caption</note>
         </trans-unit>
@@ -509,19 +509,19 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1775369517 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read Production BOM &amp; Routing</source>
-          <target state="translated">Чтение спецификации и маршр.</target>
+          <target state="translated">Чтение произв.специф. и маршр.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MFG-DESIGN - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1535362925 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Edit Production BOM &amp; Routing</source>
-          <target state="translated">Изм. спецификации и маршр.</target>
+          <target state="translated">Изм. произв.специф. и маршрута</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MFG-DESIGN, EDIT - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 753890315 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in Output Jnl.</source>
-          <target state="translated">Созд. записей в журн. выхода</target>
+          <target state="translated">Созд. операций в жур. выхода</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MFG-OUTP. JNL - Property Caption</note>
         </trans-unit>
@@ -641,7 +641,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 551833350 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries on req. wksh.</source>
-          <target state="translated">Созд. записей в журн. заявок</target>
+          <target state="translated">Созд. операций в жур. заявок</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet P&amp;P-REQ WKSH - Property Caption</note>
         </trans-unit>
@@ -653,7 +653,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 4109103721 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read vendors and entries</source>
-          <target state="translated">Чтение карт. поставщ. и опер.</target>
+          <target state="translated">Чтение поставщиков и операций</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet P&amp;P-VENDOR - Property Caption</note>
         </trans-unit>
@@ -689,7 +689,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2477744452 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create entries in res. jnls.</source>
-          <target state="translated">Созд. записей в журн. ресурсов</target>
+          <target state="translated">Созд. операций в жур. ресурсов</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RES-JOURNAL - Property Caption</note>
         </trans-unit>
@@ -713,7 +713,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1768169757 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read res./res.gr. and entries</source>
-          <target state="translated">Чтение карт. ресурсов и опер.</target>
+          <target state="translated">Чтение ресурсов/групп и опер.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RES-RESOURCE - Property Caption</note>
         </trans-unit>
@@ -755,13 +755,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 140963496 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Edit campaigns and segments</source>
-          <target state="translated">Редактир. кампаний и сегментов</target>
+          <target state="translated">Изм. кампаний и сегментов</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RM-CAMPAIGN, EDIT - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1930651864 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read contacts, entries, etc.</source>
-          <target state="translated">Чтение карт. контактов, опер.</target>
+          <target state="translated">Чтение контактов, опер. и т.д.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RM-CONT - Property Caption</note>
         </trans-unit>
@@ -815,7 +815,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 4013874434 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read customers and entries</source>
-          <target state="translated">Чтение карт. клиента и опер.</target>
+          <target state="translated">Чтение клиентов и операций</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet S&amp;R-CUSTOMER - Property Caption</note>
         </trans-unit>
@@ -905,7 +905,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 258394045 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read posted service documents</source>
-          <target state="translated">Чтение учтенных сервисных док.</target>
+          <target state="translated">Чтение учт. сервисных док.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SM-POSTED S/I/C - Property Caption</note>
         </trans-unit>
@@ -977,13 +977,13 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1879401324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Whse. Mgt. periodic activities</source>
-          <target state="translated">Пер. задания управ. складом</target>
+          <target state="translated">Период. задания управ. складом</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-PERIODIC - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1486052532 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read posted put away, etc.</source>
-          <target state="translated">Чтение учт. подборов и размещ.</target>
+          <target state="translated">Чтение учт. размещений и т.д.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-POSTED PA/P - Property Caption</note>
         </trans-unit>

@@ -5291,7 +5291,7 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Sconto collegato prima delle imposte</target>
+          <target state="translated">Sconto applicato prima delle imposte</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -5615,7 +5615,7 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Sconto collegato prima delle imposte</target>
+          <target state="translated">Sconto applicato prima delle imposte</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>

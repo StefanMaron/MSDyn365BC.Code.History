@@ -4439,7 +4439,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3692338268 - NamedType 1949645189" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
           <source>Complete the last steps to get ready for business</source>
-          <target state="translated">completa gli ultimi passaggi della preparazione al business</target>
+          <target state="translated">Completa gli ultimi passaggi della preparazione al business</target>
           <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType CollapsedBannerHeader75To100CompletedLbl</note>
         </trans-unit>
@@ -5050,14 +5050,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType AlreadyUninstalledMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 2879639004" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You have selected to delete extension data for the %1 extension. Continuing uninstall will delete the tables that contain data for the %1 extension. This action cannot be undone. Do you want to continue?</source>
-          <target state="translated">È stata selezionata l'eliminazione dei dati dell'estensione %1. Se si continua la disinstallazione vengono eliminate le tabelle contenenti i dati per l'estensione %1. Questa azione non può essere annullata. Continuare?</target>
-          <note from="Developer" annotates="general" priority="2">%1=name of app</note>
+          <source>You have selected to delete extension data for the %1 extension and all of its dependents: %2. Continuing uninstall will delete the tables that contain data for the %1 extension and all of its dependents. This action cannot be undone. Do you want to continue?</source>
+          <target state="translated">È stata selezionata l'eliminazione dei dati dell'estensione %1 e di tutti gli elementi dipendenti relativi: %2. Se si continua la disinstallazione vengono eliminate le tabelle contenenti i dati dell'estensione %1 e di tutti gli elementi dipendenti relativi. Questa azione non può essere annullata. Continuare?</target>
+          <note from="Developer" annotates="general" priority="2">%1=name of app ,%2= all dependent extensions</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType ClearExtensionSchemaMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 4098040153" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Enabling Delete Extension Data will delete the tables that contain data for the %1 extension on uninstall. This action cannot be undone. Do you want to continue?</source>
-          <target state="translated">L'abilitazione di Elimina dati dell'estensione elimina le tabelle che contengono i dati per l'estensione %1 in fase di disinstallazione. Questa azione non può essere annullata. Continuare?</target>
+          <source>Enabling Delete Extension Data will delete the tables that contain data for the %1 extension and all of its dependents on uninstall. This action cannot be undone. Do you want to continue?</source>
+          <target state="translated">L'abilitazione di Elimina dati dell'estensione elimina le tabelle che contengono i dati dell'estensione %1 e di tutti gli elementi dipendenti relativi in fase di disinstallazione. Questa azione non può essere annullata. Continuare?</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType ClearExtensionSchemaQst</note>
         </trans-unit>
@@ -6503,7 +6503,7 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Update users from Microsoft 365</source>
-          <target state="translated">Aggiorna utenti da Microsoft 365</target>
+          <target state="translated">Aggiorna gli utenti da Microsoft 365</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Property Caption</note>
         </trans-unit>
@@ -9865,17 +9865,41 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Property AdditionalSearchTerms</note>
         </trans-unit>
+        <trans-unit id="Page 1268025941 - Control 371151164 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify a policy</source>
+          <target state="translated">Specificare un criterio</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Control Policy - Property AboutTitle</note>
+        </trans-unit>
         <trans-unit id="Page 1268025941 - Control 371151164 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assigned email policy</source>
           <target state="translated">Criterio e-mail assegnato</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Control Policy - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 1268025941 - Control 371151164 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Here, you assign a policy to the specified user by choosing a view policy from the list. If you've not added a user, then this policy becomes the default view policy.</source>
+          <target state="translated">Assegnare un criterio all'utente specificato scegliendo un criterio di visualizzazione dalla lista. Se non è stato aggiunto un utente, questo criterio diventa il criterio di visualizzazione predefinito.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Control Policy - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 1268025941 - Control 2708250016 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pick a user</source>
+          <target state="translated">Scegliere un utente</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Control User ID - Property AboutTitle</note>
+        </trans-unit>
         <trans-unit id="Page 1268025941 - Control 2708250016 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the user’s unique identifier.</source>
-          <target state="translated">Specifica l'identificatore univoco dell'utente.</target>
+          <source>Specifies a unique identifier for the user.</source>
+          <target state="translated">Specifica un identificatore univoco per l'utente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Control User ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1268025941 - Control 2708250016 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You can define an email view policy for a specific user. However, make sure you have a default policy, which is a line with a policy that is not assigned to a user.</source>
+          <target state="translated">È possibile definire un criterio di visualizzazione del messaggio e-mail per un utente specifico. Accertarsi di avere un criterio predefinito, ovvero una riga con un criterio non assegnato a un utente.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Control User ID - Property AboutText</note>
         </trans-unit>
         <trans-unit id="Page 1268025941 - Control 2708250016 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User ID</source>
@@ -11709,7 +11733,7 @@
         </trans-unit>
         <trans-unit id="Page 25890369 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the description of the item.</source>
-          <target state="translated">Specifica la descrizione dell'elemento.</target>
+          <target state="translated">Specifica la descrizione dell'articolo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Guided Experience Item List - Control Description - Property ToolTip</note>
         </trans-unit>
@@ -11727,7 +11751,7 @@
         </trans-unit>
         <trans-unit id="Page 25890369 - Control 329424276 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the item.</source>
-          <target state="translated">Specifica il nome dell'elemento.</target>
+          <target state="translated">Specifica il nome dell'articolo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Guided Experience Item List - Control Title - Property ToolTip</note>
         </trans-unit>
@@ -11955,7 +11979,7 @@
         </trans-unit>
         <trans-unit id="Page 906691248 - NamedType 3906946713" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Error: %1, description: %2</source>
-          <target state="translated">Errore: %1. Descrizione: %2.</target>
+          <target state="translated">Errore: %1, descrizione: %2</target>
           <note from="Developer" annotates="general" priority="2">%1 = The authorization error message, %2 = The authorization error description</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType AuthCodeErrorLbl</note>
         </trans-unit>
@@ -12553,8 +12577,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Privacy Notice - NamedType LearnMoreTxt</note>
         </trans-unit>
         <trans-unit id="Page 3047977240 - NamedType 2237880948" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>By enabling %1, you consent to your data being shared with Microsoft services that might be outside of your organization's selected geographic boundaries and might have different compliance and security standards than %2. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.</source>
-          <target state="translated">Abilitando %1, l'utente accetta che i dati vengano condivisi con i servizi Microsoft che potrebbero trovarsi al di fuori dei confini geografici selezionati dall'organizzazione e potrebbe avere standard di sicurezza e conformità diversi %2. La privacy è molto importante e pertanto è possibile scegliere se condividere i dati con il servizio. Per ulteriori informazioni, selezionare il seguente collegamento.</target>
+          <source>By using %1, you consent to your data being shared with Microsoft services that might be outside of your organization's selected geographic boundaries and might have different compliance and security standards than %2. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.</source>
+          <target state="translated">Usando %1, l'utente accetta che i dati vengano condivisi con i servizi Microsoft che potrebbero trovarsi al di fuori dei confini geografici selezionati dall'organizzazione e potrebbero avere standard di sicurezza e conformità diversi da %2. La privacy è importante per noi per cui è possibile scegliere se condividere i dati con il servizio. Per ulteriori informazioni, selezionare il seguente collegamento.</target>
           <note from="Developer" annotates="general" priority="2">%1 = the integration service name, ex. Microsoft Sharepoint, %2 = the full marketing name, such as Microsoft Dynamics 365 Business Central.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Privacy Notice - NamedType PrivacyAgreementTxt</note>
         </trans-unit>
@@ -14495,16 +14519,10 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DialogTitleTxt</note>
         </trans-unit>
         <trans-unit id="Page 367479046 - NamedType 3405983715" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Disclaimer</source>
-          <target state="translated">Dichiarazione di non responsabilità</target>
+          <source>Microsoft Business Central PTE Disclaimer</source>
+          <target state="translated">Dichiarazione di non responsabilità di Microsoft Business Central PTE</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DisclaimerLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 367479046 - NamedType 1978894270" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The creator of this customized extension is responsible for its licensing. The customized extension is subject to the terms and conditions, privacy policy, support and billing offered by the creator, as applicable, and does not create any liability or obligation for Microsoft.\\The publisher of the customized extension must maintain compatibility with new releases of Dynamics 365 Business Central. An extension that is not compatible with a new release within 90 days of the release will be removed and the tenant upgraded.</source>
-          <target state="translated">L'autore di questa estensione personalizzata è responsabile della licenza. L'estensione personalizzata è soggetta alle condizioni, all'informativa sulla privacy, al supporto e alla fatturazione offerti dall'autore, se applicabili, e non crea passività né obblighi per Microsoft.\\È necessario che l'editore dell'estensione personalizzata mantenga la compatibilità con le nuove versioni di Dynamics 365 Business Central. Un'estensione non compatibile con una nuova versione verrà rimossa entro 90 giorni dal rilascio e il tenant verrà aggiornato.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DisclaimerMsg</note>
         </trans-unit>
         <trans-unit id="Page 367479046 - NamedType 118939017" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please upload an extension file before clicking "Deploy" button.</source>
@@ -14518,15 +14536,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType ForceSyncQst</note>
         </trans-unit>
+        <trans-unit id="Page 367479046 - NamedType 4004070260" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Privacy and Cookies</source>
+          <target state="translated">Privacy e cookie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType PrivacyAndCookiesLbl</note>
+        </trans-unit>
         <trans-unit id="Page 367479046 - Control 346708723 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies that you accept Disclaimer.</source>
-          <target state="translated">Specifica che si accetta la dichiarazione di non responsabilità.</target>
+          <source>Specifies that you accept the privacy policy and the disclaimer.</source>
+          <target state="translated">Specifica che si accettano l'informativa sulla privacy e la dichiarazione di non responsabilità.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control Accepted - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 367479046 - Control 346708723 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Accept</source>
-          <target state="translated">Accetta</target>
+          <source>Accept the privacy policy and the disclaimer</source>
+          <target state="translated">Accetta l'informativa sulla privacy e la dichiarazione di non responsabilità</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control Accepted - Property Caption</note>
         </trans-unit>
@@ -14561,8 +14585,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control Disclaimer - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 367479046 - Control 1694176181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Disclaimer</source>
-          <target state="translated">Dichiarazione di non responsabilità</target>
+          <source>Microsft Business Central Disclaimer</source>
+          <target state="translated">Dichiarazione di non responsabilità di Microsoft Business Central</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control Disclaimer - Property Caption</note>
         </trans-unit>
@@ -14589,6 +14613,18 @@
           <target state="translated">Lingua</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control Language - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 367479046 - Control 607920654 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the privacy and cookies.</source>
+          <target state="translated">Visualizzare l'informativa sulla privacy e sui cookie.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control PrivacyAndCookies - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 367479046 - Control 607920654 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Privacy and Cookies</source>
+          <target state="translated">Privacy e cookie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control PrivacyAndCookies - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 367479046 - Control 2094552352 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies how to update the database schema for the extension. The Add option will warn you if the schemas are incompatible and will not apply the change. Force Sync will overwrite the current schema with the new version without warning. Force Sync can lead to data loss.</source>

@@ -357,6 +357,7 @@ codeunit 99000845 "Reservation Management"
     var
         ReservForm: Page Reservation;
         CurrReservedQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
         OnBeforeUpdateItemLedgEntryStats(CalcReservEntry);
         if CalcItemLedgEntry.ReadPermission then begin
@@ -366,9 +367,12 @@ codeunit 99000845 "Reservation Management"
             if CalcItemLedgEntry.FindSet() then
                 repeat
                     CalcItemLedgEntry.CalcFields("Reserved Quantity");
-                    OnUpdateItemLedgEntryStatsUpdateTotals(CalcReservEntry, CalcItemLedgEntry, TotalAvailQty, QtyOnOutBound);
-                    TempEntrySummary."Total Reserved Quantity" += CalcItemLedgEntry."Reserved Quantity";
-                    CalcSumValue += CalcItemLedgEntry."Remaining Quantity";
+                    IsHandled := false;
+                    OnUpdateItemLedgEntryStatsUpdateTotals(CalcReservEntry, CalcItemLedgEntry, TotalAvailQty, QtyOnOutBound, CalcSumValue, TempEntrySummary, IsHandled);
+                    if not IsHandled then begin
+                        TempEntrySummary."Total Reserved Quantity" += CalcItemLedgEntry."Reserved Quantity";
+                        CalcSumValue += CalcItemLedgEntry."Remaining Quantity";
+                    end;
                 until CalcItemLedgEntry.Next() = 0;
             if HandleItemTracking2 then
                 if TempEntrySummary."Total Reserved Quantity" > 0 then
@@ -444,6 +448,7 @@ codeunit 99000845 "Reservation Management"
             ReservEntry.SetFilter("Shipment Date", '>=%1', AvailabilityDate);
         ReservEntry.SetTrackingFilterFromReservEntry(CalcReservEntry);
         ReservEntry.SetRange(Positive, Positive);
+        OnUpdateItemTrackingLineStatsOnAfterReservEntrySetFilters(ReservEntry, CalcReservEntry);
         if ReservEntry.FindSet() then
             repeat
                 ReservEntry.SetRange("Source Type", ReservEntry."Source Type");
@@ -748,7 +753,7 @@ codeunit 99000845 "Reservation Management"
     begin
         IsReserved := false;
         OnBeforeAutoReservePurchLine(
-          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserve, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
+          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
         if IsReserved then
             exit;
 
@@ -773,7 +778,9 @@ codeunit 99000845 "Reservation Management"
                     QtyThisLineBase := 0;
                 end;
 
-                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, PurchLine.RowID1, QtyThisLine, QtyThisLineBase);
+                OnAutoReservePurchLineOnBeforeSetQtyToReserveDownToTrackedQuantity(
+                    PurchLine, CalcReservEntry, ReservQty, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, PurchLine.RowID1(), QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                     DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
@@ -1154,9 +1161,9 @@ codeunit 99000845 "Reservation Management"
         ReservQty: Decimal;
     begin
         case ReservSummEntryNo of
-            DATABASE::"Invt. Receipt Header":
+            "Reservation Summary Type"::"Inventory Receipt".AsInteger():
                 InvtDocLine.FilterReceiptLinesForReservation(CalcReservEntry, GetAvailabilityFilter(AvailabilityDate), Positive);
-            DATABASE::"Invt. Shipment Header":
+            "Reservation Summary Type"::"Inventory Shipment".AsInteger():
                 InvtDocLine.FilterShipmentLinesForReservation(CalcReservEntry, GetAvailabilityFilter(AvailabilityDate), Positive);
         end;
 
@@ -1253,7 +1260,13 @@ codeunit 99000845 "Reservation Management"
         ReservMgt: Codeunit "Reservation Management";
         QtyToReTrack: Decimal;
         QtyTracked: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry, CalcReservEntry2, IsHandled);
+        if IsHandled then
+            exit;
+
         DeleteReservEntries(DeleteAll, DownToQuantity, CalcReservEntry2);
 
         // Handle both sides of a req. line related to a transfer line:
@@ -1884,16 +1897,20 @@ codeunit 99000845 "Reservation Management"
     var
         ReservEntry2: Record "Reservation Entry";
         SignFactor: Integer;
+        IsHandled: Boolean;
     begin
         if not ReservEntry.FindSet() then
             exit;
-        SignFactor := CreateReservEntry.SignFactor(ReservEntry);
 
+        SignFactor := CreateReservEntry.SignFactor(ReservEntry);
         repeat
             if ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive) then
                 if ReservEntry2.HasSamePointer(TargetReservEntry) then begin
                     ReservEntry.Mark(true);
-                    ReservedQuantity += ReservEntry."Quantity (Base)" * SignFactor;
+                    IsHandled := false;
+                    OnBeforeReservedQuantityAssign(ReservEntry, ReservedQuantity, SignFactor, IsHandled);
+                    if not IsHandled then
+                        ReservedQuantity += ReservEntry."Quantity (Base)" * SignFactor;
                 end;
         until ReservEntry.Next() = 0;
         ReservEntry.MarkedOnly(true);
@@ -3144,12 +3161,17 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateItemLedgEntryStatsUpdateTotals(CalcReservEntry: Record "Reservation Entry"; var CalcItemLedgEntry: Record "Item Ledger Entry"; TotalAvailQty: Decimal; QtyOnOutBound: Decimal)
+    local procedure OnUpdateItemLedgEntryStatsUpdateTotals(CalcReservEntry: Record "Reservation Entry"; var CalcItemLedgEntry: Record "Item Ledger Entry"; TotalAvailQty: Decimal; QtyOnOutBound: Decimal; var CalcSumValue: Decimal; var TempEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemTrackingLineStatsOnBeforeReservEntrySummaryInsert(var ReservEntrySummary: Record "Entry Summary"; ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemTrackingLineStatsOnAfterReservEntrySetFilters(var ReservEntry: Record "Reservation Entry"; CalcReservEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -3170,6 +3192,21 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckQuantityIsCompletelyReleased(ItemTrackingHandling: Option "None","Allow deletion",Match; QtyToRelease: Decimal; DeleteAll: Boolean; CurrentItemTrackingSetup: Record "Item Tracking Setup"; ReservEntry: Record "Reservation Entry"; var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReservedQuantityAssign(ReservationEntry: Record "Reservation Entry"; var ReservedQuantity: Decimal; SignFactor: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAutoReservePurchLineOnBeforeSetQtyToReserveDownToTrackedQuantity(PurchLine: Record "Purchase Line"; CalcReservEntry: Record "Reservation Entry"; var ReservQty: Decimal; var QtyThisLine: Decimal; var QtyThisLineBase: Decimal)
     begin
     end;
 }

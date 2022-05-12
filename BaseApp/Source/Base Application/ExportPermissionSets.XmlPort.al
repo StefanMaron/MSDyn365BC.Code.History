@@ -126,6 +126,9 @@ xmlport 9173 "Export Permission Sets"
                     fieldelement(ObjectID; "Tenant Permission"."Object ID")
                     {
                     }
+                    fieldelement(Type; "Tenant Permission".Type)
+                    {
+                    }
                     fieldelement(ReadPermission; "Tenant Permission"."Read Permission")
                     {
                         MinOccurs = Zero;

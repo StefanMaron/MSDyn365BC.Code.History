@@ -126,7 +126,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     begin
         CalcCrossDockedItems(ItemNo, VariantCode, '', LocationCode, Dummy, QtyOnCrossDockBase);
         QtyOnCrossDockBase += CalcCrossDockReceivedNotCrossDocked(LocationCode, ItemNo, VariantCode);
-        OnCalcRemainingNeededQtyBaseOnAfterCalcQtyOnCrossDockBase(ItemNo, VariantCode, QtyNeededBase, HasSpecialOrder(), QtyOnCrossDockBase);
+        OnCalcRemainingNeededQtyBaseOnAfterCalcQtyOnCrossDockBase(ItemNo, VariantCode, QtyNeededBase, HasSpecialOrder(), QtyOnCrossDockBase, LocationCode);
 
         QtyToCrossDockBase := QtyNeededBase - QtyOnCrossDockBase;
         if QtyToHandleBase < QtyToCrossDockBase then begin
@@ -153,7 +153,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
 
         CalcCrossDockedItems(ItemNo, VariantCode, '', LocationCode, Dummy, QtyOnCrossDockBase);
         QtyOnCrossDockBase += CalcCrossDockReceivedNotCrossDocked(LocationCode, ItemNo, VariantCode);
-        OnCalculateCrossDockLineOnAfterCalcQtyOnCrossDockBase(ItemNo, VariantCode, QtyNeededBase, HasSpecialOrder(), QtyOnCrossDockBase);
+        OnCalculateCrossDockLineOnAfterCalcQtyOnCrossDockBase(ItemNo, VariantCode, QtyNeededBase, HasSpecialOrder(), QtyOnCrossDockBase, LocationCode);
 
         QtyToCrossDockBase := QtyNeededBase - QtyOnCrossDockBase;
         if QtyToHandleBase < QtyToCrossDockBase then
@@ -723,12 +723,12 @@ codeunit 5780 "Whse. Cross-Dock Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcRemainingNeededQtyBaseOnAfterCalcQtyOnCrossDockBase(ItemNo: Code[20]; VariantCode: Code[10]; QtyNeededBase: Decimal; SpecialOrder: Boolean; var QtyOnCrossDockBase: Decimal)
+    local procedure OnCalcRemainingNeededQtyBaseOnAfterCalcQtyOnCrossDockBase(ItemNo: Code[20]; VariantCode: Code[10]; QtyNeededBase: Decimal; SpecialOrder: Boolean; var QtyOnCrossDockBase: Decimal; LocationCode: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateCrossDockLineOnAfterCalcQtyOnCrossDockBase(ItemNo: Code[20]; VariantCode: Code[10]; QtyNeededBase: Decimal; SpecialOrder: Boolean; var QtyOnCrossDockBase: Decimal)
+    local procedure OnCalculateCrossDockLineOnAfterCalcQtyOnCrossDockBase(ItemNo: Code[20]; VariantCode: Code[10]; QtyNeededBase: Decimal; SpecialOrder: Boolean; var QtyOnCrossDockBase: Decimal; LocationCode: Code[20])
     begin
     end;
 

@@ -78,6 +78,7 @@ page 47 "Sales Invoice Subform"
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnItemReferenceNoOnLookup(Rec);
                     end;
 
@@ -241,6 +242,8 @@ page 47 "Sales Invoice Subform"
                     begin
                         ValidateAutoReserve();
                         DeltaUpdateTotals();
+                        if  SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
@@ -1046,7 +1049,7 @@ page 47 "Sales Invoice Subform"
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Lines';
                         Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                        ShortCutKey = 'Ctrl+Alt+I';
                         Enabled = Type = Type::Item;
                         ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1374,6 +1377,8 @@ page 47 "Sales Invoice Subform"
 
     procedure NoOnAfterValidate()
     begin
+        OnBeforeNoOnAfterValidate(Rec, xRec);
+
         InsertExtendedText(false);
 
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and (xRec."No." <> '') then
@@ -1403,7 +1408,7 @@ page 47 "Sales Invoice Subform"
             AutoReserve();
         end;
 
-        OnAfterValidateAutoReserve(Rec);
+        OnAfterValidateAutoReserve(Rec, xRec);
     end;
 
     local procedure GetTotalSalesHeader()
@@ -1525,7 +1530,7 @@ page 47 "Sales Invoice Subform"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterValidateAutoReserve(var SalesLine: Record "Sales Line")
+    local procedure OnAfterValidateAutoReserve(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -1536,6 +1541,11 @@ page 47 "Sales Invoice Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 

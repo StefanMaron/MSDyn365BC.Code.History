@@ -105,7 +105,7 @@
                             ApplicationArea = ItemTracking;
                             BlankZero = true;
                             Caption = 'Undefined Quantity';
-                            DecimalPlaces = 2 : 5;
+                            DecimalPlaces = 0 : 5;
                             Editable = false;
                             ToolTip = 'Specifies the item-tracked quantity that remains to be assigned, according to the document quantity.';
                         }
@@ -114,7 +114,7 @@
                             ApplicationArea = ItemTracking;
                             BlankZero = true;
                             Caption = 'Undefined Quantity to Handle';
-                            DecimalPlaces = 2 : 5;
+                            DecimalPlaces = 0 : 5;
                             Editable = false;
                             ToolTip = 'Specifies the difference between the quantity that can be selected for the document line (which is shown in the Selectable field) and the quantity that you have selected in this window (shown in the Selected field). If you have specified more item tracking quantity than is required on the document line, this field shows the overflow quantity as a negative number in red.';
                             Visible = Handle3Visible;
@@ -124,7 +124,7 @@
                             ApplicationArea = ItemTracking;
                             BlankZero = true;
                             Caption = 'Undefined Quantity to Invoice';
-                            DecimalPlaces = 2 : 5;
+                            DecimalPlaces = 0 : 5;
                             Editable = false;
                             ToolTip = 'Specifies the difference between the quantity that can be selected for the document line (which is shown in the Selectable field) and the quantity that you have selected in this window (shown in the Selected field). If you have specified more item tracking quantity than is required on the document line, this field shows the overflow quantity as a negative number in red.';
                             Visible = Invoice3Visible;
@@ -811,7 +811,7 @@
         SkipWriteToDatabase: Boolean;
     begin
         SkipWriteToDatabase := false;
-        OnBeforeClosePage(Rec, SkipWriteToDatabase);
+        OnBeforeClosePage(Rec, SkipWriteToDatabase, CurrentRunMode, CurrentSourceType);
         if UpdateUndefinedQty and not SkipWriteToDatabase then
             WriteToDatabase();
         if CurrentRunMode = CurrentRunMode::"Drop Shipment" then
@@ -825,6 +825,8 @@
         if (CurrentRunMode = CurrentRunMode::Transfer) or IsOrderToOrderBindingToTransfer then
             SynchronizeLinkedSources('');
         SynchronizeWarehouseItemTracking();
+
+        OnAfterOnClosePage(Rec, CurrentRunMode, CurrentSourceType, CurrentSourceRowID, SecondSourceRowID);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -896,8 +898,15 @@
         ApplToItemEntryVisible := false;
     end;
 
-    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    trigger OnInsertRecord(BelowxRec: Boolean) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsertRecord(Rec, SourceQuantityArray, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Rec."Entry No." <> 0 then
             exit(false);
 
@@ -959,10 +968,13 @@
             exit(Confirm(Text006));
 
         if not ItemTrackingDataCollection.RefreshTrackingAvailability(Rec, false) then begin
-            CurrPage.Update();
+            IsHandled := false;
+            OnQueryClosePageOnBeforeCurrPageUpdate(IsHandled);
+            if not IsHandled then
+                CurrPage.Update();
 
             IsHandled := false;
-            OnQueryClosePageOnBeforeConfirmClosePage(Rec, isHandled, CurrentRunMode);
+            OnQueryClosePageOnBeforeConfirmClosePage(Rec, IsHandled, CurrentRunMode);
             if IsHandled then
                 Exit(true);
 
@@ -1226,7 +1238,8 @@
             CurrentEntryStatus := CurrentEntryStatus::Prospect;
 
         CurrentEntryStatusOption := CurrentEntryStatus.AsInteger();
-        OnSetSourceSpecOnAfterAssignCurrentEntryStatus(TrackingSpecification, CurrentEntryStatusOption);
+        OnSetSourceSpecOnAfterAssignCurrentEntryStatus(
+            TrackingSpecification, CurrentEntryStatusOption, ItemTrackingCode, InsertIsBlocked);
         CurrentEntryStatus := "Reservation Status".FromInteger(CurrentEntryStatusOption);
 
         // Set controls for Qty to handle:
@@ -1307,6 +1320,8 @@
                 TrackingSpecification."Source Subtype", TrackingSpecification."Source ID",
                 TrackingSpecification."Source Batch Name", TrackingSpecification."Source Prod. Order Line",
                 TrackingSpecification."Source Ref. No.");
+
+        OnSetSourceSpecOnAfterSetCurrentSourceRowID(CurrentRunMode, CurrentSourceRowID, TrackingSpecification);
 
         // Synchronization of outbound transfer order:
         if (TrackingSpecification."Source Type" = DATABASE::"Transfer Line") and
@@ -1993,7 +2008,8 @@
                       ExpectedReceiptDate,
                       ShipmentDate, 0, CurrentEntryStatus);
                     CreateReservEntry.GetLastEntry(ReservEntry1);
-                    OnRegisterChangeOnAfterCreateReservEntry(ReservEntry1, NewTrackingSpecification, OldTrackingSpecification);
+                    OnRegisterChangeOnAfterCreateReservEntry(
+                        ReservEntry1, NewTrackingSpecification, OldTrackingSpecification, CurrentRunMode, CurrentSourceType, TempReservEntry);
 
                     if Item."Order Tracking Policy" = Item."Order Tracking Policy"::"Tracking & Action Msg." then
                         ReservEngineMgt.UpdateActionMessages(ReservEntry1);
@@ -2799,15 +2815,26 @@
 
     local procedure UpdateExpDateColor()
     begin
-        if (Rec."Buffer Status2" = Rec."Buffer Status2"::"ExpDate blocked") or (CurrentSignFactor < 0) then;
+        if not IsExpirationDateEditable() then;
     end;
 
     local procedure UpdateExpDateEditable()
     begin
-        ExpirationDateEditable := ItemTrackingCode."Use Expiration Dates" and
-          not ((Rec."Buffer Status2" = Rec."Buffer Status2"::"ExpDate blocked") or (CurrentSignFactor < 0));
-
+        ExpirationDateEditable := IsExpirationDateEditable();
         OnAfterUpdateExpDateEditable(Rec, ExpirationDateEditable, ItemTrackingCode, NewExpirationDateEditable, CurrentSignFactor);
+    end;
+
+    local procedure IsExpirationDateEditable(): Boolean
+    begin
+        if (Rec."Buffer Status2" = Rec."Buffer Status2"::"ExpDate blocked") or
+           not ItemTrackingCode."Use Expiration Dates"
+        then
+            exit(false);
+
+        if InboundIsSet then
+            exit(Inbound);
+
+        exit(CurrentSignFactor >= 0);
     end;
 
     procedure LookupAvailable(LookupMode: Enum "Item Tracking Type")
@@ -2884,7 +2911,7 @@
 
     protected procedure SerialNoOnAfterValidate()
     begin
-        OnBeforeSerialNoOnAfterValidate(Rec);
+        OnBeforeSerialNoOnAfterValidate(Rec, SourceQuantityArray);
 
         UpdateExpDateEditable();
         CurrPage.Update();
@@ -3260,6 +3287,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnClosePage(var TrackingSpecification: Record "Tracking Specification"; CurrentRunMode: Enum "Item Tracking Run Mode"; CurrentSourceType: Integer; CurrentSourceRowID: Text[250]; SecondSourceRowID: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateReservEntryFor(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; var CreateReservEntry: Codeunit "Create Reserv. Entry")
     begin
     end;
@@ -3383,7 +3415,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeClosePage(var TrackingSpecification: Record "Tracking Specification"; var SkipWriteToDatabase: Boolean)
+    local procedure OnBeforeClosePage(var TrackingSpecification: Record "Tracking Specification"; var SkipWriteToDatabase: Boolean; CurrentRunMode: Enum "Item Tracking Run Mode"; CurrentSourceType: Integer)
     begin
     end;
 
@@ -3394,6 +3426,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLotNoAssistEdit(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; var MaxQuantity: Decimal; UndefinedQtyArray: array[3] of Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsertRecord(var TrackingSpecification: Record "Tracking Specification"; SourceQuantityArray: array[5] of Decimal; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -3413,7 +3450,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSerialNoOnAfterValidate(var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    local procedure OnBeforeSerialNoOnAfterValidate(var TempTrackingSpecification: Record "Tracking Specification" temporary; SecondSourceQuantityArray: array[3] of Decimal)
     begin
     end;
 
@@ -3468,7 +3505,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRegisterChangeOnAfterCreateReservEntry(var ReservEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification"; OldTrackingSpecification: Record "Tracking Specification")
+    local procedure OnRegisterChangeOnAfterCreateReservEntry(var ReservEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification"; OldTrackingSpecification: Record "Tracking Specification"; CurrentRunMode: Enum "Item Tracking Run Mode"; CurrentSourceType: Integer; TempReservEntry: Record "Reservation Entry" temporary)
     begin
     end;
 
@@ -3502,8 +3539,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnSetSourceSpecOnAfterAssignCurrentEntryStatus(var TrackingSpecification: Record "Tracking Specification"; var CurrentEntryStatus: Option)
+    [IntegrationEvent(true, false)]
+    local procedure OnSetSourceSpecOnAfterAssignCurrentEntryStatus(var TrackingSpecification: Record "Tracking Specification"; var CurrentEntryStatus: Option; ItemTrackingCode: Record "Item Tracking Code"; var InsertIsBlocked: Boolean)
     begin
     end;
 
@@ -3544,6 +3581,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnQueryClosePageOnBeforeConfirmClosePage(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; CurrentRunMode: Enum "Item Tracking Run Mode")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnQueryClosePageOnBeforeCurrPageUpdate(var IsHandled: Boolean)
     begin
     end;
 
@@ -3664,6 +3706,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteRecordOnAfterWMSCheckTrackingChange(TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnSetSourceSpecOnAfterSetCurrentSourceRowID(CurrentRunMode: Enum "Item Tracking Run Mode"; var CurrentSourceRowID: Text[250]; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 }

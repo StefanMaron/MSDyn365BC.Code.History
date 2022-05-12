@@ -311,7 +311,7 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - NamedType 3295561406" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The token was successfully renewed.</source>
-          <target state="translated">Срок действия маркера успешно продлен.</target>
+          <target state="translated">Токен успешно продлен.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType SucceedRenewTokenTxt</note>
         </trans-unit>

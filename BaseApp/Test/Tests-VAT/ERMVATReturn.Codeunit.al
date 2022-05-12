@@ -607,6 +607,31 @@ codeunit 134096 "ERM VAT Return"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATNoteFieldIsVisibleInVATReturnSubformPageWhenReportVATNoteOptionEnabled()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportPage: TestPage "VAT Report";
+        PostingDate: Date;
+        BoxNo: Text[30];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 433237] The VAT Note field is visible in the VAT return subform page when "Report VAT Note" option is enabled
+
+        Initialize();
+        SetReportNoteInVATReportSetup();
+
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
+
+        LibraryLowerPermissions.SetO365BusFull;
+        VATReportPage.OpenEdit();
+        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
+        Assert.IsTrue(VATReportPage.VATReportLines.Note.Visible(), 'VAT Note field is not visible');
+
+        VATReportPage.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -769,6 +794,15 @@ codeunit 134096 "ERM VAT Return"
     begin
         VATReportSetup.Get();
         VATReportSetup.Validate("Report VAT Base", true);
+        VATReportSetup.Modify(true);
+    end;
+
+    local procedure SetReportNoteInVATReportSetup()
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        VATReportSetup.Get();
+        VATReportSetup.Validate("Report VAT Note", true);
         VATReportSetup.Modify(true);
     end;
 

@@ -122,7 +122,13 @@ codeunit 212 "Res. Jnl.-Post Line"
         TimeSheetLine: Record "Time Sheet Line";
         TimeSheetDetail: Record "Time Sheet Detail";
         TimeSheetMgt: Codeunit "Time Sheet Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostTimeSheetDetail(ResJnlLine2, QtyToPost, IsHandled);
+        if IsHandled then
+            exit;
+
         with ResJnlLine2 do
             if "Time Sheet No." <> '' then begin
                 TimeSheetDetail.Get("Time Sheet No.", "Time Sheet Line No.", "Time Sheet Date");
@@ -166,6 +172,11 @@ codeunit 212 "Res. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostResJnlLine(var ResJournalLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostTimeSheetDetail(var ResJournalLine: Record "Res. Journal Line"; QtyToPost: Decimal; var IsHandled: Boolean)
     begin
     end;
 

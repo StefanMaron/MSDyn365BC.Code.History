@@ -132,6 +132,38 @@ page 9551 "Document Service Config"
                     ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the SharePoint environment.', Comment = 'SharePoint and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
             }
+            group(PrivacyNotice)
+            {
+                ShowCaption = false;
+                group(PrivacyNoticeInner)
+                {
+                    ShowCaption = false;
+                    group(PrivacyNoticeLabelGroup)
+                    {
+                        ShowCaption = false;
+                        label(PrivacyNoticeLabel)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            CaptionClass = PrivacyStatementMessageTxt;
+                        }
+                    }
+                    group(PrivacyNoticeFieldGroup)
+                    {
+                        ShowCaption = false;
+                        field(PrivacyNoticeStatement; PrivacyStatementTxt)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ShowCaption = false;
+
+                            trigger OnDrillDown()
+                            begin
+                                Hyperlink('https://go.microsoft.com/fwlink/?linkid=831305');
+                            end;
+                        }
+                    }
+                }
+            }
         }
     }
     actions
@@ -189,6 +221,10 @@ page 9551 "Document Service Config"
     begin
         DynamicEditable := false;
         SoftwareAsAService := EnvironmentInformation.IsSaaSInfrastructure();
+        if SoftwareAsAService then
+            PrivacyStatementMessageTxt := StrSubstNo(PrivacyStatementSaaSTxt, ProductName.Marketing())
+        else
+            PrivacyStatementMessageTxt := StrSubstNo(PrivacyStatementOnPremTxt, ProductName.Marketing());
     end;
 
     trigger OnOpenPage()
@@ -224,12 +260,16 @@ page 9551 "Document Service Config"
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         TestServiceQst: Label 'The %1 is not tested. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Microsoft SharePoint Connection Setup)';
         ChangeToCurrentUserErr: Label 'The user name you are trying to set does not correspond to the current logged in user and it is not allowed. Please use the currently logged in user instead.';
+        PrivacyStatementTxt: Label 'Privacy and cookies';
+        PrivacyStatementSaaSTxt: Label 'By using this integration, you consent to your data being shared with Microsoft services that might be outside of your organization''s selected geographic boundaries and might have different compliance and security standards than %1. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.', Comment = '%1 = the full marketing name, such as Microsoft Dynamics 365 Business Central.';
+        PrivacyStatementOnPremTxt: Label 'By using this integration, you consent to your data being shared with services that might be outside of your organization''s selected geographic boundaries and might have different compliance and security standards than %1. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.', Comment = '%1 = the full marketing name, such as Microsoft Dynamics 365 Business Central.';
         [NonDebuggable]
         ClientSecret: Text;
         DynamicEditable: Boolean;
         IsLegacyAuthentication: Boolean;
         SoftwareAsAService: Boolean;
         ConnectionTested: Boolean;
+        PrivacyStatementMessageTxt: Text;
 
     [NonDebuggable]
     local procedure InitializeDefaultRedirectUrl()

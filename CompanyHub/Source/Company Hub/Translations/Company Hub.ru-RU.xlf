@@ -2459,7 +2459,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 499448942 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the state, province or county as a part of the address.</source>
-          <target state="translated">Определяет область, республику, край, округ как часть адреса.</target>
+          <target state="translated">Определяет область, штат или провинцию в составе адреса.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control County - Property ToolTip</note>
         </trans-unit>

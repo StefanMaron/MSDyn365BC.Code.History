@@ -336,6 +336,7 @@ codeunit 1690 "Bank Deposit-Post"
             Amount := BankDepositHeader."Total Deposit Amount";
             "Source Currency Amount" := BankDepositHeader."Total Deposit Amount";
             "Journal Template Name" := BankDepositHeader."Journal Template Name";
+            "Journal Batch Name" := BankDepositHeader."Journal Batch Name";
             Validate(Amount);
             "Amount (LCY)" := -TotalAmountLCY;
             OnBeforePostBalancingEntry(GenJournalLine, BankDepositHeader, GenJnlPostLine);

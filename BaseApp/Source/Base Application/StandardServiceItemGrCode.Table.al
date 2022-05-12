@@ -157,6 +157,13 @@ table 5998 "Standard Service Item Gr. Code"
         ServLine."Dimension Set ID" :=
           DimensionManagement.GetCombinedDimensionSetID(
             DimensionSetIDArr, ServLine."Shortcut Dimension 1 Code", ServLine."Shortcut Dimension 2 Code");
+
+        OnAfterCombineDimensions(ServLine, StdServLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCombineDimensions(var ServLine: Record "Service Line"; StdServLine: Record "Standard Service Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

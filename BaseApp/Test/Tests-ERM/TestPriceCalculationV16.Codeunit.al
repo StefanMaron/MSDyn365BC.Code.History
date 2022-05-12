@@ -1313,9 +1313,7 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine[1].Status := PriceListLine[1].Status::Active;
         PriceListLine[1].Modify();
         // [GIVEN] Job 'J', where "Bill-to Customer No." is 'C', Item 'I' "Unit Price" is 'X', Discount is '0%' for Customer 'C'
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", Customer."No.");
-        Job.Modify();
+        LibraryJob.CreateJob(Job, Customer."No.");
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::Job, Job."No.");
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Any, "Price Asset Type"::Item, Item."No.");
@@ -1359,9 +1357,7 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine[1].Status := PriceListLine[1].Status::Active;
         PriceListLine[1].Modify();
         // [GIVEN] Job 'J', where "Bill-to Customer No." is 'C', Item 'I' "Unit Price" is 0.00, Discount is '1%' for Customer 'C'
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", Customer."No.");
-        Job.Modify();
+        LibraryJob.CreateJob(Job, Customer."No.");
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::Job, Job."No.");
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Any, "Price Asset Type"::Item, Item."No.");
@@ -3212,14 +3208,21 @@ codeunit 134159 "Test Price Calculation - V16"
         CreateServiceDocumentWithResource(
             ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, Customer."No.");
 
-        // [WHEN] SetLine()
+        // [WHEN] SetLine(Sale)
         ServiceLinePrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
 
-        // [THEN] List of sources contains: All Jobs, All Customers, Customer 'A', 'CPG', 'CDG', Contact 'C', but no Campaign
+        // [THEN] List of sources contains: All Customers, Customer 'A', 'CPG', 'CDG', Contact 'C', but no Campaign
         GetSources(ServiceLinePrice, TempPriceSource);
         VerifySaleResourceSources(TempPriceSource, Customer, Contact);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::Campaign);
         Assert.RecordIsEmpty(TempPriceSource);
+
+        // [WHEN] SetLine(Purchase)
+        ServiceLinePrice.SetLine("Price Type"::Purchase, ServiceHeader, ServiceLine);
+        // [THEN] List of sources contains: All Vendors
+        GetSources(ServiceLinePrice, TempPriceSource);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Vendors");
+        Assert.RecordIsNotEmpty(TempPriceSource);
     end;
 
     [Test]
@@ -3308,42 +3311,54 @@ codeunit 134159 "Test Price Calculation - V16"
     procedure T246_ServiceLineMinQtyPriceForResource()
     var
         Customer: Record Customer;
-        PriceListLine: Record "Price List Line";
+        PriceListLine: array[2] of Record "Price List Line";
         Resource: Record Resource;
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         OldHandler: Enum "Price Calculation Handler";
+        MinQty: Decimal;
     begin
         // [FEATURE] [Service] [Resource] [UT]
         Initialize();
-        PriceListLine.DeleteAll();
+        PriceListLine[1].DeleteAll();
         // [GIVEN] Default price calculation is 'V16'
         OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'A' 
         LibrarySales.CreateCustomer(Customer);
-        // [GIVEN] Resource 'X', where "Unit Price" is '100'
+        // [GIVEN] Resource 'X', where "Unit Price" is 100, "Unit Cost" is 33
         LibraryResource.CreateResource(Resource, Customer."VAT Bus. Posting Group");
         Resource."Unit Price" := 100 + LibraryRandom.RandDec(100, 2);
+        Resource."Unit Cost" := 100 - LibraryRandom.RandDec(100, 2);
         Resource.Modify();
-        // [GIVEN] Price list line for Resource 'X', where "Minimum Quantity" is 10, "Unit Price" is 50
+        MinQty := 10 + LibraryRandom.RandInt(20);
+        // [GIVEN] Sales Price list line for "All Customers" for Resource 'X', where "Minimum Quantity" is 10, "Unit Price" is 50
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Resource, Resource."No.");
-        PriceListLine."Minimum Quantity" := 10 + LibraryRandom.RandInt(20);
-        PriceListLine."Unit Price" := Resource."Unit Price" / 2;
-        PriceListLine.Status := PriceListLine.Status::Active;
-        PriceListLine.Modify();
+            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine[1]."Minimum Quantity" := MinQty;
+        PriceListLine[1]."Unit Price" := Resource."Unit Price" / 2;
+        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] Purchase Price list line for "All Vendors" for Resource 'X', where "Minimum Quantity" is 10, "Unit Cost" is 11
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[2], '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine[2]."Minimum Quantity" := MinQty;
+        PriceListLine[2]."Unit Cost" := Resource."Unit Cost" / 3;
+        PriceListLine[2].Status := PriceListLine[2].Status::Active;
+        PriceListLine[2].Modify();
 
         // [GIVEN] Service Order for customer 'A' with one line with "Type" = 'Resource' and "No." = 'X', "Quantity" = 1
         LibraryService.CreateServiceHeader(ServiceHeader, "Sales Document Type"::Order, Customer."No.");
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, "Service Line Type"::Resource, Resource."No.");
-        // [GIVEN] Service Line, where "Unit Price" is 100 (from Resource card)
+        // [GIVEN] Service Line, where "Unit Price" is 100 , "Unit Cost" is 33 (from Resource card)
         ServiceLine.TestField("Unit Price", Resource."Unit Price");
+        ServiceLine.TestField("Unit Cost", Resource."Unit Cost");
 
         // [WHEN] Change "Quantity" to 10
-        ServiceLine.Validate(Quantity, PriceListLine."Minimum Quantity");
+        ServiceLine.Validate(Quantity, MinQty);
 
-        // [THEN] Service Line, where "Unit Price" is 50 (from Price line)
-        ServiceLine.TestField("Unit Price", PriceListLine."Unit Price");
+        // [THEN] Service Line, where "Unit Price" is 50, "Unit Cost (LCY)" is 11 (from Price lines)
+        ServiceLine.TestField("Unit Price", PriceListLine[1]."Unit Price");
+        ServiceLine.TestField("Unit Cost (LCY)", PriceListLine[2]."Unit Cost");
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
 

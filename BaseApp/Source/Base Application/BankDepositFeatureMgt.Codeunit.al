@@ -1,5 +1,10 @@
+#if not CLEAN21
 codeunit 1514 "Bank Deposit Feature Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Bank Deposits feature will be enabled by default';
+    ObsoleteTag = '21.0';
+
     procedure IsEnabled(): Boolean
     var
         FeatureManagementFacade: Codeunit "Feature Management Facade";
@@ -37,3 +42,4 @@ codeunit 1514 "Bank Deposit Feature Mgt."
     var
         FeatureKeyIdTok: Label 'StandardizedBankReconciliationAndDeposits', Locked = true;
 }
+#endif

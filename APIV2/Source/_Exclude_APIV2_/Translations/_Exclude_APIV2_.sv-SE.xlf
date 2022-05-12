@@ -1655,13 +1655,13 @@
         </trans-unit>
         <trans-unit id="Page 79567422 - NamedType 4261500932" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The blank "displayName" is not allowed.</source>
-          <target state="translated">Det tomma "displayName" tillåts inte.</target>
+          <target state="translated">Det tomma displayName tillåts inte.</target>
           <note from="Developer" annotates="general" priority="2">displayName is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - NamedType BlankContactNameErr</note>
         </trans-unit>
         <trans-unit id="Page 79567422 - NamedType 2753446044" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "displayName" must be provided.</source>
-          <target state="translated">Ett "displayName" måste anges.</target>
+          <target state="translated">Ett displayName måste anges.</target>
           <note from="Developer" annotates="general" priority="2">displayName is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - NamedType NotProvidedContactNameErr</note>
         </trans-unit>
@@ -5381,7 +5381,7 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - Control 462527801 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount Including Tax</source>
-          <target state="translated">Nettobelopp inklusive moms</target>
+          <target state="translated">Radbelopp inklusive moms</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control netAmountIncludingTax - Property Caption</note>
         </trans-unit>

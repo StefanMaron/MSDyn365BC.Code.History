@@ -62,9 +62,11 @@ codeunit 5923 "Service-Quote to Order"
         ServMgtSetup.TestField("Service Order Nos.");
     end;
 
-    local procedure GetNoSeriesCode(): Code[20]
+    local procedure GetNoSeriesCode() NoSeriesCode: Code[20]
     begin
-        exit(ServMgtSetup."Service Order Nos.");
+        NoSeriesCode := ServMgtSetup."Service Order Nos.";
+
+        OnAfterGetNoSeriesCode(ServOrderHeader, ServMgtSetup, NoSeriesCode);
     end;
 
     procedure ReturnOrderNo(): Code[20]
@@ -238,6 +240,11 @@ codeunit 5923 "Service-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNoSeriesCode(var ServOrderHeader: Record "Service Header"; ServMgtSetup: Record "Service Mgt. Setup"; var NoSeriesCode: Code[20])
     begin
     end;
 

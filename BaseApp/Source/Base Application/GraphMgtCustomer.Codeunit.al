@@ -70,8 +70,15 @@ codeunit 5471 "Graph Mgt - Customer"
     end;
 
     procedure UpdateIds()
+    begin
+        UpdateIds(false);
+    end;
+
+    procedure UpdateIds(WithCommit: Boolean)
     var
         Customer: Record Customer;
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         if not Customer.FindSet(true, false) then
             exit;
@@ -79,7 +86,12 @@ codeunit 5471 "Graph Mgt - Customer"
         repeat
             Customer.UpdateReferencedIds;
             Customer.Modify(false);
+            if WithCommit then
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
         until Customer.Next() = 0;
+
+        if WithCommit then
+            Commit();
     end;
 }
 

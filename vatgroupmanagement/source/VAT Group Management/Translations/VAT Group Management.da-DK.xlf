@@ -203,7 +203,7 @@
         </trans-unit>
         <trans-unit id="Table 3252717750 - Field 3359429197 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Group Submission No.</source>
-          <target state="translated">Indsendt momsgruppenr.</target>
+          <target state="translated">Momsgruppeindsendelsesnr.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field VAT Group Submission No. - Property Caption</note>
         </trans-unit>

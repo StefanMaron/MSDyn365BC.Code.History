@@ -76,7 +76,7 @@ table 291 "Shipping Agent"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetTrackingInternetAddr(Rec, TrackingInternetAddr, IsHandled);
+        OnBeforeGetTrackingInternetAddr(Rec, TrackingInternetAddr, IsHandled, PackageTrackingNo);
         if IsHandled then
             exit;
 
@@ -89,7 +89,7 @@ table 291 "Shipping Agent"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetTrackingInternetAddr(var ShippingAgent: Record "Shipping Agent"; var TrackingInternetAddr: Text; var IsHandled: Boolean)
+    local procedure OnBeforeGetTrackingInternetAddr(var ShippingAgent: Record "Shipping Agent"; var TrackingInternetAddr: Text; var IsHandled: Boolean; PackageTrackingNo: Text[30])
     begin
     end;
 }

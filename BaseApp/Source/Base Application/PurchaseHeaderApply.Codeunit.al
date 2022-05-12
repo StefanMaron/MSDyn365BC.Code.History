@@ -39,6 +39,8 @@ codeunit 402 "Purchase Header Apply"
 
             Modify;
         end;
+
+        OnAfterOnRun(PurchHeader);
     end;
 
     var
@@ -48,6 +50,11 @@ codeunit 402 "Purchase Header Apply"
         ApplyVendEntries: Page "Apply Vendor Entries";
         PayToVendorNo: Code[20];
         OK: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var PurchHeader: Record "Purchase Header")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterFilterVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")

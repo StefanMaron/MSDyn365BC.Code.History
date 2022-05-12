@@ -1,6 +1,10 @@
 #if not CLEAN20
 codeunit 9250 "XBRL Deprecation Notification"
 {
+    ObsoleteTag = '20.0';
+    ObsoleteReason = 'This codeunit handles showing the XBRL deprecation notification, used on the XBRL pages that will now be deprecated. If you need to show this notification elsewhere, please create your custom notification instead.';
+    ObsoleteState = Pending;
+
     procedure Show()
     var
         MyNotifications: Record "My Notifications";

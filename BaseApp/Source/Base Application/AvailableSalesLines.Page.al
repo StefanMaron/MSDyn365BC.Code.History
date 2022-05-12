@@ -226,11 +226,7 @@ page 499 "Available - Sales Lines"
         if Abs(Rec."Outstanding Qty. (Base)") + Rec."Reserved Qty. (Base)" < ReserveQuantityBase then
             Error(Text003, Abs(Rec."Outstanding Qty. (Base)") + Rec."Reserved Qty. (Base)");
 
-        Rec.TestField("Job No.", '');
-        Rec.TestField("Drop Shipment", false);
-        Rec.TestField("No.", ReservEntry."Item No.");
-        Rec.TestField("Variant Code", ReservEntry."Variant Code");
-        Rec.TestField("Location Code", ReservEntry."Location Code");
+        CheckSalesLine();
 
         TrackingSpecification.InitTrackingSpecification(
             DATABASE::"Sales Line", Rec."Document Type".AsInteger(), Rec."Document No.", '', 0, Rec."Line No.",
@@ -238,6 +234,22 @@ page 499 "Available - Sales Lines"
         ReservMgt.CreateReservation(
           ReservEntry.Description, Rec."Shipment Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
         UpdateReservFrom();
+    end;
+
+    local procedure CheckSalesLine()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesLine(Rec, ReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec.TestField("Job No.", '');
+        Rec.TestField("Drop Shipment", false);
+        Rec.TestField("No.", ReservEntry."Item No.");
+        Rec.TestField("Variant Code", ReservEntry."Variant Code");
+        Rec.TestField("Location Code", ReservEntry."Location Code");
     end;
 
     local procedure UpdateReservFrom()
@@ -323,6 +335,11 @@ page 499 "Available - Sales Lines"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterUpdateReservMgt(var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLine(SalesLine: Record "Sales Line"; ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 }

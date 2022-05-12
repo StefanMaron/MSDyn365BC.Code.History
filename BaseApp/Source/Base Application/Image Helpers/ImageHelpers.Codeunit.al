@@ -8,36 +8,37 @@ codeunit 4112 "Image Helpers"
     var
         NoContentErr: Label 'The stream is empty.';
         UnknownImageTypeErr: Label 'Unknown image type.';
+        HTMLImgSrcTok: Label 'data:image/%1;base64,%2', Locked = true;
 
     procedure GetHTMLImgSrc(InStream: InStream): Text
     var
-        Base64Convert: Codeunit "Base64 Convert";
-        ImageFormatAsTxt: Text;
-    begin
-        if InStream.EOS then
-            exit('');
-        if not TryGetImageFormatAsTxt(InStream, ImageFormatAsTxt) then
-            exit('');
-        exit(StrSubstNo('data:image/%1;base64,%2', ImageFormatAsTxt, Base64Convert.ToBase64(InStream)));
-    end;
-
-    [TryFunction]
-    local procedure TryGetImageFormatAsTxt(InStream: InStream; var ImageFormatAsTxt: Text)
-    var
         Image: Codeunit Image;
     begin
-        Image.FromStream(InStream);
-        ImageFormatAsTxt := Image.GetFormatAsText();
+        if InStream.EOS() then
+            exit('');
+
+        if not TryGetImage(InStream, Image) then
+            exit('');
+
+        exit(StrSubstNo(HTMLImgSrcTok, Image.GetFormatAsText(), Image.ToBase64()));
     end;
 
     procedure GetImageType(InStream: InStream): Text
     var
-        ImageFormatAsTxt: Text;
+        Image: Codeunit Image;
     begin
-        if InStream.EOS then
+        if InStream.EOS() then
             Error(NoContentErr);
-        if not TryGetImageFormatAsTxt(InStream, ImageFormatAsTxt) then
+
+        if not TryGetImage(InStream, Image) then
             Error(UnknownImageTypeErr);
-        exit(ImageFormatAsTxt);
+
+        exit(Image.GetFormatAsText());
+    end;
+
+    [TryFunction]
+    local procedure TryGetImage(InStream: InStream; var Image: Codeunit Image)
+    begin
+        Image.FromStream(InStream);
     end;
 }

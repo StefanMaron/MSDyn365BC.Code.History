@@ -26,6 +26,13 @@ codeunit 131920 "Library - Job"
     var
         JobNo: Code[20];
     begin
+        CreateJob(Job, CreateCustomer());
+    end;
+
+    procedure CreateJob(var Job: Record Job; SellToCustomerNo: Code[20])
+    var
+        JobNo: Code[20];
+    begin
         // create a (LCY) job for a random customer
 
         // Find the next available job no.
@@ -37,7 +44,7 @@ codeunit 131920 "Library - Job"
         Job.Init();
         Job.Validate("No.", JobNo);
         Job.Insert(true);
-        Job.Validate("Sell-to Customer No.", CreateCustomer);
+        Job.Validate("Sell-to Customer No.", SellToCustomerNo);
         Job.Validate("Job Posting Group", FindJobPostingGroup);
         Job.Modify(true)
     end;

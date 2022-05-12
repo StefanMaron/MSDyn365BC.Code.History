@@ -23,6 +23,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     procedure CreateReservation(var ItemJnlLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
+        IsHandled: Boolean;
     begin
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text005);
@@ -47,15 +48,19 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             ExpectedReceiptDate := ItemJnlLine."Posting Date";
         end;
 
-        CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Item Journal Line",
-          ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
-          ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.", ItemJnlLine."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForReservEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(ItemJnlLine, Quantity, QuantityBase, ForReservEntry, IsHandled);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+                DATABASE::"Item Journal Line",
+                ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
+                ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.", ItemJnlLine."Qty. per Unit of Measure",
+                Quantity, QuantityBase, ForReservEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
-          ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Location Code",
-          Description, ExpectedReceiptDate, ShipmentDate, 0);
+            ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Location Code",
+            Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
     end;
@@ -545,6 +550,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var ItemJnlLine: REcord "Item Journal Line"; var ItemTrackingLines: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ItemJnlLine: Record "Item Journal Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 }

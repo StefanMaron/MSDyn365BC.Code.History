@@ -515,7 +515,7 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - NamedType 3769904544" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Interaction Template Setup needs to be configured.</source>
-          <target state="translated">Les paramètres du modèle interaction doivent être configurés.</target>
+          <target state="translated">Le paramétrage du modèle interaction doit être configuré.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType InvalidInteractionTemplateSetupTxt</note>
         </trans-unit>
@@ -575,7 +575,7 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - NamedType 82472981" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Interaction Template Setup is correctly configured.</source>
-          <target state="translated">Les paramètres du modèle interaction sont correctement configurés.</target>
+          <target state="translated">Le paramétrage du modèle interaction est correctement configuré.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType ValidInteractionTemplateSetupTxt</note>
         </trans-unit>
@@ -798,25 +798,25 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 2304772256 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Indicates that Interaction Template Setup needs to be configurred.</source>
-          <target state="translated">Indique que les paramètres modèle interaction doivent être configurés.</target>
+          <target state="translated">Indique que le paramétrage du modèle Interaction doit être configuré.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control InvalidInteractionTemplateSetup - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 2304772256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Interaction Template Setup needs to be configurred.</source>
-          <target state="translated">Les paramètres modèle interaction doivent être configurés.</target>
+          <target state="translated">Le paramétrage du modèle interaction doit être configuré.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control InvalidInteractionTemplateSetup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 468223293 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Indicates that Interaction Template Setup is correctly configurred.</source>
-          <target state="translated">Indique que les paramètres modèle interaction sont configurés correctement.</target>
+          <target state="translated">Indique que le paramétrage du modèle interaction est configuré correctement.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ValidInteractionTemplateSetup - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 468223293 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Interaction Template Setup is correctly configurred.</source>
-          <target state="translated">Les paramètres modèle interaction sont configurés correctement.</target>
+          <target state="translated">Le paramétrage du modèle interaction est configuré correctement.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ValidInteractionTemplateSetup - Property Caption</note>
         </trans-unit>

@@ -10,6 +10,7 @@ codeunit 6300 "Azure AD Mgt."
     var
         AzureADAppSetup: Record "Azure AD App Setup";
         TypeHelper: Codeunit "Type Helper";
+        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
         AzureADNotSetupErr: Label '%1 is not registered in your Azure Active Directory tenant.', Comment = '%1 - product name';
         O365ResourceNameTxt: Label 'Office 365 Services', Locked = true;
         OAuthLandingPageTxt: Label 'OAuthLanding.htm', Locked = true;
@@ -29,8 +30,6 @@ codeunit 6300 "Azure AD Mgt."
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceUrl: Text) AccessToken: Text
-    var
-        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         // This will return access token and also cache it for future use.
         AzureADAuthFlow.Initialize(GetRedirectUrl);
@@ -88,8 +87,6 @@ codeunit 6300 "Azure AD Mgt."
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure GetOnBehalfAccessToken(ResourceUrl: Text): Text
-    var
-        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         AzureADAuthFlow.Initialize(GetRedirectUrl);
         exit(AzureADAuthFlow.AcquireOnBehalfOfToken(ResourceUrl));
@@ -98,8 +95,6 @@ codeunit 6300 "Azure AD Mgt."
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetOnBehalfAccessTokenAndTokenCacheState(ResourceUrl: Text; var TokenCacheState: Text): Text
-    var
-        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         AzureADAuthFlow.Initialize(GetRedirectUrl);
         exit(AzureADAuthFlow.AcquireOnBehalfOfTokenAndTokenCacheState(ResourceUrl, TokenCacheState));
@@ -108,8 +103,6 @@ codeunit 6300 "Azure AD Mgt."
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetTokenFromTokenCacheState(ResourceId: Text; AadUserId: Text; TokenCacheState: Text; var NewTokenCacheState: Text): Text
-    var
-        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         AzureADAuthFlow.Initialize(GetRedirectUrl);
         exit(AzureADAuthFlow.AcquireTokenFromCacheState(ResourceId, AadUserId, TokenCacheState, NewTokenCacheState));
@@ -218,8 +211,6 @@ codeunit 6300 "Azure AD Mgt."
     end;
 
     local procedure GetClientId() ClientID: Text
-    var
-        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         if IsSaaS then begin
             AzureADAuthFlow.Initialize(GetRedirectUrl);
@@ -235,8 +226,6 @@ codeunit 6300 "Azure AD Mgt."
 
     [Scope('OnPrem')]
     procedure GetInitialTenantDomainName() InitialTenantDomainName: Text
-    var
-        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         if IsSaaS then begin
             AzureADAuthFlow.Initialize(GetRedirectUrl);
@@ -255,8 +244,6 @@ codeunit 6300 "Azure AD Mgt."
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure CreateExchangeServiceWrapperWithToken(Token: Text; var Service: DotNet ExchangeServiceWrapper)
-    var
-        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         AzureADAuthFlow.CreateExchangeServiceWrapperWithToken(Token, Service);
     end;
@@ -272,8 +259,6 @@ codeunit 6300 "Azure AD Mgt."
     [TryFunction]
     [NonDebuggable]
     local procedure AcquireGuestToken(ResourceName: Text; GuestTenantId: Text; var AccessToken: Text)
-    var
-        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         if IsSaaS then begin
             // This is SaaS-only functionality at this point, so On-Prem/PaaS will not retrieve an access token
@@ -286,8 +271,6 @@ codeunit 6300 "Azure AD Mgt."
     [TryFunction]
     [NonDebuggable]
     local procedure AcquireToken(ResourceName: Text; var AccessToken: Text)
-    var
-        AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         // This function will return access token for a resource
         // Need to run the Azure AD Setup wizard before calling into this.
@@ -304,6 +287,19 @@ codeunit 6300 "Azure AD Mgt."
                 AzureADAppSetup.GetSecretKeyFromIsolatedStorage(),
                 ResourceName);
         end;
+    end;
+
+    [NonDebuggable]
+    [Scope('OnPrem')]
+    procedure GetLastErrorMessage(): Text
+    var
+        AuthenticationError: Text;
+    begin
+        AuthenticationError := AzureADAuthFlow.GetLastErrorMessage();
+        if AuthenticationError <> '' then
+            exit(AuthenticationError);
+
+        exit(GetLastErrorText());
     end;
 }
 

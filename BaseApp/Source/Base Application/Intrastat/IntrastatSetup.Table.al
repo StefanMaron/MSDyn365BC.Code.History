@@ -57,6 +57,18 @@ table 247 "Intrastat Setup"
 #endif
             ObsoleteReason = 'Unconditionally replaced by Advanced Intrastat Checklist';
         }
+        field(9; "Cust. VAT No. on File"; Enum "Intrastat VAT No. On File")
+        {
+            Caption = 'Customer VAT No. on File';
+        }
+        field(10; "Vend. VAT No. on File"; Enum "Intrastat VAT No. On File")
+        {
+            Caption = 'Vendor VAT No. on File';
+        }
+        field(11; "Company VAT No. on File"; Enum "Intrastat VAT No. On File")
+        {
+            Caption = 'Company VAT No. on File';
+        }
     }
 
     keys

@@ -35,7 +35,6 @@ codeunit 1997 "Checklist Events"
         TempAllProfileAccountant: Record "All Profile" temporary;
         TempAllProfileSalesOrderProcessor: Record "All Profile" temporary;
         Checklist: Codeunit Checklist;
-        EnvironmentInformation: Codeunit "Environment Information";
         GuidedExperienceType: Enum "Guided Experience Type";
         SpotlightTourType: Enum "Spotlight Tour Type";
     begin
@@ -44,10 +43,7 @@ codeunit 1997 "Checklist Events"
 
         Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Business Manager Role Center", 1000, TempAllProfileBusinessManagerEval, true);
         Checklist.Insert(Page::"Customer List", SpotlightTourType::"Open in Excel", 2000, TempAllProfileBusinessManagerEval, true);
-
-        if EnvironmentInformation.IsSaaS() then
-            Checklist.Insert(Page::"Item Card", SpotlightTourType::"Share to Teams", 3000, TempAllProfileBusinessManagerEval, true);
-
+        Checklist.Insert(Page::"Item Card", SpotlightTourType::"Share to Teams", 3000, TempAllProfileBusinessManagerEval, true);
         Checklist.Insert(GuidedExperienceType::Video, YourSalesWithinOutlookVideoLinkTxt, 4000, TempAllProfileBusinessManagerEval, true);
 
         // Accountant

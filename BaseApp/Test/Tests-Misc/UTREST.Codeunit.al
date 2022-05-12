@@ -19,6 +19,7 @@ codeunit 139148 "UT REST"
         ExampleJwtTokenTxt: Label 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwOi8vd3d3LmV4YW1wbGUuY29tIiwiaXNzIjoic2VsZiIsIm5iZiI6MTM1Mzk3NDczNiwiZXhwIjoxMzUzOTc0ODU2LCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiUGVkcm8iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBdXRob3IifQ.a-Tu5ojQSyiGSzTb9E5QbEYxyhomywzh2wqKs4El7lc';
         UnableToParseJwtObjectErr: Label 'Unable to parse Jwt object.';
         HasJWTExpiredErr: Label 'HasJWTExpired function returns incorrect results for token expire date.';
+        ExpectedImageSrcTok: Label 'data:image/%1;base64,%2', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -137,6 +138,72 @@ codeunit 139148 "UT REST"
             Assert.IsTrue(SOAPWebServiceRequestMgt.HasJWTExpired(ExampleJwtTokenTxt), HasJWTExpiredErr);
         end else
             Error(UnableToParseJwtObjectErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetHTMLImgSrc()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        ImageHelpers: Codeunit "Image Helpers";
+        InStream: InStream;
+        ImageSrc: Text;
+        ImageBase64: Text;
+    begin
+        // [SCENARIO] TempBlob.GetHTMLImgSrc function returns 'data:image/Jpeg;base64,[ImageBase64]' for jpeg file imported into Blob
+
+        // [GIVEN] TempBlob with jpeg image
+        CreateTempBLOBImageJpeg(TempBlob, ImageBase64);
+        TempBlob.CreateInStream(InStream);
+
+        // [WHEN] Function GetHTMLImgSrc is being used
+        ImageSrc := ImageHelpers.GetHTMLImgSrc(InStream);
+
+        // [THEN] Returned value equal to 'data:image/Jpeg;base64,[ImageBase64]'
+        Assert.AreEqual(StrSubstNo(ExpectedImageSrcTok, 'Jpeg', ImageBase64), ImageSrc, InvalidValueErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetHTMLImgSrcEmptyBlob()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        ImageHelpers: Codeunit "Image Helpers";
+        InStream: InStream;
+        ImageSrc: Text;
+    begin
+        // [SCENARIO] TempBlob.GetHTMLImgSrc function returns '' in case of empty Blob.
+
+        // [GIVEN] Empty TempBlob
+        TempBlob.CreateInStream(InStream);
+
+        // [WHEN] Function GetHTMLImgSrc is being used
+        ImageSrc := ImageHelpers.GetHTMLImgSrc(InStream);
+
+        // [THEN] Returned value equal to ''
+        Assert.AreEqual('', ImageSrc, InvalidValueErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetHTMLImgSrcNonImageBlob()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        ImageHelpers: Codeunit "Image Helpers";
+        InStream: InStream;
+        ImageSrc: Text;
+    begin
+        // [SCENARIO] TempBlob.GetHTMLImgSrc function returns '' in case of Blob containing non-image file
+
+        // [GIVEN] TempBlob with XML file
+        CreateTempBLOBXML(TempBlob);
+        TempBlob.CreateInStream(InStream);
+
+        // [WHEN] Function GetHTMLImgSrc is being used
+        ImageSrc := ImageHelpers.GetHTMLImgSrc(InStream);
+
+        // [THEN] Returned value equal to ''
+        Assert.AreEqual('', ImageSrc, InvalidValueErr);
     end;
 
     [Test]
@@ -264,6 +331,22 @@ codeunit 139148 "UT REST"
 
         // [THEN] Error 'XML cannot be loaded.' displayed
         Assert.ExpectedError(XmlDocLoadErr);
+    end;
+
+    local procedure CreateTempBLOBImageJpeg(var TempBlob: Codeunit "Temp Blob"; var Base64String: Text)
+    var
+        ImageFormat: DotNet ImageFormat;
+        Bitmap: DotNet Bitmap;
+        Base64Convert: Codeunit "Base64 Convert";
+        OutStream: OutStream;
+        InStream: InStream;
+    begin
+        TempBlob.CreateOutStream(OutStream);
+        Bitmap := Bitmap.Bitmap(1, 1);
+        Bitmap.Save(OutStream, ImageFormat.Jpeg);
+        Bitmap.Dispose();
+        TempBlob.CreateInStream(InStream);
+        Base64String := Base64Convert.ToBase64(InStream);
     end;
 
     local procedure CreateTempBLOBImageJpeg(var TempBlob: Codeunit "Temp Blob")

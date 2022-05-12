@@ -269,6 +269,7 @@ codeunit 5870 "Calculate BOM Tree"
         LotSize: Decimal;
         BomQtyPerUom: Decimal;
         IsHandled: Boolean;
+        RunIteration: Boolean;
     begin
         ParentBOMBuffer := BOMBuffer;
         if not ProdBOMLine.ReadPermission then
@@ -360,8 +361,9 @@ codeunit 5870 "Calculate BOM Tree"
                    CertifiedRoutingVersionExists(ParentItem."Routing No.", WorkDate)
                 then begin
                     repeat
-                        OnGenerateProdCompSubTreeOnBeforeRoutingLineLoop(RoutingLine, BOMBuffer);
-                        if "No." <> '' then begin
+                        RunIteration := "No." <> '';
+                        OnGenerateProdCompSubTreeOnBeforeRoutingLineLoop(RoutingLine, BOMBuffer, RunIteration);
+                        if RunIteration then begin
                             BOMBuffer.SetLocationVariantFiltersFrom(ItemFilter);
                             BOMBuffer.TransferFromProdRouting(
                               EntryNo, RoutingLine, ParentBOMBuffer.Indentation + 1,
@@ -1125,7 +1127,7 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGenerateProdCompSubTreeOnBeforeRoutingLineLoop(var RoutingLine: Record "Routing Line"; var BOMBuffer: Record "BOM Buffer")
+    local procedure OnGenerateProdCompSubTreeOnBeforeRoutingLineLoop(var RoutingLine: Record "Routing Line"; var BOMBuffer: Record "BOM Buffer"; var RunIteration: Boolean)
     begin
     end;
 

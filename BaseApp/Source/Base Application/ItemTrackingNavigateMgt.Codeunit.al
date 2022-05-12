@@ -112,6 +112,8 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             FindSerialNoServiceItemComponent(ItemFilters);
             FindSerialNoServContractLine(ItemFilters);
             FindSerialNoFiledContractLine(ItemFilters);
+
+            OnFindTrackingRecordsOnAfterFindSerialNo(TempRecordBuffer, ItemFilters);
         end;
 
         // Only PackageNos
@@ -1410,6 +1412,11 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindTrackingRecordsForItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindTrackingRecordsOnAfterFindSerialNo(var TempRecordBuffer: Record "Record Buffer" temporary; ItemFilters: Record Item)
     begin
     end;
 

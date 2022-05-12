@@ -208,17 +208,22 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
     var
         SalesHeader: Record "Sales Header";
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         if SalesHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until SalesHeader.Next() = 0;
 
         if SalesQuoteEntityBuffer.FindSet(true, false) then
             repeat
-                if not SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuoteEntityBuffer."No.") then
+                if not SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuoteEntityBuffer."No.") then begin
                     SalesQuoteEntityBuffer.Delete(true);
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+                end;
             until SalesQuoteEntityBuffer.Next() = 0;
     end;
 

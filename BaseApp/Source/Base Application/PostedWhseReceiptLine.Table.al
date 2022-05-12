@@ -344,6 +344,7 @@ table 7319 "Posted Whse. Receipt Line"
             CreatePutAwayFromWhseSource.SetPostedWhseReceiptLine(PostedWhseRcptLine, AssignedID);
             CreatePutAwayFromWhseSource.SetHideValidationDialog(HideValidationDialog);
             CreatePutAwayFromWhseSource.UseRequestPage(not HideValidationDialog);
+            OnCreatePutAwayDocOnBeforeCreatePutAwayFromWhseSourceRunModal(PostedWhseRcptLine, AssignedID, HideValidationDialog, CreatePutAwayFromWhseSource);
             CreatePutAwayFromWhseSource.RunModal();
             CreatePutAwayFromWhseSource.GetResultMessage(1);
             Clear(CreatePutAwayFromWhseSource);
@@ -406,6 +407,11 @@ table 7319 "Posted Whse. Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePutAwayDoc(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; AssignedID: Code[50]; HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePutAwayDocOnBeforeCreatePutAwayFromWhseSourceRunModal(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; AssignedID: Code[50]; HideValidationDialog: Boolean; var CreatePutAwayFromWhseSource: Report "Whse.-Source - Create Document")
     begin
     end;
 }

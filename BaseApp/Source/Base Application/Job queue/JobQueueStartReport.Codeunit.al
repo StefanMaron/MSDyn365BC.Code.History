@@ -14,6 +14,7 @@ codeunit 487 "Job Queue Start Report"
         RecRef: RecordRef;
         OutStr: OutStream;
         RunOnRec: Boolean;
+        ShouldModifyNotifyOnSuccess: Boolean;
     begin
         SetReportTimeOut(JobQueueEntry);
 
@@ -66,10 +67,15 @@ codeunit 487 "Job Queue Start Report"
 
         case JobQueueEntry."Report Output Type" of
             JobQueueEntry."Report Output Type"::"None (Processing only)":
-                if JobQueueEntry."Notify On Success" = false then begin
-                    JobQueueEntry."Notify On Success" := true;
-                    JobQueueEntry.Modify();
+                begin
+                    ShouldModifyNotifyOnSuccess := JobQueueEntry."Notify On Success" = false;
+                    OnRunReportOnAfterCalcShouldModifyNotifyOnSuccess(ReportID, JobQueueEntry, ShouldModifyNotifyOnSuccess);
+                    if ShouldModifyNotifyOnSuccess then begin
+                        JobQueueEntry."Notify On Success" := true;
+                        JobQueueEntry.Modify();
+                    end;
                 end;
+
             JobQueueEntry."Report Output Type"::Print:
                 ;
             else begin
@@ -108,5 +114,10 @@ codeunit 487 "Job Queue Start Report"
                 ReportSettingsOverride.Insert();
             end;
         Commit();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunReportOnAfterCalcShouldModifyNotifyOnSuccess(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var ShouldModifyNotifyOnSuccess: Boolean)
+    begin
     end;
 }

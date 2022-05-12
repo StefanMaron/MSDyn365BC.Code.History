@@ -526,7 +526,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create job tasks and a Job Planning Line 
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Both Budget and Billable
@@ -565,7 +565,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create job tasks and a Job Planning Line 
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
@@ -607,7 +607,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create job tasks and a Job Planning Line 
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
@@ -659,7 +659,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create 1 Job task
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -727,7 +727,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create 1 Job task
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -809,7 +809,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create 1 Job task
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -867,7 +867,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryInventory.CreateItemVariant(NewItemVariant, Item."No.");
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create 1 Job task
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -1111,7 +1111,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create job tasks and a Job Planning Line 
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Both Budget and Billable
@@ -1152,7 +1152,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
@@ -1218,7 +1218,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         CreateAndPostInvtAdjustmentWithSNTracking(SerialTrackedItem."No.", LocationWithRequirePickBinMandatory.Code, Bin2.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] A Job with both the items in the planning lines
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
@@ -1287,7 +1287,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         CreateAndPostInvtAdjustmentWithSNTracking(SerialTrackedItem."No.", LocationWithRequirePickBinMandatory.Code, Bin2.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] A Job with both the items in the planning lines
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
@@ -1352,7 +1352,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         ItemLedgerEntry.FindSet();
 
         // [GIVEN] A Job with both the items in the planning lines
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
@@ -1411,7 +1411,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         ItemLedgerEntry.FindSet();
 
         // [GIVEN] A Job with both the items in the planning lines
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
@@ -1467,7 +1467,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         ItemLedgerEntry.FindSet();
 
         // [GIVEN] A Job with both the items in the planning lines
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
@@ -1698,7 +1698,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin2.Code, QtyInventoryBin2, LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] A Job with both the items in the planning lines
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
@@ -1793,7 +1793,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin2.Code, QtyInventoryBin2, LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] A Job with both the items in the planning lines
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
 
@@ -2177,15 +2177,8 @@ codeunit 136317 "Inv. Pick On Job Planning"
     var
         Job: Record Job;
     begin
-        CreateJobWithCustomer(Job, CreateCustomer(''));  // Blank value for Currency Code.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));  // Blank value for Currency Code.
         LibraryJob.CreateJobTask(Job, JobTask);
-    end;
-
-    local procedure CreateJobWithCustomer(var Job: Record Job; SellToCustomerNo: Code[20])
-    begin
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Sell-to Customer No.", SellToCustomerNo);
-        Job.Modify(true);
     end;
 
     local procedure CreateGLAccount(): Code[20]

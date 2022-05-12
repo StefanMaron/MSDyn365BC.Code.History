@@ -5,7 +5,7 @@ page 611 "IC Outbox Transactions"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Functions,Outbox Transaction';
+    PromotedActionCategories = 'New,Process,Report,Functions,Outbox Transaction,Actions';
     SourceTable = "IC Outbox Transaction";
     UsageCategory = Tasks;
 
@@ -195,96 +195,7 @@ page 611 "IC Outbox Transactions"
                 {
                     Caption = 'Set Line Action';
                     Image = SelectLineToApply;
-                    action("No Action")
-                    {
-                        ApplicationArea = Intercompany;
-                        Caption = 'No Action';
-                        Image = Cancel;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to No Action, to indicate that the transaction will remain in the outbox.';
-
-                        trigger OnAction()
-                        begin
-                            CurrPage.SetSelectionFilter(ICOutboxTransaction);
-                            if ICOutboxTransaction.Find('-') then
-                                repeat
-                                    ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"No Action";
-                                    ICOutboxTransaction.Modify();
-                                until ICOutboxTransaction.Next() = 0;
-                        end;
-                    }
-                    action(SendToICPartner)
-                    {
-                        ApplicationArea = Intercompany;
-                        Caption = 'Send to IC Partner';
-                        Image = SendMail;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to Send to IC Partner, to indicate that the transaction will be sent to the IC partner.';
-
-                        trigger OnAction()
-                        var
-                            ICOutboxExport: Codeunit "IC Outbox Export";
-                        begin
-                            CurrPage.SetSelectionFilter(ICOutboxTransaction);
-                            if ICOutboxTransaction.Find('-') then
-                                repeat
-                                    ICOutboxTransaction.Validate("Line Action", ICOutboxTransaction."Line Action"::"Send to IC Partner");
-                                    ICOutboxTransaction.Modify();
-                                until ICOutboxTransaction.Next() = 0;
-                            ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
-                        end;
-                    }
-                    action("Return to Inbox")
-                    {
-                        ApplicationArea = Intercompany;
-                        Caption = 'Return to Inbox';
-                        Image = Return;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to Return to Inbox, to indicate that the transaction will be sent back to the inbox for reevaluation.';
-
-                        trigger OnAction()
-                        var
-                            ICOutboxExport: Codeunit "IC Outbox Export";
-                        begin
-                            CurrPage.SetSelectionFilter(ICOutboxTransaction);
-                            if ICOutboxTransaction.Find('-') then
-                                repeat
-                                    TestField("Transaction Source", ICOutboxTransaction."Transaction Source"::"Rejected by Current Company");
-                                    ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"Return to Inbox";
-                                    ICOutboxTransaction.Modify();
-                                until ICOutboxTransaction.Next() = 0;
-                            ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
-                        end;
-                    }
-                    action(Cancel)
-                    {
-                        ApplicationArea = Intercompany;
-                        Caption = 'Cancel';
-                        Image = Cancel;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to Cancel, to indicate that the transaction will deleted from the outbox.';
-
-                        trigger OnAction()
-                        var
-                            ICOutboxExport: Codeunit "IC Outbox Export";
-                        begin
-                            CurrPage.SetSelectionFilter(ICOutboxTransaction);
-                            if ICOutboxTransaction.Find('-') then
-                                repeat
-                                    ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::Cancel;
-                                    ICOutboxTransaction.Modify();
-                                until ICOutboxTransaction.Next() = 0;
-                            ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
-                        end;
-                    }
+                    Visible = false;
                 }
                 separator(Action23)
                 {
@@ -292,13 +203,113 @@ page 611 "IC Outbox Transactions"
                 action("Complete Line Actions")
                 {
                     ApplicationArea = Intercompany;
-                    Caption = 'Complete Line Actions';
+                    Caption = 'Carry out Line Actions';
                     Image = CompleteLine;
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedOnly = true;
                     RunObject = Codeunit "IC Outbox Export";
-                    ToolTip = 'Complete the line with the action specified.';
+                    ToolTip = 'Carry out the actions that are specified on the lines.';
+                }
+            }
+            group(LineActions)
+            {
+                Caption = 'Actions';
+                Image = SelectLineToApply;
+
+                action("No Action")
+                {
+                    ApplicationArea = Intercompany;
+                    Caption = 'No Action';
+                    Image = Cancel;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
+                    Scope = Repeater;
+                    ToolTip = 'Sets the Line Action to No action so that the selected entries stay in the outbox.';
+
+                    trigger OnAction()
+                    begin
+                        CurrPage.SetSelectionFilter(ICOutboxTransaction);
+                        if ICOutboxTransaction.FindSet() then
+                            repeat
+                                ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"No Action";
+                                ICOutboxTransaction.Modify();
+                            until ICOutboxTransaction.Next() = 0;
+                    end;
+                }
+                action(SendToICPartner)
+                {
+                    ApplicationArea = Intercompany;
+                    Caption = 'Send to IC Partner';
+                    Image = SendMail;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
+                    Scope = Repeater;
+                    ToolTip = 'Will send the selected entries to the IC Partners.';
+
+                    trigger OnAction()
+                    var
+                        ICOutboxExport: Codeunit "IC Outbox Export";
+                    begin
+                        CurrPage.SetSelectionFilter(ICOutboxTransaction);
+                        if ICOutboxTransaction.FindSet() then
+                            repeat
+                                ICOutboxTransaction.Validate("Line Action", ICOutboxTransaction."Line Action"::"Send to IC Partner");
+                                ICOutboxTransaction.Modify();
+                            until ICOutboxTransaction.Next() = 0;
+                        ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
+                    end;
+                }
+                action("Return to Inbox")
+                {
+                    ApplicationArea = Intercompany;
+                    Caption = 'Return to Inbox';
+                    Image = Return;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
+                    Scope = Repeater;
+                    ToolTip = 'Will send the selected entries back to the Inbox for reevaluation.';
+
+                    trigger OnAction()
+                    var
+                        ICOutboxExport: Codeunit "IC Outbox Export";
+                    begin
+                        CurrPage.SetSelectionFilter(ICOutboxTransaction);
+                        if ICOutboxTransaction.FindSet() then
+                            repeat
+                                TestField("Transaction Source", ICOutboxTransaction."Transaction Source"::"Rejected by Current Company");
+                                ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"Return to Inbox";
+                                ICOutboxTransaction.Modify();
+                            until ICOutboxTransaction.Next() = 0;
+                        ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
+                    end;
+                }
+                action(Cancel)
+                {
+                    ApplicationArea = Intercompany;
+                    Caption = 'Cancel';
+                    Image = Cancel;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
+                    Scope = Repeater;
+                    ToolTip = 'Will delete the selected entries from the outbox.';
+
+                    trigger OnAction()
+                    var
+                        ICOutboxExport: Codeunit "IC Outbox Export";
+                    begin
+                        CurrPage.SetSelectionFilter(ICOutboxTransaction);
+                        if ICOutboxTransaction.FindSet() then
+                            repeat
+                                ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::Cancel;
+                                ICOutboxTransaction.Modify();
+                            until ICOutboxTransaction.Next() = 0;
+                        ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
+                    end;
                 }
             }
         }

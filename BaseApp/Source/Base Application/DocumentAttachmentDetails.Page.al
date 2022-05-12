@@ -1,4 +1,4 @@
-page 1173 "Document Attachment Details"
+﻿page 1173 "Document Attachment Details"
 {
     Caption = 'Attached Documents';
     DelayedInsert = true;
@@ -408,7 +408,7 @@ page 1173 "Document Attachment Details"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeImportWithFilter(TempBlob, FileName, IsHandled);
+        OnBeforeImportWithFilter(TempBlob, FileName, IsHandled, FromRecRef);
         if IsHandled then
             exit;
 
@@ -422,7 +422,7 @@ page 1173 "Document Attachment Details"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeImportWithFilter(var TempBlob: Codeunit "Temp Blob"; var FileName: Text; var IsHandled: Boolean)
+    local procedure OnBeforeImportWithFilter(var TempBlob: Codeunit "Temp Blob"; var FileName: Text; var IsHandled: Boolean; RecRef: RecordRef)
     begin
     end;
 }

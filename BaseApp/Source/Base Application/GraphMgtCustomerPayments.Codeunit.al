@@ -51,13 +51,20 @@ codeunit 5479 "Graph Mgt - Customer Payments"
     end;
 
     procedure UpdateIds()
+    begin
+        UpdateIds(false);
+    end;
+
+    procedure UpdateIds(WithCommit: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         with GenJournalLine do begin
             SetRange("Account Type", "Account Type"::Customer);
 
-            if FindSet() then
+            if FindSet() then begin
                 repeat
                     UpdateCustomerID;
 #if not CLEAN20                    
@@ -66,7 +73,13 @@ codeunit 5479 "Graph Mgt - Customer Payments"
                     UpdateAppliesToInvoiceID;
                     UpdateJournalBatchID;
                     Modify(false);
+                    if WithCommit then
+                        APIDataUpgrade.CountRecordsAndCommit(RecordCount);
                 until Next() = 0;
+
+                if WithCommit then
+                    Commit();
+            end;
         end;
     end;
 }

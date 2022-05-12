@@ -8,7 +8,6 @@ codeunit 99000757 "Update Prod. Order Cost"
     var
         SalesLine: Record "Sales Line";
         PurchLine: Record "Purchase Line";
-        ReqLine: Record "Requisition Line";
         ItemJnlLine: Record "Item Journal Line";
         ProdOrderComp: Record "Prod. Order Component";
         PlanningComponent: Record "Planning Component";
@@ -189,103 +188,17 @@ codeunit 99000757 "Update Prod. Order Cost"
         end;
     end;
 
-    local procedure SumTrackingCosts(var ReservEntry: Record "Reservation Entry"; var TotalUnitCost: Decimal; var TotalCostQty: Decimal; MultipleLevels: Boolean; Item: Record Item)
-    var
-        PurchLine: Record "Purchase Line";
-        ProdOrderLine: Record "Prod. Order Line";
+    local procedure SumTrackingCosts(var ReservEntry: Record "Reservation Entry"; var TotalUnitCost: Decimal; var TotalCostQty: Decimal; Item: Record Item)
     begin
         TotalUnitCost := 0;
         TotalCostQty := 0;
 
         repeat
-            case ReservEntry."Source Type" of
-                DATABASE::"Sales Line":
-                    begin
-                        SalesLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
-                        if SalesLine."Qty. per Unit of Measure" <> 0 then
-                            TotalUnitCost :=
-                              TotalUnitCost +
-                              Round(SalesLine."Unit Cost (LCY)" / SalesLine."Qty. per Unit of Measure", 0.00001) *
-                              ReservEntry.Quantity;
-                    end;
-                DATABASE::"Requisition Line":
-                    begin
-                        ReqLine.Get(ReservEntry."Source ID", ReservEntry."Source Batch Name", ReservEntry."Source Ref. No.");
-                        if ReqLine."Qty. per Unit of Measure" <> 0 then
-                            TotalUnitCost :=
-                              TotalUnitCost +
-                              Round(ReqLine."Direct Unit Cost" / ReqLine."Qty. per Unit of Measure", 0.00001) *
-                              ReservEntry.Quantity;
-                    end;
-                DATABASE::"Purchase Line":
-                    begin
-                        PurchLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
-                        if PurchLine."Qty. per Unit of Measure" <> 0 then
-                            TotalUnitCost :=
-                              TotalUnitCost +
-                              Round(PurchLine."Unit Cost (LCY)" / PurchLine."Qty. per Unit of Measure", 0.00001) *
-                              ReservEntry.Quantity;
-                    end;
-                DATABASE::"Item Journal Line":
-                    begin
-                        ItemJnlLine.Get(
-                          ReservEntry."Source ID", ReservEntry."Source Batch Name", ReservEntry."Source Ref. No.");
-                        if ItemJnlLine."Qty. per Unit of Measure" <> 0 then
-                            TotalUnitCost :=
-                              TotalUnitCost +
-                              Round(ItemJnlLine."Unit Cost" / ItemJnlLine."Qty. per Unit of Measure", 0.00001) *
-                              ReservEntry.Quantity;
-                    end;
-                DATABASE::"Prod. Order Line":
-                    begin
-                        ProdOrderLine.Get(
-                          ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Prod. Order Line");
-                        if MultipleLevels then begin
-                            UpdateUnitCostOnProdOrder(ProdOrderLine, MultipleLevels, false);
-                            ProdOrderLine.Get(
-                              ProdOrderLine.Status,
-                              ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
-                        end;
-                        if ProdOrderLine."Qty. per Unit of Measure" <> 0 then
-                            TotalUnitCost :=
-                              Round(ProdOrderLine."Unit Cost" / ProdOrderLine."Qty. per Unit of Measure", 0.00001) *
-                              ReservEntry.Quantity;
-                    end;
-                DATABASE::"Prod. Order Component":
-                    begin
-                        ProdOrderComp.Get(
-                          ReservEntry."Source Subtype",
-                          ReservEntry."Source ID",
-                          ReservEntry."Source Prod. Order Line",
-                          ReservEntry."Source Ref. No.");
-                        if ProdOrderComp."Qty. per Unit of Measure" <> 0 then
-                            TotalUnitCost :=
-                              TotalUnitCost +
-                              Round(Item."Unit Cost" / ProdOrderComp."Qty. per Unit of Measure", 0.00001) *
-                              ReservEntry.Quantity;
-                    end;
-                DATABASE::"Planning Component":
-                    begin
-                        PlanningComponent.Get(
-                          ReservEntry."Source ID", ReservEntry."Source Batch Name", ReservEntry."Source Prod. Order Line",
-                          ReservEntry."Source Ref. No.");
-                        if PlanningComponent."Qty. per Unit of Measure" <> 0 then
-                            TotalUnitCost :=
-                              TotalUnitCost +
-                              Round(Item."Unit Cost" / PlanningComponent."Qty. per Unit of Measure", 0.00001) *
-                              ReservEntry.Quantity;
-                    end;
-                DATABASE::"Service Line":
-                    begin
-                        ServiceInvLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
-                        if ServiceInvLine."Qty. per Unit of Measure" <> 0 then
-                            TotalUnitCost :=
-                              TotalUnitCost +
-                              Round(ServiceInvLine."Unit Cost (LCY)" / ServiceInvLine."Qty. per Unit of Measure", 0.00001) *
-                              ReservEntry.Quantity;
-                    end;
-            end;
-            TotalCostQty := TotalCostQty + ReservEntry.Quantity;
+            ProdOrderComp.Get(
+              ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Prod. Order Line", ReservEntry."Source Ref. No.");
+            if ProdOrderComp."Qty. per Unit of Measure" <> 0 then
+                TotalUnitCost += Item."Unit Cost" * ReservEntry.Quantity;
+            TotalCostQty += ReservEntry.Quantity;
         until ReservEntry.Next() = 0;
     end;
 
@@ -325,7 +238,7 @@ codeunit 99000757 "Update Prod. Order Cost"
                     ReservEntry.InitSortingAndFilters(true);
                     ProdOrderComp.SetReservationFilters(ReservEntry);
                     if ReservEntry.Find('-') then
-                        SumTrackingCosts(ReservEntry, TotalUnitCost, TotalCostQty, MultipleLevels, Item);
+                        SumTrackingCosts(ReservEntry, TotalUnitCost, TotalCostQty, Item);
                     ProdOrderComp.CalcFields("Reserved Qty. (Base)");
                     UpdateTotalUnitCostOnProdOrder(ProdOrderComp, Item, TotalUnitCost);
                     TotalCostQty :=

@@ -595,6 +595,11 @@ codeunit 9510 "Document Service Management"
             if not LocalDocumentService.FindFirst() then
                 Error(NoConfigErr);
 
+            if LocalDocumentService."Authentication Type" = LocalDocumentService."Authentication Type"::OAuth2 then begin
+                SetResourceLocation(LocalDocumentService);
+                EnsureDocumentServiceCache(LocalDocumentService, true);
+            end;
+
             SetProperties(true, LocalDocumentService);
         end;
 

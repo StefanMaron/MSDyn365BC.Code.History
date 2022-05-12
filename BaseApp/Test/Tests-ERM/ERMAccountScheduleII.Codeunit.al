@@ -1758,6 +1758,53 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleOverview.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleResetColumnLayoutOnAccountScheduleChangeAccScheduleOverviewPage()
+    var
+        AccScheduleName: array[2] of Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        AccountScheduleCurrentColumnName: Text;
+    begin
+        // [SCENARIO 430774] Account Schedule Overview switch to Account Schedule with no Default Column Layout should assign 'Default" Column Layout
+        Initialize();
+
+        // [GIVEN] Column Layout "CL"
+        ColumnLayoutName.GET(CreateColumnLayoutWithName(LibraryUtility.GenerateGUID));
+
+        // [GIVEN] Account Schedule "AS1" with with "Default Column Layout" = "CL", Account Schedule "AS2" with empty Default Column Layout
+        LibraryERM.CreateAccScheduleName(AccScheduleName[1]);
+        AccScheduleName[1].Validate("Default Column Layout", ColumnLayoutName.Name);
+        AccScheduleName[1].Modify();
+
+        LibraryERM.CreateAccScheduleName(AccScheduleName[2]);
+
+        // [GIVEN] Account Schedule Overview page is opened for "AS2"
+        AccountScheduleNames.OpenEdit();
+        AccountScheduleNames.FILTER.SetFilter(Name, AccScheduleName[2].Name);
+        AccScheduleOverview.Trap();
+        AccountScheduleNames.Overview.Invoke();
+
+        // [GIVEN] As "AS" has empty "Default Column Layout", Current Column Name = "Default" (w1)
+        AccountScheduleCurrentColumnName := AccScheduleOverview.CurrentColumnName.Value;
+        AccScheduleOverview.Close();
+
+        // [WHEN] Account Schedule Overview page is opened for "AS1"
+        AccountScheduleNames.FILTER.SetFilter(Name, AccScheduleName[1].Name);
+        AccScheduleOverview.Trap();
+        AccountScheduleNames.Overview.Invoke();
+
+        // [WHEN] Set "Account Schedule Name" = "AS2"
+        AccScheduleOverview.CurrentSchedName.SetValue(AccScheduleName[2].Name);
+
+        // [THEN] Current Column Name = "Default" (w1)
+        AccScheduleOverview.CurrentSchedName.AssertEquals(AccScheduleName[2].Name);
+        AccScheduleOverview.CurrentColumnName.AssertEquals(AccountScheduleCurrentColumnName);
+        AccScheduleOverview.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

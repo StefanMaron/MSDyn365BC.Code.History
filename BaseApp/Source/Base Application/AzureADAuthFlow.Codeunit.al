@@ -26,7 +26,10 @@ codeunit 6303 "Azure AD Auth Flow"
     var
         Uri: DotNet Uri;
     begin
-        if CanHandle then
+        if not IsNull(AuthFlow) then
+            exit;
+
+        if CanHandle() then
             AuthFlow := AuthFlow.ALAzureAdCodeGrantFlow(Uri.Uri(RedirectUri))
         else
             OnInitialize(RedirectUri, AuthFlow);
@@ -155,6 +158,14 @@ codeunit 6303 "Azure AD Auth Flow"
             Service := ServiceFactory.CreateServiceWrapperWithToken(Token)
         else
             OnCreateExchangeServiceWrapperWithToken(Token, Service);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetLastErrorMessage(): Text
+    begin
+        if not IsNull(AuthFlow) then
+            exit(AuthFlow.LastErrorMessage());
     end;
 
     local procedure CheckProvider()

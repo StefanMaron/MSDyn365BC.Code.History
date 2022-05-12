@@ -159,6 +159,7 @@
                     TempEmplPaymentBuffer."Dimension Set ID" := 0;
                     TempEmplPaymentBuffer."Employee Ledg. Entry No." := EmployeeLedgerEntry."Entry No.";
                     TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type" := EmployeeLedgerEntry."Document Type";
+                    OnCopyEmployeeLedgerEntriesToTempEmplPaymentBufferOnAfterAssignTempBufferFields(TempEmplPaymentBuffer, EmployeeLedgerEntry);
 
                     PaymentAmt := -EmployeeLedgerEntry."Remaining Amount";
 
@@ -264,6 +265,7 @@
         NewDimensionID: Integer;
         DimSetIDArr: array[10] of Integer;
     begin
+        OnBeforeUpdateDimensions(GenJnlLine, TempEmplPaymentBuffer);
         with GenJnlLine do begin
             NewDimensionID := "Dimension Set ID";
 
@@ -340,6 +342,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignCombinedDimensionSetID(var GenJournalLine: Record "Gen. Journal Line"; DimSetIDArr: array[10] of Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDimensions(var GenJournalLine: Record "Gen. Journal Line"; TempEmployeePaymentBuffer: Record "Employee Payment Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyEmployeeLedgerEntriesToTempEmplPaymentBufferOnAfterAssignTempBufferFields(var TempEmployeePaymentBuffer: Record "Employee Payment Buffer" temporary; EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 }

@@ -1019,6 +1019,8 @@ table 5080 "To-do"
            Task2.Get(Task2."Organizer To-do No.")
         then
             Task2.ArrangeOrganizerAttendee;
+
+        OnAfterInsertTask(Task2);
     end;
 
     local procedure InsertTaskAndRelatedData(Task2: Record "To-do"; var TaskInteractLanguage: Record "To-do Interaction Language"; var Attachment: Record Attachment; var Attendee: Record Attendee; var RMCommentLine: Record "Rlshp. Mgt. Comment Line") TaskNo: Code[20]
@@ -2211,7 +2213,14 @@ table 5080 "To-do"
     end;
 
     procedure StartWizard()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeStartWizard(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "Wizard Step" := "Wizard Step"::"1";
 
         "Wizard Contact Name" := GetContactName;
@@ -2226,8 +2235,10 @@ table 5080 "To-do"
 
         Duration := 1440 * 1000 * 60;
         Date := Today;
+        OnStartWizardOnAfterSetDate(Rec);
         GetEndDateTime;
 
+        OnStartWizardOnBeforeInsert(Rec);
         Insert;
         RunCreateTaskPage();
     end;
@@ -2981,6 +2992,11 @@ table 5080 "To-do"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertTask(var Todo: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeChangeTeam(var Task: Record "To-do"; var IsHandled: Boolean)
     begin
     end;
@@ -3027,6 +3043,11 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDuration(var Task: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStartWizard(var Todo: Record "To-do"; var IsHandled: Boolean)
     begin
     end;
 
@@ -3088,6 +3109,16 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnLogTaskInteractionOnBeforeTempSegLineInsert(var SegmentLine: Record "Segment Line"; Task: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartWizardOnAfterSetDate(var Task: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartWizardOnBeforeInsert(var Task: Record "To-do")
     begin
     end;
 }

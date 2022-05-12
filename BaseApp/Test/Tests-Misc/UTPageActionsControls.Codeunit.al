@@ -4465,9 +4465,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryApplicationArea.EnableJobsSetup;
 
         // [GIVEN] Job and Contact "C1"
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", '');
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, '');
 
         LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
 

@@ -13,6 +13,7 @@ codeunit 132561 "Test Bank Account Tables"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         NotExpectedBankActNoErr: Label 'The GetBankAccountNoWithCheck does not return the expected information';
         MissingBankInfoErr: Label 'You must specify either a %1 or an %2.';
@@ -26,6 +27,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 1] GetBankAccountNoWithCheck returns IBAN when the IBAN field is filled.
+        Initialize();
+
         // [GIVEN] Bank Account with non empty values on both Bank Account No. and IBAN fields.
         LibraryERM.CreateBankAccount(BankAccount1);
         BankAccount1."Bank Account No." := LibraryUtility.GenerateRandomCode(BankAccount1.FieldNo("Bank Account No."),
@@ -52,6 +55,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 2] GetBankAccountNoWithCheck returns Bank Account No. field value when the IBAN field is empty.
+        Initialize();
+
         // [GIVEN] Bank Account with empty IBAN field and non empty value on the Bank Account No. field.
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Bank Branch No." := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Bank Branch No."),
@@ -74,6 +79,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 3] GetBankAccountNoWithCheck throws an error when both Bank Account No. and IBAN fields have empty value.
+        Initialize();
+
         // [GIVEN] Bank Account with empty values on both Bank Account No. and IBAN fields.
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Bank Account No." := '';
@@ -97,6 +104,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Customer Bank Account] [UT]
         // [SCENARIO 4] GetBankAccountNoWithCheck returns IBAN when the IBAN field is filled.
+        Initialize();
+
         // [GIVEN] Customer Bank Account with non empty values on both Bank Account No. and IBAN fields.
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount1, Customer."No.");
@@ -125,6 +134,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Customer Bank Account] [UT]
         // [SCENARIO 5] GetBankAccountNoWithCheck returns Bank Account No. field value when the IBAN field is empty.
+        Initialize();
+
         // [GIVEN] Customer Bank Account with empty IBAN field and non empty value on the Bank Account No. field.
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
@@ -150,6 +161,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Customer Bank Account] [UT]
         // [SCENARIO 6] GetBankAccountNoWithCheck throws an error when both Bank Account No. and IBAN fields have empty value.
+        Initialize();
+
         // [GIVEN] Customer Bank Account with empty values on both Bank Account No. and IBAN fields.
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
@@ -174,6 +187,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Vendor Bank Account] [UT]
         // [SCENARIO 7] GetBankAccountNoWithCheck returns IBAN when the IBAN field is filled.
+        Initialize();
+
         // [GIVEN] Vendor Bank Account with non empty values on both Bank Account No. and IBAN fields.
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount1, Vendor."No.");
@@ -202,6 +217,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Vendor Bank Account] [UT]
         // [SCENARIO 8] GetBankAccountNoWithCheck returns Bank Account No. field value when the IBAN field is empty.
+        Initialize();
+
         // [GIVEN] Vendor Bank Account with empty IBAN field and non empty value on the Bank Account No. field.
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
@@ -227,6 +244,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Vendor Bank Account] [UT]
         // [SCENARIO 9] GetBankAccountNoWithCheck throws an error when both Bank Account No. and IBAN fields have empty value.
+        Initialize();
+
         // [GIVEN] Vendor Bank Account with empty values on both Bank Account No. and IBAN fields.
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
@@ -250,6 +269,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Last Payment Statement No.] [UT]
         // [SCENARIO 108830] Bank Statement Import - when typing letters in "Last Payment Statement No." on the Bank Account, it blocks bank statement import
+        Initialize();
+
         // [GIVEN] Bank Account
         LibraryERM.CreateBankAccount(BankAccount);
 
@@ -271,6 +292,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Last Payment Statement No.] [UT]
         // [SCENARIO 108830] Bank Statement Import - when typing letters in "Last Payment Statement No." on the Bank Account, it blocks bank statement import
+        Initialize();
+
         // [GIVEN] Bank Account
         LibraryERM.CreateBankAccount(BankAccount);
         // [WHEN] entering a value with digits into "Last Payment Statement No."
@@ -288,6 +311,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Customer][Customer Bank Account][UT]
         // [SCENARIO 377811] Field "Preferred Bank Account Code" of Customer should be empty after deleting Customer Bank Account
+        Initialize();
+
         // [GIVEN] Customer with Customer Bank Account
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
@@ -312,6 +337,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Customer][Customer Bank Account][UT]
         // [SCENARIO 377811] Field "Preferred Bank Account Code" of Customer should contains value when deleting not-assined Customer Bank Account
+        Initialize();
+
         // [GIVEN] Customer with two Customer Bank Accounts - "X1" and "X2"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
@@ -338,6 +365,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Vendor][Vendor Bank Account][UT]
         // [SCENARIO 377811] Field "Preferred Bank Account Code" of Vendor should be empty after deleting Vendor Bank Account
+        Initialize();
+
         // [GIVEN] Vendor with Vendor Bank Account
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
@@ -362,6 +391,8 @@ codeunit 132561 "Test Bank Account Tables"
     begin
         // [FEATURE] [Vendor][Vendor Bank Account][UT]
         // [SCENARIO 377811] Field "Preferred Bank Account Code" of Vendor should contains value when deleting not-assined Vendor Bank Account
+        Initialize();
+
         // [GIVEN] Vendor with two Vendor Bank Accounts - "X1" and "X2"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
@@ -388,6 +419,8 @@ codeunit 132561 "Test Bank Account Tables"
         BankAccountCard: TestPage "Bank Account Card";
     begin
         // [FEATURE] [Link Online Bank Account] [UT]
+        Initialize();
+
         // [GIVEN] Bank Account
         LibraryERM.CreateBankAccount(BankAccount);
 
@@ -399,6 +432,21 @@ codeunit 132561 "Test Bank Account Tables"
         BankAccountCard.OpenView;
         BankAccountCard.GotoRecord(BankAccount);
         Assert.IsFalse(BankAccountList.LinkToOnlineBankAccount.Visible, 'card');
+    end;
+
+    local procedure Initialize()
+    var
+        IsInitialized: Boolean;
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Bank Account Tables");
+
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Bank Account Tables");
+        IsInitialized := true;
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Bank Account Tables");
     end;
 }
 

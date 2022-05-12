@@ -111,7 +111,12 @@ page 4760 "Create Contoso Demo Data"
 
                 trigger OnAction()
                 begin
+                    Telemetry.LogMessage('0000H72', StrSubstNo(ContosoCoffeeDemoDatasetInitilizationTok, ContosoCoffeeDemoDatasetFeatureNameTok),
+                        Verbosity::Normal, DataClassification::SystemMetadata);
+
                     CreateManufacturingDemoData.Create();
+                    IsDemoDataPopulated := true;
+                    Message(DemoDataInsertedMsg)
                 end;
             }
         }
@@ -119,11 +124,18 @@ page 4760 "Create Contoso Demo Data"
 
     trigger OnOpenPage()
     begin
+        FeatureTelemetry.LogUptake('0000GYT', ContosoCoffeeDemoDatasetFeatureNameTok, Enum::"Feature Uptake Status"::Discovered);
+
         CreateManufacturingDemoData.InitManufacturingDemoDataSetup();
         IsDemoDataPopulated := CreateManufacturingDemoData.IsDemoDataPopulated();
     end;
 
     var
         CreateManufacturingDemoData: Codeunit "Create Manufacturing DemoData";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        Telemetry: Codeunit Telemetry;
         IsDemoDataPopulated: Boolean;
+        DemoDataInsertedMsg: Label 'The Contoso Coffee demo data is now available in the current company.';
+        ContosoCoffeeDemoDatasetFeatureNameTok: Label 'ContosoCoffeeDemoDataset', Locked = true;
+        ContosoCoffeeDemoDatasetInitilizationTok: Label '%1: installation initialized from page', Locked = true;
 }

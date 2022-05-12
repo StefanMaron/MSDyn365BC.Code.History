@@ -14,31 +14,15 @@ report 99001020 "Carry Out Action Msg. - Plan."
             begin
                 OnBeforeRequisitionLineOnAfterGetRecord("Requisition Line", CombineTransferOrders);
 
-                WindowUpdate;
+                if not HideDialog then
+                    WindowUpdate();
 
                 if not "Accept Action Message" then
                     CurrReport.Skip();
                 LockTable();
 
                 Commit();
-                case "Ref. Order Type" of
-                    "Ref. Order Type"::"Prod. Order":
-                        if ProdOrderChoice <> ProdOrderChoice::" " then
-                            CarryOutActions(2, ProdOrderChoice.AsInteger(), ProdWkshTempl, ProdWkshName);
-                    "Ref. Order Type"::Purchase:
-                        if PurchOrderChoice = PurchOrderChoice::"Copy to Req. Wksh" then
-                            CarryOutActions(0, PurchOrderChoice.AsInteger(), ReqWkshTemp, ReqWksh);
-                    "Ref. Order Type"::Transfer:
-                        if TransOrderChoice <> TransOrderChoice::" " then begin
-                            CarryOutAction.SetSplitTransferOrders(not CombineTransferOrders);
-                            CarryOutActions(1, TransOrderChoice.AsInteger(), TransWkshTemp, TransWkshName);
-                        end;
-                    "Ref. Order Type"::Assembly:
-                        if AsmOrderChoice <> AsmOrderChoice::" " then
-                            CarryOutActions(3, AsmOrderChoice.AsInteger(), '', '');
-                    else
-                        CurrReport.Skip();
-                end;
+                RunCarryOutActionsByRefOrderType("Requisition Line");
                 Commit();
 
                 OnAfterRequisitionLineOnAfterGetRecord("Requisition Line", ProdOrderChoice.AsInteger());
@@ -46,7 +30,8 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                if not HideDialog then
+                    Window.Close();
 
                 CarryOutAction.PrintTransferOrders;
 
@@ -99,8 +84,9 @@ report 99001020 "Carry Out Action Msg. - Plan."
                 if ProdOrderChoice = ProdOrderChoice::"Copy to Req. Wksh" then
                     CheckCopyToWksh(ProdWkshTempl, ProdWkshName);
 
-                Window.Open(Text012);
-                CheckPreconditions;
+                if not HideDialog then
+                    Window.Open(Text012);
+                CheckPreconditions();
                 CounterTotal := Count;
             end;
         }
@@ -331,6 +317,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
         PrintOrders: Boolean;
         CombineTransferOrders: Boolean;
         ReserveforPlannedProd: Boolean;
+        HideDialog: Boolean;
         NoPlanningResiliency: Boolean;
         Text009: Label 'You must select a worksheet to copy to';
         Text010: Label 'Components were not reserved for orders with status Planned.';
@@ -354,6 +341,36 @@ report 99001020 "Carry Out Action Msg. - Plan."
         end else
             if not CarryOutAction.TryCarryOutAction(SourceType, "Requisition Line", Choice, WkshTempl, WkshName) then
                 CounterFailed := CounterFailed + 1;
+    end;
+
+    local procedure RunCarryOutActionsByRefOrderType(var RequisitionLine: Record "Requisition Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunCarryOutActionsByRefOrderType(RequisitionLine, PurchOrderChoice, ReqWkshTemp, ReqWksh, NoPlanningResiliency, CounterFailed, IsHandled);
+        if IsHandled then
+            exit;
+
+        with RequisitionLine do
+            case "Ref. Order Type" of
+                "Ref. Order Type"::"Prod. Order":
+                    if ProdOrderChoice <> ProdOrderChoice::" " then
+                        CarryOutActions(2, ProdOrderChoice.AsInteger(), ProdWkshTempl, ProdWkshName);
+                "Ref. Order Type"::Purchase:
+                    if PurchOrderChoice = PurchOrderChoice::"Copy to Req. Wksh" then
+                        CarryOutActions(0, PurchOrderChoice.AsInteger(), ReqWkshTemp, ReqWksh);
+                "Ref. Order Type"::Transfer:
+                    if TransOrderChoice <> TransOrderChoice::" " then begin
+                        CarryOutAction.SetSplitTransferOrders(not CombineTransferOrders);
+                        CarryOutActions(1, TransOrderChoice.AsInteger(), TransWkshTemp, TransWkshName);
+                    end;
+                "Ref. Order Type"::Assembly:
+                    if AsmOrderChoice <> AsmOrderChoice::" " then
+                        CarryOutActions(3, AsmOrderChoice.AsInteger(), '', '');
+                else
+                    CurrReport.Skip();
+            end;
     end;
 
     procedure SetCreatedDocumentBuffer(var TempDocumentEntryNew: Record "Document Entry" temporary)
@@ -428,6 +445,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
         ReqWksh := NewReqWksh;
         TransWkshTemp := NewTransWkshTemp;
         TransWkshName := NewTransWkshName;
+    end;
+
+    procedure SetHideDialog(NewHideDialog: Boolean)
+    begin
+        HideDialog := NewHideDialog;
     end;
 
     local procedure SetReqLineFilters()
@@ -667,6 +689,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforePreReport()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeRunCarryOutActionsByRefOrderType(var RequisitionLine: Record "Requisition Line"; PurchOrderChoice: Enum "Planning Create Purchase Order"; ReqWkshTemp: Code[10]; ReqWksh: Code[10]; NoPlanningResiliency: Boolean; var CounterFailed: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -70,8 +70,15 @@ codeunit 5472 "Graph Mgt - Vendor"
     end;
 
     procedure UpdateIds()
+    begin
+        UpdateIds(false);
+    end;
+
+    procedure UpdateIds(WithCommit: Boolean)
     var
         Vendor: Record Vendor;
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         if not Vendor.FindSet(true, false) then
             exit;
@@ -79,7 +86,13 @@ codeunit 5472 "Graph Mgt - Vendor"
         repeat
             Vendor.UpdateReferencedIds;
             Vendor.Modify(false);
+            if WithCommit then
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
         until Vendor.Next() = 0;
+
+        if WithCommit then
+            Commit();
     end;
+
 }
 

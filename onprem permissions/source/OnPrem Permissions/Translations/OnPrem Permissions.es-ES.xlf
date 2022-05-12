@@ -599,7 +599,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3464226675 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Outlook Synch. common user</source>
-          <target state="translated">Usuario medio Outlook Synch.</target>
+          <target state="translated">Usuario medio sinc. Outlook</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet OSYNCHUSER - Property Caption</note>
         </trans-unit>

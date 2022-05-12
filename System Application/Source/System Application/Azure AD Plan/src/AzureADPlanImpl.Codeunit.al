@@ -610,16 +610,17 @@ codeunit 9018 "Azure AD Plan Impl."
         PlanConfigurationImpl: Codeunit "Plan Configuration Impl.";
         UserGroupsAdded, PlanConfigurationContainsSuper, IsPlanConfigurationCustomized, ShouldRemoveSuper : Boolean;
     begin
-        // Have any plans been added to this user in O365, since last time he logged-in to NAV?
+        // Have any plans been added to this user in O365, since last time he logged-in to BC?
         // For each plan assigned to the user in Office
         if Plan.FindSet() then
             repeat
-                // Does this assignment exist in NAV? If not, add it.
+                // Does this assignment exist in BC? If not, add it.
+                UserPlan.LockTable();
                 UserPlan.SetRange("Plan ID", Plan."Plan ID");
                 UserPlan.SetRange("User Security ID", UserSecurityID);
+                
                 if UserPlan.IsEmpty() then begin
                     InsertFromTempPlan(Plan);
-                    UserPlan.LockTable();
                     UserPlan.Init();
                     UserPlan."Plan ID" := Plan."Plan ID";
                     UserPlan."User Security ID" := UserSecurityID;

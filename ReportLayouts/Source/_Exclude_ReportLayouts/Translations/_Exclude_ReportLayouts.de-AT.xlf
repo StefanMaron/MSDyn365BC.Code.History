@@ -3,6 +3,12 @@
   <file datatype="xml" source-language="en-US" target-language="de-AT" original="_Exclude_ReportLayouts">
     <body>
       <group id="body">
+        <trans-unit id="Codeunit 405457715 - NamedType 3150583444" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You are about to delete the currently selected default layout "%1", for report "%2". Do you want to continue? A new default layout must be selected manually from the Report Layout Selection page.</source>
+          <target state="translated">Sie sind im Begriff, das derzeit ausgewählte Standardlayout „%1“ für den Bericht „%2“ zu löschen. Möchten Sie fortfahren? Ein neues Standardlayout muss manuell auf der Seite „Berichtslayoutauswahl“ ausgewählt werden.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Layout Name, %2 = Report Name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType DefaultLayoutDeleteTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 405457715 - NamedType 3964024005" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>"%1" has been set as the default layout for Report "%2"</source>
           <target state="translated">„%1“ wurde als Standardlayout für Bericht „%2“ festgelegt.</target>
@@ -68,6 +74,11 @@
           <target state="translated">Ein Layout mit dem Namen „%1“ ist bereits vorhanden.</target>
           <note from="Developer" annotates="general" priority="2">%1 = Layout Name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - NamedType LayoutAlreadyExistsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 405457715 - Method 2514614780 - NamedType 3534996316" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Report Layouts Impl. - Method EditReportLayout - NamedType AllCompaniesTxt</note>
         </trans-unit>
         <trans-unit id="Page 3127504812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Edit Report Layout</source>
@@ -171,6 +182,18 @@
           <note from="Developer" annotates="general" priority="2">%1 = ReportID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - NamedType ReportNotFoundErr</note>
         </trans-unit>
+        <trans-unit id="Page 3477173036 - Control 2254898066 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the layout should be available in all companies or just the current company.</source>
+          <target state="translated">Gibt an, ob das Layout in allen Unternehmen oder nur im aktuellen Unternehmen verfügbar sein soll.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control AvailableInAllCompanies - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3477173036 - Control 2254898066 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Available in All Companies</source>
+          <target state="translated">In allen Unternehmen verfügbar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control AvailableInAllCompanies - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3477173036 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a description for the layout.</source>
           <target state="translated">Gibt eine Beschreibung für das Layout an.</target>
@@ -184,10 +207,16 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control Description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3477173036 - Control 2623053165 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specified the format of the layout.</source>
-          <target state="translated">Legt das Format des Layouts fest.</target>
+          <source>Specifies the format of the layout.</source>
+          <target state="translated">Gibt das Format des Layouts an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control Format Options - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3477173036 - Control 2623053165 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Format Options</source>
+          <target state="translated">Formatoptionen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control Format Options - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3477173036 - Control 2623053165 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>RDLC,Word,Excel,External</source>

@@ -427,10 +427,16 @@ table 7504 "Item Attribute Value Selection"
         exit(ItemAttributeValue.ID);
     end;
 
-    procedure IsNotBlankDecimal(TextValue: Text[250]): Boolean
+    procedure IsNotBlankDecimal(TextValue: Text[250]) Result: Boolean
     var
         ItemAttribute: Record "Item Attribute";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsNotBlankDecimal(Rec, TextValue, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if TextValue = '' then
             exit(false);
         ItemAttribute.Get("Attribute ID");
@@ -449,6 +455,11 @@ table 7504 "Item Attribute Value Selection"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindItemAttributeCaseInsensitive(var ItemAttribute: Record "Item Attribute"; var ItemAttributeValueSelection: Record "Item Attribute Value Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsNotBlankDecimal(var ItemAttributeValueSelection: Record "Item Attribute Value Selection"; TextValue: Text[250]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

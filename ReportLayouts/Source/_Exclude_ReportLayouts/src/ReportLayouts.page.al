@@ -40,7 +40,7 @@ page 9660 "Report Layouts"
                     Caption = 'Report Name';
                     ToolTip = 'Specifies the name of the report.';
                 }
-                field("Layout Name"; Rec."Name")
+                field("Layout Name"; Rec."Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -220,7 +220,7 @@ page 9660 "Report Layouts"
                         Error(ModifyNonUserLayoutErr);
 
                     if Dialog.Confirm(StrSubstNo(ReplaceConfirmationTxt, Rec."Name"), false) then
-                        ReportLayoutsImpl.UploadNewLayout("Report ID", "Name", "Description", "Layout Format", ReturnReportID, ReturnLayoutName);
+                        ReportLayoutsImpl.ReplaceLayout("Report ID", "Name", "Description", "Layout Format", ReturnReportID, ReturnLayoutName);
                 end;
             }
         }
@@ -248,11 +248,21 @@ page 9660 "Report Layouts"
     trigger OnDeleteRecord(): Boolean
     var
         TenantReportLayout: Record "Tenant Report Layout";
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
     begin
         TenantReportLayout.Init();
-        if TenantReportLayout.Get("Report ID", "Name", EmptyGuid) then
-            TenantReportLayout.Delete(true)
-        else
+        if Rec."User Defined" then begin
+            TenantReportLayout.Get(Rec."Report ID", Rec."Name", EmptyGuid);
+            // If the selected layout is the default layout for the current report.
+            if TenantReportLayoutSelection.Get(Rec."Report ID", CompanyName(), EmptyGuid) then
+                if TenantReportLayoutSelection."Layout Name" = Rec.Name then
+                    // selected layout is the default layout. In this case we confirm the deletion.
+                    if not ReportLayoutsImpl.ConfirmDeleteDefaultLayoutSelection(Rec, TenantReportLayoutSelection) then
+                        exit(false);
+
+            TenantReportLayout.Delete(true);
+
+        end else
             Error(ModifyNonUserLayoutErr);
 
         CurrPage.Update(false);
@@ -276,6 +286,8 @@ page 9660 "Report Layouts"
     var
         CurrReportLayoutList: Record "Report Layout List";
     begin
+        if (ReportID = 0) or (LayoutName = '') then
+            exit;
         if CurrReportLayoutList.get(ReportID, LayoutName, EmptyGuid) then begin
             CurrPage.SetRecord(CurrReportLayoutList);
             CurrPage.Update(false);

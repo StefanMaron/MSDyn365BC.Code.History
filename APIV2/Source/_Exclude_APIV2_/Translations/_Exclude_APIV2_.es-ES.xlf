@@ -5555,13 +5555,13 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 883773547 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Buy-from Address Line 1</source>
-          <target state="translated">Línea 1 de dirección de compra</target>
+          <target state="translated">Línea 1 de Compra a-Dirección</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 2796863398 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Buy-from Address Line 2</source>
-          <target state="translated">Línea 2 de dirección de compra</target>
+          <target state="translated">Línea 2 de Compra a-Dirección</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromAddressLine2 - Property Caption</note>
         </trans-unit>
@@ -5747,13 +5747,13 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 354324300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Address Line 1</source>
-          <target state="translated">Línea 1 de dirección de envío</target>
+          <target state="translated">Línea 1 de Dirección de envío</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 992020917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Address Line 2</source>
-          <target state="translated">Línea 2 de dirección de envío</target>
+          <target state="translated">Línea 2 de Dirección de envío</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToAddressLine2 - Property Caption</note>
         </trans-unit>

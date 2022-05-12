@@ -64,8 +64,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field RedirectURL - Property Caption</note>
         </trans-unit>
         <trans-unit id="Codeunit 3663318601 - NamedType 1632511380" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not get access token. Please, try to log out and log in again.</source>
-          <target state="translated">Det gick inte att hämta åtkomsttoken. Försök logga ut och logga in igen.</target>
+          <source>Could not get access token.</source>
+          <target state="translated">Det gick inte att hämta åtkomsttoken.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - NamedType CouldNotGetAccessTokenErr</note>
         </trans-unit>

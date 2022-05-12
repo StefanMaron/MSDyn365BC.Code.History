@@ -260,6 +260,21 @@ page 514 "Item Avail. by Lot No. Lines"
         Clear(AvailabilityInfoBuffer);
         AvailabilityInfoBuffer.DeleteAll();
 
+        ItemByLotNoItemLedg.SetRange(Item_No, ItemNo);
+        ItemByLotNoItemLedg.SetFilter(Variant_Code, Item.GetFilter("Variant Filter"));
+        ItemByLotNoItemLedg.SetFilter(Location_Code, Item.GetFilter("Location Filter"));
+        ItemByLotNoItemLedg.Open();
+        while ItemByLotNoItemLedg.Read() do
+            if ItemByLotNoItemLedg.Lot_No <> '' then
+                if not LotDictionary.ContainsKey(ItemByLotNoItemLedg.Lot_No) then begin
+                    LotDictionary.Add(ItemByLotNoItemLedg.Lot_No, '');
+                    AvailabilityInfoBuffer.Init();
+                    AvailabilityInfoBuffer."Item No." := Item."No.";
+                    AvailabilityInfoBuffer."Lot No." := ItemByLotNoItemLedg.Lot_No;
+                    AvailabilityInfoBuffer."Expiration Date" := ItemByLotNoItemLedg.Expiration_Date;
+                    AvailabilityInfoBuffer.Insert();
+                end;
+
         // Expected Receipt Date for positive reservation entries.
         ItemByLotNoRes.SetRange(Item_No, ItemNo);
         ItemByLotNoRes.SetFilter(Quantity__Base_, '>0');
@@ -277,21 +292,6 @@ page 514 "Item Avail. by Lot No. Lines"
         ItemByLotNoRes.SetFilter(Variant_Code, Item.GetFilter("Variant Filter"));
         ItemByLotNoRes.SetFilter(Location_Code, Item.GetFilter("Location Filter"));
         AddReservationEntryLotNos(AvailabilityInfoBuffer, ItemByLotNoRes, LotDictionary);
-
-        ItemByLotNoItemLedg.SetRange(Item_No, ItemNo);
-        ItemByLotNoItemLedg.SetFilter(Variant_Code, Item.GetFilter("Variant Filter"));
-        ItemByLotNoItemLedg.SetFilter(Location_Code, Item.GetFilter("Location Filter"));
-        ItemByLotNoItemLedg.Open();
-        while ItemByLotNoItemLedg.Read() do
-            if ItemByLotNoItemLedg.Lot_No <> '' then
-                if not LotDictionary.ContainsKey(ItemByLotNoItemLedg.Lot_No) then begin
-                    LotDictionary.Add(ItemByLotNoItemLedg.Lot_No, '');
-                    AvailabilityInfoBuffer.Init();
-                    AvailabilityInfoBuffer."Item No." := Item."No.";
-                    AvailabilityInfoBuffer."Lot No." := ItemByLotNoItemLedg.Lot_No;
-                    AvailabilityInfoBuffer."Expiration Date" := ItemByLotNoItemLedg.Expiration_Date;
-                    AvailabilityInfoBuffer.Insert();
-                end;
     end;
 
     local procedure AddReservationEntryLotNos(

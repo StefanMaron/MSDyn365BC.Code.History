@@ -27,6 +27,7 @@ codeunit 99000834 "Purch. Line-Reserve"
     var
         ShipmentDate: Date;
         SignFactor: Integer;
+        IsHandled: Boolean;
     begin
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text004);
@@ -59,16 +60,22 @@ codeunit 99000834 "Purch. Line-Reserve"
         if PurchLine."Planning Flexibility" <> PurchLine."Planning Flexibility"::Unlimited then
             CreateReservEntry.SetPlanningFlexibility(PurchLine."Planning Flexibility");
 
-        CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(),
-          PurchLine."Document No.", '', 0, PurchLine."Line No.", PurchLine."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForReservEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(PurchLine, Quantity, QuantityBase, ForReservEntry, IsHandled);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+                DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(),
+                PurchLine."Document No.", '', 0, PurchLine."Line No.", PurchLine."Qty. per Unit of Measure",
+                Quantity, QuantityBase, ForReservEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
           PurchLine."No.", PurchLine."Variant Code", PurchLine."Location Code",
           Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
+
+        OnAfterCreateReservation(PurchLine);
     end;
 
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
@@ -815,7 +822,10 @@ codeunit 99000834 "Purch. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunItemTrackingLinesPage(var ItemTrackingLines: Page "Item Tracking Lines"; var IsHandled: Boolean)
+    local procedure OnBeforeRunItemTrackingLinesPage(var ItemTrackingLines: Page "Item Tracking Lines";
+
+    var
+        IsHandled: Boolean)
     begin
     end;
 
@@ -861,6 +871,16 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRetrieveInvoiceSpecification2(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var PurchLine: Record "Purchase Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateReservation(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

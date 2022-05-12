@@ -107,7 +107,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry amount in currency.</source>
-          <target state="translated">Angiver postbeløbet i valuta.</target>
+          <target state="translated">Angiver postens beløb i valutaen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Amount - Property ToolTip</note>
         </trans-unit>
@@ -125,19 +125,19 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 486908828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the document number on the entry.</source>
-          <target state="translated">Angiver dokumentnummeret af posten.</target>
+          <target state="translated">Angiver bilagsnummeret på posten.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Document No. - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 2363328873 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry document type.</source>
-          <target state="translated">Angiver postdokumenttypen.</target>
+          <target state="translated">Angiver dokumenttypen for posten.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Document Type - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 883711285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of the entry, as assigned from the specified number series when the entry was created.</source>
-          <target state="translated">Angiver nummeret på den post, som er tildelt fra den angivne nummerserie, når posten blev oprettet.</target>
+          <target state="translated">Angiver nummeret på posten, som tildeles fra den angivne nummerserie, da posten blev oprettet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Entry No. - Property ToolTip</note>
         </trans-unit>
@@ -155,7 +155,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 1877866625 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the posting type, if Account Type field contains Fixed Asset.</source>
-          <target state="translated">Angiver bogføringstypen, hvis feltet Kontotype indeholder anlægsaktiver.</target>
+          <target state="translated">Angiver bogføringstypen, hvis feltet Kontotype indeholder Anlægsaktiv.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA Posting Type - Property ToolTip</note>
         </trans-unit>
@@ -167,7 +167,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 798748183 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry amount in currency.</source>
-          <target state="translated">Angiver postbeløbet i valuta.</target>
+          <target state="translated">Angiver postens beløb i valutaen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control OriginalAmount - Property ToolTip</note>
         </trans-unit>

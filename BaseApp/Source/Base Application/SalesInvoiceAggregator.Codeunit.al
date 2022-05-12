@@ -412,30 +412,38 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         if SalesHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until SalesHeader.Next() = 0;
 
         if SalesInvoiceHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesInvoiceHeader(SalesInvoiceHeader);
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until SalesInvoiceHeader.Next() = 0;
 
         SalesInvoiceEntityAggregate.SetRange(Posted, false);
         if SalesInvoiceEntityAggregate.FindSet(true, false) then
             repeat
-                if not SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoiceEntityAggregate."No.") then
+                if not SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoiceEntityAggregate."No.") then begin
                     SalesInvoiceEntityAggregate.Delete(true);
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+                end;
             until SalesInvoiceEntityAggregate.Next() = 0;
 
         SalesInvoiceEntityAggregate.SetRange(Posted, true);
         if SalesInvoiceEntityAggregate.FindSet(true, false) then
             repeat
-                if not SalesInvoiceHeader.Get(SalesInvoiceEntityAggregate."No.") then
+                if not SalesInvoiceHeader.Get(SalesInvoiceEntityAggregate."No.") then begin
                     SalesInvoiceEntityAggregate.Delete(true);
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+                end;
             until SalesInvoiceEntityAggregate.Next() = 0;
     end;
 

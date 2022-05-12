@@ -167,6 +167,8 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                     ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, InvtShptLine.RowID1());
                 until InvtDocLine.Next() = 0;
 
+            OnRunOnAfterInvtDocPost(InvtDocHeader, InvtDocLine);
+
             InvtSetup.Get();
             if InvtSetup.AutomaticCostAdjmtRequired() then
                 InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
@@ -509,6 +511,11 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeInvtDocLineFind(var InvtDocumentLine: Record "Invt. Document Line"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtDocPost(InvtDocumentHeader: Record "Invt. Document Header"; InvtDocumentLine: Record "Invt. Document Line")
     begin
     end;
 

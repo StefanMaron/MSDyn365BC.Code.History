@@ -4,6 +4,7 @@ page 9060 "SO Processor Activities"
     PageType = CardPart;
     RefreshOnActivate = true;
     SourceTable = "Sales Cue";
+    Permissions = tabledata "Sales Cue" = rm;
 
     layout
     {
@@ -205,8 +206,9 @@ page 9060 "SO Processor Activities"
         TaskParameters: Dictionary of [Text, Text];
     begin
         RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial();
-
         TaskParameters.Add('View', Rec.GetView());
+        if CalcTaskId <> 0 then
+            if CurrPage.CancelBackgroundTask(CalcTaskId) then;
         CurrPage.EnqueueBackgroundTask(CalcTaskId, Codeunit::"SO Activities Calculate", TaskParameters, 120000, PageBackgroundTaskErrorLevel::Warning);
     end;
 
@@ -247,16 +249,30 @@ page 9060 "SO Processor Activities"
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
     var
         SOActivitiesCalculate: Codeunit "SO Activities Calculate";
+        PrevUpdatedOn: DateTime;
     begin
         if TaskId <> CalcTaskId then
             exit;
 
-        SOActivitiesCalculate.EvaluateResults(Results, Rec);
+        CalcTaskId := 0;
 
+        if Rec.Get() then;
+        PrevUpdatedOn := Rec."Avg. Days Delayed Updated On";
+        SOActivitiesCalculate.EvaluateResults(Results, Rec);
         ReadyToShip := Rec."Ready to Ship";
         AverageDaysDelayed := Rec."Average Days Delayed";
         DelayedOrders := Rec.Delayed;
         PartiallyShipped := Rec."Partially Shipped";
+
+        if Rec.WritePermission and (Rec."Avg. Days Delayed Updated On" > PrevUpdatedOn) then begin
+            PrevUpdatedOn := Rec."Avg. Days Delayed Updated On";
+            Rec.LockTable();
+            Rec.Get();
+            Rec."Avg. Days Delayed Updated On" := PrevUpdatedOn;
+            Rec."Average Days Delayed" := AverageDaysDelayed;
+            if Rec.Modify() then;
+            Commit();
+        end;
 
         CurrPage.Update();
     end;

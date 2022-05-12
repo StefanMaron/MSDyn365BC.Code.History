@@ -1,4 +1,4 @@
-table 60 "Document Sending Profile"
+﻿table 60 "Document Sending Profile"
 {
     Caption = 'Document Sending Profile';
     LookupPageID = "Document Sending Profiles";
@@ -111,7 +111,13 @@ table 60 "Document Sending Profile"
     trigger OnDelete()
     var
         Customer: Record Customer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Default then
             Error(CannotDeleteDefaultRuleErr);
 
@@ -714,6 +720,8 @@ table 60 "Document Sending Profile"
                       not ShowDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
                 end;
         end;
+
+        OnAfterSendToEMail(Rec, ReportUsage, RecordVariant, DocNo, DocName, ToCust);
     end;
 
     local procedure SendToEmailVendor(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToVendor: Code[20])
@@ -775,6 +783,8 @@ table 60 "Document Sending Profile"
                       not ShowDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
                 end;
         end;
+
+        OnAfterSendToEmailVendor(Rec, ReportUsage, RecordVariant, DocNo, DocName, ToVendor);
     end;
 
     local procedure SendToDisk(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; ToCust: Code[20])
@@ -941,6 +951,16 @@ table 60 "Document Sending Profile"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSendToEMail(var DocumentSendingProfile: Record "Document Sending Profile"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSendToEmailVendor(var DocumentSendingProfile: Record "Document Sending Profile"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToVendor: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckShowProfileSelectionMethodDialog(var ProfileSelectionMethod: Option ConfirmDefault,ConfirmPerEach,UseDefault; AccountNo: Code[20]; IsCustomer: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -957,6 +977,11 @@ table 60 "Document Sending Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetRecordAsText(DocumentSendingProfile: Record "Document Sending Profile"; var RecordAsText: Text; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
     begin
     end;
 

@@ -502,20 +502,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 until WhseItemTrkgLine.Next() = 0;
 
                 if QtyToHandleBase <> 0 then begin
-                    ItemJnlLine."Document No." := "Whse. Document No.";
-                    ItemJnlLine.Validate("Posting Date", "Registering Date");
-                    ItemJnlLine.Validate("Item No.", "Item No.");
-                    ItemJnlLine.Validate("Variant Code", "Variant Code");
-                    ItemJnlLine.Validate("Location Code", "Location Code");
-                    ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
-                    ItemJnlLine.Validate(Quantity, Round(QtyToHandleBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
-                    ItemJnlLine.Description := Description;
-                    ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Item;
-                    ItemJnlLine."Source No." := "Item No.";
-                    ItemJnlLine."Source Code" := "Source Code";
-                    ItemJnlLine."Reason Code" := "Reason Code";
-                    ItemJnlLine."Warehouse Adjustment" := true;
-                    ItemJnlLine."Line No." := "Line No.";
+                    CopyFieldsFromWhseJnlLineToItemJnlLine(WhseJnlLine2, ItemJnlLine, QtyToHandleBase);
                     OnAfterCreateItemJnlLine(ItemJnlLine, WhseItemTrkgLine, WhseJnlLine2, QtyToHandleBase);
                 end;
             end;
@@ -523,6 +510,25 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
         OnCreateItemJnlLineOnBeforeExit(WhseJnlLine2, ItemJnlLine, QtyToHandleBase);
         exit(QtyToHandleBase <> 0);
+    end;
+
+    local procedure CopyFieldsFromWhseJnlLineToItemJnlLine(WarehouseJournalLine: Record "Warehouse Journal Line"; var ItemJnlLine: Record "Item Journal Line"; QtyToHandleBase: Decimal)
+    begin
+        OnBeforeCopyFieldsFromWhseJnlLineToItemJnlLine(ItemJnlLine, WarehouseJournalLine, WhseJnlTemplate);
+        ItemJnlLine."Document No." := WarehouseJournalLine."Whse. Document No.";
+        ItemJnlLine.Validate("Posting Date", WarehouseJournalLine."Registering Date");
+        ItemJnlLine.Validate("Item No.", WarehouseJournalLine."Item No.");
+        ItemJnlLine.Validate("Variant Code", WarehouseJournalLine."Variant Code");
+        ItemJnlLine.Validate("Location Code", WarehouseJournalLine."Location Code");
+        ItemJnlLine.Validate("Unit of Measure Code", WarehouseJournalLine."Unit of Measure Code");
+        ItemJnlLine.Validate(Quantity, Round(QtyToHandleBase / WarehouseJournalLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
+        ItemJnlLine.Description := WarehouseJournalLine.Description;
+        ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Item;
+        ItemJnlLine."Source No." := WarehouseJournalLine."Item No.";
+        ItemJnlLine."Source Code" := WarehouseJournalLine."Source Code";
+        ItemJnlLine."Reason Code" := WarehouseJournalLine."Reason Code";
+        ItemJnlLine."Warehouse Adjustment" := true;
+        ItemJnlLine."Line No." := WarehouseJournalLine."Line No.";
     end;
 
     local procedure IsPhysInvtCount(WhseJnlTemplate2: Record "Warehouse Journal Template"; PhysInvtCountingPeriodCode: Code[10]; PhysInvtCountingPeriodType: Option " ",Item,SKU): Boolean
@@ -670,6 +676,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var HideDialog: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFieldsFromWhseJnlLineToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalTemplate: Record "Warehouse Journal Template")
     begin
     end;
 

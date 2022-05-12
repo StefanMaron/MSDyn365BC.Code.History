@@ -146,6 +146,7 @@ codeunit 5053 TAPIManagement
                     Insert;
                 end;
             end;
+            OnAfterCreateCommMethod(Contact, TempCommunicationMethod, ContactNo, ContAltAddrCode);
         end;
     end;
 
@@ -161,6 +162,11 @@ codeunit 5053 TAPIManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnDialContCustVendBankCaseElse(var ContactBusinessRelation: Record "Contact Business Relation"; TableNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCommMethod(Contact: Record Contact; var TempCommunicationMethod: Record "Communication Method" temporary; ContactNo: Code[20]; ContAltAddrCode: Code[10])
     begin
     end;
 }

@@ -107,7 +107,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry amount in currency.</source>
-          <target state="translated">Hiermee wordt het postbedrag in valuta opgegeven.</target>
+          <target state="translated">Hiermee wordt het bedrag van de post opgegeven in de valuta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Amount - Property ToolTip</note>
         </trans-unit>
@@ -119,13 +119,13 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a description of the entry.</source>
-          <target state="translated">Hiermee wordt een beschrijving van de post opgegeven.</target>
+          <target state="translated">Hiermee wordt een omschrijving van de post opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Description - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 486908828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the document number on the entry.</source>
-          <target state="translated">Hiermee wordt het documentnummer in de post opgegeven.</target>
+          <target state="translated">Hiermee wordt het documentnummer op de post opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Document No. - Property ToolTip</note>
         </trans-unit>
@@ -137,7 +137,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 883711285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of the entry, as assigned from the specified number series when the entry was created.</source>
-          <target state="translated">Hiermee wordt het nummer opgegeven van de post, zoals vanuit de opgegeven nummerreeks toegewezen toen de post werd gemaakt.</target>
+          <target state="translated">Hiermee wordt het nummer opgegeven van de post, zoals die is toegewezen vanuit de nummerreeks die is opgegeven bij het maken van de post.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Entry No. - Property ToolTip</note>
         </trans-unit>
@@ -149,13 +149,13 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 3942279885 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the posting date of the related fixed asset transaction, such as a depreciation.</source>
-          <target state="translated">Hiermee wordt de boekingsdatum opgegeven van de gerelateerde VA-transactie, zoals een afschrijving.</target>
+          <target state="translated">Hiermee wordt de boekingsdatum van de gerelateerde VA-transactie opgegeven, zoals een afschrijving.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA Posting Date - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 1877866625 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the posting type, if Account Type field contains Fixed Asset.</source>
-          <target state="translated">Hiermee wordt het boekingssoort opgegeven als het veld Rekeningsoort Vast activum bevat.</target>
+          <target state="translated">Hiermee wordt het VA-boekingssoort opgegeven als u Vast activum hebt geselecteerd in het veld Rekeningsoort.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA Posting Type - Property ToolTip</note>
         </trans-unit>
@@ -167,7 +167,7 @@
         </trans-unit>
         <trans-unit id="Page 3814451366 - Control 798748183 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry amount in currency.</source>
-          <target state="translated">Hiermee wordt het postbedrag in valuta opgegeven.</target>
+          <target state="translated">Hiermee wordt het bedrag van de post opgegeven in de valuta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control OriginalAmount - Property ToolTip</note>
         </trans-unit>

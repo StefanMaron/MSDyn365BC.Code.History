@@ -1,4 +1,4 @@
-report 750 "Save as Standard Gen. Journal"
+﻿report 750 "Save as Standard Gen. Journal"
 {
     Caption = 'Save as Standard Gen. Journal';
     ProcessingOnly = true;
@@ -166,6 +166,7 @@ report 750 "Save as Standard Gen. Journal"
           StdGenJnlLine."Shortcut Dimension 2 Code");
         StdGenJnlLine."Dimension Set ID" := GenJnlLine."Dimension Set ID";
 
+        OnCopyGenJnlLineDimsOnBeforeStdGenJnlLineModify(StdGenJnlLine);
         StdGenJnlLine.Modify();
     end;
 
@@ -189,6 +190,11 @@ report 750 "Save as Standard Gen. Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStandardGenJnlLineInsert(var StandardGeneralJournalLine: Record "Standard General Journal Line"; GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyGenJnlLineDimsOnBeforeStdGenJnlLineModify(var StdGenJnlLine: Record "Standard General Journal Line")
     begin
     end;
 }

@@ -926,6 +926,7 @@ page 2900 "Demand Forecast Variant Matrix"
         end;
 
         //Point to the first row of the matrix
+        OnLoadDataOnBeforeRecFindFirst(Rec, ItemFilter, LocationFilter, UseLocation, UseVariant, VariantFilter);
         if not Rec.IsEmpty then
             Rec.FindFirst();
     end;
@@ -1162,6 +1163,11 @@ page 2900 "Demand Forecast Variant Matrix"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeProdForecastQtyBase_OnValidate(var Item: Record "Forecast Item Variant Loc"; ColumnID: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadDataOnBeforeRecFindFirst(var ForecastItemVariantLoc: Record "Forecast Item Variant Loc"; ItemFilter: Text; LocationFilter: Text; UseLocation: Boolean; UseVariant: Boolean; VariantFilter: Text)
     begin
     end;
 }

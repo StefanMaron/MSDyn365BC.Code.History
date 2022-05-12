@@ -1409,7 +1409,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 1476524600 - Control 1696402780 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Group Settlement Posted</source>
-          <target state="translated">MwSt.-Gruppenabrechnung gebucht</target>
+          <target state="translated">MwSt.-Gruppenausgleich gebucht</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>

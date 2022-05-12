@@ -14,193 +14,240 @@ page 7018 "Purchase Price List"
             group(General)
             {
                 Caption = 'General';
-                field(Code; Rec.Code)
+                group(LeftColumn)
                 {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    ShowMandatory = true;
-                    ToolTip = 'Specifies the unique identifier of the price list.';
-                    Editable = PriceListIsEditable;
+                    ShowCaption = false;
+                    field(Code; Rec.Code)
+                    {
+                        ApplicationArea = All;
+                        Importance = Promoted;
+                        ShowMandatory = true;
+                        ToolTip = 'Specifies the unique identifier of the price list.';
+                        Editable = PriceListIsEditable and CodeIsEditable;
 
-                    trigger OnAssistEdit()
-                    begin
-                        if Rec.AssistEditCode(xRec) then
+                        trigger OnAssistEdit()
+                        begin
+                            if Rec.AssistEditCode(xRec) then
+                                CurrPage.Update();
+                        end;
+
+                        trigger OnValidate()
+                        begin
                             CurrPage.Update();
-                    end;
-                }
-                field(Description; Rec.Description)
-                {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    ShowMandatory = true;
-                    Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the description of the price list.';
-                }
-                field(SourceType; SourceType)
-                {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    Caption = 'Assign-to Type';
-                    Editable = PriceListIsEditable;
-                    Visible = not IsJobGroup;
-                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
-
-                    trigger OnValidate()
-                    begin
-                        ValidateSourceType(SourceType.AsInteger());
-                        CurrPage.Update(true);
-                    end;
-                }
-                field(JobSourceType; JobSourceType)
-                {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    Caption = 'Assign-to Type';
-                    Editable = PriceListIsEditable;
-                    Visible = IsJobGroup;
-                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
-
-                    trigger OnValidate()
-                    begin
-                        ValidateSourceType(JobSourceType.AsInteger());
-                        CurrPage.Update(true);
-                    end;
-                }
-                field(SourceNo; Rec."Source No.")
-                {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    Enabled = SourceNoEnabled;
-                    Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
-
-                    trigger OnValidate()
-                    begin
-                        CurrPage.Update(true);
-                    end;
-
-                    trigger OnLookup(var Text: Text): Boolean;
-                    begin
-                        if Rec.LookupSourceNo() then
-                            CurrPage.Update(true);
-                    end;
-                }
-                group(Tax)
-                {
-                    Caption = 'VAT';
-                    field(PriceIncludesVAT; Rec."Price Includes VAT")
+                        end;
+                    }
+                    field(Description; Rec.Description)
                     {
                         ApplicationArea = All;
-                        Importance = Additional;
+                        Importance = Promoted;
+                        ShowMandatory = true;
                         Editable = PriceListIsEditable;
-                        ToolTip = 'Specifies the if prices include VAT.';
+                        ToolTip = 'Specifies the description of the price list.';
+                    }
+                    field(SourceType; SourceType)
+                    {
+                        ApplicationArea = All;
+                        Importance = Promoted;
+                        Caption = 'Assign-to Type';
+                        Editable = PriceListIsEditable;
+                        Visible = not IsJobGroup;
+                        ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
+
+                        trigger OnValidate()
+                        begin
+                            ValidateSourceType(SourceType.AsInteger());
+                            CurrPage.Update(true);
+                        end;
+                    }
+                    field(JobSourceType; JobSourceType)
+                    {
+                        ApplicationArea = All;
+                        Importance = Promoted;
+                        Caption = 'Assign-to Type';
+                        Editable = PriceListIsEditable;
+                        Visible = IsJobGroup;
+                        ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
+
+                        trigger OnValidate()
+                        begin
+                            ValidateSourceType(JobSourceType.AsInteger());
+                            CurrPage.Update(true);
+                        end;
+                    }
+                    group(AssignToParentNoGroup)
+                    {
+                        ShowCaption = false;
+                        Visible = ParentSourceNoEnabled and not UseCustomLookup;
+                        field(AssignToParentNo; Rec."Assign-to Parent No.")
+                        {
+                            ApplicationArea = All;
+                            Importance = Promoted;
+                            Editable = PriceListIsEditable;
+                            ShowMandatory = true;
+                            ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
+                            trigger OnValidate()
+                            begin
+                                CurrPage.Update(true);
+                            end;
+                        }
+                    }
+                    field(SourceNo; Rec."Source No.")
+                    {
+                        ApplicationArea = All;
+                        Importance = Promoted;
+                        Enabled = SourceNoEnabled;
+                        Editable = PriceListIsEditable;
+                        ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
+                        Visible = UseCustomLookup;
+                        ShowMandatory = SourceNoEnabled;
 
                         trigger OnValidate()
                         begin
                             CurrPage.Update(true);
                         end;
-                    }
-                }
-                group(View)
-                {
-                    Caption = 'View';
-                    Visible = ViewGroupIsVisible;
-                    field(AmountType; ViewAmountType)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'View Columns for';
-                        ToolTip = 'Specifies the amount type filter that defines the columns shown in the price list lines.';
-                        trigger OnValidate()
+
+                        trigger OnLookup(var Text: Text): Boolean;
                         begin
-                            Rec.Validate("Amount Type", ViewAmountType);
-                            CurrPage.Lines.Page.SetSubFormLinkFilter(ViewAmountType);
+                            if Rec.LookupSourceNo() then
+                                CurrPage.Update(true);
                         end;
                     }
-                }
-                field(Status; Rec.Status)
-                {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies whether the price list is in Draft status and can be edited, Inactive and cannot be edited or used, or Active and used for price calculations.';
-
-                    trigger OnValidate()
-                    begin
-                        PriceListIsEditable := Rec.IsEditable();
-                    end;
-                }
-                field(CurrencyCode; Rec."Currency Code")
-                {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the currency code of the price list.';
-
-                    trigger OnValidate()
-                    begin
-                        CurrPage.Update(true);
-                    end;
-                }
-                field(StartingDate; Rec."Starting Date")
-                {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the date from which the price is valid.';
-
-                    trigger OnValidate()
-                    begin
-                        CurrPage.Update(true);
-                    end;
-                }
-                field(EndingDate; Rec."Ending Date")
-                {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the last date that the price is valid.';
-
-                    trigger OnValidate()
-                    begin
-                        CurrPage.Update(true);
-                    end;
-                }
-                group(LineDefaults)
-                {
-                    Caption = 'Line Defaults';
-                    field(AllowUpdatingDefaults; Rec."Allow Updating Defaults")
+                    field(AssignToNo; Rec."Assign-to No.")
                     {
                         ApplicationArea = All;
-                        Importance = Additional;
+                        Importance = Promoted;
+                        Enabled = SourceNoEnabled;
                         Editable = PriceListIsEditable;
-                        ToolTip = 'Specifies whether users can change the values in the fields on the price list line that contain default values from the header.';
-                        trigger OnValidate()
-                        begin
-                            CurrPage.Lines.Page.SetHeader(Rec);
-                        end;
-                    }
-                    field(AllowInvoiceDisc; Rec."Allow Invoice Disc.")
-                    {
-                        ApplicationArea = All;
-                        Importance = Additional;
-                        Editable = PriceListIsEditable;
-                        ToolTip = 'Specifies whether invoice discount is allowed. You can change this value on the lines.';
+                        ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
+                        Visible = not UseCustomLookup;
+                        ShowMandatory = SourceNoEnabled;
 
                         trigger OnValidate()
                         begin
                             CurrPage.Update(true);
                         end;
                     }
-                    field(AllowLineDisc; Rec."Allow Line Disc.")
+                    group(Tax)
+                    {
+                        Caption = 'VAT';
+                        field(PriceIncludesVAT; Rec."Price Includes VAT")
+                        {
+                            ApplicationArea = All;
+                            Importance = Additional;
+                            Editable = PriceListIsEditable;
+                            ToolTip = 'Specifies the if prices include VAT.';
+
+                            trigger OnValidate()
+                            begin
+                                CurrPage.Update(true);
+                            end;
+                        }
+                    }
+                    group(View)
+                    {
+                        Caption = 'View';
+                        Visible = ViewGroupIsVisible;
+                        field(AmountType; ViewAmountType)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'View Columns for';
+                            ToolTip = 'Specifies the amount type filter that defines the columns shown in the price list lines.';
+                            trigger OnValidate()
+                            begin
+                                Rec.Validate("Amount Type", ViewAmountType);
+                                CurrPage.Lines.Page.SetSubFormLinkFilter(ViewAmountType);
+                            end;
+                        }
+                    }
+                }
+                group(RightColumn)
+                {
+                    ShowCaption = false;
+                    field(Status; Rec.Status)
                     {
                         ApplicationArea = All;
-                        Importance = Additional;
+                        Importance = Promoted;
+                        ToolTip = 'Specifies whether the price list is in Draft status and can be edited, Inactive and cannot be edited or used, or Active and used for price calculations.';
+
+                        trigger OnValidate()
+                        begin
+                            PriceListIsEditable := Rec.IsEditable();
+                        end;
+                    }
+                    field(CurrencyCode; Rec."Currency Code")
+                    {
+                        ApplicationArea = All;
+                        Importance = Promoted;
                         Editable = PriceListIsEditable;
-                        ToolTip = 'Specifies whether line discounts are allowed. You can change this value on the lines.';
+                        ToolTip = 'Specifies the currency code of the price list.';
 
                         trigger OnValidate()
                         begin
                             CurrPage.Update(true);
                         end;
+                    }
+                    field(StartingDate; Rec."Starting Date")
+                    {
+                        ApplicationArea = All;
+                        Importance = Promoted;
+                        Editable = PriceListIsEditable;
+                        ToolTip = 'Specifies the date from which the price is valid.';
+
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update(true);
+                        end;
+                    }
+                    field(EndingDate; Rec."Ending Date")
+                    {
+                        ApplicationArea = All;
+                        Importance = Promoted;
+                        Editable = PriceListIsEditable;
+                        ToolTip = 'Specifies the last date that the price is valid.';
+
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update(true);
+                        end;
+                    }
+                    group(LineDefaults)
+                    {
+                        Caption = 'Line Defaults';
+                        field(AllowUpdatingDefaults; Rec."Allow Updating Defaults")
+                        {
+                            ApplicationArea = All;
+                            Importance = Additional;
+                            Editable = PriceListIsEditable;
+                            ToolTip = 'Specifies whether users can change the values in the fields on the price list lines that contain default values from the header. This does not affect the ability to allow line or invoice discounts.';
+                            trigger OnValidate()
+                            begin
+                                CurrPage.Lines.Page.SetHeader(Rec);
+                            end;
+                        }
+                        field(AllowInvoiceDisc; Rec."Allow Invoice Disc.")
+                        {
+                            ApplicationArea = All;
+                            Importance = Additional;
+                            Editable = PriceListIsEditable;
+                            ToolTip = 'Specifies whether invoice discount is allowed. You can change this value on the lines.';
+
+                            trigger OnValidate()
+                            begin
+                                CurrPage.Update(true);
+                            end;
+                        }
+                        field(AllowLineDisc; Rec."Allow Line Disc.")
+                        {
+                            ApplicationArea = All;
+                            Importance = Additional;
+                            Editable = PriceListIsEditable;
+                            ToolTip = 'Specifies whether line discounts are allowed. You can change this value on the lines.';
+
+                            trigger OnValidate()
+                            begin
+                                CurrPage.Update(true);
+                            end;
+                        }
                     }
                 }
             }
@@ -297,9 +344,11 @@ page 7018 "Purchase Price List"
 #endif
     trigger OnOpenPage()
     var
+        PriceListLine: Record "Price List Line";
         PriceListManagement: Codeunit "Price List Management";
         DefaultSourceGroup: Enum "Price Source Group";
     begin
+        UseCustomLookup := PriceListLine.UseCustomizedLookup();
         CopyLinesEnabled := PriceListManagement.VerifySourceGroupInLines();
         DefaultSourceGroup := GetSourceGroupFilter();
         UpdateSourceType(DefaultSourceGroup);
@@ -324,6 +373,8 @@ page 7018 "Purchase Price List"
     var
         PriceListManagement: Codeunit "Price List Management";
     begin
+        Rec.SyncDropDownLookupFields();
+        CodeIsEditable := Rec.Code = '';
         PriceListIsEditable := Rec.IsEditable();
         UpdateSourceType(Rec."Source Group");
         SetSourceNoEnabled();
@@ -401,14 +452,29 @@ page 7018 "Purchase Price List"
         JobSourceType: Enum "Job Price Source Type";
         SourceType: Enum "Purchase Price Source Type";
         ViewAmountType: Enum "Price Amount Type";
+        [InDataSet]
+        CodeIsEditable: Boolean;
+        [InDataSet]
         IsJobGroup: Boolean;
+        [InDataSet]
+        ParentSourceNoEnabled: Boolean;
+        [InDataSet]
         SourceNoEnabled: Boolean;
+        [InDataSet]
         PriceListIsEditable: Boolean;
+        [InDataSet]
         CopyLinesEnabled: Boolean;
+        [InDataSet]
         ViewGroupIsVisible: Boolean;
+        [InDataSet]
+        UseCustomLookup: Boolean;
 
     local procedure SetSourceNoEnabled()
+    var
+        PriceSource: Record "Price Source";
     begin
+        Rec.CopyTo(PriceSource);
+        ParentSourceNoEnabled := PriceSource.IsParentSourceAllowed();
         SourceNoEnabled := Rec.IsSourceNoAllowed();
     end;
 

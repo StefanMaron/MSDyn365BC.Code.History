@@ -299,7 +299,13 @@ report 5687 "Copy Depreciation Book"
     local procedure SetJournalType(var FALedgEntry: Record "FA Ledger Entry")
     var
         Index: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetJournalType("Fixed Asset", CopyChoices, FALedgEntry, JournalType, IsHandled);
+        if IsHandled then
+            exit;
+
         Index := FALedgEntry.ConvertPostingType + 1;
         if CopyChoices[Index] then begin
             if GLIntegration[Index] and not "Fixed Asset"."Budgeted Asset" then
@@ -344,6 +350,11 @@ report 5687 "Copy Depreciation Book"
     procedure SetCopyAcquisitionCost(Choice: Boolean)
     begin
         CopyChoices[1] := Choice;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetJournalType(FixedAsset: Record "Fixed Asset"; CopyChoices: array[9] of Boolean; var FALedgerEntry: Record "FA Ledger Entry"; var JournalType: Option; var IsHandled: Boolean)
+    begin
     end;
 }
 

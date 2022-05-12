@@ -1,6 +1,6 @@
 enum 5528 "Planning Create Assembly Order"
 {
-    Extensible = false;
+    Extensible = true;
     AssignmentCompatibility = true;
 
     value(0; " ") { Caption = ' '; }

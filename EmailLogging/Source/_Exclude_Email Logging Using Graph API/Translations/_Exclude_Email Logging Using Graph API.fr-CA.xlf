@@ -804,7 +804,7 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 2304772256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Interaction Template Setup needs to be configurred.</source>
-          <target state="translated">Les paramètres modèle interaction doivent être configurés.</target>
+          <target state="translated">Les paramètres du modèle interaction doivent être configurés.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control InvalidInteractionTemplateSetup - Property Caption</note>
         </trans-unit>
@@ -816,7 +816,7 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 468223293 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Interaction Template Setup is correctly configurred.</source>
-          <target state="translated">Les paramètres modèle interaction sont configurés correctement.</target>
+          <target state="translated">Les paramètres du modèle interaction sont correctement configurés.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ValidInteractionTemplateSetup - Property Caption</note>
         </trans-unit>

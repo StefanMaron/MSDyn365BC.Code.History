@@ -768,7 +768,7 @@ page 51 "Purchase Invoice"
             part(PurchaseDocCheckFactbox; "Purch. Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = PurchaseDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");

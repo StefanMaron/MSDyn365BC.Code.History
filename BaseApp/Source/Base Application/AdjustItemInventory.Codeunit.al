@@ -54,8 +54,10 @@ codeunit 1327 "Adjust Item Inventory"
 
         ItemJnlLine.SetRange("Journal Template Name", ItemTemplate);
         ItemJnlLine.SetRange("Journal Batch Name", ItemBatch);
-        if ItemJnlLine.IsEmpty() then
+        if ItemJnlLine.IsEmpty() then begin
+            DeleteItemBatch(ItemTemplate, ItemBatch);
             exit;
+        end;
 
         LastErrorText := PostItemJnlLines(ItemJnlLine);
     end;

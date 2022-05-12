@@ -1733,7 +1733,7 @@
         </trans-unit>
         <trans-unit id="Page 79567422 - Control 2348551448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Date of Last Interaction</source>
-          <target state="translated">Dato for sidste interaktion</target>
+          <target state="translated">Dato for seneste interaktion</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control lastInteractionDate - Property Caption</note>
         </trans-unit>
@@ -4337,7 +4337,7 @@
         </trans-unit>
         <trans-unit id="Page 922720640 - NamedType 612025191" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You have specified conflicting identifiers: %1 and %2.</source>
-          <target state="translated">Du har angivet modstridende identifikatorer: %1 og %2.</target>
+          <target state="translated">Du har angivet modstridende id'er: %1 og %2.</target>
           <note from="Developer" annotates="general" priority="2">%1 - a GUID, %2 - a GUID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - PDF Document - NamedType ConflictingIdsErr</note>
         </trans-unit>
@@ -4829,7 +4829,7 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <target state="translated">Id'et kan ikke ændres.</target>
+          <target state="translated">"id" kan ikke ændres.</target>
           <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - NamedType CannotChangeIDErr</note>
         </trans-unit>
@@ -5021,7 +5021,7 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2898359933 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Pay To Country/Region Code</source>
-          <target state="translated">Betal til-kode for land/område</target>
+          <target state="translated">Kode for betal til-land/område</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control payToCountry - Property Caption</note>
         </trans-unit>
@@ -5219,7 +5219,7 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - NamedType 2697791227" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "documentId" cannot be modified.</source>
-          <target state="translated">Værdien for "documentId" kan ikke redigeres.</target>
+          <target state="translated">Værdien for "documentId" kan ikke ændres.</target>
           <note from="Developer" annotates="general" priority="2">documentId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType CannotChangeDocumentIdNoErr</note>
         </trans-unit>
@@ -5231,7 +5231,7 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - NamedType 91023212" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "lineObjectNumber" cannot be modified.</source>
-          <target state="translated">Værdien for "lineObjectNumber" kan ikke redigeres.</target>
+          <target state="translated">Værdien for "lineObjectNumber" kan ikke ændres.</target>
           <note from="Developer" annotates="general" priority="2">lineObjectNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType CannotChangeLineObjectNoErr</note>
         </trans-unit>
@@ -5501,7 +5501,7 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 2178917581" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The pay-to vendor cannot be found.</source>
-          <target state="translated">Betalingsleverandøren blev ikke fundet.</target>
+          <target state="translated">Betal til-leverandøren blev ikke fundet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CouldNotFindPayToVendorErr</note>
         </trans-unit>
@@ -5555,13 +5555,13 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 883773547 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Buy-from Address Line 1</source>
-          <target state="translated">Leverandøradresselinje 1</target>
+          <target state="translated">Leverandøradresse linje 1</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 2796863398 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Buy-from Address Line 2</source>
-          <target state="translated">Leverandøradresselinje 2</target>
+          <target state="translated">Leverandøradresse linje 2</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromAddressLine2 - Property Caption</note>
         </trans-unit>
@@ -5747,13 +5747,13 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 354324300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Address Line 1</source>
-          <target state="translated">Leveringsadresselinje 1</target>
+          <target state="translated">Leveringsadresse linje 1</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 992020917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Address Line 2</source>
-          <target state="translated">Leveringsadresselinje 2</target>
+          <target state="translated">Leveringsadresse linje 2</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToAddressLine2 - Property Caption</note>
         </trans-unit>
@@ -6419,7 +6419,7 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <target state="translated">Id'et kan ikke ændres.</target>
+          <target state="translated">"id" kan ikke ændres.</target>
           <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CannotChangeIDErr</note>
         </trans-unit>
@@ -7811,7 +7811,7 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <target state="translated">Id'et kan ikke ændres.</target>
+          <target state="translated">"id" kan ikke ændres.</target>
           <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - NamedType CannotChangeIDErr</note>
         </trans-unit>
@@ -8459,7 +8459,7 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <target state="translated">Id'et kan ikke ændres.</target>
+          <target state="translated">"id" kan ikke ændres.</target>
           <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - NamedType CannotChangeIDErr</note>
         </trans-unit>

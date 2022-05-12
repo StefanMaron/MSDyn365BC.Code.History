@@ -1078,9 +1078,7 @@ codeunit 136353 "UT T Job Planning Line"
         Customer.Modify(true);
 
         // [GIVEN] Job and Job Task with Customer "C"
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", Customer."No.");
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, Customer."No.");
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // [GIVEN] Item "X" with Variant "X1" and Item Discount Group "ITEMDISC"
@@ -1765,53 +1763,53 @@ codeunit 136353 "UT T Job Planning Line"
     end;
 
 #if not CLEAN20
-        [Test]
-        procedure JobPlanningLineFindJTPriceForGLAccountNotUpdateUnitPrice()
-        var
-            JobPlanningLine: Record "Job Planning Line";
-            JobTask: Record "Job Task";
-            Job: Record Job;
-            SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
-            UnitCost: Decimal;
-        begin
-            // [SCENARIO 408052] "Sales Price Calc. Mgt".JobPlanningLineFindJTPrice do not update "Job Planning Line"."Unit Price" if "Job G/L Account Price" is not found
-            Initialize();
+    [Test]
+    procedure JobPlanningLineFindJTPriceForGLAccountNotUpdateUnitPrice()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        Job: Record Job;
+        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+        UnitCost: Decimal;
+    begin
+        // [SCENARIO 408052] "Sales Price Calc. Mgt".JobPlanningLineFindJTPrice do not update "Job Planning Line"."Unit Price" if "Job G/L Account Price" is not found
+        Initialize();
 
-            LibraryJob.CreateJob(Job);
-            LibraryJob.CreateJobTask(Job, JobTask);
-            LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
-                JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
-            UnitCost := JobPlanningLine."Unit Cost";
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+            JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
+        UnitCost := JobPlanningLine."Unit Cost";
 
-            SalesPriceCalcMgt.JobPlanningLineFindJTPrice(JobPlanningLine);
+        SalesPriceCalcMgt.JobPlanningLineFindJTPrice(JobPlanningLine);
 
-            JobPlanningLine.TestField("Unit Cost", UnitCost);
-        end;
+        JobPlanningLine.TestField("Unit Cost", UnitCost);
+    end;
 
-        [Test]
-        procedure JobPlanningLineFindJTPriceForGLAccountUpdateUnitPrice()
-        var
-            JobPlanningLine: Record "Job Planning Line";
-            JobTask: Record "Job Task";
-            Job: Record Job;
-            JobGLAccountPrice: Record "Job G/L Account Price";
-            SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
-            UnitCost: Decimal;
-        begin
-            // [SCENARIO 408052] "Sales Price Calc. Mgt".JobPlanningLineFindJTPrice update "Job Planning Line"."Unit Price"
-            Initialize();
+    [Test]
+    procedure JobPlanningLineFindJTPriceForGLAccountUpdateUnitPrice()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        Job: Record Job;
+        JobGLAccountPrice: Record "Job G/L Account Price";
+        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+        UnitCost: Decimal;
+    begin
+        // [SCENARIO 408052] "Sales Price Calc. Mgt".JobPlanningLineFindJTPrice update "Job Planning Line"."Unit Price"
+        Initialize();
 
-            LibraryJob.CreateJob(Job);
-            LibraryJob.CreateJobTask(Job, JobTask);
-            LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
-                JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
-            CreateJobGLAccPrice(JobGLAccountPrice, Job."No.", '', JobPlanningLine."No.");
-            UnitCost := JobGLAccountPrice."Unit Cost";
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+            JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
+        CreateJobGLAccPrice(JobGLAccountPrice, Job."No.", '', JobPlanningLine."No.");
+        UnitCost := JobGLAccountPrice."Unit Cost";
 
-            SalesPriceCalcMgt.JobPlanningLineFindJTPrice(JobPlanningLine);
+        SalesPriceCalcMgt.JobPlanningLineFindJTPrice(JobPlanningLine);
 
-            JobPlanningLine.TestField("Unit Cost", UnitCost);
-        end;
+        JobPlanningLine.TestField("Unit Cost", UnitCost);
+    end;
 #endif
 
     [Test]
@@ -2025,15 +2023,15 @@ codeunit 136353 "UT T Job Planning Line"
     end;
 
 #if not CLEAN20
-        local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20])
-        begin
-            LibraryJob.CreateJobGLAccountPrice(
-                JobGLAccountPrice, JobNo, JobTaskNo, GLAccountNo, '');
-            JobGLAccountPrice."Unit Price" := LibraryRandom.RandIntInRange(1, 10);
-            JobGLAccountPrice."Line Discount %" := LibraryRandom.RandIntInRange(1, 10);
-            JobGLAccountPrice."Unit Cost" := LibraryRandom.RandIntInRange(1, 10);
-            JobGLAccountPrice.Modify();
-        end;
+    local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20])
+    begin
+        LibraryJob.CreateJobGLAccountPrice(
+            JobGLAccountPrice, JobNo, JobTaskNo, GLAccountNo, '');
+        JobGLAccountPrice."Unit Price" := LibraryRandom.RandIntInRange(1, 10);
+        JobGLAccountPrice."Line Discount %" := LibraryRandom.RandIntInRange(1, 10);
+        JobGLAccountPrice."Unit Cost" := LibraryRandom.RandIntInRange(1, 10);
+        JobGLAccountPrice.Modify();
+    end;
 #endif
     local procedure CreateJobLedgerEntriesWithMultipleTypesAndLineTypes(var Job: Record Job; var ArrAmount: array[12] of Decimal)
     var

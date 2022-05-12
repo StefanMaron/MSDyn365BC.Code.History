@@ -15,6 +15,7 @@ codeunit 455 "Job Queue User Handler"
         if JobQueueEntry.FindSet(true) then
             repeat
                 if JobShouldBeRescheduled(JobQueueEntry) then begin
+                    JobQueueEntry.RefreshLocked();
                     JobQueueEntry.Status := JobQueueEntry.Status::Ready;
                     JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime();
                     JobQueueEntry.Modify();

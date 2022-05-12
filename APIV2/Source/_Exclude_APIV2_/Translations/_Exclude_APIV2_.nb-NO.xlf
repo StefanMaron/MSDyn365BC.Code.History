@@ -2213,7 +2213,7 @@
         </trans-unit>
         <trans-unit id="Page 2757592336 - Control 763246229 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Applies To Invoice No.</source>
-          <target state="translated">Utligningsfaktura-ID</target>
+          <target state="translated">Nr. for utligningsfaktura</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control appliesToInvoiceNumber - Property Caption</note>
         </trans-unit>
@@ -4745,7 +4745,7 @@
         </trans-unit>
         <trans-unit id="Page 2715273378 - Control 462527801 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount Including Tax</source>
-          <target state="translated">Nettobeløp inkludert mva</target>
+          <target state="translated">Nettobeløp inkludert mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control netAmountIncludingTax - Property Caption</note>
         </trans-unit>
@@ -5147,13 +5147,13 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 3762354732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Excluding Tax</source>
-          <target state="translated">Totalt beløp eks. mva</target>
+          <target state="translated">Totalt beløp eks. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control totalAmountExcludingTax - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 1842111270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Including Tax</source>
-          <target state="translated">Totalt beløp inkl. mva</target>
+          <target state="translated">Totalt beløp inkl. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control totalAmountIncludingTax - Property Caption</note>
         </trans-unit>
@@ -6305,7 +6305,7 @@
         </trans-unit>
         <trans-unit id="Page 1420007888 - Control 462527801 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount Including Tax</source>
-          <target state="translated">Nettobeløp inkludert mva</target>
+          <target state="translated">Nettobeløp inkludert mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control netAmountIncludingTax - Property Caption</note>
         </trans-unit>
@@ -6791,13 +6791,13 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 3762354732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Excluding Tax</source>
-          <target state="translated">Totalt beløp eks. mva</target>
+          <target state="translated">Totalt beløp eks. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control totalAmountExcludingTax - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 1842111270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Including Tax</source>
-          <target state="translated">Totalt beløp inkl. mva</target>
+          <target state="translated">Totalt beløp inkl. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control totalAmountIncludingTax - Property Caption</note>
         </trans-unit>
@@ -6977,7 +6977,7 @@
         </trans-unit>
         <trans-unit id="Page 2529413663 - Control 462527801 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount Including Tax</source>
-          <target state="translated">Nettobeløp inkludert mva</target>
+          <target state="translated">Nettobeløp inkludert mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control netAmountIncludingTax - Property Caption</note>
         </trans-unit>
@@ -7511,13 +7511,13 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 3762354732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Excluding Tax</source>
-          <target state="translated">Totalt beløp eks. mva</target>
+          <target state="translated">Totalt beløp eks. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control totalAmountExcludingTax - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 1842111270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Including Tax</source>
-          <target state="translated">Totalt beløp inkl. mva</target>
+          <target state="translated">Totalt beløp inkl. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control totalAmountIncludingTax - Property Caption</note>
         </trans-unit>
@@ -7709,7 +7709,7 @@
         </trans-unit>
         <trans-unit id="Page 957521806 - Control 462527801 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount Including Tax</source>
-          <target state="translated">Nettobeløp inkludert mva</target>
+          <target state="translated">Nettobeløp inkludert mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control netAmountIncludingTax - Property Caption</note>
         </trans-unit>
@@ -8195,13 +8195,13 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 3762354732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Excluding Tax</source>
-          <target state="translated">Totalt beløp eks. mva</target>
+          <target state="translated">Totalt beløp eks. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control totalAmountExcludingTax - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 1842111270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Including Tax</source>
-          <target state="translated">Totalt beløp inkl. mva</target>
+          <target state="translated">Totalt beløp inkl. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control totalAmountIncludingTax - Property Caption</note>
         </trans-unit>
@@ -8375,7 +8375,7 @@
         </trans-unit>
         <trans-unit id="Page 505573178 - Control 462527801 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount Including Tax</source>
-          <target state="translated">Nettobeløp inkludert mva</target>
+          <target state="translated">Nettobeløp inkludert mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control netAmountIncludingTax - Property Caption</note>
         </trans-unit>
@@ -8831,13 +8831,13 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 3762354732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Excluding Tax</source>
-          <target state="translated">Totalt beløp eks. mva</target>
+          <target state="translated">Totalt beløp eks. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control totalAmountExcludingTax - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 1842111270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Amount Including Tax</source>
-          <target state="translated">Totalt beløp inkl. mva</target>
+          <target state="translated">Totalt beløp inkl. mva.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control totalAmountIncludingTax - Property Caption</note>
         </trans-unit>

@@ -45,6 +45,7 @@ codeunit 98 "Purchase Post via Job Queue"
 
     local procedure SetJobQueueStatus(var PurchHeader: Record "Purchase Header"; NewStatus: Option)
     begin
+        OnBeforeSetJobQueueStatus(PurchHeader, NewStatus);
         PurchHeader.LockTable();
         if PurchHeader.Find then begin
             PurchHeader."Job Queue Status" := NewStatus;
@@ -194,6 +195,11 @@ codeunit 98 "Purchase Post via Job Queue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReleasePurchDoc(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetJobQueueStatus(PurchaseHeader: Record "Purchase Header"; NewJobQueueStatus: Option " ","Scheduled for Posting",Error,Posting)
     begin
     end;
 }

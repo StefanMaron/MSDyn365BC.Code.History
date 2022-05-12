@@ -749,7 +749,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 254655896 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read campaigns and segments</source>
-          <target state="translated">Läsa kampanjer, segment</target>
+          <target state="translated">Läsa kampanjer och segment</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RM-CAMPAIGN - Property Caption</note>
         </trans-unit>
@@ -845,7 +845,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2346321593 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read posted shipments, etc.</source>
-          <target state="translated">Läsa bokf. utlev, fakt. o.s.v.</target>
+          <target state="translated">Läsa bokf. utlev o.s.v.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet S&amp;R-POSTED S/I/R/C - Property Caption</note>
         </trans-unit>

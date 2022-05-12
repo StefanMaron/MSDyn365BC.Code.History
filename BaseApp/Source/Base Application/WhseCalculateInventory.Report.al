@@ -70,11 +70,12 @@ report 7390 "Whse. Calculate Inventory"
             trigger OnAfterGetRecord()
             var
                 BinContent: Record "Bin Content";
+                SkipRecord: Boolean;
             begin
                 GetLocation("Location Code");
-                if ("Bin Code" = Location."Adjustment Bin Code") or
-                   SkipCycleSKU("Location Code", "Item No.", "Variant Code")
-                then
+                SkipRecord := ("Bin Code" = Location."Adjustment Bin Code") or SkipCycleSKU("Location Code", "Item No.", "Variant Code");
+                OnWarehouseEntryOnAfterGetRecordOnAfterCalcSkipRecord("Warehouse Entry", SkipRecord);
+                if SkipRecord then
                     CurrReport.Skip();
 
                 BinContent.CopyFilters("Bin Content");
@@ -401,6 +402,11 @@ report 7390 "Whse. Calculate Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertWhseJnlLineOnAfterWhseEntrySetFilters(var WhseEntry: Record "Warehouse Entry"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWarehouseEntryOnAfterGetRecordOnAfterCalcSkipRecord(var WarehouseEntry: Record "Warehouse Entry"; var SkipRecord: Boolean)
     begin
     end;
 }

@@ -248,7 +248,13 @@ table 249 "VAT Registration Log"
         ConfigValidateManagement: Codeunit "Config. Validate Management";
         DataTypeManagement: Codeunit "Data Type Management";
         FieldRef: FieldRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateField(RecordRef, FieldName, Value, IsHandled);
+        if IsHandled then
+            exit;
+
         if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, FieldName) then
             ConfigValidateManagement.EvaluateValueWithValidate(FieldRef, CopyStr(Value, 1, FieldRef.Length()), false);
     end;
@@ -393,6 +399,11 @@ table 249 "VAT Registration Log"
         if Template = '' then
             Template := VATRegNoSrvTemplate.FindTemplate(Rec);
         VATRegNoSrvTemplateLcl := VATRegNoSrvTemplate;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateField(var RecordRef: RecordRef; FieldName: Text; Value: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

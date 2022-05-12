@@ -280,6 +280,7 @@ table 901 "Assembly Line"
                     ItemLedgEntry.Get("Appl.-to Item Entry");
                     ItemLedgEntry.TestField(Positive, true);
                     "Location Code" := ItemLedgEntry."Location Code";
+                    OnValidateApplToItemEntryOnBeforeShowNotOpenItemLedgerEntryMessage(Rec, xRec, ItemLedgEntry, CurrFieldNo);
                     if not ItemLedgEntry.Open then
                         Message(Text042, "Appl.-to Item Entry");
                 end;
@@ -1011,7 +1012,13 @@ table 901 "Assembly Line"
     procedure OpenItemTrackingLines()
     var
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenItemTrackingLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField(Type, Type::Item);
         TestField("No.");
         TestField("Quantity (Base)");
@@ -1170,7 +1177,7 @@ table 901 "Assembly Line"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterShowDimensions(Rec);
@@ -1267,6 +1274,8 @@ table 901 "Assembly Line"
 
         "Dimension Set ID" :=
           DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, DefaultDimSource, HeaderDimensionSetID);
     end;
 
     procedure UpdateDim(NewHeaderSetID: Integer; OldHeaderSetID: Integer)
@@ -1992,6 +2001,11 @@ table 901 "Assembly Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var AssemblyLine: Record "Assembly Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; HeaderDimensionSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesForReservation(var AssemblyLine: Record "Assembly Line"; ReservEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
     end;
@@ -2067,6 +2081,11 @@ table 901 "Assembly Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenItemTrackingLines(var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var AssemblyLine: Record "Assembly Line"; var xAssemblyLine: Record "Assembly Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -2123,6 +2142,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityPerOnAfterRoundQty(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateApplToItemEntryOnBeforeShowNotOpenItemLedgerEntryMessage(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; CurrentFieldNo: Integer)
     begin
     end;
 

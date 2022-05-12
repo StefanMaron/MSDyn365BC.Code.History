@@ -2159,7 +2159,7 @@
         </trans-unit>
         <trans-unit id="Page 2757592336 - NamedType 3222313909" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Journal Batch Display Name cannot be changed.</source>
-          <target state="translated">Impossible de modifier le nom complet de la feuille.</target>
+          <target state="translated">Impossible de modifier le nom d’affichage de la feuille.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - NamedType CannotEditBatchNameErr</note>
         </trans-unit>

@@ -743,7 +743,13 @@ table 99000829 "Planning Component"
     end;
 
     procedure ShowReservation()
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReservation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Item No.");
         Clear(Reservation);
         Reservation.SetReservSource(Rec);
@@ -912,6 +918,8 @@ table 99000829 "Planning Component"
         DimensionSetIDArr[2] := ReqLine."Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1098,7 +1106,7 @@ table 99000829 "Planning Component"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID",
+            Rec, "Dimension Set ID",
             StrSubstNo(
               '%1 %2 %3', "Worksheet Template Name", "Worksheet Batch Name",
               "Worksheet Line No."),
@@ -1257,6 +1265,11 @@ table 99000829 "Planning Component"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var PlanningComponent: Record "Planning Component"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFindLinesForReservation(var PlanningComponent: Record "Planning Component"; ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
     begin
     end;
@@ -1288,6 +1301,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateItemNo(var PlanningComponent: Record "Planning Component"; Item: Record Item);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReservation(var PlanningComponent: Record "Planning Component"; var IsHandled: Boolean)
     begin
     end;
 

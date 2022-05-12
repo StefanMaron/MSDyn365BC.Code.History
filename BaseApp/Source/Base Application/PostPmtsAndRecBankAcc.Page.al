@@ -70,8 +70,15 @@ page 417 "Post Pmts and Rec. Bank Acc."
         end;
     end;
 
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if CloseAction = CloseAction::LookupOK then
+            exit(CheckStatementDate());
+    end;
+
     var
         TotalBalance: Decimal;
+        StatementDateEmptyMsg: Label 'The bank account reconciliation does not have a statement date. %1 is the latest date on a line. Do you want to use that date for the statement?', Comment = '%1 - statement date';
 
     local procedure GetCurrencyCode(): Code[10]
     var
@@ -84,5 +91,24 @@ page 417 "Post Pmts and Rec. Bank Acc."
             exit(BankAcc."Currency Code");
 
         exit('');
+    end;
+
+    local procedure CheckStatementDate(): Boolean
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        BankAccReconciliationLine.SetFilter("Bank Account No.", Rec."Bank Account No.");
+        BankAccReconciliationLine.SetFilter("Statement No.", Rec."Statement No.");
+        BankAccReconciliationLine.SetCurrentKey("Transaction Date");
+        BankAccReconciliationLine.Ascending := false;
+        if BankAccReconciliationLine.FindFirst() then
+            if Rec."Statement Date" = 0D then
+                if Confirm(StrSubstNo(StatementDateEmptyMsg, Format(BankAccReconciliationLine."Transaction Date"))) then begin
+                    Rec."Statement Date" := BankAccReconciliationLine."Transaction Date";
+                    Rec.Modify();
+                    exit(true);
+                end else
+                    exit(false);
+        exit(true);
     end;
 }

@@ -952,6 +952,8 @@ table 472 "Job Queue Entry"
             EnqueueTask();
         end else
             Rec.Delete();
+
+        OnAfterCleanupAfterExecution(Rec);
     end;
 
     local procedure HandleExecutionError()
@@ -1382,6 +1384,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReschedule(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCleanupAfterExecution(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 

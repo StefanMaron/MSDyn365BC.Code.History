@@ -64,7 +64,7 @@ table 5741 "Transfer Line"
                 Validate("Units per Parcel", Item."Units per Parcel");
                 "Item Category Code" := Item."Item Category Code";
 
-                OnAfterAssignItemValues(Rec, Item);
+                OnAfterAssignItemValues(Rec, Item, TransHeader);
 
                 CreateDimFromDefaultDim();
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -1245,6 +1245,8 @@ table 5741 "Transfer Line"
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Transfer,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", TransHeader."Dimension Set ID", DATABASE::Item);
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     local procedure ValidateQuantityShipIsBalanced()
@@ -1330,7 +1332,14 @@ table 5741 "Transfer Line"
     end;
 
     procedure OpenItemTrackingLines(Direction: Enum "Transfer Direction")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenItemTrackingLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Item No.");
         TestField("Quantity (Base)");
 
@@ -1383,6 +1392,8 @@ table 5741 "Transfer Line"
             Reservation.SetReservSource(Rec, "Transfer Direction".FromInteger(OptionNumber - 1));
             Reservation.RunModal();
         end;
+
+        OnAfterShowReservation(Rec);
     end;
 
     procedure UpdateWithWarehouseShipReceive()
@@ -1540,8 +1551,15 @@ table 5741 "Transfer Line"
         end;
     end;
 
-    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; Direction: Integer): Decimal
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; Direction: Integer) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetReservationQty(Rec, QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, Direction, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Direction = 0 then begin // Outbound
             CalcFields("Reserved Quantity Outbnd.", "Reserved Qty. Outbnd. (Base)");
             QtyReserved := "Reserved Quantity Outbnd.";
@@ -1862,7 +1880,12 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemValues(var TransferLine: Record "Transfer Line"; Item: Record Item)
+    local procedure OnAfterCreateDim(var TransferLine: Record "Transfer Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignItemValues(var TransferLine: Record "Transfer Line"; Item: Record Item; TransferHeader: Record "Transfer Header")
     begin
     end;
 
@@ -1927,6 +1950,11 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterShowReservation(var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatusOpen(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
     begin
     end;
@@ -1967,12 +1995,22 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetReservationQty(var TransferLine: Record "Transfer Line"; var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; Direction: Integer; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTransHeader(var TransferLine: Record "Transfer Line"; var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnInsert(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenItemTrackingLines(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -269,13 +269,13 @@
         </trans-unit>
         <trans-unit id="Page 4170592685 - Action 2678050976 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Apply the Office 365 server settings to this record.</source>
-          <target state="translated">Nota þjónsstillingar Office 365 fyrir þessa færslu.</target>
+          <target state="translated">Nota stillingar Office 365 Server fyrir þessa færslu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Action ApplyOffice365 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Action 2678050976 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Apply Office 365 Server Settings</source>
-          <target state="translated">Nota þjónsstillingar Office 365</target>
+          <target state="translated">Nota stillingar Office 365 Server</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Action ApplyOffice365 - Property Caption</note>
         </trans-unit>
@@ -443,13 +443,13 @@
         </trans-unit>
         <trans-unit id="Page 707219180 - Action 2678050976 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Apply the Office 365 server settings to this record.</source>
-          <target state="translated">Nota þjónsstillingar Office 365 fyrir þessa færslu.</target>
+          <target state="translated">Nota stillingar Office 365 Server fyrir þessa færslu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action ApplyOffice365 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 707219180 - Action 2678050976 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Apply Office 365 Server Settings</source>
-          <target state="translated">Nota þjónsstillingar Office 365</target>
+          <target state="translated">Nota stillingar Office 365 Server</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action ApplyOffice365 - Property Caption</note>
         </trans-unit>

@@ -509,6 +509,8 @@ table 337 "Reservation Entry"
         SetRange("Source ID", SourceID);
         if SourceRefNo >= 0 then
             SetRange("Source Ref. No.", SourceRefNo);
+
+        OnAfterSetSourceFilter(Rec, SourceType, SourceSubtype, SourceID, SourceRefNo, SourceKey);
     end;
 
     procedure SetSourceFilter(SourceBatchName: Code[10]; SourceProdOrderLine: Integer)
@@ -1199,6 +1201,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetNewTrackingFromTrackingSpecification(var ReservationEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFilter(var ReservationEntry: Record "Reservation Entry"; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceKey: Boolean)
     begin
     end;
 

@@ -121,7 +121,7 @@ page 5091 Segment
                         UpdateEditable;
                         CurrPage.SegLines.PAGE.UpdateForm;
                     end;
-                }                
+                }
                 field("Word Template Code"; "Word Template Code")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -555,7 +555,7 @@ page 5091 Segment
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'E&xport Contacts';
                     Image = ExportFile;
-                    ToolTip = 'Export the segment contact list as an Excel file.';
+                    ToolTip = 'Export the list of contacts to a file on your device. For Business Central online, the file is an Excel workbook. For Business Central on-premises, it''s a text file that you can then open in Excel.';
 
                     trigger OnAction()
                     var

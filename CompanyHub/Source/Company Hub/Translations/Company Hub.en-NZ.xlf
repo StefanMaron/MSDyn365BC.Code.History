@@ -689,7 +689,7 @@
         </trans-unit>
         <trans-unit id="Table 4066499956 - Field 3660300303 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post Code</source>
-          <target state="translated">Post Code</target>
+          <target state="translated">Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Enviroment - Field Post Code - Property Caption</note>
         </trans-unit>

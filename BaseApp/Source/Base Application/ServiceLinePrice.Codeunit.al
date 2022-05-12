@@ -176,12 +176,18 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         SourceType: Enum "Price Source Type";
     begin
         PriceSourceList.Init();
-        PriceSourceList.Add(SourceType::"All Customers");
-        PriceSourceList.Add(SourceType::Customer, ServiceHeader."Bill-to Customer No.");
-        PriceSourceList.Add(SourceType::Contact, ServiceHeader."Bill-to Contact No.");
-        PriceSourceList.Add(SourceType::"Customer Price Group", ServiceLine."Customer Price Group");
-        PriceSourceList.Add(SourceType::"Customer Disc. Group", ServiceLine."Customer Disc. Group");
-
+        case CurrPriceType of
+            CurrPriceType::Sale:
+                begin
+                    PriceSourceList.Add(SourceType::"All Customers");
+                    PriceSourceList.Add(SourceType::Customer, ServiceHeader."Bill-to Customer No.");
+                    PriceSourceList.Add(SourceType::Contact, ServiceHeader."Bill-to Contact No.");
+                    PriceSourceList.Add(SourceType::"Customer Price Group", ServiceLine."Customer Price Group");
+                    PriceSourceList.Add(SourceType::"Customer Disc. Group", ServiceLine."Customer Disc. Group");
+                end;
+            CurrPriceType::Purchase:
+                PriceSourceList.Add(SourceType::"All Vendors");
+        end;
         OnAfterAddSources(ServiceHeader, ServiceLine, CurrPriceType, PriceSourceList);
     end;
 

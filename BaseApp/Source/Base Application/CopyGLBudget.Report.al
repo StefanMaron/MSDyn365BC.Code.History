@@ -251,6 +251,7 @@ report 96 "Copy G/L Budget"
                 Commit();
             end;
         end else begin
+            OnPreReportOnBeforeCopyBudgetDimCodes(GLBudgetName);
             BudgetDim1Code := GLBudgetName."Budget Dimension 1 Code";
             BudgetDim2Code := GLBudgetName."Budget Dimension 2 Code";
             BudgetDim3Code := GLBudgetName."Budget Dimension 3 Code";
@@ -616,6 +617,11 @@ report 96 "Copy G/L Budget"
             GLAccount.Get(ToGLAccountNo);
             Message(Text011)
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnBeforeCopyBudgetDimCodes(var GLBudgetName: Record "G/L Budget Name")
+    begin
     end;
 }
 

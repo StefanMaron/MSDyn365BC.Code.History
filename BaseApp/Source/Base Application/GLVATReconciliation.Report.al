@@ -291,7 +291,9 @@ report 11 "G/L - VAT Reconciliation"
                                     VATEntry.SetRange("Posting Date", StartDate, EndDate);
                             VATEntry.SetRange(Reversed, false);
                         end;
-                        VATEntryCopy.SetGLAccountNo(true);
+                        VATEntryCopy.SetGLAccountNoWithResponse(true, AdjustVATEntryConfirm, AdjustVATEntry);
+                        AdjustVATEntryConfirm := false;
+                        VATEntryCopy.CheckGLAccountNoFilled();
 
                         Identifier := Identifier + 1;
                     end;
@@ -394,6 +396,8 @@ report 11 "G/L - VAT Reconciliation"
 
     trigger OnPreReport()
     begin
+        AdjustVATEntry := false;
+        AdjustVATEntryConfirm := true;
         if EndDateReq = 0D then
             EndDate := 99991231D
         else
@@ -448,6 +452,8 @@ report 11 "G/L - VAT Reconciliation"
         HeaderText: Text[50];
         TypeNo: Integer;
         Identifier: Integer;
+        AdjustVATEntry: Boolean;
+        AdjustVATEntryConfirm: Boolean;
         VAT_Statement_Name__NameCaptionLbl: Label 'VAT Statement Name';
         VAT_Statement_Name___Statement_Template_Name_CaptionLbl: Label 'VAT Statement Template';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

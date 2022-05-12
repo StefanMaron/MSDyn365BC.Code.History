@@ -93,6 +93,7 @@ codeunit 730 "Copy Item"
 
             "Last Date Modified" := Today;
             "Created From Nonstock Item" := false;
+            "Coupled to CRM" := false;
         end;
     end;
 
@@ -391,7 +392,7 @@ codeunit 730 "Copy Item"
         if PriceListLine.FindSet() then
             repeat
                 NewPriceListLine := PriceListLine;
-                NewPriceListLine."Asset No." := ToItemNo;
+                NewPriceListLine.SetAssetNo(ToItemNo);
                 NewPriceListLine.SetNextLineNo();
                 NewPriceListLine.Insert();
             until PriceListLine.Next() = 0;

@@ -1,4 +1,4 @@
-page 5129 "Update Opportunity"
+﻿page 5129 "Update Opportunity"
 {
     Caption = 'Update Opportunity';
     DataCaptionExpression = Caption;
@@ -340,11 +340,17 @@ page 5129 "Update Opportunity"
         if SalesHeader.Get(SalesHeader."Document Type"::Quote, Opp."Sales Document No.") then
             "Estimated Value (LCY)" := GetSalesDocValue(SalesHeader);
 
+        OnUpdateEstimatedValuesOnBeforeModify(Rec, SalesHeader);
         Modify;
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateEstimatedValues(Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEstimatedValuesOnBeforeModify(var OpportunityEntry: Record "Opportunity Entry"; SalesHeader: Record "Sales Header")
     begin
     end;
 }

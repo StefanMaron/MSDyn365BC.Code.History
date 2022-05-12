@@ -403,6 +403,294 @@ codeunit 134930 "ERM Applies-To Doc. No."
         GenJournalLine.TestField("Account No.", EmployeeNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToDocNoClearedOnUpdateVendorAccountNo()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PostedDocNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431503] "Applies-To Doc. No." cleared when "Account No." is updated and "Account Type" = Vendor
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for vendor "V1"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Gen. Journal Line with non zero amount
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Vendor, '', LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Validate "Applies-To Doc. No." = "I"
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedDocNo);
+
+        // [WHEN] Validate "Account No." with vendor V2
+        GenJournalLine.Validate("Account No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] "Applies-To Doc. No." = ""
+        GenJournalLine.TestField("Applies-to Doc. No.", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToIdClearedOnUpdateVendorAccountNo()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PostedDocNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431503] "Applies-To Id" cleared when "Account No." is updated and "Account Type" = Vendor
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for vendor "V1"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Gen. Journal Line with non zero amount
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Apply journal line to invoice with "Applies-To Doc. ID"
+        VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
+        GenJournalLine."Applies-to ID" := UserId;
+        GenJournalLine.Modify();
+
+        // [WHEN] Validate "Account No." with vendor V2
+        GenJournalLine.Validate("Account No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] "Applies-To Doc. No." = ""
+        GenJournalLine.TestField("Applies-to ID", '');
+        VendorLedgerEntry.Find();
+        VendorLedgerEntry.TestField("Applies-to ID", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToDocNoClearedOnUpdateVendorBalAccountNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PostedDocNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431503] "Applies-To Doc. No." cleared when "Bal. Account No." is updated and "Bal. Account Type" = Vendor
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for vendor "V1"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Gen. Journal Line with Bal. Account vendor
+        CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+            "Gen. Journal Account Type"::Vendor, '', LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Validate "Applies-To Doc. No." = "I"
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedDocNo);
+
+        // [WHEN] Validate "Bal. Account No." with vendor V2
+        GenJournalLine.Validate("Bal. Account No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] "Applies-To Doc. No." = ""
+        GenJournalLine.TestField("Applies-to Doc. No.", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToIdClearedOnUpdateVendorBalAccountNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PostedDocNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431503] "Applies-To Id" cleared when "Bal. Account No." is updated and "Bal. Account Type" = Vendor
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for vendor "V1"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Gen. Journal Line with Bal. Account vendor
+        CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+            "Gen. Journal Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Apply journal line to invoice with "Applies-To Doc. ID"
+        VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
+        GenJournalLine."Applies-to ID" := UserId;
+        GenJournalLine.Modify();
+
+        // [WHEN] Validate "Account No." with vendor V2
+        GenJournalLine.Validate("Bal. Account No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] "Applies-To Doc. No." = ""
+        GenJournalLine.TestField("Applies-to ID", '');
+        VendorLedgerEntry.Find();
+        VendorLedgerEntry.TestField("Applies-to ID", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToDocNoIsNotClearedOnUpdateGLAccountNo()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PostedDocNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431503] "Applies-To Doc. No." is not cleared when "Account No." is updated and "Account Type" = "G/L Account"
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for vendor "V1"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Gen. Journal Line with Vendor account type
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Validate "Applies-To Doc. No." = "I"
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedDocNo);
+
+        // [WHEN] Validate "Bal. Account No." with another G/L Account 
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        // [THEN] "Applies-To Doc. No." <> ""
+        GenJournalLine.TestField("Applies-to Doc. No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToIdIsNotClearedOnUpdateGLAccountNo()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PostedDocNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431503] "Applies-To Id" cleared when "Account No." is updated and "Account Type" = "G/L Account"
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for vendor "V1"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Gen. Journal Line with Vendor account type
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Apply journal line to invoice with "Applies-To Doc. ID"
+        VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
+        GenJournalLine."Applies-to ID" := UserId;
+        GenJournalLine.Modify();
+
+        // [WHEN] Validate "Bal. Account No." with another G/L Account 
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        // [THEN] "Applies-To Doc. No." <> ""
+        GenJournalLine.TestField("Applies-to ID");
+        VendorLedgerEntry.Find();
+        VendorLedgerEntry.TestField("Applies-to ID");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToDocNoIsNotClearedOnUpdateGLBalAccountNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PostedDocNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431503] "Applies-To Doc. No." is not cleared when "Bal. Account No." is updated and "Bal. Account Type" = "G/L Account"
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for vendor "V1"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Gen. Journal Line with Bal. Account vendor
+        CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+            "Gen. Journal Account Type"::Vendor, '', LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Validate "Applies-To Doc. No." = "I"
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedDocNo);
+
+        // [WHEN] Validate "Account No." with another G/L Account 
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        // [THEN] "Applies-To Doc. No." <> ""
+        GenJournalLine.TestField("Applies-to Doc. No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppliesToIdIsNotClearedOnUpdateGLBalAccountNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PostedDocNo: Code[20];
+        EmployeeNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 431503] "Applies-To Id" is not cleared when "Bal. Account No." is updated and "Bal. Account Type" = "G/L Account"
+        Initialize();
+
+        // [GIVEN] Posted Invoice "I" for vendor "V1"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // [GIVEN] Gen. Journal Line with Bal. Account vendor
+        CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+            "Gen. Journal Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Apply journal line to invoice with "Applies-To Doc. ID"
+        VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
+        GenJournalLine."Applies-to ID" := UserId;
+        GenJournalLine.Modify();
+
+        // [WHEN] Validate "Account No." with another G/L Account 
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        // [THEN] "Applies-To Doc. No." <> ""
+        GenJournalLine.TestField("Applies-to ID");
+        VendorLedgerEntry.Find();
+        VendorLedgerEntry.TestField("Applies-to ID");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -418,6 +706,14 @@ codeunit 134930 "ERM Applies-To Doc. No."
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Applies-To Doc. No.");
+    end;
+
+    procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
     local procedure PrepareGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; PostedDocType: Enum "Gen. Journal Document Type"; var PostedDocNo: Code[20]; Sign: Integer)

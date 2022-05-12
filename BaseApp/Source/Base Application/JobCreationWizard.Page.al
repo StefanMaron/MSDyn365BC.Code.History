@@ -83,12 +83,20 @@ page 1816 "Job Creation Wizard"
                             ApplicationArea = Jobs;
                             Caption = 'Description';
                         }
-                        field("Sell-to Customer No."; Rec."Sell-to Customer No.")
+                        field("Sell-to Customer No."; SellToCustomerNo)
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Sell-to Customer No.';
                             TableRelation = Customer;
                             ToolTip = 'Specifies the number of the customer who will receive the products and be billed by default.';
+
+                            trigger OnLookup(var Text: Text): Boolean
+                            var
+                                Customer: Record Customer;
+                            begin
+                                if Page.RunModal(0, Customer) = Action::LookupOK then
+                                    SellToCustomerNo := Customer."Invoice Disc. Code";
+                            end;
                         }
 #if not CLEAN20
                         field("Bill-to Customer No."; "Bill-to Customer No.")
@@ -195,6 +203,7 @@ page 1816 "Job Creation Wizard"
         MediaResourcesDone: Record "Media Resources";
         ClientTypeManagement: Codeunit "Client Type Management";
         Step: Option Start,Creation,Finish;
+        SellToCustomerNo: Code[20];
         TopBannerVisible: Boolean;
         FirstStepVisible: Boolean;
         CreationStepVisible: Boolean;
@@ -215,7 +224,7 @@ page 1816 "Job Creation Wizard"
                 exit;
             end;
 
-            if Rec."Sell-to Customer No." = '' then begin
+            if SellToCustomerNo = '' then begin
                 Message(SelectCustomerNumberMsg);
                 Step := Step - 1;
                 exit;
@@ -281,6 +290,8 @@ page 1816 "Job Creation Wizard"
         BackActionEnabled := false;
         NextActionEnabled := false;
 
+        Rec.SetHideValidationDialog(true);
+        Rec.Validate("Sell-to Customer No.", SellToCustomerNo);
         CopyJobTasks.SetToJob(Rec);
         CopyJobTasks.Run();
     end;

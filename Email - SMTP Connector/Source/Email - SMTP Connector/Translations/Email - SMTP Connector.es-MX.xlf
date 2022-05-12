@@ -149,7 +149,7 @@
         </trans-unit>
         <trans-unit id="Page 4170592685 - NamedType 1197554121" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to override the current data?</source>
-          <target state="translated">¿Desea reemplazar los datos actuales?</target>
+          <target state="translated">¿Confirma que desea reemplazar los datos actuales?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - NamedType ConfirmApplyO365Qst</note>
         </trans-unit>
@@ -311,7 +311,7 @@
         </trans-unit>
         <trans-unit id="Page 707219180 - NamedType 1197554121" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to override the current data?</source>
-          <target state="translated">¿Desea reemplazar los datos actuales?</target>
+          <target state="translated">¿Confirma que desea reemplazar los datos actuales?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - NamedType ConfirmApplyO365Qst</note>
         </trans-unit>

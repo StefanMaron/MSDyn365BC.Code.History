@@ -583,7 +583,7 @@
         </trans-unit>
         <trans-unit id="Page 2804880794 - Control 3142569618 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more about how the data is handled.</source>
-          <target state="translated">Obtenga más información sobre cómo se tratan los datos.</target>
+          <target state="translated">Obtenga más información sobre cómo se controlan los datos.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Privacy - Property Caption</note>
         </trans-unit>

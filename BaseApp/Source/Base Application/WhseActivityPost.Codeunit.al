@@ -326,7 +326,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 OnAfterTransLineModify(TransLine);
                             until TransLine.Next() = 0;
 
-                        OnInitSourceDocumentOnAfterTransferLineLoopIteration(TransLine, TransHeader, WhseActivHeader);
+                        OnInitSourceDocumentOnAfterTransferLineLoopIteration(TransLine, TransHeader, WhseActivHeader, ModifyHeader);
 
                         if (TransHeader."Posting Date" <> "Posting Date") and ("Posting Date" <> 0D) then begin
                             TransHeader.CalledFromWarehouse(true);
@@ -359,7 +359,9 @@ codeunit 7324 "Whse.-Activity-Post"
             PurchRelease.SetSkipCheckReleaseRestrictions;
             PurchHeader.SetHideValidationDialog(true);
             PurchHeader.Validate("Posting Date", WhseActivHeader."Posting Date");
+            OnReleasePurchDocumentOnBeforePurchReleaseRun(PurchHeader, WhseActivHeader);
             PurchRelease.Run(PurchHeader);
+            OnReleasePurchDocumentOnAfterPurchReleaseRun(PurchHeader, WhseActivHeader);
             ModifyHeader := true;
         end;
     end;
@@ -379,7 +381,9 @@ codeunit 7324 "Whse.-Activity-Post"
             SalesRelease.SetSkipCheckReleaseRestrictions;
             SalesHeader.SetHideValidationDialog(true);
             SalesHeader.Validate("Posting Date", WhseActivHeader."Posting Date");
+            OnReleaseSalesDocumentOnBeforeSalesReleaseRun(SalesHeader, WhseActivHeader);
             SalesRelease.Run(SalesHeader);
+            OnReleaseSalesDocumentOnAfterSalesReleaseRun(SalesHeader, WhseActivHeader);
             ModifyHeader := true;
         end;
     end;
@@ -922,6 +926,7 @@ codeunit 7324 "Whse.-Activity-Post"
         with TempWhseActivLine do begin
             ProdOrderLine.Get("Source Subtype", "Source No.", "Source Line No.");
             ItemJnlLine.Init();
+            OnPostConsumptionLineOnAfterInitItemJournalLine(ItemJnlLine, SourceCodeSetup);
             ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
             ItemJnlLine.Validate("Posting Date", WhseActivHeader."Posting Date");
             ItemJnlLine."Source No." := ProdOrderLine."Item No.";
@@ -984,6 +989,7 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
         with TempWhseActivLine do begin
             ItemJnlLine.Init();
+            OnPostOutputLineOnAfterItemJournalLineInit(ItemJnlLine, SourceCodeSetup);
             ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
             ItemJnlLine.Validate("Posting Date", WhseActivHeader."Posting Date");
             ItemJnlLine."Document No." := ProdOrder."No.";
@@ -1376,7 +1382,12 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitSourceDocumentOnAfterTransferLineLoopIteration(var TransLine: Record "Transfer Line"; TransHeader: Record "Transfer Header"; WhseActivHeader: Record "Warehouse Activity Header")
+    local procedure OnInitSourceDocumentOnAfterTransferLineLoopIteration(var TransLine: Record "Transfer Line"; TransHeader: Record "Transfer Header"; WhseActivHeader: Record "Warehouse Activity Header"; var ModifyHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostConsumptionLineOnAfterInitItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
 
@@ -1406,6 +1417,26 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnReleasePurchDocumentOnAfterPurchReleaseRun(PurchaseHeader: Record "Purchase Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReleasePurchDocumentOnBeforePurchReleaseRun(var PurchaseHeader: Record "Purchase Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReleaseSalesDocumentOnAfterSalesReleaseRun(SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReleaseSalesDocumentOnBeforeSalesReleaseRun(var SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSourceDocumentOnAfterGetPurchLine(var PurchaseLine: Record "Purchase Line"; TempWhseActivLine: Record "Warehouse Activity Line" temporary)
     begin
     end;
@@ -1427,6 +1458,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSourceDocumentOnAfterGetSalesLine(var SalesLine: Record "Sales Line"; TempWhseActivLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOutputLineOnAfterItemJournalLineInit(var ItemJournalLine: Record "Item Journal Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
 }

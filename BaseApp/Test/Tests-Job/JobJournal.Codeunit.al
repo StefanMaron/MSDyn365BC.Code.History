@@ -2282,9 +2282,7 @@ codeunit 136305 "Job Journal"
         Contact2.Modify(true);
 
         // [GIVEN] Job with "Bill-to Contact No." = "C1"
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", Customer."No.");
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, Customer."No.");
         JobCard.Trap();
         Page.Run(Page::"Job Card", Job);
 
@@ -2329,9 +2327,7 @@ codeunit 136305 "Job Journal"
         Contact2.Modify(true);
 
         // [GIVEN] Job with "Bill-to Contact No." = "C1"
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", Customer."No.");
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, Customer."No.");
         JobCard.Trap();
         Page.Run(Page::"Job Card", Job);
 

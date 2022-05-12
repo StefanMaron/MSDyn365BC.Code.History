@@ -73,7 +73,12 @@ codeunit 5402 "Unit of Measure Management"
 
     procedure CalcBaseQty(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal) QtyRounded: Decimal
     begin
-        QtyRounded := CalcBaseQty(ItemNo, VariantCode, UOMCode, QtyBase, QtyPerUOM, 0, '', '', '');
+        QtyRounded := CalcBaseQty(ItemNo, VariantCode, UOMCode, QtyBase, QtyPerUOM, 0);
+    end;
+
+    procedure CalcBaseQty(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal; QtyRndingPrecision: Decimal) QtyRounded: Decimal
+    begin
+        QtyRounded := CalcBaseQty(ItemNo, VariantCode, UOMCode, QtyBase, QtyPerUOM, QtyRndingPrecision, '', '', '');
     end;
 
     procedure CalcBaseQty(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal; QtyRndingPrecision: Decimal; BasedOnField: Text; FromFieldName: Text; ToFieldName: Text) QtyRounded: Decimal
