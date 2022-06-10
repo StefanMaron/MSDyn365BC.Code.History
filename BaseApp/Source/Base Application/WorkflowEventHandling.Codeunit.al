@@ -296,212 +296,212 @@ codeunit 1520 "Workflow Event Handling"
 
     procedure RunWorkflowOnAfterInsertIncomingDocumentCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterInsertIncomingDocument'));
+        exit('RUNWORKFLOWONAFTERINSERTINCOMINGDOCUMENT');
     end;
 
     procedure RunWorkflowOnAfterReleaseIncomingDocCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterReleaseIncomingDoc'));
+        exit('RUNWORKFLOWONAFTERRELEASEINCOMINGDOC');
     end;
 
     procedure RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterCreateDocFromIncomingDocSuccess'));
+        exit('RUNWORKFLOWONAFTERCREATEDOCFROMINCOMINGDOCSUCCESS');
     end;
 
     procedure RunWorkflowOnAfterCreateDocFromIncomingDocFailCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterCreateDocFromIncomingDocFail'));
+        exit('RUNWORKFLOWONAFTERCREATEDOCFROMINCOMINGDOCFAIL');
     end;
 
     procedure RunWorkflowOnAfterReadyForOCRIncomingDocCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterreadyforOCRIncomingDoc'));
+        exit('RUNWORKFLOWONAFTERREADYFOROCRINCOMINGDOC');
     end;
 
     procedure RunWorkflowOnAfterSendToOCRIncomingDocCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterSendToOCRIncomingDoc'));
+        exit('RUNWORKFLOWONAFTERSENDTOOCRINCOMINGDOC');
     end;
 
     procedure RunWorkflowOnAfterReceiveFromOCRIncomingDocCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterReceiveFromOCRIncomingDoc'));
+        exit('RUNWORKFLOWONAFTERRECEIVEFROMOCRINCOMINGDOC');
     end;
 
     procedure RunWorkflowOnAfterReceiveFromDocExchIncomingDocCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterReceiveFromDocExchIncomingDoc'));
+        exit('RUNWORKFLOWONAFTERRECEIVEFROMDOCEXCHINCOMINGDOC');
     end;
 
     procedure RunWorkflowOnSendPurchaseDocForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendPurchaseDocForApproval'));
+        exit('RUNWORKFLOWONSENDPURCHASEDOCFORAPPROVAL');
     end;
 
     procedure RunWorkflowOnSendIncomingDocForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendIncomingDocForApproval'));
+        exit('RUNWORKFLOWONSENDINCOMINGDOCFORAPPROVAL');
     end;
 
     procedure RunWorkflowOnCancelIncomingDocApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelIncomingDocApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELINCOMINGDOCAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnCancelPurchaseApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelPurchaseApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELPURCHASEAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnAfterReleasePurchaseDocCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterReleasePurchaseDoc'));
+        exit('RUNWORKFLOWONAFTERRELEASEPURCHASEDOC');
     end;
 
     procedure RunWorkflowOnSendSalesDocForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendSalesDocForApproval'));
+        exit('RUNWORKFLOWONSENDSALESDOCFORAPPROVAL');
     end;
 
     procedure RunWorkflowOnCancelSalesApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelSalesApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELSALESAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnAfterReleaseSalesDocCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterReleaseSalesDoc'));
+        exit('RUNWORKFLOWONAFTERRELEASESALESDOC');
     end;
 
     procedure RunWorkflowOnAfterPostPurchaseDocCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterPostPurchaseDoc'));
+        exit('RUNWORKFLOWONAFTERPOSTPURCHASEDOC');
     end;
 
     procedure RunWorkflowOnAfterInsertGeneralJournalLineCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterInsertGeneralJournalLine'));
+        exit('RUNWORKFLOWONAFTERINSERTGENERALJOURNALLINE');
     end;
 
     procedure RunWorkflowOnApproveApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnApproveApprovalRequest'));
+        exit('RUNWORKFLOWONAPPROVEAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnDelegateApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnDelegateApprovalRequest'));
+        exit('RUNWORKFLOWONDELEGATEAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnRejectApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnRejectApprovalRequest'));
+        exit('RUNWORKFLOWONREJECTAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnSendOverdueNotificationsCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendOverdueNotifications'));
+        exit('RUNWORKFLOWONSENDOVERDUENOTIFICATIONS');
     end;
 
     procedure RunWorkflowOnCustomerCreditLimitExceededCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCustomerCreditLimitExceeded'));
+        exit('RUNWORKFLOWONCUSTOMERCREDITLIMITEXCEEDED');
     end;
 
     procedure RunWorkflowOnCustomerCreditLimitNotExceededCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCustomerCreditLimitNotExceeded'));
+        exit('RUNWORKFLOWONCUSTOMERCREDITLIMITNOTEXCEEDED');
     end;
 
     procedure RunWorkflowOnSendCustomerForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendCustomerForApproval'));
+        exit('RUNWORKFLOWONSENDCUSTOMERFORAPPROVAL');
     end;
 
     procedure RunWorkflowOnSendVendorForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendVendorForApproval'));
+        exit('RUNWORKFLOWONSENDVENDORFORAPPROVAL');
     end;
 
     procedure RunWorkflowOnSendItemForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendItemForApproval'));
+        exit('RUNWORKFLOWONSENDITEMFORAPPROVAL');
     end;
 
     procedure RunWorkflowOnCancelCustomerApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelCustomerApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELCUSTOMERAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnCancelVendorApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelVendorApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELVENDORAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnCancelItemApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelItemApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELITEMAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnSendGeneralJournalBatchForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendGeneralJournalBatchForApproval'));
+        exit('RUNWORKFLOWONSENDGENERALJOURNALBATCHFORAPPROVAL');
     end;
 
     procedure RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelGeneralJournalBatchApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELGENERALJOURNALBATCHAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnSendGeneralJournalLineForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendGeneralJournalLineForApproval'));
+        exit('RUNWORKFLOWONSENDGENERALJOURNALLINEFORAPPROVAL');
     end;
 
     procedure RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelGeneralJournalLineApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELGENERALJOURNALLINEAPPROVALREQUEST');
     end;
 
     procedure RunWorkflowOnGeneralJournalBatchBalancedCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnGeneralJournalBatchBalanced'));
+        exit('RUNWORKFLOWONGENERALJOURNALBATCHBALANCED');
     end;
 
     procedure RunWorkflowOnGeneralJournalBatchNotBalancedCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnGeneralJournalBatchNotBalanced'));
+        exit('RUNWORKFLOWONGENERALJOURNALBATCHNOTBALANCED');
     end;
 
     procedure RunWorkflowOnBinaryFileAttachedCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnBinaryFileAttached'));
+        exit('RUNWORKFLOWONBINARYFILEATTACHED');
     end;
 
     procedure RunWorkflowOnCustomerChangedCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCustomerChangedCode'));
+        exit('RUNWORKFLOWONCUSTOMERCHANGEDCODE');
     end;
 
     procedure RunWorkflowOnVendorChangedCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnVendorChangedCode'));
+        exit('RUNWORKFLOWONVENDORCHANGEDCODE');
     end;
 
     procedure RunWorkflowOnItemChangedCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnItemChangedCode'));
+        exit('RUNWORKFLOWONITEMCHANGEDCODE');
     end;
 
     procedure RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode'));
+        exit('RUNWORKFLOWONAFTERCREATEGENJNLLINEFROMINCOMINGDOCSUCCESSCODE');
     end;
 
     procedure RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterCreateGenJnlLineFromIncomingDoFailCode'));
+        exit('RUNWORKFLOWONAFTERCREATEGENJNLLINEFROMINCOMINGDOFAILCODE');
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterInsertEvent', '', false, false)]

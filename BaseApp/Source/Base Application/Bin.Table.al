@@ -263,7 +263,14 @@ table 7354 Bin
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Location Code");
         TestField(Code);
         GetLocation("Location Code");
@@ -277,7 +284,14 @@ table 7354 Bin
     end;
 
     trigger OnModify()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnModify(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetLocation("Location Code");
         if Location."Directed Put-away and Pick" then begin
             TestField("Zone Code");
@@ -367,6 +381,8 @@ table 7354 Bin
                   (PostedWeight + WhseActivityWeight + JournalWeight +
                    WhseRcptWeight + WhseShptWeight + WhseIntPickWeight);
         end;
+
+        OnAfterCalcCubageAndWeight(Rec, CalledbyPosting, Cubage, Weight);
     end;
 
     local procedure CalcPostedCubageAndWeight(var PostedCubage: Decimal; var PostedWeight: Decimal)
@@ -631,6 +647,11 @@ table 7354 Bin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcCubageAndWeight(Bin: Record Bin; CalledByPosting: Boolean; var Cubage: Decimal; var Weight: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var Bin: Record Bin)
     begin
     end;
@@ -642,6 +663,16 @@ table 7354 Bin
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWhseClass(Bin: Record Bin; ItemNo: Code[20]; var ResultValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var Bin: Record Bin; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(var Bin: Record Bin; var xBin: Record Bin; var IsHandled: Boolean)
     begin
     end;
 }

@@ -125,7 +125,7 @@ table 5989 "Service Shipment Item Line"
         }
         field(27; "Location of Service Item"; Text[30])
         {
-            CalcFormula = Lookup ("Service Item"."Location of Service Item" WHERE("No." = FIELD("Service Item No.")));
+            CalcFormula = Lookup("Service Item"."Location of Service Item" WHERE("No." = FIELD("Service Item No.")));
             Caption = 'Location of Service Item';
             Editable = false;
             FieldClass = FlowField;
@@ -177,7 +177,7 @@ table 5989 "Service Shipment Item Line"
         }
         field(37; "Fault Comment"; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Shipment Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Shipment Header"),
                                                               "Table Subtype" = CONST("0"),
                                                               "No." = FIELD("No."),
                                                               Type = CONST(Fault),
@@ -188,7 +188,7 @@ table 5989 "Service Shipment Item Line"
         }
         field(38; "Resolution Comment"; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Shipment Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Shipment Header"),
                                                               "Table Subtype" = CONST("0"),
                                                               "No." = FIELD("No."),
                                                               Type = CONST(Resolution),
@@ -199,7 +199,7 @@ table 5989 "Service Shipment Item Line"
         }
         field(39; "Accessory Comment"; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Shipment Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Shipment Header"),
                                                               "Table Subtype" = CONST("0"),
                                                               "No." = FIELD("No."),
                                                               Type = CONST(Accessory),
@@ -238,7 +238,7 @@ table 5989 "Service Shipment Item Line"
         }
         field(60; "No. of Active/Finished Allocs"; Integer)
         {
-            CalcFormula = Count ("Service Order Allocation" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = CONST(Order),
                                                                   "Document No." = FIELD("No."),
                                                                   "Service Item Line No." = FIELD("Line No."),
                                                                   "Resource No." = FIELD("Resource Filter"),
@@ -350,6 +350,7 @@ table 5989 "Service Shipment Item Line"
                 ServCommentLine.SetRange(Type, ServCommentLine.Type::"Service Item Loaner");
         end;
         ServCommentLine.SetRange("Table Line No.", "Line No.");
+        OnShowCommentsOnAfterServCommentLineSetFilters(ServCommentLine);
         PAGE.RunModal(PAGE::"Service Comment Sheet", ServCommentLine);
     end;
 
@@ -357,6 +358,11 @@ table 5989 "Service Shipment Item Line"
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID",
           StrSubstNo('%1 %2 %3', TableCaption, "No.", "Line No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowCommentsOnAfterServCommentLineSetFilters(var ServiceCommentLine: Record "Service Comment Line")
+    begin
     end;
 }
 

@@ -169,6 +169,8 @@ codeunit 5612 "Calculate Custom 1 Depr."
                     DeprAmount := CalcCustom1Amount();
             end;
 
+            OnCalculateOnBeforeCalcCustom1DeprAmount(DeprMethod, DeprAmount);
+
             Custom1DeprAmount := CalcCustom1DeprAmount;
             DepreciationCalc.AdjustCustom1(
               DeprBookCode, DeprAmount, Custom1DeprAmount, BookValue, SalvageValue,
@@ -437,6 +439,11 @@ codeunit 5612 "Calculate Custom 1 Depr."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculate(var DeprAmount: Decimal; var Custom1DeprAmount: Decimal; var NumberOfDays3: Integer; var Custom1NumberOfDays3: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnBeforeCalcCustom1DeprAmount(var FADepreciationMethod: Enum "FA Depreciation Method"; var DeprAmount: Decimal)
     begin
     end;
 }

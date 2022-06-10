@@ -58,11 +58,14 @@ codeunit 9000 "Users - Create Super User"
     end;
 
     local procedure CreateUser(var User: Record User; UserName: Code[50]; WindowsSecurityID: Text[119])
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
         User.Init();
         User."User Security ID" := CreateGuid;
         User."User Name" := UserName;
-        User."Windows Security ID" := WindowsSecurityID;
+        if not EnvironmentInformation.IsSaaS() then
+            User."Windows Security ID" := WindowsSecurityID;
         User.Insert(true);
     end;
 

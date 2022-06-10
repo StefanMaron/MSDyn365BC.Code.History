@@ -391,6 +391,8 @@ report 28 "Dimensions - Detail"
                 end;
                 AnalysisViewEntry.SetRange("Posting Date", StartDate, EndDate);
 
+                OnAfterGetRecordAnalysisViewOnBeforeSetEntryFilterGroup(AnalysisViewEntry, "Analysis View");
+
                 AnalysisViewEntry.FilterGroup(2);
                 TempSelectedDim.Reset();
                 TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
@@ -584,6 +586,7 @@ report 28 "Dimensions - Detail"
                     DimVal.SetFilter(Code, TempSelectedDim."Dimension Value Filter")
                 else
                     DimVal.SetRange(Code);
+                OnPreReportOnAfterDimValSetFilters(DimVal);
                 if DimVal.Find('-') then
                     repeat
                         TempDimVal.Init();
@@ -680,6 +683,7 @@ report 28 "Dimensions - Detail"
             end;
             TempGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
             TempGLEntry.SetFilter("Posting Date", DateFilter);
+            OnPrintDetailOnAfterTempGLEntrySetFilters(TempGLEntry);
             if not TempGLEntry.Find('-') then
                 exit(false);
         end else
@@ -825,6 +829,21 @@ report 28 "Dimensions - Detail"
                 else
                     AnalysisViewEntry.SetFilter("Dimension 4 Value Code", AnalysisViewFilter);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordAnalysisViewOnBeforeSetEntryFilterGroup(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisView: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintDetailOnAfterTempGLEntrySetFilters(var TempGLEntry: Record "G/L Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnAfterDimValSetFilters(var DimensionValue: Record "Dimension Value")
+    begin
     end;
 }
 

@@ -45,11 +45,40 @@ page 6501 "Item Tracking Entries"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a serial number if the posted item carries such a number.';
+
+                    trigger OnDrillDown()
+                    var
+                        ItemTrackingManagement: Codeunit "Item Tracking Management";
+                    begin
+                        ItemTrackingManagement.LookupTrackingNoInfo(
+                            Rec."Item No.", Rec."Variant Code", "Item Tracking Type"::"Serial No.", Rec."Serial No.");
+                    end;
                 }
                 field("Lot No."; "Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a lot number if the posted item carries such a number.';
+
+                    trigger OnDrillDown()
+                    var
+                        ItemTrackingManagement: Codeunit "Item Tracking Management";
+                    begin
+                        ItemTrackingManagement.LookupTrackingNoInfo(
+                            Rec."Item No.", Rec."Variant Code", "Item Tracking Type"::"Lot No.", Rec."Lot No.");
+                    end;
+                }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies a package number if the posted item carries such a number.';
+
+                    trigger OnDrillDown()
+                    var
+                        ItemTrackingManagement: Codeunit "Item Tracking Management";
+                    begin
+                        ItemTrackingManagement.LookupTrackingNoInfo(
+                            Rec."Item No.", Rec."Variant Code", "Item Tracking Type"::"Package No.", Rec."Package No.");
+                    end;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -119,11 +148,18 @@ page 6501 "Item Tracking Entries"
                     Image = SNInfo;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    RunObject = Page "Serial No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Serial No." = FIELD("Serial No.");
                     ToolTip = 'View or edit detailed information about the serial number.';
+
+                    trigger OnAction()
+                    var
+                        SerialNoInformation: Record "Serial No. Information";
+                        TrackingSpecification: Record "Tracking Specification";
+                    begin
+                        Rec.TestField("Serial No.");
+                        TrackingSpecification.SetItemData(Rec."Item No.", '', Rec."Location Code", Rec."Variant Code", '', 0);
+                        TrackingSpecification.CopyTrackingFromItemLedgEntry(Rec);
+                        SerialNoInformation.ShowCard(Rec."Serial No.", TrackingSpecification);
+                    end;
                 }
                 action("Lot No. Information Card")
                 {
@@ -132,21 +168,35 @@ page 6501 "Item Tracking Entries"
                     Image = LotInfo;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    RunObject = Page "Lot No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Lot No." = FIELD("Lot No.");
                     ToolTip = 'View or edit detailed information about the lot number.';
+
+                    trigger OnAction()
+                    var
+                        LotNoInformation: Record "Lot No. Information";
+                        TrackingSpecification: Record "Tracking Specification";
+                    begin
+                        Rec.TestField("Lot No.");
+                        TrackingSpecification.SetItemData(Rec."Item No.", '', Rec."Location Code", Rec."Variant Code", '', 0);
+                        TrackingSpecification.CopyTrackingFromItemLedgEntry(Rec);
+                        LotNoInformation.ShowCard(Rec."Lot No.", TrackingSpecification);
+                    end;
                 }
                 action("Package No. Information Card")
                 {
                     Caption = 'Package No. Information Card';
                     Image = SNInfo;
-                    RunObject = Page "Package No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Package No." = FIELD("Package No.");
                     ToolTip = 'View or edit detailed information about the package number.';
+
+                    trigger OnAction()
+                    var
+                        PackageNoInformation: Record "Package No. Information";
+                        TrackingSpecification: Record "Tracking Specification";
+                    begin
+                        Rec.TestField("Package No.");
+                        TrackingSpecification.SetItemData(Rec."Item No.", '', Rec."Location Code", Rec."Variant Code", '', 0);
+                        TrackingSpecification.CopyTrackingFromItemLedgEntry(Rec);
+                        PackageNoInformation.ShowCard(Rec."Package No.", TrackingSpecification);
+                    end;
                 }
             }
         }

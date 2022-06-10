@@ -8,7 +8,7 @@ codeunit 5972 "Service Info-Pane Management"
     var
         Item: Record Item;
 
-    procedure CalcAvailability(var ServLine: Record "Service Line"): Decimal
+    procedure CalcAvailability(var ServLine: Record "Service Line") Result: Decimal
     var
         AvailableToPromise: Codeunit "Available to Promise";
         GrossRequirement: Decimal;
@@ -30,15 +30,17 @@ codeunit 5972 "Service Info-Pane Management"
             Item.SetRange("Drop Shipment Filter", false);
             OnCalcAvailabilityOnAfterSetItemFilters(Item, ServLine);
 
-            exit(
+            Result :=
               AvailableToPromise.CalcQtyAvailabletoPromise(
                 Item,
                 GrossRequirement,
                 ScheduledReceipt,
                 AvailabilityDate,
                 PeriodType,
-                LookaheadDateformula));
+                LookaheadDateformula);
         end;
+
+        OnAfterCalcAvailability(ServLine, Item, GrossRequirement, ScheduledReceipt, AvailabilityDate, PeriodType, LookaheadDateformula, Result);
     end;
 
     procedure CalcNoOfSubstitutions(var ServLine: Record "Service Line"): Integer
@@ -181,6 +183,11 @@ codeunit 5972 "Service Info-Pane Management"
             SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", ServItem."No.", ServItem.Description);
             SkilledResourceList.RunModal();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcAvailability(ServLine: Record "Service Line"; var Item: Record Item; GrossRequirement: Decimal; ScheduledReceipt: Decimal; AvailabilityDate: Date; PeriodType: Enum "Analysis Period Type"; LookaheadDateformula: DateFormula; var Result: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

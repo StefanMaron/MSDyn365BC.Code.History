@@ -993,37 +993,36 @@ table 337 "Reservation Entry"
     begin
         IsHandled := false;
         OnBeforeTransferReservations(OldReservEntry, ItemNo, VariantCode, LocationCode, TransferAll, TransferQty, QtyPerUOM, SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then
+            if TransferAll then begin
+                OldReservEntry.FindSet();
+                OldReservEntry.TestField("Qty. per Unit of Measure", QtyPerUOM);
+                repeat
+                    OldReservEntry.TestItemFields(ItemNo, VariantCode, LocationCode);
 
-        if TransferAll then begin
-            OldReservEntry.FindSet();
-            OldReservEntry.TestField("Qty. per Unit of Measure", QtyPerUOM);
-            repeat
-                OldReservEntry.TestItemFields(ItemNo, VariantCode, LocationCode);
+                    NewReservEntry := OldReservEntry;
+                    NewReservEntry.SetSource(SourceType, SourceSubtype, SourceID, SourceRefNo, SourceBatchName, SourceProdOrderLine);
 
-                NewReservEntry := OldReservEntry;
-                NewReservEntry.SetSource(SourceType, SourceSubtype, SourceID, SourceRefNo, SourceBatchName, SourceProdOrderLine);
+                    NewReservEntry.UpdateActionMessageEntries(OldReservEntry);
+                    OnTransferReservationsOnAfterNewReservEntryUpdateActionMessageEntries(OldReservEntry, NewReservEntry);
+                until OldReservEntry.Next() = 0;
+            end else
+                for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
+                    if TransferQty = 0 then
+                        exit;
+                    OldReservEntry.SetRange("Reservation Status", ReservStatus);
+                    if OldReservEntry.FindSet() then
+                        repeat
+                            OldReservEntry.TestItemFields(ItemNo, VariantCode, LocationCode);
 
-                NewReservEntry.UpdateActionMessageEntries(OldReservEntry);
-                OnTransferReservationsOnAfterNewReservEntryUpdateActionMessageEntries(OldReservEntry, NewReservEntry);
-            until OldReservEntry.Next() = 0;
-        end else
-            for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
-                if TransferQty = 0 then
-                    exit;
-                OldReservEntry.SetRange("Reservation Status", ReservStatus);
-                if OldReservEntry.FindSet() then
-                    repeat
-                        OldReservEntry.TestItemFields(ItemNo, VariantCode, LocationCode);
-
-                        TransferQty :=
-                          CreateReservEntry.TransferReservEntry(
-                            SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo,
-                            QtyPerUOM, OldReservEntry, TransferQty);
-                        OnTransferReservationsOnAfterSecondOldReservEntryLoop(OldReservEntry, NewReservEntry, SourceType, SourceSubtype, SourceID);
-                    until (OldReservEntry.Next() = 0) or (TransferQty = 0);
-            end;
+                            TransferQty :=
+                              CreateReservEntry.TransferReservEntry(
+                                SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo,
+                                QtyPerUOM, OldReservEntry, TransferQty);
+                            OnTransferReservationsOnAfterSecondOldReservEntryLoop(OldReservEntry, NewReservEntry, SourceType, SourceSubtype, SourceID);
+                        until (OldReservEntry.Next() = 0) or (TransferQty = 0);
+                end;
+        OnAfterTransferReservations(OldReservEntry, NewReservEntry);
     end;
 
     procedure FieldFilterNeeded(var FieldFilter: Text; SearchForSupply: Boolean; ItemTrackingType: Enum "Item Tracking Type"): Boolean
@@ -1346,6 +1345,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTrackingExists(ReservationEntry: Record "Reservation Entry"; var IsTrackingExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferReservations(var OldReservationEntry: Record "Reservation Entry"; var NewReservationEntry: Record "Reservation Entry")
     begin
     end;
 

@@ -94,6 +94,13 @@ page 7326 "Whse. Phys. Invt. Journal"
                     ToolTip = 'Specifies the same as for the field in the Item Journal window.';
                     Visible = false;
                 }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    Editable = PackageNoEditable;
+                    ToolTip = 'Specifies the same as for the field in the Item Journal window.';
+                    Visible = PackageNoVisible;
+                }
                 field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = ItemTracking;
@@ -417,6 +424,8 @@ page 7326 "Whse. Phys. Invt. Journal"
         if not JnlSelected then
             Error('');
         Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
+
+        SetPackageTrackingVisibility();
     end;
 
     var
@@ -432,12 +441,17 @@ page 7326 "Whse. Phys. Invt. Journal"
         SerialNoEditable: Boolean;
         [InDataSet]
         LotNoEditable: Boolean;
+        [InDataSet]
+        PackageNoEditable: Boolean;
+        [InDataSet]
+        PackageNoVisible: Boolean;
         QtyPhysInventoryBaseIsEditable: Boolean;
 
     procedure SetControls()
     begin
         SerialNoEditable := not Rec."Phys. Inventory";
         LotNoEditable := not Rec."Phys. Inventory";
+        PackageNoEditable := not Rec."Phys. Inventory";
         QtyPhysInventoryBaseIsEditable := Rec.IsQtyPhysInventoryBaseEditable();
     end;
 
@@ -451,6 +465,13 @@ page 7326 "Whse. Phys. Invt. Journal"
     procedure ItemNoOnAfterValidate()
     begin
         Rec.GetItem(Rec."Item No.", ItemDescription);
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageNoVisible := PackageMgt.IsEnabled();
     end;
 }
 

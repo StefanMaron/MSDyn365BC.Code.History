@@ -448,6 +448,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
             ExchRateDate := ExchRateDate2;
         end else
             GLSetup.Get();
+        OnAfterSetCurrency(CurrencyFactor, ExchRateDate, PricesInCurrency, PricesInclVAT, VATPerCent, VATBusPostingGr, DateCaption, PriceInSKU, FoundPurchPrice);
     end;
 
     procedure SetVAT(PriceInclVAT2: Boolean; VATPerCent2: Decimal; VATBusPostingGr2: Code[20])
@@ -982,6 +983,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPurchLinePriceExists(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCurrency(var CurrencyFactor: Decimal; var ExchRateDate: Date; var PricesInCurrency: Boolean; var PricesInclVAT: Boolean; var VATPerCent: Decimal; var VATBusPostingGr: Code[20]; var DateCaption: Text[30]; var PriceInSKU: Boolean; var FoundPurchPrice: Boolean)
     begin
     end;
 

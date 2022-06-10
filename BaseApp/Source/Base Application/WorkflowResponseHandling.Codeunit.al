@@ -365,167 +365,167 @@ codeunit 1521 "Workflow Response Handling"
 
     procedure DoNothingCode(): Code[128]
     begin
-        exit(UpperCase('DoNothing'));
+        exit('DONOTHING');
     end;
 
     procedure CreateNotificationEntryCode(): Code[128]
     begin
-        exit(UpperCase('CreateNotificationEntry'));
+        exit('CREATENOTIFICATIONENTRY');
     end;
 
     procedure ReleaseDocumentCode(): Code[128]
     begin
-        exit(UpperCase('ReleaseDocument'));
+        exit('RELEASEDOCUMENT');
     end;
 
     procedure OpenDocumentCode(): Code[128]
     begin
-        exit(UpperCase('OpenDocument'));
+        exit('OPENDOCUMENT');
     end;
 
     procedure SetStatusToPendingApprovalCode(): Code[128]
     begin
-        exit(UpperCase('SetStatusToPendingApproval'));
+        exit('SETSTATUSTOPENDINGAPPROVAL');
     end;
 
     procedure GetApprovalCommentCode(): Code[128]
     begin
-        exit(UpperCase('GetApprovalComment'));
+        exit('GETAPPROVALCOMMENT');
     end;
 
     procedure CreateApprovalRequestsCode(): Code[128]
     begin
-        exit(UpperCase('CreateApprovalRequests'));
+        exit('CREATEAPPROVALREQUESTS');
     end;
 
     procedure SendApprovalRequestForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('SendApprovalRequestForApproval'));
+        exit('SENDAPPROVALREQUESTFORAPPROVAL');
     end;
 
     procedure ApproveAllApprovalRequestsCode(): Code[128]
     begin
-        exit(UpperCase('ApproveAllApprovalRequests'));
+        exit('APPROVEALLAPPROVALREQUESTS');
     end;
 
     procedure RejectAllApprovalRequestsCode(): Code[128]
     begin
-        exit(UpperCase('RejectAllApprovalRequests'));
+        exit('REJECTALLAPPROVALREQUESTS');
     end;
 
     procedure CancelAllApprovalRequestsCode(): Code[128]
     begin
-        exit(UpperCase('CancelAllApprovalRequests'));
+        exit('CANCELALLAPPROVALREQUESTS');
     end;
 
     procedure PostDocumentAsyncCode(): Code[128]
     begin
-        exit(UpperCase('BackgroundPostApprovedPurchaseDoc'));
+        exit('BACKGROUNDPOSTAPPROVEDPURCHASEDOC');
     end;
 
     procedure PostDocumentCode(): Code[128]
     begin
-        exit(UpperCase('PostDocument'));
+        exit('POSTDOCUMENT');
     end;
 
     procedure CreatePmtLineForPostedPurchaseDocAsyncCode(): Code[128]
     begin
-        exit(UpperCase('BackgroundCreatePmtLineForPostedDocument'));
+        exit('BACKGROUNDCREATEPMTLINEFORPOSTEDDOCUMENT');
     end;
 
     procedure CreatePmtLineForPostedPurchaseDocCode(): Code[128]
     begin
-        exit(UpperCase('CreatePmtLineForPostedDocument'));
+        exit('CREATEPMTLINEFORPOSTEDDOCUMENT');
     end;
 
     procedure CreateOverdueNotificationCode(): Code[128]
     begin
-        exit(UpperCase('CreateOverdueNotifications'));
+        exit('CREATEOVERDUENOTIFICATIONS');
     end;
 
     procedure CheckCustomerCreditLimitCode(): Code[128]
     begin
-        exit(UpperCase('CheckCustomerCreditLimit'));
+        exit('CHECKCUSTOMERCREDITLIMIT');
     end;
 
     procedure CheckGeneralJournalBatchBalanceCode(): Code[128]
     begin
-        exit(UpperCase('CheckGeneralJournalBatchBalance'));
+        exit('CHECKGENERALJOURNALBATCHBALANCE');
     end;
 
     procedure CreateAndApproveApprovalRequestAutomaticallyCode(): Code[128]
     begin
-        exit(UpperCase('CreateAndApproveApprovalRequestAutomatically'));
+        exit('CREATEANDAPPROVEAPPROVALREQUESTAUTOMATICALLY');
     end;
 
     procedure ShowMessageCode(): Code[128]
     begin
-        exit(UpperCase('ShowMessage'));
+        exit('SHOWMESSAGE');
     end;
 
     procedure RestrictRecordUsageCode(): Code[128]
     begin
-        exit(UpperCase('RestrictRecordUsage'));
+        exit('RESTRICTRECORDUSAGE');
     end;
 
     procedure AllowRecordUsageCode(): Code[128]
     begin
-        exit(UpperCase('AllowRecordUsage'));
+        exit('ALLOWRECORDUSAGE');
     end;
 
     procedure GetMarkReadyForOCRCode(): Code[128]
     begin
-        exit(UpperCase('MarkReadyForOCR'));
+        exit('MARKREADYFOROCR');
     end;
 
     procedure GetSendToOCRAsyncCode(): Code[128]
     begin
-        exit(UpperCase('BackgroundSendToOCR'));
+        exit('BACKGROUNDSENDTOOCR');
     end;
 
     procedure GetSendToOCRCode(): Code[128]
     begin
-        exit(UpperCase('SendToOCR'));
+        exit('SENDTOOCR');
     end;
 
     procedure GetReceiveFromOCRAsyncCode(): Code[128]
     begin
-        exit(UpperCase('BackgroundReceiveFromOCR'));
+        exit('BACKGROUNDRECEIVEFROMOCR');
     end;
 
     procedure GetReceiveFromOCRCode(): Code[128]
     begin
-        exit(UpperCase('ReceiveFromOCR'));
+        exit('RECEIVEFROMOCR');
     end;
 
     procedure GetCreateDocFromIncomingDocCode(): Code[128]
     begin
-        exit(UpperCase('CreateDocFromIncomingDoc'));
+        exit('CREATEDOCFROMINCOMINGDOC');
     end;
 
     procedure GetCreateReleasedDocFromIncomingDocCode(): Code[128]
     begin
-        exit(UpperCase('CreateReleasedDocFromIncomingDoc'));
+        exit('CREATERELEASEDDOCFROMINCOMINGDOC');
     end;
 
     procedure GetCreateJournalFromIncomingDocCode(): Code[128]
     begin
-        exit(UpperCase('CreateJournalFromIncomingDoc'));
+        exit('CREATEJOURNALFROMINCOMINGDOC');
     end;
 
     procedure RevertValueForFieldCode(): Code[128]
     begin
-        exit(UpperCase('RevertValueForField'));
+        exit('REVERTVALUEFORFIELD');
     end;
 
     procedure ApplyNewValuesCode(): Code[128]
     begin
-        exit(UpperCase('ApplyNewValues'));
+        exit('APPLYNEWVALUES');
     end;
 
     procedure DiscardNewValuesCode(): Code[128]
     begin
-        exit(UpperCase('DiscardNewValues'));
+        exit('DISCARDNEWVALUES');
     end;
 
     local procedure DoNothing()
@@ -926,6 +926,8 @@ codeunit 1521 "Workflow Response Handling"
             else
                 AllowRecordUsageDefault(Variant);
         end;
+
+        OnAfterAllowRecordUsage(Variant, RecRef);
     end;
 
     local procedure AllowRecordUsageDefault(Variant: Variant)
@@ -980,7 +982,7 @@ codeunit 1521 "Workflow Response Handling"
         if WFEventResponseCombination.Insert() then;
     end;
 
-    procedure GetDescription(WorkflowStepArgument: Record "Workflow Step Argument"): Text[250]
+    procedure GetDescription(WorkflowStepArgument: Record "Workflow Step Argument") Result: Text[250]
     var
         WorkflowResponse: Record "Workflow Response";
     begin
@@ -1012,8 +1014,10 @@ codeunit 1521 "Workflow Response Handling"
                           GetTokenValue(RevertRecordFieldValueTok, WorkflowStepArgument."Field Caption")), 1, 250));
                 end;
             else
-                exit(GetWorkflowResponseDescription(WorkflowResponse, WorkflowStepArgument));
+                Result := GetWorkflowResponseDescription(WorkflowResponse, WorkflowStepArgument);
         end;
+
+        OnAfterGetDescription(WorkflowStepArgument, WorkflowResponse, Result);
     end;
 
     local procedure GetWorkflowResponseDescription(var WorkflowResponse: Record "Workflow Response"; var WorkflowStepArgument: Record "Workflow Step Argument") WorkflowDescirption: Text[250]
@@ -1200,11 +1204,21 @@ codeunit 1521 "Workflow Response Handling"
 
     procedure GetApproveOverReceiptCode(): Text[128]
     begin
-        EXIT(UPPERCASE('ApproveOverReceipt'));
+        exit('APPROVEOVERRECEIPT');
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetWorkflowResponseDescription(var WorkflowResponse: Record "Workflow Response"; var WorkflowStepArgument: Record "Workflow Step Argument"; var WorkflowDescription: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAllowRecordUsage(Variant: Variant; var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDescription(WorkflowStepArgument: Record "Workflow Step Argument"; WorkflowResponse: Record "Workflow Response"; var Result: Text[250])
     begin
     end;
 

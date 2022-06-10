@@ -41,6 +41,7 @@ table 251 "Gen. Product Posting Group"
                             repeat
                                 GLAcc2 := GLAcc;
                                 GLAcc2."VAT Prod. Posting Group" := "Def. VAT Prod. Posting Group";
+                                OnValidateDefVATProdPostingGroupOnBeforeGLAcc2Modify(GLAcc2, Rec);
                                 GLAcc2.Modify();
                             until GLAcc.Next() = 0;
 
@@ -57,6 +58,7 @@ table 251 "Gen. Product Posting Group"
                             repeat
                                 Item2 := Item;
                                 Item2."VAT Prod. Posting Group" := "Def. VAT Prod. Posting Group";
+                                OnValidateDefVATProdPostingGroupOnBeforeItem2Modify(Item2, Rec);
                                 Item2.Modify();
                             until Item.Next() = 0;
 
@@ -134,6 +136,16 @@ table 251 "Gen. Product Posting Group"
         else
             GenProdPostingGrp.Init();
         exit(GenProdPostingGrp."Auto Insert Default");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDefVATProdPostingGroupOnBeforeGLAcc2Modify(var GLAccount: Record "G/L Account"; var GenProductPostingGroup: Record "Gen. Product Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDefVATProdPostingGroupOnBeforeItem2Modify(var Item: Record Item; var GenProductPostingGroup: Record "Gen. Product Posting Group")
+    begin
     end;
 }
 

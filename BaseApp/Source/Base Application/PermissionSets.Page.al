@@ -289,19 +289,22 @@ page 9802 "Permission Sets"
                     Visible = not UsePermissionSetsFromExtensions;
                     Enabled = CanManageUsersOnTenant;
                     Image = Delete;
-                    ToolTip = 'Remove all permissions related to the tables which are obsolete.';
+                    ToolTip = 'Remove all permissions related to the objects which are obsolete or removed.';
 
                     trigger OnAction()
                     var
                         TableMetadata: Record "Table Metadata";
                         Permission: Record Permission;
                         TenantPermission: Record "Tenant Permission";
+                        AllObjWithCaption: Record AllObjWithCaption;
+                        PermissionToDelete: Record Permission;
+                        TenantPermissionToDelete: Record "Tenant Permission";
                         PermissionsCount: Integer;
                     begin
                         TableMetadata.SetRange(ObsoleteState, TableMetadata.ObsoleteState::Removed);
                         if TableMetadata.FindSet() then begin
-                            Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
-                            TenantPermission.SetRange("Object Type", Permission."Object Type"::"Table Data");
+                            Permission.SetRange("Object Type", Permission."Object Type"::"Table Data", Permission."Object Type"::Table);
+                            TenantPermission.SetRange("Object Type", Permission."Object Type"::"Table Data", Permission."Object Type"::Table);
                             repeat
                                 Permission.SetRange("Object ID", TableMetadata.ID);
                                 TenantPermission.SetRange("Object ID", TableMetadata.ID);
@@ -310,6 +313,33 @@ page 9802 "Permission Sets"
                                 TenantPermission.DeleteAll();
                             until TableMetadata.Next() = 0;
                         end;
+                        Permission.SetFilter(
+                            "Object Type", '%1|%2|%3|%4|%5',
+                            Permission."Object Type"::Codeunit, Permission."Object Type"::Page, Permission."Object Type"::Query,
+                            Permission."Object Type"::Report, Permission."Object Type"::XMLport);
+                        Permission.SetFilter("Object ID", '<>0');
+                        if Permission.FindSet() then
+                            repeat
+                                if not AllObjWithCaption.Get(Permission."Object Type", Permission."Object ID") then begin
+                                    PermissionToDelete.Get(Permission."Role ID", Permission."Object Type", Permission."Object ID");
+                                    PermissionToDelete.Delete();
+                                    PermissionsCount += 1;
+                                end;
+                            until Permission.Next() = 0;
+                        TenantPermission.SetFilter(
+                            "Object Type", '%1|%2|%3|%4|%5',
+                            TenantPermission."Object Type"::Codeunit, TenantPermission."Object Type"::Page, TenantPermission."Object Type"::Query,
+                            TenantPermission."Object Type"::Report, TenantPermission."Object Type"::XMLport);
+                        TenantPermission.SetFilter("Object ID", '<>0');
+                        if TenantPermission.FindSet() then
+                            repeat
+                                if not AllObjWithCaption.Get(TenantPermission."Object Type", TenantPermission."Object ID") then begin
+                                    TenantPermissionToDelete.Get(TenantPermission."App ID", TenantPermission."Role ID", TenantPermission."Object Type", TenantPermission."Object ID");
+                                    TenantPermissionToDelete.Delete();
+                                    PermissionsCount += 1;
+                                end;
+                            until TenantPermission.Next() = 0;
+
                         if PermissionsCount > 0 then
                             Message(StrSubstNo(ObsoletePermissionsMsg, PermissionsCount))
                         else

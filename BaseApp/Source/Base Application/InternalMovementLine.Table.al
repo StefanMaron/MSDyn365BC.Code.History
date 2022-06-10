@@ -461,14 +461,20 @@ table 7347 "Internal Movement Line"
         WhseItemTrackingLinesForm.RunModal();
     end;
 
-    local procedure CheckQtyItemTrackingLines(): Boolean
+    local procedure CheckQtyItemTrackingLines() Result: Boolean
     var
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         TotalWhseItemTrackingLine: Record "Whse. Item Tracking Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         SourceQuantityArray: array[2] of Decimal;
         UndefinedQtyArray: array[2] of Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckQtyItemTrackingLines(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then begin
             WhseWorksheetLine.InitNewLineWithItem(
               "Warehouse Worksheet Document Type"::"Internal Movement", "No.", "Line No.",
@@ -644,6 +650,11 @@ table 7347 "Internal Movement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBin(InternalMovementLine: Record "Internal Movement Line"; LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyItemTrackingLines(var Rec: Record "Internal Movement Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

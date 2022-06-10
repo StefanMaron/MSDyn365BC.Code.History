@@ -3101,13 +3101,13 @@
         </trans-unit>
         <trans-unit id="Page 2439990863 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Product Posting Group</source>
-          <target state="translated">Generel produktbogføringsgruppe</target>
+          <target state="translated">Produktbogføringsgruppe</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Gen. Prod. Post. Group - Property EntityCaption</note>
         </trans-unit>
         <trans-unit id="Page 2439990863 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Product Posting Groups</source>
-          <target state="translated">Generelle produktbogføringsgrupper</target>
+          <target state="translated">Produktbogføringsgrupper</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Gen. Prod. Post. Group - Property EntitySetCaption</note>
         </trans-unit>
@@ -3557,19 +3557,19 @@
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 2481309022 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Product Posting Group</source>
-          <target state="translated">Generel produktbogføringsgruppe</target>
+          <target state="translated">Produktbogføringsgruppe</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control generalProductPostingGroup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 1844084849 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Product Posting Group Code</source>
-          <target state="translated">Generel produktbogføringsgruppekode</target>
+          <target state="translated">Produktbogføringsgruppekode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control generalProductPostingGroupCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 3329130033 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Product Posting Group Id</source>
-          <target state="translated">Generel produktbogføringsgruppe-id</target>
+          <target state="translated">Produktbogføringsgruppe-id</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control generalProductPostingGroupId - Property Caption</note>
         </trans-unit>

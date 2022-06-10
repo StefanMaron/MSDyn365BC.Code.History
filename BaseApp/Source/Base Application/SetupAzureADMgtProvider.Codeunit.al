@@ -9,7 +9,7 @@ codeunit 6304 "Setup Azure AD Mgt. Provider"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
-    [InherentPermissions(PermissionObjectType::TableData, Database::"Azure AD Mgt. Setup", 'rim')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Azure AD Mgt. Setup", 'RIM')]
     local procedure InitSetup()
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";

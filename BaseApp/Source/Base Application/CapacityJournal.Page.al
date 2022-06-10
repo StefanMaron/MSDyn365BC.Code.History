@@ -557,7 +557,7 @@ page 99000773 "Capacity Journal"
         ItemJnlMgt: Codeunit ItemJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
-        CapDescription: Text[30];
+        CapDescription: Text[100];
         CurrentJnlBatchName: Code[10];
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;

@@ -1,4 +1,4 @@
-codeunit 5816 "Undo Return Receipt Line"
+﻿codeunit 5816 "Undo Return Receipt Line"
 {
     Permissions = TableData "Sales Line" = imd,
                   TableData "Item Entry Relation" = ri,
@@ -118,9 +118,9 @@ codeunit 5816 "Undo Return Receipt Line"
                 "Return Qty. Rcd. Not Invd." := 0;
                 Correction := true;
 
-                OnBeforeReturnRcptLineModify(ReturnRcptLine);
-                Modify;
-                OnAfterReturnRcptLineModify(ReturnRcptLine);
+                OnBeforeReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine);
+                Modify();
+                OnAfterReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine, DocLineNo);
             until Next() = 0;
 
             MakeInventoryAdjustment();
@@ -348,7 +348,7 @@ codeunit 5816 "Undo Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReturnRcptLineModify(var ReturnRcptLine: Record "Return Receipt Line")
+    local procedure OnAfterReturnRcptLineModify(var ReturnRcptLine: Record "Return Receipt Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; DocLineNo: Integer)
     begin
     end;
 
@@ -383,7 +383,7 @@ codeunit 5816 "Undo Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReturnRcptLineModify(var ReturnReceiptLine: Record "Return Receipt Line")
+    local procedure OnBeforeReturnRcptLineModify(var ReturnReceiptLine: Record "Return Receipt Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
     begin
     end;
 

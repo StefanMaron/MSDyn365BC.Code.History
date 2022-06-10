@@ -1549,8 +1549,9 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         UpdateInventorySetupCostPosting();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");

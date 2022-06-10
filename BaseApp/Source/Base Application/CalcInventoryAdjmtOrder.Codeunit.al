@@ -1,4 +1,4 @@
-codeunit 5896 "Calc. Inventory Adjmt. - Order"
+﻿codeunit 5896 "Calc. Inventory Adjmt. - Order"
 {
     Permissions = TableData "Capacity Ledger Entry" = r,
                   TableData "Inventory Adjmt. Entry (Order)" = imd;
@@ -433,7 +433,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddCosts(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ItemLedgerEntryNo: Integer; isHandled: Boolean)
+    local procedure OnBeforeAddCosts(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ItemLedgerEntryNo: Integer; var isHandled: Boolean)
     begin
     end;
 

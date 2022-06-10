@@ -1,4 +1,4 @@
-codeunit 1230 "SEPA DD-Export File"
+﻿codeunit 1230 "SEPA DD-Export File"
 {
     TableNo = "Direct Debit Collection Entry";
 
@@ -44,6 +44,11 @@ codeunit 1230 "SEPA DD-Export File"
         OutStr: OutStream;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExport(DirectDebitCollectionEntry, XMLPortID, FileName, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPortID, OutStr, DirectDebitCollectionEntry);
 
@@ -75,6 +80,11 @@ codeunit 1230 "SEPA DD-Export File"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDirectDebitCollection(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var DirectDebitCollection: Record "Direct Debit Collection"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExport(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; XMLPortID: Integer; FileName: Text; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

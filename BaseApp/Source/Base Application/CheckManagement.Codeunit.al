@@ -1,4 +1,4 @@
-codeunit 367 CheckManagement
+﻿codeunit 367 CheckManagement
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm,
@@ -60,6 +60,7 @@ codeunit 367 CheckManagement
         CheckLedgEntry."User ID" := UserId;
         CheckLedgEntry."Entry No." := NextCheckEntryNo;
         CheckLedgEntry."Record ID to Print" := RecordIdToPrint;
+        OnInsertCheckOnBeforeCheckLedgEntryInsert(CheckLedgEntry);
         CheckLedgEntry.Insert();
         OnInsertCheckOnAfterCheckLedgEntryInsert(CheckLedgEntry);
         NextCheckEntryNo := NextCheckEntryNo + 1;
@@ -587,6 +588,7 @@ codeunit 367 CheckManagement
                         RelatedCheckLedgerEntry2.Open := false;
                         RelatedCheckLedgerEntry2."Statement Status" := RelatedCheckLedgerEntry2."Statement Status"::Closed;
                     end;
+                    OnMarkCheckEntriesVoidOnBeforeRelatedCheckLedgerEntry2Modify(RelatedCheckLedgerEntry2, VoidDate);
                     RelatedCheckLedgerEntry2.Modify();
                 until Next() = 0;
         end;
@@ -599,7 +601,8 @@ codeunit 367 CheckManagement
                 Open := false;
                 "Statement Status" := "Statement Status"::Closed;
             end;
-            Modify;
+            OnMarkCheckEntriesVoidOnBeforeOriginalCheckLedgerEntryModify(OriginalCheckLedgerEntry, VoidDate);
+            Modify();
         end;
     end;
 
@@ -898,6 +901,16 @@ codeunit 367 CheckManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnMarkCheckEntriesVoidOnBeforeRelatedCheckLedgerEntry2Modify(var CheckLedgerEntry: Record "Check Ledger Entry"; var VoidDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMarkCheckEntriesVoidOnBeforeOriginalCheckLedgerEntryModify(var CheckLedgerEntry: Record "Check Ledger Entry"; var VoidDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnVoidCheckOnAfterGenJnlLine2Modify(var GenJournalLine2: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -964,6 +977,11 @@ codeunit 367 CheckManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertCheckOnAfterCheckLedgEntryInsert(var CheckLedgEntry: Record "Check Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCheckOnBeforeCheckLedgEntryInsert(var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
 

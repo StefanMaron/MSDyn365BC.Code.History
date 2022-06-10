@@ -651,6 +651,12 @@
         {
             Caption = 'Payroll Trans. Import Format';
             TableRelation = "Data Exch. Def" WHERE(Type = CONST("Payroll Import"));
+
+            trigger OnValidate()
+            var FeatureTelemetry: Codeunit "Feature Telemetry";
+            begin
+                FeatureTelemetry.LogUptake('0004H8X', 'DK payroll service', Enum::"Feature Uptake Status"::Discovered);
+            end;
         }
         field(161; "VAT Reg. No. Validation URL"; Text[250])
         {

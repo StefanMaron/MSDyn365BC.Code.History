@@ -286,6 +286,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         if ItemJnlLine."Invoiced Quantity" <> 0 then
             CreateReservEntry.SetUseQtyToInvoice(true);
 
+        OnTransferPurchLineToItemJnlLineOnBeforeInitRecordSet(OldReservEntry);
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then begin
             repeat
                 OldReservEntry.TestItemFields(PurchLine."No.", PurchLine."Variant Code", PurchLine."Location Code");
@@ -419,6 +420,7 @@ codeunit 99000834 "Purch. Line-Reserve"
     var
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
+        ShouldProcessDropShipment: Boolean;
     begin
         TrackingSpecification.InitFromPurchLine(PurchLine);
         if ((PurchLine."Document Type" = PurchLine."Document Type"::Invoice) and
@@ -427,7 +429,9 @@ codeunit 99000834 "Purch. Line-Reserve"
             (PurchLine."Return Shipment No." <> ''))
         then
             ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Combined Ship/Rcpt");
-        if PurchLine."Drop Shipment" then begin
+        ShouldProcessDropShipment := PurchLine."Drop Shipment";
+        OnCallItemTrackingOnAfterCalcShouldProcessDropShipment(PurchLine, ShouldProcessDropShipment);
+        if ShouldProcessDropShipment then begin
             ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Drop Shipment");
             if PurchLine."Sales Order No." <> '' then
                 ItemTrackingLines.SetSecondSourceRowID(ItemTrackingMgt.ComposeRowID(DATABASE::"Sales Line",
@@ -469,7 +473,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRetrieveInvoiceSpecification(PurchLine, IsHandled);
+        OnBeforeRetrieveInvoiceSpecification(PurchLine, IsHandled, OK, TempInvoicingSpecification);
         if IsHandled then
             exit;
 
@@ -822,10 +826,7 @@ codeunit 99000834 "Purch. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunItemTrackingLinesPage(var ItemTrackingLines: Page "Item Tracking Lines";
-
-    var
-        IsHandled: Boolean)
+    local procedure OnBeforeRunItemTrackingLinesPage(var ItemTrackingLines: Page "Item Tracking Lines"; var IsHandled: Boolean)
     begin
     end;
 
@@ -836,6 +837,11 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferPurchLineToPurchLineOnAfterOldReservEntrySetFilters(var OldPurchLine: record "Purchase Line"; var NewPurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferPurchLineToItemJnlLineOnBeforeInitRecordSet(var OldReservationEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -864,8 +870,8 @@ codeunit 99000834 "Purch. Line-Reserve"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeRetrieveInvoiceSpecification(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeRetrieveInvoiceSpecification(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; var OK: Boolean; var TempInvoicingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 
@@ -876,6 +882,11 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCreateReservEntry(var PurchLine: Record "Purchase Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnAfterCalcShouldProcessDropShipment(var PurchLine: Record "Purchase Line"; var ShouldProcessDropShipment: Boolean)
     begin
     end;
 

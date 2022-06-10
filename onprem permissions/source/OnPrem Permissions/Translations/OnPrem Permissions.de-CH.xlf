@@ -959,7 +959,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 2032439741 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Delete VAT Rate Change Log</source>
-          <target state="translated">Protok. MWST-Satzänd. löschen</target>
+          <target state="translated">Protok. MwSt.-Satzänd. löschen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VAT-RC-LOG, DELETE - Property Caption</note>
         </trans-unit>

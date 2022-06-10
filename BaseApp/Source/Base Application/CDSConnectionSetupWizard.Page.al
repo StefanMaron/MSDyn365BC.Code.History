@@ -683,6 +683,7 @@ page 7201 "CDS Connection Setup Wizard"
                 trigger OnAction()
                 var
                     GuidedExperience: Codeunit "Guided Experience";
+                    FeatureTelemetry: Codeunit "Feature Telemetry";
                     CRMFullSynchReview: Page "CRM Full Synch. Review";
                     CDSCoupleSalespersons: Page "CDS Couple Salespersons";
                 begin
@@ -734,6 +735,7 @@ page 7201 "CDS Connection Setup Wizard"
                     end;
 
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
+                    FeatureTelemetry.LogUptake('0000H7H', 'Dataverse', Enum::"Feature Uptake Status"::"Set up");
                     SetupCompleted := true;
                     CurrPage.Close();
                 end;
@@ -756,10 +758,12 @@ page 7201 "CDS Connection Setup Wizard"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         OAuth2: Codeunit "OAuth2";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         RedirectUrl: Text;
     begin
         if not CDSConnectionSetup.WritePermission() then
             Error(NoPermissionsErr);
+        FeatureTelemetry.LogUptake('0000H7I', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
         CDSConnectionSetup.EnsureCRMConnectionSetupIsDisabled();
         Init();
         if CDSConnectionSetup.Get() then begin

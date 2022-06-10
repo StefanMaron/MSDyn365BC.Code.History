@@ -110,7 +110,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
                 OnBeforePurchRcptLineModify(PurchRcptLine, TempWhseJnlLine);
                 Modify;
-                OnAfterPurchRcptLineModify(PurchRcptLine, TempWhseJnlLine);
+                OnAfterPurchRcptLineModify(PurchRcptLine, TempWhseJnlLine, DocLineNo);
 
                 if not JobItem then
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
@@ -544,7 +544,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPurchRcptLineModify(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
+    local procedure OnAfterPurchRcptLineModify(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; DocLineNo: Integer)
     begin
     end;
 

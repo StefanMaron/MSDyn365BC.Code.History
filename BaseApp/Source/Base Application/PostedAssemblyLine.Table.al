@@ -36,8 +36,8 @@ table 911 "Posted Assembly Line"
         field(12; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("No."),
-                                                       Code = FIELD("Variant Code"));
+            TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."),
+                                                                               Code = FIELD("Variant Code"));
         }
         field(13; Description; Text[100])
         {

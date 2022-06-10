@@ -176,6 +176,7 @@
                 SetRange("Variant Code", PostedWhseReceiptLine."Variant Code");
                 if Location."Directed Put-away and Pick" then
                     SetFilter("Bin Type Code", GetBinTypeFilter(0)); // Receiving area
+                OnTestWarehouseEntryOnAfterSetFilters(WarehouseEntry, PostedWhseReceiptLine);
                 CalcSums("Qty. (Base)");
                 if "Qty. (Base)" < PostedWhseReceiptLine."Qty. (Base)" then
                     Error(Text001, UndoLineNo);
@@ -1321,6 +1322,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRevertPostedItemTrackingOnBeforeReservEntryInsert(var ReservationEntry: Record "Reservation Entry"; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestWarehouseEntryOnAfterSetFilters(var WarehouseEntry: Record "Warehouse Entry"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 

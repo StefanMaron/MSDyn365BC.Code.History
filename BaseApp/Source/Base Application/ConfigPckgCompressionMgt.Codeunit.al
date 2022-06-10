@@ -44,7 +44,13 @@ codeunit 8619 "Config. Pckg. Compression Mgt."
         DestinationFile: File;
         OutStream: OutStream;
         InStream: InStream;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProcessGZip(SourceFilePath, DestinationFilePath, ToCompress, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FILE.Exists(SourceFilePath) then
             Error(FileNotExistErr, SourceFilePath);
 
@@ -82,6 +88,11 @@ codeunit 8619 "Config. Pckg. Compression Mgt."
         File.TextMode(false);
         File.Create(FilePath);
         File.CreateOutStream(OutStream);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessGZip(SourceFilePath: Text; DestinationFilePath: Text; ToCompress: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -384,8 +384,8 @@ codeunit 7018 "Price UX Management"
         if IsHandled then
             exit;
         PriceSourceList.Init();
-        PriceSourceList.Add(PriceSource);
         PriceSourceList.AddChildren(PriceSource);
+        PriceSourceList.Add(PriceSource);
         PriceListLineReview.Set(PriceSourceList, AmountType);
         PriceListLineReview.Run();
     end;

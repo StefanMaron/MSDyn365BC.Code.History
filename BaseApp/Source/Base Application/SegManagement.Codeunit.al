@@ -1,4 +1,4 @@
-codeunit 5051 SegManagement
+﻿codeunit 5051 SegManagement
 {
     Permissions = TableData "Interaction Log Entry" = rimd;
 
@@ -137,7 +137,7 @@ codeunit 5051 SegManagement
         OnAfterLogSegment(TempDeliverySorter, LoggedSegment, SegmentHeader, SegmentNo, NextInteractLogEntryNo);
     end;
 
-    procedure LogInteraction(SegmentLine: Record "Segment Line"; var AttachmentTemp: Record Attachment; var InterLogEntryCommentLineTmp: Record "Inter. Log Entry Comment Line"; Deliver: Boolean; Postponed: Boolean) NextInteractLogEntryNo: Integer
+    procedure LogInteraction(SegmentLine: Record "Segment Line"; var AttachmentTemp: Record Attachment; var TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; Deliver: Boolean; Postponed: Boolean) NextInteractLogEntryNo: Integer
     var
         InteractionTemplate: Record "Interaction Template";
         InteractLogEntry: Record "Interaction Log Entry";
@@ -151,7 +151,7 @@ codeunit 5051 SegManagement
         FileName: Text;
         FileExported: Boolean;
     begin
-        OnBeforeLogInteraction(SegmentLine, AttachmentTemp, InterLogEntryCommentLineTmp, Deliver, Postponed);
+        OnBeforeLogInteraction(SegmentLine, AttachmentTemp, TempInterLogEntryCommentLine, Deliver, Postponed);
 
         TestFieldsFromLogInteraction(SegmentLine, Deliver, Postponed);
         if (SegmentLine."Campaign No." <> '') and (not Postponed) then
@@ -209,14 +209,14 @@ codeunit 5051 SegManagement
             InterLogEntryCommentLine.DeleteAll();
         end;
 
-        if InterLogEntryCommentLineTmp.FindSet() then
+        if TempInterLogEntryCommentLine.FindSet() then
             repeat
                 InterLogEntryCommentLine.Init();
-                InterLogEntryCommentLine := InterLogEntryCommentLineTmp;
+                InterLogEntryCommentLine := TempInterLogEntryCommentLine;
                 InterLogEntryCommentLine."Entry No." := InteractLogEntry."Entry No.";
                 OnLogInteractionOnBeforeInterLogEntryCommentLineInsert(InterLogEntryCommentLine);
                 InterLogEntryCommentLine.Insert();
-            until InterLogEntryCommentLineTmp.Next() = 0;
+            until TempInterLogEntryCommentLine.Next() = 0;
 
         if Deliver and (SegmentLine."Correspondence Type".AsInteger() <> 0) and (not Postponed) then begin
             InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::"In Progress";
@@ -249,7 +249,7 @@ codeunit 5051 SegManagement
             TestFields(SegmentLine, Deliver);
     end;
 
-    procedure LogDocument(DocumentType: Integer; DocumentNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer; AccountTableNo: Integer; AccountNo: Code[20]; SalespersonCode: Code[20]; CampaignNo: Code[20]; Description: Text[100]; OpportunityNo: Code[20])
+    procedure LogDocument(DocumentType: Integer; DocumentNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer; AccountTableNo: Integer; AccountNo: Code[20]; SalespersonCode: Code[20]; CampaignNo: Code[20]; Description: Text[100]; OpportunityNo: Code[20]): Integer
     var
         InteractTmpl: Record "Interaction Template";
         TempSegmentLine: Record "Segment Line" temporary;
@@ -257,11 +257,12 @@ codeunit 5051 SegManagement
         Attachment: Record Attachment;
         Cont: Record Contact;
         InteractTmplLanguage: Record "Interaction Tmpl. Language";
-        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary;
+        TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary;
         InteractTmplCode: Code[10];
         ContNo: Code[20];
     begin
         InteractTmplCode := FindInteractTmplCode(DocumentType);
+        OnLogDocumentOnAfterFindInteractTmplCode(InteractTmplCode, Attachment, DocumentType);
         if InteractTmplCode = '' then
             exit;
 
@@ -318,9 +319,10 @@ codeunit 5051 SegManagement
         TempSegmentLine.Validate("Interaction Template Code", InteractTmplCode);
         if CampaignNo <> '' then
             TempSegmentLine."Campaign No." := CampaignNo;
+        OnLogDocumentOnBeforeTempSegmentLineModify(TempSegmentLine, AccountTableNo, AccountNo);
         TempSegmentLine.Modify();
 
-        LogInteraction(TempSegmentLine, Attachment, InterLogEntryCommentLine, false, false);
+        exit(LogInteraction(TempSegmentLine, Attachment, TempInterLogEntryCommentLine, false, false));
     end;
 
     internal procedure UnwrapAttachmentCustomLayout(var SegmentLine: Record "Segment Line")
@@ -423,7 +425,6 @@ codeunit 5051 SegManagement
     local procedure TestFields(var SegmentLine: Record "Segment Line"; Deliver: Boolean)
     var
         Cont: Record Contact;
-        Salesperson: Record "Salesperson/Purchaser";
         Campaign: Record Campaign;
         InteractTmpl: Record "Interaction Template";
         ContAltAddr: Record "Contact Alt. Address";
@@ -432,10 +433,7 @@ codeunit 5051 SegManagement
             TestField(Date);
             TestField("Contact No.");
             Cont.Get("Contact No.");
-            if "Document Type" = "Document Type"::" " then begin
-                TestField("Salesperson Code");
-                Salesperson.Get("Salesperson Code");
-            end;
+            CheckSalesperson(SegmentLine);
             TestField("Interaction Template Code");
             InteractTmpl.Get("Interaction Template Code");
             if "Campaign No." <> '' then
@@ -460,6 +458,23 @@ codeunit 5051 SegManagement
                     OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(SegmentLine, Cont);
             end;
         end;
+    end;
+
+    local procedure CheckSalesperson(var SegmentLine: Record "Segment Line")
+    var
+        Salesperson: Record "Salesperson/Purchaser";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesperson(SegmentLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with SegmentLine do
+            if "Document Type" = "Document Type"::" " then begin
+                TestField("Salesperson Code");
+                Salesperson.Get("Salesperson Code");
+            end;
     end;
 
     local procedure AssignCorrespondenceTypeForEmail(var SegmentLine: Record "Segment Line"; var Contact: Record Contact; var ContactAltAddr: Record "Contact Alt. Address"; Deliver: Boolean)
@@ -723,6 +738,11 @@ codeunit 5051 SegManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesperson(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeliverySorterInsert(var TempDeliverySorter: Record "Delivery Sorter" temporary; SegmentLine: Record "Segment Line")
     begin
     end;
@@ -733,7 +753,7 @@ codeunit 5051 SegManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLogInteraction(var SegmentLine: Record "Segment Line"; var Attachment: Record Attachment; var InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; Deliver: Boolean; Postponed: Boolean)
+    local procedure OnBeforeLogInteraction(var SegmentLine: Record "Segment Line"; var Attachment: Record Attachment; var InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; var Deliver: Boolean; var Postponed: Boolean)
     begin
     end;
 
@@ -758,7 +778,17 @@ codeunit 5051 SegManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLogDocumentOnAfterFindInteractTmplCode(var InteractTmplCode: Code[10]; var Attachment: Record Attachment; DocumentType: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnLogDocumentOnCaseElse(AccountTableNo: Integer; AccountNo: Code[20]; var ContNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogDocumentOnBeforeTempSegmentLineModify(var TempSegmentLine: Record "Segment Line" temporary; AccountTableNo: Integer; AccountNo: Code[20])
     begin
     end;
 

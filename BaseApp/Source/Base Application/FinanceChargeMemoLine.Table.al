@@ -724,7 +724,7 @@ table 303 "Finance Charge Memo Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeEnsureNotOnHold(CustLedgerEntry, FinChrgMemoHeader);
+        OnBeforeEnsureNotOnHold(CustLedgerEntry, FinChrgMemoHeader, IsHandled);
         if IsHandled then
             exit;
 
@@ -968,7 +968,7 @@ table 303 "Finance Charge Memo Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeEnsureNotOnHold(var CustLedgerEntry: Record "Cust. Ledger Entry"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    local procedure OnBeforeEnsureNotOnHold(var CustLedgerEntry: Record "Cust. Ledger Entry"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean)
     begin
     end;
 

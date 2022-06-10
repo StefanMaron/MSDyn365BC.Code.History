@@ -1722,6 +1722,11 @@ codeunit 6154 "API Webhook Notification Send"
         exit(GraphMgtGeneralTools.IsApiSubscriptionEnabled());
     end;
 
+    procedure GetMaxNumberOfLoggedNotifications(): Integer
+    begin
+        exit(1000000);
+    end;
+
     procedure GetMaxNumberOfNotifications(): Integer
     var
         ServerSetting: Codeunit "Server Setting";

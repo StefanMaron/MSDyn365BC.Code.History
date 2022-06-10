@@ -219,9 +219,10 @@ table 152 "Resource Group"
         CommentLine: Record "Comment Line";
         DimMgt: Codeunit DimensionManagement;
 
-    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
+    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type")
     begin
         PriceAsset.Init();
+        PriceAsset."Price Type" := PriceType;
         PriceAsset."Asset Type" := PriceAsset."Asset Type"::"Resource Group";
         PriceAsset."Asset No." := "No.";
     end;
@@ -231,7 +232,7 @@ table 152 "Resource Group"
         PriceAsset: Record "Price Asset";
         PriceUXManagement: Codeunit "Price UX Management";
     begin
-        AsPriceAsset(PriceAsset);
+        AsPriceAsset(PriceAsset, PriceType);
         PriceUXManagement.ShowPriceListLines(PriceAsset, PriceType, AmountType);
     end;
 

@@ -77,13 +77,14 @@ codeunit 136304 "Job Performance WIP"
     procedure RecogCostOfSalesJournalTemplateNameMandatory()
     var
         JobWIPMethod: Record "Job WIP Method";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         // [SCENARIO] Job WIP and G/L Entry correctly calculated when using Job WIP Methods "Cost of Sales" for costs and "At Completion" for sales
 
         // Recog Cost = STC * CIP / CTP
 
         Initialize();
-        LibraryERM.SetJournalTemplateNameMandatory(true);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(true);
         CreateJobWIPMethod(
           JobWIPMethod."Recognized Costs"::"Cost of Sales", JobWIPMethod."Recognized Sales"::"At Completion", JobWIPMethod);
         asserterror WIPScenario(100, 10, 200, 10, JobWIPMethod);
@@ -1834,7 +1835,7 @@ codeunit 136304 "Job Performance WIP"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         JobBatchJobs.SetJobNoSeries(JobsSetup, NoSeries);
 

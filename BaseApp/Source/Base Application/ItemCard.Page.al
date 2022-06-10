@@ -2851,10 +2851,11 @@ page 30 "Item Card"
             CurrPage.Update();
             OnCreateItemFromTemplateOnAfterCurrPageUpdate(Rec);
         end else
-            if ItemTemplMgt.TemplatesAreNotEmpty() then begin
-                CurrPage.Close;
-                exit;
-            end;
+            if ItemTemplMgt.TemplatesAreNotEmpty() then
+                if not ItemTemplMgt.IsOpenBlankCardConfirmed() then begin
+                    CurrPage.Close;
+                    exit;
+                end;
 
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             if (Item."No." = '') and InventorySetup.Get then

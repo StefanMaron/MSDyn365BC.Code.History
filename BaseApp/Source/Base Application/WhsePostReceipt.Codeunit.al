@@ -1146,7 +1146,7 @@ codeunit 5760 "Whse.-Post Receipt"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeGetResultMessage(CounterPutAways: Integer; var IsHandled: Boolean)
     begin
     end;

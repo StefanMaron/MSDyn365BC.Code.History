@@ -1,4 +1,4 @@
-codeunit 1220 "SEPA CT-Export File"
+﻿codeunit 1220 "SEPA CT-Export File"
 {
     Permissions = TableData "Data Exch. Field" = rimd;
     TableNo = "Gen. Journal Line";
@@ -17,7 +17,7 @@ codeunit 1220 "SEPA CT-Export File"
     var
         ExportToServerFile: Boolean;
 
-    procedure Export(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer): Boolean
+    procedure Export(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer) Result: Boolean
     var
         CreditTransferRegister: Record "Credit Transfer Register";
         TempBlob: Codeunit "Temp Blob";
@@ -27,6 +27,11 @@ codeunit 1220 "SEPA CT-Export File"
         FileCreated: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExtport(GenJnlLine, XMLPortID, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPortID, OutStr, GenJnlLine);
 
@@ -60,6 +65,11 @@ codeunit 1220 "SEPA CT-Export File"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBLOBExport(var TempBlob: Codeunit "Temp Blob"; CreditTransferRegister: Record "Credit Transfer Register"; UseComonDialog: Boolean; var FieldCreated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExtport(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

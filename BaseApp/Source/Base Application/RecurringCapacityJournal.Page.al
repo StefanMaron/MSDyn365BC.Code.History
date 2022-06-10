@@ -506,7 +506,7 @@ page 99000778 "Recurring Capacity Journal"
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
-        CapDescription: Text[30];
+        CapDescription: Text[100];
         CurrentJnlBatchName: Code[10];
 
     protected var

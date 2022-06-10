@@ -135,6 +135,12 @@ table 7601 "Base Calendar Change"
                     TestField(Day);
                 end;
         end;
+        OnAfterCheckEntryLine(Rec, xRec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckEntryLine(var BaseCalendarChange: Record "Base Calendar Change"; xBaseCalendarChange: Record "Base Calendar Change")
+    begin
     end;
 }
 

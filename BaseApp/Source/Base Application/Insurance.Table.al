@@ -51,7 +51,7 @@ table 5628 Insurance
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Ins. Coverage Ledger Entry".Amount WHERE("Insurance No." = FIELD("No."),
+            CalcFormula = Sum("Ins. Coverage Ledger Entry".Amount WHERE("Insurance No." = FIELD("No."),
                                                                          "Disposed FA" = CONST(false),
                                                                          "Posting Date" = FIELD("Date Filter")));
             Caption = 'Total Value Insured';
@@ -60,7 +60,7 @@ table 5628 Insurance
         }
         field(11; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST(Insurance),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST(Insurance),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -217,8 +217,15 @@ table 5628 Insurance
         FAMoveEntries: Codeunit "FA MoveEntries";
         DimMgt: Codeunit DimensionManagement;
 
-    procedure AssistEdit(OldInsurance: Record Insurance): Boolean
+    procedure AssistEdit(OldInsurance: Record Insurance) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, OldInsurance, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with Insurance do begin
             Insurance := Rec;
             FASetup.Get();
@@ -240,12 +247,17 @@ table 5628 Insurance
             DimMgt.SaveDefaultDim(DATABASE::Insurance, "No.", FieldNumber, ShortcutDimCode);
             Modify(true);
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var Insurance: Record Insurance; var xInsurance: Record Insurance; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var Insurance: Record Insurance; OldInsurance: Record Insurance; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

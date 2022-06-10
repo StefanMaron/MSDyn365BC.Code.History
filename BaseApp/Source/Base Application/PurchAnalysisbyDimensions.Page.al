@@ -479,7 +479,7 @@ page 7157 "Purch. Analysis by Dimensions"
         ShowActualBudget: Enum "Item Analysis Show Type";
         RoundingFactor: Enum "Analysis Rounding Factor";
         LineDimType: Enum "Item Analysis Dimension Type";
-        ColumnDimType:Enum "Item Analysis Dimension Type";
+        ColumnDimType: Enum "Item Analysis Dimension Type";
         PeriodType: Enum "Analysis Period Type";
         BudgetFilter: Code[250];
         LineDimCode: Text[30];
@@ -559,6 +559,8 @@ page 7157 "Purch. Analysis by Dimensions"
                  ItemAnalysisView."Analysis Area", ItemAnalysisView.Code, ItemAnalysisView."Dimension 3 Code")
             then
                 Dim3Filter := ItemAnalysisViewFilter."Dimension Value Filter";
+
+        OnAfterUpdateFilterFields(ItemAnalysisView, Dim1Filter, Dim2Filter, Dim3Filter);
     end;
 
 #if not CLEAN19
@@ -794,6 +796,11 @@ page 7157 "Purch. Analysis by Dimensions"
     local procedure ShowColumnNameOnAfterValidate()
     begin
         GenerateColumnCaptions("Matrix Page Step Type"::Same);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateFilterFields(ItemAnalysisView: Record "Item Analysis View"; var Dim1Filter: Code[250]; var Dim2Filter: Code[250]; var Dim3Filter: Code[250])
+    begin
     end;
 }
 

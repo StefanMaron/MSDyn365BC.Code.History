@@ -545,7 +545,7 @@
         </trans-unit>
         <trans-unit id="Page 27651019 - Control 785940005 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the company in the representative's Business Central or Dynamics NAV that will receive your VAT returns.</source>
-          <target state="translated">Gibt den Namen des Unternehmens im Business Central oder Dynamics NAV des Vertreters an, das Ihre MWST-Rückgaben erhält.</target>
+          <target state="translated">Gibt den Namen des Unternehmens in Business Central oder Dynamics NAV des Vertreters an, das Ihre MWST-Rückgaben erhält.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupRepresentativeCompany - Property ToolTip</note>
         </trans-unit>
@@ -1346,7 +1346,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 1476524600 - Action 2421935703 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Give the VAT return the same status as the return for the VAT group in the group representative company.</source>
-          <target state="translated">Geben Sie der MWST-Erklärung den gleichen Status wie die Mehrwertsteuergruppe im Gruppenvertreterunternehmen.</target>
+          <target state="translated">Geben Sie der MWST-Erklärung den gleichen Status wie der Mehrwertsteuergruppe im Gruppenvertreterunternehmen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>

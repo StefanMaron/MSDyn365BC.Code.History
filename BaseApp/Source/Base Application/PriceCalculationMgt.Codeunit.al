@@ -12,6 +12,7 @@ codeunit 7001 "Price Calculation Mgt."
         UseCustomizedLookupTxt: Label 'Use Customized Lookup', Locked = true;
         SubscriptionsTxt: Label 'Subscriptions', Locked = true;
         ExtendedPriceFeatureIdTok: Label 'SalesPrices', Locked = true;
+        UsedCustomLookupTxt: Label 'Used custom lookup in table %1.', Comment = '%1 = table id';
         NotImplementedMethodErr: Label 'Method %1 does not have active implementations for %2 price type.', Comment = '%1 - method name, %2 - price type name';
 #if not CLEAN19
         FeatureIsOffErr: Label 'Extended price calculation feature is not enabled.';
@@ -153,6 +154,17 @@ codeunit 7001 "Price Calculation Mgt."
     end;
 #endif
 
+    internal procedure FeatureCustomizedLookupUsage(TableId: Integer)
+    begin
+        FeatureTelemetry.LogUptake('0000HMI', UseCustomizedLookupTxt, "Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000HMK', UseCustomizedLookupTxt, StrSubstNo(UsedCustomLookupTxt, TableId));
+    end;
+
+    internal procedure FeatureCustomizedLookupDiscovered()
+    begin
+        FeatureTelemetry.LogUptake('0000HMJ', UseCustomizedLookupTxt, "Feature Uptake Status"::Discovered)
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Sales & Receivables Setup", 'OnAfterValidateEvent', 'Use Customized Lookup', false, false)]
     local procedure AfterValidateUseCustomizedLookup(var Rec: Record "Sales & Receivables Setup"; var xRec: Record "Sales & Receivables Setup"; CurrFieldNo: Integer)
     var
@@ -160,7 +172,7 @@ codeunit 7001 "Price Calculation Mgt."
     begin
         if Rec."Use Customized Lookup" then begin
             CustomDimensions.Add(SubscriptionsTxt, FindActiveSubscriptions());
-            FeatureTelemetry.LogUptake('0000HBY', UseCustomizedLookupTxt, "Feature Uptake Status"::Discovered, false, CustomDimensions)
+            FeatureTelemetry.LogUptake('0000HBY', UseCustomizedLookupTxt, "Feature Uptake Status"::"Set up", CustomDimensions)
         end else
             FeatureTelemetry.LogUptake('0000HBZ', UseCustomizedLookupTxt, "Feature Uptake Status"::Undiscovered)
     end;

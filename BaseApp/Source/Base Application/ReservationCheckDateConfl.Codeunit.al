@@ -483,7 +483,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnPurchLineCheckOnBeforeUpdateDate(var ReservationEntry: Record "Reservation Entry"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;

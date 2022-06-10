@@ -2,6 +2,8 @@ codeunit 134305 "Workflow Delete Tests"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
+    Permissions = TableData "Workflow - Record Change" = rimd,
+                  TableData "Workflow Record Change Archive" = rimd;
     TestPermissions = NonRestrictive;
 
     trigger OnRun()
@@ -283,12 +285,12 @@ codeunit 134305 "Workflow Delete Tests"
         // [THEN] The achived workflow steps will not be deleted.
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         // Validate
-        WorkflowPage.OpenView;
+        WorkflowPage.OpenView();
         WorkflowPage.GotoRecord(Workflow);
         Assert.IsFalse(WorkflowPage.ArchivedWorkflowStepInstances.Enabled, 'The action should be disabled.');
         WorkflowPage.Close;
@@ -341,6 +343,7 @@ codeunit 134305 "Workflow Delete Tests"
         WorkflowStepArgumentArchive: Record "Workflow Step Argument Archive";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        WorkflowManagement: Codeunit "Workflow Management";
         EntryPointEventStep: Integer;
         ResponseStep: Integer;
     begin
@@ -350,7 +353,7 @@ codeunit 134305 "Workflow Delete Tests"
         // [THEN] The workflow steps will be archived and so will be the record changes.
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         LibraryRandom.Init();
         LibraryWorkflow.CreateWorkflow(Workflow);
 
@@ -362,6 +365,9 @@ codeunit 134305 "Workflow Delete Tests"
         LibraryWorkflow.InsertRecChangeValueArgument(ResponseStep, DATABASE::Customer, 20);
         LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode, ResponseStep);
         EnableWorkflow(Workflow);
+
+        // Bug: 437824
+        MockWorkflowRecordChangeArchive();
 
         LibrarySales.CreateCustomer(Customer[1]);
         Customer[2].TransferFields(Customer[1]);
@@ -380,6 +386,7 @@ codeunit 134305 "Workflow Delete Tests"
         WorkflowEventHandling.RunWorkflowOnCustomerChanged(Customer[1], Customer[3], false);
 
         // Verify
+        WorkflowStepInstance.Reset();
         Assert.RecordIsEmpty(WorkflowStepInstance);
         Assert.RecordIsEmpty(WorkflowRecordChange);
         Assert.RecordCount(WorkflowStepArgument, 2);
@@ -388,6 +395,14 @@ codeunit 134305 "Workflow Delete Tests"
         Assert.RecordCount(WorkflowStepInstanceArchive, 6);
         Assert.RecordCount(WorkflowRecordChangeArchive, 2);
         Assert.RecordCount(WorkflowStepArgumentArchive, 4);
+    end;
+
+    local procedure Initialize()
+    begin
+        if IsInitialized then
+            exit;
+        IsInitialized := true;
+        BindSubscription(LibraryJobQueue);
     end;
 
     local procedure CreateWorkflow(var Workflow: Record Workflow)
@@ -415,27 +430,6 @@ codeunit 134305 "Workflow Delete Tests"
         EnableWorkflow(Workflow);
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure PageHandlerWorkflow(var WorkflowStepInstances: TestPage "Workflow Step Instances")
-    begin
-        WorkflowStepInstances.First;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := false;
-    end;
-
     local procedure EnableWorkflow(var Workflow: Record Workflow)
     begin
         Workflow.Enabled := true;
@@ -448,12 +442,45 @@ codeunit 134305 "Workflow Delete Tests"
         Workflow.Modify(true);
     end;
 
-    local procedure Initialize()
+    local procedure MockWorkflowRecordChangeArchive()
+    var
+        WorkflowRecordChange: Record "Workflow - Record Change";
+        WorkflowRecordChangeArchive: Record "Workflow Record Change Archive";
     begin
-        if IsInitialized then
-            exit;
-        IsInitialized := true;
-        BindSubscription(LibraryJobQueue);
+        WorkflowRecordChange."Field Caption" := WorkflowRecordChange.FieldCaption("Entry No.");
+        WorkflowRecordChange."Field No." := WorkflowRecordChange.FieldNo("Entry No.");
+        WorkflowRecordChange."Old Value" := '0';
+        WorkflowRecordChange."New Value" := '1';
+        WorkflowRecordChange.Insert(true);
+        WorkflowRecordChange.FindLast();
+
+        WorkflowRecordChangeArchive.Init();
+        WorkflowRecordChangeArchive.TransferFields(WorkflowRecordChange);
+        WorkflowRecordChangeArchive."Entry No." += 1;
+        WorkflowRecordChangeArchive.Insert();
+
+        WorkflowRecordChange.Delete();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PageHandlerWorkflow(var WorkflowStepInstances: TestPage "Workflow Step Instances")
+    begin
+        WorkflowStepInstances.First();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

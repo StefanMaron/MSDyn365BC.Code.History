@@ -167,6 +167,7 @@ codeunit 5940 ServContractManagement
             else
                 ServContractLine.SetFilter("Starting Date", '<=%1|%2..%3', ServContractHeader."Next Invoice Date",
                   ServContractHeader."Next Invoice Period Start", ServContractHeader."Next Invoice Period End");
+            OnCreateServiceLedgEntryOnPrepaidOnAfterServContractLineSetFilters(ServContractLine, AddingNewLines);
             if ServContractLine.Find('-') then begin
                 repeat
                     YearContractCorrection := false;
@@ -182,6 +183,7 @@ codeunit 5940 ServContractManagement
                         repeat
                             NoOfPayments := NoOfPayments + 1;
                             WDate := CalcDate(DateExpression, WDate);
+                            OnCreateServiceLedgEntryOnAfterWDateLoop(ServContractHeader, WDate);
                         until (WDate >= InvToDate) or
                               ((WDate > ServContractLine."Contract Expiration Date") and
                                (ServContractLine."Contract Expiration Date" <> 0D));
@@ -233,6 +235,7 @@ codeunit 5940 ServContractManagement
 
                         DueDate := WDate;
                         // Calculate invoice amount for initial period and go ahead with shifted InvFrom
+                        OnCreateServiceLedgEntryOnPrepaidOnBeforeCalcInvAmounts(ServContractLine, ServLedgEntry);
                         CalcInvAmounts(InvAmount, ServContractLine, InvFromDate, WDate);
                         if NewInvFrom = 0D then
                             NextInvDate := ServContractHeader."Next Invoice Date"
@@ -260,7 +263,7 @@ codeunit 5940 ServContractManagement
                         ReturnLedgerEntry := 0;
                     end;
                 until ServContractLine.Next() = 0;
-                UpdateApplyUntilEntryNoInServLedgEntry(ReturnLedgerEntry, FirstLineEntry, LastEntry);
+                UpdateApplyUntilEntryNoInServLedgEntry(ServContractHeader, SigningContract, ReturnLedgerEntry, FirstLineEntry, LastEntry);
             end;
         end else begin
             YearContractCorrection := false;
@@ -282,6 +285,7 @@ codeunit 5940 ServContractManagement
                     ServContractLine.SetFilter("Starting Date", '<=%1', InvToDate);
             FirstLineEntry := NextEntry;
             InvToDate2 := InvToDate;
+            OnCreateServiceLedgEntryOnNotPrepaidOnAfterServContractLineSetFilters(ServContractLine, ServContractHeader, AddingNewLines);
             if ServContractLine.Find('-') then begin
                 repeat
                     if SigningContract then begin
@@ -325,7 +329,7 @@ codeunit 5940 ServContractManagement
                     end else
                         ReturnLedgerEntry := 0;
                 until ServContractLine.Next() = 0;
-                UpdateApplyUntilEntryNoInServLedgEntry(ReturnLedgerEntry, FirstLineEntry, LastEntry);
+                UpdateApplyUntilEntryNoInServLedgEntry(ServContractHeader, SigningContract, ReturnLedgerEntry, FirstLineEntry, LastEntry);
             end;
         end;
         if ServLedgEntry.Get(LastEntry) and (not YearContractCorrection)
@@ -599,7 +603,7 @@ codeunit 5940 ServContractManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDetailedServiceLine(ServHeader, IsHandled);
+        OnBeforeCreateDetailedServiceLine(ServHeader, IsHandled, ContractType, ContractNo);
         if IsHandled then
             exit;
 
@@ -1249,10 +1253,8 @@ codeunit 5940 ServContractManagement
         if ServContractLine.Find('-') then begin
             repeat
                 ContractLineIncluded := true;
-                if ServContractLine."Invoiced to Date" = 0D then
-                    LinePeriodStarts := ServContractLine."Starting Date"
-                else
-                    LinePeriodStarts := PeriodStarts;
+                FindLinePeriodStartsByInvoicedToDate(ServContractLine, PeriodStarts, LinePeriodStarts);
+
                 LinePeriodEnds := PeriodEnds;
                 if ServContractLine."Contract Expiration Date" <> 0D then begin
                     if ServContractLine."Contract Expiration Date" < PeriodStarts then
@@ -1278,6 +1280,21 @@ codeunit 5940 ServContractManagement
                     ServContractHeader."Annual Amount" / 12 * NoOfMonthsAndMPartsInPeriod(PeriodStarts, PeriodEnds),
                     Currency."Amount Rounding Precision");
         end;
+    end;
+
+    local procedure FindLinePeriodStartsByInvoicedToDate(ServContractLine: Record "Service Contract Line"; PeriodStarts: Date; var LinePeriodStarts: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindLinePeriodStartsByInvoicedToDate(ServContractLine, PeriodStarts, LinePeriodStarts, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ServContractLine."Invoiced to Date" = 0D then
+            LinePeriodStarts := ServContractLine."Starting Date"
+        else
+            LinePeriodStarts := PeriodStarts;
     end;
 
     procedure CalcContractLineAmount(AnnualAmount: Decimal; PeriodStarts: Date; PeriodEnds: Date) AmountCalculated: Decimal
@@ -1337,49 +1354,62 @@ codeunit 5940 ServContractManagement
                 CurrServContract."Last Invoice Date" := CurrServContract."Starting Date";
                 CurrServContract.Validate("Last Invoice Period End", InvTo);
             end;
-            if CurrServContract."Contract Lines on Invoice" then begin
-                ServContractLine.Reset();
-                ServContractLine.SetRange("Contract Type", CurrServContract."Contract Type");
-                ServContractLine.SetRange("Contract No.", CurrServContract."Contract No.");
-                ServContractLine.SetFilter("Starting Date", '<=%1', InvTo);
-                OnCreateRemainingPeriodInvoiceOnAfterServContractLineSetFilters(ServContractLine, CurrServContract);
-                if ServContractLine.Find('-') then
-                    repeat
-                        if ServContractLine."Invoiced to Date" = 0D then
-                            CreateDetailedServiceLine(
-                              ServHeader, ServContractLine, CurrServContract."Contract Type", CurrServContract."Contract No.");
-                        if ServContractLine."Invoiced to Date" <> 0D then
-                            if ServContractLine."Invoiced to Date" <> CalcDate('<CM>', ServContractLine."Invoiced to Date") then
-                                CreateDetailedServiceLine(
-                                  ServHeader, ServContractLine, CurrServContract."Contract Type", CurrServContract."Contract No.");
-
-                        AppliedEntry :=
-                          CreateServiceLedgEntry(
-                            ServHeader, CurrServContract."Contract Type",
-                            CurrServContract."Contract No.", InvFrom, InvTo, true, false, ServContractLine."Line No.");
-
-                        CreateServiceLine(
-                          ServHeader, CurrServContract."Contract Type",
-                          CurrServContract."Contract No.", InvFrom, InvTo, AppliedEntry, true);
-                    until ServContractLine.Next() = 0;
-            end else begin
-                CreateHeadingServiceLine(
-                  ServHeader, CurrServContract."Contract Type", CurrServContract."Contract No.");
-
-                AppliedEntry :=
-                  CreateServiceLedgEntry(
-                    ServHeader, CurrServContract."Contract Type",
-                    CurrServContract."Contract No.", InvFrom, InvTo, true, false, 0);
-
-                CreateServiceLine(
-                  ServHeader, CurrServContract."Contract Type",
-                  CurrServContract."Contract No.", InvFrom, InvTo, AppliedEntry, true);
-            end;
+            CreateRemainingPeriodInvoiceServiceLines(CurrServContract, InvFrom, InvTo);
 
             CurrServContract.Modify();
             InvoicingStartingPeriod := true;
 
             OnAfterCreateRemainingPeriodInvoice(CurrServContract);
+        end;
+    end;
+
+    local procedure CreateRemainingPeriodInvoiceServiceLines(var CurrServContract: Record "Service Contract Header"; InvFrom: Date; InvTo: Date)
+    var
+        ServContractLine: Record "Service Contract Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateRemainingPeriodInvoiceServiceLines(CurrServContract, ServHeader, InvFrom, InvTo, AppliedEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CurrServContract."Contract Lines on Invoice" then begin
+            ServContractLine.Reset();
+            ServContractLine.SetRange("Contract Type", CurrServContract."Contract Type");
+            ServContractLine.SetRange("Contract No.", CurrServContract."Contract No.");
+            ServContractLine.SetFilter("Starting Date", '<=%1', InvTo);
+            OnCreateRemainingPeriodInvoiceOnAfterServContractLineSetFilters(ServContractLine, CurrServContract);
+            if ServContractLine.Find('-') then
+                repeat
+                    if ServContractLine."Invoiced to Date" = 0D then
+                        CreateDetailedServiceLine(
+                          ServHeader, ServContractLine, CurrServContract."Contract Type", CurrServContract."Contract No.");
+                    if ServContractLine."Invoiced to Date" <> 0D then
+                        if ServContractLine."Invoiced to Date" <> CalcDate('<CM>', ServContractLine."Invoiced to Date") then
+                            CreateDetailedServiceLine(
+                              ServHeader, ServContractLine, CurrServContract."Contract Type", CurrServContract."Contract No.");
+
+                    AppliedEntry :=
+                      CreateServiceLedgEntry(
+                        ServHeader, CurrServContract."Contract Type",
+                        CurrServContract."Contract No.", InvFrom, InvTo, true, false, ServContractLine."Line No.");
+
+                    CreateServiceLine(
+                      ServHeader, CurrServContract."Contract Type",
+                      CurrServContract."Contract No.", InvFrom, InvTo, AppliedEntry, true);
+                until ServContractLine.Next() = 0;
+        end else begin
+            CreateHeadingServiceLine(
+              ServHeader, CurrServContract."Contract Type", CurrServContract."Contract No.");
+
+            AppliedEntry :=
+              CreateServiceLedgEntry(
+                ServHeader, CurrServContract."Contract Type",
+                CurrServContract."Contract No.", InvFrom, InvTo, true, false, 0);
+
+            CreateServiceLine(
+              ServHeader, CurrServContract."Contract Type",
+              CurrServContract."Contract No.", InvFrom, InvTo, AppliedEntry, true);
         end;
     end;
 
@@ -1487,6 +1517,7 @@ codeunit 5940 ServContractManagement
         PartInvoiceFrom: Date;
         PartInvoiceTo: Date;
         ServiceApplyEntry: Integer;
+        ShouldCraeteServiceApplyEntry: Boolean;
     begin
         GetNextInvoicePeriod(ServContractToInvoice, InvoiceFrom, InvoiceTo);
         with ServContractToInvoice do begin
@@ -1521,7 +1552,9 @@ codeunit 5940 ServContractManagement
                                   CreateServiceLedgEntry(
                                     ServHeader, "Contract Type", "Contract No.", CalcDate('<-CM>', PartInvoiceFrom), PartInvoiceTo,
                                     false, false, ServContractLine."Line No.");
-                                if ServiceApplyEntry <> 0 then
+                                ShouldCraeteServiceApplyEntry := ServiceApplyEntry <> 0;
+                                OnCreateAllServLinesOnAfterCalcShouldCraeteServiceApplyEntry(ServHeader, ServContractToInvoice, ServContractLine, PartInvoiceFrom, PartInvoiceTo, ServiceApplyEntry, ShouldCraeteServiceApplyEntry);
+                                if ShouldCraeteServiceApplyEntry then
                                     CreateServiceLine(ServHeader, "Contract Type", "Contract No.", PartInvoiceFrom, PartInvoiceTo, ServiceApplyEntry, false);
                                 ServiceApplyEntry := 0;
                             end;
@@ -1532,12 +1565,15 @@ codeunit 5940 ServContractManagement
                             ServHeader, "Contract Type", "Contract No.", InvoiceFrom, InvoiceTo,
                             false, false, ServContractLine."Line No.");
 
-                        if ServiceApplyEntry <> 0 then
+                        ShouldCraeteServiceApplyEntry := ServiceApplyEntry <> 0;
+                        OnCreateAllServLinesOnAfterCalcShouldCraeteServiceApplyEntry(ServHeader, ServContractToInvoice, ServContractLine, PartInvoiceFrom, PartInvoiceTo, ServiceApplyEntry, ShouldCraeteServiceApplyEntry);
+                        if ShouldCraeteServiceApplyEntry then
                             CreateServiceLine(
                               ServHeader, "Contract Type", "Contract No.",
                               CountLineInvFrom(false, ServContractLine, InvoiceFrom), InvoiceTo, ServiceApplyEntry, false);
                     until ServContractLine.Next() = 0;
             end;
+            OnCreateAllServLinesOnBeforeCreateLastServiceLines(ServContractToInvoice, ServLine);
             CreateLastServiceLines(ServHeader, "Contract Type", "Contract No.");
 
             Validate("Last Invoice Date", "Next Invoice Date");
@@ -1749,7 +1785,7 @@ codeunit 5940 ServContractManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateHeadingServiceLine(ServHeader, IsHandled);
+        OnBeforeCreateHeadingServiceLine(ServHeader, IsHandled, ContractType, ContractNo);
         if IsHandled then
             exit;
 
@@ -1809,6 +1845,7 @@ codeunit 5940 ServContractManagement
            (ServiceContractLine."Ship-to Code" = ServContractHeader."Ship-to Code")
         then
             ServItem.SetRange("Ship-to Code", ServiceContractLine."Ship-to Code");
+        OnLookupServItemNoOnAfterServItemSetFilters(ServItem, ServiceContractLine);
         ServItemList.SetTableView(ServItem);
         ServItemList.LookupMode(true);
         if ServItemList.RunModal = ACTION::LookupOK then begin
@@ -2194,6 +2231,7 @@ codeunit 5940 ServContractManagement
     begin
         if ServContractLineItemNo <> '' then begin
             ServLineDescription := StrSubstNo('%1 %2 %3', ServContractLineItemNo, ServContractLineDesc, ServContractLineItemSerialNo);
+            OnCreateDescriptionServiceLinesOnAfterCalcServLineDescription(ServLineDescription, ServContractLineItemNo, ServContractLineDesc, ServContractLineItemSerialNo);
             RequiredLength := MaxStrLen(ServLine.Description);
             InsertDescriptionServiceLine(CopyStr(ServLineDescription, 1, RequiredLength));
             if StrLen(ServLineDescription) > RequiredLength then
@@ -2218,10 +2256,16 @@ codeunit 5940 ServContractManagement
         ServLine.Insert();
     end;
 
-    local procedure UpdateApplyUntilEntryNoInServLedgEntry(ReturnLedgerEntry: Integer; FirstLineEntry: Integer; LastEntry: Integer)
+    local procedure UpdateApplyUntilEntryNoInServLedgEntry(ServContractHeader: Record "Service Contract Header"; SigningContract: Boolean; ReturnLedgerEntry: Integer; FirstLineEntry: Integer; LastEntry: Integer)
     var
         ServLedgEntry: Record "Service Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateApplyUntilEntryNoInServLedgEntry(ServContractHeader, SigningContract, ReturnLedgerEntry, FirstLineEntry, LastEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if ReturnLedgerEntry <> 0 then
             if ServLedgEntry.Get(FirstLineEntry) then begin
                 ServLedgEntry."Apply Until Entry No." := LastEntry;
@@ -2434,12 +2478,12 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDetailedServiceLine(ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDetailedServiceLine(ServiceHeader: Record "Service Header"; var IsHandled: Boolean; ContractType: Enum "Service Contract Type"; ContractNo: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateHeadingServiceLine(ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateHeadingServiceLine(ServiceHeader: Record "Service Header"; var IsHandled: Boolean; ContractType: Enum "Service Contract Type"; ContractNo: Code[20])
     begin
     end;
 
@@ -2614,12 +2658,22 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateRemainingPeriodInvoiceServiceLines(var CurrServContract: Record "Service Contract Header"; var ServHeader: Record "Service Header"; InvFrom: Date; InvTo: Date; var AppliedEntry: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostPartialServLedgEntry(var ServLedgEntry: Record "Service Ledger Entry"; ServContractLine: Record "Service Contract Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServLedgEntryToServiceLine(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; var IsHandled: Boolean; ServiceLedgerEntryParm: Record "Service Ledger Entry"; InvFrom: Date; InvTo: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindLinePeriodStartsByInvoicedToDate(ServContractLine: Record "Service Contract Line"; PeriodStarts: Date; var LinePeriodStarts: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -2664,6 +2718,16 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateAllServLinesOnAfterCalcShouldCraeteServiceApplyEntry(var ServHeader: Record "Service Header"; ServContractToInvoice: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line"; var PartInvoiceFrom: Date; var PartInvoiceTo: Date; var ServiceApplyEntry: Integer; var ShouldCraeteServiceApplyEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateAllServLinesOnBeforeCreateLastServiceLines(var ServContractToInvoice: Record "Service Contract Header"; var ServLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateAllServLinesOnBeforeServContractLineLoop(var InvoiceFrom: Date; ServContractLine: Record "Service Contract Line"; ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
@@ -2694,6 +2758,11 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLookupServItemNoOnAfterServItemSetFilters(var ServiceItem: Record "Service Item"; ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostPartialServLedgEntryOnBeforeServLedgEntryInsert(var ServLedgEntry: Record "Service Ledger Entry"; ServContractLine: Record "Service Contract Line")
     begin
     end;
@@ -2709,7 +2778,32 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateApplyUntilEntryNoInServLedgEntry(ServContractHeader: Record "Service Contract Header"; SigningContract: Boolean; ReturnLedgerEntry: Integer; FirstLineEntry: Integer; LastEntry: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateServiceLedgerEntryOnAfterInitServLedgEntry(var ServLedgEntry: Record "Service Ledger Entry"; var ServContractHeader: Record "Service Contract Header"; ContractType: Integer; ContractNo: Code[20]; LineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServiceLedgEntryOnPrepaidOnAfterServContractLineSetFilters(var ServContractLine: Record "Service Contract Line"; AddingNewLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServiceLedgEntryOnNotPrepaidOnAfterServContractLineSetFilters(var ServContractLine: Record "Service Contract Line"; ServContractHeader: Record "Service Contract Header"; AddingNewLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServiceLedgEntryOnPrepaidOnBeforeCalcInvAmounts(var ServContractLine: Record "Service Contract Line"; var ServLedgEntry: Record "Service Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServiceLedgEntryOnAfterWDateLoop(var ServContractHeader: Record "Service Contract Header"; var WDate: Date)
     begin
     end;
 
@@ -2725,6 +2819,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateServiceLedgerEntryOnBeforeInsertMultipleServLedgEntries(var NextInvDate: Date; ServContractHeader: Record "Service Contract Header"; ServContractLine: Record "Service Contract Line"; var NoOfPayments: Integer; var DueDate: Date; var InvFromDate: Date; var AddingNewLines: Boolean; var CountOfEntryLoop: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDescriptionServiceLinesOnAfterCalcServLineDescription(var ServLineDescription: Text; var ServContractLineItemNo: Code[20]; var ServContractLineDesc: Text[100]; var ServContractLineItemSerialNo: Code[50])
     begin
     end;
 

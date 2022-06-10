@@ -77,7 +77,7 @@
         </trans-unit>
         <trans-unit id="Table 2670224048 - Field 2386326790 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Capacity - Gen. Prod. Posting Group</source>
-          <target state="translated">Kapacitet – gen. prod. bogføringsgruppe</target>
+          <target state="translated">Kapacitet – Prod. bogføringsgruppe</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Manufact Code - Property Caption</note>
         </trans-unit>
@@ -101,7 +101,7 @@
         </trans-unit>
         <trans-unit id="Table 2670224048 - Field 4220723123 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Raw Mat - Gen. Prod. Posting Group</source>
-          <target state="translated">Råvarer – gen. prod. bogføringsgruppe</target>
+          <target state="translated">Råvarer – Prod. bogføringsgruppe</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Raw Mat Code - Property Caption</note>
         </trans-unit>
@@ -1451,7 +1451,7 @@
         </trans-unit>
         <trans-unit id="Page 53112230 - Control 2386326790 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Capacity - General Product Posting Group</source>
-          <target state="translated">Kapacitet – generel produktbogføringsgruppe</target>
+          <target state="translated">Kapacitet – Produktbogføringsgruppe</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Manufact Code - Property Caption</note>
         </trans-unit>
@@ -1463,7 +1463,7 @@
         </trans-unit>
         <trans-unit id="Page 53112230 - Control 4220723123 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Raw - General Product Posting Group</source>
-          <target state="translated">Råmaterialer – generel produktbogføringsgruppe</target>
+          <target state="translated">Råmaterialer – Produktbogføringsgruppe</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Raw Mat Code - Property Caption</note>
         </trans-unit>
@@ -1475,7 +1475,7 @@
         </trans-unit>
         <trans-unit id="Page 53112230 - Control 4242196510 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Retail - General Product Posting Group</source>
-          <target state="translated">Detail – Generel produktbogføringsgruppe</target>
+          <target state="translated">Detail – Produktbogføringsgruppe</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Control Retail Code - Property Caption</note>
         </trans-unit>

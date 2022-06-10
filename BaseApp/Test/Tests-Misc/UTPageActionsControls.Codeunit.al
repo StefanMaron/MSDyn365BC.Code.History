@@ -3904,7 +3904,7 @@ codeunit 134341 "UT Page Actions & Controls"
     end;
 
     [Test]
-    [HandlerFunctions('SelectCustomerTemplListModalPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure CustomerCardGetTotalSalesDoesntCallSetFilterForUnpostedLines()
     var
@@ -5437,6 +5437,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         ContactList.GoToKey(LibraryVariableStorage.DequeueText());
         ContactList.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerFalse(Message: Text[1024]; var Response: Boolean)
+    begin
+        Response := false;
     end;
 }
 

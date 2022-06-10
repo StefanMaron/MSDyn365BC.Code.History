@@ -29,11 +29,7 @@ report 188 "Create Reminders"
                 end else begin
                     NewDateTime := CurrentDateTime;
                     if (NewDateTime - OldDateTime > 100) or (NewDateTime < OldDateTime) then begin
-                        NewProgress := Round(RecordNo / NoOfRecords * 100, 1);
-                        if NewProgress <> OldProgress then begin
-                            Window.Update(1, NewProgress * 100);
-                            OldProgress := NewProgress;
-                        end;
+                        UpdateProgressWindow();
                         OldDateTime := CurrentDateTime;
                     end;
                     Result := false;
@@ -73,12 +69,7 @@ report 188 "Create Reminders"
                 NoOfRecords := Count;
                 SalesSetup.Get();
                 SalesSetup.TestField("Reminder Nos.");
-                if NoOfRecords = 1 then
-                    Window.Open(Text001)
-                else begin
-                    Window.Open(Text002);
-                    OldDateTime := CurrentDateTime;
-                end;
+                OpenProgressWindow();
                 ReminderHeaderReq."Use Header Level" := UseHeaderLevel;
             end;
         }
@@ -196,6 +187,7 @@ report 188 "Create Reminders"
             CustLedgEntryLineFeeOn.CopyFilters(CustLedgEntryLineFeeOnFilters);
 
         NumberOfReminderLines := ReminderLine.Count();
+        OnAfterOnPreReport(CustLedgEntry);
     end;
 
     var
@@ -253,6 +245,40 @@ report 188 "Create Reminders"
         Session.LogMessage('0000FJP', CreateRemindersReportGeneratedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 
+    local procedure OpenProgressWindow()
+    var
+        ProgressBarText: Text;
+    begin
+        if NoOfRecords = 1 then
+            ProgressBarText := Text001
+        else begin
+            ProgressBarText := Text002;
+            OldDateTime := CurrentDateTime();
+        end;
+        OnOpenProgressWindowOnBeforeWindowOpen(NoOfRecords, ProgressBarText);
+        Window.Open(ProgressBarText);
+    end;
+
+    local procedure UpdateProgressWindow()
+    begin
+        NewProgress := Round(RecordNo / NoOfRecords * 100, 1);
+        if NewProgress <> OldProgress then begin
+            Window.Update(1, NewProgress * 100);
+            OldProgress := NewProgress;
+        end;
+        OnAfterUpdateProgressWindow(Customer, Window);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreReport(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateProgressWindow(Customer: Record Customer; var Window: Dialog)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPreReport()
     begin
@@ -265,6 +291,11 @@ report 188 "Create Reminders"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordCustomerOnBeforeMakeReminder(Customer: Record Customer; var CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; var CustLedgEntryLineFeeOn: Record "Cust. Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenProgressWindowOnBeforeWindowOpen(NoOfRecords: Integer; var ProgressBarText: Text)
     begin
     end;
 }

@@ -88,6 +88,7 @@ codeunit 70 "Purch.-Calc.Discount"
 
             GetVendInvDisc(PurchHeader, ChargeBase);
 
+            OnCalculateInvoiceDiscountOnBeforeCheckVendInvDiscServiceCharge(VendInvDisc, PurchHeader, CurrencyDate, ChargeBase);
             if VendInvDisc."Service Charge" <> 0 then begin
                 OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(VendPostingGr);
                 Currency.Initialize(PurchHeader."Currency Code");
@@ -265,6 +266,11 @@ codeunit 70 "Purch.-Calc.Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(var VendorPostingGroup: record "Vendor Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeCheckVendInvDiscServiceCharge(var VendorInvoiceDisc: Record "Vendor Invoice Disc."; var PurchaseHeader: Record "Purchase Header"; CurrencyDate: Date; ChargeBase: Decimal)
     begin
     end;
 

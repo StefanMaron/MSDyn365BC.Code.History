@@ -19,10 +19,10 @@ codeunit 88 "Sales Post via Job Queue"
         BatchProcessingMgt.GetBatchFromSession("Record ID to Process", "User Session ID");
 
         SavedLockTimeout := LockTimeout;
-        SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::Posting);
+        SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::Posting, Rec);
         OnRunOnBeforeRunSalesPost(SalesHeader);
         if not Codeunit.Run(Codeunit::"Sales-Post", SalesHeader) then begin
-            SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::Error);
+            SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::Error, Rec);
             BatchProcessingMgt.ResetBatchID;
             Error(GetLastErrorText);
         end;
@@ -34,7 +34,7 @@ codeunit 88 "Sales Post via Job Queue"
         if not AreOtherJobQueueEntriesScheduled(Rec) then
             BatchProcessingMgt.ResetBatchID;
         BatchProcessingMgt.DeleteBatchProcessingSessionMapForRecordId(SalesHeader.RecordId);
-        SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::" ");
+        SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::" ", Rec);
         LockTimeout(SavedLockTimeout);
     end;
 
@@ -46,9 +46,9 @@ codeunit 88 "Sales Post via Job Queue"
         DefaultCategoryCodeLbl: Label 'SALESBCKGR', Locked = true;
         DefaultCategoryDescLbl: Label 'Def. Background Sales Posting', Locked = true;
 
-    local procedure SetJobQueueStatus(var SalesHeader: Record "Sales Header"; NewStatus: Option)
+    local procedure SetJobQueueStatus(var SalesHeader: Record "Sales Header"; NewStatus: Option; JobQueueEntry: Record "Job Queue Entry")
     begin
-        OnBeforeSetJobQueueStatus(SalesHeader, NewStatus);
+        OnBeforeSetJobQueueStatus(SalesHeader, NewStatus, JobQueueEntry);
         SalesHeader.LockTable();
         if SalesHeader.Find then begin
             SalesHeader."Job Queue Status" := NewStatus;
@@ -206,7 +206,7 @@ codeunit 88 "Sales Post via Job Queue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetJobQueueStatus(SalesHeader: Record "Sales Header"; NewJobQueueStatus: Option " ","Scheduled for Posting",Error,Posting)
+    local procedure OnBeforeSetJobQueueStatus(SalesHeader: Record "Sales Header"; NewJobQueueStatus: Option " ","Scheduled for Posting",Error,Posting; JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 

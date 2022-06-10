@@ -53,6 +53,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             SetVAT(SalesHeader."Prices Including VAT", "VAT %", "VAT Calculation Type".AsInteger(), "VAT Bus. Posting Group");
             SetUoM(Abs(Quantity), "Qty. per Unit of Measure");
             SetLineDisc("Line Discount %", "Allow Line Disc.", "Allow Invoice Disc.");
+            OnFindSalesLinePriceOnAfterSetLineDisc(SalesLine);
 
             TestField("Qty. per Unit of Measure");
             if PricesInCurrency then
@@ -843,7 +844,9 @@ codeunit 7000 "Sales Price Calc. Mgt."
                 end;
                 exit(TempSalesPrice.FindFirst);
             end;
-        exit(false);
+        Result := false;
+
+        OnAfterSalesLinePriceExistsProcedure(SalesHeader, SalesLine, Res, DateCaption, ShowAll, Result);
     end;
 
     procedure SalesLineLineDiscExists(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean): Boolean
@@ -1809,6 +1812,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesLinePriceExistsProcedure(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Res: Record Resource; var DateCaption: Text[30]; var ShowAll: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterServLinePriceExists(var ServiceLine: Record "Service Line")
     begin
     end;
@@ -2051,6 +2059,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindSalesLinePriceOnAfterSetResPrice(var SalesLine: Record "Sales Line"; var ResPrice: Record "Resource Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindSalesLinePriceOnAfterSetLineDisc(var SalesLine: Record "Sales Line")
     begin
     end;
 

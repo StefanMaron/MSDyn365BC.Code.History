@@ -122,6 +122,11 @@ codeunit 5330 "CRM Integration Management"
         CurrencySymbolMappingFeatureIdTok: Label 'CurrencySymbolMapping', Locked = true;
         OptionMappingFeatureIdTok: Label 'OptionMapping', Locked = true;
         SuccessfullyScheduledMarkingOfInvoiceAsCoupledTxt: Label 'Successfully scheduled marking of invoice %1 as coupled to Dynamics 365 Sales invoice.', Locked = true;
+        UnableToMarkRecordAsCoupledTableID0Txt: Label 'Unable to mark record as coupled, Table ID is 0 on CRM Integration Record %1.', Locked = true;
+        UnableToMarkRecordAsCoupledOpenTableFailsTxt: Label 'Unable to mark record as coupled, unable to open Table ID %1 from CRM Integration Record %2.', Locked = true;
+        UnableToMarkRecordAsCoupledNoRecordFoundTxt: Label 'Unable to mark record as coupled, unable to get record with systemid %1 from CRM Integration Record %2.', Locked = true;
+        UnableToMarkRecordAsCoupledRecordHasNoCoupledFlagTxt: Label 'Unable to mark record as coupled, record with systemid %1 doesnt have a Coupled to CRM field, from CRM Integration Record %2.', Locked = true;
+        NoNeedToChangeCoupledFlagTxt: Label 'Record with systemid %1 already has Coupled to CRM set to %2, from CRM Integration Record %3.', Locked = true;
         SetCouplingFlagJQEDescriptionTxt: Label 'Marking %1 %2 as coupled to Dataverse.', Comment = '%1 - Business Central table name (e.g. Customer, Vendor, Posted Sales Invoice); %2 - a Guid, record identifier; Dataverse is a name of a Microsoft service and must not be translated.';
         JobQueueCategoryLbl: Label 'BCI CPLFLG', Locked = true;
 
@@ -613,6 +618,7 @@ codeunit 5330 "CRM Integration Management"
     var
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         GuidedExperience: Codeunit "Guided Experience";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         AssistedSetup: Page "Assisted Setup";
         GuidedExperienceType: Enum "Guided Experience Type";
     begin
@@ -627,14 +633,17 @@ codeunit 5330 "CRM Integration Management"
 
         if GuiAllowed then
             if CRMIntegrationEnabledState = CRMIntegrationEnabledState::"Enabled But Not For Current User" then
-                Message(NotEnabledForCurrentUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.SHORT(), CRMProductName.CDSServiceName())
-            else
+                Message(NotEnabledForCurrentUserMsg, UserId, PRODUCTNAME.Short(), CRMProductName.SHORT(), CRMProductName.CDSServiceName())
+            else begin
+                FeatureTelemetry.LogUptake('0000H7D', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::Discovered);
+                FeatureTelemetry.LogUptake('0000H7E', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
                 if Confirm(StrSubstNo(NotEnabledMsg, CRMProductName.CDSServiceName(), AssistedSetup.Caption())) then begin
                     CDSIntegrationImpl.RegisterAssistedSetup();
                     GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"CDS Connection Setup Wizard");
                     if IsCDSIntegrationEnabled() then
                         exit;
                 end;
+            end;
 
         Error('');
     end;
@@ -3757,17 +3766,25 @@ codeunit 5330 "CRM Integration Management"
         CoupledToCRMFieldNo: Integer;
         ExistingValue: Boolean;
     begin
-        if CRMIntegrationRecord."Table ID" = 0 then
+        if CRMIntegrationRecord."Table ID" = 0 then begin
+            Session.LogMessage('0000HMP', StrSubstNo(UnableToMarkRecordAsCoupledTableID0Txt, CRMIntegrationRecord."Integration ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
+        end;
 
-        if not TryOpen(RecRef, CRMIntegrationRecord."Table ID") then
+        if not TryOpen(RecRef, CRMIntegrationRecord."Table ID") then begin
+            Session.LogMessage('0000HMQ', StrSubstNo(UnableToMarkRecordAsCoupledOpenTableFailsTxt, CRMIntegrationRecord."Table ID", CRMIntegrationRecord."Integration ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
+        end;
 
-        if not RecRef.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+        if not RecRef.GetBySystemId(CRMIntegrationRecord."Integration ID") then begin
+            Session.LogMessage('0000HMR', StrSubstNo(UnableToMarkRecordAsCoupledNoRecordFoundTxt, CRMIntegrationRecord."Integration ID", CRMIntegrationRecord."Integration ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
+        end;
 
-        if not FindCoupledToCRMField(RecRef, CoupledToCRMFieldRef) then
+        if not FindCoupledToCRMField(RecRef, CoupledToCRMFieldRef) then begin
+            Session.LogMessage('0000HMS', StrSubstNo(UnableToMarkRecordAsCoupledRecordHasNoCoupledFlagTxt, CRMIntegrationRecord."Integration ID", CRMIntegrationRecord."Integration ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
+        end;
 
         if RecRef.Number = Database::"Sales Invoice Header" then
             if NewValue = true then
@@ -3789,14 +3806,13 @@ codeunit 5330 "CRM Integration Management"
                     end;
 
         CoupledToCRMFieldNo := CoupledToCRMFieldRef.Number();
-        if not RecRef.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-            exit(false);
-
         CoupledToCRMFieldRef := RecRef.Field(CoupledToCRMFieldNo);
 
         ExistingValue := CoupledToCRMFieldRef.Value;
-        if ExistingValue = NewValue then
+        if ExistingValue = NewValue then begin
+            Session.LogMessage('0000HMT', StrSubstNo(NoNeedToChangeCoupledFlagTxt, CRMIntegrationRecord."Integration ID", Format(ExistingValue), CRMIntegrationRecord."Integration ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
+        end;
 
         CoupledToCRMFieldRef.Value := NewValue;
         exit(RecRef.Modify());

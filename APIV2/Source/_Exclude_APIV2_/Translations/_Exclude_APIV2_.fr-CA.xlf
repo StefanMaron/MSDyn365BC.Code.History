@@ -5747,13 +5747,13 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 354324300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Address Line 1</source>
-          <target state="translated">Adresse de livraison (1re ligne)</target>
+          <target state="translated">Adresse de livraison (ligne 1)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 992020917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Address Line 2</source>
-          <target state="translated">Adresse de livraison (2e ligne)</target>
+          <target state="translated">Adresse de livraison (ligne 2)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToAddressLine2 - Property Caption</note>
         </trans-unit>
@@ -7139,7 +7139,7 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 709463224" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The send-to email is empty. Specify email either for the customer or for the invoice in email preview.</source>
-          <target state="translated">Le courriel du destinataire est vide. Spécifiez le courriel pour le client ou pour la facture dans l’aperçu du courriel.</target>
+          <target state="translated">Le courriel destinataire est vide. Spécifiez le courriel pour le client ou pour la facture dans l’aperçu du courriel.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType EmptyEmailErr</note>
         </trans-unit>

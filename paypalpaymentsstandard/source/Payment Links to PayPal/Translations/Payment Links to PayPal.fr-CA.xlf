@@ -11,7 +11,7 @@
         </trans-unit>
         <trans-unit id="Table 2591710920 - NamedType 1467349039" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an account ID for this payment service.</source>
-          <target state="translated">Vous devez spécifier un code de compte pour ce service de paiement.</target>
+          <target state="translated">Vous devez spécifier un code compte pour ce service de paiement.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType AccountIDCannotBeBlankErr</note>
         </trans-unit>

@@ -30,6 +30,7 @@ table 250 "Gen. Business Posting Group"
                         repeat
                             GLAcc2 := GLAcc;
                             GLAcc2."VAT Bus. Posting Group" := "Def. VAT Bus. Posting Group";
+                            OnValidateDefVATBusPostingGroupOnBeforeModifyGLAccount(Rec, GLAcc2);
                             GLAcc2.Modify();
                         until GLAcc.Next() = 0;
 
@@ -92,6 +93,11 @@ table 250 "Gen. Business Posting Group"
         else
             GenBusPostingGrp.Init();
         exit(GenBusPostingGrp."Auto Insert Default");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDefVATBusPostingGroupOnBeforeModifyGLAccount(var Rec: Record "Gen. Business Posting Group"; var GLAccount: Record "G/L Account")
+    begin
     end;
 }
 

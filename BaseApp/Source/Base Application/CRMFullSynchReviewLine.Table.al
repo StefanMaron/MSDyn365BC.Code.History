@@ -85,7 +85,7 @@ table 5373 "CRM Full Synch. Review Line"
         field(13; "Initial Synch Recommendation"; Option)
         {
             OptionCaption = 'Full Synchronization,Couple Records,No Records Found,Dependency not satisfied';
-            OptionMembers = "Full Synchronization","Couple Records","No Records Found","Dependency not satisfied";
+            OptionMembers = "Full Synchronization","Couple Records","No Records Found","Dependency not satisfied"; // "Dependency not satisfied" is obsolete option value
         }
     }
 
@@ -229,14 +229,10 @@ table 5373 "CRM Full Synch. Review Line"
         LookupCRMTables: Codeunit "Lookup CRM Tables";
         CDSRecRef: RecordRef;
         BCRecRef: RecordRef;
-        DependencyInitialSynchRecommendation: Option "Full Synchronization","Couple Records","No Records Found","Dependency not satisfied";
+        DependencyInitialSynchRecommendation: Option "Full Synchronization","Couple Records","No Records Found","Dependency not satisfied"; // "Dependency not satisfied" is obsolete option value
     begin
         if InitialSynchRecommendations.ContainsKey(IntegrationTableMapping.Name) then
             exit(InitialSynchRecommendations.Get(IntegrationTableMapping.Name));
-
-        if IntegrationTableMapping."Dependency Filter" <> '' then
-            if not IsDependencyFilterInitialSynchRecommendationFullSynchronizationOrCoupleRecords(IntegrationTableMapping."Dependency Filter", InitialSynchRecommendations) then
-                exit("Initial Synch Recommendation"::"Dependency not satisfied");
 
         BCRecRef.Open(IntegrationTableMapping."Table ID");
         CDSRecRef.Open(IntegrationTableMapping."Integration Table ID");
@@ -310,26 +306,6 @@ table 5373 "CRM Full Synch. Review Line"
         end;
 
         exit("Initial Synch Recommendation"::"Full Synchronization");
-    end;
-
-    local procedure IsDependencyFilterInitialSynchRecommendationFullSynchronizationOrCoupleRecords(DependencyFilter: Text; var InitialSynchRecommendations: Dictionary of [Code[20], Integer]): Boolean
-    var
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        DependencyInitialSynchRecommendation: Option "Full Synchronization","Couple Records","No Records Found","Dependency not satisfied";
-        SingleDependencyFilter: Text;
-    begin
-        DependencyFilter := DependencyFilter + '|';
-        while StrPos(DependencyFilter, '|') > 0 do begin
-            SingleDependencyFilter := CopyStr(DependencyFilter, 1, StrPos(DependencyFilter, '|') - 1);
-            if not (SingleDependencyFilter = 'SALESPEOPLE') then begin
-                IntegrationTableMapping.Get(SingleDependencyFilter);
-                DependencyInitialSynchRecommendation := GetInitialSynchRecommendation(IntegrationTableMapping, InitialSynchRecommendations);
-                if not (DependencyInitialSynchRecommendation in [DependencyInitialSynchRecommendation::"Full Synchronization", DependencyInitialSynchRecommendation::"Couple Records"]) then
-                    exit(false);
-            end;
-            DependencyFilter := CopyStr(DependencyFilter, StrPos(DependencyFilter, '|') + 1);
-        end;
-        exit(true);
     end;
 
     local procedure GetCurrencyInitialSynchRecommendation(): Option

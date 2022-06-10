@@ -122,6 +122,7 @@ page 6783 "Posted Direct Transfers"
 
                 trigger OnAction()
                 begin
+                    DirectTransHeader := Rec;
                     CurrPage.SetSelectionFilter(DirectTransHeader);
                     DirectTransHeader.PrintRecords(true);
                 end;

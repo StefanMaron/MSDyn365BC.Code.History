@@ -2036,6 +2036,75 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure ComponentsAtLocationAtSKULevelConsideredForForecastWithLocationMandatory()
+    var
+        Location: Record Location;
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        Item: Record Item;
+        SKU: Record "Stockkeeping Unit";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionForecastName: Record "Production Forecast Name";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        PlanningErrorLog: Record "Planning Error Log";
+    begin
+        // [FEATURE] [Planning] [Stockkeeping Unit] [Production Forecast]
+        // [SCENARIO 433269] "Components at Location" at stockkeeping unit level must be considered for planning demand forecast.
+        Initialize();
+        PlanningErrorLog.DeleteAll();
+
+        // [GIVEN] Location is mandatory.
+        LibraryInventory.SetLocationMandatory(true);
+
+        // [GIVEN] Location "L".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Component item "C", create stockkeeping unit, set up "Components at Location" = "L" in the SKU.
+        CreateItemWithReplenishmentSystem(CompItem, CompItem."Replenishment System"::Purchase);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, CompItem."No.", '');
+        SKU.Validate("Components at Location", Location.Code);
+        SKU.Modify(true);
+
+        // [GIVEN] Finished item "P", create production BOM, quantity per = 1.
+        CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", CompItem."Base Unit of Measure", 1);
+        CreateItemWithReplenishmentSystem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Component forecast for item "C", forecast quantity = 1000.
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        CreateProductionForecastEntryWithBlankLocation(ProductionForecastEntry, CompItem, ProductionForecastName.Name, true);
+        ProductionForecastEntry.Validate("Location Code", Location.Code);
+        ProductionForecastEntry.Modify(true);
+
+        // [GIVEN] Clear "Components at Location" in Manufacturing Setup.
+        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
+
+        // [GIVEN] Sales order for 100 pcs of item "P". This is the demand for planning.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          ProdItem."No.", LibraryRandom.RandIntInRange(50, 100), Location.Code, WorkDate() + 90);
+
+        // [WHEN] Calculate regenerative plan for items "P" and "C".
+        Item.SetFilter("No.", '%1|%2', ProdItem."No.", CompItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', ProductionForecastEntry."Forecast Date"));
+
+        // [THEN] 100 pcs of component "C" are planned to address the sales order.
+        FindRequisitionLine(RequisitionLine, CompItem."No.");
+        RequisitionLine.SetRange("MPS Order", false);
+        RequisitionLine.CalcSums(Quantity);
+        RequisitionLine.TestField(Quantity, SalesLine.Quantity);
+
+        // [THEN] 900 pcs of component "C" are planned to address the forecast.
+        RequisitionLine.SetRange("MPS Order", true);
+        RequisitionLine.CalcSums(Quantity);
+        RequisitionLine.TestField(Quantity, ProductionForecastEntry."Forecast Quantity" - SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2059,6 +2128,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Commit();
 
         LibrarySetupStorage.SaveManufacturingSetup();
+        LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning And Manufacturing");
     end;
 

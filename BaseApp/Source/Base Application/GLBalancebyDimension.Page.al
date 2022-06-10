@@ -627,6 +627,7 @@ page 408 "G/L Balance by Dimension"
         PeriodPageMgt: Codeunit PeriodPageManagement;
         Found: Boolean;
     begin
+        OnBeforeFindRec(DimOption, DimVal);
         case DimOption of
             DimOption::"G/L Account":
                 begin
@@ -698,6 +699,7 @@ page 408 "G/L Balance by Dimension"
         PeriodPageMgt: Codeunit PeriodPageManagement;
         ResultSteps: Integer;
     begin
+        OnBeforeNextRec(DimOption, DimVal);
         case DimOption of
             DimOption::"G/L Account":
                 begin
@@ -903,6 +905,16 @@ page 408 "G/L Balance by Dimension"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGLAccFilter(var GLAccount: Record "G/L Account"; var GLAccFilter: Text; LineDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4"; ColumnDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindRec(DimOption: Option; var DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNextRec(DimOption: Option; var DimensionValue: Record "Dimension Value")
     begin
     end;
 

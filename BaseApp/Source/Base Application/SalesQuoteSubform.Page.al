@@ -1061,6 +1061,7 @@
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
+        UpdateEditableOnRow();
         UpdateTypeText();
         SetItemChargeFieldsStyle();
     end;

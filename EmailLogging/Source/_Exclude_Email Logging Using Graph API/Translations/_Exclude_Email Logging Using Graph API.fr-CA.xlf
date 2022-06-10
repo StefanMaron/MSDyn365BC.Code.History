@@ -780,13 +780,13 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 1611996399 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create Email Logging Job Queue</source>
-          <target state="translated">Créer une file d'attente des travaux pour la consignation des courriels</target>
+          <target state="translated">Créer une file d’attente des travaux de connexion à la messagerie</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control CreateEmailLoggingJobQueue - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 1611996399 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create Email Logging Job Queue</source>
-          <target state="translated">Créer une file d'attente des travaux pour la consignation des courriels</target>
+          <target state="translated">Créer une file d’attente des travaux de connexion à la messagerie</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control CreateEmailLoggingJobQueue - Property Caption</note>
         </trans-unit>

@@ -23,6 +23,7 @@ codeunit 137140 "SCM Inventory Documents"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         ItemTrackingAction: Option AssignSerialNo,SelectEntries;
         RoundingTo0Err: Label 'Rounding of the field';
@@ -914,11 +915,12 @@ codeunit 137140 "SCM Inventory Documents"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Inventory Documents");
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
-
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"SCM Inventory Documents");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
@@ -926,6 +928,7 @@ codeunit 137140 "SCM Inventory Documents"
         SetupInvtDocumentsNoSeries();
         SetupPostedDirectTransfersNoSeries();
 
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"SCM Inventory Documents");
         isInitialized := true;
         Commit();
 

@@ -209,14 +209,16 @@
 
     trigger OnPreReport()
     begin
-        if not GLSetup."Journal Templ. Name Mandatory" then
-            exit;
-
         if PostPrepaidContracts = PostPrepaidContracts::"Post Prepaid Transactions" then begin
+            GLSetup.Get();
+            if not GLSetup."Journal Templ. Name Mandatory" then
+                exit;
+
             if GenJnlLineReq."Journal Template Name" = '' then
-                Error(Text11300Err);
+                Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
             if GenJnlLineReq."Journal Batch Name" = '' then
-                Error(Text11301Err);
+                Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
+
             Clear(NoSeriesMgt);
             Clear(DocNo);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
@@ -259,8 +261,7 @@
         Text006Txt: Label 'Unposted Credit Memo';
         Text007Txt: Label 'Prepaid Contract Entries';
         Text008txt: Label 'Service Contract';
-        Text11300Err: Label 'Please enter a Journal Template Name.';
-        Text11301Err: Label 'Please enter a Journal Batch Name.';
+        PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 
     local procedure PostGenJnlLine()
     var

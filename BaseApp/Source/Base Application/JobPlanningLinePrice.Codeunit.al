@@ -220,7 +220,7 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
                             JobPlanningLine."Direct Unit Cost (LCY)" := PriceListLine."Direct Unit Cost";
                         JobPlanningLine.Type::Resource:
                             begin
-                                JobPlanningLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
+                                JobPlanningLine."Unit Cost" := PriceListLine."Unit Cost";
                                 JobPlanningLine."Direct Unit Cost (LCY)" := PriceListLine."Direct Unit Cost";
                             end;
                         JobPlanningLine.Type::"G/L Account":

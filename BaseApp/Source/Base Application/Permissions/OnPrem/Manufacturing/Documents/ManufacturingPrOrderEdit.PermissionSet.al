@@ -25,6 +25,7 @@ permissionset 856 "Manufacturing Pr. Order - Edit"
                   tabledata Location = R,
                   tabledata "Machine Center" = R,
                   tabledata "Manufacturing Comment Line" = RIMD,
+                  tabledata "Manufacturing Cue" = R,
                   tabledata "Planning Component" = Rm,
                   tabledata "Prod. Order Capacity Need" = RIMD,
                   tabledata "Prod. Order Comment Line" = RIMD,

@@ -718,6 +718,7 @@
                     "Dimension Set ID" := DimMgt.CreateDimSetIDFromICJnlLineDim(TempInOutBoxJnlLineDim);
                     DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
                       "Shortcut Dimension 2 Code");
+                    OnCreateJournalLinesOnBeforeModify(GenJnlLine2, InboxJnlLine);
                     Modify;
                     HandledInboxJnlLine.TransferFields(InboxJnlLine);
                     HandledInboxJnlLine.Insert();
@@ -2516,7 +2517,13 @@
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         ReturnReceiptHeader: Record "Return Receipt Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateICOutboxSalesLineReceiptShipment(ICOutboxSalesLine, ICOutboxSalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ICOutboxSalesLine do
             case "Document Type" of
                 "Document Type"::Order,
@@ -2740,6 +2747,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateJournalLinesOnBeforeModify(var GenJournalLine: Record "Gen. Journal Line"; ICInboxJnlLine: Record "IC Inbox Jnl. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateOutboxPurchDocTrans(PurchaseHeader: Record "Purchase Header"; Rejection: Boolean; Post: Boolean)
     begin
     end;
@@ -2791,6 +2803,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendSalesDoc(var SalesHeader: Record "Sales Header"; var Post: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateICOutboxSalesLineReceiptShipment(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; ICOutboxSalesHeader: Record "IC Outbox Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

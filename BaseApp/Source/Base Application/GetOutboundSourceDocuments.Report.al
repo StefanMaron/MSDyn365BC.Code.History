@@ -23,6 +23,7 @@ report 7304 "Get Outbound Source Documents"
                         ATOLink: Record "Assemble-to-Order Link";
                         ATOAsmLine: Record "Assembly Line";
                         IsHandled: Boolean;
+                        ShouldPickLineFromShipmentLine: Boolean;
                     begin
                         IsHandled := false;
                         OnBeforeWhseShipmentLineOnAfterGetRecord("Warehouse Shipment Line", "Whse. Pick Request", IsHandled);
@@ -31,7 +32,9 @@ report 7304 "Get Outbound Source Documents"
 
                         if not "Assemble to Order" then begin
                             CalcFields("Pick Qty.", "Pick Qty. (Base)");
-                            if "Qty. (Base)" > "Qty. Picked (Base)" + "Pick Qty. (Base)" then begin
+                            ShouldPickLineFromShipmentLine := "Qty. (Base)" > "Qty. Picked (Base)" + "Pick Qty. (Base)";
+                            OnWarehouseShipmentLineOnAfterGetRecordOnAfterCalcShouldPickLineFromShipmentLine("Whse. Pick Request", "Warehouse Shipment Header", "Warehouse Shipment Line", ShouldPickLineFromShipmentLine);
+                            if ShouldPickLineFromShipmentLine then begin
                                 if "Destination Type" = "Destination Type"::Customer then begin
                                     TestField("Destination No.");
                                     Cust.Get("Destination No.");
@@ -359,6 +362,11 @@ report 7304 "Get Outbound Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseShipmentLineOnAfterGetRecord(var WhseShipmentLine: Record "Warehouse Shipment Line"; var WhsePickRequest: Record "Whse. Pick Request"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWarehouseShipmentLineOnAfterGetRecordOnAfterCalcShouldPickLineFromShipmentLine(var WhsePickRequest: Record "Whse. Pick Request"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ShouldPickLineFromShipmentLine: Boolean)
     begin
     end;
 }

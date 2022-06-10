@@ -1,4 +1,4 @@
-codeunit 7313 "Create Put-away"
+﻿codeunit 7313 "Create Put-away"
 {
     TableNo = "Posted Whse. Receipt Line";
 
@@ -633,7 +633,9 @@ codeunit 7313 "Create Put-away"
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode <> Location.Code then
-            Location.Get(LocationCode)
+            Location.Get(LocationCode);
+
+        OnAfterGetLocation(LocationCode, Location, PostedWhseRcptLine);
     end;
 
     local procedure GetBin(LocationCode: Code[10]; BinCode: Code[20])
@@ -841,53 +843,57 @@ codeunit 7313 "Create Put-away"
         CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
         UseCrossDock: Boolean;
         UOMCode: Code[10];
+        IsHandled: Boolean;
     begin
-        with PostedWhseRcptLine do begin
-            if not CrossDock then
-                exit;
-            CrossDockMgt.GetUseCrossDock(UseCrossDock, "Location Code", "Item No.");
-            if not UseCrossDock then
-                exit;
-            if "Qty. Cross-Docked" <> 0 then begin
-                if not Location."Bin Mandatory" then
-                    PutAwayItemUOM.Get("Item No.", "Unit of Measure Code")
-                else
-                    Bin.Get("Location Code", "Cross-Dock Bin Code");
-                LineNo := LineNo + 10000;
-                xPostedWhseRcptLine := PostedWhseRcptLine;
-                if Location."Directed Put-away and Pick" then
-                    Quantity := "Qty. Cross-Docked (Base)" / PutAwayItemUOM."Qty. per Unit of Measure"
-                else
-                    Quantity := "Qty. Cross-Docked";
+        IsHandled := false;
+        OnBeforeMakeCrossDockPutAway(Location, PutAwayItemUOM, Bin, LineNo, CrossDockInfo, QtyToPutAwayBase, RemQtyToPutAwayBase, EverythingHandled, IsHandled);
+        if not IsHandled then
+            with PostedWhseRcptLine do begin
+                if not CrossDock then
+                    exit;
+                CrossDockMgt.GetUseCrossDock(UseCrossDock, "Location Code", "Item No.");
+                if not UseCrossDock then
+                    exit;
+                if "Qty. Cross-Docked" <> 0 then begin
+                    if not Location."Bin Mandatory" then
+                        PutAwayItemUOM.Get("Item No.", "Unit of Measure Code")
+                    else
+                        Bin.Get("Location Code", "Cross-Dock Bin Code");
+                    LineNo := LineNo + 10000;
+                    xPostedWhseRcptLine := PostedWhseRcptLine;
+                    if Location."Directed Put-away and Pick" then
+                        Quantity := "Qty. Cross-Docked (Base)" / PutAwayItemUOM."Qty. per Unit of Measure"
+                    else
+                        Quantity := "Qty. Cross-Docked";
 
-                QtyToPutAwayBase := "Qty. Cross-Docked (Base)";
-                RemQtyToPutAwayBase := "Qty. Cross-Docked (Base)";
-                "Zone Code" := "Cross-Dock Zone Code";
-                "Bin Code" := "Cross-Dock Bin Code";
-                if Location."Directed Put-away and Pick" then
-                    UOMCode := PutAwayItemUOM.Code
-                else
-                    UOMCode := "Unit of Measure Code";
-                if CrossDockBinContent.Get("Location Code", "Cross-Dock Bin Code", "Item No.", "Variant Code", UOMCode) then
-                    NewCrossDockBinContent := false
-                else
-                    NewCrossDockBinContent := true;
-                if not Location."Bin Mandatory" then
-                    NewCrossDockBinContent := false;
-                CrossDockInfo := 1;
-                CalcQtyToPutAway(false, NewCrossDockBinContent);
-                CrossDockInfo := 2;
-                PostedWhseRcptLine := xPostedWhseRcptLine;
-                QtyToPutAwayBase := "Qty. (Base)" - "Qty. Cross-Docked (Base)";
-                RemQtyToPutAwayBase := "Qty. (Base)" - "Qty. Cross-Docked (Base)";
-                if Location."Directed Put-away and Pick" then
-                    Quantity := ("Qty. (Base)" - "Qty. Cross-Docked (Base)") / PutAwayItemUOM."Qty. per Unit of Measure"
-                else
-                    Quantity := Quantity - "Qty. Cross-Docked";
-                "Qty. (Base)" := Quantity * "Qty. per Unit of Measure";
-                EverythingHandled := false;
+                    QtyToPutAwayBase := "Qty. Cross-Docked (Base)";
+                    RemQtyToPutAwayBase := "Qty. Cross-Docked (Base)";
+                    "Zone Code" := "Cross-Dock Zone Code";
+                    "Bin Code" := "Cross-Dock Bin Code";
+                    if Location."Directed Put-away and Pick" then
+                        UOMCode := PutAwayItemUOM.Code
+                    else
+                        UOMCode := "Unit of Measure Code";
+                    if CrossDockBinContent.Get("Location Code", "Cross-Dock Bin Code", "Item No.", "Variant Code", UOMCode) then
+                        NewCrossDockBinContent := false
+                    else
+                        NewCrossDockBinContent := true;
+                    if not Location."Bin Mandatory" then
+                        NewCrossDockBinContent := false;
+                    CrossDockInfo := 1;
+                    CalcQtyToPutAway(false, NewCrossDockBinContent);
+                    CrossDockInfo := 2;
+                    PostedWhseRcptLine := xPostedWhseRcptLine;
+                    QtyToPutAwayBase := "Qty. (Base)" - "Qty. Cross-Docked (Base)";
+                    RemQtyToPutAwayBase := "Qty. (Base)" - "Qty. Cross-Docked (Base)";
+                    if Location."Directed Put-away and Pick" then
+                        Quantity := ("Qty. (Base)" - "Qty. Cross-Docked (Base)") / PutAwayItemUOM."Qty. per Unit of Measure"
+                    else
+                        Quantity := Quantity - "Qty. Cross-Docked";
+                    "Qty. (Base)" := Quantity * "Qty. per Unit of Measure";
+                    EverythingHandled := false;
+                end;
             end;
-        end;
 
         OnAfterMakeCrossDockPutAway(PostedWhseRcptLine);
     end;
@@ -974,6 +980,11 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemAndSKU(Location: Record Location; var Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLocation(LocationCode: Code[10]; var Location: Record Location; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 
@@ -1089,6 +1100,11 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertWhseActivHeader(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeCrossDockPutAway(var Location: Record Location; var PutAwayItemUOM: Record "Item Unit of Measure"; var Bin: Record Bin; var LineNo: Integer; var CrossDockInfo: Option; var QtyToPutAwayBase: Decimal; var RemQtyToPutAwayBase: Decimal; var EverythingHandled: Boolean; var IsHandled: Boolean)
     begin
     end;
 

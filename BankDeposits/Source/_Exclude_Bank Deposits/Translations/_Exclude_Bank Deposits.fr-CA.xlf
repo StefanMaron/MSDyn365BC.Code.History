@@ -509,7 +509,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3539949115 - NamedType 3246919479" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank deposit report has not been set up.</source>
-          <target state="translated">Le rapport des dépôts en banque n’a pas été configuré.</target>
+          <target state="translated">Le rapport des dépôts bancaires n’a pas été configuré.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Deposit-Post + Print - NamedType BankDepositReportSelectionErr</note>
         </trans-unit>
@@ -809,7 +809,7 @@
         </trans-unit>
         <trans-unit id="Page 2133839000 - NamedType 3246919479" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank deposit test report has not been set up.</source>
-          <target state="translated">Le rapport des tests des dépôts bancaires n’a pas été configuré.</target>
+          <target state="translated">Le rapport de test des dépôts bancaires n’a pas été configuré.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposit List - NamedType BankDepositReportSelectionErr</note>
         </trans-unit>
@@ -1211,7 +1211,7 @@
         </trans-unit>
         <trans-unit id="Page 1816704201 - NamedType 3246919479" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank deposit report has not been set up.</source>
-          <target state="translated">Le rapport des dépôts en banque n’a pas été configuré.</target>
+          <target state="translated">Le rapport des dépôts bancaires n’a pas été configuré.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - NamedType BankDepositReportSelectionErr</note>
         </trans-unit>
@@ -1355,7 +1355,7 @@
         </trans-unit>
         <trans-unit id="Page 1816704201 - Action 1002420131 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.</source>
-          <target state="translated">Préparez-vous à imprimer le document. Une fenêtre de demande de rapport pour le document s’ouvre et vous permet de spécifier les éléments à imprimer.</target>
+          <target state="translated">Préparez-vous à imprimer le document. Une fenêtre de demande de rapport pour le document s’ouvre et vous permet d’indiquer les éléments à imprimer.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Action Print - Property ToolTip</note>
         </trans-unit>
@@ -2189,7 +2189,7 @@
         </trans-unit>
         <trans-unit id="Report 2614277098 - NamedType 1604177009" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>G/L Account %1 is blocked for processing.</source>
-          <target state="translated">Le compte du grand livre %1 est bloqué pour traitement.</target>
+          <target state="translated">Le compte général %1 est bloqué pour traitement.</target>
           <note from="Developer" annotates="general" priority="2">%1 = GL Account code</note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Bank Deposit Test Report - NamedType GLAccountBlockedErr</note>
         </trans-unit>

@@ -39,6 +39,9 @@ codeunit 5707 "TransferOrder-Post + Print"
                     then
                         DefaultNumber := Selection::Receipt;
                 until (TransLine.Next() = 0) or (DefaultNumber > 0);
+
+            OnRunOnBeforePrepareAndPrintReport(TransHeader, DefaultNumber, Selection);
+
             if "Direct Transfer" then begin
                 TransferPostShipment.Run(TransHeader);
                 TransferPostReceipt.Run(TransHeader);
@@ -122,6 +125,11 @@ codeunit 5707 "TransferOrder-Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintShipment(DocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforePrepareAndPrintReport(var TransferHeader: Record "Transfer Header"; var DefaultNumber: Integer; var Selection: Option)
     begin
     end;
 }

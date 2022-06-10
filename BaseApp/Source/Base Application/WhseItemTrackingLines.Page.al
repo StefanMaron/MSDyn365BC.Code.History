@@ -325,15 +325,14 @@ page 6550 "Whse. Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Serial No. Information Card';
                     Image = SNInfo;
-                    RunObject = Page "Serial No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Serial No." = FIELD("Serial No.");
                     ToolTip = 'View or edit detailed information about the serial number.';
 
                     trigger OnAction()
+                    var
+                        SerialNoInfo: Record "Serial No. Information";
                     begin
                         Rec.TestField("Serial No.");
+                        SerialNoInfo.ShowCard(Rec."Serial No.", Rec);
                     end;
                 }
                 action(Reclass_LotNoInfoCard)
@@ -341,15 +340,14 @@ page 6550 "Whse. Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Lot No. Information Card';
                     Image = LotInfo;
-                    RunObject = Page "Lot No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Lot No." = FIELD("Lot No.");
                     ToolTip = 'View or edit detailed information about the lot number.';
 
                     trigger OnAction()
+                    var
+                        LotNoInfo: Record "Lot No. Information";
                     begin
                         Rec.TestField("Lot No.");
+                        LotNoInfo.ShowCard(Rec."Lot No.", Rec);
                     end;
                 }
                 action(Reclass_PackageNoInfoCard)
@@ -357,16 +355,15 @@ page 6550 "Whse. Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Package No. Information Card';
                     Image = LotInfo;
-                    RunObject = Page "Package No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Package No." = FIELD("Package No.");
                     ToolTip = 'View or edit detailed information about the package number.';
                     Visible = PackageTrackingVisible;
 
                     trigger OnAction()
+                    var
+                        PackageNoInfo: Record "Package No. Information";
                     begin
                         Rec.TestField("Package No.");
+                        PackageNoInfo.ShowCard(Rec."Package No.", Rec);
                     end;
                 }
                 separator(Action44)
@@ -382,19 +379,9 @@ page 6550 "Whse. Item Tracking Lines"
                     trigger OnAction()
                     var
                         SerialNoInfo: Record "Serial No. Information";
-                        SerialNoInfoCard: Page "Serial No. Information Card";
                     begin
                         Rec.TestField("New Serial No.");
-
-                        Clear(SerialNoInfoCard);
-                        SerialNoInfoCard.InitWhse(Rec);
-
-                        SerialNoInfo.SetRange("Item No.", Rec."Item No.");
-                        SerialNoInfo.SetRange("Variant Code", Rec."Variant Code");
-                        SerialNoInfo.SetRange("Serial No.", Rec."New Serial No.");
-
-                        SerialNoInfoCard.SetTableView(SerialNoInfo);
-                        SerialNoInfoCard.Run();
+                        SerialNoInfo.ShowCard(Rec."New Serial No.", Rec);
                     end;
                 }
                 action("New L&ot No. Information")
@@ -408,19 +395,9 @@ page 6550 "Whse. Item Tracking Lines"
                     trigger OnAction()
                     var
                         LotNoInfo: Record "Lot No. Information";
-                        LotNoInfoCard: Page "Lot No. Information Card";
                     begin
                         Rec.TestField("New Lot No.");
-
-                        Clear(LotNoInfoCard);
-                        LotNoInfoCard.InitWhse(Rec);
-
-                        LotNoInfo.SetRange("Item No.", Rec."Item No.");
-                        LotNoInfo.SetRange("Variant Code", Rec."Variant Code");
-                        LotNoInfo.SetRange("Lot No.", Rec."New Lot No.");
-
-                        LotNoInfoCard.SetTableView(LotNoInfo);
-                        LotNoInfoCard.Run();
+                        LotNoInfo.ShowCard(Rec."New Lot No.", Rec);
                     end;
                 }
                 action("New P&ackage No. Information")
@@ -435,19 +412,9 @@ page 6550 "Whse. Item Tracking Lines"
                     trigger OnAction()
                     var
                         PackageNoInfo: Record "Package No. Information";
-                        PackageNoInfoCard: Page "Package No. Information Card";
                     begin
                         Rec.TestField("New Package No.");
-
-                        Clear(PackageNoInfoCard);
-                        PackageNoInfoCard.InitWhse(Rec);
-
-                        PackageNoInfo.SetRange("Item No.", Rec."Item No.");
-                        PackageNoInfo.SetRange("Variant Code", Rec."Variant Code");
-                        PackageNoInfo.SetRange("Package No.", Rec."New Package No.");
-
-                        PackageNoInfoCard.SetTableView(PackageNoInfo);
-                        PackageNoInfoCard.Run();
+                        PackageNoInfo.ShowCard(Rec."New Package No.", Rec);
                     end;
                 }
             }
@@ -461,15 +428,14 @@ page 6550 "Whse. Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Serial No. Information Card';
                     Image = SNInfo;
-                    RunObject = Page "Serial No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Serial No." = FIELD("Serial No.");
                     ToolTip = 'View or edit detailed information about the serial number.';
 
                     trigger OnAction()
+                    var
+                        SerialNoInfo: Record "Serial No. Information";
                     begin
                         Rec.TestField("Serial No.");
+                        SerialNoInfo.ShowCard(Rec."Serial No.", Rec);
                     end;
                 }
                 action(Line_LotNoInforCard)
@@ -477,15 +443,14 @@ page 6550 "Whse. Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Lot No. Information Card';
                     Image = LotInfo;
-                    RunObject = Page "Lot No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Lot No." = FIELD("Lot No.");
                     ToolTip = 'View or edit detailed information about the lot number.';
 
                     trigger OnAction()
+                    var
+                        LotNoInfo: Record "Lot No. Information";
                     begin
                         Rec.TestField("Lot No.");
+                        LotNoInfo.ShowCard(Rec."Lot No.", Rec);
                     end;
                 }
                 action(Line_PackageNoInforCard)
@@ -493,15 +458,14 @@ page 6550 "Whse. Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Package No. Information Card';
                     Image = LotInfo;
-                    RunObject = Page "Package No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Package No." = FIELD("Package No.");
                     ToolTip = 'View or edit detailed information about the package number.';
 
                     trigger OnAction()
+                    var
+                        PackageNoInfo: Record "Package No. Information";
                     begin
                         Rec.TestField("Package No.");
+                        PackageNoInfo.ShowCard(Rec."Package No.", Rec);
                     end;
                 }
             }

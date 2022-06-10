@@ -705,7 +705,6 @@ table 5092 Opportunity
         SegHeader: Record "Segment Header";
         SegLine: Record "Segment Line";
         SalesCycleStage: Record "Sales Cycle Stage";
-        OppEntry: Record "Opportunity Entry";
     begin
         Opp := Opp2;
 
@@ -727,28 +726,31 @@ table 5092 Opportunity
                         Clear(Opp."No.");
                         Opp.Insert(true);
                         CreateCommentLines(RMCommentLineTmp, Opp."No.");
-                        if ActivateFirstStage then begin
-                            OppEntry.Init();
-                            OppEntry := OppEntry2;
-                            OppEntry.InitOpportunityEntry(Opp);
-                            OppEntry.InsertEntry(OppEntry, false, true);
-                            OppEntry.UpdateEstimates;
-                        end;
+                        ProcessFirstStage(OppEntry2, ActivateFirstStage, true);
                     until SegLine.Next() = 0;
             end;
         end else begin
             Opp.Insert(true);
             CreateCommentLines(RMCommentLineTmp, Opp."No.");
-            if ActivateFirstStage then begin
-                OppEntry.Init();
-                OppEntry := OppEntry2;
-                OppEntry.InitOpportunityEntry(Opp);
-                OppEntry.InsertEntry(OppEntry, false, true);
-                OppEntry.UpdateEstimates;
-            end;
+            ProcessFirstStage(OppEntry2, ActivateFirstStage, false);
         end;
 
         OnAfterInsertOpportunity(Opp);
+    end;
+
+    local procedure ProcessFirstStage(OpportunityEntry2: Record "Opportunity Entry"; ActivateFirstStage: Boolean; CalledForSegment: Boolean)
+    var
+        OpportunityEntry: Record "Opportunity Entry";
+    begin
+        OnBeforeProcessFirstStage(Opp, OpportunityEntry2, ActivateFirstStage, CalledForSegment);
+
+        if ActivateFirstStage then begin
+            OpportunityEntry.Init();
+            OpportunityEntry := OpportunityEntry2;
+            OpportunityEntry.InitOpportunityEntry(Opp);
+            OpportunityEntry.InsertEntry(OpportunityEntry, false, true);
+            OpportunityEntry.UpdateEstimates();
+        end;
     end;
 
     procedure UpdateOpportunity()
@@ -910,7 +912,14 @@ table 5092 Opportunity
             "Segment Description" := SegHeader.Description;
 
         Insert;
-        if PAGE.RunModal(PAGE::"Create Opportunity", Rec) = ACTION::OK then;
+        RunPageForRec(PAGE::"Create Opportunity");
+
+    end;
+
+    local procedure RunPageForRec(PageID: Integer)
+    begin
+        OnBeforeRunPageForRec(Rec, PageID);
+        if PAGE.RunModal(PageID, Rec) = ACTION::OK then;
     end;
 
     procedure CheckStatus()
@@ -952,6 +961,7 @@ table 5092 Opportunity
     var
         ActivateFirstStage: Boolean;
     begin
+        OnBeforeFinishWizard(Rec, OppEntry);
         "Wizard Step" := Opp."Wizard Step"::" ";
         ActivateFirstStage := "Activate First Stage";
         "Activate First Stage" := false;
@@ -1101,6 +1111,7 @@ table 5092 Opportunity
         Campaign.SetFilter("Ending Date", '%1..', "Creation Date");
         Campaign.CalcFields(Activated);
         Campaign.SetRange(Activated, true);
+        OnLookupCampaignsOnAfterSetFilters(Rec, Campaign);
         if PAGE.RunModal(0, Campaign) = ACTION::LookupOK then begin
             Opportunity := Rec;
             Opportunity.Validate("Campaign No.", Campaign."No.");
@@ -1121,7 +1132,13 @@ table 5092 Opportunity
     local procedure CheckCampaign()
     var
         Campaign: Record Campaign;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCampaign(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Campaign No." <> '' then begin
             Campaign.Get("Campaign No.");
             if (Campaign."Starting Date" > "Creation Date") or (Campaign."Ending Date" < "Creation Date") then
@@ -1193,6 +1210,26 @@ table 5092 Opportunity
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCampaign(var Opportunity: Record Opportunity; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinishWizard(var Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessFirstStage(var Opportunity: Record Opportunity; var OpportunityEntry2: Record "Opportunity Entry"; ActivateFirstStage: Boolean; CalledForSegment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPageForRec(var Opportunity: Record Opportunity; var PageID: Integer)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnCreateOppFromOppOnAfterInit(var Opportunity: Record Opportunity)
     begin
@@ -1210,6 +1247,11 @@ table 5092 Opportunity
 
     [IntegrationEvent(false, false)]
     local procedure OnFinishWizardOnBeforeInsertOpportunity(var Opportunity: Record Opportunity; var OppEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupCampaignsOnAfterSetFilters(var Opportunity: Record Opportunity; var Campaign: Record Campaign)
     begin
     end;
 }

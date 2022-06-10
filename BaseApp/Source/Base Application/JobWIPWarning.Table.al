@@ -60,9 +60,12 @@ table 1007 "Job WIP Warning"
     procedure CreateEntries(JobWIPTotal: Record "Job WIP Total")
     var
         Job: Record Job;
+        ShouldInsertWarnings: Boolean;
     begin
         Job.Get(JobWIPTotal."Job No.");
-        if not Job.Complete then begin
+        ShouldInsertWarnings := not Job.Complete;
+        OnCreateEntriesOnAfterCalcShouldInsertWarnings(JobWIPTotal, Job, ShouldInsertWarnings);
+        if ShouldInsertWarnings then begin
             if JobWIPTotal."Contract (Total Price)" = 0 then
                 InsertWarning(JobWIPTotal, StrSubstNo(Text001, JobWIPTotal.FieldCaption("Contract (Total Price)")));
 
@@ -81,6 +84,7 @@ table 1007 "Job WIP Warning"
             if JobWIPTotal."Calc. Recog. Costs Amount" < 0 then
                 InsertWarning(JobWIPTotal, StrSubstNo(Text003, JobWIPTotal.FieldCaption("Calc. Recog. Costs Amount")));
         end;
+        OnAfterCreateEntries(JobWIPTotal, Job);
     end;
 
     procedure DeleteEntries(JobWIPTotal: Record "Job WIP Total")
@@ -101,7 +105,23 @@ table 1007 "Job WIP Warning"
         "Job No." := JobWIPTotal."Job No.";
         "Job Task No." := JobWIPTotal."Job Task No.";
         "Warning Message" := Message;
+        OnInsertWarningOnBeforeInsert(Rec);
         Insert;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateEntries(JobWIPTotal: Record "Job WIP Total"; Job: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateEntriesOnAfterCalcShouldInsertWarnings(JobWIPTotal: Record "Job WIP Total"; Job: Record Job; var ShouldInsertWarnings: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertWarningOnBeforeInsert(var JobWIPWarning: Record "Job WIP Warning")
+    begin
     end;
 }
 

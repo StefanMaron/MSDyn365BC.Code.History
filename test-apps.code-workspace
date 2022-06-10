@@ -165,6 +165,9 @@
                         "path":  ".\\salesandinventoryforecast\\test\\Sales and Inventory Forecast Tests"
                     },
                     {
+                        "path":  ".\\shopify\\test\\Shopify Connector Test"
+                    },
+                    {
                         "path":  ".\\system application\\source\\System Application\\Email\\src\\Test Email"
                     },
                     {

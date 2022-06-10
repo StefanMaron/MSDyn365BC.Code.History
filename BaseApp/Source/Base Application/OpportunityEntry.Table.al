@@ -313,6 +313,7 @@
         OppEntry2.CreateTask(CancelOldTask, CreateNewTask);
         OppEntry2.Insert(true);
         OppEntry := OppEntry2;
+        OnAfterInsertEntry(OppEntry);
     end;
 
     procedure UpdateEstimates()
@@ -473,13 +474,20 @@
         "Campaign No." := Opp."Campaign No.";
 
         OnCloseOppFromOppOnBeforeStartWizard(Opp, Rec);
-        StartWizard;
+        StartWizard(PAGE::"Close Opportunity");
     end;
 
-    local procedure StartWizard()
+    local procedure StartWizard(PageID: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeStartWizard(Rec, PageID, IsHandled);
+        if IsHandled then
+            exit;
+
         Insert;
-        if PAGE.RunModal(PAGE::"Close Opportunity", Rec) = ACTION::OK then;
+        if PAGE.RunModal(PageID, Rec) = ACTION::OK then;
     end;
 
     procedure CheckStatus()
@@ -914,12 +922,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertEntry(var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckStatus(var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckStatus2(var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStartWizard(var OpportunityEntry: Record "Opportunity Entry"; var CloseOpportunityPageId: Integer; var IsHandled: Boolean)
     begin
     end;
 

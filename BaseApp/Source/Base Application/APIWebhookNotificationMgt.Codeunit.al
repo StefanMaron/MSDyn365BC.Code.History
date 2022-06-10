@@ -30,6 +30,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         FindingEntityMsg: Label 'Finding entity for subscription. Subscription: %1. Expiration time: %2. Table: %3.', Locked = true;
         CannotFindEntityErr: Label 'Cannot find entity. Subscription: %1. Expiration time: %2. Table: %3.', Locked = true;
         TemporarySourceTableErr: Label 'No support for entities with a temporary source table. Subscription: %1. Expiration time: %2. Table: %3.', Locked = true;
+        JobQueueEntrySourceTableErr: Label 'No support for entities with source table Job Queue Entry. Subscription: %1. Expiration time: %2. Table: %3.', Locked = true;
         CompositeEntityKeyErr: Label 'No support for entities with a composite key. Subscription: %1. Expiration time: %2. Table: %3. Fields: %4.', Locked = true;
         IncorrectEntityKeyErr: Label 'Incorrect entity key. Subscription: %1. Expiration time: %2. Table: %3. Fields: %4. ', Locked = true;
         ScheduleJobMsg: Label 'Schedule job. Processing time: %1. Earliest start time: %2. Latest start time: %3.', Locked = true;
@@ -41,10 +42,12 @@ codeunit 6153 "API Webhook Notification Mgt."
         UseCachedDetailedLoggingEnabled: Boolean;
         TooManyJobsMsg: Label 'New job is not created. Count of jobs cannot exceed %1.', Locked = true;
         NoPermissionsTxt: Label 'No permissions.', Locked = true;
-        ToManyNotificationsTxt: Label 'To many notifications', Locked = true;
+        TooManyNotificationsTxt: Label 'Too many notifications', Locked = true;
         FieldTok: Label 'Field', Locked = true;
         EqConstTok: Label '=CONST(', Locked = true;
         EqFilterTok: Label '=FILTER(', Locked = true;
+        CachedTotalCountOfExistingNotifications: Boolean;
+        TotalCountOfExistingNotifications: Integer;
 
     [Scope('OnPrem')]
     procedure OnDatabaseInsert(var RecRef: RecordRef)
@@ -216,6 +219,11 @@ codeunit 6153 "API Webhook Notification Mgt."
         if IsDetailedLoggingEnabled() then
             Session.LogMessage('00006ZN', StrSubstNo(FindingEntityMsg, APIWebhookSubscription.SystemId, DateTimeToString(APIWebhookSubscription."Expiration Date Time"),
                 APIWebhookSubscription."Source Table Id"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+        if APIWebhookSubscription."Source Table Id" = Database::"Job Queue Entry" then begin
+            Session.LogMessage('0000HE3', StrSubstNo(JobQueueEntrySourceTableErr, APIWebhookSubscription.SystemId, DateTimeToString(APIWebhookSubscription."Expiration Date Time"),
+                APIWebhookSubscription."Source Table Id"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+            exit(false);
+        end;
         ApiWebhookEntity.SetRange(Publisher, APIWebhookSubscription."Entity Publisher");
         ApiWebhookEntity.SetRange(Group, APIWebhookSubscription."Entity Group");
         ApiWebhookEntity.SetRange(Version, APIWebhookSubscription."Entity Version");
@@ -375,8 +383,9 @@ codeunit 6153 "API Webhook Notification Mgt."
 
     local procedure RegisterNotification(var ApiWebhookEntity: Record "Api Webhook Entity"; var APIWebhookSubscription: Record "API Webhook Subscription"; var RecRef: RecordRef; ChangeType: Option; RecordSystemId: Guid): Boolean
     var
+        TotalAPIWebhookNotification: Record "API Webhook Notification";
         APIWebhookNotification: Record "API Webhook Notification";
-        APIWebhookNotofocationSend: Codeunit "API Webhook Notification Send";
+        APIWebhookNotificationSend: Codeunit "API Webhook Notification Send";
         FieldValue: Text;
     begin
         if not APIWebhookNotification.WritePermission() then begin
@@ -391,13 +400,21 @@ codeunit 6153 "API Webhook Notification Mgt."
             exit(false);
         end;
 
-        if TryGetEntityKeyValue(APIWebhookSubscription, ApiWebhookEntity, RecRef, FieldValue) then begin
-            APIWebhookNotification.SetRange("Subscription ID", APIWebhookSubscription."Subscription Id");
-            if APIWebhookNotification.Count() > APIWebhookNotofocationSend.GetMaxNumberOfNotifications() then begin
-                Session.LogMessage('0000DY2', ToManyNotificationsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
-                exit(false);
-            end;
+        if not CachedTotalCountOfExistingNotifications then begin
+            if not TotalAPIWebhookNotification.IsEmpty() then
+                TotalCountOfExistingNotifications := TotalAPIWebhookNotification.Count()
+            else
+                Clear(TotalCountOfExistingNotifications);
 
+            CachedTotalCountOfExistingNotifications := true;
+        end;
+
+        if TotalCountOfExistingNotifications > APIWebhookNotificationSend.GetMaxNumberOfLoggedNotifications() then begin
+            Session.LogMessage('0000HF4', TooManyNotificationsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+            exit(false);
+        end;
+
+        if TryGetEntityKeyValue(APIWebhookSubscription, ApiWebhookEntity, RecRef, FieldValue) then begin
             APIWebhookNotification.SetRange("Subscription ID");
             APIWebhookNotification.ID := CreateGuid();
             APIWebhookNotification."Subscription ID" := APIWebhookSubscription."Subscription Id";
@@ -408,6 +425,7 @@ codeunit 6153 "API Webhook Notification Mgt."
             APIWebhookNotification."Entity ID" := RecordSystemId;
             APIWebhookNotification."Entity Key Value" := CopyStr(FieldValue, 1, MaxStrLen(APIWebhookNotification."Entity Key Value"));
             if APIWebhookNotification.Insert(true) then begin
+                TotalCountOfExistingNotifications += 1;
                 if IsDetailedLoggingEnabled() then
                     Session.LogMessage('000024P', StrSubstNo(CreateNotificationMsg, APIWebhookSubscription.SystemId,
                         DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id", DateTimeToString(APIWebhookNotification."Last Modified Date Time"),

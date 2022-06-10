@@ -72,7 +72,7 @@ page 345 Reconciliation
                   GenJnlLine."Bal. Account Type", GenJnlLine."Bal. Account No.",
                   -Round(GenJnlLine."Amount (LCY)" / (1 + GenJnlLine."Bal. VAT %" / 100)));
             until GenJnlLine.Next() = 0;
-        
+
         OnAfterSetGenJnlLine(Rec, GenJnlLine);
         if Find('-') then;
     end;
@@ -126,7 +126,7 @@ page 345 Reconciliation
         OnBeforeGLAccountNetChange(Rec, GLAcc);
         Insert;
 
-        OnAfterInsertGLAccNetChange(Rec);
+        OnAfterInsertGLAccNetChange(Rec, GLAcc);
     end;
 
     procedure ReturnGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
@@ -149,12 +149,12 @@ page 345 Reconciliation
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertGLAccNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInsertGLAccNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GLAccount: Record "G/L Account")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GLAccount: Record "G/L Account")
     begin
     end;
@@ -164,7 +164,7 @@ page 345 Reconciliation
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnSaveNetChangeOnBeforeModify(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; NetChange: Decimal)
     begin
     end;

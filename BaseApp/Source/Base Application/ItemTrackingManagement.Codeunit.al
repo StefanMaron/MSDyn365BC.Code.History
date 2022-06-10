@@ -62,18 +62,21 @@ codeunit 6500 "Item Tracking Management"
                 begin
                     if not SerialNoInfo.Get(ItemNo, VariantCode, ItemTrackingNo) then
                         Error(Text003, SerialNoInfo.FieldCaption("Serial No."), ItemTrackingNo);
+                    SerialNoInfo.SetRecFilter();
                     PAGE.RunModal(0, SerialNoInfo);
                 end;
             ItemTrackingType::"Lot No.":
                 begin
                     if not LotNoInfo.Get(ItemNo, VariantCode, ItemTrackingNo) then
                         Error(Text003, LotNoInfo.FieldCaption("Lot No."), ItemTrackingNo);
+                    LotNoInfo.SetRecFilter();
                     PAGE.RunModal(0, LotNoInfo);
                 end;
             ItemTrackingType::"Package No.":
                 begin
                     if not PackageNoInfo.Get(ItemNo, VariantCode, ItemTrackingNo) then
                         Error(Text003, PackageNoInfo.FieldCaption("Package No."), ItemTrackingNo);
+                    PackageNoInfo.SetRecFilter();
                     PAGE.RunModal(0, PackageNoInfo);
                 end;
         end;
@@ -741,12 +744,18 @@ codeunit 6500 "Item Tracking Management"
           ItemEntryRelation, ToServLine."Document Type".AsInteger(), ToServLine."Document No.", ToServLine."Line No.");
     end;
 
-    procedure CollectItemEntryRelation(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; TotalQty: Decimal): Boolean
+    procedure CollectItemEntryRelation(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; TotalQty: Decimal) Result: Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemEntryRelation: Record "Item Entry Relation";
         Quantity: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCollectItemEntryRelation(TempItemLedgEntry, SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo, TotalQty, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         Quantity := 0;
         TempItemLedgEntry.Reset();
         TempItemLedgEntry.DeleteAll();
@@ -1413,7 +1422,13 @@ codeunit 6500 "Item Tracking Management"
     procedure InitItemTrackingForTempWhseWorksheetLine(WhseDocType: Enum "Warehouse Worksheet Document Type"; WhseDocNo: Code[20]; WhseDocLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer)
     var
         TempWhseWkshLine: Record "Whse. Worksheet Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitItemTrackingForTempWhseWorksheetLine(WhseDocNo, WhseDocLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         InitWhseWorksheetLine(
             TempWhseWkshLine, WhseDocType, WhseDocNo, WhseDocLineNo,
             SourceType, SourceSubtype, SourceNo, SourceLineNo, SourceSublineNo);
@@ -2432,7 +2447,14 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     procedure TestExpDateOnTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestExpDateOnTrackingSpec(TempTrackingSpecification, IsHandled);
+        if IsHandled then
+            exit;
+
         if (TempTrackingSpecification."Lot No." = '') or (TempTrackingSpecification."Serial No." = '') then
             exit;
         TempTrackingSpecification.SetRange("Lot No.", TempTrackingSpecification."Lot No.");
@@ -3372,6 +3394,7 @@ codeunit 6500 "Item Tracking Management"
     begin
         TempTrackingSpecSummedUp.Reset();
         TempTrackingSpecSummedUp.SetFilter("Qty. to Invoice (Base)", '<>%1', 0);
+        OnCheckQtyToInvoiceMatchItemTrackingOnAfterTempTrackingSpecSummedUpSetFilters(TempTrackingSpecSummedUp);
         NoOfLotsOrSerials := TempTrackingSpecSummedUp.Count();
         if NoOfLotsOrSerials = 0 then
             exit;
@@ -3546,6 +3569,11 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestExpDateOnTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSplitPostedWhseReceiptLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary; var IsHandled: Boolean)
     begin
     end;
@@ -3627,6 +3655,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindTempHandlingSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitItemTrackingForTempWhseWorksheetLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -3779,6 +3812,11 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckQtyToInvoiceMatchItemTrackingOnAfterTempTrackingSpecSummedUpSetFilters(var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyItemLedgEntryTrkgToDocLine(var ItemLedgerEntry: Record "Item Ledger Entry"; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
@@ -3918,6 +3956,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitWhseJnlLineOnAfterSetFilters(var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCollectItemEntryRelation(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; TotalQty: Decimal; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -92,12 +92,10 @@ codeunit 1002 "Job Create-Invoice"
 
     procedure CreateSalesInvoiceLines(JobNo: Code[20]; var JobPlanningLineSource: Record "Job Planning Line"; InvoiceNo: Code[20]; NewInvoice: Boolean; PostingDate: Date; CreditMemo: Boolean)
     var
-        Cust: Record Customer;
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         LineCounter: Integer;
-        IsHandled: Boolean;
         LastError: Text;
     begin
         OnBeforeCreateSalesInvoiceLines(JobPlanningLineSource, InvoiceNo, NewInvoice, PostingDate, CreditMemo);
@@ -109,12 +107,8 @@ codeunit 1002 "Job Create-Invoice"
             Job.TestBlocked;
         if Job."Currency Code" = '' then
             JobInvCurrency := Job."Invoice Currency Code" <> '';
-        Job.TestField("Bill-to Customer No.");
+        CheckJobBillToCustomer(JobPlanningLineSource, Job);
 
-        IsHandled := false;
-        OnCreateSalesInvoiceLinesOnBeforeGetCustomer(JobPlanningLineSource, Cust, IsHandled);
-        if not IsHandled then
-            Cust.Get(Job."Bill-to Customer No.");
         if CreditMemo then
             SalesHeader2."Document Type" := SalesHeader2."Document Type"::"Credit Memo"
         else
@@ -186,6 +180,24 @@ codeunit 1002 "Job Create-Invoice"
             Error(Text002, JobPlanningLine.TableCaption, JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
 
         OnAfterCreateSalesInvoiceLines(SalesHeader, NewInvoice);
+    end;
+
+    local procedure CheckJobBillToCustomer(var JobPlanningLineSource: Record "Job Planning Line"; Job: Record Job)
+    var
+        Cust: Record Customer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckJobBillToCustomer(JobPlanningLineSource, Job, IsHandled);
+        If IsHandled then
+            exit;
+        Job.TestField("Bill-to Customer No.");
+#if not CLEAN21
+        IsHandled := false;
+        OnCreateSalesInvoiceLinesOnBeforeGetCustomer(JobPlanningLineSource, Cust, IsHandled);
+        if not IsHandled then
+#endif
+            Cust.Get(Job."Bill-to Customer No.");
     end;
 
     procedure DeleteSalesInvoiceBuffer()
@@ -1016,6 +1028,11 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJobBillToCustomer(JobPlanningLineSource: Record "Job Planning Line"; Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindInvoices(var TempJobPlanningLineInvoice: Record "Job Planning Line Invoice" temporary; JobNo: Code[20]; JobTaskNo: Code[20]; JobPlanningLineNo: Integer; DetailLevel: Option; var IsHandled: Boolean)
     begin
     end;
@@ -1064,12 +1081,13 @@ codeunit 1002 "Job Create-Invoice"
     local procedure OnCreateSalesInvoiceLinesOnBeforeCreateSalesLine(var JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesHeader2: Record "Sales Header"; NewInvoice: Boolean; var NoOfSalesLinesCreated: Integer)
     begin
     end;
-
+#if not CLEAN21
+    [Obsolete('Replaced with OnBeforeCheckJobBillToCustomer', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnBeforeGetCustomer(JobPlanningLine: Record "Job Planning Line"; var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnBeforeTestJob(var Job: Record Job)
     begin

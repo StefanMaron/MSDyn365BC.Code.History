@@ -82,7 +82,14 @@ codeunit 311 "Item-Check Avail."
     end;
 
     procedure ServiceInvLineCheck(ServInvLine: Record "Service Line") Rollback: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceInvLineCheck(ServInvLine, Rollback, IsHandled);
+        if IsHandled then
+            exit(Rollback);
+
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
           ServInvLine.RecordId, GetItemAvailabilityNotificationId(), true);
         if ServiceInvLineShowWarning(ServInvLine) then
@@ -337,6 +344,11 @@ codeunit 311 "Item-Check Avail."
         OldTransLine: Record "Transfer Line";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferLineShowWarning(TransLine, IsWarning, IsHandled);
+        if IsHandled then
+            exit(IsWarning);
+
         if not ShowWarningForThisItem(TransLine."Item No.") then
             exit(false);
 
@@ -783,6 +795,16 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferLineCheck(TransferLine: Record "Transfer Line"; var Rollback: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferLineShowWarning(TransferLine: Record "Transfer Line"; var IsWarning: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceInvLineCheck(ServInvLine: Record "Service Line"; var Rollback: Boolean; var IsHandled: Boolean)
     begin
     end;
 

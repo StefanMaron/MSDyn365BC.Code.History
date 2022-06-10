@@ -49,6 +49,28 @@ codeunit 2000 "Time Series Management"
         TimeSeriesCalculationState := TimeSeriesCalculationState::Initialized;
     end;
 
+    [NonDebuggable]
+    procedure InitializeFromCashFlowSetup(TimeSeriesLibState: Option Uninitialized,Initialized,"Data Prepared",Done): Boolean
+    var
+        CashFlowSetup: Record "Cash Flow Setup";
+        ApiUrl: Text[250];
+        MLApiKey: Text[200];
+        UsingStandardCredentials: Boolean;
+        LimitValue: Decimal;
+    begin
+        if not CashFlowSetup.Get() then
+            exit(false);
+
+        CashFlowSetup.GetMLCredentials(ApiUrl, MLApiKey, LimitValue, UsingStandardCredentials);
+        Initialize(ApiUrl, MLApiKey, CashFlowSetup.TimeOut, UsingStandardCredentials);
+        SetMaximumHistoricalPeriods(CashFlowSetup."Historical Periods");
+        GetState(TimeSeriesLibState);
+        if not (TimeSeriesLibState = TimeSeriesLibState::Initialized) then
+            exit(false);
+
+        exit(true);
+    end;
+
     [Scope('OnPrem')]
     procedure SetMessageHandler(MessageHandler: DotNet HttpMessageHandler)
     begin

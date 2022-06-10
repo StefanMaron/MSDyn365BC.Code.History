@@ -24,6 +24,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryRapidStart: Codeunit "Library - Rapid Start";
         IsInitialized: Boolean;
         TemplateFeatureEnabled: Boolean;
         GlobalDimCodeTemplateErr: Label 'Value of template Global Dimension Code is wrong';
@@ -2688,6 +2689,321 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure ItemTemplateChangeServiceType()
+    var
+        ItemTempl: Record "Item Templ.";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [SCENARIO 435897] Change item template item type when there are item ledger entries with blank "Item No."
+        Initialize();
+
+        // [GIVEN] Item template with "Type" = Inventory
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Type := ItemTempl.Type::Inventory;
+        ItemTempl.Modify();
+
+        // [GIVEN] Item ledger entry with blank "Item No."
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry.Insert();
+
+        // [WHEN] Change "Type" = Service
+        ItemTempl.Validate(Type, ItemTempl.Type::Service);
+        ItemTempl.Modify();
+
+        // [THEN] Item template with "Type" = Service
+        ItemTempl.TestField(Type, ItemTempl.Type::Service);
+    end;
+
+    [Test]
+    procedure CreateItemFromConfigTemplateWithInstanceNoSeries()
+    var
+        Item: Record Item;
+        ConfigTemplateHeader: Record "Config. Template Header";
+        NoSeriesLine: Record "No. Series Line";
+        ConfigTemplateManagement: Codeunit "Config. Template Management";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO 435486] "Instance No. Series" is used when create item from config. template
+        Initialize();
+
+        // [GIVEN] Config. template with "Instance No. Series" = "INS"
+        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
+        ConfigTemplateHeader.Validate("Table ID", Database::Item);
+        ConfigTemplateHeader.Validate("Instance No. Series", LibraryERM.CreateNoSeriesCode(LibraryUtility.GenerateRandomText(3)));
+        ConfigTemplateHeader.Modify(true);
+
+        // [WHEN] Create item from config. template
+        RecRef.Open(ConfigTemplateHeader."Table ID");
+        ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, RecRef);
+
+        // [THEN] Item."No." = last used from "INS"
+        NoSeriesLine.SetRange("Series Code", ConfigTemplateHeader."Instance No. Series");
+        NoSeriesLine.FindFirst();
+        Item.Get(NoSeriesLine."Last No. Used");
+    end;
+
+    [Test]
+    procedure CreateCustomerFromConfigTemplateWithInstanceNoSeries()
+    var
+        Customer: Record Customer;
+        ConfigTemplateHeader: Record "Config. Template Header";
+        NoSeriesLine: Record "No. Series Line";
+        ConfigTemplateManagement: Codeunit "Config. Template Management";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO 435486] "Instance No. Series" is used when create Customer from config. template
+        Initialize();
+
+        // [GIVEN] Config. template with "Instance No. Series" = "INS"
+        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
+        ConfigTemplateHeader.Validate("Table ID", Database::Customer);
+        ConfigTemplateHeader.Validate("Instance No. Series", LibraryERM.CreateNoSeriesCode(LibraryUtility.GenerateRandomText(3)));
+        ConfigTemplateHeader.Modify(true);
+
+        // [WHEN] Create Customer from config. template
+        RecRef.Open(ConfigTemplateHeader."Table ID");
+        ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, RecRef);
+
+        // [THEN] Customer."No." = last used from "INS"
+        NoSeriesLine.SetRange("Series Code", ConfigTemplateHeader."Instance No. Series");
+        NoSeriesLine.FindFirst();
+        Customer.Get(NoSeriesLine."Last No. Used");
+    end;
+
+    [Test]
+    procedure CreateVendorFromConfigTemplateWithInstanceNoSeries()
+    var
+        Vendor: Record Vendor;
+        ConfigTemplateHeader: Record "Config. Template Header";
+        NoSeriesLine: Record "No. Series Line";
+        ConfigTemplateManagement: Codeunit "Config. Template Management";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO 435486] "Instance No. Series" is used when create Vendor from config. template
+        Initialize();
+
+        // [GIVEN] Config. template with "Instance No. Series" = "INS"
+        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
+        ConfigTemplateHeader.Validate("Table ID", Database::Vendor);
+        ConfigTemplateHeader.Validate("Instance No. Series", LibraryERM.CreateNoSeriesCode(LibraryUtility.GenerateRandomText(3)));
+        ConfigTemplateHeader.Modify(true);
+
+        // [WHEN] Create Vendor from config. template
+        RecRef.Open(ConfigTemplateHeader."Table ID");
+        ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, RecRef);
+
+        // [THEN] Vendor."No." = last used from "INS"
+        NoSeriesLine.SetRange("Series Code", ConfigTemplateHeader."Instance No. Series");
+        NoSeriesLine.FindFirst();
+        Vendor.Get(NoSeriesLine."Last No. Used");
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectItemTemplListInvokeCancelHandler,ConfirmHandler')]
+    procedure OpenBlankItemCardWhenConfirmOnCancelTemplateSelection()
+    var
+        ItemTempl: Record "Item Templ.";
+        ItemCard: TestPage "Item Card";
+        i: Integer;
+    begin
+        // [SCENARIO 436484] Open blank item card when confirm after cancel template selection
+        Initialize();
+
+        // [GIVEN] Two item templates
+        for i := 1 to 2 do
+            CreateItemTemplateWithDataAndDimensions(ItemTempl);
+
+        // [WHEN] Press 'Cancel' on the template selection page when create new item and then press 'Ok' on confirm dialog
+        ItemCard.OpenNew();
+
+        // [THEN] Blank item card is opened
+        ItemCard."No.".AssertEquals('');
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectCustomerTemplListInvokeCancelHandler,ConfirmHandler')]
+    procedure OpenBlankCustomerCardWhenConfirmOnCancelTemplateSelection()
+    var
+        CustomerTempl: Record "Customer Templ.";
+        CustomerCard: TestPage "Customer Card";
+        i: Integer;
+    begin
+        // [SCENARIO 436484] Open blank customer card when confirm after cancel template selection
+        Initialize();
+
+        // [GIVEN] Two customer templates
+        for i := 1 to 2 do
+            CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+
+        // [WHEN] Press 'Cancel' on the template selection page when create new customer and then press 'Ok' on confirm dialog
+        CustomerCard.OpenNew();
+
+        // [THEN] Blank customer card is opened
+        CustomerCard."No.".AssertEquals('');
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectVendorTemplListInvokeCancelHandler,ConfirmHandler')]
+    procedure OpenBlankVendorCardWhenConfirmOnCancelTemplateSelection()
+    var
+        VendorTempl: Record "Vendor Templ.";
+        VendorCard: TestPage "Vendor Card";
+        i: Integer;
+    begin
+        // [SCENARIO 436484] Open blank vendor card when confirm after cancel template selection
+        Initialize();
+
+        // [GIVEN] Two templates
+        for i := 1 to 2 do
+            CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+
+        // [WHEN] Press 'Cancel' on the template selection page when create new vendor and then press 'Ok' on confirm dialog
+        VendorCard.OpenNew();
+
+        // [THEN] Blank vendor card is opened
+        VendorCard."No.".AssertEquals('');
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectCustomerTemplListHandler,ConfirmHandler')]
+    procedure ApplyCustomerTemplWithEmptyFieldsUT()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        // [SCENARIO 432107] Apply template with blank fields should not clear field values in customer
+        Initialize();
+
+        // [GIVEN] Blank template "T"
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+        LibraryVariableStorage.Enqueue(CustomerTempl.Code);
+
+        // [GIVEN] Customer "C" with data
+        LibrarySales.CreateCustomer(Customer);
+
+        // [WHEN] Apply "T" to "C"
+        CustomerTemplMgt.UpdateCustomerFromTemplate(Customer);
+
+        // [THEN] "C" data is not overwritten with data from "T"
+        Customer.TestField("Gen. Bus. Posting Group");
+        Customer.TestField("VAT Bus. Posting Group");
+        Customer.TestField("Customer Posting Group");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectVendorTemplListHandler,ConfirmHandler')]
+    procedure ApplyVendorTemplWithEmptyFieldsUT()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+    begin
+        // [SCENARIO 432107] Apply template with blank fields should not clear field values in Vendor
+        Initialize();
+
+        // [GIVEN] Blank template "T"
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+        LibraryVariableStorage.Enqueue(VendorTempl.Code);
+
+        // [GIVEN] Vendor "V" with data
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Apply "T" to "V"
+        VendorTemplMgt.UpdateVendorFromTemplate(Vendor);
+
+        // [THEN] "V" data is not overwritten with data from "T"
+        Vendor.TestField("Gen. Bus. Posting Group");
+        Vendor.TestField("VAT Bus. Posting Group");
+        Vendor.TestField("Vendor Posting Group");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectItemTemplListHandler,ConfirmHandler')]
+    procedure ApplyItemTemplWithEmptyFieldsUT()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 432107] Apply template with blank fields should not clear field values in Item
+        Initialize();
+
+        // [GIVEN] Blank template "T"
+        LibraryTemplates.CreateItemTemplate(ItemTempl);
+        LibraryVariableStorage.Enqueue(ItemTempl.Code);
+
+        // [GIVEN] Item "I" with data
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Apply "T" to "I"
+        ItemTemplMgt.UpdateItemFromTemplate(Item);
+
+        // [THEN] "I" data is not overwritten with data from "T"
+        Item.TestField("VAT Prod. Posting Group");
+        Item.TestField("Inventory Posting Group");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure ItemTemplateChangeServiceTypeReqLine()
+    var
+        ItemTempl: Record "Item Templ.";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 437428] Change item template item type when there is requisition line with blank "Item No."
+        Initialize();
+
+        // [GIVEN] Item template with "Type" = Inventory
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Type := ItemTempl.Type::Inventory;
+        ItemTempl.Modify();
+
+        // [GIVEN] Requision line with blank "Item No."
+        RequisitionLine.Init();
+        RequisitionLine.Type := RequisitionLine.Type::Item;
+        RequisitionLine.Insert();
+
+        // [WHEN] Change "Type" = Service
+        ItemTempl.Validate(Type, ItemTempl.Type::Service);
+        ItemTempl.Modify();
+
+        // [THEN] Item template with "Type" = Service
+        ItemTempl.TestField(Type, ItemTempl.Type::Service);
+    end;
+
+    [Test]
+    procedure ItemTemplateChangeServiceTypeItemJnlLine()
+    var
+        ItemTempl: Record "Item Templ.";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [SCENARIO 437428] Change item template item type when there is item journal line with blank "Item No."
+        Initialize();
+
+        // [GIVEN] Item template with "Type" = Inventory
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Type := ItemTempl.Type::Inventory;
+        ItemTempl.Modify();
+
+        // [GIVEN] Item journal line with blank "Item No."
+        ItemJournalLine.Init();
+        ItemJournalLine.Insert();
+
+        // [WHEN] Change "Type" = Service
+        ItemTempl.Validate(Type, ItemTempl.Type::Service);
+        ItemTempl.Modify();
+
+        // [THEN] Item template with "Type" = Service
+        ItemTempl.TestField(Type, ItemTempl.Type::Service);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");
@@ -3131,6 +3447,12 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     procedure SelectCustomerTemplListInvokeCancelHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
         SelectCustomerTemplList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SelectItemTemplListInvokeCancelHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectItemTemplList.Cancel().Invoke();
     end;
 
     [StrMenuHandler]

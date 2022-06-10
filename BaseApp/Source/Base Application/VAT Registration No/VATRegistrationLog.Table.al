@@ -402,7 +402,7 @@ table 249 "VAT Registration Log"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateField(var RecordRef: RecordRef; FieldName: Text; Value: Text; var IsHandled: Boolean)
+    local procedure OnBeforeValidateField(var RecordRef: RecordRef; FieldName: Text; var Value: Text; var IsHandled: Boolean)
     begin
     end;
 }

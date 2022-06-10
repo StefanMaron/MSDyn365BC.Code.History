@@ -128,10 +128,12 @@ page 7200 "CDS Connection Setup"
                     var
                         CRMIntegrationRecord: Record "CRM Integration Record";
                         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
                     begin
                         RefreshStatuses := true;
                         CurrPage.Update(true);
                         if "Is Enabled" then begin
+                            FeatureTelemetry.LogUptake('0000H7J', 'Dataverse', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CDE', CDSConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                             if "Ownership Model" = "Ownership Model"::Person then
                                 if Confirm(DoYouWantToMakeSalesPeopleMappingQst, true) then
@@ -827,7 +829,10 @@ page 7200 "CDS Connection Setup"
     end;
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000H7K', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
         if not Get() then begin
             Init();
             InitializeDefaultAuthenticationType();

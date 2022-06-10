@@ -9,143 +9,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 257290458 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Default Encryption Scope</source>
-          <target state="translated">Portée du chiffrement par défaut</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Default Encryption Scope - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 3081818041 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Deny Encryption Scope Override</source>
-          <target state="translated">Refuser le remplacement de la portée de chiffrement</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Deny Encryption Scope Override - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2954182188 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Has Immutability Policy</source>
-          <target state="translated">Possède une politique d’immuabilité</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Has Immutability Policy - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2017572898 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Has Legal Hold</source>
-          <target state="translated">A une mise en attente juridique</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Has Legal Hold - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 984476005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Last Modified</source>
-          <target state="translated">Dernière modification</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Last Modified - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 262737771 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Lease State</source>
-          <target state="translated">État du bail</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Lease State - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 4164853158 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Lease Status</source>
-          <target state="translated">État du bail</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Lease Status - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <target state="translated">Nom</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 1090808402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>URI</source>
-          <target state="translated">URI</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field URI - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2274610406 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>XML Value</source>
-          <target state="translated">Valeur XML</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field XML Value - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 101689234 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>ABS Container Content</source>
           <target state="translated">Contenu du conteneur ABS</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 3186975085 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Blob Type</source>
-          <target state="translated">Type du grand objet binaire</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Blob Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 3068913415 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Content Length</source>
-          <target state="translated">Longueur du contenu</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Content Length - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 1303376715 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Content Type</source>
-          <target state="translated">Type de contenu</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Content Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 788537400 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Creation Time</source>
-          <target state="translated">Heure création</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Creation Time - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 883711285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Entry No.</source>
-          <target state="translated">N° écriture</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Entry No. - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2981864456 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Full Name</source>
-          <target state="translated">Nom complet</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Full Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 984476005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Last Modified</source>
-          <target state="translated">Dernière modification</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Last Modified - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 1789400218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Level</source>
-          <target state="translated">Niveau</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Level - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <target state="translated">Nom</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2039748839 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Parent Directory</source>
-          <target state="translated">Répertoire parent</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Parent Directory - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 1090808402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>URI</source>
-          <target state="translated">URI</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field URI - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2274610406 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>XML Value</source>
-          <target state="translated">Valeur XML</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field XML Value - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2461374210 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Application User Settings</source>
@@ -533,7 +401,7 @@
         </trans-unit>
         <trans-unit id="Table 414606611 - Field 1577117606 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Object ID to Run</source>
-          <target state="translated">Code objet à exécuter</target>
+          <target state="translated">ID objet à exécuter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Checklist Item Buffer - Field Object ID to Run - Property Caption</note>
         </trans-unit>
@@ -1949,7 +1817,7 @@
         </trans-unit>
         <trans-unit id="Table 3519071095 - Field 1577117606 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Object ID to Run</source>
-          <target state="translated">Code objet à exécuter</target>
+          <target state="translated">ID objet à exécuter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Guided Experience Item - Field Object ID to Run - Property Caption</note>
         </trans-unit>
@@ -6107,7 +5975,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3102643942 - NamedType 1633402485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company %1 was just created, and we are still setting it up for you.\This may take up to 10 minutes, so take a short break before you begin to use %2.</source>
-          <target state="translated">La compagnie %1 vient d’être créée et nous sommes toujours en train de la configurer pour vous.\Cela peut prendre jusqu’à 10 minutes, alors faites une courte pause avant de commencer à utiliser %2.</target>
+          <target state="translated">La société %1 vient d’être créée et nous sommes toujours en train de la configurer pour vous.\Cela peut prendre jusqu’à 10 minutes, alors faites une courte pause avant de commencer à utiliser %2.</target>
           <note from="Developer" annotates="general" priority="2">%1 - a company name,%2 - our product name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Settings Impl. - NamedType CompanySetUpInProgressMsg</note>
         </trans-unit>
@@ -6311,7 +6179,7 @@
         </trans-unit>
         <trans-unit id="Page 2892733561 - Control 997278710 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the display name that is defined for the company. If a display name is not defined, then the company name is used.</source>
-          <target state="translated">Spécifie le nom d’affichage défini pour la compagnie. Si un nom d’affichage n’est pas défini, le nom de la compagnie est utilisé.</target>
+          <target state="translated">Spécifie le nom d’affichage défini pour la société. Si un nom d’affichage n’est pas défini, le nom de la société est utilisé.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Accessible Companies - Control CompanyDisplayName - Property ToolTip</note>
         </trans-unit>
@@ -6335,7 +6203,7 @@
         </trans-unit>
         <trans-unit id="Page 2892733561 - Action 246139633 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get assistance with creating a new company.</source>
-          <target state="translated">Obtenir de l’aide pour la création d’une compagnie.</target>
+          <target state="translated">Obtenir de l’aide pour la création d’une société.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Accessible Companies - Action Create New Company - Property ToolTip</note>
         </trans-unit>
@@ -13436,7 +13304,7 @@
         </trans-unit>
         <trans-unit id="Page 1431104360 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New, Process, Report, Navigate</source>
-          <target state="translated">Nouveau, Processus, Rapport, Naviguer</target>
+          <target state="translated">Nouveau,Traiter,Déclarer,Naviguer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Reten. Policy Setup ListPart - Property PromotedActionCategories</note>
         </trans-unit>
@@ -13598,7 +13466,7 @@
         </trans-unit>
         <trans-unit id="Page 1206474225 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New, Process, Report, Navigate</source>
-          <target state="translated">Nouveau,Traiter,Rapport,Naviguer</target>
+          <target state="translated">Nouveau,Traiter,Déclarer,Naviguer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Property PromotedActionCategories</note>
         </trans-unit>
@@ -13784,7 +13652,7 @@
         </trans-unit>
         <trans-unit id="Page 3918924451 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New, Process, Report, Navigate</source>
-          <target state="translated">Nouveau,Traiter,Rapport,Naviguer</target>
+          <target state="translated">Nouveau,Traiter,Déclarer,Naviguer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup List - Property PromotedActionCategories</note>
         </trans-unit>
@@ -14083,7 +13951,7 @@
         </trans-unit>
         <trans-unit id="Page 709229469 - Control 3162830111 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the date and time the email was sent.</source>
-          <target state="translated">Spécifie la date et l'heure d'envoi du courriel.</target>
+          <target state="translated">Spécifie la date et l’heure d’envoi du courriel.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Control DateTimeSent - Property ToolTip</note>
         </trans-unit>
@@ -14209,7 +14077,7 @@
         </trans-unit>
         <trans-unit id="Page 825875962 - Control 3916863470 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the email address that this email was sent from.</source>
-          <target state="translated">Spécifie l’adresse de courriel à partir de laquelle ce courriel a été envoyé.</target>
+          <target state="translated">Spécifie l’adresse de courriel à partir de laquelle ce message a été envoyé.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails List Part - Control SentFrom - Property ToolTip</note>
         </trans-unit>

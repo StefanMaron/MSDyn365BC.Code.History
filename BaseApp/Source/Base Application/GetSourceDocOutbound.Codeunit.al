@@ -74,6 +74,7 @@
         WhseRqst.FilterGroup(0);
         WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
         WhseRqst.SetRange("Completely Handled", false);
+        OnGetSingleOutboundDocOnAfterSetFilters(WhseRqst, WhseShptHeader);
 
         GetSourceDocForHeader(WhseShptHeader, WhseRqst);
 
@@ -548,7 +549,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowResult(WhseShipmentCreated, IsHandled);
+        OnBeforeShowResult(WhseShipmentCreated, IsHandled, GetSourceDocuments);
         if IsHandled then
             exit;
 
@@ -690,7 +691,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowResult(WhseShipmentCreated: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeShowResult(WhseShipmentCreated: Boolean; var IsHandled: Boolean; var GetSourceDocuments: Report "Get Source Documents");
     begin
     end;
 
@@ -721,6 +722,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSingleOutboundDocOnSetFilterGroupFilters(var WhseRqst: Record "Warehouse Request"; WhseShptHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSingleOutboundDocOnAfterSetFilters(var WhseRqst: Record "Warehouse Request"; WhseShptHeader: Record "Warehouse Shipment Header")
     begin
     end;
 

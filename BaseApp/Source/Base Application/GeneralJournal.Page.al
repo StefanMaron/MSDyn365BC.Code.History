@@ -1242,10 +1242,14 @@ page 39 "General Journal"
                     trigger OnAction()
                     var
                         ImportPayrollTransaction: Codeunit "Import Payroll Transaction";
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        PayRollTok: Label 'DK payroll service', Locked = true;
                     begin
+                        FeatureTelemetry.LogUptake('0000H8Z', PayRollTok, Enum::"Feature Uptake Status"::"Used");
                         GeneralLedgerSetup.TestField("Payroll Trans. Import Format");
                         if FindLast() then;
                         ImportPayrollTransaction.SelectAndImportPayrollDataToGL(Rec, GeneralLedgerSetup."Payroll Trans. Import Format");
+                        FeatureTelemetry.LogUsage('0000H90', PayRollTok, 'Payroll imported');
                     end;
                 }
                 action(ImportPayrollTransactions)
@@ -2235,7 +2239,14 @@ page 39 "General Journal"
     end;
 
     local procedure SetDataForSimpleModeOnPost()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDataForSimpleModeOnPost(Rec, IsSimplePage, IsHandled);
+        if IsHandled then
+            exit;
+
         PostedFromSimplePage := true;
         SetCurrentKey("Document No.", "Line No.");
         if FindFirst() then
@@ -2292,6 +2303,11 @@ page 39 "General Journal"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSelectTemplate(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlManagement: Codeunit GenJnlManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDataForSimpleModeOnPost(var GenJournalLine: Record "Gen. Journal Line"; IsSimplePage: Boolean; var IsHandled: Boolean)
     begin
     end;
 

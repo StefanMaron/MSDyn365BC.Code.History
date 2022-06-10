@@ -72,7 +72,7 @@ table 5715 "Item Substitution"
         field(4; "Substitute Variant Code"; Code[10])
         {
             Caption = 'Substitute Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Substitute No."));
+            TableRelation = IF ("Substitute Type" = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("Substitute No."));
 
             trigger OnValidate()
             begin

@@ -23,6 +23,7 @@ permissionset 407 "Manufacturing Pr. Order - View"
                   tabledata "Item Variant" = R,
                   tabledata Location = R,
                   tabledata "Machine Center" = R,
+                  tabledata "Manufacturing Cue" = R,
                   tabledata "Planning Component" = R,
                   tabledata "Prod. Order Capacity Need" = R,
                   tabledata "Prod. Order Comment Line" = R,

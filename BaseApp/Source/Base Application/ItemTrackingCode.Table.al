@@ -613,7 +613,7 @@
         field(87; "Package Assembly Out. Tracking"; Boolean)
         {
             AccessByPermission = TableData "BOM Component" = R;
-            Caption = 'Lot Assembly Outbound Tracking';
+            Caption = 'Package Assembly Outbound Tracking';
             CaptionClass = '6,87';
 
             trigger OnValidate()

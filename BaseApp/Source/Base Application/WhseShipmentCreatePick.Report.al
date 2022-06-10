@@ -245,7 +245,7 @@ report 7318 "Whse.-Shipment - Create Pick"
         WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
         IsHandled: Boolean;
     begin
-        CreatePick.CreateWhseDocument(FirstActivityNo, LastActivityNo, true);
+        CreatePick.CreateWhseDocument(FirstActivityNo, LastActivityNo, not HideNothingToHandleErr);
 
         CreatePick.ReturnTempItemTrkgLines(TempWhseItemTrkgLine);
         ItemTrackingMgt.UpdateWhseItemTrkgLines(TempWhseItemTrkgLine);

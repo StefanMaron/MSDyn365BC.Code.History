@@ -146,7 +146,7 @@ codeunit 1026 "Job Link Usage"
         end;
 
         // Match most specific Job Planning Line.
-        OnFindMatchingJobPlanningLineOnBeforeMatchSpecificJobPlanningLine(JobPlanningLine);
+        OnFindMatchingJobPlanningLineOnBeforeMatchSpecificJobPlanningLine(JobPlanningLine, JobLedgerEntry);
         if JobPlanningLine.FindFirst() then
             exit(true);
 
@@ -266,7 +266,7 @@ codeunit 1026 "Job Link Usage"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindMatchingJobPlanningLineOnBeforeMatchSpecificJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
+    local procedure OnFindMatchingJobPlanningLineOnBeforeMatchSpecificJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry")
     begin
     end;
 

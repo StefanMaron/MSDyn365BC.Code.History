@@ -49,6 +49,8 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         // Setup Demonstration data.
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');

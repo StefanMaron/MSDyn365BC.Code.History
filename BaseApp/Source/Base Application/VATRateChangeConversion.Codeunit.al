@@ -428,7 +428,9 @@ codeunit 550 "VAT Rate Change Conversion"
             until Field.Next(-1) = 0;
 
         if VATRateChangeSetup."Perform Conversion" then begin
+            OnUpdateRecOnBeforeRecRefModify(RecRef, GenProdPostingGroupConverted, VATProdPostingGroupConverted);
             RecRef.Modify();
+            OnUpdateRecOnAfterRecRefModify(RecRef, GenProdPostingGroupConverted, VATProdPostingGroupConverted);
             VATRateChangeLogEntry.Converted := true;
         end;
         if (VATRateChangeLogEntry."New Gen. Prod. Posting Group" <> VATRateChangeLogEntry."Old Gen. Prod. Posting Group") or
@@ -480,6 +482,7 @@ codeunit 550 "VAT Rate Change Conversion"
         SalesHeader.SetFilter(
           "Document Type", '%1..%2|%3', SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Invoice,
           SalesHeader."Document Type"::"Blanket Order");
+        OnUpdateSalesOnAfterSalesHeaderSetFilters(VATRateChangeSetup, SalesHeader);
         if SalesHeader.Find('-') then
             repeat
                 SalesHeaderStatusChanged := false;
@@ -494,6 +497,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     if SalesHeader.Status = SalesHeader.Status::Open then begin
                         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
                         SalesLine.SetRange("Document No.", SalesHeader."No.");
+                        OnUpdateSalesOnAfterSalesLineSetFilters(VATRateChangeSetup, SalesHeader, SalesLine);
                         if SalesLine.FindSet() then
                             repeat
                                 if LineInScope(
@@ -555,6 +559,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                                 WriteLogEntry(VATRateChangeLogEntry);
                                             end;
                             until SalesLine.Next() = 0;
+                        OnUpdateSalesOnAfterUpdateSalesLines(VATRateChangeSetup, SalesHeader, ConvertVATProdPostingGroup, ConvertGenProdPostingGroup);
                     end;
                     if SalesHeaderStatusChanged then begin
                         SalesHeader.Status := SalesHeader2.Status;
@@ -1776,7 +1781,7 @@ codeunit 550 "VAT Rate Change Conversion"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateTables(var VATRateChangeSetup: Record "VAT Rate Change Setup")
     begin
     end;
@@ -1878,6 +1883,31 @@ codeunit 550 "VAT Rate Change Conversion"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdatePurchaseOnAfterPurchaseHeaderSetFilters(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateRecOnBeforeRecRefModify(var RecRef: RecordRef; GenProdPostingGroupConverted: Boolean; VATProdPostingGroupConverted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateRecOnAfterRecRefModify(var RecRef: RecordRef; GenProdPostingGroupConverted: Boolean; VATProdPostingGroupConverted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesOnAfterSalesHeaderSetFilters(VATRateChangeSetup: Record "VAT Rate Change Setup"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesOnAfterSalesLineSetFilters(VATRateChangeSetup: Record "VAT Rate Change Setup"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnUpdateSalesOnAfterUpdateSalesLines(VATRateChangeSetup: Record "VAT Rate Change Setup"; SalesHeader: Record "Sales Header"; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
     begin
     end;
 }

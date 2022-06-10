@@ -17,21 +17,28 @@ codeunit 5930 ServAllocationManagement
     var
         ServHeader: Record "Service Header";
         ServOrderAlloc: Record "Service Order Allocation";
+        IsHandled: Boolean;
     begin
-        ServHeader.Get(DocumentType, DocumentNo);
-        if ServHeader.Status = ServHeader.Status::Finished then
-            Error(
-              Text000,
-              ServHeader."No.", ServHeader.Status);
-        if ServOrderAlloc.Get(EntryNo) then begin
-            CheckServiceItemLineFinished(ServHeader, ServOrderAlloc."Service Item Line No.");
-            ServOrderAlloc."Allocation Date" := CurrentDate;
-            ServOrderAlloc.Validate("Resource No.", ResNo);
-            if ResGrNo <> '' then
-                ServOrderAlloc.Validate("Resource Group No.", ResGrNo);
-            ServOrderAlloc.Validate("Allocated Hours", Quantity);
-            ServOrderAlloc.Modify(true);
+        IsHandled := false;
+        OnBeforeAllocateDate(DocumentType, DocumentNo, EntryNo, ResNo, ResGrNo, CurrentDate, Quantity, IsHandled);
+        if not IsHandled then begin
+            ServHeader.Get(DocumentType, DocumentNo);
+            if ServHeader.Status = ServHeader.Status::Finished then
+                Error(
+                  Text000,
+                  ServHeader."No.", ServHeader.Status);
+            if ServOrderAlloc.Get(EntryNo) then begin
+                CheckServiceItemLineFinished(ServHeader, ServOrderAlloc."Service Item Line No.");
+                ServOrderAlloc."Allocation Date" := CurrentDate;
+                ServOrderAlloc.Validate("Resource No.", ResNo);
+                if ResGrNo <> '' then
+                    ServOrderAlloc.Validate("Resource Group No.", ResGrNo);
+                ServOrderAlloc.Validate("Allocated Hours", Quantity);
+                ServOrderAlloc.Modify(true);
+            end;
         end;
+
+        OnAfterAllocateDate(ServOrderAlloc, ServHeader);
     end;
 
     procedure CancelAllocation(var ServOrderAlloc: Record "Service Order Allocation")
@@ -47,55 +54,56 @@ codeunit 5930 ServAllocationManagement
     begin
         IsHandled := false;
         OnBeforeCancelAllocation(ServOrderAlloc, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ServOrderAlloc."Entry No." = 0 then
-            exit;
-        ServHeader.Get(ServOrderAlloc."Document Type", ServOrderAlloc."Document No.");
-        CheckServiceItemLineFinished(ServHeader, ServOrderAlloc."Service Item Line No.");
-        Clear(AddReasonCodeCancelation);
-        AddReasonCodeCancelation.SetRecord(ServOrderAlloc);
-        AddReasonCodeCancelation.SetTableView(ServOrderAlloc);
-        if AddReasonCodeCancelation.RunModal = ACTION::Yes then begin
-            ReasonCode := AddReasonCodeCancelation.ReturnReasonCode;
-            ServOrderAlloc.Validate(Status, ServOrderAlloc.Status::"Reallocation Needed");
-            ServOrderAlloc."Reason Code" := ReasonCode;
-            ServOrderAlloc.Modify(true);
-            if ServItemLine.Get(
-                 ServOrderAlloc."Document Type", ServOrderAlloc."Document No.", ServOrderAlloc."Service Item Line No.")
-            then begin
-                ServItemLine.Validate(Priority, AddReasonCodeCancelation.ReturnPriority);
-                RepairStatusCode := ServItemLine."Repair Status Code";
-                RepairStatus.Get(RepairStatusCode);
-                if RepairStatus.Initial then begin
-                    Clear(RepairStatus2);
-                    RepairStatus2.SetRange(Referred, true);
-                    if RepairStatus2.FindFirst() then
-                        RepairStatusCode := RepairStatus2.Code
-                    else
-                        Error(
-                          Text001,
-                          RepairStatus.TableCaption, RepairStatus.FieldCaption(Referred));
-                end else
-                    if RepairStatus."In Process" then begin
+        if not IsHandled then begin
+            if ServOrderAlloc."Entry No." = 0 then
+                exit;
+            ServHeader.Get(ServOrderAlloc."Document Type", ServOrderAlloc."Document No.");
+            CheckServiceItemLineFinished(ServHeader, ServOrderAlloc."Service Item Line No.");
+            Clear(AddReasonCodeCancelation);
+            AddReasonCodeCancelation.SetRecord(ServOrderAlloc);
+            AddReasonCodeCancelation.SetTableView(ServOrderAlloc);
+            if AddReasonCodeCancelation.RunModal() = ACTION::Yes then begin
+                ReasonCode := AddReasonCodeCancelation.ReturnReasonCode();
+                ServOrderAlloc.Validate(Status, ServOrderAlloc.Status::"Reallocation Needed");
+                ServOrderAlloc."Reason Code" := ReasonCode;
+                ServOrderAlloc.Modify(true);
+                if ServItemLine.Get(
+                     ServOrderAlloc."Document Type", ServOrderAlloc."Document No.", ServOrderAlloc."Service Item Line No.")
+                then begin
+                    ServItemLine.Validate(Priority, AddReasonCodeCancelation.ReturnPriority());
+                    RepairStatusCode := ServItemLine."Repair Status Code";
+                    RepairStatus.Get(RepairStatusCode);
+                    if RepairStatus.Initial then begin
                         Clear(RepairStatus2);
-                        RepairStatus2.SetRange("Partly Serviced", true);
+                        RepairStatus2.SetRange(Referred, true);
                         if RepairStatus2.FindFirst() then
                             RepairStatusCode := RepairStatus2.Code
                         else
                             Error(
                               Text001,
-                              RepairStatus.TableCaption, RepairStatus.FieldCaption("Partly Serviced"));
-                    end;
-                ServItemLine."Repair Status Code" := RepairStatusCode;
-                ServItemLine.Modify(true);
-            end else begin
-                ServHeader.Get(ServOrderAlloc."Document Type", ServOrderAlloc."Document No.");
-                ServHeader.Validate(Priority, AddReasonCodeCancelation.ReturnPriority);
-                ServHeader.Modify(true);
+                              RepairStatus.TableCaption(), RepairStatus.FieldCaption(Referred));
+                    end else
+                        if RepairStatus."In Process" then begin
+                            Clear(RepairStatus2);
+                            RepairStatus2.SetRange("Partly Serviced", true);
+                            if RepairStatus2.FindFirst() then
+                                RepairStatusCode := RepairStatus2.Code
+                            else
+                                Error(
+                                  Text001,
+                                  RepairStatus.TableCaption(), RepairStatus.FieldCaption("Partly Serviced"));
+                        end;
+                    ServItemLine."Repair Status Code" := RepairStatusCode;
+                    ServItemLine.Modify(true);
+                end else begin
+                    ServHeader.Get(ServOrderAlloc."Document Type", ServOrderAlloc."Document No.");
+                    ServHeader.Validate(Priority, AddReasonCodeCancelation.ReturnPriority());
+                    ServHeader.Modify(true);
+                end;
             end;
         end;
+
+        OnAfterCancelAllocation(ServOrderAlloc, ServHeader);
     end;
 
     procedure CreateAllocationEntry(DocumentType: Integer; DocumentNo: Code[20]; ServItemLineNo: Integer; ServItemNo: Code[20]; ServSerialNo: Code[50])
@@ -309,6 +317,21 @@ codeunit 5930 ServAllocationManagement
                 ServOrderAlloc2.Posted := true;
                 ServOrderAlloc2.Modify();
             until ServOrderAlloc.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAllocateDate(var ServOrderAllocation: Record "Service Order Allocation"; var ServHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCancelAllocation(var ServOrderAllocation: Record "Service Order Allocation"; var ServHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAllocateDate(DocumentType: Integer; DocumentNo: Code[20]; EntryNo: Integer; ResNo: Code[20]; ResGrNo: Code[20]; CurrentDate: Date; Quantity: Decimal; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

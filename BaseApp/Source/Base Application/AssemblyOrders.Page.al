@@ -8,6 +8,7 @@ page 902 "Assembly Orders"
     Editable = false;
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Posting,Line';
+    RefreshOnActivate = true;
     SourceTable = "Assembly Header";
     SourceTableView = WHERE("Document Type" = FILTER(Order));
     UsageCategory = Lists;

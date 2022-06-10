@@ -17,6 +17,8 @@ codeunit 8615 "Config. Progress Bar"
         WindowTextCount: Integer;
 
     procedure Init(NewMaxCount: Integer; NewStepCount: Integer; WindowTitle: Text)
+    var
+        ProgressBarText: Text;
     begin
         Counter := 0;
         MaxCount := NewMaxCount;
@@ -24,21 +26,31 @@ codeunit 8615 "Config. Progress Bar"
             NewStepCount := 1;
         StepCount := NewStepCount;
 
-        Window.Open(Text000 + Text001 + Text002);
+        ProgressBarText := Text000 + Text001 + Text002;
+        OnInitOnBeforeWindowOpen(Window, ProgressBarText);
+        Window.Open(ProgressBarText);
         Window.Update(1, Format(WindowTitle));
         Window.Update(3, 0);
+
+        OnAfterInit(Window);
     end;
 
     procedure Update(WindowText: Text)
+    var
+        IsHandled: Boolean;
     begin
-        if WindowText <> '' then begin
-            Counter := Counter + 1;
-            if Counter mod StepCount = 0 then begin
-                Window.Update(2, Format(WindowText));
-                if MaxCount <> 0 then
-                    Window.Update(3, Round(Counter / MaxCount * 10000, 1));
+        IsHandled := false;
+        OnBeforeUpdate(WindowText, Window, IsHandled);
+        if not IsHandled then
+            if WindowText <> '' then begin
+                Counter := Counter + 1;
+                if Counter mod StepCount = 0 then begin
+                    Window.Update(2, Format(WindowText));
+                    if MaxCount <> 0 then
+                        Window.Update(3, Round(Counter / MaxCount * 10000, 1));
+                end;
             end;
-        end;
+        OnAfterUpdate(WindowText, Window);
     end;
 
     [TryFunction]
@@ -59,6 +71,26 @@ codeunit 8615 "Config. Progress Bar"
     procedure Close()
     begin
         Window.Close;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInit(var Window: Dialog)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdate(WindowText: Text; var Window: Dialog)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdate(WindowText: Text; var Window: Dialog; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitOnBeforeWindowOpen(var Window: Dialog; var ProgressBarText: Text)
+    begin
     end;
 }
 

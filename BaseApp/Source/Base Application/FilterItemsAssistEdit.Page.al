@@ -1,4 +1,4 @@
-page 7507 "Filter Items - AssistEdit"
+﻿page 7507 "Filter Items - AssistEdit"
 {
     Caption = 'Specify Filter Value';
     PageType = StandardDialog;
@@ -100,7 +100,9 @@ page 7507 "Filter Items - AssistEdit"
     begin
         TextGroupVisible := Type = Type::Text;
         NumericGroupVisible := Type in [Type::Decimal, Type::Integer];
-        NumericGroupMaxValueVisible := NumericGroupVisible and (NumericConditions = NumericConditions::"..  - Range")
+        NumericGroupMaxValueVisible := NumericGroupVisible and (NumericConditions = NumericConditions::"..  - Range");
+
+        OnAfterUpdateGroupVisiblity(Rec, TextGroupVisible, NumericGroupMaxValueVisible, NumericGroupVisible, NumericConditions);
     end;
 
     local procedure ValidateValueIsNumeric(TextValue: Text)
@@ -113,6 +115,8 @@ page 7507 "Filter Items - AssistEdit"
 
         if Type = Type::Integer then
             Evaluate(ValidInteger, TextValue);
+
+        OnAfterValidateValueIsNumeric(Rec, TextValue);
     end;
 
     procedure LookupOptionValue(PreviousValue: Text): Text
@@ -173,6 +177,23 @@ page 7507 "Filter Items - AssistEdit"
                     end;
                 end;
         end;
+
+        OnAfterGenerateFilter(Rec, NumericValue, NumericConditions, MaxNumericValue, FilterText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGenerateFilter(ItemAttribute: Record "Item Attribute"; NumericValue: Text; NumericConditions: Option "=  - Equals","..  - Range","<  - Less","<= - Less or Equal",">  - Greater",">= - Greater or Equal"; MaxNumericValue: Text; var FilterText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateValueIsNumeric(ItemAttribute: Record "Item Attribute"; TextValue: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateGroupVisiblity(ItemAttribute: Record "Item Attribute"; var TextGroupVisible: Boolean; var NumericGroupMaxValueVisible: Boolean; var NumericGroupVisible: Boolean; NumericConditions: Option "=  - Equals","..  - Range","<  - Less","<= - Less or Equal",">  - Greater",">= - Greater or Equal")
+    begin
     end;
 }
 

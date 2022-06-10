@@ -356,6 +356,8 @@ codeunit 7321 "Create Inventory Put-away"
                     end;
             until Next() = 0;
         end;
+
+        OnAfterCreatePutAwayLinesFromSales(SalesHeader, WhseActivHeader);
     end;
 
     local procedure FindReservationFromSalesLine(var SalesLine: Record "Sales Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
@@ -910,6 +912,11 @@ codeunit 7321 "Create Inventory Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePutAwayLinesFromPurchase(PurchaseHeader: Record "Purchase Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePutAwayLinesFromSales(SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 

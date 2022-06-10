@@ -10,7 +10,7 @@ codeunit 1541 "Workflow Webhook Events"
 
     procedure WorkflowWebhookResponseReceivedEventCode(): Code[128]
     begin
-        exit(UpperCase('WorkflowWebhookResponseReceivedEvent'));
+        exit('WORKFLOWWEBHOOKRESPONSERECEIVEDEVENT');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowEventPredecessorsToLibrary', '', false, false)]

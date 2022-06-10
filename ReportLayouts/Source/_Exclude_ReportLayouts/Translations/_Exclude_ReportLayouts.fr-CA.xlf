@@ -310,7 +310,7 @@
         </trans-unit>
         <trans-unit id="Page 2855939321 - Control 4190768627 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the format of the report layout.</source>
-          <target state="translated">Spécifie le format de la présentation du rapport.</target>
+          <target state="translated">Spécifie le format de la disposition du rapport.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Control Layout Format - Property ToolTip</note>
         </trans-unit>
@@ -352,7 +352,7 @@
         </trans-unit>
         <trans-unit id="Page 2855939321 - Control 1272245069 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the object ID of the report.</source>
-          <target state="translated">Spécifie le code d’objet du rapport.</target>
+          <target state="translated">Spécifie le code objet du rapport.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Control Report ID - Property ToolTip</note>
         </trans-unit>

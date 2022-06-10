@@ -8,120 +8,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 257290458 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Default Encryption Scope</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Default Encryption Scope - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 3081818041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Deny Encryption Scope Override</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Deny Encryption Scope Override - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2954182188 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Has Immutability Policy</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Has Immutability Policy - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2017572898 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Has Legal Hold</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Has Legal Hold - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 984476005 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Last Modified</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Last Modified - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 262737771 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Lease State</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Lease State - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 4164853158 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Lease Status</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Lease Status - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2961552353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 1090808402 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>URI</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field URI - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2274610406 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>XML Value</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field XML Value - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 101689234 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>ABS Container Content</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 3186975085 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Blob Type</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Blob Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 3068913415 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Content Length</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Content Length - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 1303376715 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Content Type</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Content Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 788537400 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Creation Time</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Creation Time - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Entry No.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Entry No. - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2981864456 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Full Name</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Full Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 984476005 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Last Modified</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Last Modified - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 1789400218 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Level</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Level - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2961552353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2039748839 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Parent Directory</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Parent Directory - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 1090808402 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>URI</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field URI - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2274610406 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>XML Value</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field XML Value - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2461374210 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Application User Settings</source>
@@ -4452,6 +4342,21 @@
           <source>You have already completed the %1 assisted setup guide. Do you want to run it again?</source>
           <note from="Developer" annotates="general" priority="2">%1 = Assisted Setup Name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Impl. - NamedType RunSetupAgainQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1122893324 - Method 4193945004 - NamedType 3531100644" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Business Manager home page offers metrics and activities that help run a business. We`ll also show you how to explore all Business Central features.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Upgrade - Method UpdateTourDescriptions - NamedType BusinessManagerRoleCenterTourDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1122893324 - Method 4193945004 - NamedType 360454159" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Sales Order Processor home page helps you stay on top of your sales documents. We`ll also show you how to explore all Business Central features.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Upgrade - Method UpdateTourDescriptions - NamedType OrderProcessorRoleCenterTourDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1122893324 - Method 4193945004 - NamedType 1951765689" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Accountant home page makes it easier for businesses to keep their books. We`ll also show you how to explore all Business Central features.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Upgrade - Method UpdateTourDescriptions - NamedType AccountantRoleCenterTourDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2970873669 - NamedType 3414270617" size-unit="char" translate="yes" xml:space="preserve">
           <source>Good afternoon!</source>

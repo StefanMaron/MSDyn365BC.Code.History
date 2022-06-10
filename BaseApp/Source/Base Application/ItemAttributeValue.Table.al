@@ -158,10 +158,9 @@ table 7501 "Item Attribute Value"
         exit('');
     end;
 
-    procedure GetValueInCurrentLanguage(): Text[250]
+    procedure GetValueInCurrentLanguage() ValueTxt: Text[250]
     var
         ItemAttribute: Record "Item Attribute";
-        ValueTxt: Text;
     begin
         ValueTxt := GetValueInCurrentLanguageWithoutUnitOfMeasure;
 
@@ -173,7 +172,7 @@ table 7501 "Item Attribute Value"
                         exit(AppendUnitOfMeasure(ValueTxt, ItemAttribute));
             end;
 
-        exit(ValueTxt);
+        OnAfterGetValueInCurrentLanguage(Rec, ValueTxt);
     end;
 
     procedure GetValueInCurrentLanguageWithoutUnitOfMeasure(): Text[250]
@@ -266,7 +265,13 @@ table 7501 "Item Attribute Value"
     procedure SetValueFilter(var ItemAttribute: Record "Item Attribute"; FilterText: Text)
     var
         IndexOfOrCondition: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetValueFilter(Rec, ItemAttribute, FilterText, IsHandled);
+        if IsHandled then
+            exit;
+
         SetRange("Numeric Value");
         SetRange(Value);
 
@@ -358,7 +363,17 @@ table 7501 "Item Attribute Value"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetValueInCurrentLanguage(ItemAttributeValue: Record "Item Attribute Value"; var ValueTxt: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterHasBeenUsed(ItemAttributeValue: Record "Item Attribute Value"; var AttributeHasBeenUsed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetValueFilter(var ItemAttributeValue: Record "Item Attribute Value"; ItemAttribute: Record "Item Attribute"; FilterText: Text; var IsHandled: Boolean)
     begin
     end;
 

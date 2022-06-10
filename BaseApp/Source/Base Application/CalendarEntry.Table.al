@@ -263,6 +263,7 @@ table 99000757 "Calendar Entry"
         CalendarEntry.SetRange(Date, Date);
         CalendarEntry.SetFilter("Starting Time", '<%1', "Ending Time");
         CalendarEntry.SetFilter("Ending Time", '>%1|%2', "Starting Time", 000000T);
+        OnCheckRedundancyOnAfterCalendarEntrySetFilters(Rec, CalendarEntry);
 
         if CalendarEntry.Find('-') then
             repeat
@@ -345,6 +346,11 @@ table 99000757 "Calendar Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckRedundancy(var CalendarEntry: Record "Calendar Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckRedundancyOnAfterCalendarEntrySetFilters(CalendarEntryRec: Record "Calendar Entry"; var CalendarEntry: Record "Calendar Entry")
     begin
     end;
 }

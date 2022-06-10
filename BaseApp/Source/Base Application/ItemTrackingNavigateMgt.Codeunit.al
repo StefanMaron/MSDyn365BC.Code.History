@@ -121,6 +121,8 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             FindPackageNoInfo(ItemFilters);
 
         FindJobLedgEntry(ItemFilters);
+
+        OnAfterFindTrackingRecords(TempRecordBuffer, ItemFilters);
     end;
 
     local procedure FindLotNoInfo(var ItemFilters: Record Item)
@@ -1406,6 +1408,11 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFindTrackingRecords(var TempRecordBuffer: Record "Record Buffer" temporary; var ItemFilters: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTempRecordBufferInsert(var TempRecordBuffer: Record "Record Buffer" temporary; RecRef: RecordRef; TrackingRecRef: RecordRef);
     begin
     end;
@@ -1416,7 +1423,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindTrackingRecordsOnAfterFindSerialNo(var TempRecordBuffer: Record "Record Buffer" temporary; ItemFilters: Record Item)
+    local procedure OnFindTrackingRecordsOnAfterFindSerialNo(var TempRecordBuffer: Record "Record Buffer" temporary; var ItemFilters: Record Item)
     begin
     end;
 

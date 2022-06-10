@@ -46,16 +46,7 @@ report 699 "Calculate Plan - Req. Wksh."
                 if SkipPlanning then
                     CurrReport.Skip();
 
-                InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType, PriceCalculationMethod);
-                InvtProfileOffsetting.CalculatePlanFromWorksheet(
-                  Item,
-                  MfgSetup,
-                  CurrTemplateName,
-                  CurrWorksheetName,
-                  FromDate,
-                  ToDate,
-                  true,
-                  RespectPlanningParm);
+                SetParamAndCalculatePlanFromWorksheet();
 
                 if PlanningAssignment.Find('-') then
                     repeat
@@ -225,14 +216,9 @@ report 699 "Calculate Plan - Req. Wksh."
         Text005: Label 'You must not use a variant filter when calculating MPS from a forecast.';
         Text006: Label 'Calculating the plan...\\';
         Text007: Label 'Item No.  #1##################';
-        ReqLine: Record "Requisition Line";
         ActionMessageEntry: Record "Action Message Entry";
-        ReqLineExtern: Record "Requisition Line";
-        PurchReqLine: Record "Requisition Line";
         PlanningAssignment: Record "Planning Assignment";
-        MfgSetup: Record "Manufacturing Setup";
         InvtProfileOffsetting: Codeunit "Inventory Profile Offsetting";
-        Window: Dialog;
         CurrWorksheetType: Option Requisition,Planning;
         PeriodLength: Integer;
         ReqWkshTemplateFilter: Code[50];
@@ -240,7 +226,12 @@ report 699 "Calculate Plan - Req. Wksh."
         Counter: Integer;
 
     protected var
+        MfgSetup: Record "Manufacturing Setup";
         SKU: Record "Stockkeeping Unit";
+        ReqLine: Record "Requisition Line";
+        ReqLineExtern: Record "Requisition Line";
+        PurchReqLine: Record "Requisition Line";
+        Window: Dialog;
         CurrTemplateName: Code[10];
         CurrWorksheetName: Code[10];
         FromDate: Date;
@@ -274,6 +265,20 @@ report 699 "Calculate Plan - Req. Wksh."
 
         MfgSetup.Get();
         UseForecast := MfgSetup."Current Production Forecast";
+    end;
+
+    local procedure SetParamAndCalculatePlanFromWorksheet()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetParamAndCalculatePlanFromWorksheet(UseForecast, ExcludeForecastBefore, CurrWorksheetType, PriceCalculationMethod, Item, MfgSetup, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, RespectPlanningParm, IsHandled);
+        if IsHandled then
+            exit;
+
+                InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType, PriceCalculationMethod);
+                InvtProfileOffsetting.CalculatePlanFromWorksheet(Item, MfgSetup, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, true, RespectPlanningParm);
+
     end;
 
     local procedure ValidatePriceCalcMethod()
@@ -343,6 +348,11 @@ report 699 "Calculate Plan - Req. Wksh."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSkipPlanningForItemOnReqWksh(Item: Record Item; var SkipPlanning: Boolean; var IsHandled: Boolean; StockkeepingUnit: Record "Stockkeeping Unit"; CurrWorksheetType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetParamAndCalculatePlanFromWorksheet(UseForecast: Code[10]; ExcludeForecastBefore: Date; CurrWorksheetType: Option; PriceCalculationMethod: Enum "Price Calculation Method"; Item: Record Item; ManufacturingSetup: Record "Manufacturing Setup"; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; FromDate: Date; ToDate: Date; RespectPlanningParm: Boolean; var IsHandled: Boolean)
     begin
     end;
 

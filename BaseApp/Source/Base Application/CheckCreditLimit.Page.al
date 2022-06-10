@@ -497,22 +497,29 @@ page 343 "Check Credit Limit"
     end;
 
     local procedure CalcCreditLimitLCY()
+    var
+        IsHandled: Boolean;
     begin
-        if GetFilter("Date Filter") = '' then
-            SetFilter("Date Filter", '..%1', WorkDate);
-        CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)", "Serv Shipped Not Invoiced(LCY)");
-        CalcReturnAmounts(OutstandingRetOrdersLCY, RcdNotInvdRetOrdersLCY);
+        IsHandled := false;
+        OnBeforeCalcCreditLimitLCY(Cust2, OutstandingRetOrdersLCY, RcdNotInvdRetOrdersLCY, NewOrderAmountLCY,
+            OrderAmountTotalLCY, OrderAmountThisOrderLCY, ShippedRetRcdNotIndLCY, CustCreditAmountLCY, CustNo, ExtensionAmountsDic, IsHandled);
+        if not IsHandled then begin
+            if GetFilter("Date Filter") = '' then
+                SetFilter("Date Filter", '..%1', WorkDate());
+            CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)", "Serv Shipped Not Invoiced(LCY)");
+            CalcReturnAmounts(OutstandingRetOrdersLCY, RcdNotInvdRetOrdersLCY);
 
-        OrderAmountTotalLCY := CalcTotalOutstandingAmt - OutstandingRetOrdersLCY + DeltaAmount;
-        ShippedRetRcdNotIndLCY := "Shipped Not Invoiced (LCY)" + "Serv Shipped Not Invoiced(LCY)" - RcdNotInvdRetOrdersLCY;
-        if "No." = CustNo then
-            OrderAmountThisOrderLCY := NewOrderAmountLCY
-        else
-            OrderAmountThisOrderLCY := 0;
+            OrderAmountTotalLCY := CalcTotalOutstandingAmt() - OutstandingRetOrdersLCY + DeltaAmount;
+            ShippedRetRcdNotIndLCY := "Shipped Not Invoiced (LCY)" + "Serv Shipped Not Invoiced(LCY)" - RcdNotInvdRetOrdersLCY;
+            if "No." = CustNo then
+                OrderAmountThisOrderLCY := NewOrderAmountLCY
+            else
+                OrderAmountThisOrderLCY := 0;
 
-        CustCreditAmountLCY :=
-          "Balance (LCY)" + "Shipped Not Invoiced (LCY)" + "Serv Shipped Not Invoiced(LCY)" - RcdNotInvdRetOrdersLCY +
-          OrderAmountTotalLCY - GetInvoicedPrepmtAmountLCY;
+            CustCreditAmountLCY :=
+              "Balance (LCY)" + "Shipped Not Invoiced (LCY)" + "Serv Shipped Not Invoiced(LCY)" - RcdNotInvdRetOrdersLCY +
+              OrderAmountTotalLCY - GetInvoicedPrepmtAmountLCY();
+        end;
 
 #if not CLEAN20
         OnAfterCalcCreditLimitLCY(Rec, CustCreditAmountLCY, ExtensionAmounts);
@@ -526,6 +533,7 @@ page 343 "Check Credit Limit"
             SetFilter("Date Filter", '..%1', WorkDate);
         OnCalcOverdueBalanceLCYAfterSetFilter(Rec);
         CalcFields("Balance Due (LCY)");
+        OnAfterCalcOverdueBalanceLCY(Rec);
     end;
 
     local procedure CalcReturnAmounts(var OutstandingRetOrdersLCY2: Decimal; var RcdNotInvdRetOrdersLCY2: Decimal)
@@ -625,6 +633,11 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCreditLimitLCY(var Customer: Record Customer; var OutstandingRetOrdersLCY: Decimal; var RcdNotInvdRetOrdersLCY: Decimal; var NewOrderAmountLCY: Decimal; var OrderAmountTotalLCY: Decimal; var OrderAmountThisOrderLCY: Decimal; var ShippedRetRcdNotIndLCY: Decimal; var CustCreditAmountLCY: Decimal; var CustNo: Code[20]; var ExtensionAmountsDic: Dictionary of [Guid, Decimal]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcSalesHeaderNewOrderAmountLCY(var Customer: Record Customer; SalesHeader: Record "Sales Header"; var NewOrderAmountLCY: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -686,6 +699,11 @@ page 343 "Check Credit Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowWarningOnBeforeExitValue(var Customer: Record Customer; ExitValue: Integer; var Result: Boolean; var IsHandled: Boolean; var Heading: Text[250]; var SecondHeading: Text[250]; var NotificationID: Guid)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCalcOverdueBalanceLCY(var Customer: Record Customer)
     begin
     end;
 

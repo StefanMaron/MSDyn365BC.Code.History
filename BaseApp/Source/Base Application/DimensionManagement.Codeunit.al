@@ -1278,6 +1278,7 @@
                                         exit(false);
                                     end;
                             end;
+                            OnCheckValuePostingOnAfterDefaultDimLoop(TempDimBuf, DefaultDim);
                         until DefaultDim.Next() = 0;
                         TempDimBuf.Reset();
                     end;
@@ -1346,10 +1347,12 @@
             InsertObject(TempAllObjWithCaption, TableID);
     end;
 
-    local procedure IsDefaultDimTable(TableID: Integer): Boolean
+    local procedure IsDefaultDimTable(TableID: Integer) Result: Boolean
     begin
         // Local versions should add exceptions here
-        exit(TableID = 0);
+        Result := TableID = 0;
+
+        OnAfterIsDefaultDimTable(TableID, Result);
     end;
 
     local procedure KeyContainsOneCodeField(TableID: Integer) Result: Boolean
@@ -2967,6 +2970,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterIsDefaultDimTable(TableID: Integer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetSourceCodeWithVar(TableID: Integer; RecordVar: Variant; var SourceCode: Code[10])
     begin
     end;
@@ -3268,6 +3276,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckValuePostingOnBeforeExit(TableID: array[10] of Integer; No: array[10] of Code[20]; var TempDimensionBuffer: Record "Dimension Buffer" temporary; var LastErrorMessage: Record "Error Message"; var ErrorMessageManagement: Codeunit "Error Message Management"; var IsChecked: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckValuePostingOnAfterDefaultDimLoop(var TempDimBuf: Record "Dimension Buffer" temporary; var DefaultDim: Record "Default Dimension")
     begin
     end;
 

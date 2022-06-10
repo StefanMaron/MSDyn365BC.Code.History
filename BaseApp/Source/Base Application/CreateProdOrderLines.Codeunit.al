@@ -111,6 +111,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         ErrorOccured: Boolean;
+        ShouldCreateTempSalesPlanningLines: Boolean;
         QuantityBase: Decimal;
     begin
         OnBeforeCopyFromSalesOrder(SalesHeader, SalesLine, ProdOrder, NextProdOrderLineNo);
@@ -120,10 +121,11 @@ codeunit 99000787 "Create Prod. Order Lines"
         if SalesLine.FindSet() then
             repeat
                 SalesLine.CalcFields("Reserved Quantity");
-                if (SalesLine.Type = SalesLine.Type::Item) and
+                ShouldCreateTempSalesPlanningLines := (SalesLine.Type = SalesLine.Type::Item) and
                    (SalesLine."No." <> '') and
-                   ((SalesLine."Outstanding Quantity" - SalesLine."Reserved Quantity") <> 0)
-                then
+                   ((SalesLine."Outstanding Quantity" - SalesLine."Reserved Quantity") <> 0);
+                OnCopyFromSalesOrderOnAfterCalcShouldCreateTempSalesPlanningLines(SalesLine, ShouldCreateTempSalesPlanningLines);
+                if ShouldCreateTempSalesPlanningLines then
                     if IsReplSystemProdOrder(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code") then begin
                         SalesPlanLine.Init();
                         SalesPlanLine."Sales Order No." := SalesLine."Document No.";
@@ -180,10 +182,7 @@ codeunit 99000787 "Create Prod. Order Lines"
     var
         SalesHeader: Record "Sales Header";
     begin
-        ProdOrderLine.LockTable();
-        ProdOrderLine.SetRange(Status, ProdOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
-        ProdOrderLine.DeleteAll(true);
+        DeleteLinesForProductionOrder(ProdOrder);
 
         NextProdOrderLineNo := 10000;
 
@@ -223,6 +222,21 @@ codeunit 99000787 "Create Prod. Order Lines"
         end;
 
         OnAfterCreateProdOrderLine(ProdOrder, VariantCode, ErrorOccured);
+    end;
+
+    local procedure DeleteLinesForProductionOrder(ProductionOrder: Record "Production Order")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteLinesForProductionOrder(ProductionOrder, NextProdOrderLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrderLine.LockTable();
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.DeleteAll(true);
     end;
 
     local procedure InitProdOrderLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
@@ -635,6 +649,11 @@ codeunit 99000787 "Create Prod. Order Lines"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteLinesForProductionOrder(ProductionOrder: Record "Production Order"; var NextProdOrderLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderLine3: Record "Prod. Order Line"; var InsertNew: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -691,6 +710,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromSalesOrderOnAfterCalcQuantityBase(var ProdOrderLine: Record "Prod. Order Line"; SalesLineIsSet: Boolean; var SalesLine: Record "Sales Line"; var QuantityBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromSalesOrderOnAfterCalcShouldCreateTempSalesPlanningLines(var SalesLine: Record "Sales Line"; var ShouldCreateTempSalesPlanningLines: Boolean)
     begin
     end;
 

@@ -31,9 +31,10 @@ table 341 "Item Discount Group"
         }
     }
 
-    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
+    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type")
     begin
         PriceAsset.Init();
+        PriceAsset."Price Type" := PriceType;
         PriceAsset."Asset Type" := PriceAsset."Asset Type"::"Item Discount Group";
         PriceAsset."Asset No." := "Code";
     end;
@@ -43,7 +44,7 @@ table 341 "Item Discount Group"
         PriceAsset: Record "Price Asset";
         PriceUXManagement: Codeunit "Price UX Management";
     begin
-        AsPriceAsset(PriceAsset);
+        AsPriceAsset(PriceAsset, PriceType);
         PriceUXManagement.ShowPriceListLines(PriceAsset, PriceType, AmountType);
     end;
 }

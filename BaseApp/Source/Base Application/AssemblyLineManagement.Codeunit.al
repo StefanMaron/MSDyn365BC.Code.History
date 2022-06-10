@@ -1,4 +1,4 @@
-codeunit 905 "Assembly Line Management"
+﻿codeunit 905 "Assembly Line Management"
 {
     Permissions = TableData "Assembly Line" = rimd;
 
@@ -280,7 +280,10 @@ codeunit 905 "Assembly Line Management"
         NewLineDueDate: Date;
         IsHandled: Boolean;
     begin
-        OnBeforeUpdateAssemblyLines(AsmHeader, OldAsmHeader, FieldNum, ReplaceLinesFromBOM, CurrFieldNo, CurrentFieldNum);
+        IsHandled := false;
+        OnBeforeUpdateAssemblyLines(AsmHeader, OldAsmHeader, FieldNum, ReplaceLinesFromBOM, CurrFieldNo, CurrentFieldNum, IsHandled);
+        if IsHandled then
+            exit;
 
         if (FieldNum <> CurrentFieldNum) or // Update has been called from OnValidate of another field than was originally intended.
            ((not (FieldNum in [AsmHeader.FieldNo("Item No."),
@@ -709,6 +712,11 @@ codeunit 905 "Assembly Line Management"
         WarningModeOff := true;
     end;
 
+    procedure SetWarningsOn()
+    begin
+        WarningModeOff := false;
+    end;
+
     local procedure GetWarningMode(): Boolean
     begin
         exit(not WarningModeOff);
@@ -723,7 +731,13 @@ codeunit 905 "Assembly Line Management"
     var
         AssemblyLine: Record "Assembly Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateWhseItemTrkgForAsmLines(AsmHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with AssemblyLine do begin
             SetLinkToItemLines(AsmHeader, AssemblyLine);
             if FindSet() then
@@ -788,7 +802,7 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAssemblyLines(var AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; FieldNum: Integer; ReplaceLinesFromBOM: Boolean; CurrFieldNo: Integer; CurrentFieldNum: Integer)
+    local procedure OnBeforeUpdateAssemblyLines(var AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; FieldNum: Integer; ReplaceLinesFromBOM: Boolean; CurrFieldNo: Integer; CurrentFieldNum: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -799,6 +813,11 @@ codeunit 905 "Assembly Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcEarliestDueDate(var AsmHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseItemTrkgForAsmLines(var AsmHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 

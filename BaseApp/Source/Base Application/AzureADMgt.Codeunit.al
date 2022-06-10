@@ -253,7 +253,7 @@ codeunit 6300 "Azure AD Mgt."
     [NonDebuggable]
     local procedure OnGetUserToken(Resource: Text; Scenario: Text; var Token: Text)
     begin
-        Token := GetAccessToken(Resource, Resource, true);
+        Token := GetAccessToken(Resource, Resource, false);
     end;
 
     [TryFunction]

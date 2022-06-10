@@ -4,9 +4,7 @@ codeunit 74 "Purch.-Get Receipt"
 
     trigger OnRun()
     begin
-        PurchHeader.Get("Document Type", "Document No.");
-        PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Invoice);
-        PurchHeader.TestStatusOpen();
+        CheckHeader(Rec);
 
         PurchRcptLine.SetCurrentKey("Pay-to Vendor No.");
         PurchRcptLine.SetRange("Pay-to Vendor No.", PurchHeader."Pay-to Vendor No.");
@@ -97,6 +95,20 @@ codeunit 74 "Purch.-Get Receipt"
         end;
     end;
 
+    local procedure CheckHeader(PurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckHeader(PurchHeader, PurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Invoice);
+        PurchHeader.TestStatusOpen();
+    end;
+
     local procedure InsertInvoiceLineFromReceiptLine(var PurchRcptLine2: Record "Purch. Rcpt. Line"; TransferLine: Boolean; var PrepmtAmtToDeductRounding: Decimal)
     var
         IsHandled: Boolean;
@@ -116,7 +128,14 @@ codeunit 74 "Purch.-Get Receipt"
     end;
 
     procedure SetPurchHeader(var PurchHeader2: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPurchHeader(PurchHeader, PurchHeader2, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchHeader.Get(PurchHeader2."Document Type", PurchHeader2."No.");
         PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Invoice);
     end;
@@ -346,12 +365,22 @@ codeunit 74 "Purch.-Get Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckHeader(var PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertInvoiceLineFromReceiptLine(PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchRcptLine2: Record "Purch. Rcpt. Line"; PurchHeader: Record "Purchase Header"; TransferLine: Boolean; var PrepmtAmtToDeductRounding: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetItemChargeAssgnt(var PurchRcptLine: Record "Purch. Rcpt. Line"; QtyToInvoice: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPurchHeader(var PurchHeader: Record "Purchase Header"; PurchHeader2: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

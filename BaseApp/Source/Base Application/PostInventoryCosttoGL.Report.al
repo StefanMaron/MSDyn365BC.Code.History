@@ -636,6 +636,7 @@
 
         trigger OnOpenPage()
         begin
+            OnBeforeOnOpenPage(DocNo);
             GLSetup.Get();
             if GLSetup."Journal Templ. Name Mandatory" then begin
                 IsJournalTemplNameMandatory := true;
@@ -846,7 +847,12 @@
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var DocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePreReport(var Item: Record Item; var ItemValueEntry: Record "Value Entry"; var PostValueEntryToGL: Record "Post Value Entry to G/L")
     begin
     end;

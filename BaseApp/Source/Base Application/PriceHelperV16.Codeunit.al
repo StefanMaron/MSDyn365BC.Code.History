@@ -2,6 +2,9 @@ codeunit 7006 "Price Helper - V16"
 {
     SingleInstance = true;
 
+    var
+        UpdateActiveCampaignPricesQst: Label 'Campaign %1 has the active price list(s) that will be updated. Do you want to continue?', Comment = '%1 - Campaign No.';
+
     local procedure CopyJobPrices(SourceJob: Record Job; TargetJob: Record Job)
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -233,11 +236,14 @@ codeunit 7006 "Price Helper - V16"
     begin
         PriceListHeader.SetRange("Source Type", "Price Source Type"::Campaign);
         PriceListHeader.SetRange("Source No.", Campaign."No.");
+        if not ConfirmEditingActivePriceList(Campaign, PriceListHeader) then
+            Error('');
+
         PriceListHeader.LockTable();
         if PriceListHeader.FindSet() then
             repeat
                 PriceListHeader."Starting Date" := Campaign."Starting Date";
-                PriceListHeader.Validate("Ending Date", Campaign."Ending Date");
+                PriceListHeader."Ending Date" := Campaign."Ending Date";
                 PriceListHeader.Modify();
             until PriceListHeader.Next() = 0;
 
@@ -247,7 +253,7 @@ codeunit 7006 "Price Helper - V16"
         if PriceListLine.FindSet() then
             repeat
                 PriceListLine."Starting Date" := Campaign."Starting Date";
-                PriceListLine.Validate("Ending Date", Campaign."Ending Date");
+                PriceListLine."Ending Date" := Campaign."Ending Date";
                 PriceListLine.Modify();
             until PriceListLine.Next() = 0;
 
@@ -257,9 +263,21 @@ codeunit 7006 "Price Helper - V16"
         if PriceWorksheetLine.FindSet() then
             repeat
                 PriceWorksheetLine."Starting Date" := Campaign."Starting Date";
-                PriceWorksheetLine.Validate("Ending Date", Campaign."Ending Date");
+                PriceWorksheetLine."Ending Date" := Campaign."Ending Date";
                 PriceWorksheetLine.Modify();
             until PriceWorksheetLine.Next() = 0;
+    end;
+
+    local procedure ConfirmEditingActivePriceList(var Campaign: Record Campaign; var PriceListHeader: Record "Price List Header") Confirmed: Boolean
+    var
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Confirmed := true;
+        PriceListHeader.SetRange(Status, "Price Status"::Active);
+        if not PriceListHeader.IsEmpty() then
+            if not PriceListManagement.IsAllowedEditingActivePrice("Price Type"::Sale) then
+                Confirmed := Confirm(StrSubstNo(UpdateActiveCampaignPricesQst, Campaign."No."), true);
+        PriceListHeader.SetRange(Status);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Campaign, 'OnAfterDeleteEvent', '', false, false)]
@@ -442,15 +460,24 @@ codeunit 7006 "Price Helper - V16"
             DeletePriceLines(AssetType::"Service Cost", Rec.Code, '');
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::Campaign, 'OnAfterModifyEvent', '', false, false)]
-    local procedure AfterModifyCampaign(var Rec: Record Campaign; var xRec: Record Campaign; RunTrigger: Boolean);
+    [EventSubscriber(ObjectType::Table, Database::Campaign, 'OnAfterValidateEvent', 'Starting Date', false, false)]
+    local procedure AfterModifyStartingDateCampaign(var Rec: Record Campaign; var xRec: Record Campaign; CurrFieldNo: Integer);
     begin
         if Rec.IsTemporary() then
             exit;
 
-        if RunTrigger then
-            if (Rec."Starting Date" <> xRec."Starting Date") or (Rec."Ending Date" <> xRec."Ending Date") then
-                UpdateDates(Rec);
+        if Rec."Starting Date" <> xRec."Starting Date" then
+            UpdateDates(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Campaign, 'OnAfterValidateEvent', 'Ending Date', false, false)]
+    local procedure AfterModifyEndingDateCampaign(var Rec: Record Campaign; var xRec: Record Campaign; CurrFieldNo: Integer);
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if Rec."Ending Date" <> xRec."Ending Date" then
+            UpdateDates(Rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Campaign, 'OnAfterRenameEvent', '', false, false)]

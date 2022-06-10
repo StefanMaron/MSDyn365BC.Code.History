@@ -275,6 +275,7 @@ table 1170 "User Task"
             UserTaskTemp.Validate("Parent ID", ID);
             TempDueDate := CalcDate(Recurrence, TempDueDate);
             UserTaskTemp.Validate("Due DateTime", CreateDateTime(TempDueDate, 000000T));
+            OnCreateRecurrenceOnBeforeInsert(UserTaskTemp, Rec, Count, RecurringStartDate, Recurrence);
             UserTaskTemp.Insert(true);
             Count := Count + 1;
         end
@@ -345,6 +346,11 @@ table 1170 "User Task"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunReportOrPageLink(var UserTask: Record "User Task"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateRecurrenceOnBeforeInsert(var UserTask: Record "User Task"; fromUserTask: Record "User Task"; Counter: Integer; RecurringStartDate: Date; Recurrence: DateFormula)
     begin
     end;
 }

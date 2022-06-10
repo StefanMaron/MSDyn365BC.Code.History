@@ -9,143 +9,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 257290458 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Default Encryption Scope</source>
-          <target state="translated">Výchozí obor šifrování</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Default Encryption Scope - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 3081818041 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Deny Encryption Scope Override</source>
-          <target state="translated">Odepřít přepsání šifrovacího oboru</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Deny Encryption Scope Override - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2954182188 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Has Immutability Policy</source>
-          <target state="translated">Má zásady neměnnosti</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Has Immutability Policy - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2017572898 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Has Legal Hold</source>
-          <target state="translated">Má legální držení</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Has Legal Hold - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 984476005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Last Modified</source>
-          <target state="translated">Naposledy změněno</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Last Modified - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 262737771 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Lease State</source>
-          <target state="translated">Stav zapůjčení</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Lease State - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 4164853158 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Lease Status</source>
-          <target state="translated">Stav zapůjčení</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Lease Status - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <target state="translated">Název</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 1090808402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>URI</source>
-          <target state="translated">URI</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field URI - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3888925401 - Field 2274610406 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>XML Value</source>
-          <target state="translated">Hodnota XML</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container - Field XML Value - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 101689234 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>ABS Container Content</source>
           <target state="translated">Obsah kontejneru ABS</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 3186975085 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Blob Type</source>
-          <target state="translated">Typ objektu BLOB</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Blob Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 3068913415 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Content Length</source>
-          <target state="translated">Délka obsahu</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Content Length - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 1303376715 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Content Type</source>
-          <target state="translated">Typ obsahu</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Content Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 788537400 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Creation Time</source>
-          <target state="translated">Čas vytvoření</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Creation Time - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 883711285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Entry No.</source>
-          <target state="translated">Číslo položky</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Entry No. - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2981864456 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Full Name</source>
-          <target state="translated">Celé jméno</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Full Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 984476005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Last Modified</source>
-          <target state="translated">Naposledy změněno</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Last Modified - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 1789400218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Level</source>
-          <target state="translated">Úroveň</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Level - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <target state="translated">Název</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2039748839 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Parent Directory</source>
-          <target state="translated">Nadřazený adresář</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field Parent Directory - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 1090808402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>URI</source>
-          <target state="translated">URI</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field URI - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 101689234 - Field 2274610406 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>XML Value</source>
-          <target state="translated">Hodnota XML</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table ABS Container Content - Field XML Value - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2461374210 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Application User Settings</source>
@@ -9867,6 +9735,7 @@
         </trans-unit>
         <trans-unit id="Page 1268025941 - Control 371151164 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specify a policy</source>
+          <target state="translated">Určení zásady</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Control Policy - Property AboutTitle</note>
         </trans-unit>
@@ -9878,6 +9747,7 @@
         </trans-unit>
         <trans-unit id="Page 1268025941 - Control 371151164 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Here, you assign a policy to the specified user by choosing a view policy from the list. If you've not added a user, then this policy becomes the default view policy.</source>
+          <target state="translated">Zde přiřadíte zásadu zadanému uživateli výběrem zásady zobrazení ze seznamu. Pokud jste uživatele nepřidali, stane se tato zásada výchozí zásadou zobrazení.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Control Policy - Property AboutText</note>
         </trans-unit>
@@ -9895,6 +9765,7 @@
         </trans-unit>
         <trans-unit id="Page 1268025941 - Control 2708250016 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You can define an email view policy for a specific user. However, make sure you have a default policy, which is a line with a policy that is not assigned to a user.</source>
+          <target state="translated">Můžete definovat zásady zobrazení e-mailu pro konkrétního uživatele. Ujistěte se však, že máte výchozí zásadu, což je řádek se zásadou, která není přiřazena uživateli.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email View Policy List - Control User ID - Property AboutText</note>
         </trans-unit>
@@ -14517,7 +14388,7 @@
         </trans-unit>
         <trans-unit id="Page 367479046 - NamedType 3405983715" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Microsoft Business Central PTE Disclaimer</source>
-          <target state="translated">Právní vymezení odpovědnosti</target>
+          <target state="translated">Právní omezení pro Microsoft Business Central PTE</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DisclaimerLbl</note>
         </trans-unit>
@@ -14583,7 +14454,7 @@
         </trans-unit>
         <trans-unit id="Page 367479046 - Control 1694176181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Microsft Business Central Disclaimer</source>
-          <target state="translated">Právní vymezení odpovědnosti</target>
+          <target state="translated">Prohlášení Microsoft Business Central</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Control Disclaimer - Property Caption</note>
         </trans-unit>

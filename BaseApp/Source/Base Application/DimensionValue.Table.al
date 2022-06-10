@@ -211,6 +211,8 @@ table 349 "Dimension Value"
     end;
 
     trigger OnRename()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
     begin
         RenameBudgEntryDim;
         RenameAnalysisViewEntryDim;
@@ -218,6 +220,7 @@ table 349 "Dimension Value"
         RenameItemAnalysisViewEntryDim;
 
         UpdateCostAccFromDim(Rec, xRec, 3);
+        DimValuePerAccount.RenameDimensionValue("Dimension Code", xRec.Code, Code);
 
         SetLastModifiedDateTime;
     end;

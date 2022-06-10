@@ -359,6 +359,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             repeat
                 OnCreateTrackingSpecificationOnBeforeItemTrackingMgtGetWhseItemTrkgSetup(WhseJnlLine, WhseItemTrkgLine);
                 ItemTrackingMgt.GetWhseItemTrkgSetup(WhseJnlLine."Item No.", WhseItemTrackingSetup);
+                OnCreateTrackingSpecificationOnAfterItemTrackingMgtGetWhseItemTrkgSetup(WhseJnlLine, WhseItemTrackingSetup);
                 WhseItemTrkgLine.CheckTrackingIfRequired(WhseItemTrackingSetup);
             until WhseItemTrkgLine.Next() = 0;
 
@@ -751,6 +752,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateItemJnlLineOnBeforeExit(WhseJnlLine2: Record "Warehouse Journal Line"; var ItemJnlLine: Record "Item Journal Line"; var QtytoHandleBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTrackingSpecificationOnAfterItemTrackingMgtGetWhseItemTrkgSetup(WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 
