@@ -177,6 +177,7 @@ codeunit 5812 "Calculate Standard Cost"
         CalcMfgItems: Boolean;
         IsHandled: Boolean;
         ShowStrMenu: Boolean;
+        ShowConfirm: Boolean;
     begin
         Item.Get(ItemNo);
         IsHandled := false;
@@ -205,7 +206,9 @@ codeunit 5812 "Calculate Standard Cost"
         SetProperties(WorkDate, NewCalcMultiLevel, NewUseAssemblyList, false, '', false);
 
         if NewUseAssemblyList then begin
-            if NewCalcMultiLevel and AssemblyContainsProdBOM then
+            ShowConfirm := NewCalcMultiLevel and AssemblyContainsProdBOM;
+            OnCalcItemOnAfterCalcShowConfirm(Item, CalcMfgItems, ShowConfirm);
+            if ShowConfirm then
                 CalcMfgItems := Confirm(CalcMfgPrompt, false, Item."No.");
             CalcAssemblyItem(ItemNo, Item, 0, CalcMfgItems)
         end else
@@ -601,6 +604,7 @@ codeunit 5812 "Calculate Standard Cost"
                                         IncrCost(SLMat, CompItem."Unit Cost", CompItemQtyBase);
                                         IncrCost(RUMat, CompItem."Unit Cost", CompItemQtyBase);
                                     end;
+                                OnCalcProdBOMCostOnAfterCalcAnyItem(ProdBOMLine, MfgItem, MfgItemQtyBase, CompItem, CompItemQtyBase, Level, IsTypeItem, UOMFactor);
                             end;
                         Type::"Production BOM":
                             CalcProdBOMCost(
@@ -1058,6 +1062,11 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcItemOnAfterCalcShowConfirm(Item: Record Item; var CalcMfgItems: Boolean; var ShowConfirm: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcMfgItemOnBeforeCalcRtngCost(var Item: Record Item; Level: Integer; var LotSize: Decimal; var MfgItemQtyBase: Decimal)
     begin
     end;
@@ -1074,6 +1083,11 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdBOMCostOnAfterCalcMfgItem(var ProdBOMLine: Record "Production BOM Line"; MfgItem: Record Item; MfgItemQtyBase: Decimal; CompItem: Record Item; CompItemQtyBase: Decimal; Level: Integer; IsTypeItem: Boolean; UOMFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdBOMCostOnAfterCalcAnyItem(var ProductionBOMLine: Record "Production BOM Line"; MfgItem: Record Item; MfgItemQtyBase: Decimal; CompItem: Record Item; CompItemQtyBase: Decimal; Level: Integer; IsTypeItem: Boolean; UOMFactor: Decimal)
     begin
     end;
 

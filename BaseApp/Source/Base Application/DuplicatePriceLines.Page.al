@@ -6,6 +6,7 @@ page 7003 "Duplicate Price Lines"
     PageType = Worksheet;
     SourceTable = "Duplicate Price Line";
     SourceTableView = sorting("Duplicate To Line No.", "Line No.");
+    Caption = 'Duplicate Price Lines';
 
     layout
     {
@@ -16,12 +17,14 @@ page 7003 "Duplicate Price Lines"
                 ShowCaption = false;
                 field(Remove; Rec.Remove)
                 {
+                    Caption = 'Remove';
                     ApplicationArea = All;
                     Editable = true;
                     ToolTip = 'Specifies if the price list line should be removed to resolve duplication.';
                 }
                 field("Price List Code"; Rec."Price List Code")
                 {
+                    Caption = 'Price List Code';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
@@ -37,6 +40,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Price List Line No."; Rec."Price List Line No.")
                 {
+                    Caption = 'Price List Line No.';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
@@ -81,6 +85,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field(Description; CurrPriceListLine.Description)
                 {
+                    Caption = 'Description';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
@@ -89,6 +94,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Variant Code"; CurrPriceListLine."Variant Code")
                 {
+                    Caption = 'Variant Code';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
@@ -105,6 +111,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Unit of Measure Code"; CurrPriceListLine."Unit of Measure Code")
                 {
+                    Caption = 'Unit of Measure Code';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
@@ -113,6 +120,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Minimum Quantity"; CurrPriceListLine."Minimum Quantity")
                 {
+                    Caption = 'Minimum Quantity';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
@@ -130,6 +138,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Currency Code"; CurrPriceListLine."Currency Code")
                 {
+                    Caption = 'Currency Code';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
@@ -175,6 +184,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Allow Line Disc."; CurrPriceListLine."Allow Line Disc.")
                 {
+                    Caption = 'Allow Line Disc.';
                     ApplicationArea = All;
                     Visible = PriceVisible;
                     Editable = false;
@@ -182,6 +192,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Line Discount %"; CurrPriceListLine."Line Discount %")
                 {
+                    Caption = 'Line Discount %';
                     AccessByPermission = tabledata "Sales Discount Access" = R;
                     ApplicationArea = All;
                     Visible = DiscountVisible and IsSalesPrice;
@@ -202,6 +213,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Allow Invoice Disc."; CurrPriceListLine."Allow Invoice Disc.")
                 {
+                    Caption = 'Allow Invoice Disc.';
                     ApplicationArea = All;
                     Visible = PriceVisible and IsSalesPrice;
                     Editable = false;
@@ -209,6 +221,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Starting Date"; CurrPriceListLine."Starting Date")
                 {
+                    Caption = 'Starting Date';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
@@ -217,6 +230,7 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Ending Date"; CurrPriceListLine."Ending Date")
                 {
+                    Caption = 'Ending Date';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
@@ -234,8 +248,11 @@ page 7003 "Duplicate Price Lines"
 
     protected var
         CurrPriceListLine: Record "Price List Line";
+        [InDataSet]
         DiscountVisible: Boolean;
+        [InDataSet]
         PriceVisible: Boolean;
+        [InDataSet]
         IsSalesPrice: Boolean;
 
     procedure Set(PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var DuplicatePriceLine: Record "Duplicate Price Line")

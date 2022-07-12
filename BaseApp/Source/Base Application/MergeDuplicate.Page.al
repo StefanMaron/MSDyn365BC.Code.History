@@ -74,7 +74,7 @@ page 702 "Merge Duplicate"
                 Caption = 'Conflicts';
                 //The GridLayout property is only supported on controls of type Grid
                 //GridLayout = Rows;
-                Visible = Conflicts > 0;
+                Visible = ConflictsExist;
                 field(Conflicts; GetConflictsMsg)
                 {
                     ApplicationArea = Basic, Suite;
@@ -180,6 +180,8 @@ page 702 "Merge Duplicate"
         RecordMergedMsg: Label '%1 %2 has been merged to %1 %3.', Comment = '%1 - table name (Customer/Vendor); %2 - Duplicate value; %3 - new kew value';
         ShowRecID: Boolean;
         ConflictResolved: Boolean;
+        [InDataSet]
+        ConflictsExist: Boolean;
 
     [Scope('OnPrem')]
     procedure IsConflictResolved(): Boolean
@@ -219,6 +221,11 @@ page 702 "Merge Duplicate"
         TempMergeDuplicatesLineBuffer.SetRange(Type, TempMergeDuplicatesLineBuffer.Type::Table);
         CurrPage.Tables.PAGE.Set(TempMergeDuplicatesLineBuffer);
         CurrPage.Update(true);
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        ConflictsExist := Rec.Conflicts > 0;
     end;
 }
 

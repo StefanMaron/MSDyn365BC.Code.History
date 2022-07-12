@@ -879,6 +879,7 @@ codeunit 7307 "Whse.-Activity-Register"
                     if "Qty. to Handle (Base)" < 0 then begin
                         BinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
                         ItemTrackingMgt.GetWhseItemTrkgSetup(BinContent."Item No.", WhseItemTrackingSetup);
+                        OnCheckBinContentOnAfterGetWhseItemTrkgSetup(BinContent, WhseItemTrackingSetup);
 
                         BinContent.ClearTrackingFilters();
                         BinContent.SetTrackingFilterFromBinContentBufferIfRequired(WhseItemTrackingSetup, TempBinContentBuffer);
@@ -1012,6 +1013,7 @@ codeunit 7307 "Whse.-Activity-Register"
         if TempWhseActivLine.Find('-') then
             repeat
                 ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLine."Item No.", WhseItemTrackingSetup);
+                OnCheckWhseItemTrkgLineOnAfterGetWhseItemTrkgSetup(TempWhseActivLine, WhseItemTrackingSetup);
                 // Per document
                 TempWhseActivLine.SetSourceFilter(
                   TempWhseActivLine."Source Type", TempWhseActivLine."Source Subtype", TempWhseActivLine."Source No.",
@@ -1063,6 +1065,7 @@ codeunit 7307 "Whse.-Activity-Register"
         NextEntryNo: Integer;
         WhseDocType2: Enum "Warehouse Activity Document Type";
         NeedRegisterWhseItemTrkgLine: Boolean;
+        WhseItemTrkgSetupExists: Boolean;
     begin
         with WhseActivLine2 do begin
             if (("Whse. Document Type" in
@@ -1082,7 +1085,9 @@ codeunit 7307 "Whse.-Activity-Register"
                 exit;
         end;
 
-        if not ItemTrackingMgt.GetWhseItemTrkgSetup(WhseActivLine2."Item No.") then
+        WhseItemTrkgSetupExists := ItemTrackingMgt.GetWhseItemTrkgSetup(WhseActivLine2."Item No.");
+        OnRegisterWhseItemTrkgLineOnAfterCalcWhseItemTrkgSetupExists(WhseActivLine2, ItemTrackingMgt, WhseItemTrkgSetupExists);
+        if not WhseItemTrkgSetupExists then
             exit;
 
         QtyToRegisterBase := InitTempTrackingSpecification(WhseActivLine2, TempTrackingSpecification);
@@ -2565,6 +2570,11 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRegisterWhseItemTrkgLineOnAfterCalcWhseItemTrkgSetupExists(WarehouseActivityLine2: Record "Warehouse Activity Line"; var ItemTrackingManagement: Codeunit "Item Tracking Management"; var WhseItemTrkgSetupExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCommit(RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr."; RegisteredWhseActivLine: Record "Registered Whse. Activity Line"; var SuppressCommit: Boolean)
     begin
     end;
@@ -2590,6 +2600,11 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckBinContentOnAfterGetWhseItemTrkgSetup(BinContent: Record "Bin Content"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckLinesOnBeforeCommit(RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr."; RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; var SuppressCommit: Boolean)
     begin
     end;
@@ -2611,6 +2626,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckWhseItemTrkgLineOnAfterTempWhseActivLineSetFilters(var TempWhseActivLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWhseItemTrkgLineOnAfterGetWhseItemTrkgSetup(TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

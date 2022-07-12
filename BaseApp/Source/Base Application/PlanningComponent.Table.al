@@ -854,7 +854,13 @@ table 99000829 "Planning Component"
     var
         SKU: Record "Stockkeeping Unit";
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetUpdateFromSKU(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetPlanningParameters.AtSKU(SKU, "Item No.", "Variant Code", "Location Code");
         Validate("Flushing Method", SKU."Flushing Method");
     end;
@@ -950,8 +956,11 @@ table 99000829 "Planning Component"
 
     local procedure GetItem()
     begin
-        if "Item No." <> Item."No." then
-            Item.Get("Item No.");
+        if "Item No." = Item."No." then
+            exit;
+
+        Item.Get("Item No.");
+        OnAfterGetItem(Item, Rec);
     end;
 
     local procedure GetReqLine()
@@ -1275,6 +1284,11 @@ table 99000829 "Planning Component"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItem(var Item: Record Item; var PlanningComponent: Record "Planning Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var PlanningComponent: Record "Planning Component"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
@@ -1321,6 +1335,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PlanningComponent: Record "Planning Component"; var xPlanningComponent: Record "Planning Component"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUpdateFromSKU(var PlanningComponent: Record "Planning Component"; var IsHandled: Boolean)
     begin
     end;
 

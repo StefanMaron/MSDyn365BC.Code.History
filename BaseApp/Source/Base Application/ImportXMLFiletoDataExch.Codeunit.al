@@ -68,6 +68,7 @@ codeunit 1203 "Import XML File to Data Exch."
         XmlNodeList: DotNet XmlNodeList;
         CurrentIndex: Integer;
         CurrentNodeID: Text[250];
+        InnerText: Text;
         LastLineNo: Integer;
         I: Integer;
         NodeCount: Integer;
@@ -93,9 +94,11 @@ codeunit 1203 "Import XML File to Data Exch."
                 for I := 1 to NodeCount do begin
                     CurrentNodeID := IncreaseNodeID(NodeID, CurrentIndex);
                     CurrentIndex += 1;
+                    InnerText := XmlNodeList.ItemOf(I - 1).InnerText;
+                    OnParseParentChildLineOnBeforeInsertColumn(InnerText, XmlNodeList.ItemOf(I - 1).InnerXml);
                     InsertColumn(
                       DataExchColumnDef."Column No.", CurrentLineNo, CurrentNodeID, ParentNodeID, XmlNodeList.ItemOf(I - 1).Name,
-                      XmlNodeList.ItemOf(I - 1).InnerText, CurrentDataExchLineDef, EntryNo);
+                      InnerText, CurrentDataExchLineDef, EntryNo);
                 end;
             until DataExchColumnDef.Next() = 0;
 
@@ -221,6 +224,11 @@ codeunit 1203 "Import XML File to Data Exch."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssignRegexPattern(var RegexPattern: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnParseParentChildLineOnBeforeInsertColumn(var InnerText: Text; InnerXML: Text)
     begin
     end;
 }

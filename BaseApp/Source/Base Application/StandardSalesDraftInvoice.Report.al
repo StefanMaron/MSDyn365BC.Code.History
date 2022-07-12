@@ -551,7 +551,7 @@ report 1303 "Standard Sales - Draft Invoice"
                             VATAmountLine.Modify();
                         end;
 
-                    FormatDocument.SetSalesLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
+                    FormatLineValues(Line);
 
                     if FirstLineHasBeenOutput then
                         Clear(DummyCompanyInfo.Picture);
@@ -720,10 +720,7 @@ report 1303 "Standard Sales - Draft Invoice"
                 column(Code_VATClauseLine_Lbl; VATClause.FieldCaption(Code))
                 {
                 }
-                column(Description_VATClauseLine; VATClause.Description)
-                {
-                }
-                column(Description2_VATClauseLine; VATClause."Description 2")
+                column(Description_VATClauseLine; VATClauseText)
                 {
                 }
                 column(VATAmount_VATClauseLine; "VAT Amount")
@@ -741,7 +738,7 @@ report 1303 "Standard Sales - Draft Invoice"
                         CurrReport.Skip();
                     if not VATClause.Get("VAT Clause Code") then
                         CurrReport.Skip();
-                    VATClause.GetDescription(Header);
+                    VATClauseText := VATClause.GetDescriptionText(Header);
                 end;
 
                 trigger OnPreDataItem()
@@ -1118,6 +1115,7 @@ report 1303 "Standard Sales - Draft Invoice"
         QtyLbl: Label 'Qty', Comment = 'Short form of Quantity';
         PriceLbl: Label 'Price';
         PricePerLbl: Label 'Price per';
+        VATClauseText: Text;
         NextInvoiceNo: Text;
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
@@ -1165,6 +1163,16 @@ report 1303 "Standard Sales - Draft Invoice"
         exit(true);
     end;
 
+    local procedure FormatLineValues(CurrLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFormatLineValues(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount, IsHandled);
+        if not IsHandled then
+            FormatDocument.SetSalesLine(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
+    end;
+    
     [IntegrationEvent(false, false)]
     local procedure OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
@@ -1172,6 +1180,11 @@ report 1303 "Standard Sales - Draft Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnLineOnAfterGetRecordOnAfterCalcTotals(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatLineValues(SalesLine: Record "Sales Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
     begin
     end;
 }

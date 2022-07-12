@@ -1,6 +1,11 @@
 table 5077 "Segment Line"
 {
     Caption = 'Segment Line';
+    Permissions = tabledata Attachment = rd,
+                  tabledata "Segment Line" = rim,
+                  tabledata "Segment History" = rd,
+                  tabledata "Segment Criteria Line" = rd,
+                  tabledata "Segment Interaction Language" = rid;
 
     fields
     {

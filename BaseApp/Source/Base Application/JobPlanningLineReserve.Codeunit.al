@@ -177,6 +177,8 @@
 
         VerifyBinInJobPlanningLine(NewJobPlanningLine, OldJobPlanningLine, HasError);
 
+        OnVerifyChangeOnBeforeHasErrorCheck(NewJobPlanningLine, OldJobPlanningLine, HasError, ShowError);
+
         if HasError then
             if (NewJobPlanningLine."No." <> OldJobPlanningLine."No.") or
                FindReservEntry(NewJobPlanningLine, ReservEntry)
@@ -628,6 +630,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyQuantity(var NewJobPlanningLine: Record "Job Planning Line"; var OldJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVerifyChangeOnBeforeHasErrorCheck(NewJobPlanningLine: Record "Job Planning Line"; OldJobPlanningLine: Record "Job Planning Line"; var HasError: Boolean; var ShowError: Boolean)
     begin
     end;
 }

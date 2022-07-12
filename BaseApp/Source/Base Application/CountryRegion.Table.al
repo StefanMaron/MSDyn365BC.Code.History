@@ -129,7 +129,7 @@ table 9 "Country/Region"
     var
         VATRegNoFormat: Record "VAT Registration No. Format";
     begin
-        VATRegNoFormat.SetFilter("Country/Region Code", Code);
+        VATRegNoFormat.SetRange("Country/Region Code", Code);
         VATRegNoFormat.DeleteAll();
     end;
 

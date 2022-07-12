@@ -66,7 +66,7 @@ codeunit 6501 "Item Tracking Data Collection"
         ItemTrackingSummaryForm.SetTableView(TempGlobalEntrySummary);
 
         TempGlobalEntrySummary.SetTrackingKey();
-        OnAssistEditTrackingNoOnBeforeLookupMode(TempGlobalEntrySummary, TempTrackingSpecification);
+        OnAssistEditTrackingNoOnBeforeLookupMode(TempGlobalEntrySummary, TempTrackingSpecification, ItemTrackingSummaryForm);
         case LookupMode of
             LookupMode::"Serial No.":
                 AssistEditTrackingNoLookupSerialNo(TempTrackingSpecification, ItemTrackingSummaryForm);
@@ -1452,7 +1452,7 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssistEditTrackingNoOnBeforeLookupMode(var TempGlobalEntrySummary: Record "Entry Summary"; var TempTrackingSpecification: Record "Tracking Specification")
+    local procedure OnAssistEditTrackingNoOnBeforeLookupMode(var TempGlobalEntrySummary: Record "Entry Summary"; var TempTrackingSpecification: Record "Tracking Specification"; var ItemTrackingSummaryPage: Page "Item Tracking Summary")
     begin
     end;
 

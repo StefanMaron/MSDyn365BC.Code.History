@@ -7172,7 +7172,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Variants - Action MapVariant - Property Caption</note>
         </trans-unit>
         <trans-unit id="Report 653247747 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shopify Add Item to Shopify</source>
+          <source>Add Item to Shopify</source>
           <target state="translated">Přidat zboží do Shopify</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Add Item to Shopify - Property Caption</note>

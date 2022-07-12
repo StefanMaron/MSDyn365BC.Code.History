@@ -46,6 +46,41 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
         SuccessfullyCoupledSalesQuoteTelemetryMsg: Label 'The user successfully coupled quote %2 to %1 quote %3 (quote number %4).', Locked = true;
         SkippingProcessQuoteConnectionDisabledMsg: Label 'Skipping creation of quote header from %1 quote %2. The %1 integration is not enabled.', Locked = true;
+        SuccessfullyAppliedSalesQuoteDiscountsTelemetryMsg: Label 'Successfully applied discounts from %1 quote %3 to quote %2.', Locked = true;
+        StartingToApplySalesQuoteDiscountsTelemetryMsg: Label 'Starting to appliy discounts from %1 quote %3 to quote %2.', Locked = true;
+        OverwriteCRMDiscountQst: Label 'There is a discount on the %2 quote, which will be overwritten by %1 settings. You will have the possibility to update the discounts directly on the quote, after it is created. Do you want to continue?', Comment = '%1 - product name, %2 - Dataverse service name';
+
+    local procedure ApplyQuoteDiscounts(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header")
+    var
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        CRMDiscountAmount: Decimal;
+    begin
+        // No discounts to apply
+        if (CRMQuote.DiscountAmount = 0) and (CRMQuote.DiscountPercentage = 0) then
+            exit;
+
+        Session.LogMessage('0000HVK', StrSubstNo(StartingToApplySalesQuoteDiscountsTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMQuote.QuoteId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+
+        // Attempt to set the discount, if NAV general and customer settings allow it
+        // Using CRM discounts
+        CRMDiscountAmount := CRMQuote.TotalLineItemAmount - CRMQuote.TotalAmountLessFreight;
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(CRMDiscountAmount, SalesHeader);
+
+        // NAV settings (in G/L Setup as well as per-customer discounts) did not allow using the CRM discounts
+        // Using NAV discounts
+        // But the user will be able to manually update the discounts after the order is created in NAV
+        if GuiAllowed() then
+            if not HideQuoteDiscountsDialog() then
+                if not Confirm(StrSubstNo(OverwriteCRMDiscountQst, PRODUCTNAME.Short(), CRMProductName.CDSServiceName()), true) then
+                    Error('');
+
+        Session.LogMessage('0000HVL', StrSubstNo(SuccessfullyAppliedSalesQuoteDiscountsTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMQuote.QuoteId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+    end;
+
+    local procedure HideQuoteDiscountsDialog() Hide: Boolean;
+    begin
+        OnHideQuoteDiscountsDialog(Hide);
+    end;
 
     procedure ProcessInNAV(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header"): Boolean
     var
@@ -80,14 +115,14 @@ codeunit 5348 "CRM Quote to Sales Quote"
         RevisionedCRMQuote.SetRange(StateCode, RevisionedCRMQuote.StateCode::Closed);
         RevisionedCRMQuote.SetRange(StatusCode, RevisionedCRMQuote.StatusCode::Revised);
         if RevisionedCRMQuote.FindSet() then
-            repeat
-                if CRMIntegrationRecord.FindRecordIDFromID(RevisionedCRMQuote.QuoteId, DATABASE::"Sales Header", RecordId) then begin
-                    GetSalesHeaderByRecordId(RecordId, SalesHeader);
-                    CRMIntegrationRecord.Get(RevisionedCRMQuote.QuoteId, SalesHeader.SystemId);
-                    CRMIntegrationRecord.Delete(true);
-                    exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Update));
-                end;
-            until RevisionedCRMQuote.Next() = 0;
+                repeat
+                    if CRMIntegrationRecord.FindRecordIDFromID(RevisionedCRMQuote.QuoteId, DATABASE::"Sales Header", RecordId) then begin
+                        GetSalesHeaderByRecordId(RecordId, SalesHeader);
+                        CRMIntegrationRecord.Get(RevisionedCRMQuote.QuoteId, SalesHeader.SystemId);
+                        CRMIntegrationRecord.Delete(true);
+                        exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Update));
+                    end;
+                until RevisionedCRMQuote.Next() = 0;
 
         exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Create));
     end;
@@ -177,6 +212,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CreateOrUpdateSalesQuoteHeader(CRMQuote, SalesHeader, OpType);
         CreateOrUpdateSalesQuoteLines(CRMQuote, SalesHeader);
         CreateOrUpdateSalesQuoteNotes(CRMQuote, SalesHeader);
+        ApplyQuoteDiscounts(CRMQuote, SalesHeader);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesHeader.RecordId, CRMQuote.QuoteId);
         OnCreateOrUpdateNAVQuoteOnAfterCoupleRecordIdToCRMID(CRMQuote, SalesHeader);
         if OpType = OpType::Create then
@@ -210,7 +246,6 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CopyBillToInformationIfNotEmpty(CRMQuote, SalesHeader);
         CopyShipToInformationIfNotEmpty(CRMQuote, SalesHeader);
         CopyCRMOptionFields(CRMQuote, SalesHeader);
-        SalesHeader.Validate("Payment Discount %", CRMQuote.DiscountPercentage);
         SalesHeader.Validate("External Document No.", CopyStr(CRMQuote.Name, 1, MaxStrLen(SalesHeader."External Document No.")));
         SalesHeader.Validate("Quote Valid Until Date", CRMQuote.EffectiveTo);
         SourceRecordRef.GetTable(CRMQuote);
@@ -234,9 +269,9 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CRMAnnotation.SetRange(ObjectId, CRMQuote.QuoteId);
         CRMAnnotation.SetRange(IsDocument, false);
         if CRMAnnotation.FindSet() then
-            repeat
-                CreateNote(SalesHeader, CRMAnnotation);
-            until CRMAnnotation.Next() = 0;
+                repeat
+                    CreateNote(SalesHeader, CRMAnnotation);
+                until CRMAnnotation.Next() = 0;
     end;
 
     local procedure CreateOrUpdateSalesQuoteLines(CRMQuote: Record "CRM Quote"; SalesHeader: Record "Sales Header")
@@ -628,6 +663,11 @@ codeunit 5348 "CRM Quote to Sales Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateOrUpdateSalesQuoteHeaderOnBeforeInsertOrModify(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header"; OpType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHideQuoteDiscountsDialog(var Hide: Boolean)
     begin
     end;
 }

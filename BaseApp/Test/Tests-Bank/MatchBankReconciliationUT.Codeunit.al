@@ -882,6 +882,55 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
     [Test]
     [Scope('OnPrem')]
+    procedure RemoveMatchOneToManyStatementLineDeleted()
+    var
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        PaymentMatchingDetails: Record "Payment Matching Details";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        PostingDate: Date;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Description: Text[50];
+        Amount: Decimal;
+        ExpectedMatchedLineNo: Integer;
+    begin
+        Initialize();
+
+        // Setup.
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+        CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
+        CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
+        CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
+        ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', 2 * Amount);
+        AddBankRecLinesToTemp(TempBankAccReconciliationLine, BankAccReconciliation);
+        AddBankEntriesToTemp(TempBankAccountLedgerEntry, BankAccountNo);
+        MatchBankRecLines.MatchManually(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
+
+        // Delete matched statement line
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetRange("Statement Line No.", ExpectedMatchedLineNo);
+        if not BankAccReconciliationLine.FindFirst() then
+            BankAccReconciliationLine.Delete();
+
+        // Exercise.
+        MatchBankRecLines.RemoveMatch(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
+
+        // Verify.
+        VerifyOneToManyMatch(BankAccReconciliation, ExpectedMatchedLineNo, 0, 0);
+        PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        PaymentMatchingDetails.SetRange("Statement Line No.", TempBankAccReconciliationLine."Statement Line No.");
+        Assert.IsTrue(PaymentMatchingDetails.IsEmpty(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure RemoveMatchFromBLE()
     var
         TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;

@@ -12,7 +12,7 @@ codeunit 5407 "Prod. Order Status Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnRun(ChangeStatusForm, Rec, IsHandled);
+        OnBeforeOnRun(ChangeStatusForm, Rec, IsHandled, NewStatus, NewPostingDate, NewUpdateUnitCost);
         if IsHandled then
             exit;
 
@@ -533,6 +533,7 @@ codeunit 5407 "Prod. Order Status Management"
                 ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
                 ProdOrderRtngLine.LockTable();
                 FlushProdOrderProcessProdOrderRtngLine(ProdOrder, ProdOrderLine, ProdOrderRtngLine, PostingDate);
+                OnFlushProdOrderOnAfterProdOrderLineLoopIteration(ProdOrderLine, NewStatus, PostingDate);
             until ProdOrderLine.Next() = 0;
 
         with ProdOrderComp do begin
@@ -1114,7 +1115,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var ChangeStatusOnProdOrderPage: Page "Change Status on Prod. Order"; var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    local procedure OnBeforeOnRun(var ChangeStatusOnProdOrderPage: Page "Change Status on Prod. Order"; var ProductionOrder: Record "Production Order"; var IsHandled: Boolean; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     begin
     end;
 
@@ -1215,6 +1216,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFlushProdOrderOnAfterProdOrderCompSetFilters(ProdOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFlushProdOrderOnAfterProdOrderLineLoopIteration(var ProdOrderLine: Record "Prod. Order Line"; NewStatus: Enum "Production Order Status"; PostingDate: Date)
     begin
     end;
 

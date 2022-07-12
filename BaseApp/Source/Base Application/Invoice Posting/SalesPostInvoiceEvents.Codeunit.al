@@ -450,13 +450,23 @@
     begin
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by RunOnPrepareLineOnBeforePreparePurchase() with extended parameters', '21.0')]
     procedure RunOnPrepareLineOnBeforePrepareSales(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    var
+        DummyGeneralPostingSetup: Record "General Posting Setup";
     begin
-        OnPrepareLineOnBeforePrepareSales(SalesHeader, SalesLine);
+        OnPrepareLineOnBeforePrepareSales(SalesHeader, SalesLine, DummyGeneralPostingSetup);
+    end;
+#endif
+
+    procedure RunOnPrepareLineOnBeforePrepareSales(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        OnPrepareLineOnBeforePrepareSales(SalesHeader, SalesLine, GeneralPostingSetup);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPrepareLineOnBeforePrepareSales(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    local procedure OnPrepareLineOnBeforePrepareSales(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var GeneralPostingSetup: Record "General Posting Setup")
     begin
     end;
 

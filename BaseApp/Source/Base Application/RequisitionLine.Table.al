@@ -1657,6 +1657,8 @@ table 246 "Requisition Line"
 
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+
+        OnAfterOnInsert(Rec, ReqWkshTmpl, ReqWkshName);
     end;
 
     trigger OnModify()
@@ -3763,6 +3765,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var RequisitionLine: Record "Requisition Line"; ReqWkshTemplate: Record "Req. Wksh. Template"; RequisitionWkshName: Record "Requisition Wksh. Name")
     begin
     end;
 

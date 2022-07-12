@@ -489,6 +489,50 @@ codeunit 137050 "SCM Sales Order Management"
         Assert.ExpectedMessage('Commit is prohibited in the current scope.', ErrorMessagesPage.Description.Value);
     end;
 
+    [Test]
+    procedure PlannedDeliveryDateUpdatedWhenShippingAgentServiceCodeIsCleared()
+    var
+        Item: Record Item;
+        ShippingAgentServices: Record "Shipping Agent Services";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShippingTime: array[2] of DateFormula;
+    begin
+        // [FEATURE] [Shipping Agent Service]
+        // [SCENARIO 433870] Planned Delivery Date is updated when a user clears Shipping Agent Service Code on sales line so that Shipping Time is inherited from the header.
+        Initialize();
+        Evaluate(ShippingTime[1], '<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'D>');
+        Evaluate(ShippingTime[2], '<' + Format(LibraryRandom.RandIntInRange(11, 20)) + 'D>');
+
+        // [GIVEN] Shipping Agent Service Code "X". Set "Shipping Time" = 5D.
+        CreateItem(Item);
+        CreateShippingAgentWithService(ShippingAgentServices, ShippingTime[1], '');
+
+        // [GIVEN] Sales order header. Set "Shipping Time" = 15D.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Shipping Time", ShippingTime[2]);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Sales order line. Select Shipping Agent Service Code = "X".
+        // [GIVEN] Ensure that "Shipping Time" = 5D, "Planned Delivery Date" = WorkDate + 5 days.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Shipping Agent Code", ShippingAgentServices."Shipping Agent Code");
+        SalesLine.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        SalesLine.TestField("Shipping Time", ShippingTime[1]);
+        SalesLine.TestField("Planned Delivery Date", CalcDate(ShippingTime[1], SalesLine."Shipment Date"));
+
+        // [GIVEN] Clear "Shipping Time" on the sales order line.
+        Clear(Salesline."Shipping Time");
+
+        // [WHEN] Now clear "Shipping Agent Service Code" too.
+        SalesLine.Validate("Shipping Agent Service Code", '');
+
+        // [THEN] "Shipping Time" got updated from the sales header (= 15D).
+        // [THEN] "Planned Delivery Date" = WorkDate + 15 days.
+        SalesLine.TestField("Shipping Time", ShippingTime[2]);
+        SalesLine.TestField("Planned Delivery Date", CalcDate(ShippingTime[2], SalesLine."Shipment Date"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

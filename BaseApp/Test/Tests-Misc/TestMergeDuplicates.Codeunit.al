@@ -548,6 +548,7 @@ codeunit 134399 "Test Merge Duplicates"
           Format(CustomerBankAccount[2].RecordId),
           StrSubstNo('%1: %2', CustomerBankAccount[2].TableName, LibraryVariableStorage.DequeueText), 'Conflict.DuplicateRecID');
         // [THEN] Tab Conflicts to Resolve is invisible
+        MergeDuplicatePage.View().Invoke();
         Assert.IsFalse(MergeDuplicatePage.Conflicts.Visible, 'Conflicts.VISIBLE');
         // [THEN] Tab Related Tables, where "Table ID" = 287, "Conflicts" is '0'
         MergeDuplicatePage.Tables.Conflicts.AssertEquals(0);

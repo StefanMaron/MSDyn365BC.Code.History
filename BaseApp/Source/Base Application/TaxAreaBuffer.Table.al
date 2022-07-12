@@ -175,7 +175,7 @@ table 5504 "Tax Area Buffer"
         TransferFields(TaxArea, true);
         Type := Type::"Sales Tax";
         Id := TaxArea.SystemId;
-        Description := TaxArea.GetDescriptionInCurrentLanguage;
+        Description := TaxArea.GetDescriptionInCurrentLanguageFullLength();
     end;
 
     procedure GetTaxAreaDisplayName(TaxAreaId: Guid): Text
@@ -192,9 +192,8 @@ table 5504 "Tax Area Buffer"
                 exit(VATBusinessPostingGroup.Description);
         end else
             if TaxArea.GetBySystemId(TaxAreaId) then
-                exit(TaxArea.GetDescriptionInCurrentLanguage);
+                exit(TaxArea.GetDescriptionInCurrentLanguageFullLength());
 
         exit('');
     end;
 }
-

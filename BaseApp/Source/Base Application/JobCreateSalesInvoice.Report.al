@@ -79,6 +79,11 @@ report 1093 "Job Create Sales Invoice"
     {
     }
 
+    trigger OnInitReport()
+    begin
+        OnBeforeOnOnInitReport(JobChoice);
+    end;
+
     trigger OnPostReport()
     begin
         OnBeforePostReport;
@@ -115,6 +120,11 @@ report 1093 "Job Create Sales Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPreReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOnInitReport(var JobChoice: Option Job,"Job Task")
     begin
     end;
 

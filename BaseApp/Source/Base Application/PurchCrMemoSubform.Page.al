@@ -156,10 +156,10 @@ page 98 "Purch. Cr. Memo Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = Type <> Type::" ";
+                    ShowMandatory = Rec.Type <> Rec.Type::" ";
                     ToolTip = 'Specifies a description of the entry of the product to be purchased. To add a non-transactional text line, fill in the Description field only.';
 
                     trigger OnValidate()
@@ -173,10 +173,12 @@ page 98 "Purch. Cr. Memo Subform"
 
                         UpdateEditableOnRow();
 
-                        if "No." = xRec."No." then
+                        Rec.RestoreLookupSelection();
+
+                        if Rec."No." = xRec."No." then
                             exit;
 
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
 
                         UpdateTypeText();
@@ -184,40 +186,8 @@ page 98 "Purch. Cr. Memo Subform"
                     end;
 
                     trigger OnAfterLookup(Selected: RecordRef)
-                    var
-                        GLAccount: record "G/L Account";
-                        Item: record Item;
-                        Resource: record Resource;
-                        FixedAsset: record "Fixed Asset";
-                        ItemCharge: record "Item Charge";
                     begin
-                        case Rec.Type of
-                            Rec.Type::Item:
-                                begin
-                                    Selected.SetTable(Item);
-                                    Validate("No.", Item."No.");
-                                end;
-                            Rec.Type::"G/L Account":
-                                begin
-                                    Selected.SetTable(GLAccount);
-                                    Validate("No.", GLAccount."No.");
-                                end;
-                            Rec.Type::Resource:
-                                begin
-                                    Selected.SetTable(Resource);
-                                    Validate("No.", Resource."No.");
-                                end;
-                            Rec.Type::"Fixed Asset":
-                                begin
-                                    Selected.SetTable(FixedAsset);
-                                    Validate("No.", FixedAsset."No.");
-                                end;
-                            Rec.Type::"Charge (Item)":
-                                begin
-                                    Selected.SetTable(ItemCharge);
-                                    Validate("No.", ItemCharge."No.");
-                                end;
-                        end;
+                        Rec.SaveLookupSelection(Selected);
                     end;
                 }
                 field("Description 2"; "Description 2")

@@ -102,7 +102,7 @@ page 7005 "Price List Line Review"
                 {
                     ApplicationArea = All;
                     Visible = ItemAsset;
-                    Editable = ItemAsset and PriceEditable;
+                    Editable = VariantCodeEditable;
                     ToolTip = 'Specifies the item variant.';
                     trigger OnValidate()
                     begin
@@ -113,7 +113,7 @@ page 7005 "Price List Line Review"
                 {
                     ApplicationArea = All;
                     Visible = ResourceAsset;
-                    Editable = ResourceAsset and PriceEditable;
+                    Editable = WorkTypeCodeEditable;
                     ToolTip = 'Specifies the work type code for the resource.';
                     trigger OnValidate()
                     begin
@@ -124,7 +124,7 @@ page 7005 "Price List Line Review"
                 {
                     ApplicationArea = All;
                     Enabled = UOMEditable;
-                    Editable = UOMEditable and PriceEditable;
+                    Editable = UOMEditable;
                     ToolTip = 'Specifies the unit of measure for the product.';
                     trigger OnValidate()
                     begin
@@ -146,7 +146,7 @@ page 7005 "Price List Line Review"
                     ApplicationArea = All;
                     Importance = Standard;
                     Visible = AmountTypeIsVisible;
-                    Editable = AmountTypeIsEditable and PriceEditable;
+                    Editable = AmountTypeIsEditable;
                     ToolTip = 'Specifies whether the price list line defines prices, discounts, or both.';
                     trigger OnValidate()
                     begin
@@ -163,9 +163,9 @@ page 7005 "Price List Line Review"
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = All;
-                    Editable = AmountEditable and PriceEditable;
+                    Editable = UnitPriceEditable;
                     Enabled = PriceMandatory;
-                    Visible = PriceVisible and IsSalesPrice;
+                    Visible = SalesPriceVisible;
                     StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit price of the product.';
                     trigger OnValidate()
@@ -176,9 +176,9 @@ page 7005 "Price List Line Review"
                 field("Cost Factor"; Rec."Cost Factor")
                 {
                     ApplicationArea = All;
-                    Editable = AmountEditable and PriceEditable;
+                    Editable = UnitPriceEditable;
                     Enabled = PriceMandatory;
-                    Visible = PriceVisible and IsSalesPrice;
+                    Visible = SalesPriceVisible;
                     StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                     trigger OnValidate()
@@ -190,9 +190,9 @@ page 7005 "Price List Line Review"
                 {
                     Caption = 'Direct Unit Cost';
                     ApplicationArea = All;
-                    Editable = AmountEditable and PriceEditable;
+                    Editable = UnitPriceEditable;
                     Enabled = PriceMandatory;
-                    Visible = PriceVisible and not IsSalesPrice;
+                    Visible = DirectUnitCostVisible;
                     StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the direct unit cost of the product.';
                     trigger OnValidate()
@@ -203,9 +203,9 @@ page 7005 "Price List Line Review"
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = All;
-                    Editable = AmountEditable and PriceEditable and ResourceAsset;
+                    Editable = UnitCostEditable;
                     Enabled = PriceMandatory;
-                    Visible = PriceVisible and not IsSalesPrice and ResourceAsset;
+                    Visible = UnitCostVisible;
                     StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit cost of the resource.';
                     trigger OnValidate()
@@ -230,7 +230,7 @@ page 7005 "Price List Line Review"
                     ApplicationArea = All;
                     Visible = PriceVisible;
                     Enabled = PriceMandatory;
-                    Editable = PriceMandatory and PriceEditable;
+                    Editable = AllowDiscEditable;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                     trigger OnValidate()
                     begin
@@ -241,9 +241,9 @@ page 7005 "Price List Line Review"
                 {
                     AccessByPermission = tabledata "Sales Discount Access" = R;
                     ApplicationArea = All;
-                    Visible = DiscountVisible and IsSalesPrice;
+                    Visible = SalesLineDiscVisible;
                     Enabled = DiscountMandatory;
-                    Editable = DiscountMandatory and PriceEditable;
+                    Editable = DiscountEditable;
                     StyleExpr = DiscountStyle;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                     trigger OnValidate()
@@ -255,9 +255,9 @@ page 7005 "Price List Line Review"
                 {
                     AccessByPermission = tabledata "Purchase Discount Access" = R;
                     ApplicationArea = All;
-                    Visible = DiscountVisible and not IsSalesPrice;
+                    Visible = PurchLineDiscVisible;
                     Enabled = DiscountMandatory;
-                    Editable = DiscountMandatory and PriceEditable;
+                    Editable = DiscountEditable;
                     StyleExpr = DiscountStyle;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                     trigger OnValidate()
@@ -268,9 +268,9 @@ page 7005 "Price List Line Review"
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = All;
-                    Visible = PriceVisible and IsSalesPrice;
+                    Visible = SalesPriceVisible;
                     Enabled = PriceMandatory;
-                    Editable = PriceMandatory and PriceEditable;
+                    Editable = AllowDiscEditable;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                     trigger OnValidate()
                     begin
@@ -468,26 +468,65 @@ page 7005 "Price List Line Review"
     protected var
         PriceListHeader: Record "Price List Header";
         PriceUXManagement: Codeunit "Price UX Management";
+        [InDataSet]
         AmountEditable: Boolean;
+        [InDataSet]
+        UnitPriceEditable: Boolean;
+        [InDataSet]
+        UnitCostEditable: Boolean;
+        [InDataSet]
+        DiscountEditable: Boolean;
+        [InDataSet]
+        AllowDiscEditable: Boolean;
+        [InDataSet]
         UOMEditable: Boolean;
+        [InDataSet]
         ItemAsset: Boolean;
+        [InDataSet]
+        VariantCodeEditable: Boolean;
+        [InDataSet]
         ResourceAsset: Boolean;
+        [InDataSet]
+        WorkTypeCodeEditable: Boolean;
+        [InDataSet]
         DiscountMandatory: Boolean;
+        [InDataSet]
         DiscountStyle: Text;
+        [InDataSet]
         DiscountVisible: Boolean;
+        [InDataSet]
         PriceMandatory: Boolean;
         PriceStyle: Text;
+        [InDataSet]
         PriceVisible: Boolean;
+        [InDataSet]
         IsSalesPrice: Boolean;
+        [InDataSet]
+        DirectUnitCostVisible: Boolean;
+        [InDataSet]
+        UnitCostVisible: Boolean;
+        [InDataSet]
+        SalesPriceVisible: Boolean;
+        [InDataSet]
+        PurchLineDiscVisible: Boolean;
+        [InDataSet]
+        SalesLineDiscVisible: Boolean;
+        [InDataSet]
         PriceEditable: Boolean;
+        [InDataSet]
         AmountTypeIsVisible: Boolean;
+        [InDataSet]
         AmountTypeIsEditable: Boolean;
+        [InDataSet]
         LineExists: Boolean;
+        [InDataSet]
         LineToVerify: Boolean;
         DataCaptionExpr: Text;
         PriceType: Enum "Price Type";
         ViewAmountType: Enum "Price Amount Type";
+        [InDataSet]
         HideProductControls: Boolean;
+        [InDataSet]
         HideSourceControls: Boolean;
 
     local procedure GetStyle(Mandatory: Boolean): Text;
@@ -621,12 +660,19 @@ page 7005 "Price List Line Review"
 
     local procedure SetEditable()
     begin
-        AmountTypeIsEditable := Rec."Asset Type" <> Rec."Asset Type"::"Item Discount Group";
+        PriceEditable := Rec.IsEditable();
         AmountEditable := Rec.IsAmountSupported();
-        UOMEditable := Rec.IsUOMSupported();
+        UOMEditable := Rec.IsUOMSupported() and PriceEditable;
         ItemAsset := Rec.IsAssetItem();
         ResourceAsset := Rec.IsAssetResource();
-        PriceEditable := Rec.IsEditable();
+        AmountTypeIsEditable := (Rec."Asset Type" <> Rec."Asset Type"::"Item Discount Group") and PriceEditable;
+
+        UnitPriceEditable := AmountEditable and PriceEditable;
+        UnitCostEditable := UnitPriceEditable and ResourceAsset;
+        DiscountEditable := DiscountMandatory and PriceEditable;
+        AllowDiscEditable := PriceMandatory and PriceEditable;
+        VariantCodeEditable := ItemAsset and PriceEditable;
+        WorkTypeCodeEditable := ResourceAsset and PriceEditable;
     end;
 
     local procedure SetMandatoryAmount()
@@ -643,6 +689,11 @@ page 7005 "Price List Line Review"
         DiscountVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Discount];
         PriceVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Price];
         IsSalesPrice := PriceType = PriceType::Sale;
+        SalesPriceVisible := PriceVisible and IsSalesPrice;
+        DirectUnitCostVisible := PriceVisible and not IsSalesPrice;
+        UnitCostVisible := DirectUnitCostVisible and ResourceAsset;
+        SalesLineDiscVisible := DiscountVisible and IsSalesPrice;
+        PurchLineDiscVisible := DiscountVisible and not IsSalesPrice;
     end;
 
     local procedure GetPriceListDescription(): Text

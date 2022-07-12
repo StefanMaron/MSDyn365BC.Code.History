@@ -707,6 +707,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType PstDatePurchInvHeaderLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3144827255 - NamedType 3653667192" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Report Dataset should be empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType ReportDatasetEmptyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3144827255 - NamedType 2895079328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is not dataset row corresponding to Element Name %1 with value %2]]></Val>

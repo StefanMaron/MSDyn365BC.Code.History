@@ -356,7 +356,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                     if ApplyToJobContractEntryNo then
                         ItemJnlLine."Job Contract Entry No." := JobPlanningLine."Job Contract Entry No.";
 
-                    OnPostItemOnBeforeAssignItemJnlLine(JobJnlLine, JobJnlLine2, ItemJnlLine);
+                    OnPostItemOnBeforeAssignItemJnlLine(JobJnlLine, JobJnlLine2, ItemJnlLine, JobPlanningLine);
 
                     ItemLedgEntry.LockTable();
                     ItemJnlLine2 := ItemJnlLine;
@@ -796,7 +796,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemOnBeforeAssignItemJnlLine(var JobJournalLine: Record "Job Journal Line"; var JobJournalLine2: Record "Job Journal Line"; var ItemJnlLine: Record "Item Journal Line")
+    local procedure OnPostItemOnBeforeAssignItemJnlLine(var JobJournalLine: Record "Job Journal Line"; var JobJournalLine2: Record "Job Journal Line"; var ItemJnlLine: Record "Item Journal Line"; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

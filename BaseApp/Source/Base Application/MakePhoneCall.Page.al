@@ -33,6 +33,7 @@ page 5147 "Make Phone Call"
                         Caption = 'Contact Phone No.';
                         ExtendedDatatype = PhoneNo;
                         Importance = Promoted;
+                        ShowMandatory = true;
                         ToolTip = 'Specifies the telephone number you used when calling the contact, or the email address you used when sending an email to the contact.';
 
                         trigger OnAssistEdit()

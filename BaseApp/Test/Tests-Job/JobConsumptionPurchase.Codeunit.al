@@ -2923,6 +2923,42 @@ codeunit 136302 "Job Consumption Purchase"
           ReturnShipmentNo, JobTask."Job No.", Qty, Qty, Round(Qty * UnitCost, LibraryERM.GetAmountRoundingPrecision()), 0);
     end;
 
+    [Test]
+    procedure CopyingJobPlanningLineFromPurchaseOrder()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        NewPurchaseHeader: Record "Purchase Header";
+        NewPurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Copy Document]
+        // [SCENARIO 437187] Copy Job No., Job Task No., and Job Planning Line No. from one purchase order to another.
+        Initialize();
+
+        CreateJobAndJobPlanningLine(JobPlanningLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(10, 20));
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          JobPlanningLine."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(
+          NewPurchaseHeader, NewPurchaseHeader."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
+        LibraryPurchase.CopyPurchaseDocument(
+          NewPurchaseHeader, "Purchase Document Type From"::Order, PurchaseHeader."No.", true, false);
+
+        NewPurchaseLine.SetRange("No.", PurchaseLine."No.");
+        LibraryPurchase.FindFirstPurchLine(NewPurchaseLine, NewPurchaseHeader);
+        NewPurchaseLine.TestField("Job No.", PurchaseLine."Job No.");
+        NewPurchaseLine.TestField("Job Task No.", PurchaseLine."Job Task No.");
+        NewPurchaseLine.TestField("Job Line Type", PurchaseLine."Job Line Type");
+        NewPurchaseLine.TestField("Job Planning Line No.", PurchaseLine."Job Planning Line No.");
+    end;
+
     local procedure Initialize()
     var
 #if not CLEAN19

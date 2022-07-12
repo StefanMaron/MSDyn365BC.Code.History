@@ -185,7 +185,13 @@ codeunit 9170 "Conf./Personalization Mgt."
     var
         UserPersonalization: Record "User Personalization";
         UserGroup: Record "User Group";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateDeleteProfile(AllProfile, IsHandled);
+        if IsHandled then
+            exit;
+
         if AllProfile."Default Role Center" then
             Error(CannotDeleteDefaultProfileErr);
 
@@ -539,4 +545,8 @@ codeunit 9170 "Conf./Personalization Mgt."
     end;
 #endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDeleteProfile(AllProfile: Record "All Profile"; var IsHandled: Boolean)
+    begin
+    end;
 }

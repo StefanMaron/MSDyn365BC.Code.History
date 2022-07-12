@@ -5279,7 +5279,7 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - Control 3840690540 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Direct Unit Cost</source>
-          <target state="translated">Einstandspreis</target>
+          <target state="translated">EK-Preis</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control directUnitCost - Property Caption</note>
         </trans-unit>

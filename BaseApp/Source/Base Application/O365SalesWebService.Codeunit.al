@@ -609,9 +609,8 @@ codeunit 2190 "O365 Sales Web Service"
         ContactFirstName: Text;
     begin
         SalesHeader.Get(SalesHeader."Document Type"::Quote, DocNo);
-        SalesHeader.CalcFields("Amount Including VAT");
 
-        if User.Get(UserSecurityId) then;
+        if User.Get(UserSecurityId()) then;
 
         if Customer.Get(SalesHeader."Sell-to Customer No.") then
             if Contact.Get(Customer."Primary Contact No.") then;
@@ -627,7 +626,7 @@ codeunit 2190 "O365 Sales Web Service"
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerLastName', Contact.Surname);
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerEmailAddress', Customer."E-Mail");
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'companyName', Customer.Name);
-        JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'amount', SalesHeader."Amount Including VAT");
+        JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'amount', CalcAndGetAmountIncludingVAT(SalesHeader));
         JSONManagement.AddJPropertyToJObject(
           ResultJsonObject, 'currencyCode', Currency.ResolveGLCurrencySymbol(SalesHeader."Currency Code"));
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'description', StrSubstNo(EstimateDescTxt, SalesHeader."No."));
@@ -653,7 +652,6 @@ codeunit 2190 "O365 Sales Web Service"
         ContactFirstName: Text;
     begin
         SalesHeader.Get(SalesHeader."Document Type"::Quote, DocNo);
-        SalesHeader.CalcFields("Amount Including VAT");
 
         if Customer.Get(SalesHeader."Sell-to Customer No.") then
             if Contact.Get(Customer."Primary Contact No.") then;
@@ -671,7 +669,7 @@ codeunit 2190 "O365 Sales Web Service"
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerLastName', Contact.Surname);
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerEmailAddress', Customer."E-Mail");
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'companyName', Customer.Name);
-        JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'amount', SalesHeader."Amount Including VAT");
+        JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'amount', CalcAndGetAmountIncludingVAT(SalesHeader));
         JSONManagement.AddJPropertyToJObject(
           ResultJsonObject, 'currencyCode', Currency.ResolveGLCurrencySymbol(SalesHeader."Currency Code"));
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'description', StrSubstNo(EstimateDescTxt, SalesHeader."No."));
@@ -685,6 +683,13 @@ codeunit 2190 "O365 Sales Web Service"
         Details.Write(ResultJsonObject.ToString);
 
         exit(true);
+    end;
+
+    local procedure CalcAndGetAmountIncludingVAT(var SalesHeader: Record "Sales Header") Result: Decimal
+    begin
+        SalesHeader.CalcFields("Amount Including VAT");
+        Result := SalesHeader."Amount Including VAT";
+        OnAfterCalcAndGetAmountIncludingVAT(SalesHeader, Result);
     end;
 
     local procedure GetExpiringEstimateDetails(var Details: OutStream): Boolean
@@ -820,6 +825,11 @@ codeunit 2190 "O365 Sales Web Service"
         O365SalesGraph.Type := Type;
         O365SalesGraph.Kind := ActivityKindTxt;
         O365SalesGraph.SetEmployeeIdToCurrentUser;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcAndGetAmountIncludingVAT(SalesHeader: Record "Sales Header"; var Result: Decimal)
+    begin
     end;
 }
 

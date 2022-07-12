@@ -700,7 +700,7 @@ report 1306 "Standard Sales - Invoice"
                     else
                         JobNoLbl := '';
 
-                    FormatDocument.SetSalesInvoiceLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
+                    FormatLineValues(Line);
                 end;
 
                 trigger OnPreDataItem()
@@ -876,10 +876,7 @@ report 1306 "Standard Sales - Invoice"
                 column(Code_VATClauseLine_Lbl; VATClause.FieldCaption(Code))
                 {
                 }
-                column(Description_VATClauseLine; VATClause.Description)
-                {
-                }
-                column(Description2_VATClauseLine; VATClause."Description 2")
+                column(Description_VATClauseLine; VATClauseText)
                 {
                 }
                 column(VATAmount_VATClauseLine; "VAT Amount")
@@ -897,7 +894,7 @@ report 1306 "Standard Sales - Invoice"
                         CurrReport.Skip();
                     if not VATClause.Get("VAT Clause Code") then
                         CurrReport.Skip();
-                    VATClause.GetDescription(Header);
+                    VATClauseText := VATClause.GetDescriptionText(Header);
                 end;
 
                 trigger OnPreDataItem()
@@ -1403,6 +1400,7 @@ report 1306 "Standard Sales - Invoice"
         QtyLbl: Label 'Qty', Comment = 'Short form of Quantity';
         PriceLbl: Label 'Price';
         PricePerLbl: Label 'Price per';
+        VATClauseText: Text;
         CurrCode: Text[10];
         CurrSymbol: Text[10];
 
@@ -1646,6 +1644,21 @@ report 1306 "Standard Sales - Invoice"
             exit(false);
 
         exit(true);
+    end;
+
+    local procedure FormatLineValues(CurrLine: Record "Sales Invoice Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFormatLineValues(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount, IsHandled);
+        if not IsHandled then
+            FormatDocument.SetSalesInvoiceLine(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatLineValues(SalesInvoiceLine: Record "Sales Invoice Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -665,6 +665,8 @@ codeunit 6500 "Item Tracking Management"
                 ToSalesInvLine.FieldError("Document Type", Format(ToSalesInvLine."Document Type"));
         end;
 
+        OnCopyHandledItemTrkgToInvLineOnBeforeInsertProspectReservEntry(ToSalesInvLine);
+
         InsertProspectReservEntryFromItemEntryRelationAndSourceData(
           ItemEntryRelation, ToSalesInvLine."Document Type".AsInteger(), ToSalesInvLine."Document No.", ToSalesInvLine."Line No.");
 
@@ -2510,7 +2512,13 @@ codeunit 6500 "Item Tracking Management"
         SignFactor: Integer;
         LinkThisEntry: Boolean;
         EntriesExist: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyItemLedgEntryTrkgToSalesLn(TempItemLedgEntryBuf, ToSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (ToSalesLine.Type <> ToSalesLine.Type::Item) or (ToSalesLine.Quantity = 0) then
             exit;
 
@@ -2579,7 +2587,13 @@ codeunit 6500 "Item Tracking Management"
         SignFactor: Integer;
         LinkThisEntry: Boolean;
         EntriesExist: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyItemLedgEntryTrkgToPurchLn(ItemLedgEntryBuf, ToPurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (ToPurchLine.Type <> ToPurchLine.Type::Item) or (ToPurchLine.Quantity = 0) then
             exit;
 
@@ -3569,6 +3583,16 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyItemLedgEntryTrkgToPurchLn(var ItemLedgerEntryBuffer: Record "Item Ledger Entry"; ToPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyItemLedgEntryTrkgToSalesLn(var TempItemLedgerEntryBuffer: Record "Item Ledger Entry" temporary; ToSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestExpDateOnTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
     begin
     end;
@@ -3740,6 +3764,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyToHandleForTrackedQtyOnDocumentLineOnAfterReservEntrySetFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyHandledItemTrkgToInvLineOnBeforeInsertProspectReservEntry(var ToSalesLine: Record "Sales Line")
     begin
     end;
 

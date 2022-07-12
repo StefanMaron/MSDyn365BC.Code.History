@@ -125,7 +125,9 @@ codeunit 1201 "Process Data Exch."
 
         FieldRef := RecRef.Field(DataExchFieldMapping."Field ID");
 
-        TransformedValue := DelChr(DataExchField.GetValue, '>'); // We shoud use the trim transformation rule instead of this
+        OnSetFieldOnBeforeGetTransformedValue(DataExchField, DataExchFieldMapping, FieldRef, DataExchColumnDef);
+
+        TransformedValue := DelChr(DataExchField.GetValue(), '>'); // We shoud use the trim transformation rule instead of this
         if TransformationRule.Get(DataExchFieldMapping."Transformation Rule") then
             TransformedValue := TransformationRule.TransformText(DataExchField.Value);
 
@@ -347,6 +349,11 @@ codeunit 1201 "Process Data Exch."
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessColumnMappingOnBeforeRecRefInsert(RecRef: RecordRef; DataExch: Record "Data Exch."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFieldOnBeforeGetTransformedValue(var DataExchField: Record "Data Exch. Field"; var DataExchFieldMapping: Record "Data Exch. Field Mapping"; FieldRef: FieldRef; DataExchColumnDef: Record "Data Exch. Column Def")
     begin
     end;
 

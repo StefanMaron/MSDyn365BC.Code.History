@@ -87,6 +87,7 @@
         then
             CheckFADocNo(FALedgEntry);
         FALedgEntry.Insert(true);
+        FeatureTelemetry.LogUsage('0000H4F', 'Fixed Asset', 'Insert FA Ledger Entry');
 
         if ErrorEntryNo > 0 then begin
             if not FALedgEntry2.Get(ErrorEntryNo) then

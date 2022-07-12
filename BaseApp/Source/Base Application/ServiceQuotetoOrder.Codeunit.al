@@ -84,6 +84,9 @@ codeunit 5923 "Service-Quote to Order"
 
         ServiceHeaderOrder.Insert(true);
         ServiceHeaderOrder."Document Date" := ServiceHeaderQuote."Document Date";
+        ServiceHeaderOrder."Shortcut Dimension 1 Code" := ServiceHeaderQuote."Shortcut Dimension 1 Code";
+        ServiceHeaderOrder."Shortcut Dimension 2 Code" := ServiceHeaderQuote."Shortcut Dimension 2 Code";
+        ServiceHeaderOrder."Dimension Set ID" := ServiceHeaderQuote."Dimension Set ID";
         ServiceHeaderOrder."Location Code" := ServiceHeaderQuote."Location Code";
         OnBeforeServiceHeaderOrderModify(ServiceHeaderOrder, ServiceHeaderQuote);
         ServiceHeaderOrder.Modify();

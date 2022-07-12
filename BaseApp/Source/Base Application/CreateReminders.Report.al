@@ -66,6 +66,7 @@ report 188 "Create Reminders"
                 FilterGroup := 2;
                 SetFilter("Reminder Terms Code", '<>%1', '');
                 FilterGroup := 0;
+                OnCustomerOnPreDataItemOnBeforeCount(Customer);
                 NoOfRecords := Count;
                 SalesSetup.Get();
                 SalesSetup.TestField("Reminder Nos.");
@@ -291,6 +292,11 @@ report 188 "Create Reminders"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordCustomerOnBeforeMakeReminder(Customer: Record Customer; var CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; var CustLedgEntryLineFeeOn: Record "Cust. Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustomerOnPreDataItemOnBeforeCount(var Customer: Record Customer)
     begin
     end;
 

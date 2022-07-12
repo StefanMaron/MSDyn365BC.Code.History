@@ -119,6 +119,8 @@
 
         TestItemChargeAssignmentPurch(UndoType, UndoLineNo, SourceID, SourceRefNo);
         TestItemChargeAssignmentSales(UndoType, UndoLineNo, SourceID, SourceRefNo);
+
+        OnAfterTestAllTransactions(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
     end;
 
     local procedure TestPostedWhseReceiptLine(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer): Boolean
@@ -757,7 +759,13 @@
     var
         xSalesLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSalesLine(SalesLine, UndoQty, UndoQtyBase, TempUndoneItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesSetup.Get();
         with SalesLine do begin
             xSalesLine := SalesLine;
@@ -1357,6 +1365,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchLine(PurchaseLine: Record "Purchase Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestAllTransactions(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesLine(SalesLine: Record "Sales Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 }

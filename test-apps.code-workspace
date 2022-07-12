@@ -168,6 +168,9 @@
                         "path":  ".\\shopify\\test\\Shopify Connector Test"
                     },
                     {
+                        "path":  ".\\simplifiedbankstatementimport\\test\\Simplified Bank Statement Import Test"
+                    },
+                    {
                         "path":  ".\\system application\\source\\System Application\\Email\\src\\Test Email"
                     },
                     {

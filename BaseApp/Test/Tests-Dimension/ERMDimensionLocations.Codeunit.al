@@ -17,7 +17,10 @@ codeunit 134474 "ERM Dimension Locations"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         IsInitialized: Boolean;
+        DimPostErr: Label 'Select a Dimension Value Code for the Dimension Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -204,6 +207,144 @@ codeunit 134474 "ERM Dimension Locations"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesHeaderWithLocationWithMandatoryDefaultDimension()
+    var
+        Location: Record Location;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 436796] Post sales order with header with location with mandatory default dimension
+        Initialize();
+
+        // [GIVEN] Location "L" with mandatory default dimension "D"
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+
+        // Sales order with header with "L" and removed "D"
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Validate("Dimension Set ID", 0);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Post sales order
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] There is error that document cannot be posted without "D"
+        Assert.ExpectedError(DimPostErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesLineWithLocationWithMandatoryDefaultDimension()
+    var
+        Location: Record Location;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 436796] Post sales order with line with location with mandatory default dimension
+        Initialize();
+
+        // [GIVEN] Location "L" with mandatory default dimension "D"
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+
+        // Sales order with line with "L" and removed "D"
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Dimension Set ID", 0);
+        SalesLine.Modify(true);
+
+        // [WHEN] Post sales order
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] There is error that document cannot be posted without "D"
+        Assert.ExpectedError(DimPostErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostPurchaseHeaderWithLocationWithMandatoryDefaultDimension()
+    var
+        Location: Record Location;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 436796] Post Purchase order with header with location with mandatory default dimension
+        Initialize();
+
+        // [GIVEN] Location "L" with mandatory default dimension "D"
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+
+        // Purchase order with header with "L" and removed "D"
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Validate("Dimension Set ID", 0);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Post Purchase order
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] There is error that document cannot be posted without "D"
+        Assert.ExpectedError(DimPostErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseLineWithLocationWithMandatoryDefaultDimension()
+    var
+        Location: Record Location;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 436796] Post Purchase order with line with location with mandatory default dimension
+        Initialize();
+
+        // [GIVEN] Location "L" with mandatory default dimension "D"
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+
+        // Purchase order with line with "L" and removed "D"
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Validate("Dimension Set ID", 0);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase order
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] There is error that document cannot be posted without "D"
+        Assert.ExpectedError(DimPostErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Dimension Locations");
@@ -247,5 +388,16 @@ codeunit 134474 "ERM Dimension Locations"
         DefaultDimensionsMultiple."Dimension Code".SetValue(LibraryVariableStorage.DequeueText());
         DefaultDimensionsMultiple."Dimension Value Code".SetValue(LibraryVariableStorage.DequeueText());
         DefaultDimensionsMultiple.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }

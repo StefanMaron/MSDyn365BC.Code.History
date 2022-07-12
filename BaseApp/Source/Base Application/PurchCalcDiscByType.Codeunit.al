@@ -185,15 +185,16 @@ codeunit 66 "Purch - Calc Disc. By Type"
         exit(not VendorInvoiceDisc.IsEmpty);
     end;
 
-    procedure InvoiceDiscIsAllowed(InvDiscCode: Code[20]): Boolean
+    procedure InvoiceDiscIsAllowed(InvDiscCode: Code[20]) Result: Boolean
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
         if not PurchasesPayablesSetup."Calc. Inv. Discount" then
-            exit(true);
-
-        exit(not VendorInvDiscRecExists(InvDiscCode));
+            Result := true
+        else
+            Result := not VendorInvDiscRecExists(InvDiscCode);
+        OnAfterInvoiceDiscIsAllowed(InvDiscCode, Result);
     end;
 
     local procedure CalcAmountWithDiscountAllowed(PurchHeader: Record "Purchase Header"; var AmountIncludingVATDiscountAllowed: Decimal; var AmountDiscountAllowed: Decimal)
@@ -208,6 +209,11 @@ codeunit 66 "Purch - Calc Disc. By Type"
             AmountIncludingVATDiscountAllowed := "Amount Including VAT";
             AmountDiscountAllowed := Amount + "Inv. Discount Amount";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInvoiceDiscIsAllowed(InvDiscCode: Code[20]; var Result: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

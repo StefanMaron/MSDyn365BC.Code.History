@@ -3565,6 +3565,127 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderComponent.TestField("Remaining Quantity", 0);
     end;
 
+    [Test]
+    procedure ProdOrderComponentsWithDifferentCalculationFormulaNotCombined()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        QtyPer: Decimal;
+        QtyFixed: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Prod. Order Component] [Calculation Formula]
+        // [SCENARIO 436675] Prod. Order Components with different calculation formulas are not combined.
+        Initialize();
+        QtyPer := LibraryRandom.RandInt(10);
+        QtyFixed := LibraryRandom.RandIntInRange(50, 100);
+        Qty := LibraryRandom.RandIntInRange(200, 400);
+
+        // [GIVEN] Component item "C".
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Production BOM with two lines - 
+        // [GIVEN] 1st line: item = "C", quantity per = 2, calculation formula = <blank>.
+        // [GIVEN] 2nd line: item = "C", quantity per = 100, calculation formula = "Fixed Quantity".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", QtyPer);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", QtyFixed);
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify(true);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Production item "P", select the production BOM.
+        CreateProductionItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [WHEN] Create and refresh production order for 500 qty. of item "P".
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", Qty);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [THEN] Two prod. order components have been created -
+        // [THEN] Component 1: item = "C", calculation formula = <blank>, expected quantity = 500 * 2 = 1000.
+        ProdOrderComponent.SetRange("Calculation Formula", ProdOrderComponent."Calculation Formula"::" ");
+        FindProdOrderComponentByOrderNoAndItem(ProdOrderComponent, ProductionOrder."No.", CompItem."No.");
+        ProdOrderComponent.TestField("Expected Quantity", Qty * QtyPer);
+
+        // [THEN] Component 2: item = "C", calculation formula = "Fixed Quantity", expected quantity = 100.
+        ProdOrderComponent.SetRange("Calculation Formula", ProdOrderComponent."Calculation Formula"::"Fixed Quantity");
+        FindProdOrderComponentByOrderNoAndItem(ProdOrderComponent, ProductionOrder."No.", CompItem."No.");
+        ProdOrderComponent.TestField("Expected Quantity", QtyFixed);
+    end;
+
+    [Test]
+    procedure PlanningComponentsWithDifferentCalculationFormulaNotCombined()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+        QtyPer: Decimal;
+        QtyFixed: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Planning Component] [Calculation Formula]
+        // [SCENARIO 436675] Planning Components with different calculation formulas are not combined.
+        Initialize();
+        QtyPer := LibraryRandom.RandInt(10);
+        QtyFixed := LibraryRandom.RandIntInRange(50, 100);
+        Qty := LibraryRandom.RandIntInRange(200, 400);
+
+        // [GIVEN] Component item "C".
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Production BOM with two lines - 
+        // [GIVEN] 1st line: item = "C", quantity per = 2, calculation formula = <blank>.
+        // [GIVEN] 2nd line: item = "C", quantity per = 100, calculation formula = "Fixed Quantity".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", QtyPer);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", QtyFixed);
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify(true);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Production item "P", select the production BOM, set "Reordering Policy" = Order.
+        CreateProductionItem(ProdItem, ProductionBOMHeader."No.");
+        ProdItem.Validate("Reordering Policy", ProdItem."Reordering Policy"::Order);
+        ProdItem.Modify(true);
+
+        // [GIVEN] Sales order for 500 qty. of item "P".
+        CreateSalesOrder(SalesHeader, SalesLine, ProdItem."No.", Qty, '');
+
+        // [WHEN] Calculate regenerative plan for item "P".
+        ProdItem.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ProdItem, WorkDate(), WorkDate());
+
+        // [THEN] Item "P" has been planned.
+        FindRequisitionLine(RequisitionLine, ProdItem."No.");
+
+        // [THEN] Two planning components have been created -
+        // [THEN] Component 1: item = "C", calculation formula = <blank>, expected quantity = 500 * 2 = 1000.
+        PlanningComponent.SetRange("Calculation Formula", PlanningComponent."Calculation Formula"::" ");
+        FindPlanningComponent(PlanningComponent, RequisitionLine, CompItem."No.");
+        PlanningComponent.TestField("Expected Quantity", Qty * QtyPer);
+
+        // [THEN] Component 2: item = "C", calculation formula = "Fixed Quantity", expected quantity = 100.
+        PlanningComponent.SetRange("Calculation Formula", PlanningComponent."Calculation Formula"::"Fixed Quantity");
+        FindPlanningComponent(PlanningComponent, RequisitionLine, CompItem."No.");
+        PlanningComponent.TestField("Expected Quantity", QtyFixed);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

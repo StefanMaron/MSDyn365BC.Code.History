@@ -163,6 +163,8 @@ report 7302 "Whse. Invt.-Registering - Test"
                     UserSetupManagement: Codeunit "User Setup Management";
                     InvtPeriodEndDate: Date;
                 begin
+                    OnBeforeWarehouseJournalLineOnAfterGetRecord("Warehouse Journal Line", ErrorCounter, ErrorText);
+
                     if ("Item No." = '') and (Quantity = 0) then
                         exit;
 
@@ -321,6 +323,11 @@ report 7302 "Whse. Invt.-Registering - Test"
     begin
         ErrorCounter := ErrorCounter + 1;
         ErrorText[ErrorCounter] := Text;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWarehouseJournalLineOnAfterGetRecord(WarehouseJournalLine: Record "Warehouse Journal Line"; var ErrorCounter: Integer; var ErrorText: array[30] of Text[250])
+    begin
     end;
 }
 

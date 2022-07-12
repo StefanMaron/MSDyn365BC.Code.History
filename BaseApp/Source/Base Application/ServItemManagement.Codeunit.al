@@ -466,6 +466,7 @@ codeunit 5920 ServItemManagement
     var
         SalesLine: Record "Sales Line";
     begin
+        OnBeforeCopyReservationEntry(SalesHeader, TempReservEntry);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Qty. to Ship", '<>0');
@@ -627,6 +628,11 @@ codeunit 5920 ServItemManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitNewServItemComponent(var ServItemComponent: Record "Service Item Component"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyReservationEntry(SalesHeader: Record "Sales Header"; var TempReservationEntry: Record "Reservation Entry" temporary)
     begin
     end;
 

@@ -138,13 +138,23 @@ page 1234 "Positive Pay Export Detail"
     var
         LastUploadDate: Date;
         UploadCutoffDate: Date;
-
+    
     procedure Set(NewLastUploadDate: Date; NewUploadCutoffDate: Date; NewBankAcctNo: Code[20])
     begin
         LastUploadDate := NewLastUploadDate;
         UploadCutoffDate := NewUploadCutoffDate;
         SetRange("Bank Account No.", NewBankAcctNo);
         SetFilters;
+        CurrPage.Update(false);
+    end;
+
+    procedure SetBankPaymentType(BankPaymentType: Enum "Bank Payment Type")
+    begin
+        if BankPaymentType = Enum::"Bank Payment Type"::" " then
+            SetRange("Bank Payment Type")
+        else 
+            SetRange("Bank Payment Type", BankPaymentType);
+        SetFilters();
         CurrPage.Update(false);
     end;
 

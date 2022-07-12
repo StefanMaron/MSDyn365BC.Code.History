@@ -11,7 +11,7 @@ codeunit 132906 DeviceCardTest
     var
         DeviceTable: Record Device;
         DeviceCardPage: TestPage "Device Card";
-        DeviceAlreadyExistErr: Label 'The record already exists.';
+        DeviceAlreadyExistErr: Label 'already exists';
         Device002Txt: Label '10-12-12-12-AB';
         Device003Txt: Label '11-12-12-12-AB';
         Device004Txt: Label '12-12-12-12-AB';
@@ -64,7 +64,7 @@ codeunit 132906 DeviceCardTest
         DeviceCardPage."MAC Address".Value := Device002Txt;
         DeviceCardPage.OK.Invoke;
 
-        if DeviceCardPage.GetValidationError <> DeviceAlreadyExistErr then begin
+        if StrPos(DeviceCardPage.GetValidationError, DeviceAlreadyExistErr) = 0 then begin
             ValidationError := DeviceCardPage.GetValidationError;
             DeviceCardPage.Close;
             Error(ErrorStringCom001Err, DeviceAlreadyExistErr, ValidationError);

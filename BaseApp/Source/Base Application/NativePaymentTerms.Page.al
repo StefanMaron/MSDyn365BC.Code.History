@@ -44,7 +44,7 @@ page 2861 "Native - Payment Terms"
 
                     trigger OnValidate()
                     begin
-                        if DescriptionInCurrentLanguage <> GetDescriptionInCurrentLanguage then begin
+                        if DescriptionInCurrentLanguage <> GetDescriptionInCurrentLanguageFullLength() then begin
                             if StrLen(DescriptionInCurrentLanguage) > MaxStrLen(Description) then
                                 Error(StrSubstNo(DisplayNameTooLongErr, MaxStrLen(Description)));
                             Validate(Description, CopyStr(DescriptionInCurrentLanguage, 1, MaxStrLen(Description)));
@@ -126,7 +126,7 @@ page 2861 "Native - Payment Terms"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
         Default := O365SalesInitialSetup.IsDefaultPaymentTerms(Rec);
-        DescriptionInCurrentLanguage := GetDescriptionInCurrentLanguage;
+        DescriptionInCurrentLanguage := GetDescriptionInCurrentLanguageFullLength();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean

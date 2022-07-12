@@ -172,23 +172,25 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
     end;
 
     local procedure AddSources()
-    var
-        SourceType: Enum "Price Source Type";
     begin
         PriceSourceList.Init();
         case CurrPriceType of
             CurrPriceType::Sale:
-                begin
-                    PriceSourceList.Add(SourceType::"All Customers");
-                    PriceSourceList.Add(SourceType::Customer, ServiceHeader."Bill-to Customer No.");
-                    PriceSourceList.Add(SourceType::Contact, ServiceHeader."Bill-to Contact No.");
-                    PriceSourceList.Add(SourceType::"Customer Price Group", ServiceLine."Customer Price Group");
-                    PriceSourceList.Add(SourceType::"Customer Disc. Group", ServiceLine."Customer Disc. Group");
-                end;
+                AddCustomerSources();
             CurrPriceType::Purchase:
-                PriceSourceList.Add(SourceType::"All Vendors");
+                PriceSourceList.Add("Price Source Type"::"All Vendors");
         end;
+        PriceSourceList.AddJobAsSources(ServiceLine."Job No.", ServiceLine."Job Task No.");
         OnAfterAddSources(ServiceHeader, ServiceLine, CurrPriceType, PriceSourceList);
+    end;
+
+    local procedure AddCustomerSources()
+    begin
+        PriceSourceList.Add("Price Source Type"::"All Customers");
+        PriceSourceList.Add("Price Source Type"::Customer, ServiceHeader."Bill-to Customer No.");
+        PriceSourceList.Add("Price Source Type"::Contact, ServiceHeader."Bill-to Contact No.");
+        PriceSourceList.Add("Price Source Type"::"Customer Price Group", ServiceLine."Customer Price Group");
+        PriceSourceList.Add("Price Source Type"::"Customer Disc. Group", ServiceLine."Customer Disc. Group");
     end;
 
     local procedure GetDocumentDate() DocumentDate: Date;

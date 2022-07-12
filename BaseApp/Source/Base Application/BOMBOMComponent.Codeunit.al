@@ -21,7 +21,7 @@ codeunit 52 "BOM-BOM Component"
     [EventSubscriber(ObjectType::Table, Database::"BOM Component", 'OnAfterRenameEvent', '', false, false)]
     local procedure UpdateParentItemReplenishmentSystemOnAfterRenameBOMComponent(var Rec: Record "BOM Component"; var xRec: Record "BOM Component"; RunTrigger: Boolean)
     begin
-        if Rec."Parent Item No." <> xRec."Parent Item No." then begin
+        if (Rec."Parent Item No." <> xRec."Parent Item No.") and RunTrigger then begin
             TryUpdateParentItemReplenishmentSystem(Rec);
             TryUpdateParentItemReplenishmentSystem(xRec);
         end

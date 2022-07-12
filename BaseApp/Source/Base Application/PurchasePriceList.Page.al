@@ -23,7 +23,7 @@ page 7018 "Purchase Price List"
                         Importance = Promoted;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the unique identifier of the price list.';
-                        Editable = PriceListIsEditable and CodeIsEditable;
+                        Editable = CodeIsEditable;
 
                         trigger OnAssistEdit()
                         begin
@@ -77,7 +77,7 @@ page 7018 "Purchase Price List"
                     group(AssignToParentNoGroup)
                     {
                         ShowCaption = false;
-                        Visible = ParentSourceNoEnabled and not UseCustomLookup;
+                        Visible = ParentSourceNoVisible;
                         field(AssignToParentNo; Rec."Assign-to Parent No.")
                         {
                             ApplicationArea = All;
@@ -374,8 +374,8 @@ page 7018 "Purchase Price List"
         PriceListManagement: Codeunit "Price List Management";
     begin
         Rec.SyncDropDownLookupFields();
-        CodeIsEditable := Rec.Code = '';
         PriceListIsEditable := Rec.IsEditable();
+        CodeIsEditable := PriceListIsEditable and (Rec.Code = '');
         UpdateSourceType(Rec."Source Group");
         SetSourceNoEnabled();
         ViewAmountType := Rec."Amount Type";
@@ -459,6 +459,8 @@ page 7018 "Purchase Price List"
         [InDataSet]
         ParentSourceNoEnabled: Boolean;
         [InDataSet]
+        ParentSourceNoVisible: Boolean;
+        [InDataSet]
         SourceNoEnabled: Boolean;
         [InDataSet]
         PriceListIsEditable: Boolean;
@@ -476,6 +478,7 @@ page 7018 "Purchase Price List"
         Rec.CopyTo(PriceSource);
         ParentSourceNoEnabled := PriceSource.IsParentSourceAllowed();
         SourceNoEnabled := Rec.IsSourceNoAllowed();
+        ParentSourceNoVisible := ParentSourceNoEnabled and not UseCustomLookup;
     end;
 
     local procedure ValidateSourceType(SourceType: Integer)

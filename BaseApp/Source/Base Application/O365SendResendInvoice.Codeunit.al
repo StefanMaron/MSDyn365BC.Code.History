@@ -176,6 +176,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
         O365CouponClaim: Record "O365 Coupon Claim";
         Customer: Record Customer;
         Confirmed: Boolean;
+        ShouldConfirm: Boolean;
     begin
         with SalesHeader do begin
             CheckDocumentIfNoItemsExists(SalesHeader, OpenInvoiceIfNoItems, O365SalesDocument);
@@ -200,7 +201,9 @@ codeunit 2104 "O365 Send + Resend Invoice"
             end;
 
             CalcFields("Amount Including VAT");
-            if "Amount Including VAT" = 0 then begin
+            ShouldConfirm := "Amount Including VAT" = 0;
+            OnCheckDocumentCanBeSentOnAfterCalcShouldConfirm(SalesHeader, ShouldConfirm);
+            if ShouldConfirm then begin
                 case "Document Type" of
                     "Document Type"::Invoice:
                         Confirmed := Confirm(ConfirmPostingZeroAmountInvoiceQst);
@@ -279,6 +282,11 @@ codeunit 2104 "O365 Send + Resend Invoice"
                         Error(NextNoSeriesUsedInvoiceErr);
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDocumentCanBeSentOnAfterCalcShouldConfirm(SalesHeader: Record "Sales Header"; var ShouldConfirm: Boolean)
+    begin
     end;
 }
 

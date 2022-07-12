@@ -846,7 +846,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeMakeCrossDockPutAway(Location, PutAwayItemUOM, Bin, LineNo, CrossDockInfo, QtyToPutAwayBase, RemQtyToPutAwayBase, EverythingHandled, IsHandled);
+        OnBeforeMakeCrossDockPutAway(Location, PutAwayItemUOM, Bin, LineNo, CrossDockInfo, QtyToPutAwayBase, RemQtyToPutAwayBase, EverythingHandled, IsHandled, PostedWhseRcptLine, CrossDock);
         if not IsHandled then
             with PostedWhseRcptLine do begin
                 if not CrossDock then
@@ -1104,7 +1104,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeMakeCrossDockPutAway(var Location: Record Location; var PutAwayItemUOM: Record "Item Unit of Measure"; var Bin: Record Bin; var LineNo: Integer; var CrossDockInfo: Option; var QtyToPutAwayBase: Decimal; var RemQtyToPutAwayBase: Decimal; var EverythingHandled: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeMakeCrossDockPutAway(var Location: Record Location; var PutAwayItemUOM: Record "Item Unit of Measure"; var Bin: Record Bin; var LineNo: Integer; var CrossDockInfo: Option; var QtyToPutAwayBase: Decimal; var RemQtyToPutAwayBase: Decimal; var EverythingHandled: Boolean; var IsHandled: Boolean; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; CrossDock: Boolean)
     begin
     end;
 

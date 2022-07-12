@@ -129,7 +129,7 @@ page 2110 "O365 Sales Invoice"
                     begin
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
-                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
                             CurrPage.Update();
                         end;
                     end;
@@ -406,7 +406,7 @@ page 2110 "O365 Sales Invoice"
     begin
         O365SalesInvoiceMgmt.UpdateCustomerFields(Rec, CustomerName, CustomerEmail, IsCompanyContact);
         CurrPageEditable := CurrPage.Editable;
-        O365SalesInvoiceMgmt.OnAfterGetSalesHeaderRecord(Rec, CurrencyFormat, TaxAreaDescription, NoOfAttachmentsValueTxt, WorkDescription);
+        O365SalesInvoiceMgmt.OnAfterGetSalesHeaderRecordFullLengthTaxAreaDesc(Rec, CurrencyFormat, TaxAreaDescription, NoOfAttachmentsValueTxt, WorkDescription);
         UpdateFieldsOnAfterGetCurrRec;
     end;
 
@@ -491,7 +491,7 @@ page 2110 "O365 Sales Invoice"
         SubTotalAmount: Decimal;
         DiscountTxt: Text;
         DeleteQst: Label 'Are you sure that you want to discard the invoice?';
-        TaxAreaDescription: Text[50];
+        TaxAreaDescription: Text[100];
         CannotFindRecordErr: Label 'Cannot find that invoice.';
         InvoiceWasDeletedErr: Label 'The invoice was deleted.';
         DocumentDatePastMsg: Label 'Invoice date is in the past.';
@@ -509,4 +509,3 @@ page 2110 "O365 Sales Invoice"
         O365SalesInvoiceMgmt.CalcInvoiceDiscountAmount(Rec, SubTotalAmount, DiscountTxt, InvoiceDiscountAmount, InvDiscAmountVisible);
     end;
 }
-

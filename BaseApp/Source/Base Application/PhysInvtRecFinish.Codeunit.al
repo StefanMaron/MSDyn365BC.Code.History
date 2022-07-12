@@ -3,11 +3,16 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
     TableNo = "Phys. Invt. Record Header";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
-        PhysInvtRecordHeader.Copy(Rec);
-        Code;
-        Rec := PhysInvtRecordHeader;
-
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if not IsHandled then begin
+            PhysInvtRecordHeader.Copy(Rec);
+            Code();
+            Rec := PhysInvtRecordHeader;
+        end;
         OnAfterOnRun(Rec);
     end;
 
@@ -166,6 +171,11 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSamePhysInvtOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var NoOfOrderLines: Integer; var ErrorText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; var IsHandled: Boolean)
     begin
     end;
 

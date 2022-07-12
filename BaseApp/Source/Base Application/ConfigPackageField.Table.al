@@ -59,8 +59,6 @@ table 8616 "Config. Package Field"
                 ShouldRunCheck := not Dimension;
                 OnValidateFieldOnValidateOnAfterCalcShouldRunCheck(Rec, ShouldRunCheck);
                 if ShouldRunCheck then begin
-                    if xRec."Validate Field" and not "Validate Field" and "Primary Key" then
-                        Error(Text000, "Field Caption");
                     if "Validate Field" then
                         ThrowErrorIfFieldRemoved;
                     UpdateFieldErrors;

@@ -1,10 +1,12 @@
 page 516 "Sales Lines"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Sales Lines';
     Editable = false;
     LinksAllowed = false;
     PageType = List;
     SourceTable = "Sales Line";
+    UsageCategory = Lists;
 
     layout
     {
@@ -243,7 +245,7 @@ page 516 "Sales Lines"
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

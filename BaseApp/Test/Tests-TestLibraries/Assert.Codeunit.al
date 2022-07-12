@@ -191,6 +191,8 @@ codeunit 130000 Assert
 
     local procedure ExpectedDialog(Expected: Text; Actual: Text; ErrorMessage: Text)
     begin
+        if Expected = Actual then
+            exit;
         if StrPos(Actual, Expected) = 0 then
             Error(ErrorMessage, Expected, Actual);
     end;

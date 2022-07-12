@@ -83,9 +83,7 @@ report 5626 "Insurance - Uninsured FAs"
                     CurrReport.Skip();
                 FADeprBook.CalcFields("Acquisition Cost", Depreciation, "Book Value");
 
-                Amounts[1] := FADeprBook."Acquisition Cost";
-                Amounts[2] := FADeprBook.Depreciation;
-                Amounts[3] := FADeprBook."Book Value";
+                SetAmountsFromBook();
 
                 for i := 1 to 3 do
                     TotalAmounts[i] := TotalAmounts[i] + Amounts[i];
@@ -137,6 +135,20 @@ report 5626 "Insurance - Uninsured FAs"
         HeadLineText[1] := FADeprBook.FieldCaption("Acquisition Cost");
         HeadLineText[2] := FADeprBook.FieldCaption(Depreciation);
         HeadLineText[3] := FADeprBook.FieldCaption("Book Value");
+    end;
+
+    local procedure SetAmountsFromBook()
+    begin
+        Amounts[1] := FADeprBook."Acquisition Cost";
+        Amounts[2] := FADeprBook.Depreciation;
+        Amounts[3] := FADeprBook."Book Value";
+
+        OnAfterSetAmountsFromBook(Amounts, FADeprBook);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAmountsFromBook(var Amounts: array[3] of Decimal; FADepreciationBook: Record "FA Depreciation Book")
+    begin
     end;
 }
 

@@ -46,7 +46,7 @@ table 5718 "Nonstock Item"
                 ValidateField(Rec.FieldNo("Vendor No."));
 
                 if "Vendor No." <> xRec."Vendor No." then
-                    if CheckVendorItemNo("Vendor No.", "Vendor Item No.") then
+                    if CheckVendorItemNo("Vendor No.", "Vendor Item No.", Rec.FieldNo("Vendor No.")) then
                         Error(Text002, "Vendor No.", "Vendor Item No.");
             end;
         }
@@ -59,7 +59,7 @@ table 5718 "Nonstock Item"
                 ValidateField(Rec.FieldNo("Vendor Item No."));
 
                 if "Vendor Item No." <> xRec."Vendor Item No." then
-                    if CheckVendorItemNo("Vendor No.", "Vendor Item No.") then
+                    if CheckVendorItemNo("Vendor No.", "Vendor Item No.", Rec.FieldNo("Vendor Item No.")) then
                         Error(Text002, "Vendor No.", "Vendor Item No.");
             end;
         }
@@ -338,8 +338,15 @@ table 5718 "Nonstock Item"
         end;
     end;
 
-    local procedure CheckVendorItemNo(VendorNo: Code[20]; VendorItemNo: Code[50]): Boolean
+    local procedure CheckVendorItemNo(VendorNo: Code[20]; VendorItemNo: Code[50]; CalledByFieldNo: Integer) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckVendorItemNo(Rec, xRec, VendorNo, VendorItemNo, CalledByFieldNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         NonStockItem.Reset();
         NonStockItem.SetCurrentKey("Vendor No.", "Vendor Item No.");
         NonStockItem.SetRange("Vendor No.", VendorNo);
@@ -400,6 +407,11 @@ table 5718 "Nonstock Item"
         end;
 
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVendorItemNo(var NonstockItem: Record "Nonstock Item"; xNonstockItem: Record "Nonstock Item"; VendorNo: Code[20]; VendorItemNo: Code[50]; CalledByFieldNo: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

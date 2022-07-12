@@ -777,7 +777,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag: Codeunit "Upgrade Tag";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag()) then
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetRepeatedSetCoupledFlagsUpgradeTag()) then
             exit;
 
         if EnvironmentInformation.IsSaaS() then
@@ -789,7 +789,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 CRMIntegrationManagement.SetCoupledFlag(CRMIntegrationRecord, true, false)
             until CRMIntegrationRecord.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetRepeatedSetCoupledFlagsUpgradeTag());
     end;
 
     local procedure SetOptionMappingCoupledFlags()

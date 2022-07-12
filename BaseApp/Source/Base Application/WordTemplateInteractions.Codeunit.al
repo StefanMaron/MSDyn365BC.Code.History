@@ -8,13 +8,19 @@ codeunit 5069 "Word Template Interactions"
     procedure Merge(var TempDeliverySorterWord: Record "Delivery Sorter" temporary)
     var
         TempDeliverySorterBuffer: Record "Delivery Sorter" temporary;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        FileMgt: Codeunit "File Management";
+        ZipTempBlob: Codeunit "Temp Blob";
         LastAttachmentNo: Integer;
         LastCorrType: Enum "Correspondence Type";
         LastSubject: Text[100];
+        ZipFileName: Text;
         LastSendWordDocsAsAttmt: Boolean;
+        FirstRecord: Boolean;
         LineCount: Integer;
         NoOfRecords: Integer;
-        FirstRecord: Boolean;
+        ZipInStream: InStream;
+        ZipOutStream: OutStream;
     begin
         Window.Open(
           MergingInWordTxt +
@@ -37,6 +43,9 @@ codeunit 5069 "Word Template Interactions"
             LineCount := LineCount + 1;
             Window.Update(2, Round(LineCount / NoOfRecords * 10000, 1));
             Window.Update(3, Format(TempDeliverySorterWord."Correspondence Type"));
+
+            if FirstRecord and (TempDeliverySorterWord."Word Template Code" = '') and (NoOfRecords > 1) then
+                EnableZipArchive();
 
             if not FirstRecord and
                ((TempDeliverySorterWord."Attachment No." <> LastAttachmentNo) or
@@ -61,6 +70,17 @@ codeunit 5069 "Word Template Interactions"
         if TempDeliverySorterBuffer.Find('-') then
             ExecuteMerge(TempDeliverySorterBuffer);
 
+        if IsZipArchive() then begin
+            ZipTempBlob.CreateOutStream(ZipOutStream);
+            DataCompression.SaveZipArchive(ZipOutStream);
+            DataCompression.CloseZipArchive();
+            ZipTempBlob.CreateInStream(ZipInStream);
+            if InteractionLogEntry.Get(TempDeliverySorterWord."No.") then
+                ZipFileName := SegmentLbl + ' ' + InteractionLogEntry."Segment No." + ZipExtensionLbl
+            else
+                ZipFileName := TempDeliverySorterWord.Subject + ZipExtensionLbl;
+            FileMgt.DownloadFromStreamHandler(ZipInStream, '', '', '', ZipFileName);
+        end;
         Window.Close();
     end;
 
@@ -159,7 +179,9 @@ codeunit 5069 "Word Template Interactions"
                     Row := Row + 1;
                     Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
                 until TempDeliverySorter.Next() = 0
-            else
+            else begin
+                if (TempDeliverySorter.Count > 1) and not IsZipArchive() then
+                    EnableZipArchive();
                 repeat
                     InteractLogEntry.Get(TempDeliverySorter."No.");
 
@@ -171,7 +193,7 @@ codeunit 5069 "Word Template Interactions"
                     Row := Row + 1;
                     Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
                 until TempDeliverySorter.Next() = 0;
-
+            end;
             FileMgt.DeleteServerFile(AttachmentWordTemplateFileName);
         end;
 
@@ -259,13 +281,21 @@ codeunit 5069 "Word Template Interactions"
                     InteractionLogEntry.Modify();
                 end;
             TempDeliverySorter."Correspondence Type"::"Hard Copy":
-                begin
+                if IsZipArchive() then begin
+                    if Contact.Get(InteractionLogEntry."Contact No.") then
+                        if (Contact.Type = Contact.Type::Person) and (Contact."Company Name" <> '') then
+                            SaveToFile := FileMgt.GetSafeFileName(Contact."Company Name" + ' - ' + Contact.Name) + '.pdf'
+                        else
+                            SaveToFile := FileMgt.GetSafeFileName(Contact.Name) + '.pdf';
+                    DataCompression.AddEntry(MergedDocumentInStream, SaveToFile);
+                end else begin
                     if TempDeliverySorter.Subject = '' then
                         SaveToFile := 'default.pdf'
                     else
                         SaveToFile := FileMgt.GetSafeFileName(TempDeliverySorter.Subject) + '.pdf';
-                    DownloadFromStream(MergedDocumentInStream, '', '', '', SaveToFile);
+                    FileMgt.DownloadFromStreamHandler(MergedDocumentInStream, '', '', '', SaveToFile);
                 end;
+
         end;
     end;
 
@@ -577,6 +607,17 @@ codeunit 5069 "Word Template Interactions"
         exit(Addresses.TrimEnd(TypeHelper.NewLine()));
     end;
 
+    local procedure IsZipArchive(): Boolean
+    begin
+        exit(ZipArchive)
+    end;
+
+    local procedure EnableZipArchive();
+    begin
+        ZipArchive := true;
+        DataCompression.CreateZipArchive();
+    end;
+
     [IntegrationEvent(false, false)]
     internal procedure OnBeforeCreateInteractionWordTemplate(var WordTemplateCreationWizard: Page "Word Template Creation Wizard")
     begin
@@ -585,6 +626,8 @@ codeunit 5069 "Word Template Interactions"
     var
         WordTemplate: Codeunit "Word Template";
         AttachmentManagement: Codeunit AttachmentManagement;
+        DataCompression: Codeunit "Data Compression";
+        ZipArchive: Boolean;
         Window: Dialog;
         IncorrectExtensionErr: Label 'Attachment %1 must have file extension doc or docx.', Comment = '%1 = Attachment No.';
         AttachmentFileErr: Label 'Could not get attachment content.';
@@ -601,6 +644,8 @@ codeunit 5069 "Word Template Interactions"
         TransferringDataToMergeTxt: Label 'Transferring data to merge...';
         MergingTxt: Label 'Merging...';
         DownloadAttachmentQst: Label 'Download merged attachment?';
+        SegmentLbl: Label 'Segment';
+        ZipExtensionLbl: Label '.zip';
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDataSourceOnBeforeRestoreGlobalLanguage(var DataSource: Dictionary of [Text, Text]; var InteractLogEntry: Record "Interaction Log Entry"; var SegLine: Record "Segment Line")

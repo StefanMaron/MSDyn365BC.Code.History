@@ -141,46 +141,51 @@ report 5602 "Fixed Asset Journal - Test"
                     }
 
                     trigger OnAfterGetRecord()
+                    var
+                        IsHandled: Boolean;
                     begin
                         if "FA No." <> '' then begin
-                            if "FA Posting Date" = 0D then
-                                AddError(
-                                  StrSubstNo(
-                                    Text001,
-                                    FieldCaption("FA Posting Date")))
-                            else begin
-                                if "FA Posting Date" <> NormalDate("FA Posting Date") then
+                            IsHandled := false;
+                            OnErrorLoopOnAfterGetRecordOnBeforeCheckFAPostingDate("FA Journal Line", ErrorText, ErrorCounter, IsHandled);
+                            if not IsHandled then
+                                if "FA Posting Date" = 0D then
                                     AddError(
                                       StrSubstNo(
-                                        Text002,
-                                        FieldCaption("FA Posting Date")));
-                                if not ("FA Posting Date" in [00020101D .. 99981231D]) then
-                                    AddError(
-                                      StrSubstNo(
-                                        Text003,
-                                        FieldCaption("FA Posting Date")));
-                                if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-                                    if UserId <> '' then
-                                        if UserSetup.Get(UserId) then begin
-                                            AllowPostingFrom := UserSetup."Allow FA Posting From";
-                                            AllowPostingTo := UserSetup."Allow FA Posting To";
-                                        end;
+                                        Text001,
+                                        FieldCaption("FA Posting Date")))
+                                else begin
+                                    if "FA Posting Date" <> NormalDate("FA Posting Date") then
+                                        AddError(
+                                          StrSubstNo(
+                                            Text002,
+                                            FieldCaption("FA Posting Date")));
+                                    if not ("FA Posting Date" in [00020101D .. 99981231D]) then
+                                        AddError(
+                                          StrSubstNo(
+                                            Text003,
+                                            FieldCaption("FA Posting Date")));
                                     if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-                                        FASetup.Get();
-                                        AllowPostingFrom := FASetup."Allow FA Posting From";
-                                        AllowPostingTo := FASetup."Allow FA Posting To";
+                                        if UserId <> '' then
+                                            if UserSetup.Get(UserId) then begin
+                                                AllowPostingFrom := UserSetup."Allow FA Posting From";
+                                                AllowPostingTo := UserSetup."Allow FA Posting To";
+                                            end;
+                                        if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
+                                            FASetup.Get();
+                                            AllowPostingFrom := FASetup."Allow FA Posting From";
+                                            AllowPostingTo := FASetup."Allow FA Posting To";
+                                        end;
+                                        if AllowPostingTo = 0D then
+                                            AllowPostingTo := 99981231D;
                                     end;
-                                    if AllowPostingTo = 0D then
-                                        AllowPostingTo := 99981231D;
+                                    if ("FA Posting Date" < AllowPostingFrom) or
+                                       ("FA Posting Date" > AllowPostingTo)
+                                    then
+                                        AddError(
+                                          StrSubstNo(
+                                            Text003,
+                                            FieldCaption("FA Posting Date")));
                                 end;
-                                if ("FA Posting Date" < AllowPostingFrom) or
-                                   ("FA Posting Date" > AllowPostingTo)
-                                then
-                                    AddError(
-                                      StrSubstNo(
-                                        Text003,
-                                        FieldCaption("FA Posting Date")));
-                            end;
 
                             if "Document No." = '' then
                                 AddError(StrSubstNo(Text001, FieldCaption("Document No.")));
@@ -507,6 +512,11 @@ report 5602 "Fixed Asset Journal - Test"
                         Text014,
                         Format(FieldCaption("Document No.")), Format("Document No.")));
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnErrorLoopOnAfterGetRecordOnBeforeCheckFAPostingDate(var FAJournalLine: Record "FA Journal Line"; var ErrorText: array[50] of Text[250]; var ErrorCounter: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

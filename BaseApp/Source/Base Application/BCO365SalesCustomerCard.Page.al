@@ -214,7 +214,7 @@ page 2318 "BC O365 Sales Customer Card"
                     begin
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
-                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
                             CurrPage.Update();
                         end;
                     end;
@@ -225,7 +225,7 @@ page 2318 "BC O365 Sales Customer Card"
                     begin
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
-                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
                         end;
                     end;
                 }
@@ -306,7 +306,7 @@ page 2318 "BC O365 Sales Customer Card"
         OverdueAmount := CalcOverdueBalance;
 
         if TaxArea.Get("Tax Area Code") then
-            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
 
         BlockedStatus := IsBlocked;
 
@@ -374,7 +374,7 @@ page 2318 "BC O365 Sales Customer Card"
         NewMode: Boolean;
         IsUsingVAT: Boolean;
         OverdueAmount: Decimal;
-        TaxAreaDescription: Text[50];
+        TaxAreaDescription: Text[100];
         TotalsHidden: Boolean;
         SalesAndPaymentsVisible: Boolean;
         ClosePageQst: Label 'You haven''t specified a name. Do you want to save this customer?';
@@ -438,4 +438,3 @@ page 2318 "BC O365 Sales Customer Card"
         end;
     end;
 }
-

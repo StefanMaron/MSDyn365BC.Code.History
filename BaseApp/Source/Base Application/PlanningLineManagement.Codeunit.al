@@ -878,7 +878,8 @@ codeunit 99000809 "Planning Line Management"
               (Width = ProdBOMLine.Width) and
               (Weight = ProdBOMLine.Weight) and
               (Depth = ProdBOMLine.Depth) and
-              ("Unit of Measure Code" = ProdBOMLine."Unit of Measure Code");
+              ("Unit of Measure Code" = ProdBOMLine."Unit of Measure Code") and
+              ("Calculation Formula" = ProdBOMLine."Calculation Formula");
             OnAfterIsPlannedCompFound(PlanningComp, ProdBOMLine, IsFound);
             exit(IsFound);
         end;

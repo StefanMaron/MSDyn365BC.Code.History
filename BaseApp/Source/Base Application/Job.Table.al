@@ -2138,12 +2138,12 @@
         );
     end;
 
-    internal procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
     end;
 
-    internal procedure GetHideValidationDialog(): Boolean
+    procedure GetHideValidationDialog(): Boolean
     begin
         exit(HideValidationDialog);
     end;
@@ -2158,14 +2158,14 @@
         if IsHandled then
             exit;
 #if not CLEAN20
-        OnBeforeUpdateCust(Rec, xRec, IsHandled);
+        OnBeforeUpdateCust(Job, xJob, IsHandled);
         If IsHandled then
             exit;
 #endif
 
         if (Job."Sell-to Customer No." = '') or (Job."Sell-to Customer No." <> xJob."Sell-to Customer No.") then
             if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
-                Error(AssociatedEntriesExistErr, Job.FieldCaption("Sell-to Customer No."), TableCaption);
+                ThrowAssociatedEntriesExistError(Job, xJob, Job.FieldNo("Sell-to Customer No."), Job.FieldCaption("Sell-to Customer No."));
 
         if (xJob."Sell-to Customer No." <> '') and (not GetHideValidationDialog()) and GuiAllowed() then
             if not Confirm(ConfirmChangeQst, false, SellToCustomerTxt) then begin
@@ -2231,7 +2231,7 @@
 
         if (Job."Bill-to Customer No." = '') or (Job."Bill-to Customer No." <> xJob."Bill-to Customer No.") then
             if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
-                Error(AssociatedEntriesExistErr, FieldCaption("Bill-to Customer No."), TableCaption);
+                ThrowAssociatedEntriesExistError(Job, xJob, Job.FieldNo("Bill-to Customer No."), Job.FieldCaption("Bill-to Customer No."));
 
         if (xJob."Bill-to Customer No." <> '') and (not GetHideValidationDialog()) and GuiAllowed() then
             if not Confirm(ConfirmChangeQst, false, BillToCustomerTxt) then begin
@@ -2293,6 +2293,23 @@
         OnAfterUpdateBillToCust(Job, BillToCustomer);
 #endif
         OnAfterBillToCustomerNoUpdated(Job, xJob, BillToCustomer);
+    end;
+
+    local procedure ThrowAssociatedEntriesExistError(var Job: Record Job; xJob: Record Job; CallingFieldNo: Integer; FieldCaption: Text)
+    var
+        IsHanled: Boolean;
+    begin
+        IsHanled := false;
+        OnBeforeThrowAssociatedEntriesExistError(Job, xJob, CallingFieldNo, CurrFieldNo, IsHanled);
+        if IsHanled then
+            exit;
+
+        Error(AssociatedEntriesExistErr, FieldCaption, TableCaption);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeThrowAssociatedEntriesExistError(var Job: Record Job; xJob: Record Job; CallingFieldNo: Integer; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
     end;
 
     local procedure ShipToCodeValidate()

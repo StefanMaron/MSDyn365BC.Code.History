@@ -35,6 +35,7 @@ codeunit 6724 "Booking Appointment - Modify"
         BookingItem."Invoice Status" := BookingItem."Invoice Status"::open;
         BookingItem."Invoice No." := SalesInvoiceHeader."No.";
         BookingItem.SetInvoiceDate(CreateDateTime(SalesInvoiceHeader."Document Date", 0T));
+        OnHandlePostedOnBeforeBookingItemModify(BookingItem, SalesInvoiceHeader);
         BookingItem.Modify();
     end;
 
@@ -66,6 +67,11 @@ codeunit 6724 "Booking Appointment - Modify"
         end;
 
         BookingItem.Modify();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandlePostedOnBeforeBookingItemModify(var BookingItem: Record "Booking Item"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
     end;
 }
 

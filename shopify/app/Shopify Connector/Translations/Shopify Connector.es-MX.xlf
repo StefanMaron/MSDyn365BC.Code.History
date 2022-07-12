@@ -5648,12 +5648,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Payment Methods Mapping - Control Priority - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 899276787 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Inspect</source>
-          <target state="translated">Nuevo,Proceso,Informe,Inspeccionar</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Payment Transactions - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 899276787 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Payment Transactions</source>
           <target state="translated">Transacciones de pago de Shopify</target>
@@ -7179,8 +7173,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Variants - Action MapVariant - Property Caption</note>
         </trans-unit>
         <trans-unit id="Report 653247747 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shopify Add Item to Shopify</source>
-          <target state="translated">Shopify Agregar producto a Shopify</target>
+          <source>Add Item to Shopify</source>
+          <target state="translated">Agregar producto a Shopify</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Add Item to Shopify - Property Caption</note>
         </trans-unit>

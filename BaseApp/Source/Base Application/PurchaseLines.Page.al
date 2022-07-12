@@ -1,10 +1,12 @@
 page 518 "Purchase Lines"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Purchase Lines';
     Editable = false;
     LinksAllowed = false;
     PageType = List;
     SourceTable = "Purchase Line";
+    UsageCategory = Lists;
 
     layout
     {
@@ -275,7 +277,7 @@ page 518 "Purchase Lines"
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

@@ -24,6 +24,7 @@ report 190 "Issue Reminders"
                 Clear(ReminderIssue);
                 ReminderIssue.Set("Reminder Header", ReplacePostingDate, PostingDateReq);
                 ReminderIssue.SetGenJnlBatch(GenJnlBatch);
+                OnReminderHeaderOnAfterGetRecordOnAfterReminderIssueSetParams("Reminder Header", ReminderIssue, PrintDoc);
                 if NoOfRecords = 1 then begin
                     ReminderIssue.Run();
                     Mark := false;
@@ -241,6 +242,11 @@ report 190 "Issue Reminders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempIssuedReminderHeaderInsert(var TempIssuedReminderHeader: Record "Issued Reminder Header" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReminderHeaderOnAfterGetRecordOnAfterReminderIssueSetParams(var ReminderHeader: Record "Reminder Header"; var ReminderIssue: Codeunit "Reminder-Issue"; PrintDoc: Option)
     begin
     end;
 }

@@ -478,7 +478,13 @@ table 5076 "Segment Header"
     var
         "Field": Record "Field";
         Question: Text[260];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSegLinesByFieldNo(Rec, ChangedFieldNo, AskQuestion, IsHandled);
+        if IsHandled then
+            exit;
+
         Field.Get(DATABASE::"Segment Header", ChangedFieldNo);
 
         if not SegLinesExist(Field."Field Caption") then begin
@@ -944,6 +950,11 @@ table 5076 "Segment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSegHeader(var SegmentHeader: Record "Segment Header"; InteractTmplCode: Code[10]; InteractTmplChange: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSegLinesByFieldNo(SegmentHeader: Record "Segment Header"; ChangedFieldNo: Integer; var AskQuestion: Boolean; var IsHandled: Boolean)
     begin
     end;
 

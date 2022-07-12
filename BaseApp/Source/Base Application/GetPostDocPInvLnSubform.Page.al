@@ -275,7 +275,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -404,7 +404,15 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
     end;
 
     local procedure IsShowRec(PurchInvLine2: Record "Purch. Inv. Line"): Boolean
+    var
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsShowRec(Rec, PurchInvLine2, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         with PurchInvLine2 do begin
             RemainingQty := 0;
             if "Document No." <> PurchInvHeader."No." then
@@ -473,6 +481,11 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsShowRec(var PurchInvLine: Record "Purch. Inv. Line"; var PurchInvLine2: Record "Purch. Inv. Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

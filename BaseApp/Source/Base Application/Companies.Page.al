@@ -156,7 +156,7 @@ page 357 Companies
 
                 trigger OnAction()
                 var
-                    Company: Record Company;
+                    OriginalCompany, CopiedCompany : Record Company;
                     AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
                     CopyCompany: Report "Copy Company";
                     UserPermissions: Codeunit "User Permissions";
@@ -164,12 +164,12 @@ page 357 Companies
                     if not UserPermissions.IsSuper(UserSecurityId) then
                         Error(OnlySuperCanCreateNewCompanyErr);
 
-                    Company.SetRange(Name, Name);
-                    CopyCompany.SetTableView(Company);
+                    OriginalCompany.SetRange(Name, Rec.Name);
+                    CopyCompany.SetTableView(OriginalCompany);
                     CopyCompany.RunModal();
 
-                    if Get(CopyCompany.GetCompanyName) then
-                        AssistedCompanySetupStatus.CopySaaSCompanySetupStatus(Name, CopyCompany.GetCompanyName);
+                    if CopiedCompany.Get(CopyCompany.GetCompanyName()) then
+                        AssistedCompanySetupStatus.CopySaaSCompanySetupStatus(Rec.Name, CopiedCompany.Name);
                 end;
             }
         }

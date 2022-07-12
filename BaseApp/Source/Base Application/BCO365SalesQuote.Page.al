@@ -346,7 +346,7 @@ page 2341 "BC O365 Sales Quote"
                     begin
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
-                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
                             CurrPage.Update();
                         end;
                     end;
@@ -614,7 +614,7 @@ page 2341 "BC O365 Sales Quote"
         O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
     begin
         // Tasks shared with invoices (PAG2310)
-        O365SalesInvoiceMgmt.OnAfterGetSalesHeaderRecord(Rec, CurrencyFormat, TaxAreaDescription, NoOfAttachmentsValueTxt, WorkDescription);
+        O365SalesInvoiceMgmt.OnAfterGetSalesHeaderRecordFullLengthTaxAreaDesc(Rec, CurrencyFormat, TaxAreaDescription, NoOfAttachmentsValueTxt, WorkDescription);
         CurrPageEditable := CurrPage.Editable;
 
         O365SalesInvoiceMgmt.UpdateCustomerFields(Rec, CustomerName, CustomerEmail, IsCompanyContact);
@@ -713,7 +713,7 @@ page 2341 "BC O365 Sales Quote"
         NoOfAttachmentsValueTxt: Text;
         CurrencyFormat: Text;
         ViewContactDetailsLbl: Label 'Open contact details';
-        TaxAreaDescription: Text[50];
+        TaxAreaDescription: Text[100];
         CountryRegionCode: Code[10];
         IsCustomerBlocked: Boolean;
         IsNew: Boolean;
@@ -731,4 +731,3 @@ page 2341 "BC O365 Sales Quote"
         exit(O365SalesInvoiceMgmt.GetInvoiceDiscountCaption(Round("Invoice Discount Value", 0.1)));
     end;
 }
-

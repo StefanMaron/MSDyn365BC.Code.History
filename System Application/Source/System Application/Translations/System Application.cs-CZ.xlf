@@ -335,7 +335,7 @@
         </trans-unit>
         <trans-unit id="Table 2732765979 - Field 1001654749 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Order ID</source>
-          <target state="translated">ID Objednávky</target>
+          <target state="translated">ID pořadí</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Checklist Item - Field Order ID - Property Caption</note>
         </trans-unit>
@@ -413,7 +413,7 @@
         </trans-unit>
         <trans-unit id="Table 414606611 - Field 1001654749 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Order ID</source>
-          <target state="translated">ID Objednávky</target>
+          <target state="translated">ID pořadí</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Checklist Item Buffer - Field Order ID - Property Caption</note>
         </trans-unit>
@@ -5210,6 +5210,24 @@
           <target state="translated">Již jste dokončil %1 průvodce asistovaným nastavením. Chcete jej spustit znovu?</target>
           <note from="Developer" annotates="general" priority="2">%1 = Assisted Setup Name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Impl. - NamedType RunSetupAgainQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1122893324 - Method 4193945004 - NamedType 3531100644" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Business Manager home page offers metrics and activities that help run a business. We`ll also show you how to explore all Business Central features.</source>
+          <target state="translated">Domovská stránka Obchodní ředitel nabízí metriky a aktivity, které pomáhají řídit firmu. Ukážeme vám také, jak prozkoumat všechny funkce Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Upgrade - Method UpdateTourDescriptions - NamedType BusinessManagerRoleCenterTourDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1122893324 - Method 4193945004 - NamedType 360454159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Sales Order Processor home page helps you stay on top of your sales documents. We`ll also show you how to explore all Business Central features.</source>
+          <target state="translated">Domovská stránka Zpracovatel prodejních objednávek vám pomůže udržet si přehled o prodejních dokladech. Ukážeme vám také, jak prozkoumat všechny funkce Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Upgrade - Method UpdateTourDescriptions - NamedType OrderProcessorRoleCenterTourDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1122893324 - Method 4193945004 - NamedType 1951765689" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Accountant home page makes it easier for businesses to keep their books. We`ll also show you how to explore all Business Central features.</source>
+          <target state="translated">Domovská stránka Účtárna usnadňuje firmám vedení účetních knih. Ukážeme vám také, jak prozkoumat všechny funkce Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Upgrade - Method UpdateTourDescriptions - NamedType AccountantRoleCenterTourDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2970873669 - NamedType 3414270617" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Good afternoon!</source>
@@ -16572,13 +16590,13 @@
         </trans-unit>
         <trans-unit id="Enum 50758251 - EnumValue 49827801 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View if access to all related records</source>
-          <target state="translated">Zobrazit, zda je přístup ke všem souvisejícím záznamům</target>
+          <target state="translated">Zobrazit s přístupem ke všem souvisejícím záznamům</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Email View Policy - EnumValue AllRelatedRecordsEmails - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 50758251 - EnumValue 3916066021 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View if access to any related records</source>
-          <target state="translated">Zobrazit, zda je přístup ke všem souvisejícím záznamům</target>
+          <target state="translated">Zobrazit s přístupem k jakémukoli ze souvisejícím záznamům</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Email View Policy - EnumValue AnyRelatedRecordEmails - Property Caption</note>
         </trans-unit>

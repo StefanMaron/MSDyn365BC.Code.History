@@ -142,11 +142,17 @@ table 904 "Assemble-to-Order Link"
     end;
 
     procedure UpdateAsmDimFromSalesLine(SalesLine: Record "Sales Line")
+    begin
+        UpdateAsmDimFromSalesLine(SalesLine, false);
+    end;
+
+    procedure UpdateAsmDimFromSalesLine(SalesLine: Record "Sales Line"; HideValidationDialog: Boolean)
     var
         Window: Dialog;
     begin
         if AsmExistsForSalesLine(SalesLine) then
             if GetAsmHeader then begin
+                AsmHeader.SetHideValidationDialog(HideValidationDialog);
                 Window.Open(GetWindowOpenTextSale(SalesLine));
                 if ChangeDim(SalesLine."Dimension Set ID") then begin
                     AsmHeader."Shortcut Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";

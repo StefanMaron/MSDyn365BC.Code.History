@@ -18,7 +18,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         ContactMustBeRelatedToCustomerOrVendorErr: Label 'The contact %1 must have a contact company that has a business relation to a customer or vendor.', Comment = '%1 = Contact No.';
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
         SalespersonPurchaserCodeFilterLbl: Label 'SP NO. 0*', Locked = true;
-        CouplingsNeedToBeResetErr: Label 'Dataverse integration is enabled, and records have been coupled for this company. Before you can delete this company, you must delete its couplings so that other companies can access the coupled records. You can delete the couplings on the %1 page.', Comment = '%1 = page caption of Integration Table Mappings';
+        CouplingsNeedToBeResetQst: Label 'Dataverse integration is enabled, and records have been coupled for this company. Before you delete this company, you should delete its couplings so that other companies can access the coupled records. You can delete the couplings on the %1 page. Do you want to proceed without deleting the couplings?', Comment = '%1 = page caption of Integration Table Mappings';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         UpdateContactParentCompanyTxt: Label 'Updating contact parent company.', Locked = true;
         UpdateContactParentCompanyFailedTxt: Label 'Updating contact parent company failed. Parent Customer ID: %1', Locked = true, Comment = '%1 - parent customer id';
@@ -799,7 +799,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                                     EnumTenantLicenseState::LockedOut]
                                 then
                                     exit;
-                            Error(CouplingsNeedToBeResetErr, IntegrationTableMappingList.Caption());
+                            if GuiAllowed() then
+                                if not Confirm(StrSubstNo(CouplingsNeedToBeResetQst, IntegrationTableMappingList.Caption())) then
+                                    Error('');
                         end;
     end;
 

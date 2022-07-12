@@ -382,6 +382,7 @@ report 1320 "Notification Email"
                 end;
         end;
 
+        OnGetSalesDocValuesOnBeforeGetSalesPurchDocAmountValue(RecRef, AmountFieldRef, CurrencyCode, CustomerNo);
         GetSalesPurchDocAmountValue(Field1Label, Field1Value, SourceRecRef, AmountFieldRef, CurrencyCode);
 
         Field2Label := Customer.TableCaption;
@@ -483,6 +484,11 @@ report 1320 "Notification Email"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTargetRecRef(RecRef: RecordRef; var TargetRecRefOut: RecordRef; var IsHandled: Boolean; NotificationEntry: Record "Notification Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSalesDocValuesOnBeforeGetSalesPurchDocAmountValue(var RecRef: RecordRef; var AmountFieldRef: FieldRef; var CurrencyCode: Code[10]; var CustomerNo: Code[20])
     begin
     end;
 

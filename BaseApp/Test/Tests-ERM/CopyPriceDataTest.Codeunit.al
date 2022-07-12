@@ -1180,16 +1180,18 @@ codeunit 134167 "Copy Price Data Test"
         ResourcePrice.DeleteAll();
         PriceListLine.DeleteAll();
         PriceListHeader.DeleteAll();
-        // [GIVEN] ResourceCost
+        // [GIVEN] ResourcePrice
         CreateResourcePrice(ResourcePrice);
 
-        // [WHEN] Copy ResourceCost with header generation
+        // [WHEN] Copy ResourcePrice with header generation
         CopyFromToPriceListLine.SetGenerateHeader();
         CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
 
-        // [THEN] Added one Price List Header, where "Price Type" 'Sale', "Amount Type" 'Price'
+        // [THEN] Added one Price List Header, where "Price Type" 'Sale', "Source Type" 'All Customers', "Amount Type" 'Price'
         PriceListLine.FindFirst();
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Sale);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Customer);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Customers");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Unit Price", ResourcePrice."Unit Price");
         PriceListLine.TestField("Unit Cost", 0);
@@ -1214,7 +1216,7 @@ codeunit 134167 "Copy Price Data Test"
         ResourcePrice.DeleteAll();
         PriceListLine.DeleteAll();
         PriceListHeader.DeleteAll();
-        // [GIVEN] 3 ResourceCosts
+        // [GIVEN] 3 ResourcePrice
         CreateResourcePrice(ResourcePrice);
         Resource.Get(ResourcePrice.Code);
         CreateResourcePrice(ResourcePrice);
@@ -1228,7 +1230,7 @@ codeunit 134167 "Copy Price Data Test"
         Resource.Delete();
         WorkType.Delete();
 
-        // [WHEN] Copy ResourceCost with header generation
+        // [WHEN] Copy ResourcePrice with header generation
         CopyFromToPriceListLine.SetGenerateHeader();
         CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
 
@@ -1258,9 +1260,11 @@ codeunit 134167 "Copy Price Data Test"
         CopyFromToPriceListLine.SetGenerateHeader();
         CopyFromToPriceListLine.CopyFrom(ResourceCost, PriceListLine);
 
-        // [THEN] Added one Price List Header, where "Price Type" 'Purchase', "Amount Type" 'Price'
+        // [THEN] Added one Price List Header, where "Price Type" 'Purchase', "Source Type" 'All Vendors', "Amount Type" 'Price'
         PriceListLine.FindFirst();
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Purchase);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Vendor);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Unit Price", 0);
         PriceListLine.TestField("Unit Cost", ResourceCost."Unit Cost");
@@ -1303,6 +1307,8 @@ codeunit 134167 "Copy Price Data Test"
         // [THEN] Added one Price List Header, where "Price Type" 'Purchase', "Amount Type" 'Price'
         PriceListLine.FindFirst();
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Purchase);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Vendor);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Work Type Code", '');
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Resource);
@@ -1315,6 +1321,8 @@ codeunit 134167 "Copy Price Data Test"
         // [THEN] 2nd Line, where "Work Type Code" is 'WT', "Unit Cost" is 150 (+50%), "Direct Unit Cost" is 96 (+20%)
         Assert.IsFalse(PriceListLine.Next() = 0, 'not found second line');
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Purchase);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Vendor);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Work Type Code", ResourceCost[2]."Work Type Code");
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Resource);
@@ -1362,6 +1370,8 @@ codeunit 134167 "Copy Price Data Test"
         // [THEN] Added one Price List Header, where "Price Type" 'Purchase', "Amount Type" 'Price'
         PriceListLine.FindFirst();
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Purchase);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Vendor);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Work Type Code", '');
         PriceListLine.TestField("Asset Type", "Price Asset Type"::"Resource Group");
@@ -1420,6 +1430,8 @@ codeunit 134167 "Copy Price Data Test"
         // [THEN] Added one Price List Line, "Asset Type" is 'Resource', "Work Type Code" is 'WT', "Unit Cost" is 125 (100+25%), "Direct Unit Cost" is 96 (80+20%)
         PriceListLine.FindFirst();
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Purchase);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Vendor);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Work Type Code", ResourceCost."Work Type Code");
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Resource);
@@ -1475,6 +1487,8 @@ codeunit 134167 "Copy Price Data Test"
         // [THEN] 1st line, where "Resource" is 'A', "Work Type Code" is 'WT'
         PriceListLine.FindFirst();
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Purchase);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Vendor);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Work Type Code", ResourceCost[1]."Work Type Code");
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Resource);
@@ -1487,6 +1501,8 @@ codeunit 134167 "Copy Price Data Test"
         // [THEN] 2nd Line, where "Resource" is 'B', "Work Type Code" is <blank>, "Unit Cost" is 100, "Direct Unit Cost" is 80
         Assert.IsFalse(PriceListLine.Next() = 0, 'not found second line');
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Purchase);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Vendor);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Work Type Code", '');
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Resource);
@@ -1498,6 +1514,8 @@ codeunit 134167 "Copy Price Data Test"
         // [THEN] 3rd Line, where "Resource" is 'B', "Work Type Code" is 'WT', "Unit Cost" is 150 (+50%), "Direct Unit Cost" is 96 (+20%)
         Assert.IsFalse(PriceListLine.Next() = 0, 'not found 3rd line');
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Purchase);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Vendor);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Work Type Code", ResourceCost[3]."Work Type Code");
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Resource);
@@ -1552,6 +1570,8 @@ codeunit 134167 "Copy Price Data Test"
         // [THEN] "Asset Type" is 'Resource', "Asset No." is 'X', "Unit Cost" is 150 (100 + 50), "Direct Unit Cost" is 100 (80 + 20)
         PriceListLine.FindFirst();
         PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Purchase);
+        PriceListLine.TestField("Source Group", "Price Source Group"::Vendor);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Work Type Code", ResourceCost[1]."Work Type Code");
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Resource);

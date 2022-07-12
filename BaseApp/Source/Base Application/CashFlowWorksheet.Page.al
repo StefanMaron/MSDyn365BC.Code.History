@@ -39,7 +39,7 @@ page 841 "Cash Flow Worksheet"
 
                     trigger OnValidate()
                     begin
-                        CFName := CashFlowManagement.CashFlowName("Cash Flow Forecast No.");
+                        CFName := CashFlowManagement.CashFlowNameFullLength("Cash Flow Forecast No.");
                     end;
                 }
                 field(Description; Description)
@@ -356,7 +356,7 @@ page 841 "Cash Flow Worksheet"
     trigger OnAfterGetCurrRecord()
     begin
         ShowErrors;
-        CFName := CashFlowManagement.CashFlowName("Cash Flow Forecast No.");
+        CFName := CashFlowManagement.CashFlowNameFullLength("Cash Flow Forecast No.");
         CFAccName := CashFlowManagement.CashFlowAccountName("Cash Flow Account No.");
     end;
 
@@ -423,4 +423,3 @@ page 841 "Cash Flow Worksheet"
         end;
     end;
 }
-

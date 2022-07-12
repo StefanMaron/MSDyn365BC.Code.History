@@ -4,7 +4,7 @@
     "publisher":  "Microsoft",
     "brief":  "Library used in tests to verify if the values are as expected. ",
     "description":  "In test code Library Assert should be used to compare the values and throw errors. TESTFIELD and ERROR must not be used in test code.",
-    "version":  "20.2.41144.41423",
+    "version":  "20.3.42673.43026",
     "privacyStatement":  "",
     "EULA":  "",
     "help":  "",

@@ -62,15 +62,14 @@ table 2153 "O365 Payment Terms"
         CurrentRecordCode := Code;
         DeleteAll();
         if PaymentTerms.FindSet() then
-            repeat
-                if IncludePaymentTermCode(PaymentTerms.Code) then begin
-                    Code := PaymentTerms.Code;
-                    Description := PaymentTerms.GetDescriptionInCurrentLanguage;
-                    "Due Date Calculation" := PaymentTerms."Due Date Calculation";
-                    if Insert() then;
-                end;
-            until PaymentTerms.Next() = 0;
+                repeat
+                    if IncludePaymentTermCode(PaymentTerms.Code) then begin
+                        Code := PaymentTerms.Code;
+                        Description := PaymentTerms.GetDescriptionInCurrentLanguageFullLength();
+                        "Due Date Calculation" := PaymentTerms."Due Date Calculation";
+                        if Insert() then;
+                    end;
+                until PaymentTerms.Next() = 0;
         if Get(CurrentRecordCode) then;
     end;
 }
-

@@ -16,7 +16,13 @@ codeunit 5059 ProfileManagement
         ProfileQuestnHeader: Record "Profile Questionnaire Header";
         ContProfileAnswer: Record "Contact Profile Answer";
         Valid: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindLegalProfileQuestionnaire(ProfileQuestnHeaderTemp, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
         ProfileQuestnHeaderTemp.DeleteAll();
 
         with ProfileQuestnHeader do begin
@@ -122,6 +128,11 @@ codeunit 5059 ProfileManagement
     begin
         CurrProfileQuestnLine.SetRange("Profile Questionnaire Code", CurrProfileQuestnLine."Profile Questionnaire Code");
         PAGE.RunModal(PAGE::"Answer Points", CurrProfileQuestnLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindLegalProfileQuestionnaire(var TempProfileQuestionnaireHeader: Record "Profile Questionnaire Header" temporary; Contact: Record Contact; var IsHandled: Boolean)
+    begin
     end;
 }
 

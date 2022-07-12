@@ -299,11 +299,6 @@ page 1171 "User Task Card"
         Clear(MultiLineTextControl);
     end;
 
-    trigger OnOpenPage()
-    begin
-        Rec.Reset();
-    end;
-
     var
         MultiLineTextControl: Text;
         InvalidPageTypeErr: Label 'You must specify a list page.';

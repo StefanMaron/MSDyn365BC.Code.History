@@ -176,6 +176,7 @@ report 5855 "Implement Standard Cost Change"
     var
         Item: Record Item;
     begin
+        OnBeforeUpdateItem(StdCostWksh, PostingDate);
         with Item do begin
             Get(StdCostWksh."No.");
             Validate("Indirect Cost %", StdCostWksh."New Indirect Cost %");
@@ -194,6 +195,7 @@ report 5855 "Implement Standard Cost Change"
             "Rolled-up Cap. Overhead Cost" := StdCostWksh."New Rolled-up Cap. Ovhd Cost";
 
             "Last Unit Cost Calc. Date" := PostingDate;
+            OnUpdateItemOnBeforeModify(StdCostWksh, Item);
             Modify(true);
 
             ItemCostsUpdated := true;
@@ -220,6 +222,7 @@ report 5855 "Implement Standard Cost Change"
     var
         MachCtr: Record "Machine Center";
     begin
+        OnBeforeUpdateMachCenter(StdCostWksh, PostingDate);
         with MachCtr do begin
             Get(StdCostWksh."No.");
             Validate("Overhead Rate", StdCostWksh."New Overhead Rate");
@@ -234,6 +237,7 @@ report 5855 "Implement Standard Cost Change"
     var
         WorkCtr: Record "Work Center";
     begin
+        OnBeforeUpdateWorkCenter(StdCostWksh, PostingDate);
         with WorkCtr do begin
             Get(StdCostWksh."No.");
             Validate("Overhead Rate", StdCostWksh."New Overhead Rate");
@@ -448,6 +452,26 @@ report 5855 "Implement Standard Cost Change"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateResourceCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; Resource: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItem(var StandardCostWorksheet: Record "Standard Cost Worksheet"; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateMachCenter(var StandardCostWorksheet: Record "Standard Cost Worksheet"; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWorkCenter(var StandardCostWorksheet: Record "Standard Cost Worksheet"; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemOnBeforeModify(StandardCostWorksheet: Record "Standard Cost Worksheet"; var Item: Record Item)
     begin
     end;
 }

@@ -94,6 +94,8 @@ codeunit 481 "Check Dimensions"
             NumberArr[3] := "Campaign No.";
             TableIDArr[4] := DATABASE::"Responsibility Center";
             NumberArr[4] := "Responsibility Center";
+            TableIDArr[5] := Database::Location;
+            NumberArr[5] := "Location Code";
             OnCheckDimValuePostingOnAfterCreateDimTableIDs(PurchHeader, TableIDArr, NumberArr);
 
             DimMgt.SetSourceCode(DATABASE::"Purchase Header", PurchHeader);
@@ -119,6 +121,8 @@ codeunit 481 "Check Dimensions"
             NumberArr[2] := "Job No.";
             TableIDArr[3] := DATABASE::"Work Center";
             NumberArr[3] := "Work Center No.";
+            TableIDArr[4] := Database::Location;
+            NumberArr[4] := "Location Code";
             OnCheckDimValuePostingOnAfterCreateDimTableIDs(PurchLine, TableIDArr, NumberArr);
 
             DimMgt.SetSourceCode(DATABASE::"Purchase Line", PurchLine);
@@ -204,16 +208,19 @@ codeunit 481 "Check Dimensions"
     end;
 
     local procedure CheckSalesDimLines(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
+    var
+        ShouldCheckDimensions: Boolean;
     begin
         with TempSalesLine do begin
             Reset;
             SetFilter(Type, '<>%1', Type::" ");
             if FindSet() then
                 repeat
-                    if (SalesHeader.Invoice and ("Qty. to Invoice" <> 0)) or
-                       (SalesHeader.Ship and ("Qty. to Ship" <> 0)) or
-                       (SalesHeader.Receive and ("Return Qty. to Receive" <> 0))
-                    then begin
+                    ShouldCheckDimensions := (SalesHeader.Invoice and ("Qty. to Invoice" <> 0)) or
+                                             (SalesHeader.Ship and ("Qty. to Ship" <> 0)) or
+                                             (SalesHeader.Receive and ("Return Qty. to Receive" <> 0));
+                    OnCheckSalesDimLinesOnAfterCalcShouldCheckDimensions(SalesHeader, TempSalesLine, ShouldCheckDimensions);
+                    if ShouldCheckDimensions then begin
                         CheckSalesDimCombLine(TempSalesLine);
                         CheckSalesDimValuePostingLine(TempSalesLine);
                     end
@@ -237,6 +244,8 @@ codeunit 481 "Check Dimensions"
             NumberArr[3] := "Campaign No.";
             TableIDArr[4] := DATABASE::"Responsibility Center";
             NumberArr[4] := "Responsibility Center";
+            TableIDArr[5] := Database::Location;
+            NumberArr[5] := "Location Code";
             OnCheckDimValuePostingOnAfterCreateDimTableIDs(SalesHeader, TableIDArr, NumberArr);
 
             DimMgt.SetSourceCode(DATABASE::"Sales Header", SalesHeader);
@@ -260,6 +269,8 @@ codeunit 481 "Check Dimensions"
             NumberArr[1] := "No.";
             TableIDArr[2] := DATABASE::Job;
             NumberArr[2] := "Job No.";
+            TableIDArr[3] := Database::Location;
+            NumberArr[3] := "Location Code";
             DimMgt.SetSourceCode(DATABASE::"Sales Line", SalesLine);
             OnCheckDimValuePostingOnAfterCreateDimTableIDs(SalesLine, TableIDArr, NumberArr);
 
@@ -452,6 +463,11 @@ codeunit 481 "Check Dimensions"
             PageManagement.PageRun(ErrorMessage."Context Record ID");
             IsHandled := true;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesDimLinesOnAfterCalcShouldCheckDimensions(SalesHeader: Record "Sales Header"; TempSalesLine: Record "Sales Line" temporary; var ShouldCheckDimensions: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

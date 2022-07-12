@@ -965,18 +965,7 @@ codeunit 5530 "Calc. Item Availability"
             DATABASE::"Sales Header":
                 begin
                     RecRef.SetTable(SalesHeader);
-                    case SalesHeader."Document Type" of
-                        SalesHeader."Document Type"::Order:
-                            PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
-                        SalesHeader."Document Type"::Invoice:
-                            PAGE.RunModal(PAGE::"Sales Invoice", SalesHeader);
-                        SalesHeader."Document Type"::"Credit Memo":
-                            PAGE.RunModal(PAGE::"Sales Credit Memo", SalesHeader);
-                        SalesHeader."Document Type"::"Blanket Order":
-                            PAGE.RunModal(PAGE::"Blanket Sales Orders", SalesHeader);
-                        SalesHeader."Document Type"::"Return Order":
-                            PAGE.RunModal(PAGE::"Sales Return Order", SalesHeader);
-                    end;
+                    RunSalesHeaderPage(SalesHeader);
                 end;
             DATABASE::"Sales Shipment Header":
                 begin
@@ -1131,6 +1120,29 @@ codeunit 5530 "Calc. Item Availability"
         end;
     end;
 
+    local procedure RunSalesHeaderPage(var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunSalesHeaderPage(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Order:
+                PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
+            SalesHeader."Document Type"::Invoice:
+                PAGE.RunModal(PAGE::"Sales Invoice", SalesHeader);
+            SalesHeader."Document Type"::"Credit Memo":
+                PAGE.RunModal(PAGE::"Sales Credit Memo", SalesHeader);
+            SalesHeader."Document Type"::"Blanket Order":
+                PAGE.RunModal(PAGE::"Blanket Sales Orders", SalesHeader);
+            SalesHeader."Document Type"::"Return Order":
+                PAGE.RunModal(PAGE::"Sales Return Order", SalesHeader);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var CurrEntryNo: Integer)
     begin
@@ -1153,6 +1165,11 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDocument(RecordID: RecordID; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunSalesHeaderPage(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

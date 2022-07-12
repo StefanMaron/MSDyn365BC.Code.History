@@ -20,9 +20,12 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not SalesLineReserve.FindReservEntry(SalesLine, ReservEntry) then
             exit;
 
-        if DateConflict(SalesLine."Shipment Date", ForceRequest, ReservEntry) then
-            if ForceRequest then
-                IssueError(SalesLine."Shipment Date");
+        IsHandled := false;
+        OnSalesLineCheckOnBeforeIssueError(ReservEntry, SalesLine, IsHandled);
+        if not IsHandled then
+            if DateConflict(SalesLine."Shipment Date", ForceRequest, ReservEntry) then
+                if ForceRequest then
+                    IssueError(SalesLine."Shipment Date");
 
         IsHandled := false;
         OnSalesLineCheckOnBeforeUpdateDate(ReservEntry, SalesLine, IsHandled);
@@ -540,6 +543,11 @@ codeunit 99000815 "Reservation-Check Date Confl."
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateDateFilterReservEntryLoop(var ReservationEntry: Record "Reservation Entry"; var ForceModifyShipmentDate: Boolean; Date: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLineCheckOnBeforeIssueError(ReservationEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

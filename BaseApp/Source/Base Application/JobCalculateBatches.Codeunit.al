@@ -57,8 +57,7 @@ codeunit 1005 "Job Calculate Batches"
         JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Billable);
         JobPlanningLine.Modify();
         JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Budget);
-        JobPlanningLine."Serial No." := '';
-        JobPlanningLine."Lot No." := '';
+        JobPlanningLine.ClearTracking();
         JobPlanningLine."Line No." := NextLineNo;
         JobPlanningLine.InitJobPlanningLine;
         OnBeforeJobPlanningLineInsert(JobPlanningLine);

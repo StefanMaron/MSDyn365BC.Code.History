@@ -311,7 +311,13 @@
     local procedure TransPlanningCompToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
     var
         PlanningComponent: Record "Planning Component";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransPlanningCompToProfile(InventoryProfile, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         if not PlanMRP then
             exit;
 
@@ -2096,6 +2102,8 @@
     local procedure CanDecreaseSupply(InventoryProfileSupply: Record "Inventory Profile"; var ReduceQty: Decimal): Boolean
     var
         TrackedQty: Decimal;
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
         with InventoryProfileSupply do begin
             if ReduceQty > "Untracked Quantity" then
@@ -2117,6 +2125,11 @@
                 ("Planning Level Code" = 0))
             then
                 exit(false);
+
+            IsHandled := false;
+            OnAfterCanDecreaseSupply(InventoryProfileSupply, ReduceQty, DampenerQty, Result, IsHandled);
+            if IsHandled then
+                exit(Result);
 
             exit(true);
         end;
@@ -2593,6 +2606,8 @@
                     ReqLine.Get(CurrTemplateName, CurrWorksheetName, SupplyInvtProfile."Planning Line No.");
                 ReqLine.BlockDynamicTracking(true);
                 AdjustPlanLine(SupplyInvtProfile);
+                OnMaintainPlanLineOnAfterAdjustPlanLine(
+                    TempSKU, ReqLine, SupplyInvtProfile, DemandInvtProfile, PlanToDate, CurrForecast, NewPhase, Direction);
                 if NewPhase = NewPhase::"Line Created" then
                     ReqLine.Modify();
             end;
@@ -5597,6 +5612,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransSalesLineToProfileOnAfterTransferFromSalesLineReturnOrder(var Item: Record Item; var SalesLine: Record "Sales Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMaintainPlanLineOnAfterAdjustPlanLine(var TempSKU: Record "Stockkeeping Unit" temporary; var RequisitionLine: Record "Requisition Line"; var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; PlanToDate: Date; CurrentForecast: Code[10]; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete; Direction: Option Forward,Backward)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransPlanningCompToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCanDecreaseSupply(InventoryProfile: Record "Inventory Profile"; ReduceQty: Decimal; DampenerQty: Decimal; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

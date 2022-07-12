@@ -342,7 +342,7 @@ page 2113 "O365 Posted Sales Invoice"
         CurrencyFormat := StrSubstNo('%1<precision, 2:2><standard format, 0>', CurrencySymbol);
 
         if TaxArea.Get("Tax Area Code") then
-            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
 
         TempStandardAddress.CopyFromSalesInvoiceHeaderSellTo(Rec);
         FullAddress := TempStandardAddress.ToString;
@@ -376,7 +376,7 @@ page 2113 "O365 Posted Sales Invoice"
         AddAttachmentTxt: Label 'Add attachment';
         SubTotalAmount: Decimal;
         DiscountVisible: Boolean;
-        TaxAreaDescription: Text[50];
+        TaxAreaDescription: Text[100];
         CouponCodes: Text;
 
     protected var
@@ -400,4 +400,3 @@ page 2113 "O365 Posted Sales Invoice"
             NoOfAttachmentsValueTxt := StrSubstNo(NoOfAttachmentsTxt, NoOfAttachments);
     end;
 }
-

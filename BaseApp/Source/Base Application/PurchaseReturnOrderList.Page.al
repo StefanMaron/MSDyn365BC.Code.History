@@ -173,6 +173,7 @@ page 9311 "Purchase Return Order List"
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies if the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
+                    StyleExpr = StatusStyleTxt;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
@@ -476,9 +477,10 @@ page 9311 "Purchase Return Order List"
 
                     trigger OnAction()
                     var
-                        ReleasePurchDoc: Codeunit "Release Purchase Document";
+                        PurchaseHeader: Record "Purchase Header";
                     begin
-                        ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        Rec.PerformManualRelease(PurchaseHeader);
                     end;
                 }
                 action(Reopen)
@@ -493,9 +495,10 @@ page 9311 "Purchase Return Order List"
 
                     trigger OnAction()
                     var
-                        ReleasePurchDoc: Codeunit "Release Purchase Document";
+                        PurchaseHeader: Record "Purchase Header";
                     begin
-                        ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        Rec.PerformManualReopen(PurchaseHeader);
                     end;
                 }
                 separator(Action1102601023)
@@ -772,6 +775,11 @@ page 9311 "Purchase Return Order List"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        StatusStyleTxt := Rec.GetStatusStyleText();
+    end;
+
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance;
@@ -796,6 +804,8 @@ page 9311 "Purchase Return Order List"
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
         ReadyToPostQst: Label 'The number of return orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
+        [InDataSet]
+        StatusStyleTxt: Text;
 
     local procedure SetControlAppearance()
     var

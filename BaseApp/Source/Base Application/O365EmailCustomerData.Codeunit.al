@@ -86,6 +86,7 @@ codeunit 2380 "O365 Email Customer Data"
 
     local procedure AddColumnToList(var ColNo: Integer; FieldNo: Integer; CustomCaption: Text[80])
     begin
+        OnBeforeAddColumnToList(ColNo, FieldNo, CustomCaption);
         ColNo += 1;
         TempLineNumberBuffer."Old Line Number" := ColNo;
         TempLineNumberBuffer."New Line Number" := FieldNo;
@@ -277,8 +278,15 @@ codeunit 2380 "O365 Email Customer Data"
         TempNameValueBuffer.DeleteAll();
     end;
 
-    local procedure GetCustomValue(var RecRef: RecordRef; CustomFieldNo: Integer): Text
+    local procedure GetCustomValue(var RecRef: RecordRef; CustomFieldNo: Integer) Result: Text
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustomValue(RecRef, CustomFieldNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case RecRef.Number of
             DATABASE::"Sales Invoice Header":
                 exit(GetCustomValueForSalesInvoiceHeader(RecRef, CustomFieldNo));
@@ -722,6 +730,16 @@ codeunit 2380 "O365 Email Customer Data"
             GeneralLedgerSetup.Get();
         GeneralLedgerSetupLoaded := true;
         exit(GeneralLedgerSetup."LCY Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomValue(var RecRef: RecordRef; CustomFieldNo: Integer; var Result: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddColumnToList(var ColNo: Integer; var FieldNo: Integer; var CustomCaption: Text[80])
+    begin
     end;
 }
 

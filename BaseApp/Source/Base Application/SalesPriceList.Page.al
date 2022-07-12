@@ -23,7 +23,7 @@ page 7016 "Sales Price List"
                         Importance = Promoted;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the unique identifier of the price list.';
-                        Editable = PriceListIsEditable and CodeIsEditable;
+                        Editable = CodeIsEditable;
 
                         trigger OnAssistEdit()
                         begin
@@ -77,7 +77,7 @@ page 7016 "Sales Price List"
                     group(AssignToParentNoGroup)
                     {
                         ShowCaption = false;
-                        Visible = ParentSourceNoEnabled and not UseCustomLookup;
+                        Visible = ParentSourceNoVisible;
                         field(AssignToParentNo; Rec."Assign-to Parent No.")
                         {
                             ApplicationArea = All;
@@ -488,8 +488,8 @@ page 7016 "Sales Price List"
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
         Rec.SyncDropDownLookupFields();
-        CodeIsEditable := Rec.Code = '';
         PriceListIsEditable := Rec.IsEditable();
+        CodeIsEditable := PriceListIsEditable and (Rec.Code = '');
         UpdateSourceType(Rec."Source Group");
         SetSourceNoEnabled();
         ViewAmountType := Rec."Amount Type";
@@ -565,8 +565,11 @@ page 7016 "Sales Price List"
         PriceUXManagement: Codeunit "Price UX Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        [InDataSet]
         CRMIntegrationAllowed: Boolean;
+        [InDataSet]
         CRMIntegrationEnabled: Boolean;
+        [InDataSet]
         CRMIsCoupledToRecord: Boolean;
         StatusActiveFilterApplied: Boolean;
         JobSourceType: Enum "Job Price Source Type";
@@ -578,6 +581,8 @@ page 7016 "Sales Price List"
         IsJobGroup: Boolean;
         [InDataSet]
         ParentSourceNoEnabled: Boolean;
+        [InDataSet]
+        ParentSourceNoVisible: Boolean;
         [InDataSet]
         SourceNoEnabled: Boolean;
         [InDataSet]
@@ -596,6 +601,7 @@ page 7016 "Sales Price List"
         Rec.CopyTo(PriceSource);
         ParentSourceNoEnabled := PriceSource.IsParentSourceAllowed();
         SourceNoEnabled := Rec.IsSourceNoAllowed();
+        ParentSourceNoVisible := ParentSourceNoEnabled and not UseCustomLookup;
     end;
 
     local procedure ValidateSourceType(SourceType: Integer)

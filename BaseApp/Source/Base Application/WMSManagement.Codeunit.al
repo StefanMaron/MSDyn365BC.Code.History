@@ -869,7 +869,14 @@ codeunit 7302 "WMS Management"
     end;
 
     procedure CheckPutAwayAvailability(BinCode: Code[20]; CheckFieldCaption: Text[100]; CheckTableCaption: Text[100]; ValueToPutAway: Decimal; ValueAvailable: Decimal; Prohibit: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPutAwayAvailability(BinCode, CheckFieldCaption, CheckTableCaption, ValueToPutAway, ValueAvailable, Prohibit, IsHandled);
+        if IsHandled then
+            exit;
+
         if ValueToPutAway <= ValueAvailable then
             exit;
         if Prohibit then
@@ -1685,7 +1692,13 @@ codeunit 7302 "WMS Management"
     local procedure CheckLotNo(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; UOMCode: Code[10]; LotNo: Code[50]; QuantityBase: Decimal)
     var
         BinContent: Record "Bin Content";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckLotNo(ItemNo, VariantCode, LocationCode, BinCode, UOMCode, LotNo, QuantityBase, IsHandled);
+        if IsHandled then
+            exit;
+
         BinContent.Get(LocationCode, BinCode, ItemNo, VariantCode, UOMCode);
         BinContent.SetRange("Lot No. Filter", LotNo);
         BinContent.CalcFields("Quantity (Base)");
@@ -1993,16 +2006,17 @@ codeunit 7302 "WMS Management"
                 end;
     end;
 
-    local procedure GetWhseJnlLineBinCode(SourceCode: Code[10]; BinCode: Code[20]; AdjBinCode: Code[20]): Code[20]
+    local procedure GetWhseJnlLineBinCode(SourceCode: Code[10]; BinCode: Code[20]; AdjBinCode: Code[20]) Result: Code[20]
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        if BinCode = '' then
-            exit(AdjBinCode);
-        SourceCodeSetup.Get();
-        if SourceCode = SourceCodeSetup."Service Management" then
-            exit(BinCode);
-        exit(AdjBinCode);
+        Result := AdjBinCode;
+        if BinCode <> '' then begin
+            SourceCodeSetup.Get();
+            if SourceCode = SourceCodeSetup."Service Management" then
+                Result := BinCode;
+        end;
+        OnAfterGetWhseJnlLineBinCode(SourceCode, BinCode, AdjBinCode, SourceCodeSetup, Result);
     end;
 
     procedure GetLastOperationLocationCode(RoutingNo: Code[20]; RoutingVersionCode: Code[20]): Code[10]
@@ -2132,6 +2146,11 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetWhseJnlLineBinCode(SourceCode: Code[10]; BinCode: Code[20]; AdjBinCode: Code[20]; SourceCodeSetup: Record "Source Code Setup"; var Result: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetZoneAndBins(var WarehouseJournalLine: Record "Warehouse Journal Line"; ItemJournalLine: Record "Item Journal Line"; Location: Record Location; Bin: Record Bin)
     begin
     end;
@@ -2167,6 +2186,11 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLotNo(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; UOMCode: Code[10]; LotNo: Code[50]; QuantityBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWhseDocumentFromZoneCode(WhseJnlLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -2183,6 +2207,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemTrackingChange(TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPutAwayAvailability(BinCode: Code[20]; CheckFieldCaption: Text[100]; CheckTableCaption: Text[100]; ValueToPutAway: Decimal; ValueAvailable: Decimal; Prohibit: Boolean; var IsHandled: Boolean)
     begin
     end;
 

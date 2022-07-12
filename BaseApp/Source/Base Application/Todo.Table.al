@@ -222,6 +222,7 @@ table 5080 "To-do"
 
             trigger OnValidate()
             var
+                EnvironmentInfo: Codeunit "Environment Information";
                 OldEndDate: Date;
                 IsHandled: Boolean;
             begin
@@ -229,6 +230,9 @@ table 5080 "To-do"
                 OnBeforeValidateType(Rec, xRec, IsHandled);
                 if IsHandled then
                     exit;
+
+                if EnvironmentInfo.IsSaaS() and (Type = Type::Meeting) then
+                    Error(MeetingSaaSNotSupportedErr);
 
                 if "No." <> '' then begin
                     if ((xRec.Type = Type::Meeting) and (Type <> Type::Meeting)) or
@@ -864,6 +868,7 @@ table 5080 "To-do"
         Text068: Label 'You cannot select the Send invitation(s) on Finish check box, because none of the %1 check boxes are selected.';
         RunFormCode: Boolean;
         CreateExchangeAppointment: Boolean;
+        MeetingSaaSNotSupportedErr: Label 'You cannot create a task of type Meeting because you''re not using an on-premises deployment.';
 
     protected var
         TempTaskInteractionLanguage: Record "To-do Interaction Language" temporary;
@@ -1375,12 +1380,7 @@ table 5080 "To-do"
         TempTask.Init();
         TempTask := Task2;
         TempTask.Insert();
-        if not ActivityStep.IsEmpty() then begin
-            TempTask.Type := ActivityStep.Type;
-            TempTask.Priority := ActivityStep.Priority;
-            TempTask.Description := ActivityStep.Description;
-            TempTask.Date := CalcDate(ActivityStep."Date Formula", TaskDate);
-        end;
+        CopyFieldsFromActivityStep(TempTask, ActivityStep, TaskDate);
 
         if TempTask.Type = Type::Meeting then begin
             if not Attendee2.IsEmpty() then begin
@@ -1411,6 +1411,17 @@ table 5080 "To-do"
               TempTask, TempTaskInteractionLanguage, TempAttachment, TempAttendee, TempRMCommentLine);
         end;
         TempTask.Delete();
+    end;
+
+    local procedure CopyFieldsFromActivityStep(var TempTask: Record "To-do" temporary; ActivityStep: Record "Activity Step"; TaskDate: Date)
+    begin
+        if not ActivityStep.IsEmpty() then begin
+            TempTask.Type := ActivityStep.Type;
+            TempTask.Priority := ActivityStep.Priority;
+            TempTask.Description := ActivityStep.Description;
+            TempTask.Date := CalcDate(ActivityStep."Date Formula", TaskDate);
+        end;
+        OnAfterCopyFieldsFromActivityStep(TempTask, ActivityStep);
     end;
 
     local procedure SetFilterFromTask(var Task: Record "To-do")
@@ -2984,6 +2995,11 @@ table 5080 "To-do"
     local procedure IsMeetingOrPhoneCall(TaskType: Enum "Task Type"): Boolean
     begin
         exit(TaskType in [TaskType::Meeting, TaskType::"Phone Call"]);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFieldsFromActivityStep(var TempTask: Record "To-do" temporary; ActivityStep: Record "Activity Step")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

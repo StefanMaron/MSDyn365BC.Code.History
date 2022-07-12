@@ -335,6 +335,7 @@ codeunit 99000787 "Create Prod. Order Lines"
                 end;
                 OnAfterProcessProdOrderLine(ProdOrderLine, Direction, LetDueDateDecrease);
             until ProdOrderLine.Next() = 0;
+        OnProcessProdOrderLinesOnBeforeAdjustStartEndingDate(ProdOrder);
         ProdOrder.AdjustStartEndingDate;
         ProdOrder.Modify();
 
@@ -767,6 +768,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateProdOrderLineOnBeforeInitProdOrderLine(var InsertNew: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessProdOrderLinesOnBeforeAdjustStartEndingDate(var ProductionOrder: Record "Production Order")
     begin
     end;
 }

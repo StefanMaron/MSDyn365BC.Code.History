@@ -47,6 +47,7 @@ codeunit 137271 "SCM Reservation IV"
         ItemsPickedMsg: Label 'The items have been picked';
         LotReservedForAnotherDocErr: Label 'Lot No. %1 is not available on inventory or it has already been reserved for another document.', Comment = 'Field("Lot No.")';
         ReserveMustNotBeNeverErr: Label 'Reserve must not be Never';
+        ReserveMustBeNeverErr: Label 'Non-inventory and service items must have the reserve type Never';
 
     [Test]
     [HandlerFunctions('ReservationPageHandler')]
@@ -2953,6 +2954,42 @@ codeunit 137271 "SCM Reservation IV"
 
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(ReserveMustNotBeNeverErr);
+    end;
+
+    [Test]
+    procedure CannotChangeReserveFieldOnSalesLineForServiceItem()
+    var
+        ServiceTypeItem: Record Item;
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Sales Order]
+        // [SCENARIO 438168] You cannot change Reserve field on sales line for item of type = "Service".
+        Initialize(false);
+
+        LibraryInventory.CreateServiceTypeItem(ServiceTypeItem);
+        CreateSalesDocument(SalesLine, ServiceTypeItem."No.", '', LibraryRandom.RandInt(10));
+
+        asserterror SalesLine.Validate(Reserve, SalesLine.Reserve::Optional);
+
+        Assert.ExpectedError(ReserveMustBeNeverErr);
+    end;
+
+    [Test]
+    procedure CannotAutoReserveSalesLineForServiceItem()
+    var
+        ServiceTypeItem: Record Item;
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Sales Order]
+        // [SCENARIO 438168] You cannot auto reserve sales line for item of type = "Service".
+        Initialize(false);
+
+        LibraryInventory.CreateServiceTypeItem(ServiceTypeItem);
+        CreateSalesDocument(SalesLine, ServiceTypeItem."No.", '', LibraryRandom.RandInt(10));
+
+        asserterror LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        Assert.ExpectedError(ReserveMustBeNeverErr);
     end;
 
     local procedure Initialize(Enable: Boolean)

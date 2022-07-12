@@ -167,19 +167,27 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
     end;
 
     local procedure AddSources()
-    var
-        SourceType: Enum "Price Source Type";
     begin
         PriceSourceList.Init();
-        PriceSourceList.Add(SourceType::"All Customers");
-        PriceSourceList.Add(SourceType::Customer, SalesHeader."Bill-to Customer No.");
-        PriceSourceList.Add(SourceType::Contact, SalesHeader."Bill-to Contact No.");
-        PriceSourceList.Add(SourceType::Campaign, SalesHeader."Campaign No.");
-        AddActivatedCampaignsAsSource();
-        PriceSourceList.Add(SourceType::"Customer Price Group", SalesLine."Customer Price Group");
-        PriceSourceList.Add(SourceType::"Customer Disc. Group", SalesLine."Customer Disc. Group");
-
+        case CurrPriceType of
+            CurrPriceType::Sale:
+                AddCustomerSources();
+            CurrPriceType::Purchase:
+                PriceSourceList.Add("Price Source Type"::"All Vendors");
+        end;
+        PriceSourceList.AddJobAsSources(SalesLine."Job No.", SalesLine."Job Task No.");
         OnAfterAddSources(SalesHeader, SalesLine, CurrPriceType, PriceSourceList);
+    end;
+
+    local procedure AddCustomerSources()
+    begin
+        PriceSourceList.Add("Price Source Type"::"All Customers");
+        PriceSourceList.Add("Price Source Type"::Customer, SalesHeader."Bill-to Customer No.");
+        PriceSourceList.Add("Price Source Type"::Contact, SalesHeader."Bill-to Contact No.");
+        PriceSourceList.Add("Price Source Type"::Campaign, SalesHeader."Campaign No.");
+        AddActivatedCampaignsAsSource();
+        PriceSourceList.Add("Price Source Type"::"Customer Price Group", SalesLine."Customer Price Group");
+        PriceSourceList.Add("Price Source Type"::"Customer Disc. Group", SalesLine."Customer Disc. Group");
     end;
 
     local procedure GetDocumentDate() DocumentDate: Date;

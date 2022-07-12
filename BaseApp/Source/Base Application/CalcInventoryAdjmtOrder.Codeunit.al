@@ -176,6 +176,7 @@
                   InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::Subcontracted,
                   "Single-Level Subcontrd. Cost", "Single-Lvl Subcontrd Cost(ACY)");
         end;
+        OnAfterUpdateOutputAdjmtBuf(InvtAdjmtEntryOrder, ItemLedgEntry, InvtAdjmtBuffer);
     end;
 
     local procedure CalcStandardCost(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OutputQty: Decimal)
@@ -425,6 +426,11 @@
     local procedure HasNewCost(NewCost: Decimal; NewCostACY: Decimal): Boolean
     begin
         exit((NewCost <> 0) or (NewCostACY <> 0));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateOutputAdjmtBuf(InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ItemLedgerEntry: Record "Item Ledger Entry"; var InventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

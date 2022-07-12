@@ -174,6 +174,8 @@ report 5851 "Suggest Item Standard Cost"
               "New Overhead Rate",
               RoundAndAdjustAmt("Overhead Rate", RoundingMethod[3], AmtAdjustFactor[3]));
 
+            OnInsertStdCostWkshOnBeforeUpdate(ToStdCostWksh, RoundingMethod, AmtAdjustFactor);
+
             if not Insert(true) then
                 Modify(true);
         end;
@@ -224,6 +226,11 @@ report 5851 "Suggest Item Standard Cost"
         RoundingMethod[1] := RoundingMethod1;
         RoundingMethod[2] := RoundingMethod2;
         RoundingMethod[3] := RoundingMethod3;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertStdCostWkshOnBeforeUpdate(var ToStandardCostWorksheet: Record "Standard Cost Worksheet"; RoundingMethod: array[3] of Code[10]; AmtAdjustFactor: array[3] of Decimal)
+    begin
     end;
 }
 

@@ -74,7 +74,7 @@ codeunit 138961 "BC O365 Payment Tests"
 
         // [THEN] That new payment term has a description equal to the code
         PaymentTerms.Get(DefaultPaymentTermsCode);
-        Assert.AreEqual(DefaultPaymentTermsCode, PaymentTerms.GetDescriptionInCurrentLanguage, '');
+        Assert.AreEqual(DefaultPaymentTermsCode, PaymentTerms.GetDescriptionInCurrentLanguageFullLength(), '');
     end;
 
     [Test]
@@ -622,4 +622,3 @@ codeunit 138961 "BC O365 Payment Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-

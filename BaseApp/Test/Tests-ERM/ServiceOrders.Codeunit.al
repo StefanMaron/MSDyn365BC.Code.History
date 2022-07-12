@@ -4793,6 +4793,52 @@ codeunit 136101 "Service Orders"
             ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 10000);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceQuoteMakeOrderDimensions()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+        Customer: Record Customer;
+        DimensionValue: Record "Dimension Value";
+        GLSetup: Record "General Ledger Setup";
+        DimensionSetID: Integer;
+        DimensionValueCode: Array[2] of Code[20];
+    begin
+        // [SCENARIO 438614] Service Quote "Make Order" should Create Service Order with Dimensions copied from initial document
+        Initialize();
+
+        // [GIVEN] Service Quote with "Dimension Set ID" = DSI, "Shortcut Dimension 1 Code" = SD1C, "Shortcut Dimension 2 Code" = SD2C
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, Customer."No.");
+        GLSetup.Get();
+        LibraryDimension.FindDimensionValue(DimensionValue, GLSetup."Shortcut Dimension 1 Code");
+        DimensionValueCode[1] := DimensionValue.Code;
+        ServiceHeader.Validate("Shortcut Dimension 1 Code", DimensionValueCode[1]);
+        LibraryDimension.FindDimensionValue(DimensionValue, GLSetup."Shortcut Dimension 2 Code");
+        DimensionValueCode[2] := DimensionValue.Code;
+        ServiceHeader.Validate("Shortcut Dimension 2 Code", DimensionValueCode[2]);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        DimensionSetID :=
+          LibraryDimension.CreateDimSet(ServiceHeader."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code);
+        ServiceHeader.Validate("Dimension Set ID", DimensionSetID);
+        ServiceHeader.Modify(true);
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+
+        // [WHEN] Run Make Order action
+        LibraryService.CreateOrderFromQuote(ServiceHeader);
+
+        // [THEN] Service Order created with "Dimension Set ID" = DSI, "Shortcut Dimension 1 Code" = SD1C, "Shortcut Dimension 2 Code" = SD2C
+        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
+        ServiceHeader.SetRange("Customer No.", Customer."No.");
+        ServiceHeader.FindFirst();
+        ServiceHeader.TestField("Dimension Set ID", DimensionSetID);
+        ServiceHeader.TestField("Shortcut Dimension 1 Code", DimensionValueCode[1]);
+        ServiceHeader.TestField("Shortcut Dimension 2 Code", DimensionValueCode[2]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -770,7 +770,7 @@ page 5905 "Service Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -1160,6 +1160,7 @@ page 5905 "Service Lines"
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         Clear(SelectionFilter);
         SelectionFilter := SelectionFilter::"Lines per Selected Service Item";
+        OnOpenPageOnBeforeSetSelectionFilter(SelectionFilter);
         SetSelectionFilter();
 
         ServMgtSetup.Get();
@@ -1377,6 +1378,11 @@ page 5905 "Service Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSelectionFilter(var SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeSetSelectionFilter(var SelectionFilter: Option)
     begin
     end;
 }

@@ -183,8 +183,9 @@ page 7012 "Purchase Prices"
         ItemNoFilter: Text;
         StartingDateFilter: Text[30];
         NoDataWithinFilterErr: Label 'There is no %1 within the filter %2.', Comment = '%1: Field(Code), %2: GetFilter(Code)';
-        IsLookupMode: Boolean;
         MultipleVendorsSelectedErr: Label 'More than one vendor uses these purchase prices. To copy prices, the Vendor No. Filter field must contain one vendor only.';
+        [InDataSet]
+        IsLookupMode: Boolean;
 
     local procedure GetRecFilters()
     begin

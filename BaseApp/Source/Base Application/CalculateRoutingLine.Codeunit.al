@@ -632,6 +632,7 @@ codeunit 99000774 "Calculate Routing Line"
         SendAheadLotSize: Decimal;
         ParentIsConstrained: Boolean;
         ResourceIsConstrained: Boolean;
+        ShouldCalcNextOperation: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -648,9 +649,9 @@ codeunit 99000774 "Calculate Routing Line"
 
         FirstEntry := true;
 
-        if (ProdOrderRoutingLine."Next Operation No." <> '') and
-           CalculateEndDate
-        then begin
+        ShouldCalcNextOperation := (ProdOrderRoutingLine."Next Operation No." <> '') and CalculateEndDate;
+        OnCalcRoutingLineBackOnAfterCalcShouldCalcNextOperation(ProdOrderRoutingLine, ShouldCalcNextOperation);
+        if ShouldCalcNextOperation then begin
             Clear(ProdOrderRoutingLine3);
 
             TmpProdOrderRtngLine.Reset();
@@ -694,10 +695,8 @@ codeunit 99000774 "Calculate Routing Line"
                 LoadCapBack(ProdOrderRoutingLine2.Type, ProdOrderRoutingLine2."No.", RoutingTimeType::"Queue Time", false);
             end else
                 ProdOrderRoutingLine3 := ProdOrderRoutingLine2;
-        end else begin
-            TotalLotSize := MaxLotSize;
-            SendAheadLotSize := MaxLotSize;
-        end;
+        end else
+            SetLotSizesToMax(SendAheadLotSize, TotalLotSize);
 
         // In case of Parallel Routing and the last operation is finished
         if ProdEndingDate = CalendarMgt.GetMaxDate then begin
@@ -1007,10 +1006,9 @@ codeunit 99000774 "Calculate Routing Line"
                 ProdOrderRoutingLine3.UpdateDatetime;
                 ProdOrderRoutingLine3.Modify();
             end;
-        end else begin
-            TotalLotSize := MaxLotSize;
-            SendAheadLotSize := MaxLotSize;
-        end;
+        end else
+            SetLotSizesToMax(SendAheadLotSize, TotalLotSize);
+
         RemainNeedQty :=
           Round(
             Workcenter."Queue Time" *
@@ -1254,6 +1252,19 @@ codeunit 99000774 "Calculate Routing Line"
         ProdOrderRoutingLine2 := ProdOrderRoutingLine;
     end;
 
+    local procedure SetLotSizesToMax(var SendAheadLotSize: Decimal; var TotalLotSize: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetLotSizesToMax(SendAheadLotSize, TotalLotSize, MaxLotSize, ProdOrderRoutingLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TotalLotSize := MaxLotSize;
+        SendAheadLotSize := MaxLotSize;
+    end;
+
     local procedure FinitelyLoadCapBack(TimeType: Enum "Routing Time Type"; ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean)
     var
         LastProdOrderCapNeed: Record "Prod. Order Capacity Need";
@@ -1313,6 +1324,8 @@ codeunit 99000774 "Calculate Routing Line"
                   Round(AvailCap *
                     CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code") *
                     100 / CalendarEntry.Efficiency / ConCurrCap, 1, '>');
+                if CalendarEntry.Capacity = CalendarEntry."Absence Capacity" then
+                    AvailCap := 0;
 
                 ShouldProcessLastProdOrderCapNeed := AvailCap > 0;
                 OnFinitelyLoadCapBackOnAfterCalcShouldProcessLastProdOrderCapNeed(
@@ -1441,6 +1454,8 @@ codeunit 99000774 "Calculate Routing Line"
                   Round(AvailCap *
                     CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code") *
                     100 / CalendarEntry.Efficiency / ConCurrCap, 1, '>');
+                if CalendarEntry.Capacity = CalendarEntry."Absence Capacity" then
+                    AvailCap := 0;
 
                 if AvailCap > 0 then begin
                     ProdStartingDateTime := CreateDateTime(CalendarEntry.Date, StartTime);
@@ -2075,6 +2090,11 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLotSizesToMax(var SendAheadLotSize: Decimal; var TotalLotSize: Decimal; MaxLotSize: Decimal; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeScheduleRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalcStartEndDate: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -2146,6 +2166,11 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingLineBackOnAfterCalcRemainNeedQtyForLotSize(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var RemainNeedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRoutingLineBackOnAfterCalcShouldCalcNextOperation(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ShouldCalcNextOperation: Boolean)
     begin
     end;
 

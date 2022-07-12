@@ -580,6 +580,7 @@ page 9807 "User Card"
     local procedure ValidateAuthentication(): Boolean
     var
         ValidationField: Text;
+        ShowConfirmDisableUser: Boolean;
     begin
         UserSecID.Reset();
         if (UserSecID.Count = 1) or (UserSecurityId = "User Security ID") then begin
@@ -599,7 +600,9 @@ page 9807 "User Card"
                 exit(Confirm(Confirm004Qst, false));
         end;
 
-        if (InitialState = State::Enabled) and (State = State::Disabled) then
+        ShowConfirmDisableUser := (InitialState = State::Enabled) and (State = State::Disabled);
+        OnValidateAuthenticationOnAfterCalcShowConfirmDisableUser(InitialState, Rec, ShowConfirmDisableUser);
+        if ShowConfirmDisableUser then
             exit(Confirm(Confirm003Qst, false));
 
         exit(true);
@@ -789,6 +792,11 @@ page 9807 "User Card"
     begin
         exit(AzureADPlan.IsPlanAssignedToUser(PlanIds.GetDelegatedAdminPlanId(), UserSecID) or
                     AzureADPlan.IsPlanAssignedToUser(PlanIds.GetHelpDeskPlanId(), UserSecID));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAuthenticationOnAfterCalcShowConfirmDisableUser(InitialState: Option; User: Record User; var ShowConfirmDisableUser: Boolean)
+    begin
     end;
 }
 

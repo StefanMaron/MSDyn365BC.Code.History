@@ -604,6 +604,60 @@ codeunit 134384 "ERM Document Posting Error"
         VerifyVATEntryAmountByVATPostingSetup(VATPostingSetup[2], PurchaseLine[2]."Line Amount", 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderWithCommentLineAndBlockeVATPostingSetup()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 437602] Stan can post sales order with comment line when system contains Blocked "VAT Posting Setup" with blank posting groups.
+        Initialize();
+
+        if not VATPostingSetup.Get('', '') then
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup, '', '');
+
+        VATPostingSetup.Validate(Blocked, true);
+        VATPostingSetup.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::" ", '', 0);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderWithCommentLineAndBlockeVATPostingSetup()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 437602] Stan can post purchase order with comment line when system contains Blocked "VAT Posting Setup" with blank posting groups.
+        Initialize();
+
+        if not VATPostingSetup.Get('', '') then
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup, '', '');
+
+        VATPostingSetup.Validate(Blocked, true);
+        VATPostingSetup.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::" ", '', 0);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

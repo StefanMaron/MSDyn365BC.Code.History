@@ -57,7 +57,7 @@ codeunit 1440 "RC Headlines Page Common"
 
     procedure DocumentationUrlTxt(): Text
     begin
-        exit('https://go.microsoft.com/fwlink/?linkid=867580');
+        exit('https://go.microsoft.com/fwlink/?linkid=2152979');
     end;
 
     procedure IsUserGreetingVisible(): Boolean
@@ -85,4 +85,3 @@ codeunit 1440 "RC Headlines Page Common"
     begin
     end;
 }
-

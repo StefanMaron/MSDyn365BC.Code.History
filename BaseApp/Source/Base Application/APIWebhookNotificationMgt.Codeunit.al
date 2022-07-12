@@ -38,6 +38,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         CreateJobCategoryMsg: Label 'Create new job category.', Locked = true;
         CreateJobMsg: Label 'Create new job. Earliest start time: %1.', Locked = true;
         DeleteHangingJobMsg: Label 'Delete hanging job. Earliest start time: %1.', Locked = true;
+        FailedDeletingAPIWebhooksLbl: Label 'Failed deleting API Webhooks. Error Code %1, Error message: %2', Locked = true;
         UseCachedApiSubscriptionEnabled: Boolean;
         UseCachedDetailedLoggingEnabled: Boolean;
         TooManyJobsMsg: Label 'New job is not created. Count of jobs cannot exceed %1.', Locked = true;
@@ -355,13 +356,16 @@ codeunit 6153 "API Webhook Notification Mgt."
         end;
 
         APIWebhookNotification.SetRange("Subscription ID", APIWebhookSubscription."Subscription Id");
-        if not APIWebhookNotification.IsEmpty() then
-            APIWebhookNotification.DeleteAll(true);
+        if not APIWebhookNotification.IsEmpty() then begin
+            ForceDeleteAPIWebhookNotifications(APIWebhookNotification);
+            Commit();
+        end;
 
         APIWebhookNotificationAggr.SetRange("Subscription ID", APIWebhookSubscription."Subscription Id");
-        if not APIWebhookNotificationAggr.IsEmpty() then
+        if not APIWebhookNotificationAggr.IsEmpty() then begin
             APIWebhookNotificationAggr.DeleteAll(true);
-
+            Commit();
+        end;
         if not APIWebhookSubscription.Delete() then;
     end;
 
@@ -379,6 +383,33 @@ codeunit 6153 "API Webhook Notification Mgt."
                     RecordSystemId := SavedRecordRef.Field(SavedRecordRef.SystemIdNo).Value();
             end;
         exit(RegisterNotification(ApiWebhookEntity, APIWebhookSubscription, RecRef, ChangeType, RecordSystemId));
+    end;
+
+    procedure ForceDeleteAPIWebhookNotifications(var APIWebhookNotification: Record "API Webhook Notification")
+    var
+        I: Integer;
+        NumberOfRetries: Integer;
+        WaitBetweenDeletes: Integer;
+        Success: Boolean;
+    begin
+        if APIWebhookNotification.IsEmpty() then
+            exit;
+
+        NumberOfRetries := 5;
+        WaitBetweenDeletes := 1000;
+
+        for I := 1 TO NumberOfRetries do begin
+            ClearLastError();
+            Commit();
+            OnDeleteAPIWebhookNotifications(APIWebhookNotification, Success);
+            if Success then 
+                exit;
+
+            Session.LogMessage('0000HRE', StrSubstNo(FailedDeletingAPIWebhooksLbl, GetLastErrorCode(), GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+            Sleep(WaitBetweenDeletes);
+        end;
+
+        ClearLastError();
     end;
 
     local procedure RegisterNotification(var ApiWebhookEntity: Record "Api Webhook Entity"; var APIWebhookSubscription: Record "API Webhook Subscription"; var RecRef: RecordRef; ChangeType: Option; RecordSystemId: Guid): Boolean
@@ -769,6 +800,18 @@ codeunit 6153 "API Webhook Notification Mgt."
         end;
 
         exit(false);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Mgt.", 'OnDeleteAPIWebhookNotifications', '', false, false)]
+    local procedure HandleDeleteAPIWebhookNotification(var ApiWebhookNotification: Record "API Webhook Notification"; var Success: Boolean)
+    begin
+        ApiWebhookNotification.DeleteAll();
+        Success := true;
+    end;
+
+    [InternalEvent(false, true)]
+    local procedure OnDeleteAPIWebhookNotifications(var ApiWebhookNotification: Record "API Webhook Notification"; var Success: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

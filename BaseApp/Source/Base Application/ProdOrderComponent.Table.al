@@ -1270,7 +1270,13 @@ table 5407 "Prod. Order Component"
     var
         SKU: Record "Stockkeeping Unit";
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetUpdateFromSKU(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetPlanningParameters.AtSKU(SKU, "Item No.", "Variant Code", "Location Code");
         Validate("Flushing Method", SKU."Flushing Method");
     end;
@@ -1739,6 +1745,7 @@ table 5407 "Prod. Order Component"
         SetRange(Weight, ProdBOMLine.Weight);
         SetRange(Depth, ProdBOMLine.Depth);
         SetRange("Unit of Measure Code", ProdBOMLine."Unit of Measure Code");
+        SetRange("Calculation Formula", ProdBOMLine."Calculation Formula");
 
         OnAfterSetFilterFromProdBOMLine(Rec, ProdBOMLine);
     end;
@@ -1990,6 +1997,11 @@ table 5407 "Prod. Order Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultConsumptionBin(var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var BinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUpdateFromSKU(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
 

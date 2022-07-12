@@ -241,8 +241,9 @@ codeunit 134119 "Price Asset UT"
         PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::"Item Discount Group");
         PriceAsset.TestField("Table Id", Database::"Item Discount Group");
         PriceAsset.Validate("Asset No.", ItemDiscountGroup.Code);
-        // [THEN] Asset, where Description is 'X'
+        // [THEN] Asset, where Description is 'X', "Amount Type"::Discount
         PriceAsset.TestField(Description, ItemDiscountGroup.Description);
+        PriceAsset.TestField("Amount Type", "Price Amount Type"::Discount);
     end;
 
     [Test]

@@ -164,7 +164,6 @@ table 1173 "Document Attachment"
         IncomingFileName: Text;
         DuplicateErr: Label 'This file is already attached to the document. Please choose another file.';
 
-    [Scope('OnPrem')]
     procedure Export(ShowFileDialog: Boolean): Text
     var
         TempBlob: Codeunit "Temp Blob";
@@ -271,7 +270,8 @@ table 1173 "Document Attachment"
             DATABASE::Employee,
             DATABASE::"Fixed Asset",
             DATABASE::Resource,
-            DATABASE::Job:
+            DATABASE::Job,
+            DATABASE::"VAT Report Header":
                 begin
                     FieldRef := RecRef.Field(1);
                     RecNo := FieldRef.Value;
@@ -331,6 +331,11 @@ table 1173 "Document Attachment"
                     LineNo := FieldRef.Value;
                     Validate("Line No.", LineNo);
                 end;
+        end;
+
+        if RecRef.Number = DATABASE::"VAT Report Header" then begin
+            FieldRef := RecRef.Field(2);
+            Validate("VAT Report Config. Code", FieldRef.Value);
         end;
 
         OnAfterInitFieldsFromRecRef(Rec, RecRef);

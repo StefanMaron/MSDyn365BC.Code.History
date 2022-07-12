@@ -130,7 +130,7 @@ codeunit 1336 "Item Templ. Mgt."
         exit(false);
     end;
 
-    local procedure InsertDimensions(DestNo: Code[20]; SourceNo: Code[20]; DestTableId: Integer; SourceTableId: Integer)
+    procedure InsertDimensions(DestNo: Code[20]; SourceNo: Code[20]; DestTableId: Integer; SourceTableId: Integer)
     var
         SourceDefaultDimension: Record "Default Dimension";
         DestDefaultDimension: Record "Default Dimension";

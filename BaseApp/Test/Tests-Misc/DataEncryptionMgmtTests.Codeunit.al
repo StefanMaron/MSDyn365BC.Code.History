@@ -26,7 +26,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     [Scope('OnPrem')]
     procedure EncryptThrowsErrorWhenEncryptionIsNotEnabled()
     var
-        TextToEncrypt: Text;
+        TextToEncrypt: Text[215];
     begin
         // [SCENARIO 1] Call to the Encrypt function throws an error when the encryption is not enabled.
         // [GIVEN] A text to encrypt.
@@ -35,8 +35,8 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
         // [THEN] An error is thrown suggesting that the encryption is not enabled.
         if CryptographyManagement.IsEncryptionEnabled then
             CryptographyManagement.DisableEncryption(true);
-        TextToEncrypt := LibraryUtility.GenerateRandomText(10);
-        asserterror CryptographyManagement.Encrypt(TextToEncrypt);
+        TextToEncrypt := CopyStr(LibraryUtility.GenerateRandomText(10), 1, 215);
+        asserterror CryptographyManagement.EncryptText(TextToEncrypt);
         Assert.ExpectedError('Encryption is either not enabled or the encryption key cannot be found.');
     end;
 
@@ -63,7 +63,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     [Scope('OnPrem')]
     procedure EncryptDecryptText()
     var
-        TextToEncrypt: Text;
+        TextToEncrypt: Text[215];
         EncryptedText: Text;
     begin
         // [SCENARIO 3] Text data can be encrypted and decrypted when the encryption is ON.
@@ -76,8 +76,8 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
         if not CryptographyManagement.IsEncryptionEnabled then
             CryptographyManagement.EnableEncryption(FALSE);
 
-        TextToEncrypt := LibraryUtility.GenerateRandomText(100);
-        EncryptedText := CryptographyManagement.Encrypt(TextToEncrypt);
+        TextToEncrypt := CopyStr(LibraryUtility.GenerateRandomText(100), 1, 215);
+        EncryptedText := CryptographyManagement.EncryptText(TextToEncrypt);
         Assert.AreNotEqual(TextToEncrypt, EncryptedText, 'Encrypted data seem to be same as the original text.');
         Assert.AreEqual(TextToEncrypt, CryptographyManagement.Decrypt(EncryptedText), 'Decrypted text different from the original text');
     end;

@@ -56,6 +56,8 @@ codeunit 9651 "Document Report Mgt."
             PrinterName := FileName;
         TempBlobOut.CreateOutStream(OutStrWordDoc);
 
+        FileName := FileMgt.GetPathWithSafeFileName(FileName);
+
         OnBeforeMergeDocument(ReportID, ReportAction, InStrXmlData, PrinterName, OutStrWordDoc, IsHandled, FileName = '');
         if IsHandled then begin
             if (FileName <> '') and TempBlobOut.HasValue then begin

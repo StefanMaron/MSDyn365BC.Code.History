@@ -173,6 +173,8 @@ codeunit 23 "Item Jnl.-Post Batch"
 
         if not SuppressCommit then
             Commit();
+
+        OnAfterCode(ItemJnlLine, ItemJnlBatch, ItemRegNo, WhseRegNo);
     end;
 
     local procedure OpenProgressDialog()
@@ -696,7 +698,13 @@ codeunit 23 "Item Jnl.-Post Batch"
     local procedure CheckWMSBin(ItemJnlLine: Record "Item Journal Line")
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWMSBin(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if Item.Get(ItemJnlLine."Item No.") then
             if Item.IsNonInventoriableType() then
                 exit;
@@ -906,6 +914,11 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; ItemRegNo: Integer; WhseRegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterConstructPostingNumber(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -962,6 +975,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLines(var ItemJnlLine: Record "Item Journal Line"; var WindowIsOpen: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWMSBin(ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -7,17 +7,22 @@ codeunit 5922 "Serv-Quote to Order (Yes/No)"
         ConfirmManagement: Codeunit "Confirm Management";
         HideMessage: Boolean;
         IsHandled: Boolean;
+        SkipTestFields: Boolean;
+        SkipConfirm: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnRun(Rec, IsHandled);
+        OnBeforeOnRun(Rec, IsHandled, SkipTestFields, SkipConfirm);
         if IsHandled then
             exit;
 
-        Rec.TestField("Document Type", Rec."Document Type"::Quote);
-        Rec.TestField("Customer No.");
-        Rec.TestField("Bill-to Customer No.");
-        if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
-            exit;
+        if not SkipTestFields then begin
+            Rec.TestField("Document Type", Rec."Document Type"::Quote);
+            Rec.TestField("Customer No.");
+            Rec.TestField("Bill-to Customer No.");
+        end;
+        if not SkipConfirm then
+            if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
+                exit;
 
         ServQuoteToOrder.Run(Rec);
 
@@ -37,7 +42,7 @@ codeunit 5922 "Serv-Quote to Order (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeOnRun(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean; var SkipTestFields: Boolean; var SkipConfirm: Boolean)
     begin
     end;
 }

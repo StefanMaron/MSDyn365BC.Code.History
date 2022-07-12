@@ -1200,7 +1200,7 @@ page 9233 "G/L Balance by Dim. Matrix"
             SetDimFilters(GLAcc, 1);
 
         IsHandled := false;
-        OnBeforeDrillDown(SetColFilter, GLAcc, AnalysisByDimParameters, IsHandled);
+        OnBeforeDrillDown(SetColFilter, GLAcc, AnalysisByDimParameters, IsHandled, GLEntry, GLBudgetEntry);
         if IsHandled then
             exit;
 
@@ -1541,7 +1541,7 @@ page 9233 "G/L Balance by Dim. Matrix"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDrillDown(SetColFilter: Boolean; var GLAcc: Record "G/L Account"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var IsHandled: Boolean)
+    local procedure OnBeforeDrillDown(SetColFilter: Boolean; var GLAcc: Record "G/L Account"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var IsHandled: Boolean; var GLEntry: Record "G/L Entry"; var GLBudgetEntry: Record "G/L Budget Entry")
     begin
     end;
 

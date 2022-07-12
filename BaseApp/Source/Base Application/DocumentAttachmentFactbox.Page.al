@@ -147,15 +147,17 @@ page 1174 "Document Attachment Factbox"
 
     trigger OnAfterGetCurrRecord()
     var
-        currentFilterGroup: Integer;
+        CurrentFilterGroup: Integer;
     begin
-        currentFilterGroup := FilterGroup;
+        CurrentFilterGroup := FilterGroup;
         FilterGroup := 4;
 
         NumberOfRecords := 0;
-        if GetFilters() <> '' then
+        if GetFilters() <> '' then begin
+            if Evaluate("VAT Report Config. Code", GetFilter("VAT Report Config. Code")) then;
             NumberOfRecords := Count;
-        FilterGroup := currentFilterGroup;
+        end;
+        FilterGroup := CurrentFilterGroup;
     end;
 
     var

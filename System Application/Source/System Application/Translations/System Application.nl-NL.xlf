@@ -5211,6 +5211,24 @@
           <note from="Developer" annotates="general" priority="2">%1 = Assisted Setup Name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Impl. - NamedType RunSetupAgainQst</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1122893324 - Method 4193945004 - NamedType 3531100644" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Business Manager home page offers metrics and activities that help run a business. We`ll also show you how to explore all Business Central features.</source>
+          <target state="translated">De startpagina Bedrijfsmanager biedt metrische gegevens en activiteiten die helpen een bedrijf te runnen. U leert ook alle functies van Business Central te verkennen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Upgrade - Method UpdateTourDescriptions - NamedType BusinessManagerRoleCenterTourDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1122893324 - Method 4193945004 - NamedType 360454159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Sales Order Processor home page helps you stay on top of your sales documents. We`ll also show you how to explore all Business Central features.</source>
+          <target state="translated">De startpagina Verkooporderverwerker helpt u uw verkoopdocumenten bij te houden. U leert ook alle functies van Business Central te verkennen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Upgrade - Method UpdateTourDescriptions - NamedType OrderProcessorRoleCenterTourDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1122893324 - Method 4193945004 - NamedType 1951765689" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Accountant home page makes it easier for businesses to keep their books. We`ll also show you how to explore all Business Central features.</source>
+          <target state="translated">De startpagina Accountant maakt het eenvoudiger voor bedrijven hun boekhouding te doen. U leert ook alle functies van Business Central te verkennen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Upgrade - Method UpdateTourDescriptions - NamedType AccountantRoleCenterTourDescriptionTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2970873669 - NamedType 3414270617" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Good afternoon!</source>
           <target state="translated">Goedemiddag!</target>

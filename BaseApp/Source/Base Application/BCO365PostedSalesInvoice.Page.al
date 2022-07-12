@@ -467,7 +467,7 @@ page 2313 "BC O365 Posted Sales Invoice"
         end;
         UpdateCurrencyFormat;
         if TaxArea.Get("Tax Area Code") then
-            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
         TempStandardAddress.CopyFromSalesInvoiceHeaderSellTo(Rec);
         CalcInvoiceDiscount;
         DiscountVisible := InvoiceDiscountAmount <> 0;
@@ -513,7 +513,7 @@ page 2313 "BC O365 Posted Sales Invoice"
         AddAttachmentTxt: Label 'Add attachment';
         SubTotalAmount: Decimal;
         DiscountVisible: Boolean;
-        TaxAreaDescription: Text[50];
+        TaxAreaDescription: Text[100];
         Status: Text;
         OutStandingStatusStyle: Text[30];
         ViewContactDetailsLbl: Label 'Open contact details';
@@ -583,4 +583,3 @@ page 2313 "BC O365 Posted Sales Invoice"
         exit(O365SalesInvoiceMgmt.GetInvoiceDiscountCaption(DiscountPercentage));
     end;
 }
-

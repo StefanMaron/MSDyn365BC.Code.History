@@ -326,6 +326,7 @@ page 408 "G/L Balance by Dimension"
                     Clear(MatrixForm);
 
                     MatrixForm.Load(Rec, LineDimCode, ColumnDimCode, MATRIX_ColumnCaptions, MATRIX_PrimaryKeyFirstColInSet, MATRIX_CurrSetLength);
+                    OnShowMatrixActionOnBeforeRunModal(MatrixForm);
                     MatrixForm.RunModal();
                 end;
             }
@@ -930,6 +931,11 @@ page 408 "G/L Balance by Dimension"
 
     [IntegrationEvent(false, false)]
     local procedure OnNextRecCaseElse(AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; DimOption: Integer; GeneralLedgerSetup: Record "General Ledger Setup"; var ResultSteps: Integer; var DimensionCodeBuffer: Record "Dimension Code Buffer"; Steps: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnShowMatrixActionOnBeforeRunModal(var GLBalancebyDimMatrix: Page "G/L Balance by Dim. Matrix")
     begin
     end;
 

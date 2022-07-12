@@ -17,6 +17,7 @@ codeunit 5762 "Whse.-Post Receipt + Print"
 
     local procedure "Code"()
     var
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
         WhsePostReceipt: Codeunit "Whse.-Post Receipt";
         ShouldRunPrint: Boolean;
         IsHandled: Boolean;
@@ -36,7 +37,7 @@ codeunit 5762 "Whse.-Post Receipt + Print"
             repeat
                 WhseActivHeader.SetRecFilter();
                 OnBeforePrintReport(WhseActivHeader);
-                REPORT.Run(REPORT::"Put-away List", false, false, WhseActivHeader);
+                ReportSelectionWarehouse.PrintWhseActivityHeader(WhseActivHeader, "Report Selection Warehouse Usage"::"Put-away", true);
                 OnAfterPrintReport(WhseActivHeader);
                 PrintedDocuments := PrintedDocuments + 1;
             until not WhsePostReceipt.GetNextPutAwayDocument(WhseActivHeader);
