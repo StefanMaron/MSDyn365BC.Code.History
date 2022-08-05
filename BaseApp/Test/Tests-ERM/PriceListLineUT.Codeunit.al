@@ -3022,6 +3022,40 @@ codeunit 134123 "Price List Line UT"
         MockPriceListLine."Product No.".AssertEquals(Item."No.");
     end;
 
+    [Test]
+    procedure UseCustomizedLookupOverriddenIfPriceListLinesOutOfSync()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        Initialize(true);
+        PriceListHeader.DeleteAll();
+        PriceListLine.DeleteAll();
+
+        // [GIVEN] Use Customized Lookup set to false in Sales & Receivables Setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Use Customized Lookup", false);
+        SalesReceivablesSetup.Modify();
+
+        // [THEN] UseCustomizedLookup returns false.
+        Assert.IsFalse(PriceListLine.UseCustomizedLookup(), 'Expected to be false.');
+
+        // [GIVEN] A price List Line that are not in sync.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers", '');
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item,
+            LibraryInventory.CreateItemNo());
+        PriceListLine."Product No." := '';
+        PriceListLine.Modify();
+
+        // [THEN] UseCustomizedLookup returns true.
+        Assert.IsTrue(PriceListLine.UseCustomizedLookup(), 'Expected to be false.');
+    end;
+
     local procedure Initialize()
     begin
         Initialize(false);

@@ -1,4 +1,4 @@
-table 5077 "Segment Line"
+﻿table 5077 "Segment Line"
 {
     Caption = 'Segment Line';
     Permissions = tabledata Attachment = rd,
@@ -913,7 +913,14 @@ table 5077 "Segment Line"
     end;
 
     procedure CreateSegLineInteractionFromContact(var Contact: Record Contact)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateSegLineInteractionFromContact(Rec, Contact, IsHandled);
+        if IsHandled then
+            exit;
+
         DeleteAll();
         Init();
         if Contact.Type = Contact.Type::Person then
@@ -950,6 +957,8 @@ table 5077 "Segment Line"
         Task: Record "To-do";
         Opportunity: Record Opportunity;
     begin
+        OnBeforeCreateInteractionFromInteractLogEntry(Rec, Salesperson);
+
         if Task.Get(InteractionLogEntry.GetFilter("To-do No.")) then begin
             CreateFromTask(Task);
             SetRange("To-do No.", "To-do No.");
@@ -1422,7 +1431,14 @@ table 5077 "Segment Line"
     end;
 
     procedure ShowComment()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowComment(Rec, TempInterLogEntryCommentLine, IsHandled);
+        if IsHandled then
+            exit;
+
         PAGE.RunModal(PAGE::"Inter. Log Entry Comment Sheet", TempInterLogEntryCommentLine);
     end;
 
@@ -1681,6 +1697,21 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateInteractionTemplateCode(var SegmentLine: Record "Segment Line"; var Cont: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowComment(var SegmentLine: Record "Segment Line"; var TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSegLineInteractionFromContact(var SegmentLine: Record "Segment Line"; var Cont: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateInteractionFromInteractLogEntry(var SegmentLine: Record "Segment Line"; var Salesperson: Record "Salesperson/Purchaser")
     begin
     end;
 }

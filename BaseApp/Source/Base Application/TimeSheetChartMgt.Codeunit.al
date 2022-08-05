@@ -105,6 +105,7 @@ codeunit 952 "Time Sheet Chart Mgt."
         Resource.SetRange("Use Time Sheet", true);
         if not UserSetup."Time Sheet Admin." then
             Resource.SetRange("Time Sheet Approver User ID", UserId);
+        OnAddColumnsOnAfterSetFilters(Resource);
         if Resource.FindSet() then
             repeat
                 BusChartBuf.AddColumn(Resource."No.");
@@ -195,6 +196,11 @@ codeunit 952 "Time Sheet Chart Mgt."
         TimeSheetChartSetup.Init();
         TimeSheetChartSetup."Measure Type" := Type;
         exit(Format(TimeSheetChartSetup."Measure Type"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddColumnsOnAfterSetFilters(var Resource: Record Resource)
+    begin
     end;
 }
 

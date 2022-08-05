@@ -54,7 +54,13 @@
     var
         UserSetup: Record "User Setup";
         NotificationEntry: Record "Notification Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDispatchNotificationTypeForUser(Parameter, IsHandled);
+        if IsHandled then
+            exit;
+
         NotificationEntry.SetView(Parameter);
         UserSetup.Get(NotificationEntry.GetRangeMax("Recipient User ID"));
         DispatchForNotificationType(NotificationEntry.GetRangeMax(Type), UserSetup, CopyStr(UserId(), 1, 50));
@@ -347,9 +353,14 @@
     local procedure GetTempNotificationEntryFromTo(var TempNotificationEntryFromTo: Record "Notification Entry" temporary)
     var
         NotificationEntry: Record "Notification Entry";
+        IsHandled: Boolean;
     begin
-        NotificationEntry.SetRange("Sender User ID", UserId());
+        IsHandled := false;
+        OnBeforeGetTempNotificationEntryFromTo(NotificationEntry, TempNotificationEntryFromTo, IsHandled);
+        if IsHandled then
+            exit;
 
+        NotificationEntry.SetRange("Sender User ID", UserId());
         if NotificationEntry.FindSet() then
             repeat
                 TempNotificationEntryFromTo.SetRange("Sender User ID", NotificationEntry."Sender User ID");
@@ -393,6 +404,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateNoteBodyOnAfterGetActionTextFor(var NotificationEntry: Record "Notification Entry"; var ActionText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDispatchNotificationTypeForUser(Parameter: Text; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTempNotificationEntryFromTo(var NotificationEntry: Record "Notification Entry"; var TempNotificationEntryFromTo: Record "Notification Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 }

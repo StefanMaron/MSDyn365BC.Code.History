@@ -100,7 +100,7 @@ page 474 "VAT Statement Preview"
     {
     }
 
-    trigger OnAfterGetRecord()
+    trigger OnAfterGetCurrRecord()
     begin
         UpdateSubForm();
     end;
@@ -111,6 +111,7 @@ page 474 "VAT Statement Preview"
             Selection := PassedSelection;
             PeriodSelection := PassedPeriodSelection;
             DateFilter := PassedDateFilter;
+            Rec.SetFilter("Date Filter", PassedDateFilter);
         end else
             DateFilter := '';
         UpdateSubForm();
@@ -145,6 +146,7 @@ page 474 "VAT Statement Preview"
         PassedSelection := NewSelection;
         PassedPeriodSelection := NewPeriodSelection;
         PassedDateFilter := NewDateFilter;
+        Rec.SetFilter("Date Filter", PassedDateFilter);
         ValuesPassed := true;
     end;
 

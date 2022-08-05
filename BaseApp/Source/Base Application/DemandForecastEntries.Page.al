@@ -108,11 +108,12 @@ page 99000922 "Demand Forecast Entries"
             "Production Forecast Name" := CopyStr(CurrentForecastName, 1, MaxStrLen("Production Forecast Name"))
         else
             "Production Forecast Name" := xRec."Production Forecast Name";
-
-        "Item No." := xRec."Item No.";
-        "Unit of Measure Code" := xRec."Unit of Measure Code";
-        "Qty. per Unit of Measure" := xRec."Qty. per Unit of Measure";
-        "Forecast Date" := xRec."Forecast Date";
+            if GUIAllowed() then begin
+            "Item No." := xRec."Item No.";
+            "Unit of Measure Code" := xRec."Unit of Measure Code";
+            "Qty. per Unit of Measure" := xRec."Qty. per Unit of Measure";
+            "Forecast Date" := xRec."Forecast Date";
+        end;
     end;
 
     var

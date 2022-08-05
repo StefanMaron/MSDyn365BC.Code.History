@@ -320,7 +320,7 @@ codeunit 6501 "Item Tracking Data Collection"
         xTrackingSpecification: Record "Tracking Specification" temporary;
     begin
         LastSummaryEntryNo := 0;
-        LastReservEntryNo := 0;
+        LastReservEntryNo := 2147483647;
         xTrackingSpecification := TempTrackingSpecification;
         TempGlobalReservEntry.Reset();
         TempGlobalReservEntry.DeleteAll();
@@ -328,7 +328,6 @@ codeunit 6501 "Item Tracking Data Collection"
         TempGlobalEntrySummary.DeleteAll();
 
         ReservEntry.Reset();
-        LastReservEntryNo := ReservEntry.GetLastEntryNo();
         ReservEntry.SetCurrentKey(
           "Item No.", "Variant Code", "Location Code", "Item Tracking", "Reservation Status", "Lot No.", "Serial No.");
         ReservEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
@@ -1093,7 +1092,8 @@ codeunit 6501 "Item Tracking Data Collection"
         TempGlobalAdjustEntry."Source Type" := -ReservEntry."Source Type";
         TempGlobalAdjustEntry.Description := CopyStr(Text013, 1, MaxStrLen(TempGlobalAdjustEntry.Description));
         TempGlobalAdjustEntry."Quantity (Base)" := AdjustQty;
-        TempGlobalAdjustEntry."Entry No." += LastReservEntryNo; // Use last entry no as offset to avoid inserting existing entry
+        TempGlobalAdjustEntry."Entry No." := LastReservEntryNo; // Use last entry no as offset to avoid inserting existing entry
+        LastReservEntryNo -= 1;
         TempGlobalAdjustEntry.Insert();
     end;
 

@@ -91,8 +91,13 @@ page 9155 "My Time Sheets"
         TimeSheetLine: Record "Time Sheet Line";
         TimeSheetMgt: Codeunit "Time Sheet Management";
     begin
-        TimeSheetMgt.SetTimeSheetNo("Time Sheet No.", TimeSheetLine);
-        PAGE.Run(PAGE::"Time Sheet", TimeSheetLine);
+        if TimeSheetMgt.TimeSheetV2Enabled() then begin
+            TimeSheetHeader.Get("Time Sheet No.");
+            Page.Run(Page::"Time Sheet Card", TimeSheetHeader);
+        end else begin
+            TimeSheetMgt.SetTimeSheetNo("Time Sheet No.", TimeSheetLine);
+            PAGE.Run(PAGE::"Time Sheet", TimeSheetLine);
+        end;
     end;
 }
 

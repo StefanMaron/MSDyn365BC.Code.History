@@ -527,9 +527,16 @@
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    ShouldSkip: Boolean;
                 begin
                     if TempValueEntry.Next() = 0 then
                         Clear(TempValueEntry);
+
+                    ShouldSkip := false;
+                    OnSkippedvalueEntryOnOfterGetRecordOnBeforeSkip(TempValueEntry, ShouldSkip);
+                    if ShouldSkip then
+                        CurrReport.Skip();
 
                     SetRange("Item No.", TempValueEntry."Item No.");
                     SetRange("Entry No.", TempValueEntry."Entry No.");
@@ -616,6 +623,8 @@
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
                             GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
@@ -877,6 +886,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAmounts(var ItemValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSkippedvalueEntryOnOfterGetRecordOnBeforeSkip(ValueEntry: Record "Value Entry"; var ShouldSkip: Boolean)
     begin
     end;
 }

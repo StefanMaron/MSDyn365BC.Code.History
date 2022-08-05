@@ -2919,6 +2919,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Signature Algorithm - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1137163859 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signup Context Values</source>
+          <target state="translated">Kontextové hodnoty registrace</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signup Context Values - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1137163859 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Primární klíč</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signup Context Values - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1137163859 - Field 3068241891 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signup Context</source>
+          <target state="translated">Kontext registrace</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signup Context Values - Field Signup Context - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2655210482 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SmartList Designer Handler</source>
           <target state="translated">SmartList Designer Handler</target>
@@ -3401,7 +3419,7 @@
         </trans-unit>
         <trans-unit id="Table 3975264862 - Field 1581469095 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Full Name</source>
-          <target state="translated">Úplný název</target>
+          <target state="translated">Celé jméno</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table User Plan - Field User Full Name - Property Caption</note>
         </trans-unit>
@@ -14574,7 +14592,7 @@
         </trans-unit>
         <trans-unit id="Page 383217645 - Control 2981864456 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Full Name</source>
-          <target state="translated">Úplný název</target>
+          <target state="translated">Celé jméno</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Lookup - Control Full Name - Property Caption</note>
         </trans-unit>
@@ -16278,7 +16296,7 @@
         </trans-unit>
         <trans-unit id="Enum 3165356393 - EnumValue 2981864456 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Full Name</source>
-          <target state="translated">Úplný název</target>
+          <target state="translated">Celé jméno</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD User Update Entity - EnumValue Full Name - Property Caption</note>
         </trans-unit>
@@ -16596,13 +16614,13 @@
         </trans-unit>
         <trans-unit id="Enum 50758251 - EnumValue 3916066021 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View if access to any related records</source>
-          <target state="translated">Zobrazit s přístupem k jakémukoli ze souvisejícím záznamům</target>
+          <target state="translated">Zobrazit s přístupem k jakémukoli ze souvisejících záznamů</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Email View Policy - EnumValue AnyRelatedRecordEmails - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 50758251 - EnumValue 3255641635 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View own emails</source>
-          <target state="translated">Zobrazení vlastních e-mailů</target>
+          <target state="translated">Zobrazit vlastní e-maily</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Email View Policy - EnumValue OwnEmails - Property Caption</note>
         </trans-unit>
@@ -17301,6 +17319,18 @@
           <target state="translated">Vybrat účet</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Prompt Interaction - EnumValue Select Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3068241891 - EnumValue 1371923692 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not Set</source>
+          <target state="translated">Není nastaveno</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Signup Context - EnumValue   - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3068241891 - EnumValue 210717594 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Viral Signup</source>
+          <target state="translated">Virální registrace</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Signup Context - EnumValue Viral Signup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 2719173742 - EnumValue 3371220206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>None</source>

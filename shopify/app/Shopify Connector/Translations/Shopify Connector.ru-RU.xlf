@@ -363,6 +363,78 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Gift Card - Field Last Characters - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3502972403 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopfiy Initial Import Line</source>
+          <target state="translated">Строка первоначального импорта из Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 215858794 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Demo Import</source>
+          <target state="translated">Демонстрационный импорт</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Demo Import - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 4075184121 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dependency Filter</source>
+          <target state="translated">Фильтр зависимостей</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Dependency Filter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 3983787601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Job Queue Entry ID</source>
+          <target state="translated">ИД операции очереди работ</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Queue Entry ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 2498855570 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Job Queue Entry Status</source>
+          <target state="translated">Состояние операции очереди работ</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Queue Entry Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 2498855570 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> ,Ready,In Process,Error,On Hold,Finished</source>
+          <target state="translated"> ,Готово,В работе,Ошибка,На удержании,Завершено</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Queue Entry Status - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 3318218501 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Job Status</source>
+          <target state="translated">Статус работы</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 3318218501 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> ,Success,In Process,Error</source>
+          <target state="translated"> ,Успех,В работе,Ошибка</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Status - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Имя</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 894914730 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Page ID</source>
+          <target state="translated">ИД страницы</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Page ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 1829104285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Session ID</source>
+          <target state="translated">ИД сеанса</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Session ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3502972403 - Field 1669136979 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shop Code</source>
+          <target state="translated">Код магазина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Shop Code - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3316406141 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Inventory Item</source>
           <target state="translated">Товар в запасах Shopify</target>
@@ -2361,6 +2433,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2860632388 - NamedType 1390462053" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The URL must refer to the internal shop location at myshopify.com. It must not be the public URL that customers use, such as myshop.com.</source>
+          <target state="translated">URL-адрес должен представлять собой внутреннее местонахождение магазина на myshopify.com. Это не должен быть общедоступный URL-адрес, используемый клиентами, такой как myshop.com.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop - NamedType InvalidShopUrlErr</note>
+        </trans-unit>
         <trans-unit id="Table 2860632388 - Field 3382674177 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Action for Removed Products</source>
           <target state="translated">Действие для удаленных продуктов</target>
@@ -2372,6 +2450,12 @@
           <target state="translated">Разрешить фоновые синхронизации</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop - Field Allow Background Syncs - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2860632388 - Field 247023631 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allow Outgoing Requests</source>
+          <target state="translated">Разрешить исходящие запросы</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop - Field Allow Outgoing Requests - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2860632388 - Field 759033538 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Auto Create Orders</source>
@@ -3201,6 +3285,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method CountrySync - NamedType SyncTypeLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4014190514 - Method 2509146015 - NamedType 2243336807" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customers</source>
+          <target state="translated">Клиенты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method CustomerBackgroundSync - NamedType SyncTypeLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4014190514 - Method 2008095221 - NamedType 2243336807" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customers</source>
           <target state="translated">Клиенты</target>
@@ -3219,11 +3309,35 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method EnqueueJobEntry - NamedType ShowLogMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4014190514 - Method 2832481531 - NamedType 2820409318" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify Job Queue notification</source>
+          <target state="translated">Уведомление от очереди работ Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method EnqueueJobEntry - NamedType NotificationNameTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4014190514 - Method 2832481531 - NamedType 576114730" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify Job Queue information</source>
+          <target state="translated">Информация из очереди работ Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method EnqueueJobEntry - NamedType DescriptionTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4014190514 - Method 2832481531 - NamedType 942182862" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Don't show me again</source>
+          <target state="translated">Больше не показывать</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method EnqueueJobEntry - NamedType DontShowAgainTok</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4014190514 - Method 2380375 - NamedType 2739902161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inventory</source>
           <target state="translated">Запасы</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method InventorySync - NamedType SyncTypeTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4014190514 - Method 2221125097 - NamedType 2739902161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Orders</source>
+          <target state="translated">Заказы</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method OrderBackgroundSync - NamedType SyncTypeTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4014190514 - Method 1398042539 - NamedType 3417653324" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify order sync of orders: %1</source>
@@ -3243,17 +3357,41 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method PayoutsSync - NamedType SyncTypeTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4014190514 - Method 3784278906 - NamedType 2739902161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Product Images</source>
+          <target state="translated">Изображения продуктов</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method ProductImagesBackgroundSync - NamedType SyncTypeTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4014190514 - Method 2881225420 - NamedType 2739902161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Product Images</source>
           <target state="translated">Изображения продуктов</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method ProductImagesSync - NamedType SyncTypeTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4014190514 - Method 460704859 - NamedType 2739902161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Products</source>
+          <target state="translated">Продукты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method ProductsBackgroundSync - NamedType SyncTypeTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4014190514 - Method 2941445433 - NamedType 2739902161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Products</source>
           <target state="translated">Продукты</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method ProductsSync - NamedType SyncTypeTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3550761784 - NamedType 2464839344" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Importing data to your Shopify shop is not enabled, do you want to go to shop card to enable?</source>
+          <target state="translated">Импорт данных в магазин Shopify не включен. Хотите перейти к карточке магазина и включить его?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Communication Mgt. - NamedType OutgoingRequestsNotEnabledConfirmLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3550761784 - NamedType 4198223611" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Importing data to your Shopify shop is not enabled, navigate to shop card to enable.</source>
+          <target state="translated">Импорт данных в магазин Shopify не включен. Перейдите к карточке магазина и включите его.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Communication Mgt. - NamedType OutgoingRequestsNotEnabledErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3550761784 - Method 2453499666 - NamedType 1006015826" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Error(s) on Shopify:\ \%1</source>
@@ -3272,6 +3410,120 @@
           <target state="translated">Неверный обновленный ИД адреса</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Customer API - Method UpdateCustomer - NamedType UpdateAddrIdErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 1826365182" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Business Central includes an integration to Shopify that will make your online trade a breeze. See this video to learn how.</source>
+          <target state="translated">В Business Central есть интеграция с Shopify, чтобы вы могли торговать в Интернете без каких-либо усилий. Посмотрите это видео, чтобы узнать, как.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType BusinessCentralLovesShopifyDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 1957669498" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Business Central loves Shopify</source>
+          <target state="translated">Business Central работает с Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType BusinessCentralLovesShopifyShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 254904384" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Grow your business with Business Central</source>
+          <target state="translated">Развивайте свой бизнес с Business Central</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType BusinessCentralLovesShopifyTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 1210680421" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check that we got your company name and other basic information right.</source>
+          <target state="translated">Проверьте, правильно ли указаны название вашей организации и другие основные сведения.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType CompanyDetailsDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 4248572601" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company details</source>
+          <target state="translated">Сведения об организации</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType CompanyDetailsShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3996511911" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check your company details</source>
+          <target state="translated">Проверка сведений о вашей организации</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType CompanyDetailsTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 288678031" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Easily set basic connection and synchronization settings. You can control how data flows to and from your shop on Shopify.</source>
+          <target state="translated">Здесь вы можете настроить основные параметры подключения и синхронизации для управления тем, как данные движутся в ваш магазин Shopify и из него.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 1699432365" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check out how easy it is to set up the connection to Shopify. Here we connect and import your shop data. Your live shop will be untouched. Try it out!</source>
+          <target state="translated">Настроить подключение к Shopify очень легко. Здесь вы можете подключиться и импортировать данные из своего магазина. На самом магазине это никак не отразится. Попробуйте!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopEvalDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 689624097" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Connect your shop</source>
+          <target state="translated">Подключение магазина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopEvalShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3767689775" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Connect your shop and import data</source>
+          <target state="translated">Подключение магазина и импорт данных</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopEvalTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 1655242555" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Connect your shop</source>
+          <target state="translated">Подключение магазина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 780632541" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get started with Shopify</source>
+          <target state="translated">Начало работы с Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 1302139209" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We have gathered a lot of great resources for you to start learning Business Central. Start your learning journey here.</source>
+          <target state="translated">Мы собрали множество ресурсов, с которых вы можете начать изучение Business Central. Начните освоение Business Central здесь.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType LearnBusinessCentralDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3384087653" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn Business Central</source>
+          <target state="translated">Научитесь работать с Business Central</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType LearnBusinessCentralShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 1316971859" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn Business Central on your own</source>
+          <target state="translated">Осваивайте Business Central самостоятельно</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType LearnBusinessCentralTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 2748531768" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Signup Context and shopify url don't match.</source>
+          <target state="translated">Контекст регистрации и URL-адрес Shopify не совпадают.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ShopifyShopUrlMismatchErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3664766187" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>If you are ready to buy, you can find a Business Central reseller here. If you have already licensed a subscription you can also find help for more setup here.</source>
+          <target state="translated">Если вы готовы приобрести Business Central, вы можете найти здесь реселлера. Если у вас уже есть подписка, здесь же можно получить помощь по дополнительной настройке.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType TakeTheNextStepDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 2881635631" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Take the next step</source>
+          <target state="translated">Сделайте следующий шаг</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType TakeTheNextStepShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 197616241" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ready to buy or need help?</source>
+          <target state="translated">Готовы сделать покупку или нужна помощь?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType TakeTheNextStepTitleTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1710206422 - Method 2331973957 - NamedType 2851628066" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No implementation for fieldtype: "%1".</source>
@@ -3363,6 +3615,484 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Authentication - NamedType NoStateErr</note>
         </trans-unit>
+        <trans-unit id="Page 3918578631 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify Connector Setup</source>
+          <target state="translated">Настройка соединителя Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 2242215413" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not connect to Shopify</source>
+          <target state="translated">Не удалось подключиться к Shopify</target>
+          <note from="Developer" annotates="general" priority="2">Shopify must not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType ConnectionUnsuccessfulLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 1777866872" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>By enabling this feature, you consent to your data being shared with a Microsoft service that might be outside of your organization's selected geographic boundaries and might have different compliance and security standards than Microsoft Dynamics Business Central. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.</source>
+          <target state="translated">Включая эту функцию, вы даете согласие на передачу своих данных службе Майкрософт, которая может находиться за пределами географического региона вашей организации, и стандарты безопасности и соответствия требованиям которой могут отличаться от аналогичных стандартов Microsoft Dynamics Business Central. Мы заботимся о вашей конфиденциальности, и вы можете разрешить или запретить передачу данных этой службе. Подробнее можно узнать по ссылке ниже.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType ConsentLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 3734137583" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify customer template</source>
+          <target state="translated">Шаблон клиента Shopify</target>
+          <note from="Developer" annotates="general" priority="2">Shopify must not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType CustomerConfigTemplateDescLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 192460646" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No customer template was found, please visit Configuration Templates page to create a customer template.</source>
+          <target state="translated">Шаблон клиента не найден. Перейдите на страницу "Шаблоны конфигураций", чтобы создать шаблон клиента.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType CustomerTemplateNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 2635897643" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>It looks like this may take a while. You can look around Business Central while we continue to import in the background. Please visit the Shopify Initial Import page to check the status.</source>
+          <target state="translated">Этот процесс может занять некоторое время. Импорт будет идти в фоновом режиме, чтобы вы могли тем временем ознакомиться с Business Central. Проверить статус импорта можно на странице "Первоначальный импорт из Shopify".</target>
+          <note from="Developer" annotates="general" priority="2">Shopify Initial Import is page 30137 "Shpfy Initial Import"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType InitialImportTakingLongerMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 1605308211" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We're still importing data from your shop.</source>
+          <target state="translated">Данные из вашего магазина ее импортируются.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType InitialImportWaitMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 1390462053" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The URL must refer to the internal shop location at myshopify.com. It must not be the public URL that customers use, such as myshop.com.</source>
+          <target state="translated">URL-адрес должен представлять собой внутреннее местонахождение магазина на myshopify.com. Это не должен быть общедоступный URL-адрес, используемый клиентами, такой как myshop.com.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType InvalidShopUrlErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 2172804368" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify item template</source>
+          <target state="translated">Шаблон товара Shopify</target>
+          <note from="Developer" annotates="general" priority="2">Shopify must not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType ItemConfigTemplateDescLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 2888902389" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No item template was found, please visit Configuration Templates page to create an item template.</source>
+          <target state="translated">Шаблон товара не найден. Перейдите на страницу "Шаблоны конфигураций", чтобы создать шаблон товара.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType ItemTemplateNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 1052459003" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Privacy and Cookies</source>
+          <target state="translated">Конфиденциальность и файлы cookie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType LearnMoreTok</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 2202360722" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>https://go.microsoft.com/fwlink/?linkid=521839</source>
+          <target state="translated">https://go.microsoft.com/fwlink/?linkid=521839</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType PrivacyLinkTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 4203578975" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Template %1 is not a customer template.</source>
+          <target state="translated">Шаблон %1 не является шаблоном клиента.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = template name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType SelectedTemplateNotCustomerErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 3337405760" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Template %1 is not an item template.</source>
+          <target state="translated">Шаблон %1 не является шаблоном товара.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = template name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType SelectedTemplateNotItemErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 984350027" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The setup is not complete.\\Are you sure you want to exit?</source>
+          <target state="translated">Настройка не завершена.\\Вы уверены, что хотите выйти?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType SetupNotCompletedQst</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - NamedType 3651316694" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open shop settings</source>
+          <target state="translated">Открыть параметры магазина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType ShopCardLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2657111414 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We've already started importing products from your shop in Shopify.</source>
+          <target state="translated">Мы уже начали импортировать продукты из вашего магазина в Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control14 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2657111414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You're all set!</source>
+          <target state="translated">Все готово!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control14 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2019414797 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review your shop settings to ensure that data synchronize correctly.</source>
+          <target state="translated">Проверьте параметры своего магазина, чтобы данные синхронизировались правильно.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control15 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2019414797 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check shop settings</source>
+          <target state="translated">Проверить параметры магазина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control15 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 40722952 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shop card</source>
+          <target state="translated">Карточка магазина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control DemoCompanyShopCard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 300852202 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control FinishedBanner - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1381718180 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We've already started to import data from your shop in Shopify.</source>
+          <target state="translated">Мы уже начали импортировать данные из вашего магазина в Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control16 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1381718180 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You're all set!</source>
+          <target state="translated">Все готово!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control16 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 744021563 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The connection to your shop is working.</source>
+          <target state="translated">Подключение к вашему магазину работает.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control17 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 744021563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You're all set!</source>
+          <target state="translated">Все готово!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control17 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3594686602 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review your shop settings to ensure that your data synchronize correctly.</source>
+          <target state="translated">Проверьте параметры своего магазина, чтобы данные синхронизировались правильно.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control18 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3594686602 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check shop settings</source>
+          <target state="translated">Проверить параметры магазина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control18 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3024918365 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shop card</source>
+          <target state="translated">Карточка магазина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control MyCompanyShopCard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1121962313 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control StandardBanner - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2898143332 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>While you're using a demo company, we want to keep things safe for your Shopify store. You can use this guide to import up to 25 products from Shopify, but you can't export Business Central data to your store.</source>
+          <target state="translated">Пока вы используете демонстрационную компанию, существуют некоторые ограничения для обеспечения безопасности вашего магазина в Shopify. С помощью этого мастера вы можете импортировать до 25 продуктов из Shopify, но не можете экспортировать в свой магазин данные из Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Note - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2898143332 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Note</source>
+          <target state="translated">Примечание</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Note - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2734658265 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This guide will connect Business Central to your shop on Shopify. We'll create a new shop in Business Central, and help you import data you may already have on Shopify.</source>
+          <target state="translated">Этот мастер предназначен для подключения Business Central к вашему магазину в Shopify. Мы создадим новый магазин в Business Central и поможем вам импортировать данные, которые, возможно, уже есть у вас в Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Welcome to Shopify Connector Setup - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2734658265 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Welcome to Shopify Connector Setup</source>
+          <target state="translated">Вас приветствует мастер настройки соединителя Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Welcome to Shopify Connector Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1338659457 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We found this URL for your shop on Shopify. You can use the URL for another shop if you want.</source>
+          <target state="translated">Мы нашли следующий URL-адрес вашего магазина в Shopify. При желании вы можете использовать URL-адрес другого магазина.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control0 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1338659457 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We found your shop on Shopify</source>
+          <target state="translated">Мы нашли ваш магазин в Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control0 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1976356074 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The URL must refer to the internal shop location at myshopify.com. It must not be the public URL that customers use, such as myshop.com.</source>
+          <target state="translated">URL-адрес должен представлять собой внутреннее местонахождение магазина на myshopify.com. Это не должен быть общедоступный URL-адрес, используемый клиентами, такой как myshop.com.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control1 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1976356074 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter the URL for your shop on Shopify</source>
+          <target state="translated">Введите URL-адрес своего магазина в Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 63266223 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>When you choose Next you'll be asked to sign in to your Shopify account and request access to your Shopify shop.</source>
+          <target state="translated">После нажатия кнопки "Далее" вам будет предложено войти в свою учетную запись Shopify и запросить доступ к вашему магазину Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control2 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3694576179 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indicates that the administrator user could not sign-in to Shopify.</source>
+          <target state="translated">Указывает, что пользователю-администратору не удалось войти в Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control ConnectionUnsuccessful - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3694576179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not connect to Shopify</source>
+          <target state="translated">Не удалось подключиться к Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control ConnectionUnsuccessful - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3042726841 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify shop URL.</source>
+          <target state="translated">URL-адрес магазина Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control ShopUrl - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3042726841 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shop URL</source>
+          <target state="translated">URL-адрес магазина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control ShopUrl - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2614052691 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This guide can help you quickly get started with Business Central. You can import the products and customers from Shopify that you want to manage in Business Central. You can use this guide only one time</source>
+          <target state="translated">Этот мастер поможет вам быстро начать работу с Business Central. Вы можете импортировать из Shopify продукты и клиентов, с которыми хотите работать в Business Central. Использовать этот мастер можно только один раз.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control6 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2614052691 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get started with Business Central by importing data from Shopify</source>
+          <target state="translated">Начните работу с Business Central, импортировав свои данные из Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control6 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 353560050 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Import customers from Shopify.</source>
+          <target state="translated">Импорт клиентов из Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Import Customers From Shopify - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 353560050 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Import Customers From Shopify</source>
+          <target state="translated">Импорт клиентов из Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Import Customers From Shopify - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 458536043 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Import products from Shopify.</source>
+          <target state="translated">Импорт продуктов из Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Import Products From Shopify - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 458536043 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Import Products From Shopify</source>
+          <target state="translated">Импорт продуктов из Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Import Products From Shopify - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3251749308 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You already have items in Business Central. Review the settings for your shop to ensure that your Shopify products map correctly to Business Central items, and then manually import your products.</source>
+          <target state="translated">У вас уже есть товары в Business Central. Проверьте параметры своего магазина, чтобы убедиться, что продукты из Shopify правильно сопоставляются с товарами в Business Central, а затем импортируйте продукты вручную.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control7 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3251749308 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sorry, we can't import your data.</source>
+          <target state="translated">К сожалению, мы не можем импортировать ваши данные.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control7 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2145265097 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Products in Shopify are called items in Business Central. This guide can help you import your Shopify products to Business Central. You can use this guide only one time.</source>
+          <target state="translated">Продукты в Shopify называются в Business Central товарами. Этот мастер поможет вам импортировать свои продукты из Shopify в Business Central. Использовать его можно только один раз.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control8 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2145265097 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify how to create items</source>
+          <target state="translated">Укажите, как создавать товары</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control8 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2782961714 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Here are the important settings for getting started.</source>
+          <target state="translated">Здесь находятся важные параметры, с которых следует начать настройку.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control9 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 741438668 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the item template to use when creating items in Business Central. These are products in Shopify that don't exist as items in Business Central.</source>
+          <target state="translated">Определяет шаблон товара, используемый при создании товаров в Business Central (продуктов из Shopify, которые еще не существуют в качестве товаров в Business Central).</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Item Template Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 741438668 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item Template Code</source>
+          <target state="translated">Код шаблона товара</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Item Template Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1477330826 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Import product images from Shopify.</source>
+          <target state="translated">Импорт изображений продуктов из Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Sync Item Images - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1477330826 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sync Item Images</source>
+          <target state="translated">Синхронизировать изображения товаров</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Sync Item Images - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 106324946 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You've chosen to import customers. Here are some important settings that define how to create them in Business Central.</source>
+          <target state="translated">Вы решили импортировать клиентов. Вот некоторые важные параметры, которые определяют, как они будут создаваться в Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control10 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 106324946 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify how to create customers</source>
+          <target state="translated">Укажите, как создавать клиентов</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control10 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3763595625 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You should only import customers for whom you want to track order activity in Business Central. For example, the customers that you often do business with.</source>
+          <target state="translated">Импортировать следует только клиентов, заказы которых вы хотите отслеживать в Business Central, например клиентов, с которыми вы часто работаете.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control11 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 509464483 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the customer template to use to create unknown customers. These are customers in Shopify that don't already exist in Business Central.</source>
+          <target state="translated">Определяет шаблон клиента, используемый для создания неизвестных клиентов (клиентов из Shopify, которых еще нет в Business Central).</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Customer Template Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 509464483 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Template Code</source>
+          <target state="translated">Код шаблона клиента</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Customer Template Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3125899008 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Orders that you synch from Shopify can automatically become sales orders in Business Central (recommended). The item quantities on these orders are then part of inventory planning and availability in Business Central. You can also import orders to the Shopify Orders page and then turn them into sales orders manually. </source>
+          <target state="translated">Синхронизируемые из Shopify заказы могут автоматически становиться заказами на продажу в Business Central (это рекомендуемая схемы работы). В этом случае количества товаров в этих заказах учитываются при планировании и определении наличия запасов в Business Central. Вы также можете импортировать заказы на страницу "Заказы Shopify", а затем превратить их в заказы на продажу вручную. </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control12 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3125899008 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify how orders should be created</source>
+          <target state="translated">Укажите, как должны создаваться заказы</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control12 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2488202391 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Additionally, choose the G/L account to use for shipping costs from Shopify.</source>
+          <target state="translated">Кроме того, выберите счет ГК, на котором будут учитываться затраты на доставку из Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control13 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 759033538 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether to automatically create orders.</source>
+          <target state="translated">Определяет, следует ли автоматически создавать заказы.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Auto Create Orders - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 759033538 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Auto Create Orders</source>
+          <target state="translated">Автоматически создавать заказы</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Auto Create Orders - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2497121206 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the G/L account to use for shipping costs from Shopify.</source>
+          <target state="translated">Определяет счет ГК, на котором должны учитываться затраты на доставку из Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Shipping Charges Account - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 2497121206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shipping Charges Account</source>
+          <target state="translated">Счет для расходов на доставку</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Shipping Charges Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 860944352 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review the terms and conditions.</source>
+          <target state="translated">Просмотр условий.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control StepConsent - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1733759026 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accept the terms and conditions.</source>
+          <target state="translated">Принятие условий.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Consent - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1733759026 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>I accept</source>
+          <target state="translated">Принимаю</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Consent - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1777866872 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accept the terms and conditions.</source>
+          <target state="translated">Принятие условий.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control ConsentLbl - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 1777866872 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <target state="translated"> </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control ConsentLbl - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3832370403 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View information about the privacy.</source>
+          <target state="translated">Просмотр информации о конфиденциальности.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control LearnMore - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Control 3832370403 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <target state="translated"> </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control LearnMore - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Action 2438272767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">Назад</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Action ActionBack - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Action 3259912055 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finish</source>
+          <target state="translated">Готово</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Action ActionFinish - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918578631 - Action 914282563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Далее</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Action ActionNext - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3498346360 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Credit Card Companies</source>
           <target state="translated">Эмитенты кредитных карт Shopify</target>
@@ -3376,7 +4106,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Credit Card Companies - Control Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1491468912 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Adrresses</source>
+          <source>Addresses</source>
           <target state="translated">Адреса</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Customer Adresses - Property Caption</note>
@@ -3931,6 +4661,42 @@
           <target state="translated">Известные транзакции</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Gift Cards - Control Transaction - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4023966537 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify Initial Import</source>
+          <target state="translated">Первоначальный импорт из Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Initial Import - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4023966537 - Control 2149455310 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the session is active.</source>
+          <target state="translated">Указывает, активен ли сеанс.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Initial Import - Control ActiveSession - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4023966537 - Control 2149455310 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Active Session</source>
+          <target state="translated">Активный сеанс</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Initial Import - Control ActiveSession - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4023966537 - Control 3318218501 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of the import job. </source>
+          <target state="translated">Определяет статус задания импорта. </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Initial Import - Control Job Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4023966537 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the entity that was imported.</source>
+          <target state="translated">Определяет имя импортированной сущности.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Initial Import - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4023966537 - Control 1669136979 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the Shopify shop code.</source>
+          <target state="translated">Определяет код магазина Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Initial Import - Control Shop Code - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1093534293 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Inventory Factbox</source>
@@ -5966,12 +6732,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action AddItems - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 2806160088 - Action 258350985 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Here you select which items in Business Central you wish to push to become products in Shopify. When you selsect **Add Items** you will get an option to filter and select the items which are then brought into this list and can be synchronized to Shopify.</source>
-          <target state="translated">Здесь можно выбрать, какие товары в Business Central вы хотите отправить в качестве продуктов в Shopify. Нажав **Добавить товары**, вы сможете отфильтровать и выбрать товары, которые будут добавлены в этот список для последующей синхронизации с Shopify.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action AddItems - Property AboutText</note>
-        </trans-unit>
         <trans-unit id="Page 2806160088 - Action 258350985 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add Items</source>
           <target state="translated">Добавить товары</target>
@@ -6027,8 +6787,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action SyncImages - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2806160088 - Action 478485645 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sync Product Images</source>
-          <target state="translated">Синхронизировать изображения продуктов</target>
+          <source>Product Images</source>
+          <target state="translated">Изображения продуктов</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action SyncImages - Property Caption</note>
         </trans-unit>
@@ -6039,8 +6799,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action SyncInventory - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2806160088 - Action 3292197631 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sync Inventory</source>
-          <target state="translated">Синхронизировать запасы</target>
+          <source>Inventory</source>
+          <target state="translated">Запасы</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action SyncInventory - Property Caption</note>
         </trans-unit>
@@ -6051,8 +6811,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action SyncProductPrices - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2806160088 - Action 2499598294 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sync Prices to Shopify</source>
-          <target state="translated">Синхронизировать цены в Shopify</target>
+          <source>Prices to Shopify</source>
+          <target state="translated">Цены в Shopify</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action SyncProductPrices - Property Caption</note>
         </trans-unit>
@@ -6063,8 +6823,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action SyncProducts - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2806160088 - Action 3368153305 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sync Products</source>
-          <target state="translated">Синхронизировать продукты</target>
+          <source>Products</source>
+          <target state="translated">Продукты</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action SyncProducts - Property Caption</note>
         </trans-unit>
@@ -6223,6 +6983,18 @@
           <target state="translated">Общие сведения</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control General - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1970429680 - Control 247023631 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifices whether syncing data to Shopify is enabled.</source>
+          <target state="translated">Указывает, включена ли синхронизация данных в Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control Allow Outgoing Requests - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1970429680 - Control 247023631 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allow Data Sync to Shopify</source>
+          <target state="translated">Разрешить синхронизацию данных в Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control Allow Outgoing Requests - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1970429680 - Control 3755146151 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether background syncs are allowed.</source>
@@ -6475,6 +7247,12 @@
           <target state="translated">Определяет, могут ли заказы создаваться автоматически.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control AutoCreateOrders - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1970429680 - Control 484111106 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Auto-create Sales Orders</source>
+          <target state="translated">Автоматически создавать заказы на продажу</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control AutoCreateOrders - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1970429680 - Control 3289828940 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>G/L Account for posting the shipping cost.</source>
@@ -7256,6 +8034,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Sync Products - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Report 2187403677 - Control 1867267488 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of records to synchronize</source>
+          <target state="translated">Количество записей для синхронизации</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Sync Products - Control NumberOfRecords - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Report 2187403677 - Control 1867267488 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of Records</source>
+          <target state="translated">Количество записей</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Sync Products - Control NumberOfRecords - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Report 2187403677 - Control 2244876594 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Only sync prices from D365BC to Shopify</source>
           <target state="translated">Синхронизировать только цены из D365BC в Shopify</target>
@@ -7831,6 +8621,13 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2271291437</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2451614463 - Field 98859487 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signup Shop Url</source>
+          <target state="translated">URL-адрес магазина регистрации</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1137163859</note>
         </trans-unit>
         <trans-unit id="Enum 3510068437 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Allocation Method</source>
@@ -9427,6 +10224,13 @@
           <target state="translated">Неизвестно</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Value Type - EnumValue Unknown - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 1393996773 - EnumValue 3702298894 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify</source>
+          <target state="translated">Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 3068241891</note>
         </trans-unit>
         <trans-unit id="PermissionSet 3340356434 - Property 2879900210" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify - Admin</source>

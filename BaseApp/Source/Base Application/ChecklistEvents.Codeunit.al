@@ -2,12 +2,15 @@ codeunit 1997 "Checklist Events"
 {
     var
         YourSalesWithinOutlookVideoLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2170901', Locked = true;
+        ReadyToGoLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2198402', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure OnAfterLogIn()
     var
         Company: Record Company;
+        SignupContextValues: Record "Signup Context Values";
         Checklist: Codeunit Checklist;
+        SystemInitialization: Codeunit "System Initialization";
     begin
         if not (Session.CurrentClientType() in [ClientType::Web, ClientType::Windows, ClientType::Desktop]) then
             exit;
@@ -17,6 +20,11 @@ codeunit 1997 "Checklist Events"
 
         if not Company.Get(CompanyName()) then
             exit;
+
+        if SystemInitialization.ShouldCheckSignupContext() then
+            if SignupContextValues.Get() then
+                if not (SignupContextValues."Signup Context" in [SignupContextValues."Signup Context"::" ", SignupContextValues."Signup Context"::"Viral Signup"]) then
+                    exit;
 
         Checklist.InitializeGuidedExperienceItems();
 
@@ -35,6 +43,7 @@ codeunit 1997 "Checklist Events"
         TempAllProfileAccountant: Record "All Profile" temporary;
         TempAllProfileSalesOrderProcessor: Record "All Profile" temporary;
         Checklist: Codeunit Checklist;
+        TenantLicenseState: Codeunit "Tenant License State";
         GuidedExperienceType: Enum "Guided Experience Type";
         SpotlightTourType: Enum "Spotlight Tour Type";
     begin
@@ -45,6 +54,8 @@ codeunit 1997 "Checklist Events"
         Checklist.Insert(Page::"Customer List", SpotlightTourType::"Open in Excel", 2000, TempAllProfileBusinessManagerEval, true);
         Checklist.Insert(Page::"Item Card", SpotlightTourType::"Share to Teams", 3000, TempAllProfileBusinessManagerEval, true);
         Checklist.Insert(GuidedExperienceType::Video, YourSalesWithinOutlookVideoLinkTxt, 4000, TempAllProfileBusinessManagerEval, true);
+        if not TenantLicenseState.IsPaidMode() then
+            Checklist.Insert(enum::"Guided Experience Type"::Learn, ReadyToGoLinkTxt, 9000, TempAllProfileBusinessManagerEval, true);
 
         // Accountant
         GetAccountantRole(TempAllProfileAccountant);

@@ -280,7 +280,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                             DATABASE::"Item Ledger Entry", 0, '', '', 0,
                             ItemLedgEntry."Entry No.", ItemLedgEntry."Qty. per Unit of Measure",
                             OldReservEntry, TransferQty);
-                        OnTransferItemJnlToItemLedgEntryOnAfterTransferReservEntry(OldReservEntry2, ReservStatus);
+                        OnTransferItemJnlToItemLedgEntryOnAfterTransferReservEntry(OldReservEntry2, ReservStatus, ItemLedgEntry);
                     end else
                         if ReservStatus = ReservStatus::Tracking then begin
                             OldReservEntry2.Delete();
@@ -551,7 +551,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferItemJnlToItemLedgEntryOnAfterTransferReservEntry(OldReservationEntry2: Record "Reservation Entry"; ReservationStatus: Enum "Reservation Status")
+    local procedure OnTransferItemJnlToItemLedgEntryOnAfterTransferReservEntry(OldReservationEntry2: Record "Reservation Entry"; ReservationStatus: Enum "Reservation Status"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 

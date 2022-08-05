@@ -467,7 +467,10 @@ page 7201 "CDS Connection Setup Wizard"
                         if CDSFullSynchReview.RunModal() = Action::LookupOK then;
                         CRMFullSynchReviewLine.FindSet();
                         repeat
-                            InitialSynchRecommendations.Add(CRMFullSynchReviewLine.Name, CRMFullSynchReviewLine."Initial Synch Recommendation")
+                            if InitialSynchRecommendations.ContainsKey(CRMFullSynchReviewLine.Name) then
+                                InitialSynchRecommendations.Set(CRMFullSynchReviewLine.Name, CRMFullSynchReviewLine."Initial Synch Recommendation")
+                            else
+                                InitialSynchRecommendations.Add(CRMFullSynchReviewLine.Name, CRMFullSynchReviewLine."Initial Synch Recommendation")
                         until CRMFullSynchReviewLine.Next() = 0;
                     end;
                 }

@@ -73,6 +73,7 @@ codeunit 5918 "ServOrder-Check Response Time"
         CheckTime3: Time;
         Text004: Label 'Email address is missing.';
         Text005: Label '%1 with the field %2 selected cannot be found.';
+        ServHrNotSetupErr: Label '%1 is not setup. Please set it up before running this scenario.', Comment = '%1 = page name';
 
     local procedure CheckResponseTime(ResponseDate: Date; ResponseTime: Time): Integer
     begin
@@ -138,6 +139,7 @@ codeunit 5918 "ServOrder-Check Response Time"
         CalChange: Record "Customized Calendar Change";
         ServMgtSetup: Record "Service Mgt. Setup";
         CalendarMgmt: Codeunit "Calendar Management";
+        ServiceHours: Page "Default Service Hours";
         TotTime: Decimal;
         LastTotTime: Decimal;
         HoursLeft: Decimal;
@@ -156,6 +158,8 @@ codeunit 5918 "ServOrder-Check Response Time"
         LastTotTime := 0;
         TempDate := CheckDate;
         HoursLeft := HoursAhead * 3600000;
+        if ServHour.IsEmpty() then
+            Error(ServHrNotSetupErr, ServiceHours.Caption);
         repeat
             TempDay := Date2DWY(TempDate, 1) - 1;
             HoursOnLastDay := 0;

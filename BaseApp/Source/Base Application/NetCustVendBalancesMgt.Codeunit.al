@@ -400,22 +400,16 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
 
     local procedure SetOnHold(var CustLedgEntry: Record "Cust. Ledger Entry")
     var
-        xOnHold: Code[3];
+        CustEntryEdit: Codeunit "Cust. Entry-Edit";
     begin
-        xOnHold := CustLedgEntry."On Hold";
-        CustLedgEntry."On Hold" := NetBalancesParameters."On Hold";
-        if xOnHold <> CustLedgEntry."On Hold" then
-            CustLedgEntry.Modify();
+        CustEntryEdit.SetOnHold(CustLedgEntry, NetBalancesParameters."On Hold");
     end;
 
     local procedure SetOnHold(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     var
-        xOnHold: Code[3];
+        VendEntryEdit: Codeunit "Vend. Entry-Edit";
     begin
-        xOnHold := VendorLedgerEntry."On Hold";
-        VendorLedgerEntry."On Hold" := NetBalancesParameters."On Hold";
-        if xOnHold <> VendorLedgerEntry."On Hold" then
-            VendorLedgerEntry.Modify();
+        VendEntryEdit.SetOnHold(VendorLedgerEntry, NetBalancesParameters."On Hold");
     end;
 
     local procedure MinDec(Decimal1: Decimal; Decimal2: Decimal): Decimal

@@ -57,6 +57,7 @@
         DocLineNo: Integer;
         PostedWhseShptLineFound: Boolean;
     begin
+        OnBeforeCode(ReturnShptLine, UndoPostingMgt);
         with ReturnShptLine do begin
             Clear(ItemJnlPostLine);
             SetFilter(Quantity, '<>0');
@@ -109,7 +110,7 @@
 
                 OnBeforeReturnShptLineModify(ReturnShptLine, TempWhseJnlLine);
                 Modify();
-                OnAfterReturnShptLineModify(ReturnShptLine, TempWhseJnlLine, DocLineNo);
+                OnAfterReturnShptLineModify(ReturnShptLine, TempWhseJnlLine, DocLineNo, UndoPostingMgt);
 
                 if not JobItem then
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
@@ -120,7 +121,7 @@
             WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
         end;
 
-        OnAfterCode(ReturnShptLine);
+        OnAfterCode(ReturnShptLine, UndoPostingMgt);
     end;
 
     local procedure CheckReturnShptLine(ReturnShptLine: Record "Return Shipment Line")
@@ -143,9 +144,13 @@
                 TestField("Prod. Order No.", '');
 
                 UndoPostingMgt.TestReturnShptLine(ReturnShptLine);
-                UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Return Shipment Line",
-                  "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+                IsHandled := false;
+                OnCheckReturnShptLineOnBeforeCollectItemLedgEntries(ReturnShptLine, IsHandled);
+                If not IsHandled then begin
+                    UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Return Shipment Line",
+                    "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+                    UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+                end;
             end;
         end;
     end;
@@ -320,7 +325,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var ReturnShipmentLine: Record "Return Shipment Line")
+    local procedure OnAfterCode(var ReturnShipmentLine: Record "Return Shipment Line"; var UndoPostingManagement: Codeunit "Undo Posting Management")
     begin
     end;
 
@@ -345,7 +350,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReturnShptLineModify(var ReturnShptLine: Record "Return Shipment Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; DocLineNo: Integer)
+    local procedure OnAfterReturnShptLineModify(var ReturnShptLine: Record "Return Shipment Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; DocLineNo: Integer; var UndoPostingManagement: Codeunit "Undo Posting Management")
     begin
     end;
 
@@ -356,6 +361,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReturnShptLine(var ReturnShptLine: Record "Return Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var ReturnShipmentLine: Record "Return Shipment Line"; var UndoPostingManagement: Codeunit "Undo Posting Management")
     begin
     end;
 
@@ -386,6 +396,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOrderLineOnBeforeUpdatePurchLine(var ReturnShptLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckReturnShptLineOnBeforeCollectItemLedgEntries(ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

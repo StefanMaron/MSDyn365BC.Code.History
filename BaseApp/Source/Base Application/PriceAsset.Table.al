@@ -1,4 +1,4 @@
-table 7003 "Price Asset"
+﻿table 7003 "Price Asset"
 {
 #pragma warning disable AS0034
     TableType = Temporary;
@@ -202,6 +202,8 @@ table 7003 "Price Asset"
         Description := '';
         "Unit of Measure Code" := '';
         "Amount Type" := "Amount Type"::Any;
+
+        OnAfterInitAsset(Rec);
     end;
 
     procedure IsAssetNoRequired(): Boolean;
@@ -263,6 +265,11 @@ table 7003 "Price Asset"
         if "Price Type" = "Price Type"::Purchase then
             if "Asset Type" = "Asset Type"::"Item Discount Group" then
                 FieldError("Asset Type");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitAsset(var PriceAsset: Record "Price Asset")
+    begin
     end;
 
     local procedure IsVerifyConsistentAssetTypeHandled() IsHandled: Boolean;

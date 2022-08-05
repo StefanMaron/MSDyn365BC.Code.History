@@ -1400,4 +1400,13 @@
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1150498218)(LookupHint=EnumExtension Assisted Setup Test Group - EnumValue ZZ - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";EnumExtension 84767168 - EnumValue 3070150087 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Value Caption]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 3068241891)(LookupHint=EnumExtension SignupContextTestValue - EnumValue Test Value - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

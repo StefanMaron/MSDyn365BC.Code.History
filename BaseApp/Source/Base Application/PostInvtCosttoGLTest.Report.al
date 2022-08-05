@@ -380,6 +380,8 @@
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
                             GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
@@ -397,6 +399,12 @@
         actions
         {
         }
+
+        trigger OnOpenPage()
+        begin
+            GLSetup.GetRecordOnce();
+            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        end;
     }
 
     labels
@@ -668,11 +676,11 @@
                 "Inventory Account Type"::"Invt. Accrual (Interim)":
                     exit(GenPostSetup.FieldCaption("Invt. Accrual Acc. (Interim)"));
                 else begin
-                        IsHandled := false;
-                        OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
-                        if IsHandled then
-                            exit(AccountName);
-                    end;
+                    IsHandled := false;
+                    OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
+                    if IsHandled then
+                        exit(AccountName);
+                end;
             end;
 
         OnAfterGetAccountName(TempInvtPostToGLTestBuf, InvtPostSetup, GenPostSetup, AccountName);

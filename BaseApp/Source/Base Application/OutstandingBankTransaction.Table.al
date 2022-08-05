@@ -171,5 +171,16 @@
 
         exit(AppliedAmt);
     end;
-}
 
+    procedure GetRemainingAmount(EntryNo: Integer) RemainingAmt: Decimal
+    var
+        AppliedPaymentEntry: Record "Applied Payment Entry";
+    begin
+        AppliedPaymentEntry.SetRange("Applies-to Entry No.", EntryNo);
+        if not AppliedPaymentEntry.FindFirst() then
+            exit;
+
+        RemainingAmt := AppliedPaymentEntry.GetRemAmt();
+        exit(RemainingAmt);
+    end;
+}

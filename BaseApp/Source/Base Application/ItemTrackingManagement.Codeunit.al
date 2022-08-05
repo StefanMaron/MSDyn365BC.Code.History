@@ -3560,7 +3560,7 @@ codeunit 6500 "Item Tracking Management"
                 LotNoInfo.Validate("Variant Code", TrackingSpecification."Variant Code");
                 LotNoInfo.Validate("Lot No.", LotNumber);
                 LotNoInfo.Insert(true);
-                OnAfterCreateLotInformation(LotNoInfo);
+                OnAfterCreateLotInformation(LotNoInfo, TrackingSpecification);
             end;
         end;
     end;
@@ -4029,7 +4029,7 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateLotInformation(var LotNoInfo: Record "Lot No. Information")
+    local procedure OnAfterCreateLotInformation(var LotNoInfo: Record "Lot No. Information"; var TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

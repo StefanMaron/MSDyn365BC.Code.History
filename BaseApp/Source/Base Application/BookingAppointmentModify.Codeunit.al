@@ -65,12 +65,17 @@ codeunit 6724 "Booking Appointment - Modify"
             Clear(BookingItem."Invoice Status");
             InvoicedBookingItem.Delete();
         end;
-
+        OnHandleUnpostedOnBeforeBookingItemModify(BookingItem, SalesHeader);
         BookingItem.Modify();
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnHandlePostedOnBeforeBookingItemModify(var BookingItem: Record "Booking Item"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleUnpostedOnBeforeBookingItemModify(var BookingItem: Record "Booking Item"; SalesHeader: Record "Sales Header")
     begin
     end;
 }

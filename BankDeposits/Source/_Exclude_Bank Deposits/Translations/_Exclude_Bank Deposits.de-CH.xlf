@@ -81,6 +81,12 @@
           <note from="Developer" annotates="general" priority="2">%1 - the caption of field No.; %2 - the value of field No.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Bank Deposit Header - NamedType PostingDescriptionTxt</note>
         </trans-unit>
+        <trans-unit id="Table 26680403 - NamedType 219863061" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to add the bank deposit dimensions to all bank deposit lines?</source>
+          <target state="translated">Möchten Sie die Bankeinzahlungsdimensionen allen Bankeinzahlungszeilen hinzufügen?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Bank Deposit Header - NamedType UpdateDimensionsOnExistingLinesQst</note>
+        </trans-unit>
         <trans-unit id="Table 26680403 - Field 2850626594 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Acc. Posting Group</source>
           <target state="translated">Bankkto.-Buchungsgruppe</target>

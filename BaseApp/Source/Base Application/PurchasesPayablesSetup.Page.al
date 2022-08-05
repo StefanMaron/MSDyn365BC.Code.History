@@ -141,6 +141,7 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Advanced;
                     Importance = Additional;
                     ToolTip = 'Specifies if multiple posting groups can be used for the same vendor in purchase documents.';
+                    Visible = false;
                 }
                 field("Ignore Updated Addresses"; "Ignore Updated Addresses")
                 {

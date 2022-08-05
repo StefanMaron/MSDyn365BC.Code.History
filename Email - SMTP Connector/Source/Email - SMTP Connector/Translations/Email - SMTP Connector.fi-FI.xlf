@@ -69,6 +69,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Name - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 1340278269 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Type</source>
+          <target state="translated">Lähettäjän tyyppi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Type - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4170592685 - Field 892320855 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Server</source>
           <target state="translated">Palvelin</target>
@@ -129,6 +135,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NotRegisteredAccountErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 2880798304" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Can't send the email. The %1 account does not have Send As permissions on your mail server for the %2 account.</source>
+          <target state="translated">Sähköpostiviestiä ei voi lähettää. Tilillä %1 ei ole Lähetä nimellä -oikeuksia tilin %2 sähköpostipalvelimessa.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the email account sending the email, e.g. sales@cronus.com; %2 = the email account used for authentication, e.g. email@cronus.com</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SendAsDeniedErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 2425307403" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot send the email.</source>
           <target state="translated">Sähköpostia ei voi lähettää.</target>
@@ -140,6 +152,12 @@
           <target state="translated">Sähköpostiviesti lähetetty.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpSendTelemetryMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 2355073837" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The user specified for SMTP emailing does not have a contact email set. Please update the user's contact email to use Current User type for SMTP.</source>
+          <target state="translated">SMTP-sähköpostilähetykselle määritetylle käyttäjälle ei ole lisätty yhteyshenkilön sähköpostiosoitetta. Päivitä käyttäjän yhteyshenkilön sähköpostiosoite siten, että siinä on käytössä Nykyinen käyttäjä -tyyppi SMTP:tä varten.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType UserHasNoContactEmailErr</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP Account</source>
@@ -172,8 +190,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Authentication - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the Email Address specified as the from email address.</source>
-          <target state="translated">Määrittää lähettäjän sähköpostiosoitteen.</target>
+          <source>Specifies the email address to show as the sender on email messages. This field is available if you choose Specific Account in the Sender Email Account field. For example, this lets all emails appear to come from the same account, such as sales@cronus.com. This account must have the Send As permission on your mail server to the account in the User Name field.</source>
+          <target state="translated">Määrittää sähköpostiosoitteen, joka näkyy sähköpostiviestien lähettäjänä. Tämä kenttä on käytettävissä, jos valitset Lähettäjän sähköpostitili -kentästä Tietty käyttäjä. Näin kaikki sähköpostiviestit näyttävät tulevan samalta tililtä, kuten myynti@cronus.com. Tällä tilillä on oltava sähköpostipalvelimessa Lähetä käyttäjänä -oikeudet Käyttäjänimi-kentässä määritetylle tilille.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control EmailAddress - Property ToolTip</note>
         </trans-unit>
@@ -208,8 +226,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Password - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3453676707 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies if your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL). Clear the check box if you do not want to enable this security setting.</source>
-          <target state="translated">Määrittää, edellyttääkö SMTP-sähköpostipalvelimen määritys suojatun yhteyden, joka käyttää salaus- tai suojausprotokollaa, esimerkiksi SSL-protokollaa. Poista valinta valintaruudusta, jos et halua ottaa tätä suojausasetusta käyttöön.</target>
+          <source>Specifies whether your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL).</source>
+          <target state="translated">Määrittää, edellyttääkö SMTP-sähköpostipalvelimen määritys suojattua yhteyttä, joka käyttää salaus- tai suojausprotokollaa, kuten SSL-protokollaa.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property ToolTip</note>
         </trans-unit>
@@ -220,8 +238,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3099537666 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies a name to add in front of the sender email address. For example, if you enter Stan in this field, and the email address is stan@cronus.com, the recipient will see the sender as Stan stan@cronus.com.</source>
-          <target state="translated">Määrittää nimen, joka lisätään lähettäjän sähköpostiosoitteen eteen. Jos esimerkiksi lisäät tähän kenttään Stan ja sähköpostiosoite on stan@cronus.com, vastaanottaja näkee lähettäjän muodossa Stan stan@cronus.com.</target>
+          <source>Specifies a name to add in front of the sender email address on emails. The name depends on the Sender Email Address field. For Current User, this is the name from the account you used to sign in. For Specific Account, this can be any name. For example, if you enter Stan, and the address in the Email Address field is stan@cronus.coml, the sender name will appear as Stan stan@cronus.com.</source>
+          <target state="translated">Määrittää nimen, joka lisätään sähköpostiviestien lähettäjän sähköpostiosoitteen eteen. Nimi määräytyy Lähettäjän sähköpostiosoite -kentän mukaan. Jos valitset kentän arvoksi Nykyinen käyttäjä, tämä on kirjautumiseen käyttämäsi tilin nimi. Jos valitset kentän arvoksi Tietty tili, tämä voi olla mikä tahansa nimi. Jos esimerkiksi määrität nimeksi Stan ja jos Sähköpostiosoite-kentän arvo on stan@cronus.com, lähettäjän nimenä näkyy Stan stan@cronus.com.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property ToolTip</note>
         </trans-unit>
@@ -230,6 +248,18 @@
           <target state="translated">Lähettäjän nimi</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether emails appear to come from the email accounts that people sign in with, or the account you enter in the Email Address field. For Current User, everyone who uses this SMTP account must have the Send As permission on your mail server to the account in the User Name field. For Specific Account, only the account in the Email Address field must have the Send As permission.</source>
+          <target state="translated">Määrittää, näyttävätkö sähköpostiviestit tulevan sähköpostitileiltä, joilla käyttäjät kirjautuvat sisään, vai tililtä, jonka lisäät Sähköpostiosoite-kenttään. Nykyistä käyttäjää varten kaikilla tätä SMTP-tiliä käyttävillä on oltava sähköpostipalvelimessa Lähetä käyttäjänä -oikeudet Käyttäjänimi-kentässä määritetylle tilille. Tiettyä tiliä varten vain Sähköpostiosoite-kentässä määritetyllä tilillä on oltava Lähetä käyttäjänä -oikeudet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Email Account</source>
+          <target state="translated">Lähettäjän sähköpostitili</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the port of the SMTP server. The default setting is 25.</source>
@@ -244,20 +274,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerPort - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2502982218 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the SMTP server.</source>
-          <target state="translated">Määrittää SMTP-palvelimen nimen.</target>
+          <source>Specifies the URL of the SMTP server.</source>
+          <target state="translated">Määrittää SMTP-palvelimen URL-osoitteen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2502982218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Server Url</source>
+          <source>Server URL</source>
           <target state="translated">Palvelimen URL-osoite</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3549826426 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the username to use when authenticating with the SMTP server.</source>
-          <target state="translated">Määrittää käyttäjätunnuksen, jota käytetään SMTP-palvelimen todennuksessa.</target>
+          <source>Specifies the user account to use when authenticating to the SMTP server.</source>
+          <target state="translated">Määrittää käyttäjätilin, jota käytetään SMTP-palvelimen todennuksessa.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control UserName - Property ToolTip</note>
         </trans-unit>
@@ -393,6 +423,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderNameField - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if a specific sender or the current user is used as sender. If the current user is used, it must be ensured that the account is allowed to send on behalf of the user.</source>
+          <target state="translated">Määrittää, käytetäänkö tiettyä lähettäjää tai nykyistä käyttäjää lähettäjänä. Jos nykyistä käyttäjää käytetään, on varmistettava, että tili voi lähettää käyttäjän puolesta.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Type</source>
+          <target state="translated">Lähettäjän tyyppi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 707219180 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the port of the SMTP server. The default setting is 25.</source>
           <target state="translated">Määrittää SMTP-palvelimen portin. Oletusasetus on 25.</target>
@@ -476,6 +518,18 @@
           <target state="translated">Seuraava</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action Next - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1821775830 - EnumValue 1780646972 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current User</source>
+          <target state="translated">Nykyinen käyttäjä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Current User - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1821775830 - EnumValue 2947392435 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specific User</source>
+          <target state="translated">Tietty käyttäjä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Specific User - Property Caption</note>
         </trans-unit>
         <trans-unit id="EnumExtension 557475667 - EnumValue 303760854 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP</source>

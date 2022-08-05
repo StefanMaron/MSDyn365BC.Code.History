@@ -754,8 +754,9 @@ codeunit 5790 "Available to Promise"
             exit(false);
 
         // sales line requested to be shipped later
-        if (ReqShipDate <> 0D) and (CalcReqShipDate(SalesLine) > ReqShipDate) then
-            exit(false);
+        if (ReqShipDate <> 0D) then
+            if (CalcReqShipDate(SalesLine) > ReqShipDate) then
+                exit(false);
 
         exit(true);
     end;

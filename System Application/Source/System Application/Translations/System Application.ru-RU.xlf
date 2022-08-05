@@ -2919,6 +2919,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Signature Algorithm - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1137163859 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signup Context Values</source>
+          <target state="translated">Значения контекста регистрации</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signup Context Values - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1137163859 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Первичный ключ</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signup Context Values - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1137163859 - Field 3068241891 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signup Context</source>
+          <target state="translated">Контекст регистрации</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signup Context Values - Field Signup Context - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2655210482 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SmartList Designer Handler</source>
           <target state="translated">Обработчик конструктора SmartList</target>
@@ -17301,6 +17319,18 @@
           <target state="translated">Выбрать учетную запись</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Prompt Interaction - EnumValue Select Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3068241891 - EnumValue 1371923692 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not Set</source>
+          <target state="translated">Не задано</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Signup Context - EnumValue   - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3068241891 - EnumValue 210717594 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Viral Signup</source>
+          <target state="translated">Вирусная регистрация</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Signup Context - EnumValue Viral Signup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 2719173742 - EnumValue 3371220206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>None</source>

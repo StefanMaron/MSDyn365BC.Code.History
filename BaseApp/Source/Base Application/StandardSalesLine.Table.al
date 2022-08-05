@@ -309,7 +309,7 @@ table 171 "Standard Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupShortcutDimCode(var StandardSalesLine: Record "Standard Sales Line"; var xStandardSalesLine: Record "Standard Sales Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; IsHandled: Boolean)
+    local procedure OnBeforeLookupShortcutDimCode(var StandardSalesLine: Record "Standard Sales Line"; var xStandardSalesLine: Record "Standard Sales Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

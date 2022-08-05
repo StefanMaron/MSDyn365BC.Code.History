@@ -1,4 +1,4 @@
-table 5777 "Item Reference"
+﻿table 5777 "Item Reference"
 {
     Caption = 'Item Reference';
     LookupPageID = "Item Reference List";
@@ -106,6 +106,8 @@ table 5777 "Item Reference"
         if "Unit of Measure" = '' then
             Validate("Unit of Measure", Item."Base Unit of Measure");
 
+        OnInsertTriggerOnBeforeCreateItemVendor(Rec, xRec, Item);
+
         CreateItemVendor();
     end;
 
@@ -145,6 +147,7 @@ table 5777 "Item Reference"
                 ItemVend.Validate("Vendor No.");
                 ItemVend."Variant Code" := "Variant Code";
                 ItemVend."Vendor Item No." := "Reference No.";
+                OnBeforeCreateItemVendor(Rec, ItemVend);
                 ItemVend.Insert();
                 OnAfterCreateItemVendor(Rec, ItemVend);
             end;
@@ -162,12 +165,17 @@ table 5777 "Item Reference"
     end;
 
     local procedure UpdateItemVendorNo(ItemReference: Record "Item Reference"; NewItemRefNo: Code[50])
+    var
+        IsHandled: Boolean;
     begin
-        if not MultipleItemReferencesExist(ItemReference) then
-            if ItemVend.Get(ItemReference."Reference Type No.", ItemReference."Item No.", ItemReference."Variant Code") then begin
-                ItemVend.Validate("Vendor Item No.", NewItemRefNo);
-                ItemVend.Modify();
-            end;
+        IsHandled := false;
+        OnBeforeUpdateItemVendorNo(ItemReference, IsHandled);
+        If not IsHandled then
+            if not MultipleItemReferencesExist(ItemReference) then
+                if ItemVend.Get(ItemReference."Reference Type No.", ItemReference."Item No.", ItemReference."Variant Code") then begin
+                    ItemVend.Validate("Vendor Item No.", NewItemRefNo);
+                    ItemVend.Modify();
+                end;
     end;
 
     local procedure ItemVendorResetRequired(OldItemReference: Record "Item Reference"; NewItemReference: Record "Item Reference"): Boolean
@@ -182,7 +190,14 @@ table 5777 "Item Reference"
     local procedure MultipleItemReferencesExist(ItemReference: Record "Item Reference"): Boolean
     var
         ItemReference2: Record "Item Reference";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMultipleItemReferencesExist(ItemReference, Result, IsHandled);
+        If IsHandled then
+            exit(Result);
+
         ItemReference2.SetRange("Item No.", ItemReference."Item No.");
         ItemReference2.SetRange("Variant Code", ItemReference."Variant Code");
         ItemReference2.SetRange("Reference Type", ItemReference."Reference Type");
@@ -237,12 +252,32 @@ table 5777 "Item Reference"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateItemVendor(var ItemReference: Record "Item Reference"; ItemVendor: Record "Item Vendor")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeItemVendorDelete(ItemVendor: Record "Item Vendor"; ItemReference: Record "Item Reference")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemVendorNo(var ItemReference: Record "Item Reference"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMultipleItemReferencesExist(var ItemReference: Record "Item Reference"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTriggerOnBeforeCreateItemVendor(var Rec: Record "Item Reference"; xRec: Record "Item Reference"; Item: Record "Item")
     begin
     end;
 }

@@ -233,7 +233,8 @@ page 99000817 "Prod. Order Routing"
                 field("Unit Cost per"; "Unit Cost per")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the unit cost for this operation if it is different than the unit cost on the work center or machine center card.';
+                    Editable = UnitCostPerEditable;
+                    ToolTip = 'Specifies the unit cost for this operation if it is different than the unit cost on the work center card.';
                     Visible = false;
                 }
                 field("Lot Size"; "Lot Size")
@@ -445,6 +446,11 @@ page 99000817 "Prod. Order Routing"
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        UnitCostPerEditable := Rec.Type = "Capacity Type"::"Work Center";
+    end;
+
     trigger OnDeleteRecord(): Boolean
     begin
         CheckPreviousAndNext;
@@ -469,6 +475,7 @@ page 99000817 "Prod. Order Routing"
         [InDataSet]
         ProdOrderNoVisible: Boolean;
         NextOperationNoEditable: Boolean;
+        UnitCostPerEditable: Boolean;
         StartingTime: Time;
         EndingTime: Time;
         StartingDate: Date;

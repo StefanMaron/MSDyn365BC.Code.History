@@ -12,7 +12,10 @@ codeunit 30103 "Shpfy Communication Mgt."
         ShpfyGraphQLQueries: Codeunit "Shpfy GraphQL Queries";
         NextExecutionTime: DateTime;
         VersionTok: Label '2022-01', Locked = true;
+        OutgoingRequestsNotEnabledConfirmLbl: Label 'Importing data to your Shopify shop is not enabled, do you want to go to shop card to enable?';
+        OutgoingRequestsNotEnabledErr: Label 'Importing data to your Shopify shop is not enabled, navigate to shop card to enable.';
         IsTestInProgress: Boolean;
+
     /// <summary> 
     /// Create Web Request URL.
     /// </summary>
@@ -223,14 +226,17 @@ codeunit 30103 "Shpfy Communication Mgt."
     /// <param name="MaxRetries">Integer.</param>
     /// <returns>Return variable Response of type Text.</returns>
     internal procedure ExecuteWebRequest(Url: Text; Method: Text; Request: Text; var ResponseHeaders: HttpHeaders; MaxRetries: Integer) Response: Text
-
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         Wait: Duration;
         Client: HttpClient;
         HttpRequestMsg: HttpRequestMessage;
         HttpResponseMsg: HttpResponseMessage;
         RetryCounter: Integer;
     begin
+        FeatureTelemetry.LogUptake('0000HUV', 'Shopify', Enum::"Feature Uptake Status"::Used);
+        CheckOutgoingRequests(Url, Method, Request);
+
         CreateHttpRequestMessage(Url, Method, Request, HttpRequestMsg);
 
         Wait := 100;
@@ -477,6 +483,23 @@ codeunit 30103 "Shpfy Communication Mgt."
     internal procedure GetShopRecord() Shop: Record "Shpfy Shop";
     begin
         Shop := ShpfyShop;
+    end;
+
+    internal procedure CheckOutgoingRequests(Url: Text; Method: Text; Request: Text)
+    begin
+        if Method in ['POST', 'PUT'] then begin
+            if Request.Contains('"query"') then // GraphQL request
+                if not Request.Contains('"mutation') then
+                    exit;
+
+            if not ShpfyShop."Allow Outgoing Requests" then
+                if GuiAllowed then begin
+                    if Confirm(OutgoingRequestsNotEnabledConfirmLbl) then
+                        Page.Run(Page::"Shpfy Shop Card", ShpfyShop);
+                    Error('');
+                end else
+                    Error(OutgoingRequestsNotEnabledErr);
+        end;
     end;
 }
 

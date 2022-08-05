@@ -1,4 +1,4 @@
-page 490 "Acc. Schedule Overview"
+﻿page 490 "Acc. Schedule Overview"
 {
     Caption = 'Acc. Schedule Overview';
     DataCaptionExpression = CurrentSchedName + ' - ' + CurrentColumnName;

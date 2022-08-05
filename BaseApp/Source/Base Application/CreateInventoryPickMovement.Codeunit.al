@@ -382,7 +382,7 @@
                     end;
             until Next() = 0;
         end;
-        OnAfterCreatePickOrMoveFromSales(WhseActivHeader, AutoCreation, HideDialog, LineCreated);
+        OnAfterCreatePickOrMoveFromSales(WhseActivHeader, AutoCreation, HideDialog, LineCreated, IsInvtMovement, IsBlankInvtMovement);
     end;
 
     local procedure SetFilterSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header") Result: Boolean
@@ -1181,11 +1181,11 @@
             WhseRequest."Source Document"::"Job Usage":
                 exit(SetFilterJobPlanningLine(JobPlanningLine, Job));
             else begin
-                    IsHandled := false;
-                    OnCheckSourceDocForWhseRequest(WhseRequest, SourceDocRecRef, WhseActivHeader, CheckLineExist, Result, IsHandled);
-                    if IsHandled then
-                        exit(Result);
-                end;
+                IsHandled := false;
+                OnCheckSourceDocForWhseRequest(WhseRequest, SourceDocRecRef, WhseActivHeader, CheckLineExist, Result, IsHandled);
+                if IsHandled then
+                    exit(Result);
+            end;
         end;
     end;
 
@@ -1922,7 +1922,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreatePickOrMoveFromSales(var WarehouseActivityHeader: Record "Warehouse Activity Header"; AutoCreation: Boolean; HideDialog: Boolean; var LineCreated: Boolean)
+    local procedure OnAfterCreatePickOrMoveFromSales(var WarehouseActivityHeader: Record "Warehouse Activity Header"; AutoCreation: Boolean; HideDialog: Boolean; var LineCreated: Boolean; IsInvtMovement: Boolean; IsBlankInvtMovement: Boolean)
     begin
     end;
 

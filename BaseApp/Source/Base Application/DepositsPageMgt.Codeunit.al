@@ -17,7 +17,7 @@ codeunit 1504 "Deposits Page Mgt."
     end;
 #endif
 
-    local procedure GetDepositsPageSetup(DepositsSetupKey: Enum "Deposits Page Setup Key"; var DepositsPageSetup: Record "Deposits Page Setup"): Boolean
+    internal procedure GetDepositsPageSetup(DepositsSetupKey: Enum "Deposits Page Setup Key"; var DepositsPageSetup: Record "Deposits Page Setup"): Boolean
     var
         FeatureKey: Record "Feature Key";
         FeatureManagementFacade: Codeunit "Feature Management Facade";

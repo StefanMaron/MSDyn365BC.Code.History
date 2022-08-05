@@ -1,4 +1,4 @@
-codeunit 99000809 "Planning Line Management"
+﻿codeunit 99000809 "Planning Line Management"
 {
     Permissions = TableData "Manufacturing Setup" = rm,
                   TableData "Routing Header" = r,
@@ -545,6 +545,8 @@ codeunit 99000809 "Planning Line Management"
            (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order")
         then
             CheckMultiLevelStructure(ReqLine, CalcRouting, CalcComponents, PlanningLevel);
+
+        OnAfterCalculate(CalcComponents, SKU, ReqLine2);
     end;
 
     local procedure CreatePlanningComponentFromProdBOM(var PlanningComponent: Record "Planning Component"; ReqLine: Record "Requisition Line"; ProdBOMLine: Record "Production BOM Line"; CompSKU: Record "Stockkeeping Unit"; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal)
@@ -674,13 +676,17 @@ codeunit 99000809 "Planning Line Management"
         PlngComponentReserve: Codeunit "Plng. Component-Reserve";
         PlanningLineNo: Integer;
         NoOfComponents: Integer;
+        ShouldExit: Boolean;
     begin
         if PlanningLevel < 0 then
             exit;
 
         if not Item3.Get(ReqLine2."No.") then
             exit;
-        if Item3."Manufacturing Policy" <> Item3."Manufacturing Policy"::"Make-to-Order" then
+
+        ShouldExit := Item3."Manufacturing Policy" <> "Manufacturing Policy"::"Make-to-Order";
+        OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(ReqLine2, ShouldExit);
+        if ShouldExit then
             exit;
 
         PlanningLineNo := ReqLine2."Line No.";
@@ -880,7 +886,7 @@ codeunit 99000809 "Planning Line Management"
               (Depth = ProdBOMLine.Depth) and
               ("Unit of Measure Code" = ProdBOMLine."Unit of Measure Code") and
               ("Calculation Formula" = ProdBOMLine."Calculation Formula");
-            OnAfterIsPlannedCompFound(PlanningComp, ProdBOMLine, IsFound);
+            OnAfterIsPlannedCompFound(PlanningComp, ProdBOMLine, IsFound, SKU);
             exit(IsFound);
         end;
     end;
@@ -953,7 +959,7 @@ codeunit 99000809 "Planning Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterIsPlannedCompFound(PlanningComp: Record "Planning Component"; ProdBOMLine: Record "Production BOM Line"; var IsFound: Boolean)
+    local procedure OnAfterIsPlannedCompFound(var PlanningComp: Record "Planning Component"; var ProdBOMLine: Record "Production BOM Line"; var IsFound: Boolean; var SKU: Record "Stockkeeping Unit")
     begin
     end;
 
@@ -1074,6 +1080,16 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertPlanningLineOnAfterReqLine2SetFilters(var ReqLine2: Record "Requisition Line"; var ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(var RequisitionLine: Record "Requisition Line"; var ShouldExit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculate(var CalcComponents: Boolean; var SKU: Record "Stockkeeping Unit"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

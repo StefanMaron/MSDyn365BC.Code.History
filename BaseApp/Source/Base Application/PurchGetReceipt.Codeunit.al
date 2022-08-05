@@ -121,7 +121,9 @@ codeunit 74 "Purch.-Get Receipt"
         if TransferLine then begin
             PurchRcptLine := PurchRcptLine2;
             CheckPurchRcptLineVATBusPostingGroup(PurchRcptLine, PurchHeader);
+            OnInsertInvoiceLineFromReceiptLineOnBeforeInsertInvLine(PurchRcptLine, PurchLine);
             PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
+            OnInsertInvoiceLineFromRcptLineOnBeforeCalcUpdatePrepmtAmt(PurchRcptLine);
             CalcUpdatePrepmtAmtToDeductRounding(PurchRcptLine, PurchLine, PrepmtAmtToDeductRounding);
         end;
         OnAfterInsertInvoiceLineFromReceiptLine(PurchRcptLine, PurchLine, PurchRcptLine2, TransferLine);
@@ -401,6 +403,16 @@ codeunit 74 "Purch.-Get Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestPurchRcptLineVATBusPostingGroup(PurchRcptLine: Record "Purch. Rcpt. Line"; PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvoiceLineFromRcptLineOnBeforeCalcUpdatePrepmtAmt(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvoiceLineFromReceiptLineOnBeforeInsertInvLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line")
     begin
     end;
 }

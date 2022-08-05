@@ -10,13 +10,18 @@
         </trans-unit>
         <trans-unit id="Codeunit 1562624570 - NamedType 1534236911" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 was authenticated.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 = username</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Account Auth Tests - NamedType AuthenticationSuccessfulMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 1562624570 - NamedType 3367967186" size-unit="char" translate="yes" xml:space="preserve">
           <source>Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Account page.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Account Auth Tests - NamedType EveryUserShouldPressAuthenticateMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1617190409 - Method 3851808189 - NamedType 2355073837" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The user specified for SMTP emailing does not have a contact email set. Please update the user's contact email to use Current User type for SMTP.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Test - Method TestCurrentUserAccountWithBlankContactEmail - NamedType UserHasNoContactEmailErr</note>
         </trans-unit>
       </group>
     </body>

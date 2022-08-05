@@ -111,6 +111,7 @@ codeunit 5819 "Undo Service Consumption Line"
 
                     UpdateOrderLine(ServShptLine);
                     UpdateServShptLine(ServShptLine);
+                    OnCodeOnAfterUpdateServShptLine(ServShptLine);
                 end;
             until Next() = 0;
             ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
@@ -553,6 +554,11 @@ codeunit 5819 "Undo Service Consumption Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var ServiceShipmentLine: Record "Service Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterUpdateServShptLine(var ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 }

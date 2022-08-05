@@ -1,4 +1,4 @@
-codeunit 7017 "Price List Management"
+﻿codeunit 7017 "Price List Management"
 {
     var
         PriceIsFound: Boolean;
@@ -791,6 +791,8 @@ codeunit 7017 "Price List Management"
 
     local procedure ImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line"; var PriceListLine: Record "Price List Line"; var InsertedUpdatedLeft: array[3] of Integer) Implemented: Boolean;
     begin
+        OnBeforeImplementNewPrice(PriceWorksheetLine);
+
         Implemented := false;
         PriceListLine.TransferFields(PriceWorksheetLine);
         if PriceWorksheetLine."Existing Line" then begin
@@ -891,6 +893,15 @@ codeunit 7017 "Price List Management"
         Page.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
     end;
 
+    internal procedure IsPriceListLineSynchronized(): Boolean
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.SetRange("Product No.", '');
+        PriceListLine.SetFilter("Asset No.", '<>''''');
+        exit(PriceListLine.IsEmpty());
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAddLineOnAfterPopulatePriceListLineFields(var PriceListLine: Record "Price List Line"; ToPriceListHeader: Record "Price List Header"; PriceAsset: Record "Price Asset"; PriceLineFilters: Record "Price Line Filters")
     begin
@@ -938,6 +949,11 @@ codeunit 7017 "Price List Management"
 
     [IntegrationEvent(true, false)]
     local procedure OnCopyLineOnAfterAdjustAmounts(var ToPriceListLine: Record "Price List Line"; PriceLineFilters: Record "Price Line Filters"; FromPriceListLine: Record "Price List Line"; ToPriceListHeader: Record "Price List Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line")
     begin
     end;
 }

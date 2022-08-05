@@ -75,7 +75,7 @@ codeunit 131013 "Library - O365 Sync"
             User."User Security ID" := CreateGuid;
             User."User Name" := UserId;
             User."Full Name" := User."User Name";
-            if not EnvironmentInformation.IsSaaS() then
+            if not EnvironmentInformation.IsSaaSInfrastructure() then
                 User."Windows Security ID" := Sid(User."User Name");
             User.Insert(true);
         end;

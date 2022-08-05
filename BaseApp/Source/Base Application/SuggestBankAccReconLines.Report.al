@@ -1,4 +1,4 @@
-report 1496 "Suggest Bank Acc. Recon. Lines"
+﻿report 1496 "Suggest Bank Acc. Recon. Lines"
 {
     Caption = 'Suggest Bank Acc. Recon. Lines';
     ProcessingOnly = true;
@@ -38,7 +38,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                     case true of
                         not IncludeChecks:
                             begin
-                                EnterBankAccLine(BankAccLedgEntry);
+                                InsertBankAccLine(BankAccLedgEntry);
                                 EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
                             end;
                         (not EOFBankAccLedgEntries) and (not EOFCheckLedgEntries) and
@@ -49,13 +49,13 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                                 CheckLedgEntry2.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
                                 CheckLedgEntry2.SetRange(Open, true);
                                 if not CheckLedgEntry2.FindFirst() then
-                                    EnterBankAccLine(BankAccLedgEntry);
+                                    InsertBankAccLine(BankAccLedgEntry);
                                 EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
                             end;
                         (not EOFBankAccLedgEntries) and (not EOFCheckLedgEntries) and
                         (BankAccLedgEntry."Posting Date" > CheckLedgEntry."Check Date"):
                             begin
-                                EnterCheckLine(CheckLedgEntry);
+                                InsertCheckLine(CheckLedgEntry);
                                 EOFCheckLedgEntries := CheckLedgEntry.Next() = 0;
                             end;
                         (not EOFBankAccLedgEntries) and EOFCheckLedgEntries:
@@ -65,12 +65,12 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                                 CheckLedgEntry2.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
                                 CheckLedgEntry2.SetRange(Open, true);
                                 if not CheckLedgEntry2.FindFirst() then
-                                    EnterBankAccLine(BankAccLedgEntry);
+                                    InsertBankAccLine(BankAccLedgEntry);
                                 EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
                             end;
                         EOFBankAccLedgEntries and (not EOFCheckLedgEntries):
                             begin
-                                EnterCheckLine(CheckLedgEntry);
+                                InsertCheckLine(CheckLedgEntry);
                                 EOFCheckLedgEntries := CheckLedgEntry.Next() = 0;
                             end;
                     end;
@@ -174,7 +174,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         EndDate := BankAccRecon."Statement Date";
     end;
 
-    local procedure EnterBankAccLine(var BankAccLedgEntry2: Record "Bank Account Ledger Entry")
+    local procedure InsertBankAccLine(var BankAccLedgEntry2: Record "Bank Account Ledger Entry")
     var
         BankAccount: Record "Bank Account";
     begin
@@ -195,7 +195,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         BankAccReconLine.Insert();
     end;
 
-    local procedure EnterCheckLine(var CheckLedgEntry3: Record "Check Ledger Entry")
+    local procedure InsertCheckLine(var CheckLedgEntry3: Record "Check Ledger Entry")
     var
         BankAccLedg: Record "Bank Account Ledger Entry";
         BankAccount: Record "Bank Account";
@@ -215,6 +215,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                 BankAccReconLine."Applied Entries" := 1;
                 CheckSetStmtNo.SetReconNo(CheckLedgEntry3, BankAccReconLine);
             end;
+        OnInsertCheckLineOnBeforeBankAccReconLineInsert(BankAccReconLine, CheckLedgEntry3);
         BankAccReconLine.Insert();
     end;
 
@@ -239,6 +240,11 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
     procedure OnPreDataItemBankAccount(var ExcludeReversedEntries: Boolean)
     begin
         // ExcludeReversedEntries = FALSE by default
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCheckLineOnBeforeBankAccReconLineInsert(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; CheckLedgEntry: Record "Check Ledger Entry")
+    begin
     end;
 }
 

@@ -272,7 +272,14 @@
     end;
 
     procedure VerifySelectedOptionsValid()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifySelectedOptionsValid(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "One Related Party Selected" then
             exit;
 
@@ -608,9 +615,9 @@
                 ReportSelections.Usage::"P.Order":
                     exit(PurchaseOrdersTxt);
                 else begin
-                        OnGetDocumentName(ReportUsage, DocName);
-                        exit(DocName);
-                    end;
+                    OnGetDocumentName(ReportUsage, DocName);
+                    exit(DocName);
+                end;
             end;
 
         exit(DocName);
@@ -1052,6 +1059,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage: Integer; RecordVariant: Variant; VendorNo: Code[20]; var RecRefToSend: RecordRef; SingleVendorSelected: Boolean; var ShowDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifySelectedOptionsValid(var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
     begin
     end;
 }

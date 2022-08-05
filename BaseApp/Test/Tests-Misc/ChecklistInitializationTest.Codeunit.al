@@ -1,10 +1,12 @@
 codeunit 132606 "Checklist Initialization Test"
 {
     Subtype = Test;
+    EventSubscriberInstance = Manual;
 
     var
         Assert: Codeunit Assert;
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibrarySignupContext: Codeunit "Library - Signup Context";
 
     [Test]
     [Scope('OnPrem')]
@@ -34,9 +36,7 @@ codeunit 132606 "Checklist Initialization Test"
         LibraryLowerPermissions.SetO365Basic();
 
         // [WHEN] Calling OnCompanyOpen
-        CompanyTriggers.OnCompanyOpen();
-        Commit(); // Need to commit before calling isolated event OnCompanyOpenCompleted
-        CompanyTriggers.OnCompanyOpenCompleted();
+        TriggerOnCompanyOpen();
 
         // [THEN] The checklist setup should be marked as done
         Assert.IsTrue(ChecklistSetupTestLibrary.IsChecklistSetupDone(),
@@ -54,6 +54,58 @@ codeunit 132606 "Checklist Initialization Test"
         VerifyBusinessManagerChecklistItems();
         VerifyAccountantChecklistItems();
         VerifyOrderProcessingChecklistItems();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSignupContextChecklistInitialization()
+    var
+        Company: Record Company;
+        GuidedExperienceTestLibrary: Codeunit "Guided Experience Test Library";
+        ChecklistTestLibrary: Codeunit "Checklist Test Library";
+        ChecklistSetupTestLibrary: Codeunit "Checklist Setup Test Library";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        CompanyTriggers: Codeunit "Company Triggers";
+        ChecklistInitializationTest: Codeunit "Checklist Initialization Test";
+    begin
+        // ensure there's only company of the current type in the system
+        Company.Get(CompanyName());
+        Company.SetFilter(Name, '<>%1', CompanyName());
+        Company.ModifyAll("Evaluation Company", not Company."Evaluation Company"); // change the type of all other companies
+
+        // [GIVEN] The client type is set to Web
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+
+        // [GIVEN] The company type is non-evaluation
+        SetEvaluationPropertyForCompany(false);
+
+        LibraryLowerPermissions.SetOutsideO365Scope();
+
+        // [GIVEN] The Checklist Setup table is empty
+        ChecklistSetupTestLibrary.DeleteAll();
+
+        // [GIVEN] The Guided Experience Item and Checklist Item tables are empty
+        GuidedExperienceTestLibrary.DeleteAll();
+        ChecklistTestLibrary.DeleteAll();
+
+        // [GIVEN] The Signup Context is a known value but unknown to BaseApp 
+        LibrarySignupContext.DeleteSignupContext();
+        LibrarySignupContext.SetSignupContext('name', 'Test Value 2');
+        LibrarySignupContext.SetDisableSystemUserCheck();
+        BindSubscription(ChecklistInitializationTest);
+
+        LibraryLowerPermissions.SetO365Basic();
+
+        // [WHEN] Calling OnCompanyOpen
+        TriggerOnCompanyOpen();
+
+        // [THEN] The checklist setup should be marked as done
+        Assert.IsFalse(ChecklistSetupTestLibrary.IsChecklistSetupDone(),
+            'The checklist setup should not be completed as this is not a context known to us.');
+
+        // [THEN] The guided experience item table should be empty
+        Assert.AreEqual(0, GuidedExperienceTestLibrary.GetCount(),
+            'The Guided Experience Item table should be empty when an unknown context is provided.');
     end;
 
     local procedure SetEvaluationPropertyForCompany(IsEvaluationCompany: Boolean)
@@ -177,5 +229,34 @@ codeunit 132606 "Checklist Initialization Test"
         AllProfile.SetRange("Role Center ID", RoleCenterID);
         if AllProfile.FindFirst() then
             exit(AllProfile."Profile ID");
+    end;
+
+    local procedure TriggerOnCompanyOpen()
+    var
+        CompanyTriggers: Codeunit "Company Triggers";
+    begin
+        // [WHEN] Calling OnCompanyOpen
+#if not CLEAN20
+#pragma warning disable AL0432        
+#endif
+        CompanyTriggers.OnCompanyOpen();
+#if not CLEAN20
+#pragma warning restore AL0432        
+#endif
+        Commit(); // Need to commit before calling isolated event OnCompanyOpenCompleted
+        CompanyTriggers.OnCompanyOpenCompleted();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnSetSignupContext', '', false, false)]
+    local procedure SetTestValueContextOnSetSignupContext(SignupContext: Record "Signup Context"; var SignupContextValues: Record "Signup Context Values")
+    begin
+        if not (SignupContext.KeyName = 'name') then
+            exit;
+
+        if not (SignupContext.Value = 'Test Value 2') then
+            exit;
+
+        SignupContextValues."Signup Context" := SignupContextValues."Signup Context"::"Test Value 2";
+        SignupContextValues.Insert();
     end;
 }

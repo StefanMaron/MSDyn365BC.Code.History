@@ -1,4 +1,4 @@
-table 7000 "Price List Header"
+﻿table 7000 "Price List Header"
 {
     Caption = 'Price List';
 
@@ -411,6 +411,8 @@ table 7000 "Price List Header"
                     exit(JobsSetup."Price List Nos.");
                 end;
         end;
+
+        OnAfterGetNoSeries(Rec);
     end;
 
     local procedure CheckIfLinesExist(Caption: Text)
@@ -661,6 +663,11 @@ table 7000 "Price List Header"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyToPriceSource(var PriceSource: Record "Price Source")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNoSeries(var PriceListHeader: Record "Price List Header")
     begin
     end;
 

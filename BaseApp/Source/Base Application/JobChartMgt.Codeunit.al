@@ -28,7 +28,14 @@ codeunit 759 "Job Chart Mgt"
     end;
 
     procedure CreateChart(var BusChartBuf: Record "Business Chart Buffer"; var TempJob: Record Job temporary; ChartType: Enum "Business Chart Type"; JobChartType: Enum "Job Chart Type")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateChart(BusChartBuf, TempJob, ChartType, JobChartType, IsHandled);
+        if IsHandled then
+            exit;
+
         InitializeBusinessChart(BusChartBuf);
         SetJobRangeByMyJob(TempJob);
         if NothingToShow(TempJob) then
@@ -200,6 +207,11 @@ codeunit 759 "Job Chart Mgt"
         JobCalcStatistics.GetLCYPriceAmounts(PL);
         ActualPrice := PL[16];
         BudgetPrice := PL[4];
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateChart(var BusChartBuf: Record "Business Chart Buffer"; var TempJob: Record Job temporary; ChartType: Enum "Business Chart Type"; JobChartType: Enum "Job Chart Type"; var IsHandled: Boolean)
+    begin
     end;
 }
 

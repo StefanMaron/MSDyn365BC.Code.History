@@ -270,7 +270,6 @@ codeunit 5510 "Production Journal Mgt"
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
         QtyToPost: Decimal;
         IsHandled: Boolean;
     begin
@@ -316,15 +315,9 @@ codeunit 5510 "Production Journal Mgt"
             then
                 QtyToPost := 0
             else
-                if ProdOrderRtngLine."Prod. Order No." <> '' then begin
-                    QtyToPost :=
-                      CostCalcMgt.CalcQtyAdjdForRoutingScrap(
-                        "Quantity (Base)",
-                        ProdOrderRtngLine."Scrap Factor % (Accumulated)",
-                        ProdOrderRtngLine."Fixed Scrap Qty. (Accum.)") -
-                      CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRtngLine);
-                    QtyToPost := QtyToPost / "Qty. per Unit of Measure";
-                end else // No Routing Line
+                if ProdOrderRtngLine."Prod. Order No." <> '' then
+                    CalculateQtyToPostForProdOrder(ProdOrderLine, ProdOrderRtngLine, QtyToPost)
+                else // No Routing Line
                     QtyToPost := "Remaining Quantity";
 
             if QtyToPost < 0 then
@@ -386,6 +379,21 @@ codeunit 5510 "Production Journal Mgt"
         NextLineNo += 10000;
 
         RecursiveInsertOutputJnlLine(ProdOrderRtngLine, ProdOrderLine);
+    end;
+
+    local procedure CalculateQtyToPostForProdOrder(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var QtyToPost: Decimal)
+    var
+        CostCalcMgt: Codeunit "Cost Calculation Management";
+    begin
+        QtyToPost :=
+            CostCalcMgt.CalcQtyAdjdForRoutingScrap(
+                ProdOrderLine."Quantity (Base)",
+                ProdOrderRoutingLine."Scrap Factor % (Accumulated)",
+                ProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)") -
+            CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRoutingLine);
+        QtyToPost := QtyToPost / ProdOrderLine."Qty. per Unit of Measure";
+
+        OnAfterCalculateQtyToPostForProdOrder(ProdOrderLine, ProdOrderRoutingLine, QtyToPost);
     end;
 
     local procedure RecursiveInsertOutputJnlLine(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
@@ -551,6 +559,11 @@ codeunit 5510 "Production Journal Mgt"
     begin
         TemplateName := ToTemplateName;
         BatchName := ToBatchName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateQtyToPostForProdOrder(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var QtyToPost: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

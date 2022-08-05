@@ -10,6 +10,7 @@ codeunit 88 "Sales Post via Job Queue"
         RecRef: RecordRef;
         RecRefToPrint: RecordRef;
         SavedLockTimeout: Boolean;
+        IsHandled: Boolean;
     begin
         TestField("Record ID to Process");
         RecRef.Get("Record ID to Process");
@@ -23,7 +24,10 @@ codeunit 88 "Sales Post via Job Queue"
         OnRunOnBeforeRunSalesPost(SalesHeader);
         if not Codeunit.Run(Codeunit::"Sales-Post", SalesHeader) then begin
             SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::Error, Rec);
-            BatchProcessingMgt.ResetBatchID;
+            IsHandled := false;
+            OnBeforeBatchProcessingErrorReset(Rec, IsHandled);
+            if not IsHandled THEN
+                BatchProcessingMgt.ResetBatchID();
             Error(GetLastErrorText);
         end;
         OnRunOnAfterRunSalesPost(SalesHeader);
@@ -222,6 +226,11 @@ codeunit 88 "Sales Post via Job Queue"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeRunSalesPost(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBatchProcessingErrorReset(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 }

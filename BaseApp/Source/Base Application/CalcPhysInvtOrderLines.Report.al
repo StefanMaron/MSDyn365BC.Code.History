@@ -1,4 +1,4 @@
-report 5880 "Calc. Phys. Invt. Order Lines"
+﻿report 5880 "Calc. Phys. Invt. Order Lines"
 {
     Caption = 'Calc. Phys. Invt. Order Lines';
     ProcessingOnly = true;
@@ -292,7 +292,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCreateNewPhysInvtOrderLineOnAfterCalcQtyAndLastItemLedgExpected(QtyExpected: Decimal; LastItemLedgEntryNo: Integer; ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var InsertLine: Boolean; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;

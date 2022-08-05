@@ -1035,9 +1035,16 @@ codeunit 5763 "Whse.-Post Shipment"
         ReservationEntry: Record "Reservation Entry";
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
         QtyPickedBase: Decimal;
+        IsHandled: Boolean;
     begin
         if WhseShptLine."Assemble to Order" then
             exit;
+
+        IsHandled := false;
+        OnCheckItemTrkgPickedOnBeforeGetWhseItemTrkgSetup(WhseShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ItemTrackingMgt.GetWhseItemTrkgSetup(WhseShptLine."Item No.") then
             exit;
 
@@ -1087,7 +1094,7 @@ codeunit 5763 "Whse.-Post Shipment"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeHandleSalesLine(WhseShptLine, SalesLine, SalesHeader, WhseShptHeader, ModifyLine, IsHandled);
+        OnBeforeHandleSalesLine(WhseShptLine, SalesLine, SalesHeader, WhseShptHeader, ModifyLine, IsHandled, Invoice);
         if IsHandled then
             exit;
 
@@ -1643,7 +1650,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeHandleSalesLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var ModifyLine: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeHandleSalesLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var ModifyLine: Boolean; var IsHandled: Boolean; Invoice: Boolean)
     begin
     end;
 
@@ -1929,6 +1936,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostWhseJnlLineOnAfterSplitWhseJnlLine(var TempWhseJnlLine: Record "Warehouse Journal Line"; var PostedWhseShptLine: Record "Posted Whse. Shipment Line"; var TempTrackingSpecification: Record "Tracking Specification"; var TempWhseJnlLine2: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckItemTrkgPickedOnBeforeGetWhseItemTrkgSetup(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -359,12 +359,11 @@ table 64 "Merge Duplicates Buffer"
     begin
         Contact[2].Get(Current);
         Contact[1].Get(Duplicate);
+
         MergeRecords(Contact[1].RecordId, Contact[2].RecordId, 0);
         Contact[2].Find();
-        if Contact[2]."Contact Business Relation" = Contact[2]."Contact Business Relation"::None then begin
-            Contact[2].UpdateBusinessRelation();
-            Contact[2].Modify();
-        end;
+        Contact[2].UpdateBusinessRelation();
+        Contact[2].Modify();
     end;
 
     local procedure MergeCustomers()

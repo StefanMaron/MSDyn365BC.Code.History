@@ -28,6 +28,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         TrackingQtyToHandle: Decimal;
         Inbound: Boolean;
         CheckServLine: Boolean;
+        IsHandled: Boolean;
     begin
         // if a SalesLine is posted with ItemTracking then the whole quantity of
         // the regarding SalesLine has to be post with Item-Tracking
@@ -57,8 +58,11 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                 if Item."Item Tracking Code" <> '' then begin
                     Inbound := (ServLineToCheck.Quantity * SignFactor) > 0;
                     ItemTrackingCode.Code := Item."Item Tracking Code";
-                    ItemTrackingMgt.GetItemTrackingSetup(
-                        ItemTrackingCode, ItemJnlLine."Entry Type"::Sale, Inbound, ItemTrackingSetup);
+                    IsHandled := false;
+                    OnCheckTrackingSpecificationOnBeforeGetItemTrackingSetup(ServLineToCheck, ItemTrackingSetup, IsHandled);
+                    if not IsHandled then
+                        ItemTrackingMgt.GetItemTrackingSetup(
+                            ItemTrackingCode, ItemJnlLine."Entry Type"::Sale, Inbound, ItemTrackingSetup);
                     CheckServLine := not ItemTrackingSetup.TrackingRequired();
                     if CheckServLine then
                         CheckServLine := CheckTrackingExists(ServLineToCheck);
@@ -283,6 +287,11 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferReservToItemJnlLine(var ServiceLine: Record "Service Line"; var ItemJnlLine: Record "Item Journal Line"; var QtyToBeShippedBase: Decimal; var CheckApplFromItemEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckTrackingSpecificationOnBeforeGetItemTrackingSetup(ServLineToCheck: Record "Service Line"; var ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
     begin
     end;
 }

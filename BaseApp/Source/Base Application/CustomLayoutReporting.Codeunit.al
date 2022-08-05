@@ -163,9 +163,6 @@ codeunit 8800 "Custom Layout Reporting"
             repeat
                 SetOutputType(ReportSelections."Report ID");
 
-                CustomReportSelection.SetFilter("Report ID", StrSubstNo('0|%1', ReportSelections."Report ID"));
-                CustomReportSelection.SetRange(Usage, ReportSelections.Usage);
-
                 PrintIfEmailIsMissing := false;
 
                 // If our report's data item and the 'join table' are the same, then set its filter from the request page.
@@ -178,6 +175,11 @@ codeunit 8800 "Custom Layout Reporting"
                 ReportDataRecordRef.FilterGroup(FindNextEmptyFilterGroup(ReportDataRecordRef)); // Set the request page filters separately to preserve the existing filters
                 RequestPageParamsView := GetViewFromParameters(ReportSelections."Report ID", ReportDataRecordRef.Number);
                 ReportDataRecordRef.SetView(RequestPageParamsView);
+
+                CustomReportSelection.SetFilter("Report ID", StrSubstNo('0|%1', ReportSelections."Report ID"));
+                CustomReportSelection.SetRange(Usage, ReportSelections.Usage);
+
+                SetCustomReportSelectionTableFilter(ReportDataRecordRef.Number, RequestPageParamsView);
 
                 case OutputType of
                     OutputType::Email:
@@ -259,6 +261,19 @@ codeunit 8800 "Custom Layout Reporting"
             exit;
 
         ProcessReport();
+    end;
+
+    local procedure SetCustomReportSelectionTableFilter(TableNo: Integer; RequestPageParamsView: Text)
+    var
+        Customer: Record Customer;
+    begin
+        case TableNo of
+            Database::Customer:
+                begin
+                    Customer.SetView(RequestPageParamsView);
+                    CustomReportSelection.SetFilter("Source No.", Customer.GetFilter(Customer."No."));
+                end;
+        end;
     end;
 
     local procedure ProcessReportPerLayout()

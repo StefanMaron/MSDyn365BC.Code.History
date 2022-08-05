@@ -69,6 +69,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Name - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 1340278269 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Type</source>
+          <target state="translated">Absendertyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Type - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4170592685 - Field 892320855 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Server</source>
           <target state="translated">Server</target>
@@ -129,6 +135,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NotRegisteredAccountErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 2880798304" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Can't send the email. The %1 account does not have Send As permissions on your mail server for the %2 account.</source>
+          <target state="translated">Die E-Mail kann nicht gesendet werden. Das Konto %1 verfügt nicht über die Berechtigung „Senden als“ auf dem E-Mail-Server für das Konto %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the email account sending the email, e.g. sales@cronus.com; %2 = the email account used for authentication, e.g. email@cronus.com</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SendAsDeniedErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 2425307403" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot send the email.</source>
           <target state="translated">Die E-Mail wurde nicht gesendet.</target>
@@ -140,6 +152,12 @@
           <target state="translated">E-Mail gesendet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpSendTelemetryMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 2355073837" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The user specified for SMTP emailing does not have a contact email set. Please update the user's contact email to use Current User type for SMTP.</source>
+          <target state="translated">Der für SMTP-E-Mails angegebene Benutzer hat keine Kontakt-E-Mail-Adresse festgelegt. Aktualisieren Sie die Kontakt-E-Mail-Adresse des Benutzers, um den aktuellen Benutzertyp für SMTP zu verwenden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType UserHasNoContactEmailErr</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP Account</source>
@@ -172,8 +190,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Authentication - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the Email Address specified as the from email address.</source>
-          <target state="translated">Gibt die E-Mail-Adresse an, die als Absender-E-Mail-Adresse angegeben ist.</target>
+          <source>Specifies the email address to show as the sender on email messages. This field is available if you choose Specific Account in the Sender Email Account field. For example, this lets all emails appear to come from the same account, such as sales@cronus.com. This account must have the Send As permission on your mail server to the account in the User Name field.</source>
+          <target state="translated">Gibt die E-Mail-Adresse an, die als Absender in E-Mail-Nachrichten angezeigt wird. Dieses Feld ist verfügbar, wenn Sie im Feld Feld „Absender-E-Mail-Konto“  die Option Feld „Bestimmtes Konto“ auswählen. So können z. B. alle E-Mails aus demselben Konto stammen, z. B. Sales@Cronus.com. Für dieses Konto muss die Berechtigung Feld „Senden als“  auf dem E-Mail-Server für das Konto im Feld Feld „Benutzername“ verfügen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control EmailAddress - Property ToolTip</note>
         </trans-unit>
@@ -208,8 +226,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Password - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3453676707 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies if your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL). Clear the check box if you do not want to enable this security setting.</source>
-          <target state="translated">Gibt an, ob Ihre SMTP-Mailservereinrichtung eine sichere Verbindung erfordert, die ein Kryptografie- oder Sicherheitsprotokoll verwendet, z. B. Secure Socket Layers (SSL). Deaktivieren Sie das Kontrollkästchen, falls diese Sicherheitseinstellung nicht aktiviert werden soll.</target>
+          <source>Specifies whether your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL).</source>
+          <target state="translated">Gibt an, ob Ihre SMTP-Mailservereinrichtung eine sichere Verbindung erfordert, die ein Kryptografie- oder Sicherheitsprotokoll verwendet, z. B. Secure Socket Layers (SSL).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property ToolTip</note>
         </trans-unit>
@@ -220,8 +238,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3099537666 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies a name to add in front of the sender email address. For example, if you enter Stan in this field, and the email address is stan@cronus.com, the recipient will see the sender as Stan stan@cronus.com.</source>
-          <target state="translated">Gibt einen Namen an, der vor der Absender-E-Mail-Adresse hinzugefügt werden soll. Wenn Sie z. B. Stan in dieses Feld eingeben und die E-Mail-Adresse stan@cronus.com ist, wird der Absender als „Stan stan@cronus.com“ angezeigt.</target>
+          <source>Specifies a name to add in front of the sender email address on emails. The name depends on the Sender Email Address field. For Current User, this is the name from the account you used to sign in. For Specific Account, this can be any name. For example, if you enter Stan, and the address in the Email Address field is stan@cronus.coml, the sender name will appear as Stan stan@cronus.com.</source>
+          <target state="translated">Gibt einen Namen an, der vor der Absender-E-Mail-Adresse in E-Mails hinzugefügt werden soll. Der Name hängt vom Feld „Absender-E-Mail-Adresse“ ab. Für „Aktueller Benutzer“ ist dies der Name von Ihrem Konto. Für „Bestimmtes Konto“ kann dies ein beliebiger Name sein, den Sie angeben. Wenn Sie beispielsweise „Stan“ eingeben und das Feld „Absender-E-Mail-Adresse“  stan@cronus.com lautet, wird der Absendername als „Stan stan@cronus.com“ angezeigt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property ToolTip</note>
         </trans-unit>
@@ -230,6 +248,18 @@
           <target state="translated">Absendername</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether emails appear to come from the email accounts that people sign in with, or the account you enter in the Email Address field. For Current User, everyone who uses this SMTP account must have the Send As permission on your mail server to the account in the User Name field. For Specific Account, only the account in the Email Address field must have the Send As permission.</source>
+          <target state="translated">Gibt an, ob E-Mails aus den E-Mail-Konten kommen, mit denen Personen sich anmelden, oder mit dem Konto, das Sie im Feld „E-Mail-Adresse“ eingeben. Für alle Benutzer, die dieses SMTP-Konto verwenden, muss die Berechtigung „Senden als“ auf dem E-Mail-Server für das Konto im Feld „Benutzername“ verwendet werden. Für ein bestimmtes Konto muss nur das Konto im Feld „E-Mail-Adresse“ die Berechtigung „Senden als“ aufweisen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Email Account</source>
+          <target state="translated">Absender-E-Mail-Konto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the port of the SMTP server. The default setting is 25.</source>
@@ -244,20 +274,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerPort - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2502982218 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the SMTP server.</source>
-          <target state="translated">Gibt den Namen des SMTP-Servers an.</target>
+          <source>Specifies the URL of the SMTP server.</source>
+          <target state="translated">Gibt die URL des SMTP-Servers an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2502982218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Server Url</source>
+          <source>Server URL</source>
           <target state="translated">Server-URL</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3549826426 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the username to use when authenticating with the SMTP server.</source>
-          <target state="translated">Gibt den Benutzernamen an, der bei der Authentifizierung mit dem SMTP-Server verwendet wird.</target>
+          <source>Specifies the user account to use when authenticating to the SMTP server.</source>
+          <target state="translated">Gibt das beim Authentifizieren beim SMTP-Server zu verwendende Benutzerkonto an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control UserName - Property ToolTip</note>
         </trans-unit>
@@ -393,6 +423,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderNameField - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if a specific sender or the current user is used as sender. If the current user is used, it must be ensured that the account is allowed to send on behalf of the user.</source>
+          <target state="translated">Gibt an, ob ein bestimmter Absender oder der aktuelle Benutzer als Absender verwendet wird. Wenn der aktuelle Benutzer verwendet wird, muss sichergestellt werden, dass das Konto im Namen des Benutzers senden darf.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Type</source>
+          <target state="translated">Absendertyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 707219180 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the port of the SMTP server. The default setting is 25.</source>
           <target state="translated">Legt den Port des SMTP-Servers fest. Die Standardeinstellung lautet 25.</target>
@@ -476,6 +518,18 @@
           <target state="translated">Weiter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action Next - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1821775830 - EnumValue 1780646972 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current User</source>
+          <target state="translated">Aktueller Benutzer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Current User - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1821775830 - EnumValue 2947392435 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specific User</source>
+          <target state="translated">Bestimmter Benutzer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Specific User - Property Caption</note>
         </trans-unit>
         <trans-unit id="EnumExtension 557475667 - EnumValue 303760854 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP</source>

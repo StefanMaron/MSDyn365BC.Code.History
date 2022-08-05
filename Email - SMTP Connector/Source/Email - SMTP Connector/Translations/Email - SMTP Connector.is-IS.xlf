@@ -69,6 +69,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Name - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 1340278269 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Type</source>
+          <target state="translated">Gerð sendanda</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Type - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4170592685 - Field 892320855 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Server</source>
           <target state="translated">Þjónn</target>
@@ -129,6 +135,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NotRegisteredAccountErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 2880798304" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Can't send the email. The %1 account does not have Send As permissions on your mail server for the %2 account.</source>
+          <target state="translated">Ekki tókst að senda tölvupóst. Reikningurinn %1 er ekki með „Senda sem heimild“ á póstþjóni notanda fyrir reikninginn %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the email account sending the email, e.g. sales@cronus.com; %2 = the email account used for authentication, e.g. email@cronus.com</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SendAsDeniedErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 2425307403" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot send the email.</source>
           <target state="translated">Ekki er hægt að senda tölvupóstinn.</target>
@@ -140,6 +152,12 @@
           <target state="translated">Tölvupóstur sendur.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpSendTelemetryMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 2355073837" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The user specified for SMTP emailing does not have a contact email set. Please update the user's contact email to use Current User type for SMTP.</source>
+          <target state="translated">Notandinn sem er tilgreindur fyrir SMTP-tölvupóst er ekki með tengiliðanetfang stillt. Uppfærðu netfang notandans til að nota núverandi notandagerð fyrir SMTP.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType UserHasNoContactEmailErr</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP Account</source>
@@ -172,8 +190,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Authentication - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the Email Address specified as the from email address.</source>
-          <target state="translated">Tilgreinir netfangið sem er tilgreint sem netfang sendanda.</target>
+          <source>Specifies the email address to show as the sender on email messages. This field is available if you choose Specific Account in the Sender Email Account field. For example, this lets all emails appear to come from the same account, such as sales@cronus.com. This account must have the Send As permission on your mail server to the account in the User Name field.</source>
+          <target state="translated">Tilgreinir netfangið sem á að sýna sem sendanda á tölvupóstum. tiltækur ef tiltekinn aðgangur er valinn í reitnum Tölvupóstur sendanda. Þetta gerir til dæmis öllum tölvupóstum kleift að birtast frá sama reikningi, eins og sales@cronus.com. Þessi reikningur verður að vera með „Senda sem“ heimild á póstþjóninum þínum fyrir reikninginn í svæðinu Notandanafn.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control EmailAddress - Property ToolTip</note>
         </trans-unit>
@@ -208,8 +226,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Password - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3453676707 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies if your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL). Clear the check box if you do not want to enable this security setting.</source>
-          <target state="translated">Tilgreinir hvort uppsetning SMTP-póstþjóns þarfnast öruggrar tengingar sem notar dulmálskerfi eða öryggisupplýsingar, svo sem SSL (secure socket layers). Hreinsa gátreitinn ef ekki á að virkja þessa öryggisstillingu.</target>
+          <source>Specifies whether your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL).</source>
+          <target state="translated">Tilgreinir hvort uppsetning SMTP-póstþjóns þarfnast öruggrar tengingar sem notar dulmálskerfi eða öryggisupplýsingar, svo sem SSL (secure socket layers).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property ToolTip</note>
         </trans-unit>
@@ -220,8 +238,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3099537666 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies a name to add in front of the sender email address. For example, if you enter Stan in this field, and the email address is stan@cronus.com, the recipient will see the sender as Stan stan@cronus.com.</source>
-          <target state="translated">Tilgreinir nafn til að bæta við fyrir framan netfang sendanda. Ef þú slærð t.d. inn Ragnar í þennan reit og netfangið er ragnar@cronus.com mun sendandinn birtast viðtakandanum sem Ragnar ragnar@cronus.com.</target>
+          <source>Specifies a name to add in front of the sender email address on emails. The name depends on the Sender Email Address field. For Current User, this is the name from the account you used to sign in. For Specific Account, this can be any name. For example, if you enter Stan, and the address in the Email Address field is stan@cronus.coml, the sender name will appear as Stan stan@cronus.com.</source>
+          <target state="translated">Tilgreinir nafn til að bæta við fyrir framan netfang sendanda í tölvupóstum. Nafnið fer eftir reitnum Netfang sendanda. Fyrir núverandi notanda er þetta nafnið frá reikningnum sem þú notaðir til að skrá þig inn. Fyrir tiltekinn aðgang getur þetta verið hvaða nafn sem er. Ef þú slærð t.d. inn Ragnar og netfangið er ragnar@cronus.com mun nafn sendanda birtast sem Ragnar ragnar@cronus.com.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property ToolTip</note>
         </trans-unit>
@@ -230,6 +248,18 @@
           <target state="translated">Nafn sendanda</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether emails appear to come from the email accounts that people sign in with, or the account you enter in the Email Address field. For Current User, everyone who uses this SMTP account must have the Send As permission on your mail server to the account in the User Name field. For Specific Account, only the account in the Email Address field must have the Send As permission.</source>
+          <target state="translated">Tilgreinir hvort tölvupóstar virðast koma frá tölvupóstsreikningum sem einstaklingar skrá sig inn með eða frá reikningi sem er tilgreindur í reitnum Tölvupóstsreikningar. Fyrir núverandi notanda þurfa allir sem nota þennan SMTP-reikning að vera með „Senda sem“ heimild á póstþjóninum þínum fyrir reikninginn í svæðinu Notandanafn. Fyrir tiltekinn aðgang verður aðeins aðgangurinn í reitnum Netfang að hafa heimildina Senda sem.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Email Account</source>
+          <target state="translated">Tölvupóstreikningur sendanda</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the port of the SMTP server. The default setting is 25.</source>
@@ -244,20 +274,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerPort - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2502982218 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the SMTP server.</source>
-          <target state="translated">Tilgreinir heiti SMTP-þjónsins.</target>
+          <source>Specifies the URL of the SMTP server.</source>
+          <target state="translated">Tilgreinir vefslóð SMTP-þjóns.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2502982218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Server Url</source>
-          <target state="translated">Vefslóð þjóns</target>
+          <source>Server URL</source>
+          <target state="translated">Vefslóð netþjóns</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3549826426 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the username to use when authenticating with the SMTP server.</source>
-          <target state="translated">Tilgreinir notandanafn sem á að nota við sannvottun með SMTP-þjóninum.</target>
+          <source>Specifies the user account to use when authenticating to the SMTP server.</source>
+          <target state="translated">Tilgreinir notandareikninginn sem á að nota við sannvottun með SMTP-þjóninum.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control UserName - Property ToolTip</note>
         </trans-unit>
@@ -393,6 +423,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderNameField - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if a specific sender or the current user is used as sender. If the current user is used, it must be ensured that the account is allowed to send on behalf of the user.</source>
+          <target state="translated">Tilgreinir hvort tiltekinn sendandi eða núverandi notandi sé notaður sem sendandi. Ef núverandi notandi er notaður verður að tryggja að reikningurinn megi senda fyrir hönd notandans.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Type</source>
+          <target state="translated">Gerð sendanda</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 707219180 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the port of the SMTP server. The default setting is 25.</source>
           <target state="translated">Tilgreinir gátt SMTP-þjónsins. Sjálfgefna stillingin er 25.</target>
@@ -476,6 +518,18 @@
           <target state="translated">Áfram</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action Next - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1821775830 - EnumValue 1780646972 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current User</source>
+          <target state="translated">Núverandi notandi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Current User - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1821775830 - EnumValue 2947392435 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specific User</source>
+          <target state="translated">Tiltekinn notandi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Specific User - Property Caption</note>
         </trans-unit>
         <trans-unit id="EnumExtension 557475667 - EnumValue 303760854 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP</source>

@@ -73,7 +73,7 @@ page 2590 "Dimension Correction Changes"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 Image = Undo;
-                Caption = 'Revert All Chages';
+                Caption = 'Revert All Changes';
                 ToolTip = 'Revert all changes made to the dimensions.';
 
                 trigger OnAction()

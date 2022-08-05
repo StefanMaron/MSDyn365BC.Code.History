@@ -188,7 +188,6 @@ table 7021 "Price Line Filters"
         ObjectTranslation: Record "Object Translation";
         PrimaryKeyField: Record "Field";
         FilterPageBuilder: FilterPageBuilder;
-        RecRef: RecordRef;
         TableCaptionValue: Text;
     begin
         TableCaptionValue :=
@@ -198,14 +197,7 @@ table 7021 "Price Line Filters"
             repeat
                 FilterPageBuilder.AddFieldNo(TableCaptionValue, PrimaryKeyField."No.")
             until PrimaryKeyField.Next() = 0;
-        if "Asset Filter" <> '' then
-            FilterPageBuilder.SetView(TableCaptionValue, "Asset Filter");
-        if FilterPageBuilder.RunModal() then begin
-            RecRef.Open("Table ID");
-            RecRef.SetView(FilterPageBuilder.GetView(TableCaptionValue, false));
-            "Asset Filter" := CopyStr(RecRef.GetView(), 1, MaxStrLen("Asset Filter"));
-            RecRef.Close();
-        end;
+        SetFilterByFilterPageBuilder("Asset Filter", TableCaptionValue, FilterPageBuilder);
     end;
 
     procedure EditPriceLineFilter()
@@ -219,12 +211,7 @@ table 7021 "Price Line Filters"
         FilterPageBuilder.AddFieldNo(TableCaptionValue, PriceListLine.FieldNo("Asset Type"));
         FilterPageBuilder.AddFieldNo(TableCaptionValue, PriceListLine.FieldNo("Asset No."));
         FilterPageBuilder.AddFieldNo(TableCaptionValue, PriceListLine.FieldNo("Amount Type"));
-        if "Price Line Filter" <> '' then
-            FilterPageBuilder.SetView(TableCaptionValue, "Price Line Filter");
-        if FilterPageBuilder.RunModal() then begin
-            PriceListLine.SetView(FilterPageBuilder.GetView(TableCaptionValue, false));
-            "Price Line Filter" := CopyStr(PriceListLine.GetView(), 1, MaxStrLen("Price Line Filter"));
-        end;
+        SetFilterByFilterPageBuilder("Price Line Filter", TableCaptionValue, FilterPageBuilder);
     end;
 
     local procedure GetCurrencyCode(PriceListCode: Code[20]): Code[10];
@@ -257,5 +244,19 @@ table 7021 "Price Line Filters"
             Currency.TestField("Unit-Amount Rounding Precision");
         end;
         "Amount Rounding Precision" := Currency."Unit-Amount Rounding Precision";
+    end;
+
+    local procedure SetFilterByFilterPageBuilder(var FilterValue: Text[2048]; TableCaptionValue: Text; var FilterPageBuilder: FilterPageBuilder)
+    begin
+        if FilterValue <> '' then
+            FilterPageBuilder.SetView(TableCaptionValue, FilterValue);
+        if FilterPageBuilder.RunModal() then
+            FilterValue := CopyStr(FilterPageBuilder.GetView(TableCaptionValue, false), 1, MaxStrLen(FilterValue));
+        OnAfterSetFilterByFilterPageBuilder(TableCaptionValue, FilterValue);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilterByFilterPageBuilder(TableCaptionValue: Text; var FilterValue: Text[2048])
+    begin
     end;
 }

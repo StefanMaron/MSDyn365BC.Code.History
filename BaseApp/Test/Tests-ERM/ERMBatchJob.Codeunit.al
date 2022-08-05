@@ -487,8 +487,8 @@ codeunit 134900 "ERM Batch Job"
         end;
 
         PostingDate :=
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Use Random because value is not important.
-        SalesPostBatch(SalesHeader, PostingDate);
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Use Random because value is not important.
+        SalesPostBatch(SalesHeader, PostingDate, true, true);
 
         for Index := 1 to ArrayLen(SalesHeader) do
             LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[Index].RecordId);
@@ -2547,6 +2547,78 @@ codeunit 134900 "ERM Batch Job"
         RemoveWorkflow(Workflow);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostSalesOrderWithChangedDefaultBankAccountCode()
+    var
+        BankAccount: array[2] of Record "Bank Account";
+        Currency: Record Currency;
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Index: Integer;
+    begin
+        // [FEATURE] [Batch Post] [Order] [Sales]
+        // [SCENARIO 334500] Create and post two Sales Orders using Batch Post Sales Order and not default Bank Account Code
+
+        // 1. Setup: Find Item and Create Customer.
+        Initialize();
+
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
+
+        // Create default bank account for new currency
+        LibraryERM.CreateBankAccount(BankAccount[1]);
+        BankAccount[1].Validate("Currency Code", Currency.Code);
+        BankAccount[1]."Use as Default for Currency" := true;
+        BankAccount[1].Modify();
+
+        // Create second bank account for new currency
+        LibraryERM.CreateBankAccount(BankAccount[2]);
+        BankAccount[2].Validate("Currency Code", Currency.Code);
+        BankAccount[2].Modify();
+
+        LibraryInventory.CreateItem(Item);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify();
+
+        // Create and post first sales order
+        LibrarySales.CreateSalesHeader(SalesHeader[1], "Sales Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader[1], "Sales Line Type"::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+        // verify default bank account is set
+        Assert.AreEqual(SalesHeader[1]."Company Bank Account Code", BankAccount[1]."No.", 'Default bank account code is not set');
+        // Change default bank account and release and post as ship
+        SalesHeader[1].Validate("Company Bank Account Code", BankAccount[2]."No.");
+        SalesHeader[1].Modify();
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+        LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // Create and post second sales order
+        LibrarySales.CreateSalesHeader(SalesHeader[2], "Sales Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader[2], SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+        SalesHeader[2].Validate("Company Bank Account Code", BankAccount[2]."No.");
+        SalesHeader[2].Modify();
+        LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
+        LibrarySales.PostSalesDocument(SalesHeader[2], true, false);
+        Commit();
+
+        SalesPostBatch(SalesHeader, WorkDate(), false, true);
+
+        // 3. Verify: Verify Sales Invoice have correct Company Bank Account Code.
+        for Index := 1 to ArrayLen(SalesHeader) do begin
+            SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader[Index]."Sell-to Customer No.");
+            SalesInvoiceHeader.SetRange("Currency Code", SalesHeader[Index]."Currency Code");
+            SalesInvoiceHeader.FindFirst();
+            SalesInvoiceHeader.TestField("Company Bank Account Code", SalesHeader[Index]."Company Bank Account Code");
+        end;
+    end;
+
     local procedure Initialize()
     var
         WarehouseEmployee: Record "Warehouse Employee";
@@ -3728,7 +3800,7 @@ codeunit 134900 "ERM Batch Job"
         VendorInvoiceDisc.Modify(true);
     end;
 
-    local procedure SalesPostBatch(var SalesHeader: array[2] of Record "Sales Header"; PostingDate: Date)
+    local procedure SalesPostBatch(var SalesHeader: array[2] of Record "Sales Header"; PostingDate: Date; Ship: Boolean; Invoice: Boolean)
     var
         SalesHeaderToPost: Record "Sales Header";
         BatchPostSalesOrders: Report "Batch Post Sales Orders";
@@ -3737,7 +3809,7 @@ codeunit 134900 "ERM Batch Job"
         SalesHeaderToPost.SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
         BatchPostSalesOrders.SetTableView(SalesHeaderToPost);
         BatchPostSalesOrders.UseRequestPage(false);
-        BatchPostSalesOrders.InitializeRequest(true, true, PostingDate, true, true, false);
+        BatchPostSalesOrders.InitializeRequest(Ship, Invoice, PostingDate, true, true, false);
         BatchPostSalesOrders.Run();
     end;
 

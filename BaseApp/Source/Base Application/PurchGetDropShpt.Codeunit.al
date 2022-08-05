@@ -101,7 +101,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                         UpdateSalesLineUnitCostLCY();
                         SalesLine."Purchase Order No." := PurchLine."Document No.";
                         SalesLine."Purch. Order Line No." := PurchLine."Line No.";
-                        OnBeforeSalesLineModify(SalesLine, PurchLine);
+                        OnBeforeSalesLineModify(SalesLine, PurchLine, SalesHeader);
                         SalesLine.Modify();
                         OnAfterSalesLineModify(SalesLine, PurchLine);
                         ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, PurchLine.RowID1, true);
@@ -277,7 +277,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLineModify(var SalesLine: Record "Sales Line"; PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeSalesLineModify(var SalesLine: Record "Sales Line"; PurchaseLine: Record "Purchase Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 
