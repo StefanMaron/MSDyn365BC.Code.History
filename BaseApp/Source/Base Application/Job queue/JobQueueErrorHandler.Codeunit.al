@@ -1,6 +1,7 @@
 codeunit 450 "Job Queue Error Handler"
 {
-    Permissions = TableData "Job Queue Entry" = rimd;
+    Permissions = TableData "Job Queue Entry" = rimd,
+                    TableData "Job Queue Log Entry" = rm;
     TableNo = "Job Queue Entry";
 
     trigger OnRun()
@@ -25,6 +26,7 @@ codeunit 450 "Job Queue Error Handler"
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
 #endif
     begin
+        JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallStack()); // Set callstack for telemetry
         OnBeforeLogError(JobQueueLogEntry, JobQueueEntry);
 
         if IsNullGuid(JobQueueEntry."Error Message Register Id") then begin

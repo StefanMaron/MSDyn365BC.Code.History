@@ -123,7 +123,7 @@ table 64 "Merge Duplicates Buffer"
         Conflicts := 0;
     end;
 
-    local procedure CollectData()
+    internal procedure CollectData()
     begin
         ClearData;
         CollectFieldData;

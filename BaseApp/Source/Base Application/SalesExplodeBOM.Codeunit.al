@@ -158,7 +158,7 @@ codeunit 63 "Sales-Explode BOM"
 
             FromBOMComp.Reset();
             FromBOMComp.SetRange("Parent Item No.", "No.");
-            OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(FromBOMComp, SalesLine);
+            OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(FromBOMComp, SalesLine, LineSpacing);
             FromBOMComp.FindSet();
             repeat
                 ToSalesLine.Init();
@@ -218,7 +218,7 @@ codeunit 63 "Sales-Explode BOM"
 
                 ToSalesLine."BOM Item No." := BOMItemNo;
 
-                OnInsertOfExplodedBOMLineToSalesLine(ToSalesLine, SalesLine, FromBOMComp, SalesHeader);
+                OnInsertOfExplodedBOMLineToSalesLine(ToSalesLine, SalesLine, FromBOMComp, SalesHeader, LineSpacing);
 
                 ToSalesLine.Insert();
                 OnExplodeBOMCompLinesOnAfterToSalesLineInsert(ToSalesLine, SalesLine, FromBOMComp, SalesHeader);
@@ -246,7 +246,7 @@ codeunit 63 "Sales-Explode BOM"
                 TransferExtendedText.InsertSalesExtText(ToSalesLine);
         end;
 
-        OnAfterExplodeBOMCompLines(SalesLine, Selection);
+        OnAfterExplodeBOMCompLines(SalesLine, Selection, LineSpacing);
     end;
 #if not CLEAN20
     [Obsolete('Replaced with OnRunOnBeforeCalcNoOfBOMComp and OnRunOnAfterFromBOMCompSetFilters', '20.0')]
@@ -262,7 +262,7 @@ codeunit 63 "Sales-Explode BOM"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterExplodeBOMCompLines(var SalesLine: Record "Sales Line"; Selection: Integer)
+    local procedure OnAfterExplodeBOMCompLines(var SalesLine: Record "Sales Line"; Selection: Integer; LineSpacing: Integer)
     begin
     end;
 
@@ -282,7 +282,7 @@ codeunit 63 "Sales-Explode BOM"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(var BOMComponent: Record "BOM Component"; SalesLine: Record "Sales Line")
+    local procedure OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(var BOMComponent: Record "BOM Component"; SalesLine: Record "Sales Line"; var LineSpacing: Integer)
     begin
     end;
 
@@ -292,7 +292,7 @@ codeunit 63 "Sales-Explode BOM"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertOfExplodedBOMLineToSalesLine(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; BOMComponent: Record "BOM Component"; var SalesHeader: Record "Sales Header")
+    local procedure OnInsertOfExplodedBOMLineToSalesLine(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; BOMComponent: Record "BOM Component"; var SalesHeader: Record "Sales Header"; LineSpacing: Integer)
     begin
     end;
 

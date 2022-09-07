@@ -3399,6 +3399,11 @@
           <note from="Developer" annotates="general" priority="2">%1 = Errors from json structure.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Communication Mgt. - Method ExecuteGraphQL - NamedType ErrorOnShopifyErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3550761784 - Method 2453499666 - NamedType 4188303008" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The response from Shopify contains no JSON. \Requested: %1 \Response: %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = The request = %2 = Received data</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Communication Mgt. - Method ExecuteGraphQL - NamedType NoJsonErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1627249452 - Method 1907671471 - NamedType 2108178444" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Wrong updated Customer Id</source>
           <target state="translated">Falsche aktualisierte Kunden-ID</target>
@@ -3482,6 +3487,24 @@
           <target state="translated">Erste Schritte mit Shopify</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3784804491" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Products you import from Shopify are called items in Business Central. You can find them on the Items page. When you're using a demo company, you can import up to 25 items.</source>
+          <target state="translated">Produkte, die Sie aus Shopify importieren, werden in Business Central als Artikel bezeichnet. Sie können sie auf der Seite „Artikel“ finden. Wenn Sie eine Demo-Firma verwenden, können Sie bis zu 25 Artikel importieren.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 546057423" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View imported products</source>
+          <target state="translated">Importierte Produkte anzeigen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3975467153" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View imported data from your store</source>
+          <target state="translated">Importierte Daten aus Ihrem Store anzeigen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListTitleTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2066436824 - NamedType 1302139209" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We have gathered a lot of great resources for you to start learning Business Central. Start your learning journey here.</source>
@@ -6731,6 +6754,12 @@
           <target state="translated">Wählen Sie aus, welche Artikel Sie als Produkte in Shopify erstellen möchten.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action AddItems - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2806160088 - Action 258350985 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Here you select which items in Business Central you wish to push to become products in Shopify. When you select **Add Items** you will get an option to filter and select the items which are then brought into this list and can be synchronized to Shopify.</source>
+          <target state="translated">Hier wählen Sie aus, welche Artikel in Business Central Sie zu Produkten in Shopify machen möchten. Wenn Sie **Artikel hinzufügen** auswählen, erhalten Sie eine Option zum Filtern und Auswählen der Artikel, die dann in diese Liste aufgenommen werden und mit Shopify synchronisiert werden können.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action AddItems - Property AboutText</note>
         </trans-unit>
         <trans-unit id="Page 2806160088 - Action 258350985 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add Items</source>

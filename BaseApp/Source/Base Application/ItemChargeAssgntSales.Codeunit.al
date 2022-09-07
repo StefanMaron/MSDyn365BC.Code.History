@@ -132,7 +132,13 @@
     var
         ItemChargeAssgntSales2: Record "Item Charge Assignment (Sales)";
         Nextline: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateShptChargeAssgnt(FromSalesShptLine, ItemChargeAssgntSales);
+        if IsHandled then
+            exit;
+
         Nextline := ItemChargeAssgntSales."Line No.";
         ItemChargeAssgntSales2.SetRange("Document Type", ItemChargeAssgntSales."Document Type");
         ItemChargeAssgntSales2.SetRange("Document No.", ItemChargeAssgntSales."Document No.");
@@ -262,11 +268,11 @@
                 AssignByVolumeMenuText:
                     AssignByVolume(ItemChargeAssgntSales, Currency, TotalQtyToAssign);
                 else begin
-                        OnAssignItemCharges(
-                          SelectionTxt, ItemChargeAssgntSales, Currency, SalesHeader, TotalQtyToAssign, TotalAmtToAssign, ItemChargesAssigned);
-                        if not ItemChargesAssigned then
-                            Error(ItemChargesNotAssignedErr);
-                    end;
+                    OnAssignItemCharges(
+                      SelectionTxt, ItemChargeAssgntSales, Currency, SalesHeader, TotalQtyToAssign, TotalAmtToAssign, ItemChargesAssigned);
+                    if not ItemChargesAssigned then
+                        Error(ItemChargesNotAssignedErr);
+                end;
             end;
         end;
     end;
@@ -739,6 +745,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignByAmountOnBeforeGetSalesLine(var SalesLine: Record "Sales Line"; ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateShptChargeAssgnt(var FromSalesShptLine: Record "Sales Shipment Line"; var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
     end;
 }

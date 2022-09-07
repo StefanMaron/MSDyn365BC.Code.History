@@ -157,7 +157,9 @@ table 1691 "Posted Bank Deposit Header"
         UnableToFindGLRegisterErr: Label 'Cannot find a G/L Register for the selected posted bank deposit.';
         UnableToFindGLRegisterTelemetryErr: Label 'Cannot find a G/L Register for the selected posted bank deposit %1.', Locked = true;
 
+#if not CLEAN21
     [Scope('OnPrem')]
+    [Obsolete('Finding related entries is done through the `Navigate` page.', '21.0')]
     procedure FindEntries()
     var
         TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary;
@@ -178,6 +180,7 @@ table 1691 "Posted Bank Deposit Header"
 
         Page.Run(Page::"Bank Account Ledger Entries", TempBankAccountLedgerEntry);
     end;
+#endif
 
     // no commits during the method execution. if one line fails to reverse, reversal of lines before it must not be committed
     [CommitBehavior(CommitBehavior::Ignore)]

@@ -7,14 +7,12 @@ codeunit 2584 "Dim Corr Analysis View"
         DimensionCorrection: Record "Dimension Correction";
     begin
         DimensionCorrection.Get(Rec."Record ID to Process");
+        DimensionCorrection."Update Analysis View Job ID" := Rec.ID;
+        DimensionCorrection.Modify();
         UpdateAnalysisViews(DimensionCorrection);
     end;
 
     procedure UpdateAnalysisViews(var DimensionCorrection: Record "Dimension Correction")
-    var
-        AnalysisView: Record "Analysis View";
-        AnalysisViewEntry: Record "Analysis View Entry";
-        UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
         Session.LogMessage('0000EK8', StrSubstNo(StartingUpdateAnalysisViewsLbl, DimensionCorrection."Entry No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DimensionCorrectionTok);
         DimensionCorrection."Update Analysis Views Status" := DimensionCorrection."Update Analysis Views Status"::"In Process";
@@ -22,24 +20,7 @@ codeunit 2584 "Dim Corr Analysis View"
         DimensionCorrection.Modify();
         Commit();
 
-        AnalysisView.SetRange(Blocked, false);
-        AnalysisView.SetRange("Account Source", AnalysisView."Account Source"::"G/L Account");
-        AnalysisView.SetRange("Update on Posting", true);
-        if not AnalysisView.IsEmpty() then begin
-            AnalysisView.FindSet();
-            repeat
-                if ShouldUpdateAnalysisView(AnalysisView, DimensionCorrection) then begin
-                    AnalysisViewEntry.SetRange("Analysis View Code", AnalysisView.Code);
-                    AnalysisViewEntry.DeleteAll();
-                    AnalysisView."Last Entry No." := 0;
-                    AnalysisView."Last Date Updated" := 0D;
-                    AnalysisView."Last Budget Entry No." := 0;
-                    AnalysisView.Modify();
-                    UpdateAnalysisView.Update(AnalysisView, 2, false);
-                    Commit();
-                end;
-            until AnalysisView.Next() = 0;
-        end;
+        UpdateSelectedAnalysisViews(DimensionCorrection);
 
         DimensionCorrection."Update Analysis Views Status" := DimensionCorrection."Update Analysis Views Status"::Completed;
         DimensionCorrection.Modify();
@@ -65,6 +46,42 @@ codeunit 2584 "Dim Corr Analysis View"
         until TempDimCorrectionChange.Next() = 0;
 
         OnAfterShouldUpdateAnalysisView(AnalysisView, DimensionCorrection, Result);
+    end;
+
+    local procedure UpdateSelectedAnalysisViews(var DimensionCorrection: Record "Dimension Correction")
+    var
+        AnalysisView: Record "Analysis View";
+
+        UpdatedAnalysisView: Record "Analysis View";
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+    begin
+        AnalysisView.SetRange(Blocked, false);
+        AnalysisView.SetRange("Account Source", AnalysisView."Account Source"::"G/L Account");
+        if AnalysisView.IsEmpty() then
+            exit;
+
+        AnalysisView.FindSet();
+        repeat
+            if ShouldUpdateAnalysisView(AnalysisView, DimensionCorrection) then begin
+                AnalysisView."Reset Needed" := true;
+                AnalysisView.Modify();
+            end;
+        until AnalysisView.Next() = 0;
+        Commit();
+
+        AnalysisView.SetRange("Reset Needed", true);
+        if AnalysisView.IsEmpty() then
+            exit;
+
+        AnalysisView.FindSet();
+        repeat
+            if AnalysisView."Update on Posting" or (DimensionCorrection."Analysis View Update Type" = DimensionCorrection."Analysis View Update Type"::All) then begin
+                UpdatedAnalysisView.Get(AnalysisView.RecordId);
+                UpdatedAnalysisView.AnalysisViewReset();
+                UpdateAnalysisView.Update(UpdatedAnalysisView, 2, false);
+                Commit();
+            end;
+        until AnalysisView.Next() = 0;
     end;
 
     var

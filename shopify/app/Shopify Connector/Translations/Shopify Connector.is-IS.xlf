@@ -3483,6 +3483,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopTitleTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3784804491" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Products you import from Shopify are called items in Business Central. You can find them on the Items page. When you're using a demo company, you can import up to 25 items.</source>
+          <target state="translated">Vörur sem þú flytur inn frá Shopify kallast atriði í Business Central. Þú finnur þær á síðunni Atriði. Þegar þú ert að nota sýnifyrirtæki getur þú flutt inn allt að 25 hluti.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 546057423" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View imported products</source>
+          <target state="translated">Skoða innfluttar vörur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3975467153" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View imported data from your store</source>
+          <target state="translated">Skoða innflutt gögn úr versluninni þinni</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListTitleTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2066436824 - NamedType 1302139209" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We have gathered a lot of great resources for you to start learning Business Central. Start your learning journey here.</source>
           <target state="translated">Við höfum safnað saman mörgum frábærum úrræðum fyrir þig að byrja að læra á Business Central. Byrjaðu á lærdómsferðalaginu hér.</target>
@@ -6731,6 +6749,12 @@
           <target state="translated">Veldu hvaða atriði á að búa til sem vörur í Shopify.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action AddItems - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2806160088 - Action 258350985 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Here you select which items in Business Central you wish to push to become products in Shopify. When you select **Add Items** you will get an option to filter and select the items which are then brought into this list and can be synchronized to Shopify.</source>
+          <target state="translated">Hér velur notandi hvaða vörur í Business Central eiga að verða vörur í Shopify. Þegar **Bæta við vörum** er valið er hægt að sía og velja vörur, sem eru síðan færðar inn á þennan lista og hægt er að samstilla við Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action AddItems - Property AboutText</note>
         </trans-unit>
         <trans-unit id="Page 2806160088 - Action 258350985 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add Items</source>

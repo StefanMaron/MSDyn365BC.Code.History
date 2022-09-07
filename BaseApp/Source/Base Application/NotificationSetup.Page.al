@@ -54,22 +54,12 @@ page 1512 "Notification Setup"
         }
     }
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        Rec."User ID" := CleanWebFilter(Rec.GetFilter("User ID"));
-    end;
-
     trigger OnOpenPage()
     begin
         if not Rec.HasFilter then
             Rec.SetRange("User ID", Rec."User ID")
         else
             CurrPage.Caption := CurrPage.Caption + ': ' + Rec."User ID";
-    end;
-
-    local procedure CleanWebFilter(FilterString: Text): Text[50]
-    begin
-        exit(DelChr(FilterString, '=', '*|@|'''));
     end;
 }
 

@@ -3483,6 +3483,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopTitleTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3784804491" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Products you import from Shopify are called items in Business Central. You can find them on the Items page. When you're using a demo company, you can import up to 25 items.</source>
+          <target state="translated">Shopifysta tuodut tuotteet ovat nimikkeitä Business Centralissa. Ne löytyvät Nimikkeet-sivulta. Jos käytät demoyritystä, voit tuoda enintään 25 nimikettä.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 546057423" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View imported products</source>
+          <target state="translated">Näytä tuodut tuotteet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3975467153" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View imported data from your store</source>
+          <target state="translated">Näytä tuodut tiedot kaupasta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListTitleTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2066436824 - NamedType 1302139209" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We have gathered a lot of great resources for you to start learning Business Central. Start your learning journey here.</source>
           <target state="translated">Olemme koonneet runsaasti resursseja Business Centraliin tutustumista varten. Aloita tutustumismatkasi täältä.</target>
@@ -6731,6 +6749,12 @@
           <target state="translated">Valitse nimikkeet, jotka haluat lisätä tuotteina Shopifyhin.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action AddItems - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2806160088 - Action 258350985 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Here you select which items in Business Central you wish to push to become products in Shopify. When you select **Add Items** you will get an option to filter and select the items which are then brought into this list and can be synchronized to Shopify.</source>
+          <target state="translated">Täällä voit valita, mistä Business Centralin nimikkeistä haluat luoda Shopify-tuotteet. Kun valitset **Lisää nimikkeitä**, voit suodattaa ja valita tähän luetteloon lisättävät nimikkeet ja synkronoida ne sitten Shopifyhin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Action AddItems - Property AboutText</note>
         </trans-unit>
         <trans-unit id="Page 2806160088 - Action 258350985 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add Items</source>

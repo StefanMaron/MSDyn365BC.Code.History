@@ -288,6 +288,36 @@
         exit(PostingDate in [AllowPostingFrom .. AllowPostingTo]);
     end;
 
+    procedure IsDeferralPostingDateValidWithSetup(PostingDate: Date; var SetupRecordID: RecordID) Result: Boolean
+    var
+        LocalUserSetup: Record "User Setup";
+        AllowPostingFrom: Date;
+        AllowPostingTo: Date;
+        IsHandled: Boolean;
+    begin
+        OnBeforeIsDeferralPostingDateValidWithSetup(PostingDate, Result, IsHandled, SetupRecordID);
+        if IsHandled then
+            exit(Result);
+
+        if UserId <> '' then
+            if LocalUserSetup.Get(UserId) then begin
+                LocalUserSetup.CheckAllowedPostingDates(1);
+                AllowPostingFrom := LocalUserSetup."Allow Deferral Posting From";
+                AllowPostingTo := LocalUserSetup."Allow Deferral Posting To";
+                SetupRecordID := LocalUserSetup.RecordId;
+            end;
+        if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
+            GLSetup.GetRecordOnce();
+            GLSetup.CheckAllowedPostingDates(1);
+            AllowPostingFrom := GLSetup."Allow Deferral Posting From";
+            AllowPostingTo := GLSetup."Allow Deferral Posting To";
+            SetupRecordID := GLSetup.RecordId;
+        end;
+        if AllowPostingTo = 0D then
+            AllowPostingTo := DMY2Date(31, 12, 9999);
+        exit(PostingDate in [AllowPostingFrom .. AllowPostingTo]);
+    end;
+
     procedure IsPostingDateValidWithGenJnlTemplate(PostingDate: Date; TemplateName: Code[20]): Boolean
     var
         SetupRecordID: RecordID;
@@ -371,6 +401,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsPostingDateValidWithSetup(PostingDate: Date; var Result: Boolean; var IsHandled: Boolean; var SetupRecordID: RecordID)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsDeferralPostingDateValidWithSetup(PostingDate: Date; var Result: Boolean; var IsHandled: Boolean; var SetupRecordID: RecordID)
     begin
     end;
 }

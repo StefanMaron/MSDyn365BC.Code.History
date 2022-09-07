@@ -763,6 +763,16 @@ codeunit 1520 "Workflow Event Handling"
             WorkflowManagement.HandleEventWithxRec(RunWorkflowOnCustomerChangedCode, Rec, xRec);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterRenameEvent', '', false, false)]
+    local procedure RunWorkflowOnCustomerRenamed(var Rec: Record Customer; var xRec: Record Customer; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if Format(xRec) <> Format(Rec) then
+            WorkflowManagement.HandleEventWithxRec(RunWorkflowOnCustomerChangedCode(), Rec, xRec);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterModifyEvent', '', false, false)]
     procedure RunWorkflowOnVendorChanged(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
     begin
@@ -771,6 +781,16 @@ codeunit 1520 "Workflow Event Handling"
 
         if Format(xRec) <> Format(Rec) then
             WorkflowManagement.HandleEventWithxRec(RunWorkflowOnVendorChangedCode, Rec, xRec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterRenameEvent', '', false, false)]
+    local procedure RunWorkflowOnVendorRenamed(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if Format(xRec) <> Format(Rec) then
+            WorkflowManagement.HandleEventWithxRec(RunWorkflowOnVendorChangedCode(), Rec, xRec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item", 'OnAfterModifyEvent', '', false, false)]
@@ -786,6 +806,21 @@ codeunit 1520 "Workflow Event Handling"
 
         if Format(xRec) <> Format(Rec) then
             WorkflowManagement.HandleEventWithxRec(RunWorkflowOnItemChangedCode, Rec, xRec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item", 'OnAfterRenameEvent', '', false, false)]
+    local procedure RunWorkflowOnItemRenamed(var Rec: Record Item; var xRec: Record Item; RunTrigger: Boolean)
+    var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if GenJnlPostPreview.IsActive() then
+            exit;
+
+        if Format(xRec) <> Format(Rec) then
+            WorkflowManagement.HandleEventWithxRec(RunWorkflowOnItemChangedCode(), Rec, xRec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterCreateGenJnlLineFromIncomingDocSuccess', '', false, false)]

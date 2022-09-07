@@ -95,6 +95,12 @@ page 7377 "Inventory Pick"
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 3));
                     ToolTip = 'Specifies an additional part of the document number that refers to the customer''s or vendor''s numbering system.';
                 }
+                field("Assigned User ID"; "Assigned User ID")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the ID of the user who is responsible for the document.';
+                    Visible = false;
+                }
             }
             part(WhseActivityLines; "Invt. Pick Subform")
             {

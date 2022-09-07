@@ -37,7 +37,14 @@ report 5883 "Copy Phys. Invt. Recording"
     }
 
     trigger OnPreReport()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnPreReportOnBeforeCopyLine(PhysInvtRecordLine, ToPhysInvtRecordLine, LineSpacing, NoOfCopies, IsHandled);
+        If IsHandled then
+            exit;
+
         if NoOfCopies <= 0 then
             exit;
 
@@ -79,6 +86,11 @@ report 5883 "Copy Phys. Invt. Recording"
     procedure SetPhysInvtRecordLine(var NewPhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin
         PhysInvtRecordLine := NewPhysInvtRecordLine;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnBeforeCopyLine(FromPhysInvtRecordLine: Record "Phys. Invt. Record Line"; var ToPhysInvtRecordLine: Record "Phys. Invt. Record Line"; var LineSpacing: Integer; NoOfCopies: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

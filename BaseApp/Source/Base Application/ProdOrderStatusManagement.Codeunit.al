@@ -578,8 +578,8 @@
                     else begin
                         QtyToPost := GetNeededQty(0, false);
                         if SuppliedByProdOrderLine.Get(Status, "Prod. Order No.", "Supplied-by Line No.") and
-                           (SuppliedByProdOrderLine."Remaining Quantity" = 0) or
-                           (Abs(QtyToPost * "Qty. per Unit of Measure" - "Remaining Qty. (Base)") < Item."Rounding Precision")
+                           (SuppliedByProdOrderLine."Remaining Quantity" = 0) and
+                           (SuppliedByProdOrderLine.Quantity = SuppliedByProdOrderLine."Finished Quantity")
                         then
                             QtyToPost := GetNeededQty(1, false);
                     end;
@@ -817,7 +817,7 @@
             SetProdOrderCompFilters(ProdOrderComp, ProdOrder);
             if FindSet() then
                 repeat
-                        CheckNothingRemainingToPickForProdOrderComp(ProdOrderComp);
+                    CheckNothingRemainingToPickForProdOrderComp(ProdOrderComp);
                     if (("Flushing Method" <> "Flushing Method"::Backward) and
                         ("Flushing Method" <> "Flushing Method"::"Pick + Backward") and
                         ("Routing Link Code" = '')) or

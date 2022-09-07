@@ -710,6 +710,8 @@ codeunit 6500 "Item Tracking Management"
                 ToPurchLine.FieldError("Document Type", Format(ToPurchLine."Document Type"));
         end;
 
+        OnCopyHandledItemTrkgToPurchLineOnAfterFilterItemEntryRelation(ItemEntryRelation, FromPurchLine, ToPurchLine);
+
         if not ItemEntryRelation.FindSet() then
             exit;
 
@@ -797,9 +799,9 @@ codeunit 6500 "Item Tracking Management"
             DATABASE::"Service Line":
                 exit(Subtype in [1]);
             else begin
-                    OnIsOrderNetworkEntity(Type, Subtype, IsNetworkEntity);
-                    exit(IsNetworkEntity);
-                end;
+                OnIsOrderNetworkEntity(Type, Subtype, IsNetworkEntity);
+                exit(IsNetworkEntity);
+            end;
         end;
     end;
 
@@ -1159,9 +1161,9 @@ codeunit 6500 "Item Tracking Management"
                     ReservEntry."Reservation Status"::Surplus:
                         ReservEntry.Delete(true);
                     else begin
-                            ReservEntry.ClearItemTrackingFields();
-                            ReservEntry.Modify(true);
-                        end;
+                        ReservEntry.ClearItemTrackingFields();
+                        ReservEntry.Modify(true);
+                    end;
                 end;
                 OnRemoveItemTrkgFromReservEntryOnAfterReservEntryLoop(ReservEntry, OriginalReservEntry);
             until ReservEntry.Next() = 0;
@@ -1290,9 +1292,9 @@ codeunit 6500 "Item Tracking Management"
                         SourceReservEntry.SetSourceFilter('', "Source Line No.");
                     end;
                 else begin
-                        SourceReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
-                        SourceReservEntry.SetSourceFilter('', 0);
-                    end;
+                    SourceReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
+                    SourceReservEntry.SetSourceFilter('', 0);
+                end;
             end;
 
             IsHandled := false;
@@ -4145,6 +4147,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSumUpItemTrackingOnBeforeTempHandlingSpecificationModify(var TempHandlingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyHandledItemTrkgToPurchLineOnAfterFilterItemEntryRelation(var ItemEntryRelation: Record "Item Entry Relation"; var FromPurchLine: Record "Purchase Line"; var ToPurchLine: Record "Purchase Line")
     begin
     end;
 }

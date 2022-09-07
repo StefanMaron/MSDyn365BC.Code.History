@@ -157,6 +157,7 @@ codeunit 410 "Update Analysis View"
         OnUpdateOneOnBeforeUpdateAnalysisView(AnalysisView, TempAnalysisViewEntry, Updated);
         if Updated then begin
             AnalysisView."Last Date Updated" := Today;
+            AnalysisView."Reset Needed" := false;
             AnalysisView.Modify();
         end;
 

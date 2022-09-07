@@ -15,6 +15,8 @@ page 9061 "Plan Configuration List"
     UsageCategory = Administration;
     Extensible = false;
     Permissions = tabledata "Plan Configuration" = rimd;
+    InsertAllowed = false;
+    ModifyAllowed = false;
 
     layout
     {
@@ -28,13 +30,6 @@ page 9061 "Plan Configuration List"
                     Caption = 'License';
                     ToolTip = 'Specifies the name of the license.';
                     Editable = Rec."Plan Name" = '';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    var
-                        PlanConfigurationImpl: Codeunit "Plan Configuration Impl.";
-                    begin
-                        PlanConfigurationImpl.SelectLicense(Rec);
-                    end;
 
                     trigger OnDrillDown()
                     begin
@@ -54,6 +49,28 @@ page 9061 "Plan Configuration List"
 
     actions
     {
+        area(Creation)
+        {
+            action(New)
+            {
+                ApplicationArea = All;
+                Caption = 'Add License Configuration';
+                Image = Add;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'Add a license configuration.';
+
+                trigger OnAction()
+                var
+                    PlanConfigurationImpl: Codeunit "Plan Configuration Impl.";
+                begin
+                    PlanConfigurationImpl.AddLicenseEntry();
+                end;
+            }
+        }
+
         area(Processing)
         {
             action(Configure)

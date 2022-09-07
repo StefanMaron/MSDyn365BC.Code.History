@@ -3399,6 +3399,12 @@
           <note from="Developer" annotates="general" priority="2">%1 = Errors from json structure.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Communication Mgt. - Method ExecuteGraphQL - NamedType ErrorOnShopifyErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3550761784 - Method 2453499666 - NamedType 4188303008" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The response from Shopify contains no JSON. \Requested: %1 \Response: %2</source>
+          <target state="translated">The response from Shopify contains no JSON. \Requested: %1 \Response: %2</target>
+          <note from="Developer" annotates="general" priority="2">%1 = The request = %2 = Received data</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Communication Mgt. - Method ExecuteGraphQL - NamedType NoJsonErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1627249452 - Method 1907671471 - NamedType 2108178444" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Wrong updated Customer Id</source>
           <target state="translated">Wrong updated Customer Id</target>
@@ -3482,6 +3488,24 @@
           <target state="translated">Get started with Shopify</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3784804491" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Products you import from Shopify are called items in Business Central. You can find them on the Items page. When you're using a demo company, you can import up to 25 items.</source>
+          <target state="translated">Products you import from Shopify are called items in Business Central. You can find them on the Items page. When you're using a demo company, you can import up to 25 items.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 546057423" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View imported products</source>
+          <target state="translated">View imported products</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2066436824 - NamedType 3975467153" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View imported data from your store</source>
+          <target state="translated">View imported data from your store</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ItemListTitleTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2066436824 - NamedType 1302139209" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We have gathered a lot of great resources for you to start learning Business Central. Start your learning journey here.</source>

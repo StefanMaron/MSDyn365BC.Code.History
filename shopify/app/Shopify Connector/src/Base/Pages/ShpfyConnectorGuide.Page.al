@@ -876,20 +876,15 @@ page 30136 "Shpfy Connector Guide"
 
     local procedure GetItemTemplateCode(): Code[10]
     var
+        ItemTempl: Record "Item Templ.";
         ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
     begin
         if ConfigTemplateHeader.Get(ItemConfigTemplateCodeLbl) then
             exit(ConfigTemplateHeader.Code);
 
-        ConfigTemplateLine.SetRange("Table ID", Database::Item);
-        ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::Field);
-        ConfigTemplateLine.SetRange("Field ID", Item.FieldNo(Type));
-        ConfigTemplateLine.SetRange("Default Value", Format(Item.Type::Inventory));
-
-        if ConfigTemplateLine.FindFirst() then
-            exit(CopyConfigTemplate(ConfigTemplateLine."Data Template Code", ItemConfigTemplateCodeLbl, ItemConfigTemplateDescLbl))
+        ItemTempl.SetRange(Type, ItemTempl.Type::Inventory);
+        if ItemTempl.FindFirst() then
+            exit(CreateItemConfigTemplate(ItemTempl))
         else
             if IsDemoCompany then
                 Error(ItemTemplateNotFoundErr);
@@ -897,35 +892,87 @@ page 30136 "Shpfy Connector Guide"
 
     local procedure GetCustomerTemplateCode(): Code[10]
     var
+        CustomerTempl: Record "Customer Templ.";
         ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Customer: Record Customer;
     begin
         if ConfigTemplateHeader.Get(CustomerConfigTemplateCodeLbl) then
             exit(ConfigTemplateHeader.Code);
 
-        ConfigTemplateLine.SetRange("Table ID", Database::Customer);
-        ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::Field);
-        ConfigTemplateLine.SetRange("Field ID", Customer.FieldNo("Contact Type"));
-        ConfigTemplateLine.SetRange("Default Value", Format(Customer."Contact Type"::Person));
-
-        if ConfigTemplateLine.FindFirst() then
-            exit(CopyConfigTemplate(ConfigTemplateLine."Data Template Code", CustomerConfigTemplateCodeLbl, CustomerConfigTemplateDescLbl))
+        CustomerTempl.SetRange("Contact Type", CustomerTempl."Contact Type"::Person);
+        if CustomerTempl.FindFirst() then
+            exit(CreateCustomerConfigTemplate(CustomerTempl))
         else
             if IsDemoCompany then
                 Error(CustomerTemplateNotFoundErr);
     end;
 
-    local procedure CopyConfigTemplate(FromConfigTemplateCode: Code[10]; ToConfigTemplateCode: Code[10]; ToConfigTemplateDescription: Text): Code[10]
+    local procedure CreateItemConfigTemplate(ItemTempl: Record "Item Templ."): Code[10]
     var
         ConfigTemplateHeader: Record "Config. Template Header";
+        Item: Record Item;
     begin
         ConfigTemplateHeader.Init();
-        ConfigTemplateHeader.Validate(Code, ToConfigTemplateCode);
-        ConfigTemplateHeader.Validate(Description, CopyStr(ToConfigTemplateDescription, 1, MaxStrLen(ConfigTemplateHeader.Description)));
+        ConfigTemplateHeader.Validate(Code, ItemConfigTemplateCodeLbl);
+        ConfigTemplateHeader.Validate(Description, CopyStr(ItemConfigTemplateDescLbl, 1, MaxStrLen(ConfigTemplateHeader.Description)));
+        ConfigTemplateHeader.Validate("Table ID", Database::Item);
         ConfigTemplateHeader.Insert(true);
-        ConfigTemplateHeader.CopyConfigTemplate(FromConfigTemplateCode);
+
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Item, Item.FieldNo(Item.Type), ItemTempl.Type);
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Item, Item.FieldNo(Item."Base Unit of Measure"), ItemTempl."Base Unit of Measure");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Item, Item.FieldNo(Item."Gen. Prod. Posting Group"), ItemTempl."Gen. Prod. Posting Group");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Item, Item.FieldNo(Item."Inventory Posting Group"), ItemTempl."Inventory Posting Group");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Item, Item.FieldNo(Item."Allow Invoice Disc."), ItemTempl."Allow Invoice Disc.");
+
         exit(ConfigTemplateHeader.Code);
+    end;
+
+    local procedure CreateCustomerConfigTemplate(CustomerTempl: Record "Customer Templ."): Code[10]
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        Customer: Record Customer;
+    begin
+        ConfigTemplateHeader.Init();
+        ConfigTemplateHeader.Validate(Code, CustomerConfigTemplateCodeLbl);
+        ConfigTemplateHeader.Validate(Description, CopyStr(CustomerConfigTemplateDescLbl, 1, MaxStrLen(ConfigTemplateHeader.Description)));
+        ConfigTemplateHeader.Validate("Table ID", Database::Customer);
+        ConfigTemplateHeader.Insert(true);
+
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Customer, Customer.FieldNo(Customer."Country/Region Code"), CustomerTempl."Country/Region Code");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Customer, Customer.FieldNo(Customer."Gen. Bus. Posting Group"), CustomerTempl."Gen. Bus. Posting Group");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Customer, Customer.FieldNo(Customer."Customer Posting Group"), CustomerTempl."Customer Posting Group");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Customer, Customer.FieldNo(Customer."Allow Line Disc."), CustomerTempl."Allow Line Disc.");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Customer, Customer.FieldNo(Customer."Tax Liable"), CustomerTempl."Tax Liable");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Customer, Customer.FieldNo(Customer."Contact Type"), CustomerTempl."Contact Type");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Customer, Customer.FieldNo(Customer."Application Method"), CustomerTempl."Application Method");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Customer, Customer.FieldNo(Customer."Payment Terms Code"), CustomerTempl."Payment Terms Code");
+        InsertConfigTemplateLine(ConfigTemplateHeader.Code, Database::Customer, Customer.FieldNo(Customer."Payment Method Code"), CustomerTempl."Payment Method Code");
+
+        exit(ConfigTemplateHeader.Code);
+    end;
+
+    local procedure InsertConfigTemplateLine(TemplateCode: Code[10]; TableId: Integer; FieldId: Integer; DefaultValueVariant: Variant)
+    var
+        ConfigTemplateLine: Record "Config. Template Line";
+    begin
+        ConfigTemplateLine.Init();
+        ConfigTemplateLine.Validate("Line No.", GetNextLineNo(TemplateCode));
+        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::Field);
+        ConfigTemplateLine.Validate("Table ID", TableId);
+        ConfigTemplateLine.Validate("Field ID", FieldId);
+        ConfigTemplateLine.Validate("Data Template Code", TemplateCode);
+        ConfigTemplateLine.Validate("Default Value", DefaultValueVariant);
+        ConfigTemplateLine.Insert(true);
+    end;
+
+    local procedure GetNextLineNo(ConfigTemplateHeaderCode: Code[10]): Integer
+    var
+        ConfigTemplateLine: Record "Config. Template Line";
+    begin
+        ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeaderCode);
+        if ConfigTemplateLine.FindLast() then
+            exit(ConfigTemplateLine."Line No." + 10000);
+
+        exit(10000);
     end;
 
     local procedure GetShippingChargesGLAccount(): Code[20]

@@ -1,4 +1,4 @@
-table 5080 "To-do"
+﻿table 5080 "To-do"
 {
     Caption = 'Task';
     DataCaptionFields = "No.", Description;
@@ -652,7 +652,14 @@ table 5080 "To-do"
             TableRelation = "Salesperson/Purchaser".Code;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCompletedBy(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (xRec."Completed By" = '') and
                    ("Completed By" <> '')
                 then
@@ -2732,7 +2739,8 @@ table 5080 "To-do"
         "Wizard Step" := "Wizard Step"::"1";
         Duration := 1440 * 1000 * 60;
 
-        Insert;
+        OnStartWizard2OnBeforeInsert(Rec);
+        Insert();
 
         if PAGE.RunModal(PAGE::"Assign Activity", Rec) = ACTION::OK then;
     end;
@@ -3070,7 +3078,7 @@ table 5080 "To-do"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateTaskFromTaskOnBeforeStartWizard(var Task: Record "To-do"; FromTask: Record "To-do")
+    local procedure OnCreateTaskFromTaskOnBeforeStartWizard(var Task: Record "To-do"; var FromTask: Record "To-do")
     begin
     end;
 
@@ -3142,6 +3150,16 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertTaskAndRelatedData(var Task2: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCompletedBy(var Task: Record "To-do"; xTask: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartWizard2OnBeforeInsert(var Task: Record "To-do")
     begin
     end;
 }

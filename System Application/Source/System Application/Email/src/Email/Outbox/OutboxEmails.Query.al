@@ -65,7 +65,7 @@ query 8888 "Outbox Emails"
         }
     }
 
-    internal procedure GetOutboxEmails(var EmailOutbox: Record "Email Outbox" temporary)
+    procedure GetOutboxEmails(var EmailOutbox: Record "Email Outbox" temporary)
     var
         EmailOutboxRecord: Record "Email Outbox";
     begin
@@ -75,16 +75,21 @@ query 8888 "Outbox Emails"
         CopyFiltersFrom(EmailOutbox);
         EmailOutbox.Reset();
 
-        if Open() then;
+        if not Open() then
+            exit;
+
         while Read() do
             if EmailOutboxRecord.Get(Id) then begin
-                EmailOutbox.TransferFields(EmailOutboxRecord);
-                // If then silences the error when trying to insert already inserted record! (The left join causes this)
-                if EmailOutbox.Insert() then;
+                EmailOutbox.SetRange(Id, Id);
+                if EmailOutbox.IsEmpty() then begin
+                    EmailOutbox.TransferFields(EmailOutboxRecord);
+                    EmailOutbox.Insert();
+                end;
+                EmailOutbox.Reset();
             end;
     end;
 
-    internal procedure ReadUntilNextMessageId(CurrentMessageId: Guid) KeepReading: Boolean
+    procedure ReadUntilNextMessageId(CurrentMessageId: Guid) KeepReading: Boolean
     begin
         KeepReading := Read();
         while KeepReading do begin
@@ -94,7 +99,7 @@ query 8888 "Outbox Emails"
         end;
     end;
 
-    internal procedure InsertRecordInto(var EmailOutbox: Record "Email Outbox" temporary)
+    procedure InsertRecordInto(var EmailOutbox: Record "Email Outbox" temporary)
     var
         EmailOutboxRecord: Record "Email Outbox";
     begin
@@ -104,7 +109,7 @@ query 8888 "Outbox Emails"
         end;
     end;
 
-    internal procedure InsertRecordIfAnyRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary) KeepReading: Boolean
+    procedure InsertRecordIfAnyRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary) KeepReading: Boolean
     var
         EmailOutboxRecord: Record "Email Outbox";
         RecordRef: RecordRef;
@@ -137,7 +142,7 @@ query 8888 "Outbox Emails"
         end;
     end;
 
-    internal procedure InsertRecordIfAllRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary) KeepReading: Boolean
+    procedure InsertRecordIfAllRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary) KeepReading: Boolean
     var
         EmailOutboxRecord: Record "Email Outbox";
         RecordRef: RecordRef;
@@ -179,15 +184,21 @@ query 8888 "Outbox Emails"
             if EmailOutbox.Insert() then;
     end;
 
-    internal procedure GetOutboxEmailsIfAccessToAllRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary)
+    procedure GetOutboxEmailsIfAccessToAllRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary)
+    begin
+        GetOutboxEmailsIfAccessToAllRelatedRecords(EmailOutbox, false);
+    end;
+
+    procedure GetOutboxEmailsIfAccessToAllRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary; KeepRecords: Boolean)
     var
         KeepReading: Boolean;
         UserSecId: Guid;
     begin
         UserSecId := UserSecurityId();
         KeepReading := true;
-        if not EmailOutbox.IsEmpty() then
-            EmailOutbox.DeleteAll();
+        if not KeepRecords then
+            if not EmailOutbox.IsEmpty() then
+                EmailOutbox.DeleteAll();
         CopyFiltersFrom(EmailOutbox);
         EmailOutbox.Reset();
 
@@ -195,7 +206,9 @@ query 8888 "Outbox Emails"
         // Each row returned in the SQL statement is read one at the time
         // We need to make sure that all related records to the same message id is accessible to the user
         //
-        if Open() then;
+        if not Open() then
+            exit;
+
         KeepReading := Read();
         while KeepReading do begin
 
@@ -213,15 +226,21 @@ query 8888 "Outbox Emails"
         end;
     end;
 
-    internal procedure GetOutboxEmailsIfAccessToAnyRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary)
+    procedure GetOutboxEmailsIfAccessToAnyRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary)
+    begin
+        GetOutboxEmailsIfAccessToAnyRelatedRecords(EmailOutbox, false);
+    end;
+
+    procedure GetOutboxEmailsIfAccessToAnyRelatedRecords(var EmailOutbox: Record "Email Outbox" temporary; KeepRecords: Boolean)
     var
         KeepReading: Boolean;
         UserSecId: Guid;
     begin
         UserSecId := UserSecurityId();
         KeepReading := true;
-        if not EmailOutbox.IsEmpty() then
-            EmailOutbox.DeleteAll();
+        if not KeepRecords then
+            if not EmailOutbox.IsEmpty() then
+                EmailOutbox.DeleteAll();
         CopyFiltersFrom(EmailOutbox);
         EmailOutbox.Reset();
 
@@ -229,7 +248,9 @@ query 8888 "Outbox Emails"
         // Each row returned in the SQL statement is read one at the time
         // We need to make sure that any related records to the same message id is accessible to the user
         //
-        if Open() then;
+        if not Open() then
+            exit;
+
         KeepReading := Read();
         while KeepReading do begin
 
@@ -247,7 +268,7 @@ query 8888 "Outbox Emails"
         end;
     end;
 
-    internal procedure CopyFiltersFrom(var EmailOutbox: Record "Email Outbox" temporary)
+    local procedure CopyFiltersFrom(var EmailOutbox: Record "Email Outbox" temporary)
     begin
         SetFilter(Account_Id, EmailOutbox.GetFilter("Account Id"));
         SetFilter(Status, EmailOutbox.GetFilter(Status));

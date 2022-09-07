@@ -312,6 +312,7 @@ page 2588 "Dimension Correction"
         DimensionCorrectionMgt: Codeunit "Dimension Correction Mgt";
     begin
         DimensionCorrectionMgt.UpdateStatus(Rec);
+        DimensionCorrectionMgt.UpdateAnalysisViewStatus(Rec);
     end;
 
     trigger OnAfterGetCurrRecord()

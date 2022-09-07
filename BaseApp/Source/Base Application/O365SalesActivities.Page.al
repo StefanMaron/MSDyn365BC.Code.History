@@ -258,10 +258,7 @@ page 9039 "O365 Sales Activities"
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
     begin
-        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial;
         O365DocumentSendMgt.ShowRoleCenterEmailNotification(true);
         NumberOfUnpaidInvoices := GetNumberOfUnpaidInvoices;
         CreateTestInvoiceVisible := O365SetupMgmt.ShowCreateTestInvoice;

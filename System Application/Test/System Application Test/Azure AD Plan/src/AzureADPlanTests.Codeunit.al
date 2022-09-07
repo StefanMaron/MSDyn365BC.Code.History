@@ -320,6 +320,28 @@ codeunit 132912 "Azure AD Plan Tests"
         LibraryAssert.AreEqual(1, AzureADPlan.GetAvailablePlansCount(), 'The Plan table should have only 1 Plan');
     end;
 
+    [Test]
+    [HandlerFunctions('ModalHandler')]
+    [Scope('OnPrem')]
+    procedure AddPlanConfigurationLicense()
+    var
+        PlanConfiguration: Record "Plan Configuration";
+        PlanConfigurationLibrary: Codeunit "Plan Configuration Library";
+        PlanConfigurationList: TestPage "Plan Configuration List";
+    begin
+        // [SCENARIO] Inserting a new License on Plan Configuration page using custom 'New' action.
+        // [GIVEN] An empty list of plan configurations
+        PlanConfigurationLibrary.ClearPlanConfigurations();
+
+        // [WHEN] User opens Plan Configuration page and presses the custom 'New'' action
+        PlanConfigurationList.OpenView();
+        PlanConfigurationList.New.Invoke();
+
+        // [WHEN] User selects a Plan in modal and clicks OK
+        // [THEN] License is added to Plan Configuration table ("Null" record in test)
+        LibraryAssert.RecordCount(PlanConfiguration, 1);
+    end;
+
     local procedure PopulateMockGraph(GraphUserInfo: DotNet UserInfo; PlanId: Guid; PlanName: Text)
     var
         MockGraphQuery: DotNet MockGraphQuery;
@@ -353,5 +375,12 @@ codeunit 132912 "Azure AD Plan Tests"
     begin
         AzureADPlanTestLibraries.DeleteAllPlans();
         AzureADPlanTestLibraries.DeleteAllUserPlan();
+    end;
+
+    [ModalPageHandler]
+    procedure ModalHandler(var Plans: TestPage "Plans")
+    var
+    begin
+        Plans.OK().Invoke();
     end;
 }

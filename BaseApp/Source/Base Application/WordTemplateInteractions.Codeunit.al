@@ -99,6 +99,7 @@ codeunit 5069 "Word Template Interactions"
         MergeSourceText: Text;
         DataSource: Dictionary of [Text, Text];
         DocumentInStream: InStream;
+        SaveFormat: Enum "Word Templates Save Format";
     begin
         Window.Update(6, TransferringDataToMergeTxt);
 
@@ -144,7 +145,9 @@ codeunit 5069 "Word Template Interactions"
                                                             TempDeliverySorter."Correspondence Type"::Fax] then begin
                 WordTemplates.Load(InteractLogEntry."Word Template Code");
                 InteractionMergeData.MarkedOnly(true);
-                WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::PDF); // Only one document
+                SaveFormat := SaveFormat::PDF;
+                OnExecuteMergeOnBeforeMergeWordTemplates(TempDeliverySorter, InteractLogEntry, SaveFormat);
+                WordTemplates.Merge(InteractionMergeData, false, SaveFormat); // Only one document
                 WordTemplates.GetDocument(DocumentInStream);
                 SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractLogEntry);
                 InteractionMergeData.DeleteAll();
@@ -236,7 +239,13 @@ codeunit 5069 "Word Template Interactions"
         HideDialog: Boolean;
         SourceTableIDs, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendMergedDocument(MergedDocumentInStream, TempDeliverySorter, ToAddress, InteractionLogEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         HideDialog := not (TempDeliverySorter."Wizard Action" = TempDeliverySorter."Wizard Action"::Open);
         case TempDeliverySorter."Correspondence Type" of
             TempDeliverySorter."Correspondence Type"::Fax:
@@ -649,6 +658,16 @@ codeunit 5069 "Word Template Interactions"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDataSourceOnBeforeRestoreGlobalLanguage(var DataSource: Dictionary of [Text, Text]; var InteractLogEntry: Record "Interaction Log Entry"; var SegLine: Record "Segment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendMergedDocument(MergedDocumentInStream: InStream; TempDeliverySorter: Record "Delivery Sorter"; ToAddress: Text; InteractionLogEntry: Record "Interaction Log Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExecuteMergeOnBeforeMergeWordTemplates(TempDeliverySorter: Record "Delivery Sorter" temporary; InteractLogEntry: Record "Interaction Log Entry"; var SaveFormat: Enum "Word Templates Save Format")
     begin
     end;
 }

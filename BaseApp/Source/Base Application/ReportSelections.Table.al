@@ -132,7 +132,6 @@ table 77 "Report Selections"
         MailingJobCategoryTok: Label 'Sending invoices via email';
         MailingJobCategoryCodeTok: Label 'SENDINV', Comment = 'Must be max. 10 chars and no spacing. (Send Invoice)';
         FileManagement: Codeunit "File Management";
-        RecordDoesNotMatchErr: Label 'The record that will be sent does not match the original record. The original record was changed or deleted. Please verify that the record exists, or try to re-send the remittance advice from the vendor ledger entries.';
         JobQueueParameterStringTok: Label '%1|%2|%3|%4|%5|%6|%7', Locked = true;
 
     procedure NewRecord()
@@ -683,7 +682,6 @@ table 77 "Report Selections"
         No: Code[20];
         FieldNo: Integer;
         ParamString: Text;
-        RecRefSystemId: Guid;
     begin
         // Called from codeunit 260 OnRun trigger - in a background process.
         ParamString := JobQueueEntry."Parameter String";  // Set in function SendEmailToCust
@@ -706,14 +704,7 @@ table 77 "Report Selections"
 
         if not DocNos.Contains('|') then
             DocNo := CopyStr(DocNos, 1, MaxStrLen(DocNo));
-
-        RecRefSystemId := VerifyRecordBySystemId(ParamString, ReportUsage, RecRef);
-        if not IsNullGuid(RecRefSystemId) then begin
-            Clear(RecRef);
-            RecRef.Open(JobQueueEntry."Record ID to Process".TableNo);
-            RecRef.GetBySystemId(RecRefSystemId);
-            RecRef.SetRecFilter();
-        end;
+        GetNextJobQueueParam(ParamString);
         OnSendEmailInBackgroundOnAfterGetJobQueueParameters(RecRef, ParamString);
 
         ParamString := ParamString.TrimStart('|');
@@ -1779,19 +1770,6 @@ table 77 "Report Selections"
         TempReportSelections.SetRange(Usage, ReportUsage);
         TempReportSelections.SetRange("Report ID", ReportID);
         exit(TempReportSelections.FindFirst());
-    end;
-
-    local procedure VerifyRecordBySystemId(var ParamString: Text; ReportUsage: Integer; RecRef: RecordRef): Guid
-    var
-        SrcRecSysId: Guid;
-    begin
-        if not IsRecordSystemIdVerificationRequired(ReportUsage, RecRef.Number) then
-            exit;
-
-        Evaluate(SrcRecSysId, GetNextJobQueueParam(ParamString));
-        if not RecRef.GetBySystemId(SrcRecSysId) then
-            Error(RecordDoesNotMatchErr);
-        exit(SrcRecSysId);
     end;
 
     local procedure IsRecordSystemIdVerificationRequired(ReportUsage: Integer; TableId: Integer): Boolean

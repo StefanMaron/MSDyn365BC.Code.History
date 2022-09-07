@@ -1517,6 +1517,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := 132450;
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
+        JobQueueEntry."User Service Instance ID" := ServiceInstanceId();
         JobQueueEntry."User Session ID" := SessionId;
         JobQueueEntry."System Task ID" := SystemTaskId;
         JobQueueEntry.Insert(true);
@@ -1529,6 +1530,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := 132453;
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
+        // Do not set "User Service Instance ID", that is set is a separate session
         JobQueueEntry."User Session ID" := SessionId;
         JobQueueEntry.Insert(true);
     end;

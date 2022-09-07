@@ -133,7 +133,7 @@ report 1408 "Bank Acc. Recon. - Test"
                 column(Adjusted_Statement_Ending_Balance; EndingStatementBalance)
                 {
                 }
-                column(Difference; "Bank Acc. Reconciliation"."Total Balance on Bank Account" + TotalPositiveDifference + TotalNegativeDifference - "Bank Acc. Reconciliation"."Statement Ending Balance" - TotalOutstdBankTransac - TotalOutstdPayments)
+                column(Sum_Of_Differences; SumOfDifferences)
                 {
                 }
                 dataitem(HeaderErrorCounter; "Integer")
@@ -528,6 +528,7 @@ report 1408 "Bank Acc. Recon. - Test"
                 TotalOutstdPayments := BankAccReconTest.TotalOutstandingPayments("Bank Acc. Reconciliation");
                 EndingGLBalance := BankAcc."Balance at Date" + TotalPositiveDifference + TotalNegativeDifference;
                 EndingStatementBalance := "Statement Ending Balance" + TotalOutstdBankTransac + TotalOutstdPayments;
+                SumOfDifferences := BankAccReconLine.Difference;
             end;
         }
     }
@@ -591,6 +592,7 @@ report 1408 "Bank Acc. Recon. - Test"
         EndingStatementBalance: Decimal;
         TotalPositiveDifference: Decimal;
         TotalNegativeDifference: Decimal;
+        SumOfDifferences: Decimal;
         BankAccReconFilter: Text;
         G_L_BalanceLCYCaptionTxt: Text;
         G_L_BalanceCaptionTxt: Text;

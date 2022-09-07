@@ -14,9 +14,6 @@ codeunit 8934 "View If Any Related Records" implements "Email View Policy"
                   tabledata "Sent Email" = r,
                   tabledata "Email Outbox" = r;
 
-    var
-        EmailViewPolicy: Codeunit "Email View Policy";
-
     procedure GetSentEmails(var SentEmails: Record "Sent Email" temporary)
     var
         SentEmailsQuery: Query "Sent Emails";
@@ -33,48 +30,30 @@ codeunit 8934 "View If Any Related Records" implements "Email View Policy"
 
     procedure GetSentEmails(SourceTableId: Integer; var SentEmails: Record "Sent Email" temporary)
     var
-        TempAccessibleSentEmailsRecord: Record "Sent Email" temporary;
-        EmailRelatedRecord: Record "Email Related Record";
-        SentEmailsQuery: Query "Sent Emails";
+        EmailViewPolicy: Codeunit "Email View Policy";
     begin
-        SentEmailsQuery.GetSentEmailsIfAccessToAnyRelatedRecords(TempAccessibleSentEmailsRecord);
-        EmailRelatedRecord.SetRange("Table Id", SourceTableId);
-        EmailViewPolicy.GetFilteredSentEmails(EmailRelatedRecord, TempAccessibleSentEmailsRecord, SentEmails);
+        EmailViewPolicy.GetSentEmailsBasedOnRelatedRecords(Format(SourceTableId), '', Enum::"Email View Policy"::AnyRelatedRecordEmails, SentEmails);
     end;
 
     procedure GetOutboxEmails(SourceTableId: Integer; var EmailOutbox: Record "Email Outbox" temporary)
     var
-        TempAccessibleEmailOutboxRecord: Record "Email Outbox" temporary;
-        EmailRelatedRecord: Record "Email Related Record";
-        OutboxEmailsQuery: Query "Outbox Emails";
+        EmailViewPolicy: Codeunit "Email View Policy";
     begin
-        OutboxEmailsQuery.GetOutboxEmailsIfAccessToAnyRelatedRecords(TempAccessibleEmailOutboxRecord);
-        EmailRelatedRecord.SetRange("Table Id", SourceTableId);
-        EmailViewPolicy.GetFilteredOutboxEmails(EmailRelatedRecord, TempAccessibleEmailOutboxRecord, EmailOutbox);
+        EmailViewPolicy.GetEmailOutboxBasedOnRelatedRecords(Format(SourceTableId), '', Enum::"Email View Policy"::AnyRelatedRecordEmails, EmailOutbox);
     end;
 
     procedure GetSentEmails(SourceTableId: Integer; SourceSystemId: Guid; var SentEmails: Record "Sent Email" temporary)
     var
-        TempAccessibleSentEmailsRecord: Record "Sent Email" temporary;
-        EmailRelatedRecord: Record "Email Related Record";
-        SentEmailsQuery: Query "Sent Emails";
+        EmailViewPolicy: Codeunit "Email View Policy";
     begin
-        SentEmailsQuery.GetSentEmailsIfAccessToAnyRelatedRecords(TempAccessibleSentEmailsRecord);
-        EmailRelatedRecord.SetRange("Table Id", SourceTableId);
-        EmailRelatedRecord.SetRange("System Id", SourceSystemId);
-        EmailViewPolicy.GetFilteredSentEmails(EmailRelatedRecord, TempAccessibleSentEmailsRecord, SentEmails);
+        EmailViewPolicy.GetSentEmailsBasedOnRelatedRecords(Format(SourceTableId), Format(SourceSystemId), Enum::"Email View Policy"::AnyRelatedRecordEmails, SentEmails);
     end;
 
     procedure GetOutboxEmails(SourceTableId: Integer; SourceSystemId: Guid; var EmailOutbox: Record "Email Outbox" temporary)
     var
-        TempAccessibleEmailOutboxRecord: Record "Email Outbox" temporary;
-        EmailRelatedRecord: Record "Email Related Record";
-        OutboxEmailsQuery: Query "Outbox Emails";
+        EmailViewPolicy: Codeunit "Email View Policy";
     begin
-        OutboxEmailsQuery.GetOutboxEmailsIfAccessToAnyRelatedRecords(TempAccessibleEmailOutboxRecord);
-        EmailRelatedRecord.SetRange("Table Id", SourceTableId);
-        EmailRelatedRecord.SetRange("System Id", SourceSystemId);
-        EmailViewPolicy.GetFilteredOutboxEmails(EmailRelatedRecord, TempAccessibleEmailOutboxRecord, EmailOutbox);
+        EmailViewPolicy.GetEmailOutboxBasedOnRelatedRecords(Format(SourceTableId), Format(SourceSystemId), Enum::"Email View Policy"::AnyRelatedRecordEmails, EmailOutbox);
     end;
 
     procedure HasAccess(SentEmail: Record "Sent Email"): Boolean;

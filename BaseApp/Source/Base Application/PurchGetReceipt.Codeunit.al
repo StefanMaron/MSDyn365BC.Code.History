@@ -246,9 +246,11 @@ codeunit 74 "Purch.-Get Receipt"
                                         PurchLine2.SetRange("Document Type", PurchLine2."Document Type"::Invoice);
                                         PurchLine2.SetRange("Receipt No.", PurchRcptLine2."Document No.");
                                         PurchLine2.SetRange("Receipt Line No.", PurchRcptLine2."Line No.");
-                                        if PurchLine2.Find('-') and (PurchLine2.Quantity <> 0) then
-                                            ItemChargeAssgntPurch2."Applies-to Doc. Line No." := PurchLine2."Line No."
-                                        else
+                                        OnCopyItemChargeAssgntOnBeforeFindPurchLine2(PurchLine2, ItemChargeAssgntPurch2);
+                                        if PurchLine2.Find('-') and (PurchLine2.Quantity <> 0) then begin
+                                            OnCopyItemChargeAssgntOnAfterFindPurchLine2(PurchLine2, ItemChargeAssgntPurch2);
+                                            ItemChargeAssgntPurch2."Applies-to Doc. Line No." := PurchLine2."Line No.";
+                                        end else
                                             InsertChargeAssgnt := false;
                                     end else
                                         InsertChargeAssgnt := false;
@@ -413,6 +415,16 @@ codeunit 74 "Purch.-Get Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvoiceLineFromReceiptLineOnBeforeInsertInvLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemChargeAssgntOnAfterFindPurchLine2(var PurchLine2: Record "Purchase Line"; var ItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemChargeAssgntOnBeforeFindPurchLine2(var PurchLine2: Record "Purchase Line"; var ItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)")
     begin
     end;
 }

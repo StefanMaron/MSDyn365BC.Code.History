@@ -66,7 +66,7 @@ query 8889 "Sent Emails"
         }
     }
 
-    internal procedure GetSentEmails(var SentEmails: Record "Sent Email" temporary)
+    procedure GetSentEmails(var SentEmails: Record "Sent Email" temporary)
     var
         SentEmailRecord: Record "Sent Email";
     begin
@@ -76,16 +76,21 @@ query 8889 "Sent Emails"
         CopyFiltersFrom(SentEmails);
         SentEmails.Reset();
 
-        if Open() then;
+        if not Open() then
+            exit;
+
         while Read() do
             if SentEmailRecord.Get(Id) then begin
-                SentEmails.TransferFields(SentEmailRecord);
-                // If then silences the error when trying to insert already inserted record! (The left join causes this)
-                if SentEmails.Insert() then;
+                SentEmails.SetRange(Id, Id);
+                if SentEmails.IsEmpty() then begin
+                    SentEmails.TransferFields(SentEmailRecord);
+                    SentEmails.Insert();
+                end;
+                SentEmails.Reset();
             end;
     end;
 
-    internal procedure ReadUntilNextMessageId(CurrentMessageId: Guid) KeepReading: Boolean
+    procedure ReadUntilNextMessageId(CurrentMessageId: Guid) KeepReading: Boolean
     begin
         KeepReading := Read();
         while KeepReading do begin
@@ -95,7 +100,7 @@ query 8889 "Sent Emails"
         end;
     end;
 
-    internal procedure InsertRecordInto(var SentEmails: Record "Sent Email" temporary)
+    procedure InsertRecordInto(var SentEmails: Record "Sent Email" temporary)
     var
         SentEmailRecord: Record "Sent Email";
     begin
@@ -105,7 +110,7 @@ query 8889 "Sent Emails"
         end;
     end;
 
-    internal procedure InsertRecordIfAnyRelatedRecords(var SentEmails: Record "Sent Email" temporary) KeepReading: Boolean
+    procedure InsertRecordIfAnyRelatedRecords(var SentEmails: Record "Sent Email" temporary) KeepReading: Boolean
     var
         SentEmailRecord: Record "Sent Email";
         RecordRef: RecordRef;
@@ -138,7 +143,7 @@ query 8889 "Sent Emails"
         end;
     end;
 
-    internal procedure InsertRecordIfAllRelatedRecords(var SentEmails: Record "Sent Email" temporary) KeepReading: Boolean
+    procedure InsertRecordIfAllRelatedRecords(var SentEmails: Record "Sent Email" temporary) KeepReading: Boolean
     var
         SentEmailRecord: Record "Sent Email";
         RecordRef: RecordRef;
@@ -180,15 +185,21 @@ query 8889 "Sent Emails"
             if SentEmails.Insert() then;
     end;
 
-    internal procedure GetSentEmailsIfAccessToAllRelatedRecords(var SentEmails: Record "Sent Email" temporary)
+    procedure GetSentEmailsIfAccessToAllRelatedRecords(var SentEmails: Record "Sent Email" temporary)
+    begin
+        GetSentEmailsIfAccessToAllRelatedRecords(SentEmails, false)
+    end;
+
+    procedure GetSentEmailsIfAccessToAllRelatedRecords(var SentEmails: Record "Sent Email" temporary; KeepRecords: Boolean)
     var
         KeepReading: Boolean;
         UserSecId: Guid;
     begin
         UserSecId := UserSecurityId();
         KeepReading := true;
-        if not SentEmails.IsEmpty() then
-            SentEmails.DeleteAll();
+        if not KeepRecords then
+            if not SentEmails.IsEmpty() then
+                SentEmails.DeleteAll();
         CopyFiltersFrom(SentEmails);
         SentEmails.Reset();
 
@@ -196,7 +207,9 @@ query 8889 "Sent Emails"
         // Each row returned in the SQL statement is read one at the time
         // We need to make sure that all related records to the same message id is accessible to the user
         //
-        if Open() then;
+        if not Open() then
+            exit;
+
         KeepReading := Read();
         while KeepReading do begin
 
@@ -214,15 +227,21 @@ query 8889 "Sent Emails"
         end;
     end;
 
-    internal procedure GetSentEmailsIfAccessToAnyRelatedRecords(var SentEmails: Record "Sent Email" temporary)
+    procedure GetSentEmailsIfAccessToAnyRelatedRecords(var SentEmails: Record "Sent Email" temporary)
+    begin
+        GetSentEmailsIfAccessToAnyRelatedRecords(SentEmails, false)
+    end;
+
+    procedure GetSentEmailsIfAccessToAnyRelatedRecords(var SentEmails: Record "Sent Email" temporary; KeepRecords: Boolean)
     var
         KeepReading: Boolean;
         UserSecId: Guid;
     begin
         UserSecId := UserSecurityId();
         KeepReading := true;
-        if not SentEmails.IsEmpty() then
-            SentEmails.DeleteAll();
+        if not KeepRecords then
+            if not SentEmails.IsEmpty() then
+                SentEmails.DeleteAll();
         CopyFiltersFrom(SentEmails);
         SentEmails.Reset();
 
@@ -230,7 +249,9 @@ query 8889 "Sent Emails"
         // Each row returned in the SQL statement is read one at the time
         // We need to make sure that any related records to the same message id is accessible to the user
         //
-        if Open() then;
+        if not Open() then
+            exit;
+
         KeepReading := Read();
         while KeepReading do begin
 
@@ -248,10 +269,15 @@ query 8889 "Sent Emails"
         end;
     end;
 
-    internal procedure CopyFiltersFrom(var SentEmail: Record "Sent Email" temporary)
+    local procedure CopyFiltersFrom(var SentEmail: Record "Sent Email" temporary)
     begin
+        // In certain localizations, the filters do not work with filter tokens.
+        // Fx. MX localization. GetFilter() output is "17/07/22 04:01:25.251 p. m...17/07/22 04:01:25.251 p. m."
+        // Which will fail with filter tokens as it will split into "17/07/22 04:01:25.251 p. m" and "".17/07/22 04:01:25.251 p. m."". The second is an invalid datetime.
+        if SentEmail.GetFilter("Date Time Sent") <> '' then
+            SetRange(Date_Time_Sent, SentEmail.GetRangeMin("Date Time Sent"), SentEmail.GetRangeMax("Date Time Sent"));
+
         SetFilter(Account_Id, SentEmail.GetFilter("Account Id"));
-        SetFilter(Date_Time_Sent, SentEmail.GetFilter("Date Time Sent"));
         SetFilter(User_Security_Id, SentEmail.GetFilter("User Security Id"));
     end;
 }

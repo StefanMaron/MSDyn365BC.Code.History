@@ -9,7 +9,9 @@ codeunit 1430 "Role Center Notification Mgt."
 
     var
         IsPreview: Boolean;
+#if not CLEAN21
         EvaluationNotificationIdTxt: Label 'cb28c63d-4daf-453a-b41b-a8de9963d563', Locked = true;
+#endif
         TrialNotificationIdTxt: Label '9e359b60-3d2e-40c7-8680-3365d51937f7', Locked = true;
         TrialSuspendedNotificationIdTxt: Label '9e359b60-3d2e-40c7-8680-3365d51937f7', Locked = true;
         TrialExtendedNotificationIdTxt: Label '9e359b60-3d2e-40c7-8680-3365d51937f7';
@@ -19,7 +21,9 @@ codeunit 1430 "Role Center Notification Mgt."
         SandboxNotificationIdTxt: Label 'd82835d9-a005-451a-972b-0d6532de2071', Locked = true;
         ChangeToPremiumExpNotificationIdTxt: Label '58982418-e1d1-4879-bda2-6033ca151b83', Locked = true;
         TrialNotificationDaysSinceStartTxt: Label '15', Locked = true;
+#if not CLEAN21
         EvaluationNotificationLinkTxt: Label 'Set up a company';
+#endif
         TrialNotificationLinkTxt: Label 'Request partner contact...';
         TrialNotificationExtendLinkTxt: Label 'Extend trial...';
         TrialSuspendedNotificationLinkTxt: Label 'Request partner contact...';
@@ -28,7 +32,9 @@ codeunit 1430 "Role Center Notification Mgt."
         TrialExtendedSuspendedNotificationSubscribeLinkTxt: Label 'Request partner contact...';
         PaidWarningNotificationLinkTxt: Label 'Renew subscription...';
         PaidSuspendedNotificationLinkTxt: Label 'Renew subscription...';
+#if not CLEAN21
         EvaluationNotificationMsg: Label 'Ready to try Business Central with your own company data? We’ll walk you through the setup.';
+#endif
         TrialNotificationMsg: Label 'Your trial period expires in %1 days. Ready to subscribe, or do you need more time?', Comment = '%1=Count of days until trial expires';
         TrialNotificationPreviewMsg: Label 'Your trial period expires in %1 days.', Comment = '%1=Count of days until trial expires';
         TrialSuspendedNotificationMsg: Label 'Your trial period has expired. You can subscribe or extend the period to get more time.';
@@ -50,25 +56,27 @@ codeunit 1430 "Role Center Notification Mgt."
         ContactAPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2038439', Locked = true;
         BuyThroughPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=860971', Locked = true;
 
+#if not CLEAN21
     local procedure CreateAndSendEvaluationNotification()
     var
         EvaluationNotification: Notification;
     begin
-        EvaluationNotification.Id := GetEvaluationNotificationId;
+        EvaluationNotification.Id := GetEvaluationNotificationId();
         EvaluationNotification.Message := EvaluationNotificationMsg; // current message is not meant to reference the trial duration
         EvaluationNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         EvaluationNotification.AddAction(
           EvaluationNotificationLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'EvaluationNotificationAction');
-        EvaluationNotification.Send;
+        EvaluationNotification.Send();
     end;
+#endif
 
     local procedure CreateAndSendTrialNotification()
     var
         TrialNotification: Notification;
         RemainingDays: Integer;
     begin
-        RemainingDays := GetLicenseRemainingDays;
-        TrialNotification.Id := GetTrialNotificationId;
+        RemainingDays := GetLicenseRemainingDays();
+        TrialNotification.Id := GetTrialNotificationId();
         TrialNotification.Message := StrSubstNo(TrialNotificationMessage(), RemainingDays);
         TrialNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         if (not IsPreview) then
@@ -76,14 +84,14 @@ codeunit 1430 "Role Center Notification Mgt."
                 TrialNotificationLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'TrialNotificationAction');
         TrialNotification.AddAction(
           TrialNotificationExtendLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'TrialNotificationExtendAction');
-        TrialNotification.Send;
+        TrialNotification.Send();
     end;
 
     local procedure CreateAndSendTrialSuspendedNotification()
     var
         TrialSuspendedNotification: Notification;
     begin
-        TrialSuspendedNotification.Id := GetTrialSuspendedNotificationId;
+        TrialSuspendedNotification.Id := GetTrialSuspendedNotificationId();
         TrialSuspendedNotification.Message := TrialSuspendedNotificationMessage();
         TrialSuspendedNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         if (not IsPreview) then
@@ -95,7 +103,7 @@ codeunit 1430 "Role Center Notification Mgt."
           TrialSuspendedNotificationExtendLinkTxt,
           CODEUNIT::"Role Center Notification Mgt.",
           'TrialSuspendedNotificationExtendAction');
-        TrialSuspendedNotification.Send;
+        TrialSuspendedNotification.Send();
     end;
 
     local procedure CreateAndSendTrialExtendedNotification()
@@ -103,8 +111,8 @@ codeunit 1430 "Role Center Notification Mgt."
         TrialExtendedNotification: Notification;
         RemainingDays: Integer;
     begin
-        RemainingDays := GetLicenseRemainingDays;
-        TrialExtendedNotification.Id := GetTrialExtendedNotificationId;
+        RemainingDays := GetLicenseRemainingDays();
+        TrialExtendedNotification.Id := GetTrialExtendedNotificationId();
         TrialExtendedNotification.Message := StrSubstNo(TrialExtendedNotificationMessage(), RemainingDays);
         TrialExtendedNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         if (not IsPreview) then
@@ -112,14 +120,14 @@ codeunit 1430 "Role Center Notification Mgt."
                 TrialExtendedNotificationSubscribeLinkTxt,
                 CODEUNIT::"Role Center Notification Mgt.",
                 'TrialExtendedNotificationSubscribeAction');
-        TrialExtendedNotification.Send;
+        TrialExtendedNotification.Send();
     end;
 
     local procedure CreateAndSendTrialExtendedSuspendedNotification()
     var
         TrialExtendedSuspendedNotification: Notification;
     begin
-        TrialExtendedSuspendedNotification.Id := GetTrialExtendedSuspendedNotificationId;
+        TrialExtendedSuspendedNotification.Id := GetTrialExtendedSuspendedNotificationId();
         TrialExtendedSuspendedNotification.Message := TrialExtendedSuspendedNotificationMessage();
         TrialExtendedSuspendedNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         if (not IsPreview) then
@@ -127,7 +135,7 @@ codeunit 1430 "Role Center Notification Mgt."
                 TrialExtendedSuspendedNotificationSubscribeLinkTxt,
                 CODEUNIT::"Role Center Notification Mgt.",
                 'TrialExtendedNotificationSubscribeAction');
-        TrialExtendedSuspendedNotification.Send;
+        TrialExtendedSuspendedNotification.Send();
     end;
 
     local procedure CreateAndSendPaidWarningNotification()
@@ -138,13 +146,13 @@ codeunit 1430 "Role Center Notification Mgt."
         if IsPreview then
             exit;
 
-        RemainingDays := GetLicenseRemainingDays;
-        PaidWarningNotification.Id := GetPaidWarningNotificationId;
+        RemainingDays := GetLicenseRemainingDays();
+        PaidWarningNotification.Id := GetPaidWarningNotificationId();
         PaidWarningNotification.Message := StrSubstNo(PaidWarningNotificationMsg, RemainingDays);
         PaidWarningNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         PaidWarningNotification.AddAction(
           PaidWarningNotificationLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'PaidWarningNotificationAction');
-        PaidWarningNotification.Send;
+        PaidWarningNotification.Send();
     end;
 
     local procedure CreateAndSendPaidSuspendedNotification()
@@ -155,39 +163,42 @@ codeunit 1430 "Role Center Notification Mgt."
         if IsPreview then
             exit;
 
-        RemainingDays := GetLicenseRemainingDays;
-        PaidSuspendedNotification.Id := GetPaidSuspendedNotificationId;
+        RemainingDays := GetLicenseRemainingDays();
+        PaidSuspendedNotification.Id := GetPaidSuspendedNotificationId();
         PaidSuspendedNotification.Message := StrSubstNo(PaidSuspendedNotificationMsg, RemainingDays);
         PaidSuspendedNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         PaidSuspendedNotification.AddAction(
           PaidSuspendedNotificationLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'PaidSuspendedNotificationAction');
-        PaidSuspendedNotification.Send;
+        PaidSuspendedNotification.Send();
     end;
 
     local procedure CreateAndSendSandboxNotification()
     var
         SandboxNotification: Notification;
     begin
-        SandboxNotification.Id := GetSandboxNotificationId;
+        SandboxNotification.Id := GetSandboxNotificationId();
         SandboxNotification.Message := SandboxNotificationMsg;
         SandboxNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         SandboxNotification.AddAction(DontShowThisAgainMsg, CODEUNIT::"Role Center Notification Mgt.", 'DisableSandboxNotification');
-        SandboxNotification.Send;
+        SandboxNotification.Send();
     end;
 
+#if not CLEAN21
+    [Obsolete('Evaluation notification is removed', '21.0')]
     procedure HideEvaluationNotificationAfterStartingTrial()
     var
         TenantLicenseState: Codeunit "Tenant License State";
         EvaluationNotification: Notification;
     begin
-        if not TenantLicenseState.IsTrialMode then
+        if not TenantLicenseState.IsTrialMode() then
             exit;
-        if not AreNotificationsSupported then
+        if not AreNotificationsSupported() then
             exit;
-        EvaluationNotification.Id := GetEvaluationNotificationId;
-        EvaluationNotification.Recall;
+        EvaluationNotification.Id := GetEvaluationNotificationId();
+        EvaluationNotification.Recall();
     end;
 
+    [Obsolete('Evaluation notification is removed', '21.0')]
     procedure GetEvaluationNotificationId(): Guid
     var
         EvaluationNotificationId: Guid;
@@ -195,6 +206,7 @@ codeunit 1430 "Role Center Notification Mgt."
         Evaluate(EvaluationNotificationId, EvaluationNotificationIdTxt);
         exit(EvaluationNotificationId);
     end;
+#endif
 
     procedure GetTrialNotificationId(): Guid
     var
@@ -267,10 +279,10 @@ codeunit 1430 "Role Center Notification Mgt."
         if not GuiAllowed then
             exit(false);
 
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit(false);
 
-        if EnvironmentInfo.IsSandbox then
+        if EnvironmentInfo.IsSandbox() then
             exit(false);
 
         exit(true);
@@ -283,55 +295,57 @@ codeunit 1430 "Role Center Notification Mgt."
         if not GuiAllowed then
             exit(false);
 
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit(false);
 
-        if not EnvironmentInfo.IsSandbox then
+        if not EnvironmentInfo.IsSandbox() then
             exit(false);
 
         exit(true);
     end;
 
+#if not CLEAN21
     local procedure IsEvaluationNotificationEnabled(): Boolean
     var
         RoleCenterNotifications: Record "Role Center Notifications";
         ClientTypeManagement: Codeunit "Client Type Management";
         TenantLicenseState: Codeunit "Tenant License State";
     begin
-        if not TenantLicenseState.IsEvaluationMode then
+        if not TenantLicenseState.IsEvaluationMode() then
             exit(false);
 
-        if not AreNotificationsSupported then
+        if not AreNotificationsSupported() then
             exit(false);
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
             exit(false);
 
         RoleCenterNotifications.Initialize();
 
-        if RoleCenterNotifications.GetEvaluationNotificationState =
+        if RoleCenterNotifications.GetEvaluationNotificationState() =
            RoleCenterNotifications."Evaluation Notification State"::Disabled
         then
             exit(false);
 
         exit(true);
     end;
+#endif
 
     local procedure IsTrialNotificationEnabled(): Boolean
     var
         ClientTypeManagement: Codeunit "Client Type Management";
         TenantLicenseState: Codeunit "Tenant License State";
     begin
-        if not TenantLicenseState.IsTrialMode then
+        if not TenantLicenseState.IsTrialMode() then
             exit(false);
 
-        if not AreNotificationsSupported then
+        if not AreNotificationsSupported() then
             exit(false);
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
             exit(false);
 
-        if GetLicenseFullyUsedDays < GetTrialNotificationDaysSinceStart then
+        if GetLicenseFullyUsedDays() < GetTrialNotificationDaysSinceStart() then
             exit(false);
 
         exit(true);
@@ -342,16 +356,16 @@ codeunit 1430 "Role Center Notification Mgt."
         ClientTypeManagement: Codeunit "Client Type Management";
         TenantLicenseState: Codeunit "Tenant License State";
     begin
-        if not TenantLicenseState.IsTrialSuspendedMode then
+        if not TenantLicenseState.IsTrialSuspendedMode() then
             exit(false);
 
-        if TenantLicenseState.IsTrialExtendedSuspendedMode then
+        if TenantLicenseState.IsTrialExtendedSuspendedMode() then
             exit(false);
 
-        if not AreNotificationsSupported then
+        if not AreNotificationsSupported() then
             exit(false);
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
             exit(false);
 
         exit(true);
@@ -362,16 +376,16 @@ codeunit 1430 "Role Center Notification Mgt."
         ClientTypeManagement: Codeunit "Client Type Management";
         TenantLicenseState: Codeunit "Tenant License State";
     begin
-        if not TenantLicenseState.IsTrialExtendedMode then
+        if not TenantLicenseState.IsTrialExtendedMode() then
             exit(false);
 
-        if not AreNotificationsSupported then
+        if not AreNotificationsSupported() then
             exit(false);
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
             exit(false);
 
-        if GetLicenseFullyUsedDays < GetTrialNotificationDaysSinceStart then
+        if GetLicenseFullyUsedDays() < GetTrialNotificationDaysSinceStart() then
             exit(false);
 
         exit(true);
@@ -382,13 +396,13 @@ codeunit 1430 "Role Center Notification Mgt."
         TenantLicenseState: Codeunit "Tenant License State";
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
-        if not TenantLicenseState.IsTrialExtendedSuspendedMode then
+        if not TenantLicenseState.IsTrialExtendedSuspendedMode() then
             exit(false);
 
-        if not AreNotificationsSupported then
+        if not AreNotificationsSupported() then
             exit(false);
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
             exit(false);
 
         exit(true);
@@ -399,16 +413,16 @@ codeunit 1430 "Role Center Notification Mgt."
         RoleCenterNotifications: Record "Role Center Notifications";
         TenantLicenseState: Codeunit "Tenant License State";
     begin
-        if not TenantLicenseState.IsPaidWarningMode then
+        if not TenantLicenseState.IsPaidWarningMode() then
             exit(false);
 
-        if not AreNotificationsSupported then
+        if not AreNotificationsSupported() then
             exit(false);
 
-        if RoleCenterNotifications.IsFirstLogon then
+        if RoleCenterNotifications.IsFirstLogon() then
             exit(false);
 
-        exit(IsBuyNotificationEnabled);
+        exit(IsBuyNotificationEnabled());
     end;
 
     local procedure IsPaidSuspendedNotificationEnabled(): Boolean
@@ -416,16 +430,16 @@ codeunit 1430 "Role Center Notification Mgt."
         RoleCenterNotifications: Record "Role Center Notifications";
         TenantLicenseState: Codeunit "Tenant License State";
     begin
-        if not TenantLicenseState.IsPaidSuspendedMode then
+        if not TenantLicenseState.IsPaidSuspendedMode() then
             exit(false);
 
-        if not AreNotificationsSupported then
+        if not AreNotificationsSupported() then
             exit(false);
 
-        if RoleCenterNotifications.IsFirstLogon then
+        if RoleCenterNotifications.IsFirstLogon() then
             exit(false);
 
-        exit(IsBuyNotificationEnabled);
+        exit(IsBuyNotificationEnabled());
     end;
 
     procedure ShowNotifications(): Boolean
@@ -434,7 +448,6 @@ codeunit 1430 "Role Center Notification Mgt."
         DataClassNotificationMgt: Codeunit "Data Class. Notification Mgt.";
         DataGeoNotification: Codeunit "Data Geo. Notification";
         UserPermissions: Codeunit "User Permissions";
-        ResultEvaluation: Boolean;
         ResultTrial: Boolean;
         ResultTrialSuspended: Boolean;
         ResultTrialExtended: Boolean;
@@ -443,15 +456,14 @@ codeunit 1430 "Role Center Notification Mgt."
         ResultPaidSuspended: Boolean;
         ResultSandbox: Boolean;
     begin
-        OnBeforeShowNotifications;
+        OnBeforeShowNotifications();
         IsRunningPreviewEvent();
 
-        if UserPermissions.IsSuper(UserSecurityId) then begin
-            ResultEvaluation := ShowEvaluationNotification;
-            ResultTrial := ShowTrialNotification;
-            ResultTrialSuspended := ShowTrialSuspendedNotification;
-            ResultTrialExtended := ShowTrialExtendedNotification;
-            ResultTrialExtendedSuspended := ShowTrialExtendedSuspendedNotification;
+        if UserPermissions.IsSuper(UserSecurityId()) then begin
+            ResultTrial := ShowTrialNotification();
+            ResultTrialSuspended := ShowTrialSuspendedNotification();
+            ResultTrialExtended := ShowTrialExtendedNotification();
+            ResultTrialExtendedSuspended := ShowTrialExtendedSuspendedNotification();
         end;
         ResultPaidWarning := ShowPaidWarningNotification();
         ResultPaidSuspended := ShowPaidSuspendedNotification();
@@ -463,36 +475,38 @@ codeunit 1430 "Role Center Notification Mgt."
 
         Commit();
         exit(
-          ResultEvaluation or
           ResultTrial or ResultTrialSuspended or
           ResultTrialExtended or ResultTrialExtendedSuspended or
           ResultPaidWarning or ResultPaidSuspended or
           ResultSandbox);
     end;
 
+#if not CLEAN21
+    [Obsolete('Evaluation notification is removed', '21.0')]
     procedure ShowEvaluationNotification(): Boolean
     var
         Company: Record Company;
     begin
-        if not IsEvaluationNotificationEnabled then
+        if not IsEvaluationNotificationEnabled() then
             exit(false);
 
         // Verify, that the user has company setup rights
-        if not Company.WritePermission then
+        if not Company.WritePermission() then
             exit(false);
 
-        CreateAndSendEvaluationNotification;
+        CreateAndSendEvaluationNotification();
         exit(true);
     end;
+#endif
 
     procedure ShowTrialNotification(): Boolean
     begin
         IsRunningPreviewEvent();
 
-        if not IsTrialNotificationEnabled then
+        if not IsTrialNotificationEnabled() then
             exit(false);
 
-        CreateAndSendTrialNotification;
+        CreateAndSendTrialNotification();
         exit(true);
     end;
 
@@ -500,10 +514,10 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         IsRunningPreviewEvent();
 
-        if not IsTrialSuspendedNotificationEnabled then
+        if not IsTrialSuspendedNotificationEnabled() then
             exit(false);
 
-        CreateAndSendTrialSuspendedNotification;
+        CreateAndSendTrialSuspendedNotification();
         exit(true);
     end;
 
@@ -511,10 +525,10 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         IsRunningPreviewEvent();
 
-        if not IsTrialExtendedNotificationEnabled then
+        if not IsTrialExtendedNotificationEnabled() then
             exit(false);
 
-        CreateAndSendTrialExtendedNotification;
+        CreateAndSendTrialExtendedNotification();
         exit(true);
     end;
 
@@ -522,10 +536,10 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         IsRunningPreviewEvent();
 
-        if not IsTrialExtendedSuspendedNotificationEnabled then
+        if not IsTrialExtendedSuspendedNotificationEnabled() then
             exit(false);
 
-        CreateAndSendTrialExtendedSuspendedNotification;
+        CreateAndSendTrialExtendedSuspendedNotification();
         exit(true);
     end;
 
@@ -533,10 +547,10 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         IsRunningPreviewEvent();
 
-        if not IsPaidWarningNotificationEnabled then
+        if not IsPaidWarningNotificationEnabled() then
             exit(false);
 
-        CreateAndSendPaidWarningNotification;
+        CreateAndSendPaidWarningNotification();
         exit(true);
     end;
 
@@ -544,10 +558,10 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         IsRunningPreviewEvent();
 
-        if not IsPaidSuspendedNotificationEnabled then
+        if not IsPaidSuspendedNotificationEnabled() then
             exit(false);
 
-        CreateAndSendPaidSuspendedNotification;
+        CreateAndSendPaidSuspendedNotification();
         exit(true);
     end;
 
@@ -555,64 +569,67 @@ codeunit 1430 "Role Center Notification Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not AreSandboxNotificationsSupported then
+        if not AreSandboxNotificationsSupported() then
             exit(false);
 
-        if not MyNotifications.IsEnabled(GetSandboxNotificationId) then
+        if not MyNotifications.IsEnabled(GetSandboxNotificationId()) then
             exit(false);
 
-        CreateAndSendSandboxNotification;
+        CreateAndSendSandboxNotification();
         exit(true);
     end;
 
+#if not CLEAN21
+    [Obsolete('Evaluation notification is removed', '21.0')]
     procedure EvaluationNotificationAction(EvaluationNotification: Notification)
     begin
-        StartTrial;
+        StartTrial();
     end;
+#endif
 
     procedure TrialNotificationAction(TrialNotification: Notification)
     begin
-        BuySubscription;
+        BuySubscription();
     end;
 
     procedure TrialNotificationExtendAction(TrialNotification: Notification)
     begin
-        ExtendTrial;
+        ExtendTrial();
     end;
 
     procedure TrialSuspendedNotificationAction(TrialSuspendedNotification: Notification)
     begin
-        BuySubscription;
+        BuySubscription();
     end;
 
     procedure TrialSuspendedNotificationExtendAction(TrialSuspendedNotification: Notification)
     begin
-        ExtendTrial;
+        ExtendTrial();
     end;
 
     procedure TrialSuspendedNotificationPartnerAction(TrialSuspendedNotification: Notification)
     begin
-        ContactAPartner;
+        ContactAPartner();
     end;
 
     procedure TrialExtendedNotificationSubscribeAction(TrialExtendedNotification: Notification)
     begin
-        BuySubscription;
+        BuySubscription();
     end;
 
     procedure TrialExtendedNotificationPartnerAction(TrialExtendedNotification: Notification)
     begin
-        ContactAPartner;
+        ContactAPartner();
     end;
 
     procedure PaidWarningNotificationAction(PaidWarningNotification: Notification)
     begin
-        BuySubscription;
+        BuySubscription();
     end;
 
     procedure PaidSuspendedNotificationAction(PaidSuspendedNotification: Notification)
     begin
-        BuySubscription;
+        BuySubscription();
     end;
 
     procedure GetLicenseRemainingDays(): Integer
@@ -626,7 +643,7 @@ codeunit 1430 "Role Center Notification Mgt."
         RemainingDays: Integer;
     begin
         Now := DotNet_DateTimeOffset.ConvertToUtcDateTime(CurrentDateTime);
-        EndDate := TenantLicenseState.GetEndDate;
+        EndDate := TenantLicenseState.GetEndDate();
         if EndDate > Now then begin
             TimeDuration := EndDate - Now;
             MillisecondsPerDay := 86400000;
@@ -647,7 +664,7 @@ codeunit 1430 "Role Center Notification Mgt."
         FullyUsedDays: Integer;
     begin
         Now := DotNet_DateTimeOffset.ConvertToUtcDateTime(CurrentDateTime);
-        StartDate := TenantLicenseState.GetStartDate;
+        StartDate := TenantLicenseState.GetStartDate();
         if StartDate <> 0DT then
             if Now > StartDate then begin
                 TimeDuration := Now - StartDate;
@@ -675,13 +692,14 @@ codeunit 1430 "Role Center Notification Mgt."
         exit(DaysSinceStart);
     end;
 
+#if not CLEAN21
     local procedure StartTrial()
     var
         UserPermissions: Codeunit "User Permissions";
         CompanyName: Text;
     begin
-        if not (UserPermissions.IsSuper(UserSecurityId) and FindNonEvaluationCompany(CompanyName)) then begin
-            CreateAndSendEvaluationNotification;
+        if not (UserPermissions.IsSuper(UserSecurityId()) and FindNonEvaluationCompany(CompanyName)) then begin
+            CreateAndSendEvaluationNotification();
             exit;
         end;
 
@@ -701,22 +719,23 @@ codeunit 1430 "Role Center Notification Mgt."
 
         exit(false);
     end;
+#endif
 
     local procedure ExtendTrial()
     begin
-        DisableBuyNotification;
+        DisableBuyNotification();
         PAGE.Run(PAGE::"Extend Trial Wizard");
     end;
 
     local procedure BuySubscription()
     begin
-        DisableBuyNotification;
+        DisableBuyNotification();
         HyperLink(BuyThroughPartnerURLTxt);
     end;
 
     local procedure ContactAPartner()
     begin
-        DisableBuyNotification;
+        DisableBuyNotification();
         HyperLink(ContactAPartnerURLTxt);
     end;
 
@@ -738,7 +757,7 @@ codeunit 1430 "Role Center Notification Mgt."
     var
         RoleCenterNotifications: Record "Role Center Notifications";
     begin
-        exit(RoleCenterNotifications.GetEvaluationNotificationState = RoleCenterNotifications."Evaluation Notification State"::Clicked);
+        exit(RoleCenterNotifications.GetEvaluationNotificationState() = RoleCenterNotifications."Evaluation Notification State"::Clicked);
     end;
 
     procedure DisableBuyNotification()
@@ -759,24 +778,24 @@ codeunit 1430 "Role Center Notification Mgt."
     var
         RoleCenterNotifications: Record "Role Center Notifications";
     begin
-        exit(RoleCenterNotifications.GetBuyNotificationState <> RoleCenterNotifications."Buy Notification State"::Disabled);
+        exit(RoleCenterNotifications.GetBuyNotificationState() <> RoleCenterNotifications."Buy Notification State"::Disabled);
     end;
 
     procedure DisableSandboxNotification(Notification: Notification)
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(GetSandboxNotificationId) then
-            MyNotifications.InsertDefault(GetSandboxNotificationId, SandboxNotificationNameTok, SandboxNotificationDescTok, false);
+        if not MyNotifications.Disable(GetSandboxNotificationId()) then
+            MyNotifications.InsertDefault(GetSandboxNotificationId(), SandboxNotificationNameTok, SandboxNotificationDescTok, false);
     end;
 
     procedure DisableChangeToPremiumExpNotification(Notification: Notification)
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(GetChangeToPremiumExpNotificationId) then
+        if not MyNotifications.Disable(GetChangeToPremiumExpNotificationId()) then
             MyNotifications.InsertDefault(
-              GetChangeToPremiumExpNotificationId, ChangeToPremiumExpNotificationNameTok, ChangeToPremiumExpNotificationDescTok, false);
+              GetChangeToPremiumExpNotificationId(), ChangeToPremiumExpNotificationNameTok, ChangeToPremiumExpNotificationDescTok, false);
     end;
 
     procedure CompanyNotSelectedMessage(): Text
@@ -784,10 +803,13 @@ codeunit 1430 "Role Center Notification Mgt."
         exit('');
     end;
 
+#if not CLEAN21
+    [Obsolete('Evaluation notification is removed', '21.0')]
     procedure EvaluationNotificationMessage(): Text
     begin
         exit(EvaluationNotificationMsg);
     end;
+#endif
 
     procedure TrialNotificationMessage(): Text
     begin
@@ -851,11 +873,11 @@ codeunit 1430 "Role Center Notification Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        if AreSandboxNotificationsSupported then
-            MyNotifications.InsertDefault(GetSandboxNotificationId, SandboxNotificationNameTok, SandboxNotificationDescTok, true);
-        if AreNotificationsSupported then
+        if AreSandboxNotificationsSupported() then
+            MyNotifications.InsertDefault(GetSandboxNotificationId(), SandboxNotificationNameTok, SandboxNotificationDescTok, true);
+        if AreNotificationsSupported() then
             MyNotifications.InsertDefault(
-              GetChangeToPremiumExpNotificationId, ChangeToPremiumExpNotificationNameTok, ChangeToPremiumExpNotificationDescTok, true);
+              GetChangeToPremiumExpNotificationId(), ChangeToPremiumExpNotificationNameTok, ChangeToPremiumExpNotificationDescTok, true);
     end;
 
     [IntegrationEvent(false, false)]

@@ -218,7 +218,14 @@ report 214 "Pick Instruction"
     local procedure GetUOM(UOMCode: Code[10]): Text
     var
         UnitOfMeasure: Record "Unit of Measure";
+        IsHandled: Boolean;
+        Result: Text;
     begin
+        IsHandled := false;
+        OnBeforeGetUOM(UOMCode, Result, IsHandled);
+        If IsHandled then
+            exit(Result);
+
         if UnitOfMeasure.Get(UOMCode) then
             exit(UnitOfMeasure.Description);
         exit(UOMCode);
@@ -227,6 +234,11 @@ report 214 "Pick Instruction"
     procedure InitializeRequest(NewNoOfCopies: Integer)
     begin
         NoOfCopies := NewNoOfCopies;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUOM(UOMCode: Code[10]; var Result: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

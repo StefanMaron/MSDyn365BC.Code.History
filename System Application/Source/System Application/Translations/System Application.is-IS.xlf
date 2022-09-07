@@ -1185,6 +1185,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message - Field Id - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 457327993 - Field 1054913556 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No. of Modifies</source>
+          <target state="translated">Fjöldi breytinga</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message - Field No. of Modifies - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 457327993 - Field 1234124704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Subject</source>
           <target state="translated">Efni</target>
@@ -4892,6 +4898,18 @@
           <target state="translated">Ekki er hægt að eyða sjálfgefinni tölvupóstsstefnu notanda.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email View Policy - NamedType DefaultRecordCannotDeleteMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 50758251 - NamedType 464962032" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The provided Enail View Policy is not valid.</source>
+          <target state="translated">Uppgefin regla um skoðun tölvupósts er ekki gild.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email View Policy - NamedType InvalidPolicyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 50758251 - NamedType 1174314468" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expected a temporary record.</source>
+          <target state="translated">Búist var við tímabundinni færslu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email View Policy - NamedType NotATempRecordErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4021082514 - NamedType 3885254447" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email message has been deleted by another user.</source>
@@ -12276,6 +12294,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Plan Configuration List - Control Plan Name - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2638830259 - Action 4137051400 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add a license configuration.</source>
+          <target state="translated">Bæta við leyfisstillingu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Plan Configuration List - Action New - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2638830259 - Action 4137051400 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add License Configuration</source>
+          <target state="translated">Bæta við leyfisskilgreiningu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Plan Configuration List - Action New - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2638830259 - Action 2575491252 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customize license permissions.</source>
           <target state="translated">Sérsníða heimildir fyrir leyfi.</target>
@@ -16197,6 +16227,18 @@
           <target state="translated">Tæki</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query Device - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 712487250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Related Record</source>
+          <target state="translated">Tengd póstfærsla</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Email Related Record - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 712487250 - NamedType 1372333727" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expected to have more than 0 email message ID per filter.</source>
+          <target state="translated">Búist var við fleiri en 0 kennum tölvupóstskeyta í hverri síu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Email Related Record - NamedType InvalidNumberOdIDsPerFilterErr</note>
         </trans-unit>
         <trans-unit id="Query 178519040 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Outbox Emails</source>

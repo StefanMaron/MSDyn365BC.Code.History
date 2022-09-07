@@ -142,25 +142,25 @@ codeunit 9822 "Plan Configuration Impl."
         exit(not CustomPermissionSetInPlan.IsEmpty());
     end;
 
-    procedure SelectLicense(var PlanConfiguration: Record "Plan Configuration")
+    procedure AddLicenseEntry()
     var
-        PlanConfigurationRec: Record "Plan Configuration";
+        PlanConfiguration: Record "Plan Configuration";
         Plans: Page Plans;
         SelectedPlanId: Guid;
         SelectedPlanName: Text[50];
     begin
         Plans.LookupMode(true);
-        Plans.SetSelectedPlan(PlanConfiguration."Plan ID");
-
         if Plans.RunModal() = Action::LookupOK then begin
             Plans.GetSelectedPlan(SelectedPlanId, SelectedPlanName);
 
-            PlanConfigurationRec.SetRange("Plan ID", SelectedPlanId);
-            if not PlanConfigurationRec.IsEmpty() then
+            PlanConfiguration.SetRange("Plan ID", SelectedPlanId);
+            if not PlanConfiguration.IsEmpty() then
                 Error(ConfigurationAlreadyExistsErr, SelectedPlanName);
 
+            PlanConfiguration.Init();
             PlanConfiguration."Plan ID" := SelectedPlanId;
             PlanConfiguration."Plan Name" := SelectedPlanName;
+            PlanConfiguration.Insert();
         end;
     end;
 

@@ -537,6 +537,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Bank Deposits - NamedType FeatureDisabledErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4266060842 - NamedType 1524688520" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Before you can navigate on a deposit, you must create and activate a key group called "NavDep". If you cannot do this yourself, ask your system administrator.</source>
+          <target state="translated">Для работы навигации по внесениям на счет необходимо создать и активировать группу ключей с именем NavDep. Если вы не можете сделать это самостоятельно, обратитесь к системному администратору.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Navigate Bank Deposit Ext. - NamedType RecordWithoutKeysMsg</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2005374712 - NamedType 2681845503" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Deposit Journal</source>
           <target state="translated">Журнал внесений на банковский счет</target>

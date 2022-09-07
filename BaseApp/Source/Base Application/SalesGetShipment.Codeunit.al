@@ -1,9 +1,12 @@
-codeunit 64 "Sales-Get Shipment"
+﻿codeunit 64 "Sales-Get Shipment"
 {
     TableNo = "Sales Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+       
         SalesHeader.Get("Document Type", "Document No.");
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
@@ -14,12 +17,15 @@ codeunit 64 "Sales-Get Shipment"
         SalesShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
         SalesShptLine.SetRange("Currency Code", SalesHeader."Currency Code");
         SalesShptLine.SetRange("Authorized for Credit Card", false);
-        OnRunAfterFilterSalesShpLine(SalesShptLine, SalesHeader);
 
-        GetShipments.SetTableView(SalesShptLine);
-        GetShipments.SetSalesHeader(SalesHeader);
-        GetShipments.LookupMode := true;
-        if GetShipments.RunModal <> ACTION::Cancel then;
+        IsHandled := false;
+        OnRunAfterFilterSalesShpLine(SalesShptLine, SalesHeader, IsHandled);
+        if not IsHandled then begin
+            GetShipments.SetTableView(SalesShptLine);
+            GetShipments.SetSalesHeader(SalesHeader);
+            GetShipments.LookupMode := true;
+            if GetShipments.RunModal() <> ACTION::Cancel then;
+        end;
     end;
 
     var
@@ -368,7 +374,7 @@ codeunit 64 "Sales-Get Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunAfterFilterSalesShpLine(var SalesShptLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
+    local procedure OnRunAfterFilterSalesShpLine(var SalesShptLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -210,7 +210,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -238,7 +238,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
         if IsHandled then
             exit(ReturnValue);
 
-        exit(true);
+        exit(Find(Which));
     end;
 
     trigger OnOpenPage()

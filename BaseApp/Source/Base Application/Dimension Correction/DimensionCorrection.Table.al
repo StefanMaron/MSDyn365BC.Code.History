@@ -138,6 +138,17 @@ table 2582 "Dimension Correction"
         {
             DataClassification = CustomerContent;
         }
+
+        field(33; "Analysis View Update Type"; Option)
+        {
+            DataClassification = CustomerContent;
+            OptionMembers = "Update on posting only","All";
+        }
+
+        field(34; "Update Analysis View Job ID"; Guid)
+        {
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

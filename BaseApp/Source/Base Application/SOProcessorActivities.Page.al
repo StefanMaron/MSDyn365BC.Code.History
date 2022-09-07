@@ -202,10 +202,8 @@ page 9060 "SO Processor Activities"
 
     trigger OnAfterGetCurrRecord()
     var
-        RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         TaskParameters: Dictionary of [Text, Text];
     begin
-        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial();
         TaskParameters.Add('View', Rec.GetView());
         if CalcTaskId <> 0 then
             if CurrPage.CancelBackgroundTask(CalcTaskId) then;

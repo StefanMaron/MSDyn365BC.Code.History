@@ -1185,6 +1185,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message - Field Id - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 457327993 - Field 1054913556 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No. of Modifies</source>
+          <target state="translated">N.º de modificaciones</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message - Field No. of Modifies - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 457327993 - Field 1234124704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Subject</source>
           <target state="translated">Asunto</target>
@@ -4892,6 +4898,18 @@
           <target state="translated">No se puede eliminar la directiva de correo electrónico de usuario predeterminada.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email View Policy - NamedType DefaultRecordCannotDeleteMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 50758251 - NamedType 464962032" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The provided Enail View Policy is not valid.</source>
+          <target state="translated">La directiva de visualización de correos electrónicos proporcionada no es válida.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email View Policy - NamedType InvalidPolicyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 50758251 - NamedType 1174314468" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expected a temporary record.</source>
+          <target state="translated">Se esperaba un registro temporal.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email View Policy - NamedType NotATempRecordErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4021082514 - NamedType 3885254447" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email message has been deleted by another user.</source>
@@ -12276,6 +12294,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Plan Configuration List - Control Plan Name - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2638830259 - Action 4137051400 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add a license configuration.</source>
+          <target state="translated">Agregue una configuración de licencia.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Plan Configuration List - Action New - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2638830259 - Action 4137051400 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add License Configuration</source>
+          <target state="translated">Agregar configuración de licencia</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Plan Configuration List - Action New - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2638830259 - Action 2575491252 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customize license permissions.</source>
           <target state="translated">Permite personalizar permisos de licencia.</target>
@@ -16197,6 +16227,18 @@
           <target state="translated">Dispositivo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query Device - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 712487250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Related Record</source>
+          <target state="translated">Registro relacionado con correo electrónico</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Email Related Record - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 712487250 - NamedType 1372333727" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expected to have more than 0 email message ID per filter.</source>
+          <target state="translated">Se esperaba tener más de 0 id. de mensaje de correo electrónico por filtro.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Email Related Record - NamedType InvalidNumberOdIDsPerFilterErr</note>
         </trans-unit>
         <trans-unit id="Query 178519040 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Outbox Emails</source>

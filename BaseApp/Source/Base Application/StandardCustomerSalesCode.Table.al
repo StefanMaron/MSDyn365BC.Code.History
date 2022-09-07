@@ -239,7 +239,8 @@ table 172 "Standard Customer Sales Code"
                 if StdSalesLine.InsertLine then begin
                     SalesLine."Line No." := GetNextLineNo(SalesLine);
                     SalesLine.Insert(true);
-                    SalesLine.AutoAsmToOrder;
+                    OnAfterSalesLineInsert(StdSalesLine, SalesLine);
+                    SalesLine.AutoAsmToOrder();
                     InsertExtendedText(SalesLine, SalesHeader);
                 end;
             until StdSalesLine.Next() = 0;
@@ -380,6 +381,11 @@ table 172 "Standard Customer Sales Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; StandardCustomerSalesCode: Record "Standard Customer Sales Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesLineInsert(var StdSalesLine: Record "Standard Sales Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

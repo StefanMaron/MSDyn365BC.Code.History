@@ -69,13 +69,7 @@ page 5907 "Service Item Worksheet Subform"
                     ToolTip = 'Specifies the inventory location from where the items on the line should be taken and where they should be registered.';
 
                     trigger OnValidate()
-                    var
-                        Item: Record Item;
                     begin
-                        if ("Location Code" <> '') and (Type = Type::Item) then
-                            if Item.Get("No.") then
-                                Item.TestField(Type, Item.Type::Inventory);
-
                         LocationCodeOnAfterValidate();
                     end;
                 }

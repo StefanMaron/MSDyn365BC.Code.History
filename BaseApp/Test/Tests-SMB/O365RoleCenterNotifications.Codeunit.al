@@ -72,7 +72,7 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState: Record "Tenant License State";
     begin
         TenantLicenseState.SetRange(State, State);
-        if TenantLicenseState.FindLast and not (TenantLicenseState.State = TenantLicenseState.State::Trial) then
+        if TenantLicenseState.FindLast() and not (TenantLicenseState.State = TenantLicenseState.State::Trial) then
             exit;
         TenantLicenseState.Init();
         TenantLicenseState."Start Date" := StartDate;
@@ -80,6 +80,7 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState.Insert();
     end;
 
+#if not CLEAN21
     [Test]
     [HandlerFunctions('SendEvaluationNotificationHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -90,7 +91,7 @@ codeunit 138073 "O365 Role Center Notifications"
     begin
         Initialize();
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
-        RoleCenterNotificationMgt.ShowEvaluationNotification;
+        RoleCenterNotificationMgt.ShowEvaluationNotification();
     end;
 
     [Test]
@@ -106,7 +107,7 @@ codeunit 138073 "O365 Role Center Notifications"
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
-        RoleCenterNotificationMgt.ShowEvaluationNotification;
+        RoleCenterNotificationMgt.ShowEvaluationNotification();
     end;
 
     [Test]
@@ -122,8 +123,9 @@ codeunit 138073 "O365 Role Center Notifications"
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Tablet);
-        RoleCenterNotificationMgt.ShowEvaluationNotification;
+        RoleCenterNotificationMgt.ShowEvaluationNotification();
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -335,6 +337,7 @@ codeunit 138073 "O365 Role Center Notifications"
         RoleCenterNotificationMgt.ShowPaidSuspendedNotification;
     end;
 
+#if not CLEAN21
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -345,9 +348,10 @@ codeunit 138073 "O365 Role Center Notifications"
         Initialize();
         EnableSandbox;
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
-        RoleCenterNotificationMgt.ShowEvaluationNotification;
+        RoleCenterNotificationMgt.ShowEvaluationNotification();
         DisableSandbox;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SendSandboxNotificationHandler')]
@@ -402,6 +406,7 @@ codeunit 138073 "O365 Role Center Notifications"
         Error(UnexpectedNotificationErr, Notification.Message);
     end;
 
+#if not CLEAN21
     [SendNotificationHandler]
     [Scope('OnPrem')]
     procedure SendEvaluationNotificationHandler(var Notification: Notification): Boolean
@@ -417,6 +422,7 @@ codeunit 138073 "O365 Role Center Notifications"
           StrSubstNo(RoleCenterNotificationMgt.EvaluationNotificationMessage, TrialTotalDays), Notification.Message,
           UnexpectedNotificationMsgTxt);
     end;
+#endif
 
     [SendNotificationHandler]
     [Scope('OnPrem')]
@@ -426,7 +432,7 @@ codeunit 138073 "O365 Role Center Notifications"
         RemainingDays: Integer;
     begin
         Evaluate(NotificationId, Format(Notification.Id));
-        RemainingDays := RoleCenterNotificationMgt.GetLicenseRemainingDays;
+        RemainingDays := RoleCenterNotificationMgt.GetLicenseRemainingDays();
         Assert.AreEqual(
           Format(RoleCenterNotificationMgt.GetTrialNotificationId), Format(NotificationId), UnexpectedNotificationIdTxt);
         Assert.AreEqual(
@@ -458,7 +464,7 @@ codeunit 138073 "O365 Role Center Notifications"
         RemainingDays: Integer;
     begin
         Evaluate(NotificationId, Format(Notification.Id));
-        RemainingDays := RoleCenterNotificationMgt.GetLicenseRemainingDays;
+        RemainingDays := RoleCenterNotificationMgt.GetLicenseRemainingDays();
         Assert.AreEqual(
           Format(RoleCenterNotificationMgt.GetTrialExtendedNotificationId), Format(NotificationId), UnexpectedNotificationIdTxt);
         Assert.AreEqual(
@@ -492,7 +498,7 @@ codeunit 138073 "O365 Role Center Notifications"
         RemainingDays: Integer;
     begin
         Evaluate(NotificationId, Format(Notification.Id));
-        RemainingDays := RoleCenterNotificationMgt.GetLicenseRemainingDays;
+        RemainingDays := RoleCenterNotificationMgt.GetLicenseRemainingDays();
         Assert.AreEqual(
           Format(RoleCenterNotificationMgt.GetPaidWarningNotificationId), Format(NotificationId), UnexpectedNotificationIdTxt);
         Assert.AreEqual(
@@ -509,7 +515,7 @@ codeunit 138073 "O365 Role Center Notifications"
         RemainingDays: Integer;
     begin
         Evaluate(NotificationId, Format(Notification.Id));
-        RemainingDays := RoleCenterNotificationMgt.GetLicenseRemainingDays;
+        RemainingDays := RoleCenterNotificationMgt.GetLicenseRemainingDays();
         Assert.AreEqual(
           Format(RoleCenterNotificationMgt.GetPaidSuspendedNotificationId), Format(NotificationId), UnexpectedNotificationIdTxt);
         Assert.AreEqual(

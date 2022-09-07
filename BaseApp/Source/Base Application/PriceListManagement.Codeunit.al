@@ -214,6 +214,7 @@
         else begin
             ToPriceListLine.SetNextLineNo();
             ToPriceListLine.Insert(true);
+            OnCopyLineOnAfterInsertFromPriceListLine(FromPriceListLine, ToPriceListLine);
         end;
     end;
 
@@ -893,15 +894,6 @@
         Page.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
     end;
 
-    internal procedure IsPriceListLineSynchronized(): Boolean
-    var
-        PriceListLine: Record "Price List Line";
-    begin
-        PriceListLine.SetRange("Product No.", '');
-        PriceListLine.SetFilter("Asset No.", '<>''''');
-        exit(PriceListLine.IsEmpty());
-    end;
-
     [IntegrationEvent(true, false)]
     local procedure OnAddLineOnAfterPopulatePriceListLineFields(var PriceListLine: Record "Price List Line"; ToPriceListHeader: Record "Price List Header"; PriceAsset: Record "Price Asset"; PriceLineFilters: Record "Price Line Filters")
     begin
@@ -954,6 +946,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyLineOnAfterInsertFromPriceListLine(FromPriceListLine: Record "Price List Line"; var ToPriceListLine: Record "Price List Line")
     begin
     end;
 }

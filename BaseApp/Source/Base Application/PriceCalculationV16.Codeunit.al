@@ -390,6 +390,8 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
             until PriceListLine.Next() = 0;
         if FoundBestPrice then
             PriceListLine := BestPriceListLine;
+
+        OnAfterCalcBestAmount(AmountType, PriceCalculationBufferMgt, PriceListLine);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Calculation Mgt.", 'OnFindSupportedSetup', '', false, false)]
@@ -454,6 +456,11 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindLinesOnBefoerPriceSourceListGetMinMaxLevel(var PriceAssetList: Codeunit "Price Asset List"; var PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type"; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcBestAmount(AmountType: Enum "Price Amount Type"; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; var PriceListLine: Record "Price List Line")
     begin
     end;
 }

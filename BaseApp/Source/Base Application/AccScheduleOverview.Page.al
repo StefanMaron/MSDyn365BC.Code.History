@@ -197,8 +197,8 @@
                         Result: Boolean;
                     begin
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 3 Code", Text);
-                        SetDimFilters(3, Text);
-                        Dim1Filter := text;
+                        SetDimFilters(3, CopyStr(Text, 1, MaxStrLen(Dim3Filter)));
+                        Dim3Filter := CopyStr(Text, 1, MaxStrLen(Dim3Filter));
                         Exit(Result);
                     end;
 
@@ -223,8 +223,8 @@
                         Result: Boolean;
                     begin
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 4 Code", Text);
-                        SetDimFilters(4, Text);
-                        Dim1Filter := text;
+                        SetDimFilters(4, CopyStr(Text, 1, MaxStrLen(Dim4Filter)));
+                        Dim4Filter := CopyStr(Text, 1, MaxStrLen(Dim4Filter));
                         Exit(Result);
                     end;
 
@@ -679,7 +679,7 @@
                     GLBudgetFilter2 := GetFilter("G/L Budget Filter");
                     CostBudgetFilter2 := GetFilter("Cost Budget Filter");
                     BusUnitFilter := GetFilter("Business Unit Filter");
-                    AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter);
+                    AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, CashFlowFilter);
                     AccSched.Run();
                 end;
             }

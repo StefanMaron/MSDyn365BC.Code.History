@@ -67,6 +67,8 @@
         TrySaveStreamFromRecTelemetryMsg: Label 'TrySaveStreamFromRec started with conflict behavior: %1.', Locked = true;
         SettingResourceLocationTelemetryTxt: Label 'Setting resource location (old location length: %1, new location length: %2).', Locked = true;
         LocationTooLongTelemetryMsg: Label 'Maximum location length is %1, but the new location has length %2.', Locked = true;
+        OneDriveFeatureNameTelemetryTxt: Label 'OneDrive', Locked = true;
+        TokenRequestEventTelemetryTxt: Label 'Token Request', Locked = true;
 
     [Scope('OnPrem')]
     procedure TestConnection()
@@ -628,6 +630,7 @@
     [NonDebuggable]
     local procedure GetAccessToken(Location: Text; var AccessToken: Text; GetTokenFromCache: Boolean)
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         OAuth2: Codeunit OAuth2;
         PromptInteraction: Enum "Prompt Interaction";
         Scopes: List of [Text];
@@ -637,6 +640,7 @@
         AuthError: Text;
     begin
         Session.LogMessage('0000FSI', StrSubstNo(TokenRequestTxt, Format(GetTokenFromCache)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+        FeatureTelemetry.LogUsage('0000HUM', OneDriveFeatureNameTelemetryTxt, TokenRequestEventTelemetryTxt); // To Account for Platform usage scenarios
         GetScopes(Location, Scopes);
         ClientId := GetClientId();
         ClientSecret := GetClientSecret();
@@ -1051,6 +1055,7 @@
     local procedure OnBeforeIsConfigured(var DocumentServiceRec: Record "Document Service")
     begin
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetProperties(var DocumentServiceRec: Record "Document Service")
     begin

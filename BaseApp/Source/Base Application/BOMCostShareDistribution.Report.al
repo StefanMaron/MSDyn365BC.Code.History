@@ -205,8 +205,13 @@ report 5872 "BOM Cost Share Distribution"
         NewMaterialCost: Decimal;
         IsKeepOnlyMfgOvhd: Boolean;
         IsTransferCostToMaterial: Boolean;
+        IsHandled: Boolean;
     begin
-        CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate, 2);
+        IsHandled := false;
+        OnGenerateAvailTrendOnBeforeGenerateTreeForItem(Item, TempBOMBuffer, IsHandled);
+        If not IsHandled then
+            CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate(), 2);
+
         with TempBOMBuffer do begin
             if FindFirst() then
                 repeat
@@ -325,6 +330,11 @@ report 5872 "BOM Cost Share Distribution"
         ShowLevelAs := NewShowLevelAs;
         ShowDetails := NewShowDetails;
         ShowCostShareAs := NewShowCostShareAs;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateAvailTrendOnBeforeGenerateTreeForItem(var Item: Record "Item"; var TempBOMBuffer: Record "BOM Buffer" temporary; var IsHandled: Boolean)
+    begin
     end;
 }
 

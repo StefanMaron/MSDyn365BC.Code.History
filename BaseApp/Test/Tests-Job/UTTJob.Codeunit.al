@@ -34,6 +34,8 @@ codeunit 136350 "UT T Job"
         JobTaskDimDoesNotExistErr: Label 'Job Task Dimension does not exist.';
         JobTaskDimExistsErr: Label 'Job Task Dimension exists.';
         TimeSheetLinesErr: Label 'You cannot delete job %1 because it has open or submitted time sheet lines.', Comment = 'You cannot delete job JOB001 because it has open or submitted time sheet lines.';
+        CustomerBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2', Comment = '%1 - Customer No, %2 - Blocked Type';
+        BlockedCustomerExpectedErr: Label 'Blocked Customer error was expected';
 
     [Test]
     [Scope('OnPrem')]
@@ -1233,6 +1235,34 @@ codeunit 136350 "UT T Job"
 
         Job.TestField("Payment Method Code", BillToCustomer."Payment Method Code");
         Job.TestField("Payment Terms Code", BillToCustomer."Payment Terms Code");
+    end;
+
+    [Test]
+    procedure CheckBlockedCustomerOnJob()
+    var
+        Job: Record Job;
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        ExpectedErr: Text;
+    begin
+        // [SCENARIO 445521] The bill-to fields should be synced with sell-to fields by default.
+        Initialize();
+
+        // [GIVEN] A customer with blocked as All
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        LibrarySales.CreateCustomerAddress(Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Validate(Blocked, Customer.Blocked::All);
+        Customer.Modify(true);
+        Job.Init();
+
+        // [WHEN] Setting the sell-to customer.
+        asserterror Job.Validate("Sell-to Customer No.", Customer."No.");
+        ExpectedErr := StrSubstNo(CustomerBlockedErr, Customer."No.", Customer.Blocked);
+
+        // [THEN] Error should appear that customer is blocked
+        Assert.AreEqual(ExpectedErr, GetLastErrorText(), BlockedCustomerExpectedErr);
     end;
 
     local procedure Initialize()

@@ -457,6 +457,7 @@
                         CalcFields("Reserved Quantity Outbnd.");
                         CreatePickOrMoveLine(
                           NewWhseActivLine, RemQtyToPickBase, "Outstanding Qty. (Base)", "Reserved Quantity Outbnd." <> 0);
+                        OnCreatePickOrMoveFromTransferOnAfterCreatePickOrMoveLine(NewWhseActivLine, TransferLine, WhseActivHeader, ShowError, AutoCreation, LineCreated);
 
                         if TransferHeader."Shipping Advice" = TransferHeader."Shipping Advice"::Complete then begin
                             if RemQtyToPickBase > 0 then begin
@@ -2310,6 +2311,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertShelfWhseActivLineOnAfterMakeHeader(var NewWhseActivLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePickOrMoveFromTransferOnAfterCreatePickOrMoveLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TransferLine: Record "Transfer Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; ShowError: Boolean; AutoCreation: Boolean; var LineCreated: Boolean)
     begin
     end;
 }

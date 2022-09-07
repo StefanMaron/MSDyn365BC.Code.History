@@ -1520,6 +1520,7 @@
             trigger OnValidate()
             var
                 MaxLineAmount: Decimal;
+                IsHandled: Boolean;
             begin
                 TestField(Type);
                 TestField(Quantity);
@@ -1532,7 +1533,10 @@
 
                 CheckLineAmount(MaxLineAmount);
 
-                Validate("Line Discount Amount", MaxLineAmount - "Line Amount");
+                IsHandled := false;
+                OnValidateLineAmountBeforeValidateLineDiscountAmount(Rec, Currency, IsHandled);
+                If not IsHandled then
+                    Validate("Line Discount Amount", MaxLineAmount - "Line Amount");
             end;
         }
         field(104; "VAT Difference"; Decimal)
@@ -2786,7 +2790,13 @@
             trigger OnValidate()
             var
                 PurchasingCode: Record Purchasing;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePurchasingCode(Rec, IsHandled);
+                If IsHandled then
+                    exit;
+
                 if PurchasingCode.Get("Purchasing Code") then begin
                     "Drop Shipment" := PurchasingCode."Drop Shipment";
                     "Special Order" := PurchasingCode."Special Order";
@@ -3767,7 +3777,14 @@
         StatusCheckSuspended: Boolean;
 
     procedure InitOutstanding()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitOutstanding(Rec, IsHandled);
+        If IsHandled then
+            exit;
+
         if IsCreditDocType() then begin
             "Outstanding Quantity" := Quantity - "Return Qty. Shipped";
             "Outstanding Qty. (Base)" := "Quantity (Base)" - "Return Qty. Shipped (Base)";
@@ -4418,6 +4435,8 @@
         ReservEntry."Expected Receipt Date" := "Expected Receipt Date";
         ReservEntry."Shipment Date" := "Expected Receipt Date";
         ReservEntry."Planning Flexibility" := "Planning Flexibility";
+
+        OnAfterSetReservationEntry(ReservEntry, Rec);
     end;
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
@@ -6931,7 +6950,14 @@
     end;
 
     procedure SetDefaultQuantity()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultQuantity(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetPurchSetup();
         if PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank then begin
             if (("Document Type" = "Document Type"::Order) and ("Over-Receipt Quantity" = 0)) or ("Document Type" = "Document Type"::Quote) then begin
@@ -7461,7 +7487,11 @@
     procedure UpdateICPartner()
     var
         ICPartner: Record "IC Partner";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateICPartner(Rec, GLAcc, PurchHeader, IsHandled);
+
         if PurchHeader."Send IC Document" and
            (PurchHeader."IC Direction" = PurchHeader."IC Direction"::Outgoing)
         then
@@ -7505,6 +7535,7 @@
                         "IC Partner Reference" := '';
                     end;
             end;
+
         OnAfterUpdateICPartner(Rec, PurchHeader);
     end;
 
@@ -9693,6 +9724,36 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATProdPostingGroupOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationEntry(var ReservEntry: Record "Reservation Entry"; var PurchaseLine: Record "Purchase Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultQuantity(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateICPartner(var PurchLine: Record "Purchase Line"; GLAcc: Record "G/L Account"; var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePurchasingCode(var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLineAmountBeforeValidateLineDiscountAmount(var PurchLine: Record "Purchase Line"; Currency: Record Currency; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitOutstanding(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

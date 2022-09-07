@@ -14,6 +14,7 @@ codeunit 9561 "Document Sharing Impl."
     trigger OnRun()
     var
         DocumentSharing: Codeunit "Document Sharing";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         UploadDialog: Dialog;
         CanHandle: Boolean;
         CanShare: Boolean;
@@ -55,35 +56,41 @@ codeunit 9561 "Document Sharing Impl."
             Rec."Document Sharing Intent"::Share:
                 ValidateIntent(Rec, CanShare, NoShareQst, Rec."Document Sharing Intent"::Open);
             else begin
-                    if not GuiAllowed() then
-                        Error(PromptNoGuiErr);
+                if not GuiAllowed() then
+                    Error(PromptNoGuiErr);
 
-                    ValidateIntent(Rec, CanOpen, NoPromptShareOnlyQst, Rec."Document Sharing Intent"::Share);
-                    ValidateIntent(Rec, CanShare, NoPromptOpenOnlyQst, Rec."Document Sharing Intent"::Open);
+                ValidateIntent(Rec, CanOpen, NoPromptShareOnlyQst, Rec."Document Sharing Intent"::Share);
+                ValidateIntent(Rec, CanShare, NoPromptOpenOnlyQst, Rec."Document Sharing Intent"::Open);
 
-                    // If the prior validations have not changed the intent, continue with the prompt.
-                    if Rec."Document Sharing Intent" = Rec."Document Sharing Intent"::Prompt then
-                        case StrMenu(StrSubstNo(ConcatenatedStringTxt, Rec."Document Sharing Intent"::Open, Rec."Document Sharing Intent"::Share), 1, PromptQst) of
-                            1:
-                                Rec."Document Sharing Intent" := Rec."Document Sharing Intent"::Open;
-                            2:
-                                Rec."Document Sharing Intent" := Rec."Document Sharing Intent"::Share;
-                            else
-                                Error(NoDocToShareErr);
-                        end
-                end;
+                // If the prior validations have not changed the intent, continue with the prompt.
+                if Rec."Document Sharing Intent" = Rec."Document Sharing Intent"::Prompt then
+                    case StrMenu(StrSubstNo(ConcatenatedStringTxt, Rec."Document Sharing Intent"::Open, Rec."Document Sharing Intent"::Share), 1, PromptQst) of
+                        1:
+                            Rec."Document Sharing Intent" := Rec."Document Sharing Intent"::Open;
+                        2:
+                            Rec."Document Sharing Intent" := Rec."Document Sharing Intent"::Share;
+                        else
+                            Error(NoDocToShareErr);
+                    end
+            end;
         end;
 
         // Perform intent
         case Rec."Document Sharing Intent" of
             Rec."Document Sharing Intent"::Open:
-                OpenDocument(Rec);
-            Rec."Document Sharing Intent"::Share:
-                OpenShare(Rec);
-            else begin
-                    Session.LogMessage('0000GGL', StrSubstNo(DocumentSharingIntentTelemetryTxt, Rec."Document Sharing Intent", CanShare, CanOpen), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentSharingCategoryLbl);
-                    Error(NoDocUploadedErr);
+                begin
+                    FeatureTelemetry.LogUsage('0000HUK', OneDriveFeatureNameTelemetryTxt, StrSubstNo(OneDriveExecuteIntentEventTelemetryTxt, Rec."Document Sharing Intent"));
+                    OpenDocument(Rec);
                 end;
+            Rec."Document Sharing Intent"::Share:
+                begin
+                    FeatureTelemetry.LogUsage('0000HUL', OneDriveFeatureNameTelemetryTxt, StrSubstNo(OneDriveExecuteIntentEventTelemetryTxt, Rec."Document Sharing Intent"));
+                    OpenShare(Rec);
+                end;
+            else begin
+                Session.LogMessage('0000GGL', StrSubstNo(DocumentSharingIntentTelemetryTxt, Rec."Document Sharing Intent", CanShare, CanOpen), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentSharingCategoryLbl);
+                Error(NoDocUploadedErr);
+            end;
         end;
     end;
 
@@ -170,4 +177,6 @@ codeunit 9561 "Document Sharing Impl."
         DocumentSharingIntentTelemetryTxt: Label 'Sharing intent: %1, CanShare: %2, CanOpen: %3', Locked = true;
         IntentChangedTelemetryTxt: Label 'Selected new intent: %1', Locked = true;
         ConcatenatedStringTxt: Label '%1,%2', Locked = true;
+        OneDriveFeatureNameTelemetryTxt: Label 'OneDrive', Locked = true;
+        OneDriveExecuteIntentEventTelemetryTxt: Label '%1 Document', Locked = true;
 }

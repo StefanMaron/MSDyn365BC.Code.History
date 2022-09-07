@@ -354,6 +354,7 @@ codeunit 2580 "Dimension Correction Mgt"
         NextExists: Boolean;
         AddedEntries: Integer;
     begin
+        AddedEntries := 0;
         PrevoiusDimCorrectionEntryLog.SetRange("Dimension Correction Entry No.", DimensionCorrectionEntryNo);
         PrevoiusDimCorrectionEntryLog.SetFilter("Start Entry No.", '<=%1', StartEntryNo);
         PrevoiusDimCorrectionEntryLog.SetFilter("End Entry No.", '>=%1', StartEntryNo - 1);
@@ -748,7 +749,7 @@ codeunit 2580 "Dimension Correction Mgt"
     begin
         DimCorrectionChange.SetRange("Dimension Correction Entry No.", DimCorrectionEntryNo);
         DimCorrectionChange.SetFilter("Change Type", '<>%1', DimCorrectionChange."Change Type"::"No Change");
-        if not DimCorrectionChange.IsEmpty then
+        if not DimCorrectionChange.IsEmpty() then
             Message(ChangesWereResetMsg);
 
         DimCorrectionChange.SetRange("Change Type");
@@ -882,6 +883,34 @@ codeunit 2580 "Dimension Correction Mgt"
         if JobQueueEntry.Status = JobQueueEntry.Status::Finished then begin
             DimensionCorrection.Status := DimensionCorrection.Status::Completed;
             Clear(DimensionCorrection."Error Message");
+            DimensionCorrection.Modify();
+            exit;
+        end;
+    end;
+
+    procedure UpdateAnalysisViewStatus(var DimensionCorrection: Record "Dimension Correction")
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        if not (DimensionCorrection."Update Analysis Views Status" = DimensionCorrection."Update Analysis Views Status"::"In Process") then
+            exit;
+
+        if not JobQueueEntry.Get(DimensionCorrection."Update Analysis View Job ID") then begin
+            DimensionCorrection."Update Analysis Views Status" := DimensionCorrection."Update Analysis Views Status"::Failed;
+            DimensionCorrection.Modify();
+            exit;
+        end;
+
+        if JobQueueEntry.Status = JobQueueEntry.Status::Error then begin
+            DimensionCorrection."Update Analysis Views Status" := DimensionCorrection."Update Analysis Views Status"::Failed;
+            DimensionCorrection.SetUpdateAnalysisViewErrorMessage(JobQueueEntry."Error Message");
+            DimensionCorrection.Modify();
+            exit;
+        end;
+
+        if JobQueueEntry.Status = JobQueueEntry.Status::Finished then begin
+            DimensionCorrection."Update Analysis Views Status" := DimensionCorrection."Update Analysis Views Status"::Completed;
+            Clear(DimensionCorrection."Update Analysis Views Error");
             DimensionCorrection.Modify();
             exit;
         end;

@@ -2146,6 +2146,33 @@ codeunit 134399 "Test Merge Duplicates"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure T270_MergeActionOnDuplicateContactCard()
+    var
+        Contacts: array[2] of Record Contact;
+        ContDuplRec: Record "Contact Duplicate";
+        ContDuplPage: TestPage "Contact Duplicates";
+        MergePage: TestPage "Merge Duplicate";
+    begin
+        // [FEATURE] [Merge Duplicates] [Contact] [UI] 
+        // [SCENARIO] Run action 'Merge Duplicate' from Duplicate Contacts Page
+
+        // [Given] Two identical contacts and a Contact Duplicate record for them
+        CreateDuplContacts(Contacts, ContDuplRec);
+
+        // [When] Merge action is invoked on the Duplicate Contacts page
+        ContDuplPage.OpenEdit();
+        ContDuplPage.GoToRecord(ContDuplRec);
+        MergePage.Trap();
+        ContDuplPage.MergeDuplicate.Invoke();
+
+        // [THEN] Page 'Merge Duplicate' is opened with "Current" and "Duplicate" as the two contacts
+        MergePage.Current.AssertEquals(Contacts[1]."No.");
+        MergePage.Duplicate.AssertEquals(Contacts[2]."No.");
+    end;
+
+
+    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure T150_MergeCustomers_IntegrationDisabled()
@@ -2470,6 +2497,37 @@ codeunit 134399 "Test Merge Duplicates"
         Assert.IsTrue(MergeDuplicateConflicts.First, 'there must be first line in conflicts');
         MergeDuplicateConflicts.ViewConflictRecords.Invoke;
     end;
+
+    local procedure CreateDuplContacts(var Contacts: array[2] of Record Contact; var ContactDuplicate: Record "Contact Duplicate")
+    var
+        Name: Text[100];
+        Phone: Text[100];
+        Email: Text[80];
+    begin
+        Name := LibraryUtility.GenerateRandomText(10);
+        Phone := LibraryUtility.GenerateRandomPhoneNo();
+        Email := LibraryUtility.GenerateRandomEmail();
+        CreateContact(Contacts[1]);
+        CreateContact(Contacts[2]);
+
+        Contacts[1].Validate(Name, Name);
+        Contacts[1].Validate("Phone No.", Phone);
+        Contacts[1].Validate("E-Mail", Email);
+        Contacts[1].Modify();
+
+        Contacts[2].Validate(Name, Name);
+        Contacts[2].Validate("Phone No.", Phone);
+        Contacts[2].Validate("E-Mail", Email);
+        Contacts[2].Modify();
+
+        ContactDuplicate.Init();
+        ContactDuplicate.Validate("Contact No.", Contacts[1]."No.");
+        ContactDuplicate."Contact Name" := Contacts[1].Name;
+        ContactDuplicate.Validate("Duplicate Contact No.", Contacts[2]."No.");
+        ContactDuplicate."Duplicate Contact Name" := Contacts[2].Name;
+        ContactDuplicate.Insert();
+    end;
+
 
     local procedure OpenMergePageForConflictingRecords(var MergeDuplicatePage: TestPage "Merge Duplicate"; MergeDuplicatesConflict: Record "Merge Duplicates Conflict")
     var

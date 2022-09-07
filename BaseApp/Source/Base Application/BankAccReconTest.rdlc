@@ -1948,17 +1948,17 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Difference.Value</Value>
+                                  <Value>=Fields!Sum_Of_Differences.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!DifferenceFormat.Value</Format>
+                                    <Format>=Fields!Sum_Of_DifferencesFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Difference</rd:DefaultName>
+                          <rd:DefaultName>Sum_Of_Differences</rd:DefaultName>
                           <ZIndex>94</ZIndex>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
@@ -9454,11 +9454,11 @@ End Function
         <Field Name="Adjusted_Statement_Ending_BalanceFormat">
           <DataField>Adjusted_Statement_Ending_BalanceFormat</DataField>
         </Field>
-        <Field Name="Difference">
-          <DataField>Difference</DataField>
+        <Field Name="Sum_Of_Differences">
+          <DataField>Sum_Of_Differences</DataField>
         </Field>
-        <Field Name="DifferenceFormat">
-          <DataField>DifferenceFormat</DataField>
+        <Field Name="Sum_Of_DifferencesFormat">
+          <DataField>Sum_Of_DifferencesFormat</DataField>
         </Field>
         <Field Name="ErrorText_Number_">
           <DataField>ErrorText_Number_</DataField>

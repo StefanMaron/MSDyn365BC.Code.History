@@ -34,7 +34,7 @@ pageextension 4023 SendVendLedgerEntryRemitAdvice extends "Vendor Ledger Entries
             }
         }
     }
-    local procedure SendVendorRecords(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    internal procedure SendVendorRecords(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";

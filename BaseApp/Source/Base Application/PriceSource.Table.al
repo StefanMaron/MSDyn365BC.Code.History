@@ -178,6 +178,8 @@ table 7005 "Price Source"
         "Filter Source No." := '';
         "Currency Code" := '';
         GetPriceType();
+
+        OnAfterInitSource(Rec);
     end;
 
     local procedure GetPriceType()
@@ -303,6 +305,11 @@ table 7005 "Price Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetParentSourceType(PriceSource: Record "Price Source"; var ParentSourceType: Enum "Price Source Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitSource(var PriceSource: Record "Price Source")
     begin
     end;
 }

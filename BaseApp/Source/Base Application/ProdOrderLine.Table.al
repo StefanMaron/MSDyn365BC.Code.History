@@ -133,8 +133,9 @@ table 5406 "Prod. Order Line"
             begin
                 ProdOrderLineReserve.VerifyChange(Rec, xRec);
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
-                GetUpdateFromSKU;
-                GetDefaultBin;
+                GetUpdateFromSKU();
+                GetDefaultBin();
+                OnValidateLocationCodeOnBeforeCreateDim(Rec);
                 CreateDimFromDefaultDim();
             end;
         }
@@ -1741,6 +1742,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateProductionBOMNoOnBeforeTestStatus(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnBeforeCreateDim(var Rec: Record "Prod. Order Line")
     begin
     end;
 }

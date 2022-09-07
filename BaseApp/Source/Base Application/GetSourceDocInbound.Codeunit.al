@@ -35,7 +35,7 @@
         GetSourceDocuments.RunModal();
 
         GetSourceDocuments.GetLastReceiptHeader(WhseReceiptHeader);
-        OnAfterCreateWhseReceiptHeaderFromWhseRequest(WhseReceiptHeader, WarehouseRequest);
+        OnAfterCreateWhseReceiptHeaderFromWhseRequest(WhseReceiptHeader, WarehouseRequest, GetSourceDocuments);
         exit(true);
     end;
 
@@ -84,7 +84,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetSourceDocForHeader(WarehouseReceiptHeader, WarehouseRequest, IsHandled);
+        OnBeforeGetSourceDocForHeader(WarehouseReceiptHeader, WarehouseRequest, IsHandled, GetSourceDocuments);
         if IsHandled then
             exit;
 
@@ -277,7 +277,7 @@
     begin
         GetSourceDocuments.GetLastReceiptHeader(WarehouseReceiptHeader);
         IsHandled := false;
-        OnOpenWarehouseReceiptPage(WarehouseReceiptHeader, ServVendDocNo, IsHandled);
+        OnOpenWarehouseReceiptPage(WarehouseReceiptHeader, ServVendDocNo, IsHandled, GetSourceDocuments);
         if not IsHandled then
             PAGE.Run(PAGE::"Warehouse Receipt", WarehouseReceiptHeader);
     end;
@@ -306,7 +306,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateWhseReceiptHeaderFromWhseRequest(var WhseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseRequest: Record "Warehouse Request");
+    local procedure OnAfterCreateWhseReceiptHeaderFromWhseRequest(var WhseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseRequest: Record "Warehouse Request"; var GetSourceDocuments: Report "Get Source Documents");
     begin
     end;
 
@@ -366,7 +366,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSourceDocForHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
+    local procedure OnBeforeGetSourceDocForHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean; var GetSourceDocuments: Report "Get Source Documents")
     begin
     end;
 
@@ -391,7 +391,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOpenWarehouseReceiptPage(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; ServVendDocNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnOpenWarehouseReceiptPage(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; ServVendDocNo: Code[20]; var IsHandled: Boolean; var GetSourceDocuments: Report "Get Source Documents")
     begin
     end;
 }

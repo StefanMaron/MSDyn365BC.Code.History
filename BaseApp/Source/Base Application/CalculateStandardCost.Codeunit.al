@@ -45,6 +45,8 @@ codeunit 5812 "Calculate Standard Cost"
         RtngVersionErrBuf.DeleteAll();
         ClearAll();
 
+        OnBeforeSetProperties(NewCalculationDate, NewCalcMultiLevel, NewUseAssemblyList, NewLogErrors, NewStdCostWkshName, NewShowDialog);
+
         CalculationDate := NewCalculationDate;
         CalcMultiLevel := NewCalcMultiLevel;
         UseAssemblyList := NewUseAssemblyList;
@@ -713,6 +715,8 @@ codeunit 5812 "Calculate Standard Cost"
                 end;
             IsInBuffer := false;
         end;
+
+        OnAfterGetItem(Item, StdCostWkshName, IsInBuffer);
     end;
 
     local procedure GetWorkCenter(No: Code[20]; var WorkCenter: Record "Work Center")
@@ -1103,6 +1107,16 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetWorkCenterOnBeforeAssignWorkCenterToTemp(var WorkCenter: Record "Work Center"; var TempItem: Record Item temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItem(var Item: Record Item; StdCostWkshName: Text[50]; IsInBuffer: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetProperties(var NewCalculationDate: Date; var NewCalcMultiLevel: Boolean; var NewUseAssemblyList: Boolean; var NewLogErrors: Boolean; var NewStdCostWkshName: Text[50]; var NewShowDialog: Boolean)
     begin
     end;
 }

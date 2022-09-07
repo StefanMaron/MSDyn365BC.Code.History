@@ -149,7 +149,8 @@
         UpdateAssCustomerQst: Label 'If you delete document sending profile %1, it will also be deleted on customer cards that use the profile.\\Do you want to continue?';
         CannotDeleteErr: Label 'Cannot delete the document sending profile.';
         CannotSendMultipleSalesDocsErr: Label 'You can only send one electronic sales document at a time.';
-        ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confirmation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
+        ProfileSelectionCustomerQst: Label 'Confirm the first profile and use it for all selected customers.,Confirm the profile for each customer.,Use the default profile for all selected customers without confirmation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
+        ProfileSelectionVendorQst: Label 'Confirm the first profile and use it for all selected vendors.,Confirm the profile for each vendor.,Use the default profile for all selected vendors without confirmation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
         InvoicesTxt: Label 'Invoices';
@@ -357,6 +358,7 @@
     begin
         IsHandled := false;
         OnBeforeSendCustomerRecords(ReportUsage, RecordVariant, DocName, CustomerNo, DocumentNo, CustomerFieldNo, DocumentFieldNo, IsHandled);
+
         if not IsHandled then begin
             SingleCustomerSelected := IsSingleRecordSelected(RecordVariant, CustomerNo, CustomerFieldNo);
 
@@ -369,19 +371,33 @@
                 if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
                     DocumentSendingProfile.Send(ReportUsage, RecordVariant, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
             end else begin
-                ShowDialog := (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach) or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault);
+                ShowDialog := (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach);
+
+                if ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault then begin
+                    ShowDialog := true;
+                    OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
+                    DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog);
+                end;
 
                 RecRefSource.GetTable(RecordVariant);
                 GetDistinctCustomerVendor(RecRefSource, CustomerFieldNo, Nos);
 
                 foreach CustomerNo in Nos.Keys() do begin
+                    if ProfileSelectionMethod = ProfileSelectionMethod::UseDefault then begin
+                        ShowDialog := false;
+                        OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
+                        DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog);
+                    end;
                     RecRefToSend := RecRefSource.Duplicate();
                     RecRefToSend.Field(CustomerFieldNo).SetRange(CustomerNo);
                     if RecRefToSend.FindSet() then begin
                         DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value;
                         OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
-                        if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
-                            DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
+                        if ProfileSelectionMethod <> ProfileSelectionMethod::ConfirmPerEach then
+                            DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo)
+                        else
+                            if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
+                                DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
                     end;
                 end;
             end;
@@ -416,19 +432,34 @@
             if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
                 DocumentSendingProfile.SendVendor(ReportUsage, RecordVariant, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
         end else begin
-            ShowDialog := (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach) or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault);
+            ShowDialog := (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach);
+
+            if ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault then begin
+                ShowDialog := true;
+                OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
+                DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog);
+            end;
 
             RecRef.GetTable(RecordVariant);
             GetDistinctCustomerVendor(RecRef, VendorFieldNo, Nos);
 
             foreach VendorNo in Nos.Keys() do begin
+                if ProfileSelectionMethod = ProfileSelectionMethod::UseDefault then begin
+                    ShowDialog := false;
+                    OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
+                    DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog);
+                end;
+
                 RecRef2 := RecRef.Duplicate();
                 RecRef2.Field(VendorFieldNo).Setrange(VendorNo);
                 if RecRef2.FindSet() then begin
                     DocumentNo := RecRef2.Field(DocumentFieldNo).Value;
                     OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
-                    if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
-                        DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
+                    if ProfileSelectionMethod <> ProfileSelectionMethod::ConfirmPerEach then
+                        DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo)
+                    else
+                        if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
+                            DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
                 end;
             end;
         end;
@@ -892,14 +923,14 @@
 
     procedure ProfileSelectionMethodDialog(var ProfileSelectionMethod: Option ConfirmDefault,ConfirmPerEach,UseDefault; IsCustomer: Boolean): Boolean
     var
-        ProfileSelectionInstruction: Text;
+        Selection: Integer;
     begin
         if IsCustomer then
-            ProfileSelectionInstruction := CustomerProfileSelectionInstrTxt
+            Selection := StrMenu(ProfileSelectionCustomerQst, 3, CustomerProfileSelectionInstrTxt)
         else
-            ProfileSelectionInstruction := VendorProfileSelectionInstrTxt;
+            Selection := StrMenu(ProfileSelectionVendorQst, 3, VendorProfileSelectionInstrTxt);
 
-        case StrMenu(ProfileSelectionQst, 3, ProfileSelectionInstruction) of
+        case Selection of
             0:
                 exit(false);
             1:

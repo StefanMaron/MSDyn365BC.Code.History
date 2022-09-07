@@ -184,13 +184,6 @@ page 9062 "User Security Activities"
     {
     }
 
-    trigger OnAfterGetCurrRecord()
-    var
-        RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
-    begin
-        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial;
-    end;
-
     trigger OnOpenPage()
     var
         UserSecurityStatus: Record "User Security Status";

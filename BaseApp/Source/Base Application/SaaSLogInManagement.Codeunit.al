@@ -89,7 +89,6 @@ codeunit 50 "SaaS Log In Management"
     local procedure ShowTermsAndConditionsOnOpenCompany()
     var
         ThirtyDayTrialDialog: Page "Thirty Day Trial Dialog";
-        RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
     begin
         if not ShouldShowTermsAndConditions(CompanyName) then
             exit;
@@ -97,8 +96,6 @@ codeunit 50 "SaaS Log In Management"
         ThirtyDayTrialDialog.RunModal();
 
         if not ThirtyDayTrialDialog.Confirmed then begin
-            if RoleCenterNotificationMgt.IsEvaluationNotificationClicked then
-                RoleCenterNotificationMgt.ShowEvaluationNotification;
             ChangeToEvaluationCompany;
             // Just to be sure that we do not save the Trial License State on the server side
             Error('');

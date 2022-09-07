@@ -223,6 +223,14 @@ page 702 "Merge Duplicate"
         CurrPage.Update(true);
     end;
 
+    trigger OnOpenPage()
+    begin
+        if (Rec.Duplicate <> '') and (Rec.Current <> '') then begin
+            Rec.CollectData();
+            ShowLines();
+        end;
+    end;
+
     trigger OnAfterGetCurrRecord()
     begin
         ConflictsExist := Rec.Conflicts > 0;

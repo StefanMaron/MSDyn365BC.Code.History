@@ -13,14 +13,15 @@ codeunit 134701 "Email View Policy Tests"
                   tabledata "Email Recipient" = rimd,
                   tabledata "Email Outbox" = rimd,
                   tabledata "Test Email Account" = rimd,
-                  tabledata "Word Template" = rimd;
+                  tabledata "Word Template" = rimd,
+                  tabledata "Email Message" = rid;
 
     var
         Assert: Codeunit "Library Assert";
         PermissionsMock: Codeunit "Permissions Mock";
         EmailViewerErr: Label 'You do not have permission to open the email message.';
 
-            [Test]
+    [Test]
     procedure OpenUserEmailViewPolicyPageDefaultPolicyTest()
     var
         EmailViewPolicyRecord: Record "Email View Policy";
@@ -1088,6 +1089,91 @@ codeunit 134701 "Email View Policy Tests"
         // [Then] Email can not be opened by email viewer
         asserterror EmailEditor.Open(EmailOutbox, true);
         Assert.ExpectedError(EmailViewerErr);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure GetSentEmailsTest()
+    var
+        SentEmail: Record "Sent Email";
+        TempSentEmailOutput: Record "Sent Email" temporary;
+        EmailViewPolicy: Codeunit "Email View Policy";
+        UserSecurityIDs: List of [Guid];
+        TestUserSecurityID: Guid;
+        Iterator: Integer;
+    begin
+        Initialize();
+
+        // [GIVEN] There are 5 sent emails with senders: "Sender 1", ..., "Sender 5"
+        for Iterator := 1 to 5 do begin
+            SentEmail.Id := Iterator;
+            TestUserSecurityID := CreateGuid();
+            SentEmail."User Security Id" := TestUserSecurityID;
+            UserSecurityIDs.Add(TestUserSecurityID);
+            SentEmail.Insert();
+        end;
+
+        // [WHEN] Sent emails are retrived
+        EmailViewPolicy.GetSentEmails(TempSentEmailOutput);
+        // [THEN] All 5 sent emails are present in the ouput
+        Assert.AreEqual(5, TempSentEmailOutput.Count(), 'Expected to retrieve 5 sent emails.');
+
+        // [GIVEN] A filter is applied to the User Security ID field of the out parameter
+        TempSentEmailOutput.SetRange("User Security Id", UserSecurityIDs.Get(1));
+        // [WHEN] Sent emails are retrived
+        EmailViewPolicy.GetSentEmails(TempSentEmailOutput);
+        // [THEN] Only one sent email is present in the output
+        Assert.AreEqual(1, TempSentEmailOutput.Count(), 'Expected to retrieve 1 sent email.');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure GetOutboxEmailsTest()
+    var
+        EmailOutbox: Record "Email Outbox";
+        TempEmailOutboxOutput: Record "Email Outbox" temporary;
+        EmailViewPolicy: Codeunit "Email View Policy";
+        UserSecurityIDs: List of [Guid];
+        TestUserSecurityID: Guid;
+        Iterator: Integer;
+    begin
+        Initialize();
+
+        // [GIVEN] There are 5 outbox emails with senders: "Sender 1", ..., "Sender 5"
+        for Iterator := 1 to 5 do begin
+            EmailOutbox.Id := Iterator;
+            TestUserSecurityID := CreateGuid();
+            EmailOutbox."User Security Id" := TestUserSecurityID;
+            UserSecurityIDs.Add(TestUserSecurityID);
+            EmailOutbox.Insert();
+        end;
+
+        // [WHEN] Outbox emails are retrived
+        EmailViewPolicy.GetOutboxEmails(TempEmailOutboxOutput);
+        // [THEN] All 5 outbox emails are present in the ouput
+        Assert.AreEqual(5, TempEmailOutboxOutput.Count(), 'Expected to retrieve 5 outbox emails.');
+
+        // [GIVEN] A filter is applied to the User Security ID field of the out parameter
+        TempEmailOutboxOutput.SetRange("User Security Id", UserSecurityIDs.Get(1));
+        // [WHEN] Outbox emails are retrived
+        EmailViewPolicy.GetOutboxEmails(TempEmailOutboxOutput);
+        // [THEN] Only one outbox email is present in the output
+        Assert.AreEqual(1, TempEmailOutboxOutput.Count(), 'Expected to retrieve 1 outbox email.');
+    end;
+
+    local procedure Initialize()
+    var
+        SentEmail: Record "Sent Email";
+        EmailOutbox: Record "Email Outbox";
+        EmailRelatedRecord: Record "Email Related Record";
+        EmailMessageRecord: Record "Email Message";
+    begin
+        PermissionsMock.Start();
+        PermissionsMock.Set('Email Admin');
+        SentEmail.DeleteAll();
+        EmailOutbox.DeleteAll();
+        EmailMessageRecord.DeleteAll();
+        EmailRelatedRecord.DeleteAll();
     end;
 
     internal procedure CreateEmail(var EmailMessage: Codeunit "Email Message")

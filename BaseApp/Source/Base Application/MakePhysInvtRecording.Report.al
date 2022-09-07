@@ -78,16 +78,21 @@ report 5881 "Make Phys. Invt. Recording"
     }
 
     trigger OnPostReport()
+    var
+        IsHandled: Boolean;
     begin
-        case HeaderCount of
-            0:
-                Message(NewOrderNotCreatedMsg);
-            1:
-                Message(NewOrderCreatedMsg,
-                  PhysInvtRecordHeader."Order No.", PhysInvtRecordHeader."Recording No.");
-            else
-                Message(DifferentOrdersMsg, HeaderCount);
-        end;
+        IsHandled := false;
+        OnBeforePostReport(PhysInvtRecordHeader, HeaderCount, IsHandled);
+        If not IsHandled then
+            case HeaderCount of
+                0:
+                    Message(NewOrderNotCreatedMsg);
+                1:
+                    Message(NewOrderCreatedMsg,
+                    PhysInvtRecordHeader."Order No.", PhysInvtRecordHeader."Recording No.");
+                else
+                    Message(DifferentOrdersMsg, HeaderCount);
+            end;
 
         OnAfterOnPostReport(PhysInvtRecordHeader, HeaderCount);
     end;
@@ -196,6 +201,11 @@ report 5881 "Make Phys. Invt. Recording"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertRecordingHeaderOnBeforeInsert(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforePostReport(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; var HeaderCount: Integer; var IsHandled: Boolean)
     begin
     end;
 }
